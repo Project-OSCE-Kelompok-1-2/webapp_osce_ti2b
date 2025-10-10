@@ -1,21 +1,42 @@
-name: Prevent Direct Push to Main or Develop
+name: Protect Main and Develop Branches
 
 on:
   push:
     branches:
       - main
       - develop
+  pull_request:
+    branches:
+      - main
+      - develop
 
 jobs:
   protect:
-    name: Block Direct Push
+    name: Branch Protection
     runs-on: ubuntu-latest
 
     steps:
-      - name: Check if push comes from PR
+      - name: Check permissions
         run: |
-          # Jika push dilakukan langsung (bukan merge dari PR), tolak.
-          if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.actor }}" != "github-actions" ]; then
-            echo "Push langsugn ke branch main atau develop ditolak, minta pull request dulu"
+          # Daftar akun yang boleh merge langsung (Owner/Admin)
+          ALLOWED_USERS=("Dice128")  # Ganti ini dengan username GitHub kamu
+
+          # Ambil username dari event
+          ACTOR="${{ github.actor }}"
+
+          # Cek apakah user termasuk di daftar allowed
+          ALLOWED=false
+          for USER in "${ALLOWED_USERS[@]}"; do
+            if [ "$ACTOR" == "$USER" ]; then
+              ALLOWED=true
+              break
+            fi
+          done
+
+          # Kalau bukan Owner, tolak push atau merge
+          if [ "$ALLOWED" = false ]; then
+            echo "🚫 User '$ACTOR' tidak diizinkan merge/push ke branch ini. Hanya owner yang boleh."
             exit 1
+          else
+            echo "✅ User '$ACTOR' diizinkan push/merge ke branch ini."
           fi
