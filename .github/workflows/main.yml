@@ -1,0 +1,21 @@
+name: Prevent Direct Push to Main or Develop
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+
+jobs:
+  protect:
+    name: Block Direct Push
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check if push comes from PR
+        run: |
+          # Jika push dilakukan langsung (bukan merge dari PR), tolak.
+          if [ "${{ github.event_name }}" == "push" ] && [ "${{ github.actor }}" != "github-actions" ]; then
+            echo "Push langsugn ke branch main atau develop ditolak, minta pull request dulu"
+            exit 1
+          fi
