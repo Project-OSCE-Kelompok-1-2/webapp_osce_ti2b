@@ -5,7 +5,7 @@ const Login = () => {
     <div className="text-blue-500 text-xl">
       <p>Halaman Login</p>
       {/* Memanggil komponen Home */}
-        <Home />
+        <Home />  
     </div>
   );
 };
