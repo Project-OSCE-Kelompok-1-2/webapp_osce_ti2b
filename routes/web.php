@@ -8,5 +8,5 @@ Route::get('/', function () {
 });
 
 Route::get('/login', function () {
-    return Inertia("login");
+    return Inertia("Login");
 });
