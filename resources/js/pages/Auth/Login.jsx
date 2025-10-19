@@ -112,7 +112,8 @@ export default function LoginPage() {
                         <div className="flex justify-center">
                             <button
                                 type="submit"
-                                className="mt-2 w-3/5 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-900 active:scale-[.99]">
+                                className="mt-2 w-3/5 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-900 active:scale-[.99]"
+                            >
                                 Login
                             </button>
                         </div>
