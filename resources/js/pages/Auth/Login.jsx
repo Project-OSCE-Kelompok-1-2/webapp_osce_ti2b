@@ -1,13 +1,5 @@
 import React, { useState } from "react";
 
-/**
- * WOSCE Login UI – React + TailwindCSS (single file)
- * - Tampilan mengikuti wireframe: card tengah, logo bulat, judul WOSCE, subtitle, input dengan ikon bulat,
- *   toggle show-password di kanan field password, checkbox "Ingat saya", link "lupa password?",
- *   tombol Login, dan link bantuan admin.
- * - Tidak butuh library eksternal selain Tailwind untuk styling.
- */
-
 export default function LoginPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
@@ -24,15 +16,15 @@ export default function LoginPage() {
         <div className="min-h-screen bg-slate-100 text-slate-900 flex items-start md:items-center justify-center p-4">
             {/* frame abu-abu seperti wireframe */}
             <div className="w-full max-w-md">
-                <div className="rounded-xl border border-slate-300 bg-white shadow-sm px-8 py-8 md:py-10">
+                <div className="rounded-xl border border-slate-500 bg-white shadow-sm px-8 py-8 md:py-10">
                     {/* Logo bulat */}
-                    <div className="mx-auto w-20 h-20 rounded-full bg-slate-300" />
+                    <div className="mx-auto w-20 h-20 rounded-full bg-slate-900" />
 
                     {/* Heading */}
                     <h1 className="mt-4 text-center text-2xl font-extrabold tracking-tight">
                         MOSAIC
                     </h1>
-                    <p className="text-center text-sm text-slate-500">
+                    <p className="text-center text-sm text-slate-900">
                         Medical OSCE Assessment and Information Center
                     </p>
 
@@ -53,7 +45,7 @@ export default function LoginPage() {
                                     onChange={(e) =>
                                         setUsername(e.target.value)
                                     }
-                                    className="w-full rounded-md border border-slate-300 bg-white px-10 py-2.5 text-sm outline-none ring-0 placeholder:text-slate-400 focus:border-slate-500"
+                                    className="w-full rounded-md border border-slate-900 bg-white px-10 py-2.5 text-sm outline-none ring-0 placeholder:text-slate-500 focus:border-slate-500"
                                 />
                             </div>
                         </label>
@@ -73,7 +65,7 @@ export default function LoginPage() {
                                     onChange={(e) =>
                                         setPassword(e.target.value)
                                     }
-                                    className="w-full rounded-md border border-slate-300 bg-white px-10 py-2.5 text-sm outline-none ring-0 placeholder:text-slate-400 focus:border-slate-500 pr-14"
+                                    className="w-full rounded-md border border-slate-900 bg-white px-10 py-2.5 text-sm outline-none ring-0 placeholder:text-slate-400 focus:border-slate-500 pr-14"
                                 />
                                 {/* toggle kotak bundar di kanan (meniru switch di wireframe) */}
                                 <button
@@ -117,12 +109,13 @@ export default function LoginPage() {
                         </div>
 
                         {/* Button Login */}
-                        <button
-                            type="submit"
-                            className="mt-2 w-full rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-900 active:scale-[.99]"
-                        >
-                            Login
-                        </button>
+                        <div className="flex justify-center">
+                            <button
+                                type="submit"
+                                className="mt-2 w-3/5 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-900 active:scale-[.99]">
+                                Login
+                            </button>
+                        </div>
                     </form>
 
                     {/* Bantuan admin */}
