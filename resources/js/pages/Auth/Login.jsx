@@ -24,8 +24,8 @@ export default function LoginPage() {
                     <h1 className="mt-4 text-center text-2xl font-bold tracking-tight">
                         MOSAIC
                     </h1>
-                    <p className="text-center text-sm text-slate-900">
-                        Medical OSCE Assessment and Information Center
+                    <p className="text-center text-lm text-slate-700">
+                        Website OSCE [Nama fakultas]
                     </p>
 
                     {/* Form */}
@@ -112,7 +112,7 @@ export default function LoginPage() {
                         <div className="flex justify-center">
                             <button
                                 type="submit"
-                                className="mt-2 w-3/5 rounded-xl bg-slate-900 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-900 active:scale-[.99]"
+                                className="mt-2 w-3/5 rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 active:scale-[.99]"
                             >
                                 Login
                             </button>
