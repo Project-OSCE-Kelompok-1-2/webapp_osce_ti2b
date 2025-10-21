@@ -38,11 +38,11 @@ export default function Dashboard() {
             {[1, 2, 3].map((i) => (
               <div
                 key={i}
-                className="flex-1 bg-white border rounded-lg shadow-sm p-4 flex flex-col justify-between"
+                className="flex-1 bg-white border rounded-lg shadow-sm p-10 flex flex-col justify-between"
               >
                 <div className="flex justify-between items-start">
                   <h3 className="font-bold text-gray-900">Porem ipsum dolor</h3>
-                  <div className="w-3 h-3 bg-gray-700 rounded-full" />
+                  <div className="w-3 h-3 bg-grey-700 rounded-full" />
                 </div>
                 <p className="text-gray-500 text-xs mt-1">0000 %</p>
               </div>
