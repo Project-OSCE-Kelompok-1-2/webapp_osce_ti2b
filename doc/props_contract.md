@@ -115,7 +115,6 @@ Dokumentasi ini menjelaskan _endpoints_ yang tersedia pada API.
 [
   {
     "id": "integer",
-    "nama": "string",
     "deskripsi": "string",
     "bobot": "integer",
     "skor": "integer",
@@ -123,21 +122,67 @@ Dokumentasi ini menjelaskan _endpoints_ yang tersedia pada API.
   }
 ]
 ```
-
----
-
-## Mahasiswa
-
-### 1. Halaman Utama Mahasiswa
-- **Endpoint**: `/mahasiswa/dashboard`
+### 4. Tambah kompetensi per Rubrik
+- **Endpoint**: `/rubrik/{id}/kompetensi/{id}`
 - **Method**: `GET`
-- **Deskripsi**: *[Belum didefinisikan]*
+- **Deskripsi**: Mengambil data dari poin_aspek_penilaian.
 
+**Response Body (Contoh Array):**
+```json
+[
+  {
+    "id": "integer",
+    "deskripsi": "string",
+    "bobot": "integer",
+    "skor": "integer",
+    "keterangan_skor": "string"
+  }
+]
+```
 ---
+- **Endpoint**: `/rubrik/{id}/kompetensi/{id}`
+- **Method**: `POST atau PUT`
+- **Deskripsi**: Mengubah data yang ada di table poin_aspek_penilaian.
 
-## Penguji
-
-### 1. Halaman Utama Penguji
-- **Endpoint**: `/penguji/dashboard`
+**Response Body (Contoh Array):**
+```json
+[
+  {
+    "id": "integer",
+    "deskripsi": "string",
+    "bobot": "integer",
+    "skor": "integer",
+    "keterangan_skor": "string"
+  }
+]
+```
+---
+### 5. Tambah Deskripsi Nilai
+- **Endpoint**: `/rubrik/{id}/nilai`
 - **Method**: `GET`
-- **Deskripsi**: *[Belum didefinisikan]*
+- **Deskripsi**: Mengambil data dari aspek_penilain.
+
+**Response Body (Contoh Array):**
+```json
+[
+  {
+    "id": "integer",
+    "keterangan_skor": "string"
+  }
+]
+```
+---
+- **Endpoint**: `/rubrik/{id}/nilai`
+- **Method**: `POST atau PUT`
+- **Deskripsi**: Mengubah data di table aspek_penilaian.
+
+**Response Body (Contoh Array):**
+```json
+[
+  {
+    "id": "integer",
+    "keterangan_skor": "string"
+  }
+]
+```
+---
