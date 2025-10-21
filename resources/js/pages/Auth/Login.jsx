@@ -87,7 +87,7 @@ export default function LoginPage() {
                             </div>
                         </label>
 
-                        {/* Ingat saya + lupa password */}
+                        {/* Ingat saya + lupa password
                         <div className="flex items-center justify-between text-xs">
                             <label className="inline-flex items-center gap-2 select-none">
                                 <input
@@ -106,7 +106,7 @@ export default function LoginPage() {
                             >
                                 lupa password?
                             </a>
-                        </div>
+                        </div> */}
 
                         {/* Button Login */}
                         <div className="flex justify-center">
