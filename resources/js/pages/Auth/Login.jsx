@@ -16,7 +16,7 @@ export default function LoginPage() {
         <div className="min-h-screen bg-white text-slate-900 flex items-start md:items-center justify-center p-4">
             {/* frame abu-abu seperti wireframe */}
             <div className="w-full max-w-md">
-                <div className="rounded-xl border border-slate-500 bg-white shadow-sm px-8 py-8 md:py-10">
+                <div className="rounded-xl border border-slate-900 bg-white-500 shadow-sm px-8 py-8 md:py-10">
                     {/* Logo bulat */}
                     <div className="mx-auto w-20 h-20 rounded-full bg-slate-900" />
 
