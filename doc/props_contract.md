@@ -1,94 +1,143 @@
-# Props Contract
+# Props Contract (API Documentation)
 
-## login
-Endpoint: /login
-Method: POST
-Deskripsi: mengirim data dari table pengguna field username dan password
-
-pengguna {
-  username : string
-  password : string
-}
-
-flash? : string
-
-## Dashboard admin
-??
-
-## Setting akun admin
-Endpoint : /admin/profil
-Method : GET
-Deskripsi: Mengambil data dari table admin field username, password, gambar profil
-
-admin {
-  username : string
-  password : string
-  gambar : string
-}
-
-flash? : string
+Dokumentasi ini menjelaskan _endpoints_ yang tersedia pada API.
 
 ---
 
-Endpoint : /admin/profil
-Method : POST / PUT ?
-Deskripsi: Mengubah data password di table admin
+## Authentication
 
-admin {
-  new_password : string
+### 1. Login
+- **Endpoint**: `/login`
+- **Method**: `POST`
+- **Deskripsi**: Mengautentikasi pengguna dengan `username` dan `password`.
+
+**Request Body:**
+```json
+{
+  "username": "string",
+  "password": "string"
 }
+```
+**Optional Query Parameter:**
+- `flash`: `string` (Untuk pesan notifikasi)
 
-flash? : string
+---
 
-## Rubrik 
-Endpoint : /rubrik
-Method : GET
-Deskripsi : Mengambil data dari table aspek_penilaian
+## Admin
 
-aspek_penilaian {
-  id : integer
-  nama : string
-  jumlah_kompetensi : integer
+### 1. Halaman Utama Admin
+- **Endpoint**: `/admin/dashboard`
+- **Method**: `GET`
+- **Deskripsi**: *[Belum didefinisikan]*
+
+---
+
+### 2. Pengaturan Akun Admin
+
+#### a. Mendapatkan Profil Admin
+- **Endpoint**: `/admin/profil`
+- **Method**: `GET`
+- **Deskripsi**: Mengambil data profil admin yang sedang login.
+
+**Response Body:**
+```json
+{
+  "username": "string",
+  "password": "string",
+  "gambar": "string"
 }
+```
+**Optional Query Parameter:**
+- `flash`: `string` (Untuk pesan notifikasi)
 
-poin_aspek_penilaian {
-  status : boolean
+#### b. Memperbarui Password Admin
+- **Endpoint**: `/admin/profil`
+- **Method**: `PUT` atau `PATCH`
+- **Deskripsi**: Mengubah atau memperbarui password admin.
+  > **Catatan**: Gunakan `PUT` jika Anda mengganti seluruh sumber daya, atau `PATCH` untuk pembaruan parsial (hanya password). `POST` biasanya untuk membuat data baru.
+
+**Request Body:**
+```json
+{
+  "new_password": "string"
 }
+```
+**Optional Query Parameter:**
+- `flash`: `string` (Untuk pesan notifikasi)
 
-flash? : string
+---
 
-// filter untuk page ini masih binugng
+## Rubrik Penilaian
 
-## Tambah Rubrik
-Endpoint : /rubrik/tambah
-Method : POST
-Deskripsi : Menambah data di table aspek_penilaian
+### 1. Menampilkan Semua Rubrik
+- **Endpoint**: `/rubrik`
+- **Method**: `GET`
+- **Deskripsi**: Mengambil semua data dari tabel `aspek_penilaian`.
+  > **Catatan untuk Filter**: Filter dapat diimplementasikan menggunakan *query parameters*, contoh: `/rubrik?jurusan=RPL` atau `/rubrik?status=true`.
 
-aspek_penilaian {
-  nama : string
-  jumlah_kompetensi : integer
-  jurusan_rubrik : string
+**Response Body (Contoh Array):**
+```json
+[
+  {
+    "id": "integer",
+    "nama": "string",
+    "jumlah_kompetensi": "integer",
+    "status": "boolean"
+  }
+]
+```
+**Optional Query Parameter:**
+- `flash`: `string` (Untuk pesan notifikasi)
+
+### 2. Menambah Rubrik Baru
+- **Endpoint**: `/rubrik/tambah`
+- **Method**: `POST`
+- **Deskripsi**: Menambah data baru ke tabel `aspek_penilaian`.
+
+**Request Body:**
+```json
+{
+  "nama": "string",
+  "jumlah_kompetensi": "integer",
+  "jurusan_rubrik": "string"
 }
+```
+**Optional Query Parameter:**
+- `flash`: `string` (Untuk pesan notifikasi)
 
-flash? : string
+### 3. Menampilkan Detail Kompetensi per Rubrik
+- **Endpoint**: `/rubrik/{id}/kompetensi`
+- **Method**: `GET`
+- **Deskripsi**: Mengambil data kompetensi (`poin_aspek_penilaian`) berdasarkan `id` rubrik.
 
-## Menu Kompetensi
-Endpoint : /rubrik/:id/kompentensi
-Method : GET
-Deskripsi : Mengambil data dari table poin_aspek_penilaian
+**Response Body (Contoh Array):**
+```json
+[
+  {
+    "id": "integer",
+    "nama": "string",
+    "deskripsi": "string",
+    "bobot": "integer",
+    "skor": "integer",
+    "keterangan_skor": "string"
+  }
+]
+```
 
-poin_aspek_penilaian {
-  id : integer
-  nama : string
-  deskripsi : string
-  bobot : integer
-  skor : integer
-  keterangan_skor : string
-}
+---
 
+## Mahasiswa
 
-## Dashboard mahasiswa
-??
+### 1. Halaman Utama Mahasiswa
+- **Endpoint**: `/mahasiswa/dashboard`
+- **Method**: `GET`
+- **Deskripsi**: *[Belum didefinisikan]*
 
-## Dashboard penguji
-??
+---
+
+## Penguji
+
+### 1. Halaman Utama Penguji
+- **Endpoint**: `/penguji/dashboard`
+- **Method**: `GET`
+- **Deskripsi**: *[Belum didefinisikan]*
