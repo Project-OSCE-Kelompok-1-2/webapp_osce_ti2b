@@ -12,5 +12,6 @@ Route::get('/auth/login', function () {
 });
 
 Route::get('/admin/dashboard', function () {
-    return Inertia::render("Admin/Dashboard");
+    return Inertia::render('Admin/Dashboard');
 });
+   
