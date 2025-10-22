@@ -1,6 +1,5 @@
 import React, { useState } from "react";
-import { Eye, EyeOff, User, KeyRound } from "lucide-react";
-import { router } from "@inertiajs/react";
+import { Eye, EyeOff, User, Lock, KeyRound } from "lucide-react"; {/*Icon Library */}
 
 export default function LoginMosaicPage() {
     const [username, setUsername] = useState("");
@@ -9,12 +8,7 @@ export default function LoginMosaicPage() {
 
     const onSubmit = (e) => {
         e.preventDefault();
-
-        if (username === "admin" && password === "12345") {
-            router.visit("/admin/dashboard");
-        } else {
-            alert("Username atau password salah!");
-        }
+        alert(`Login as ${username}`);
     };
 
     return (
@@ -23,9 +17,10 @@ export default function LoginMosaicPage() {
                 {/* Logo bulat */}
                 <div className="mx-auto w-20 h-20 rounded-full bg-slate-300" />
 
+                {/* Judul */}
                 <h1 className="mt-4 text-center text-2xl font-bold">MOSAIC</h1>
                 <p className="text-center text-sm text-slate-600">
-                    Website OSCE | Fakultas Kedokteran
+                    Website OSCE | Fakultas Keperawatan
                 </p>
 
                 <form onSubmit={onSubmit} className="mt-6 space-y-4">
@@ -45,6 +40,7 @@ export default function LoginMosaicPage() {
 
                     {/* Password */}
                     <div className="flex items-center gap-2">
+                        {/* Input Password */}
                         <div className="relative flex-grow">
                             <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
                                 <KeyRound className="w-4 h-4" />
@@ -58,6 +54,7 @@ export default function LoginMosaicPage() {
                             />
                         </div>
 
+                        {/* Tombol toggle show password */}
                         <button
                             type="button"
                             onClick={() => setShowPwd((v) => !v)}
@@ -72,14 +69,15 @@ export default function LoginMosaicPage() {
                     </div>
 
                     {/* Tombol Login */}
-                    <div className="flex justify-center">
-                        <button
-                            type="submit"
-                            className="w-3/5 bg-black text-white py-2 rounded-md text-sm font-semibold hover:bg-gray-600"
-                        >
-                            Login
-                        </button>
-                    </div>
+                <div className= "flex justify-center">
+                    <button
+                        type="submit"
+                        className="w-3/5 bg-black text-white py-2 rounded-md text-sm font-semibold hover:bg-slate-800"
+                    >
+                        Login
+                    </button>
+                </div>
+                    
 
                     {/* Link bantuan */}
                     <div className="text-center text-xs text-slate-600 mt-2">
