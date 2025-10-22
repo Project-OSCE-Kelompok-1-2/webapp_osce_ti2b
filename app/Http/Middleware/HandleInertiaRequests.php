@@ -39,9 +39,9 @@ class HandleInertiaRequests extends Middleware
         $details = null;
 
         if ($user) {
-            if ($user->jenis_role === "dosen") {
-                $user->load("dosen");
-                $details = $user->dosen;
+            if ($user->jenis_role === "penguji") {
+                $user->load("penguji");
+                $details = $user->penguji;
             } else if ($user->jenis_role === "mahasiswa") {
                 $user->load("mahasiswa");
                 $details = $user->mahasiswa;
