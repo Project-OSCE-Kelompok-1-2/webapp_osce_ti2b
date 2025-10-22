@@ -1,132 +1,96 @@
 import React, { useState } from "react";
+import { Eye, EyeOff, User, KeyRound } from "lucide-react";
+import { router } from "@inertiajs/react";
 
-export default function LoginPage() {
+export default function LoginMosaicPage() {
     const [username, setUsername] = useState("");
     const [password, setPassword] = useState("");
-    const [remember, setRemember] = useState(false);
     const [showPwd, setShowPwd] = useState(false);
 
     const onSubmit = (e) => {
         e.preventDefault();
-        // TODO: hubungkan ke API login.
-        alert(`Login as ${username} | remember=${remember}`);
+
+        if (username === "admin" && password === "12345") {
+            router.visit("/admin/dashboard");
+        } else {
+            alert("Username atau password salah!");
+        }
     };
 
     return (
-        <div className="min-h-screen bg-white text-slate-900 flex items-start md:items-center justify-center p-4">
-            {/* frame abu-abu seperti wireframe */}
-            <div className="w-full max-w-md">
-                <div className="rounded-xl border border-slate-900 bg-white-500 shadow-sm px-8 py-8 md:py-10">
-                    {/* Logo bulat */}
-                    <div className="mx-auto w-20 h-20 rounded-full bg-slate-900" />
+        <div className="min-h-screen bg-white flex items-center justify-center px-4">
+            <div className="w-full max-w-md border rounded-xl p-6 md:p-8 shadow-md">
+                {/* Logo bulat */}
+                <div className="mx-auto w-20 h-20 rounded-full bg-slate-300" />
 
-                    {/* Heading */}
-                    <h1 className="mt-4 text-center text-2xl font-bold tracking-tight">
-                        MOSAIC
-                    </h1>
-                    <p className="text-center text-lm text-slate-700">
-                        Website OSCE [Nama fakultas]
-                    </p>
+                <h1 className="mt-4 text-center text-2xl font-bold">MOSAIC</h1>
+                <p className="text-center text-sm text-slate-600">
+                    Website OSCE | Fakultas Kedokteran
+                </p>
 
-                    {/* Form */}
-                    <form onSubmit={onSubmit} className="mt-8 space-y-4">
-                        {/* Username */}
-                        <label className="block">
-                            <span className="sr-only">Username</span>
-                            <div className="relative">
-                                <div className="pointer-events-none absolute inset-y-0 left-2 flex items-center">
-                                    <div className="w-4 h-4 rounded-full bg-slate-300" />
-                                </div>
-                                <input
-                                    type="text"
-                                    autoComplete="username"
-                                    placeholder="Username"
-                                    value={username}
-                                    onChange={(e) =>
-                                        setUsername(e.target.value)
-                                    }
-                                    className="w-full rounded-md border border-slate-900 bg-white px-10 py-2.5 text-sm outline-none ring-0 placeholder:text-slate-500 focus:border-slate-500"
-                                />
-                            </div>
-                        </label>
+                <form onSubmit={onSubmit} className="mt-6 space-y-4">
+                    {/* Username */}
+                    <div className="relative">
+                        <span className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500">
+                            <User className="w-4 h-4" />
+                        </span>
+                        <input
+                            type="text"
+                            placeholder="Masukkan username anda..."
+                            value={username}
+                            onChange={(e) => setUsername(e.target.value)}
+                            className="w-full border border-slate-400 rounded-md py-2 pl-9 pr-3 text-sm placeholder-slate-500 focus:outline-none focus:border-slate-600"
+                        />
+                    </div>
 
-                        {/* Password + toggle show */}
-                        <label className="block">
-                            <span className="sr-only">Password</span>
-                            <div className="relative">
-                                <div className="pointer-events-none absolute inset-y-0 left-2 flex items-center">
-                                    <div className="w-4 h-4 rounded-full bg-slate-300" />
-                                </div>
-                                <input
-                                    type={showPwd ? "text" : "password"}
-                                    autoComplete="current-password"
-                                    placeholder="Password"
-                                    value={password}
-                                    onChange={(e) =>
-                                        setPassword(e.target.value)
-                                    }
-                                    className="w-full rounded-md border border-slate-900 bg-white px-10 py-2.5 text-sm outline-none ring-0 placeholder:text-slate-400 focus:border-slate-500 pr-14"
-                                />
-                                {/* toggle kotak bundar di kanan (meniru switch di wireframe) */}
-                                <button
-                                    type="button"
-                                    aria-label="Tampilkan password"
-                                    onClick={() => setShowPwd((v) => !v)}
-                                    className={`absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8 rounded-lg border ${
-                                        showPwd ? "bg-slate-900" : "bg-white"
-                                    } flex items-center justify-center`}
-                                >
-                                    <span
-                                        className={`block h-4 w-4 rounded-full ${
-                                            showPwd
-                                                ? "bg-white"
-                                                : "bg-slate-300"
-                                        }`}
-                                    />
-                                </button>
-                            </div>
-                        </label>
-
-                        {/* Ingat saya + lupa password
-                        <div className="flex items-center justify-between text-xs">
-                            <label className="inline-flex items-center gap-2 select-none">
-                                <input
-                                    type="checkbox"
-                                    checked={remember}
-                                    onChange={(e) =>
-                                        setRemember(e.target.checked)
-                                    }
-                                    className="h-3.5 w-3.5 accent-slate-700"
-                                />
-                                <span>Ingat saya</span>
-                            </label>
-                            <a
-                                href="#"
-                                className="text-slate-500 hover:text-slate-700 underline"
-                            >
-                                lupa password?
-                            </a>
-                        </div> */}
-
-                        {/* Button Login */}
-                        <div className="flex justify-center">
-                            <button
-                                type="submit"
-                                className="mt-2 w-3/5 rounded-xl bg-slate-800 px-4 py-2.5 text-sm font-semibold text-white hover:bg-slate-800 active:scale-[.99]"
-                            >
-                                Login
-                            </button>
+                    {/* Password */}
+                    <div className="flex items-center gap-2">
+                        <div className="relative flex-grow">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                                <KeyRound className="w-4 h-4" />
+                            </span>
+                            <input
+                                type={showPwd ? "text" : "password"}
+                                placeholder="Masukkan password anda..."
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:border-gray-700"
+                            />
                         </div>
-                    </form>
 
-                    {/* Bantuan admin */}
-                    <div className="mt-3 text-center text-[11px]">
-                        Ada masalah?{" "}
-                        <a href="#" className="underline">
-                            hubungi admin
+                        <button
+                            type="button"
+                            onClick={() => setShowPwd((v) => !v)}
+                            className="w-10 h-10 flex items-center justify-center border rounded-md bg-gray-900 text-white hover:bg-gray-600"
+                        >
+                            {showPwd ? (
+                                <EyeOff className="w-4 h-4" />
+                            ) : (
+                                <Eye className="w-4 h-4" />
+                            )}
+                        </button>
+                    </div>
+
+                    {/* Tombol Login */}
+                    <div className="flex justify-center">
+                        <button
+                            type="submit"
+                            className="w-3/5 bg-black text-white py-2 rounded-md text-sm font-semibold hover:bg-gray-600"
+                        >
+                            Login
+                        </button>
+                    </div>
+
+                    {/* Link bantuan */}
+                    <div className="text-center text-xs text-slate-600 mt-2">
+                        <a
+                            href="#"
+                            className="underline hover:text-slate-800 transition-colors"
+                        >
+                            Ada masalah? Hubungi admin.
                         </a>
                     </div>
-                </div>
+                </form>
             </div>
         </div>
     );

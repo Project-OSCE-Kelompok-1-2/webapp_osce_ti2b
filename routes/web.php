@@ -9,7 +9,7 @@ Route::get('/', function () {
 
 Route::get('/auth/login', function () {
     return Inertia::render("Auth/Login");
-});
+})->name('login');
 
 Route::get('/admin/dashboard', function () {
     return Inertia::render('Admin/Dashboard');
