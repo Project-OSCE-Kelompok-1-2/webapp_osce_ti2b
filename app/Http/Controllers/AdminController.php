@@ -2,9 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
+use App\Models\Pengguna;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use App\Models\Pengguna;
 
 class AdminController extends Controller
 {
@@ -15,5 +16,9 @@ class AdminController extends Controller
     $pengguna->password = Hash::make($new_password);
     $pengguna->save();
     return back()->with('success', 'Password berhasil diupdate.');
+    }
+    public function show_profile()
+    {
+        return Inertia::render('Admin/Profil');
     }
 }
