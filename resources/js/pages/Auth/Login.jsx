@@ -54,7 +54,7 @@ export default function LoginMosaicPage() {
                                 placeholder="Masukkan password anda..."
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full border-black pl-10 pr-4 py-2 border rounded-xl text-sm focus:outline-none focus:border-gray-700"
+                                className="w-full pl-10 pr-4 py-2 border rounded-xl text-sm focus:outline-none focus:border-gray-700"
                             />
                         </div>
 
