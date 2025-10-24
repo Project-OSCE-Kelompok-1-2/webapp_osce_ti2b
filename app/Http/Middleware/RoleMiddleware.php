@@ -8,21 +8,30 @@ use Symfony\Component\HttpFoundation\Response;
 
 class RoleMiddleware
 {
-
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         $user = $request->user();
 
         if (!$user) {
             // Belum login
-            return redirect('/login');
+            return redirect()->route('login');
         }
 
+        // Cek apakah role user tidak sesuai
         if (!in_array($user->jenis_role, $roles)) {
-            // Role tidak sesuai
-            return back();
+            // Arahkan ke dashboard sesuai rolenya
+            return $this->redirectByRole($user->jenis_role);
         }
 
         return $next($request);
+    }
+
+    private function redirectByRole($role)
+    {
+        return match ($role) {
+            'admin' => redirect('/admin/dashboard'),
+            'mahasiswa' => redirect('/mahasiswa/dashboard'),
+            'penguji' => redirect('/penguji/dashboard'),
+        };
     }
 }

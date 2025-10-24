@@ -13,9 +13,18 @@ class GuestMiddleware
         $user = $request->user();
 
         if ($user) {
-            return back();
+            return $this->redirectByRole($user->jenis_role);
         }
 
         return $next($request);
+    }
+
+    private function redirectByRole($role)
+    {
+        return match ($role) {
+            'admin' => redirect('/admin/dashboard'),
+            'mahasiswa' => redirect('/mahasiswa/dashboard'),
+            'penguji' => redirect('/penguji/dashboard'),
+        };
     }
 }
