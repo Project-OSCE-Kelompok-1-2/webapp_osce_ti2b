@@ -3,22 +3,6 @@ import React from "react";
 export default function Dashboard() {
     return (
         <div className="flex h-screen bg-gray-50">
-            {/* Sidebar */}
-            <aside className="w-20 bg-white border-r flex flex-col items-center justify-between py-6">
-                {/* Logo Atas */}
-                <div className="flex flex-col items-center gap-6">
-                    <div className="w-10 h-10 bg-gray-800 rounded-full" />
-                    <div className="flex flex-col gap-4">
-                        <div className="w-8 h-8 bg-gray-800 rounded-md border-2 border-black" />
-                        <div className="w-8 h-8 bg-gray-400 rounded-md" />
-                        <div className="w-8 h-8 bg-gray-300 rounded-md" />
-                    </div>
-                </div>
-
-                {/* Footer icon */}
-                <div className="w-8 h-8 bg-gray-800 rounded-full border-2 border-black" />
-            </aside>
-
             {/* Main content */}
             <main className="flex-1 flex flex-col p-6 overflow-y-auto">
                 {/* Header */}
@@ -36,11 +20,11 @@ export default function Dashboard() {
                     <h2 className="font-semibold text-gray-800 mb-3">
                         Statistika
                     </h2>
-                    <div className="flex gap-4">
+                    <div className="flex gap-4 border-roun">
                         {[1, 2, 3].map((i) => (
                             <div
                                 key={i}
-                                className="flex-1 bg-white border-gray-400 rounded-lg shadow-sm p-4 flex flex-col justify-between"
+                                className="flex-1 bg-white border-black border rounded-lg shadow-sm p-4 flex flex-col justify-between"
                             >
                                 <div className="flex justify-between items-start">
                                     <h3 className="font-bold text-gray-900">
@@ -60,14 +44,14 @@ export default function Dashboard() {
                 <section className="mb-8">
                     <h2 className="font-semibold text-gray-800 mb-3">Plot</h2>
                     <div className="flex gap-4">
-                        <div className="flex-1 bg-white border-gray-400 rounded-lg h-64" />
-                        <div className="flex-1 bg-white border-gray-400 rounded-lg h-64" />
+                        <div className="flex-1 bg-white border-black border rounded-lg h-64" />
+                        <div className="flex-1 bg-white border-black border rounded-lg h-64" />
                     </div>
                 </section>
 
                 {/* Footer */}
-                <footer>
-                    <div className="w-full border-gray-400 rounded-md bg-white text-center text-xs text-gray-600 p-2">
+                <footer className= "mt-auto">
+                    <div className="w-full border-black border rounded-md bg-white text-center text-xs text-gray-600 p-2">
                         Copyright Porem ipsum dolor sit amet | Porem ipsum dolor
                         sit amet
                     </div>

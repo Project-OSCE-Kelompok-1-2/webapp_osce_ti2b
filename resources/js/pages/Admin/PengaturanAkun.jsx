@@ -3,7 +3,6 @@ import React, { useState, useRef } from 'react';
 // import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'; // <-- Impor layout utama Anda
 
 // --- Mock untuk useForm dan router (untuk demo) ---
-// Hapus ini jika Anda menggunakan Inertia
 const useForm = (initialData) => {
     const [data, setData] = useState(initialData);
     return {
@@ -65,6 +64,7 @@ import {
 } from 'lucide-react';
 
 // --- MOCK DATA ---
+// Di aplikasi nyata, 'auth' akan dikirim sebagai prop dari Laravel
 const mockAuth = {
     user: {
         name: 'Admin1234',
@@ -135,7 +135,6 @@ export default function PengaturanAkun({ auth = mockAuth }) { // Default ke mock
     const photoInputRef = useRef();
 
     // === FORM 1: UNTUK INFO AKUN & PASSWORD ===
-    // Menggunakan useForm dari Inertia
     const { data: infoData, setData: setInfoData, post: postInfo, processing: infoProcessing, errors: infoErrors, reset } = useForm({
         nama_pengguna: user.name,
         email_pengguna: user.email,
@@ -207,7 +206,7 @@ export default function PengaturanAkun({ auth = mockAuth }) { // Default ke mock
 
     return (
         // <AuthenticatedLayout // <-- Buka komentar ini dan bungkus semuanya
-        //   header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Pengaturan / Akun</h2>}
+        //     header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Pengaturan / Akun</h2>}
         // >
         <div className="min-h-screen flex flex-col bg-gray-100 font-sans">
             <Head title="Pengaturan Akun" />
@@ -243,6 +242,7 @@ export default function PengaturanAkun({ auth = mockAuth }) { // Default ke mock
                     <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
 
                         {/* === BAGIAN NAVIGASI === */}
+                        {/* Menghilangkan judul "Navigasi" agar lebih mirip gambar */}
                         <div className="bg-white shadow-md border border-gray-900 rounded-md p-4"> {/* Padding dan border lebih kecil */} {/* Diubah ke border-gray-900 */}
                             <h3 className="text-sm font-semibold text-gray-700 mb-3">Navigasi</h3> {/* Judul navigasi kecil */}
                             <div className="flex flex-wrap gap-2"> {/* Gap lebih kecil */}
@@ -275,14 +275,14 @@ export default function PengaturanAkun({ auth = mockAuth }) { // Default ke mock
                                 </div>
 
                                 {/* Alert Box (Merah) */}
-                                <div className="mt-4 rounded-md bg-red-300 p-3 border border-red-900"> {/* Padding dan warna lebih cerah */} {/* Border disesuaikan */}
+                                <div className="mt-4 rounded-md bg-red-50 p-3 border border-red-300"> {/* Padding dan warna lebih cerah */} {/* Border disesuaikan */}
                                     <div className="flex">
-                                        <div className="flex-shrink-0 mt-0.5"> 
-                                            <AlertCircle className="h-4 w-4 text-brown-800" aria-hidden="true" />
+                                        <div className="flex-shrink-0 mt-0.5"> {/* Menyesuaikan posisi ikon */}
+                                            <AlertCircle className="h-4 w-4 text-red-400" aria-hidden="true" />
                                         </div>
                                         <div className="ml-2"> {/* Margin lebih kecil */}
-                                            <h3 className="text-xs font-medium text-brown-800">Perhatian!</h3> {/* Ukuran font lebih kecil */}
-                                            <div className="mt-1 text-xs text-brown-800"> {/* Ukuran font lebih kecil */}
+                                            <h3 className="text-xs font-medium text-red-800">Perhatian!</h3> {/* Ukuran font lebih kecil */}
+                                            <div className="mt-1 text-xs text-red-700"> {/* Ukuran font lebih kecil */}
                                                 <p>Gambar yang dikirim harus berukuran kurang lebih dari 1 MB dengan resolusi max 500 x 500 px, hanya support format foto: .png, .jpeg, .jpg, dan .gif</p>
                                             </div>
                                         </div>
@@ -363,29 +363,33 @@ export default function PengaturanAkun({ auth = mockAuth }) { // Default ke mock
                                     {/* Password Old */}
                                     <div>
                                         <InputLabel htmlFor="password_old" value="Password lama" className="mb-1" />
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <Lock className="h-4 w-4 text-gray-400" />
+                                        {/* 1. Ubah div ini dari "relative" menjadi "flex" untuk mensejajarkan item */}
+                                        <div className="flex items-center gap-2">
+                                            
+                                            {/* 2. Buat wrapper baru HANYA untuk input field, agar ikon gembok tetap di dalam */}
+                                            <div className="relative w-full"> 
+                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                                                    <Lock className="h-4 w-4 text-gray-400" />
+                                                </div>
+                                                <TextInput
+                                                    id="password_old"
+                                                    type={showPassword ? 'text' : 'password'}
+                                                    value={infoData.password_old}
+                                                    onChange={(e) => setInfoData('password_old', e.target.value)}
+                                                    className="pl-9 py-1.5" 
+                                                    placeholder="Masukkan password lama"
+                                                />
                                             </div>
-                                            <TextInput
-                                                id="password_old"
-                                                type={showPassword ? 'text' : 'password'}
-                                                value={infoData.password_old}
-                                                onChange={(e) => setInfoData('password_old', e.target.value)}
-                                                className="pl-9 pr-12 py-1.5" // Padding dan ukuran input lebih kecil, ruang untuk tombol
-                                                placeholder="Masukkan password lama"
-                                            />
-                                            {/* Tombol Toggle Password Biru Bulat */}
-                                            <div className="absolute inset-y-0 right-2 flex items-center">
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setShowPassword(!showPassword)}
-                                                    className="bg-blue-600 text-white rounded-full p-1.5 flex items-center justify-center hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                                    aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
-                                                >
-                                                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />} {/* Ukuran ikon lebih kecil */}
-                                                </button>
-                                            </div>
+
+                                            {/* 4. Pindahkan tombol toggle ke luar wrapper input */}
+                                            <button
+                                                type="button"
+                                                onClick={() => setShowPassword(!showPassword)}
+                                                className="flex-shrink-0 bg-blue-600 text-white rounded-md p-2 flex items-center justify-center hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                                                aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
+                                            >
+                                                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                                            </button>
                                         </div>
                                         {infoErrors.password_old && <p className="mt-1 text-xs text-red-600">{infoErrors.password_old}</p>}
                                     </div>
@@ -433,6 +437,7 @@ export default function PengaturanAkun({ auth = mockAuth }) { // Default ke mock
                                     {/* === Akhir Wrapper Grid === */}
 
 
+                                    {/* Perubahan di div bawah ini: dihapus "flex items-center justify-between" */}
                                     <div className="pt-4 border-t border-gray-900"> 
                                         <PrimaryButton
                                             type="submit"
@@ -442,7 +447,8 @@ export default function PengaturanAkun({ auth = mockAuth }) { // Default ke mock
                                             Simpan
                                         </PrimaryButton>
 
-                                        <a href="#" className=" block mt-3 text-sm text-gray-500 hover:text-gray-700 hover:underline"> {/* Warna abu-abu */}
+                                        {/* Tambahkan "block" dan "mt-3" (margin-top) agar link-nya pindah ke bawah tombol */}
+                                        <a href="#" className="block mt-3 text-sm text-gray-500 hover:text-gray-700 hover:underline"> 
                                             Ada masalah? hubungi admin
                                         </a>
                                     </div>
@@ -462,6 +468,8 @@ export default function PengaturanAkun({ auth = mockAuth }) { // Default ke mock
         // </AuthenticatedLayout> // <-- Penutup layout
     );
 }
+
+
 
 
 
