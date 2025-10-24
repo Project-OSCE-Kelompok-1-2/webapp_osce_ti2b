@@ -12,10 +12,10 @@ class AdminController extends Controller
     public function update_profile(Request $request)
     {
     $new_password = $request->new_password;
-    $pengguna = Pengguna::where('id', auth()->user()->id)->get();
+    $pengguna = Pengguna::where('id', auth()->user()->id)->first();
     $pengguna->password = Hash::make($new_password);
     $pengguna->save();
-    return back()->with('success', 'Password berhasil diupdate.');
+    return redirect("/admin/profil")->with('success', 'Password berhasil diupdate.');
     }
     public function show_profile()
     {
