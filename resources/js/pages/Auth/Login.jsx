@@ -18,8 +18,8 @@ export default function LoginMosaicPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white flex items-center justify-center px-4">
-            <div className="w-full border-black max-w-md border rounded-xl p-8 md:p-8 shadow-md">
+        <div className="login-bg min-h-screen bg-white flex items-center justify-center px-4">
+            <div className="w-full bg-white border-black max-w-md border rounded-xl p-8 md:p-8 shadow-md">
                 {/* Logo bulat */}
                 <div className="mx-auto w-20 h-20 rounded-full bg-blue-300" />
 
@@ -39,7 +39,7 @@ export default function LoginMosaicPage() {
                             placeholder="Masukkan username anda..."
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            className="w-full border border-black rounded-xl py-2 pl-9 pr-3 text-sm placeholder-slate-500 focus:outline-none focus:border-slate-600"
+                            className="w-full border border-black rounded-xl py-2 pl-9 pr-3 text-sm placeholder-slate-500 focus:outline-none focus:border-gray-700"
                         />
                     </div>
 
@@ -54,7 +54,7 @@ export default function LoginMosaicPage() {
                                 placeholder="Masukkan password anda..."
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border rounded-xl text-sm focus:outline-none focus:border-gray-700"
+                                className="w-full pl-10 pr-4 py-2 border border-black rounded-xl text-sm placeholder-slate-500 focus:outline-none focus:border-gray-700"
                             />
                         </div>
 
