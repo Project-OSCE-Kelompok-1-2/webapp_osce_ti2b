@@ -14,11 +14,7 @@ Route::get('/auth/login', function () {
 Route::get('/admin/dashboard', function () {
     return Inertia::render('Admin/Dashboard');
 });
- 
+   
 Route::get('/admin/kompetensi', function () {
     return Inertia::render('Admin/Kompetensi');
-});
-
-Route::get('/admin/tambahaspek', function () {
-    return Inertia::render('Admin/Tambahaspek');
 });
