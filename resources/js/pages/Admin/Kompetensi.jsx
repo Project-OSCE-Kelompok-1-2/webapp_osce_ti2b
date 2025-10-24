@@ -1,112 +1,113 @@
-import React, { useState } from "react";
-import { Plus, Search, Edit, Trash2 } from "lucide-react";
+import React, { useState } from 'react';
+import { PlusCircle, Edit2, Trash2 } from 'lucide-react';
 
-const mockKompetensi = [
-  {
-    id: 1,
-    title: "kompetensi 1",
-    desc: "tidak ada deskripsi",
-    bobot: 1,
-    skorMaks: 4,
-    status: "Belum disetting",
-  },
-  {
-    id: 2,
-    title: "Pake sarung tangan",
-    desc: "Lorem ipsum dolor sit amet...",
-    bobot: 1,
-    skorMaks: 10,
-    status: "Telah disetting",
-  },
-  {
-    id: 3,
-    title: "Menggunakan masker wajah",
-    desc: "Lorem ipsum dolor sit amet...",
-    bobot: 1,
-    skorMaks: 5,
-    status: "Telah disetting",
-  },
-  {
-    id: 4,
-    title: "Adu panco dengan penguji",
-    desc: "Lorem ipsum dolor sit amet...",
-    bobot: 1,
-    skorMaks: 20,
-    status: "Telah disetting",
-  },
-];
+export default function PenilaianPage() {
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
-export default function Kompetensi() {
-  const [data] = useState(mockKompetensi);
+  const toggleSidebar = () => {
+    setSidebarOpen(!sidebarOpen);
+  };
+
+  const data = [
+    {
+      no: 1,
+      kompetensi: 'Aspek Penilaian 1',
+      bobot: 1,
+      skorMaks: 4
+    }
+  ];
 
   return (
-    <div className="p-6 max-w-screen-lg mx-auto">
-      <div className="mb-4">
-        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">
-          <Plus className="w-4 h-4" /> Tambah Kompetensi
+    <div className="flex min-h-screen bg-white">
+      {/* Sidebar */}
+      <aside className={`transition-all duration-300 ${sidebarOpen ? 'w-20' : 'w-0'} overflow-hidden bg-gray-200 p-2 flex flex-col items-center`}>
+        <button onClick={toggleSidebar} className="bg-blue-600 text-white p-2 rounded mb-4">
+          ⬅
         </button>
-      </div>
+        {sidebarOpen && (
+          <nav className="space-y-4">
+            <button className="text-xl">🏠</button>
+            <button className="text-xl">👥</button>
+            <button className="text-xl">📄</button>
+            <button className="text-xl">⭐</button>
+            <button className="text-xl">⚙️</button>
+          </nav>
+        )}
+      </aside>
 
-      <div className="flex items-center mb-4">
-        <input
-          type="text"
-          placeholder="Tuliskan Nama Rubrik"
-          className="flex-1 px-4 py-2 border rounded-l-md text-sm"
-        />
-        <button className="px-4 py-2 bg-blue-600 text-white rounded-r-md">
-          Cari
-        </button>
-      </div>
+      {/* Main Content */}
+      <main className="flex-1 p-6">
+        {/* Header Breadcrumb */}
+        <div className="flex items-center gap-2 mb-4">
+          <button onClick={toggleSidebar} className="bg-blue-600 text-white p-2 rounded">🔙</button>
+          <span className="text-sm text-gray-600">Rubrik / Packet Rubrik 1 / <span className="font-bold text-black">Aspek Penilaian</span></span>
+        </div>
 
-      <table className="w-full border text-sm">
-        <thead>
-          <tr className="bg-slate-100 text-left">
-            <th className="border px-2 py-1">No</th>
-            <th className="border px-2 py-1">Kompetensi</th>
-            <th className="border px-2 py-1">Bobot</th>
-            <th className="border px-2 py-1">Skor Maks</th>
-            <th className="border px-2 py-1">Keterangan Skor</th>
-            <th className="border px-2 py-1">Action</th>
-          </tr>
-        </thead>
-        <tbody>
-          {data.map((item, idx) => (
-            <tr
-              key={item.id}
-              className={idx % 2 === 1 ? "bg-gray-100" : ""}
-            >
-              <td className="border px-2 py-1 align-top">{idx + 1}</td>
-              <td className="border px-2 py-1">
-                <div className="font-semibold leading-tight">{item.title}</div>
-                <div className="text-xs text-gray-600">{item.desc}</div>
-              </td>
-              <td className="border px-2 py-1 text-center align-top">{item.bobot}</td>
-              <td className="border px-2 py-1 text-center align-top">{item.skorMaks}</td>
-              <td className="border px-2 py-1 text-center align-top">
-                <span
-                  className={`px-2 py-1 text-xs rounded-md font-medium ${
-                    item.status === "Belum disetting"
-                      ? "bg-gray-800 text-white"
-                      : "bg-gray-100 text-black border"
-                  }`}
-                >
-                  {item.status}
-                </span>
-              </td>
-              <td className="border px-2 py-1 text-center align-top">
-                <div className="flex justify-center gap-2">
-                  <button className="p-1 rounded bg-gray-800 text-white hover:bg-gray-700">
-                    <Edit className="w-4 h-4" />
-                  </button>
-                  <button className="p-1 rounded bg-gray-800 text-white hover:bg-red-600">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
+        {/* Menu Info */}
+        <h2 className="text-lg font-semibold">Menu Aspek Penilaian</h2>
+        <p className="text-sm text-gray-500 mb-4">
+          Halaman ini berisi aspek-aspek yang nanti dinilai oleh penguji. Setiap rubrik bisa memiliki berbagai macam aspek penilaian.
+        </p>
+
+        {/* Buttons */}
+        <div className="flex flex-wrap gap-2 mb-4">
+          <button className="bg-blue-600 text-white px-4 py-2 rounded flex items-center gap-2">
+            <PlusCircle className="w-4 h-4" /> Tambah Aspek Penilaian
+          </button>
+          <button className="bg-blue-600 text-white px-4 py-2 rounded">Edit Skenario</button>
+          <button className="bg-blue-600 text-white px-4 py-2 rounded">Edit Point Aspek Penilaian</button>
+        </div>
+
+        {/* Search */}
+        <div className="flex gap-2 mb-4">
+          <input
+            type="text"
+            placeholder="Tuliskan data aspek penilaian..."
+            className="border px-3 py-2 rounded-md text-sm w-full md:w-96"
+          />
+          <button className="bg-blue-600 text-white px-4 py-2 rounded">Cari</button>
+        </div>
+
+        {/* Table */}
+        <div className="overflow-x-auto">
+          <table className="min-w-full border">
+            <thead className="bg-gray-100 text-sm text-gray-600">
+              <tr>
+                <th className="p-2 border">No</th>
+                <th className="p-2 border text-left">Kompetensi</th>
+                <th className="p-2 border">Bobot</th>
+                <th className="p-2 border">Skor Maks</th>
+                <th className="p-2 border">Action</th>
+              </tr>
+            </thead>
+            <tbody>
+              {data.map((item, idx) => (
+                <tr key={idx} className="text-sm bg-white">
+                  <td className="text-center border p-2">{item.no}</td>
+                  <td className="border p-2 font-medium">{item.kompetensi}</td>
+                  <td className="text-center border p-2">{item.bobot}</td>
+                  <td className="text-center border p-2">{item.skorMaks}</td>
+                  <td className="text-center border p-2">
+                    <div className="flex gap-2 justify-center">
+                      <button className="p-1 bg-blue-600 text-white rounded">
+                        <Edit2 className="w-4 h-4" />
+                      </button>
+                      <button className="p-1 bg-black text-white rounded">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Footer */}
+        <footer className="text-center text-xs text-gray-400 mt-6">
+          Copyright Porem ipsum dolor sit amet | Porem ipsum dolor sit amet
+        </footer>
+      </main>
     </div>
   );
 }
