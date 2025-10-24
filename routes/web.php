@@ -15,3 +15,10 @@ Route::get('/admin/dashboard', function () {
     return Inertia::render('Admin/Dashboard');
 });
    
+Route::get('/admin/rubrik', function () {
+    return Inertia::render('Admin/Rubrik');
+});
+
+Route::get('/admin/tambahrubrik', function () {
+    return Inertia::render('Admin/TambahRubrik');
+});
