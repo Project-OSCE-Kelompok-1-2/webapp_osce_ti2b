@@ -15,3 +15,6 @@ Route::get('/admin/dashboard', function () {
     return Inertia::render('Admin/Dashboard');
 });
    
+Route::get('/admin/kompetensi', function () {
+    return Inertia::render('Admin/Kompetensi');
+});

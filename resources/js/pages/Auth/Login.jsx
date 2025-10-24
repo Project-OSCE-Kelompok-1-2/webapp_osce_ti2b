@@ -19,9 +19,9 @@ export default function LoginMosaicPage() {
 
     return (
         <div className="min-h-screen bg-white flex items-center justify-center px-4">
-            <div className="w-full max-w-md border rounded-xl p-6 md:p-8 shadow-md">
+            <div className="w-full border-black max-w-md border rounded-xl p-8 md:p-8 shadow-md">
                 {/* Logo bulat */}
-                <div className="mx-auto w-20 h-20 rounded-full bg-slate-300" />
+                <div className="mx-auto w-20 h-20 rounded-full bg-blue-300" />
 
                 <h1 className="mt-4 text-center text-2xl font-bold">MOSAIC</h1>
                 <p className="text-center text-sm text-slate-600">
@@ -39,7 +39,7 @@ export default function LoginMosaicPage() {
                             placeholder="Masukkan username anda..."
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            className="w-full border border-slate-400 rounded-md py-2 pl-9 pr-3 text-sm placeholder-slate-500 focus:outline-none focus:border-slate-600"
+                            className="w-full border border-black rounded-xl py-2 pl-9 pr-3 text-sm placeholder-slate-500 focus:outline-none focus:border-slate-600"
                         />
                     </div>
 
@@ -54,14 +54,14 @@ export default function LoginMosaicPage() {
                                 placeholder="Masukkan password anda..."
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:border-gray-700"
+                                className="w-full border-black pl-10 pr-4 py-2 border rounded-xl text-sm focus:outline-none focus:border-gray-700"
                             />
                         </div>
 
                         <button
                             type="button"
                             onClick={() => setShowPwd((v) => !v)}
-                            className="w-10 h-10 flex items-center justify-center border rounded-md bg-gray-900 text-white hover:bg-gray-600"
+                            className="w-10 h-10 flex items-center justify-center border rounded-xl bg-gray-900 text-white hover:bg-gray-600"
                         >
                             {showPwd ? (
                                 <EyeOff className="w-4 h-4" />
@@ -75,17 +75,17 @@ export default function LoginMosaicPage() {
                     <div className="flex justify-center">
                         <button
                             type="submit"
-                            className="w-3/5 bg-black text-white py-2 rounded-md text-sm font-semibold hover:bg-gray-600"
+                            className="w-3/5 bg-blue-700 text-white py-3 rounded-xl text-sm font-semibold hover:bg-blue-600"
                         >
                             Login
                         </button>
                     </div>
 
                     {/* Link bantuan */}
-                    <div className="text-center text-xs text-slate-600 mt-2">
+                    <div className="text-center text-xs text-blue-600 mt-2">
                         <a
                             href="#"
-                            className="underline hover:text-slate-800 transition-colors"
+                            className="underline hover:text-blue-800 transition-colors"
                         >
                             Ada masalah? Hubungi admin.
                         </a>
