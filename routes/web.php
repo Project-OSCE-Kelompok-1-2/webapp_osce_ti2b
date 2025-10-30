@@ -19,10 +19,6 @@ Route::get('/admin/kompetensi', function () {
     return Inertia::render('Admin/Kompetensi');
 });
 
-Route::get('admin/editaspek', function () {
-    return Inertia::render('Admin/Editaspek');
-});
-
-Route::get('/admin/addaspek', function () {
-    return Inertia::render('Admin/Addaspek');
+Route::get('/admin/aspekpenilaian', function () {
+    return Inertia::render('Admin/Aspekpenilaian');
 });
