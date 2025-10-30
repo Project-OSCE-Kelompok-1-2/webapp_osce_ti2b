@@ -67,13 +67,13 @@ Dokumentasi ini menjelaskan _endpoints_ yang tersedia pada API.
 
 ---
 
-## Rubrik Penilaian
+## Stase
 
-### 1. Menampilkan Semua Rubrik
-- **Endpoint**: `/rubrik`
+### 1. Menampilkan Semua stase
+- **Endpoint**: `/stase`
 - **Method**: `GET`
-- **Deskripsi**: Mengambil semua data dari tabel `aspek_penilaian`.
-  > **Catatan untuk Filter**: Filter dapat diimplementasikan menggunakan *query parameters*, contoh: `/rubrik?jurusan=RPL` atau `/rubrik?status=true`.
+- **Deskripsi**: Mengambil semua data dari tabel `stase`.
+  > **Catatan untuk Filter**: Filter dapat diimplementasikan menggunakan *query parameters*, contoh: `/stase?jurusan=RPL` atau `/stase?status=true`.
 
 **Response Body (Contoh Array):**
 ```json
@@ -81,107 +81,101 @@ Dokumentasi ini menjelaskan _endpoints_ yang tersedia pada API.
   {
     "id": "integer",
     "nama": "string",
-    "jumlah_kompetensi": "integer",
-    "status": "boolean"
+    "jumlah_aspek": "integer",
   }
 ]
 ```
 **Optional Query Parameter:**
 - `flash`: `string` (Untuk pesan notifikasi)
 
-### 2. Menambah Rubrik Baru
-- **Endpoint**: `/rubrik/tambah`
+### 2. Menambah stase Baru
+- **Endpoint**: `/stase/tambah`
 - **Method**: `POST`
-- **Deskripsi**: Menambah data baru ke tabel `aspek_penilaian`.
+- **Deskripsi**: Menambah data baru ke tabel `stase`.
 
 **Request Body:**
 ```json
 {
   "nama": "string",
-  "jumlah_kompetensi": "integer",
-  "jurusan_rubrik": "string"
 }
 ```
 **Optional Query Parameter:**
 - `flash`: `string` (Untuk pesan notifikasi)
 
-### 3. Menampilkan Detail Kompetensi per Rubrik
-- **Endpoint**: `/rubrik/{id}/kompetensi`
+### 3. Menampilkan aspek penilaian tiap stase
+- **Endpoint**: `/stase/{id}/aspek`
 - **Method**: `GET`
-- **Deskripsi**: Mengambil data kompetensi (`poin_aspek_penilaian`) berdasarkan `id` rubrik.
+- **Deskripsi**: Mengambil data aspek dari (`aspek_penilaian`) berdasarkan `id` stase.
 
 **Response Body (Contoh Array):**
 ```json
 [
   {
     "id": "integer",
-    "deskripsi": "string",
-    "bobot": "integer",
-    "skor": "integer",
-    "keterangan_skor": "string"
+    "nama": "string",
+    "bobot maksimum": "integer",
+    "jumlah_kompetensi": "integer",
   }
 ]
 ```
-### 4. Tambah kompetensi per Rubrik
-- **Endpoint**: `/rubrik/{id}/kompetensi/{id}`
+### 4. Tambah aspek penilaian per stase
+- **Endpoint**: `/stase/{id}/aspek/{id}`
 - **Method**: `GET`
-- **Deskripsi**: Mengambil data dari poin_aspek_penilaian.
+- **Deskripsi**: Mengambil data dari aspek_penillaian.
 
 **Response Body (Contoh Array):**
 ```json
 [
   {
     "id": "integer",
-    "deskripsi": "string",
-    "bobot": "integer",
-    "skor": "integer",
-    "keterangan_skor": "string"
+    "nama": "string",
+    "bobot maksimum": "integer",
   }
 ]
 ```
 ---
-- **Endpoint**: `/rubrik/{id}/kompetensi/{id}`
+- **Endpoint**: `/stase/{id}/aspek/{id}`
 - **Method**: `POST atau PUT`
-- **Deskripsi**: Mengubah data yang ada di table poin_aspek_penilaian.
+- **Deskripsi**: Mengubah data yang ada di table aspek_penilaian.
 
 **Response Body (Contoh Array):**
 ```json
 [
   {
     "id": "integer",
-    "deskripsi": "string",
-    "bobot": "integer",
-    "skor": "integer",
-    "keterangan_skor": "string"
+    "nama": "string",
+    "bobot maksimum": "integer",
   }
 ]
 ```
 ---
-### 5. Tambah Deskripsi Nilai
-- **Endpoint**: `/rubrik/{id}/nilai`
+### 5. Tambah Kompetensi per stase
+- **Endpoint**: `/stase/{id}/aspek/{id}/kompetensi`
 - **Method**: `GET`
-- **Deskripsi**: Mengambil data dari aspek_penilain.
+- **Deskripsi**: Mengambil data dari poin_aspek_penilain.
 
 **Response Body (Contoh Array):**
 ```json
 [
   {
     "id": "integer",
-    "keterangan_skor": "string"
+    "deskripsi": "string"
+    "bobot": "integer"
   }
 ]
 ```
 ---
-- **Endpoint**: `/rubrik/{id}/nilai`
+- **Endpoint**: `/stase/{id}/aspek/{id}/kompetensi`
 - **Method**: `POST atau PUT`
-- **Deskripsi**: Mengubah data di table aspek_penilaian.
+- **Deskripsi**: Mengubah data di table poin_aspek_penilaian.
 
 **Response Body (Contoh Array):**
 ```json
 [
   {
     "id": "integer",
-    "keterangan_skor": "string"
+    "deskripsi": "string"
+    "bobot": "integer"
   }
 ]
 ```
