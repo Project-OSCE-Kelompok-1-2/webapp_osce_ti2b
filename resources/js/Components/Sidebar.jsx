@@ -10,7 +10,7 @@ import {
   ChevronsRight,
 } from "lucide-react";
 
-// 1. Saya ambil menu dari file Box.jsx Anda
+// === MENU ASLI (TIDAK DIUBAH) ===
 const menuItems = [
   { label: "Beranda", icon: <Home size={24} /> },
   { label: "Mahasiswa", icon: <Users size={24} /> },
@@ -21,57 +21,79 @@ const menuItems = [
 ];
 
 const Sidebar = () => {
-  const [isOpen, setIsOpen] = useState(true); // Dimulai dari 'terbuka'
+  // 🆕 TAMBAH: State untuk mengelola kondisi sidebar (buka/tutup)
+  // Kita set default 'true' (terbuka) agar bisa dilihat
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
-    // 2. Ini adalah 'aside' dari Sidebar.jsx kita sebelumnya,
-    //    menggunakan 'w-64' (terbuka) dan 'w-20' (tertutup)
     <aside
-      className={`${
-        isOpen ? "w-64" : "w-20"
-      } bg-white text-gray-900 h-screen flex flex-col justify-between transition-all duration-300 relative border-r border-gray-900`}
+      className={`fixed top-0 left-0 h-full bg-white text-gray-900 border-r border-gray-300 shadow-lg transition-all duration-300 z-50
+      flex flex-col ${/* flex flex-col sudah benar */ ''}
+      ${isOpen ? "w-64" : "w-20"}`}
     >
-      {/* Tombol Toggle (menggunakan desain dari foto Anda) */}
+      {/* Tombol toggle (posisi absolute, tidak berubah) */}
       <button
-        onClick={() => setIsOpen(!isOpen)}
-        className="absolute -right-4 top-9 z-10 bg-blue-600 text-white p-1 rounded-full hover:bg-blue-500 transition focus:outline-none"
+        onClick={() => setIsOpen(!isOpen)} // 🆕 UBAH: Sekarang menggunakan setIsOpen dari state internal
+        className="absolute -right-4 top-9 z-50 bg-blue-600 text-white p-1 rounded-full hover:bg-blue-500 transition focus:outline-none"
       >
         {isOpen ? <ChevronsLeft size={16} /> : <ChevronsRight size={16} />}
       </button>
 
-      {/* Bagian atas: Profil */}
-      <div>
-        {/* 3. Header Profil disesuaikan dengan foto Anda */}
-        <div className="flex items-center gap-3 p-4 border-b border-gray-900 h-[100px]">
-          {/* Foto Profil */}
+      {/* 🆕 UBAH: Struktur dirombak. 'div' dengan 'flex-grow' dihilangkan */}
+
+      {/* === BAGIAN PROFIL (DI ATAS) === */}
+      {/* 🆕 TAMBAH: flex-shrink-0 agar ukurannya tetap */}
+      <div className="flex-shrink-0">
+        <div className="flex items-center gap-3 p-4 border-b border-gray-500 h-[100px]">
           <div className="w-12 h-12 rounded-full bg-gray-600 flex-shrink-0"></div>
-          {/* Teks Profil (hanya tampil saat 'isOpen') */}
           {isOpen && (
             <div className="overflow-hidden">
               <p className="font-semibold text-black truncate">Admin1234</p>
-              <p className="text-sm text-gray-500 truncate">Admin1234@gmail.com</p>
+              <p className="text-sm text-gray-500 truncate">
+                Admin1234@gmail.com
+              </p>
             </div>
           )}
         </div>
+      </div>
 
-        {/* Menu Navigasi */}
-        <nav className="flex flex-col gap-2 mt-4">
+      {/* === MENU NAVIGASI (DI TENGAH) === */}
+      {/* 🆕 UBAH: 
+        - 'flex-grow': Membuat <nav> mengisi semua ruang kosong yang tersedia.
+        - 'flex flex-col': Diperlukan agar justify-center bekerja secara vertikal.
+        - 'justify-center': Mendorong item menu ke tengah-tengah <nav>.
+      */}
+      <nav className="flex-grow flex flex-col justify-center">
+        {/* Kita bungkus tombol-tombol menu di dalam div lagi */}
+        {/* agar 'gap' dan 'mt' tidak mengganggu 'justify-center' */}
+        <div className="flex flex-col gap-2 mt-4">
           {menuItems.map((item, index) => (
             <button
               key={index}
-              className={`flex items-center gap-4 p-3 hover:bg-gray-200 transition-colors ${!isOpen ? "justify-center" : "px-5"}`} // <-- Menengahkan ikon
+              className={`flex items-center gap-4 p-3 hover:bg-gray-200 transition-colors ${
+                !isOpen ? "justify-center" : "px-5"
+              }`}
             >
               <div className="flex-shrink-0 w-6 h-6">{item.icon}</div>
-              {isOpen && <span className="text-sm whitespace-nowrap">{item.label}</span>}
+              {isOpen && (
+                <span className="text-sm whitespace-nowrap">{item.label}</span>
+              )}
             </button>
           ))}
-        </nav>
-      </div>
+        </div>
+      </nav>
 
-      {/* Bagian bawah: Pengaturan */}
-      <div className="border-t border-gray-900 p-4">
-        <button className={`flex items-center gap-4 p-3 hover:bg-gray-200 transition-colors w-full ${!isOpen ? "justify-center" : "px-5"}`}>
-          <div className="flex-shrink-0 w-6 h-6"><Settings size={24} /></div>
+      {/* === BAGIAN PENGATURAN (DI BAWAH) === */}
+      {/* 🆕 TAMBAH: flex-shrink-0 agar ukurannya tetap */}
+      <div className="flex-shrink-0 border-t border-gray-500 p-4">
+        <button
+          className={`flex items-center gap-4 p-3 hover:bg-gray-200 transition-colors w-full ${
+            !isOpen ? "justify-center" : "px-5"
+          }`}
+        >
+          <div className="flex-shrink-0 w-6 h-6">
+            <Settings size={24} />
+          </div>
           {isOpen && <span className="whitespace-nowrap">Pengaturan</span>}
         </button>
       </div>
@@ -80,4 +102,5 @@ const Sidebar = () => {
 };
 
 export default Sidebar;
+
 
