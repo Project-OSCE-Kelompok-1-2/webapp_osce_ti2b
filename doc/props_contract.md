@@ -149,7 +149,7 @@ Dokumentasi ini menjelaskan _endpoints_ yang tersedia pada API.
 ]
 ```
 ---
-### 5. Tambah Kompetensi per stase
+### 5. Tambah Kompetensi per aspek
 - **Endpoint**: `/stase/{id}/aspek/{id}/kompetensi`
 - **Method**: `GET`
 - **Deskripsi**: Mengambil data dari poin_aspek_penilain.
