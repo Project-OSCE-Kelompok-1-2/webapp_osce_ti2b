@@ -18,3 +18,4 @@ Route::get('/admin/dashboard', function () {
 Route::get('/admin/pengaturanakun', function () {
     return Inertia::render('Admin/PengaturanAkun');
 });
+

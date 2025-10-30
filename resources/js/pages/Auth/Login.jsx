@@ -39,7 +39,7 @@ export default function LoginMosaicPage() {
                             placeholder="Masukkan username anda..."
                             value={username}
                             onChange={(e) => setUsername(e.target.value)}
-                            className="w-full border border-slate-400 rounded-md py-2 pl-9 pr-3 text-sm placeholder-slate-500 focus:outline-none focus:border-slate-600"
+                            className="w-full border border-gray-700 rounded-md py-2 pl-9 pr-3 text-sm placeholder-slate-500 focus:outline-none focus:border-slate-600"
                         />
                     </div>
 
@@ -54,7 +54,7 @@ export default function LoginMosaicPage() {
                                 placeholder="Masukkan password anda..."
                                 value={password}
                                 onChange={(e) => setPassword(e.target.value)}
-                                className="w-full pl-10 pr-4 py-2 border rounded-md text-sm focus:outline-none focus:border-gray-700"
+                                className="w-full pl-10 pr-4 py-2 border border-gray-700 rounded-md text-sm focus:outline-none focus:border-gray-700"
                             />
                         </div>
 
@@ -75,14 +75,14 @@ export default function LoginMosaicPage() {
                     <div className="flex justify-center">
                         <button
                             type="submit"
-                            className="w-3/5 bg-black text-white py-2 rounded-md text-sm font-semibold hover:bg-gray-600"
+                            className="w-3/5 bg-blue-600 text-white py-2 rounded-md text-sm font-semibold hover:bg-gray-600"
                         >
                             Login
                         </button>
                     </div>
 
                     {/* Link bantuan */}
-                    <div className="text-center text-xs text-slate-600 mt-2">
+                    <div className="text-center text-xs text-blue-600 mt-2">
                         <a
                             href="#"
                             className="underline hover:text-slate-800 transition-colors"

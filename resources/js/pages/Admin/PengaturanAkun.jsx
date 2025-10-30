@@ -1,475 +1,475 @@
-import React, { useState, useRef } from 'react';
-// import { Head, useForm, router } from '@inertiajs/react'; // <-- Hapus komentar jika menggunakan Inertia
-// import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'; // <-- Impor layout utama Anda
+import React, { useState } from "react";
 
-// --- Mock untuk useForm dan router (untuk demo) ---
-const useForm = (initialData) => {
-    const [data, setData] = useState(initialData);
-    return {
-        data,
-        setData: (key, value) => setData(prev => ({ ...prev, [key]: value })),
-        post: (url, options) => {
-            console.log("Form posted to:", url, data);
-            options.onSuccess && options.onSuccess();
-            options.onFinish && options.onFinish();
-        },
-        reset: (...keys) => {
-            const newData = { ...data };
-            keys.forEach(key => {
-                newData[key] = initialData[key];
-            });
-            setData(newData);
-        },
-        processing: false,
-        errors: {},
-    };
-};
-const router = {
-    post: (url, data, options) => {
-        console.log("Router POST to:", url, data);
-        alert("Foto Profil Diperbarui! (Mock)");
-        options.onSuccess && options.onSuccess();
-        options.onFinish && options.onFinish();
-    },
-    delete: (url, options) => {
-        console.log("Router DELETE to:", url);
-        alert("Foto Profil Dihapus! (Mock)");
-        options.onSuccess && options.onSuccess();
-    }
-};
-// Komponen Head mock
-const Head = ({ title }) => {
-    React.useEffect(() => {
-        document.title = title;
-    }, [title]);
-    return null;
-};
-// ----------------------------------------------------
-
-
-// Ikon dari Lucide React
+// Meenggunakan ikon dari lucide-react sebagai pengganti 
 import {
-    User,
-    Mail,
-    Lock,
-    Eye,
-    EyeOff,
-    UploadCloud,
-    Trash2,
-    AlertCircle,    // Menggunakan AlertCircle kembali sesuai gambar
-    LogOut,         // Ikon untuk tombol Log Out
-    BookUser,       // Ikon untuk Halaman Akun
-    LogIn,          // Ikon untuk Halaman Login
-    ArrowLeft,      // Ikon untuk Header
-} from 'lucide-react';
+  User,
+  Mail,
+  Lock,
+  Eye,
+  EyeOff,
+  UploadCloud,
+  Trash2,
+  AlertCircle,
+  LogOut,
+  BookUser,
+  LogIn,
+  ArrowLeft,
+  Save, // Ikon untuk "Simpan"
+} from "lucide-react";
 
-// --- MOCK DATA ---
-// Di aplikasi nyata, 'auth' akan dikirim sebagai prop dari Laravel
-const mockAuth = {
-    user: {
-        name: 'Admin1234',
-        email: 'admin1234@gmail.com',
-        // Menggunakan latar belakang gelap untuk placeholder foto profil
-        profile_photo_url: 'https://via.placeholder.com/150/333333/FFFFFF?text=P',
+// 2. MEMBUAT MOCK UNTUK KOMPONEN YANG HILANG
+// Ini adalah pengganti untuk './Component1', './Icon1', dll.
+
+// Mock untuk <Component1 /> (tombol mata)
+// Kita buat sederhana saja, hanya menampilkan ikon mata
+const Component1 = ({ className }) => <Eye className={className} />;
+
+// Mock untuk <Icon1 /> (ikon simpan)
+const Icon1 = ({ className }) => <Save className={className} />;
+
+// Mock untuk <IconComponentNode /> (ikon gembok)
+const IconComponentNode = ({ className }) => <Lock className={className} />;
+
+// Mock untuk <Icon /> (ikon user/akun)
+// Daripada membuat mock, kita akan ganti penggunaannya di JSX
+// langsung dengan <User /> atau <BookUser /> agar lebih jelas.
+
+// 3. FILE SVG YANG HILANG (image.svg, line-2.svg, dll)
+// Kita tidak perlu mengimpornya lagi.
+// Kita akan ganti <img> dengan <hr /> (garis horizontal)
+// atau mengganti `bg-url` dengan komponen ikon lucide.
+
+// ================================================================
+// KODE ASLI ANDA (DENGAN MODIFIKASI)
+// ================================================================
+
+export const AdminSettingAkun = () => {
+  const [username, setUsername] = useState("Admin1234");
+  const [email] = useState("admin1234@gmail.com");
+  const [oldPassword] = useState("123456789");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [showOldPassword, setShowOldPassword] = useState(false);
+  
+  // Menggunakan placeholder dari via.placeholder.com, mirip file pertama Anda
+  const [profileImage, setProfileImage] = useState(
+    "https://via.placeholder.com/177/3a2323/FFFFFF?text=P"
+  );
+
+  const handleProfileImageUpload = (event) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      setProfileImage(URL.createObjectURL(file));
     }
-};
-// -----------------
+  };
 
-// Komponen Input Kustom untuk Tailwind (DRY)
-const InputLabel = ({ value, htmlFor, className = '', ...props }) => (
-    <label htmlFor={htmlFor} className={`block text-sm font-medium text-gray-700 ${className}`} {...props}>
-        {value}
-    </label>
-);
+  const handleDeleteProfileImage = () => {
+    // Kembali ke placeholder default saat dihapus
+    setProfileImage("https://via.placeholder.com/177/3a2323/FFFFFF?text=P");
+  };
 
-const TextInput = React.forwardRef(({ type = 'text', className = '', ...props }, ref) => (
-    <input
-        {...props}
-        type={type}
-        ref={ref}
-        className={`block w-full border-gray-500 rounded-md shadow-sm focus:border-blue-500 focus:ring-blue-500 text-sm ${className}`} // text-sm untuk ukuran font standar // Diubah ke border-gray-500
-    />
-));
-
-const PrimaryButton = ({ className = '', disabled, children, ...props }) => (
-    <button
-        {...props}
-        className={`inline-flex items-center justify-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-white focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition ease-in-out duration-150 ${disabled && 'opacity-25'
-            } ${className}`}
-        disabled={disabled}
-    >
-        {children}
-    </button>
-);
-
-const SecondaryButton = ({ className = '', disabled, children, ...props }) => (
-    <button
-        {...props}
-        className={`inline-flex items-center justify-center px-4 py-2 bg-white border border-gray-500 rounded-md font-semibold text-gray-700 shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-25 transition ease-in-out duration-150 ${disabled && 'opacity-25' // Diubah ke border-gray-500
-            } ${className}`}
-        disabled={disabled}
-    >
-        {children}
-    </button>
-);
-
-const DangerButton = ({ className = '', disabled, children, ...props }) => (
-    <button
-        {...props}
-        className={`inline-flex items-center justify-center px-4 py-2 bg-red-600 border border-transparent rounded-md font-semibold text-white focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 transition ease-in-out duration-150 ${disabled && 'opacity-25'
-            } ${className}`}
-        disabled={disabled}
-    >
-        {children}
-    </button>
-);
-
-
-export default function PengaturanAkun({ auth = mockAuth }) { // Default ke mockAuth
-
-    // === STATE ===
-    const user = auth?.user || mockAuth.user; // <-- SAYA UBAH BARIS INI
-    const [showPassword, setShowPassword] = useState(false);
-    const [photoPreview, setPhotoPreview] = useState(null);
-    const [photoProcessing, setPhotoProcessing] = useState(false); // State loading untuk foto
-    const photoInputRef = useRef();
-
-    // === FORM 1: UNTUK INFO AKUN & PASSWORD ===
-    const { data: infoData, setData: setInfoData, post: postInfo, processing: infoProcessing, errors: infoErrors, reset } = useForm({
-        nama_pengguna: user.name,
-        email_pengguna: user.email,
-        password_old: '123456789', // Sesuai gambar
-        password_new: '',
-        password_confirmation: '',
+  const handleSaveChanges = (event) => {
+    event.preventDefault();
+    console.log("Saving changes...", {
+      username,
+      newPassword,
+      confirmPassword,
     });
+    alert("Perubahan Disimpan! (Cek Console)"); // Tambahkan feedback
+  };
 
-    // Handler untuk submit form info & password
-    const submitInfoForm = (e) => {
-        e.preventDefault();
-        // Ganti 'route('...'))' dengan URL rute Laravel Anda
-        // postInfo(route('profile.info.update'), {
-        //     onSuccess: () => reset('password_old', 'password_new', 'password_confirmation'),
-        // });
-        console.log("Data Info & Password Dikirim:", infoData);
-        alert("Data Akun Disimpan! (Cek Console)");
-        // Reset password fields setelah submit
-        reset('password_old', 'password_new', 'password_confirmation');
-    };
+  const navigationButtons = [
+    {
+      id: "account-page",
+      label: "Halaman Akun",
+      // DIGANTI: dari <Icon> ke <BookUser />
+      icon: <BookUser className="!relative !w-[21px] !h-[21px]" color="white" />,
+      bgColor: "bg-blue-600", // Menggunakan warna Tailwind
+      opacity: "",
+    },
+    {
+      id: "login-page",
+      label: "Halaman Login",
+      // DIGANTI: dari div bg-url ke <LogIn />
+      icon: (
+        <LogIn className="relative w-[19px] h-[21px]" color="white" />
+      ),
+      bgColor: "bg-blue-600", // Menggunakan warna Tailwind
+      opacity: "opacity-75",
+    },
+  ];
 
-    // === LOGIKA FOTO PROFIL ===
+  // Definisikan warna kustom jika 'primary' dan 'warning' tidak ada di Tailwind
+  // Jika Anda sudah setup tailwind.config.js, ini tidak perlu.
+  const customColors = {
+    primary: '#3B82F6', // Contoh Biru
+    warning: '#F97316', // Contoh Oranye
+  };
 
-    // 1. Handler untuk tombol "Upload gambar profil"
-    const triggerPhotoUpload = () => {
-        photoInputRef.current.click();
-    };
+  return (
+    // Menambahkan bg-gray-100 agar mirip dengan file pertama
+    <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans">
+      {/* Menghapus 'min-w-[1440px]' dan 'ml-[134px]' 
+        agar layout lebih fleksibel dan terpusat.
+      */}
+      <div className="grid w-full max-w-7xl h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-2.5">
+        <header className="relative row-[1_/_2] col-[1_/_2] w-full flex flex-col items-start gap-5 bg-white p-4 rounded-xl shadow-sm border border-gray-900">
+          <div className="flex items-center justify-between relative self-stretch w-full">
+            <button
+              type="button"
+              className="flex w-[54px] h-[54px] items-center justify-center gap-[13px] p-3 relative bg-blue-600 text-white rounded-xl border border-solid border-black aspect-[1]"
+              aria-label="Home"
+              style={{ backgroundColor: customColors.primary }} // Gunakan style jika 'bg-primary' tidak ada
+            >
+              {/* DIGANTI: dari div bg-url ke <ArrowLeft /> */}
+              <ArrowLeft className="relative w-[30px] h-[26px]" />
+            </button>
 
-    // 2. Handler saat file foto dipilih (auto-submit)
-    const handlePhotoChange = (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
+            <nav
+              className="relative flex-1 h-[54px] ml-4"
+              aria-label="Breadcrumb"
+            >
+              <div className="h-full items-center bg-white flex w-full rounded-xl overflow-hidden border border-solid border-black">
+                <p className="h-6 ml-5 [font-family:'Inter-Regular',Helvetica] font-normal text-transparent text-xl tracking-[0] leading-[normal] whitespace-nowrap">
+                  <span className="text-[#000000bf]">Pengaturan</span>
+                  <span className="text-black"> / Akun</span>
+                </p>
+              </div>
+            </nav>
+          </div>
 
-        // Tampilkan preview
-        setPhotoPreview(URL.createObjectURL(file));
-        setPhotoProcessing(true);
+          {/* DIGANTI: <img> dengan <hr /> */}
+          <hr className="relative w-full border-black border-t" />
+        </header>
 
-        // Kirim data menggunakan router.post
-        // Ganti 'route('...'))' dengan URL rute Laravel Anda
-        router.post('profile.photo.update', {
-            profile_picture: file, // Nama key harus sesuai dengan backend
-        }, {
-            forceFormData: true, // WAJIB untuk file upload
-            onSuccess: () => {
-                console.log("Foto profil berhasil di-upload!");
-                setPhotoPreview(null); // Hapus preview, biarkan data 'auth' baru yang me-render
-            },
-            onError: (errors) => {
-                console.error("Error upload foto:", errors);
-                setPhotoPreview(null); // Hapus preview jika gagal
-            },
-            onFinish: () => {
-                setPhotoProcessing(false); // Hentikan loading
-                photoInputRef.current.value = null; // Reset input file
-            }
-        });
-    };
+        <main className="relative row-[2_/_3] col-[1_/_2] w-full h-full flex flex-col items-start gap-3">
+          <nav
+            className="flex items-start gap-[15px] relative self-stretch w-full flex-[0_0_auto] bg-white p-4 rounded-xl shadow-sm border border-gray-900"
+            aria-label="Main navigation"
+          >
+            <div className="flex flex-wrap h-full items-start gap-[15px] relative flex-1 grow">
+              {navigationButtons.map((button) => (
+                <button
+                  key={button.id}
+                  type="button"
+                  className={`${button.bgColor} inline-flex items-center justify-center gap-[13px] p-3 relative rounded-xl text-white ${button.opacity}`}
+                  aria-label={button.label}
+                  style={{ backgroundColor: customColors.primary }} // Gunakan style jika 'bg-primary' tidak ada
+                >
+                  {button.icon}
+                  <span className="relative w-fit [font-family:'Inter-Regular',Helvetica] font-normal text-[15px] tracking-[0] leading-[normal] whitespace-nowrap">
+                    {button.label}
+                  </span>
+                </button>
+              ))}
 
-    // 3. Handler untuk hapus foto
-    const deletePhoto = () => {
-        // Ganti 'route('...'))' dengan URL rute Laravel Anda
-        router.delete('profile.photo.delete', {
-            preserveScroll: true,
-            onSuccess: () => setPhotoPreview(null),
-        });
-        console.log("Hapus foto...");
-    }
+              <div className="flex items-start justify-end gap-2.5 relative flex-1 self-stretch grow">
+                <button
+                  type="button"
+                  className="bg-red-600 inline-flex items-center justify-center gap-[13px] p-3 relative rounded-xl text-white opacity-75"
+                  aria-label="Log Out"
+                //   style={{ backgroundColor: customColors.warning }} // Gunakan style jika 'bg-warning' tidak ada
+                >
+                  {/* DIGANTI: dari div bg-url ke <LogOut /> */}
+                  <LogOut className="relative w-[23px] h-[21px]" />
+                  <span className="relative w-fit [font-family:'Inter-Regular',Helvetica] font-normal text-[15px] tracking-[0] leading-[normal] whitespace-nowrap">
+                    Log Out
+                  </span>
+                </button>
+              </div>
+            </div>
+          </nav>
 
+          {/* Konten Utama: Grid Profil dan Akun */}
+          <div className="flex flex-col lg:flex-row items-start gap-5 relative self-stretch w-full flex-[0_0_auto]">
+            {/* Kiri: Gambar Profil */}
+            <aside className="flex flex-col w-full lg:w-[403px] h-fit items-center gap-[17px] p-5 relative bg-white rounded-xl border border-solid border-black shadow-sm">
+              <div className="relative self-stretch w-full h-[29px]">
+                <h2 className="absolute top-[calc(50.00%_-_14px)] left-0 w-[261px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xl tracking-[0] leading-[normal]">
+                  Gambar Profil
+                </h2>
+                {/* DIGANTI: <img> dengan <hr /> */}
+                <hr className="absolute top-7 left-0 w-full border-black border-t" />
+              </div>
 
-    return (
-        // <AuthenticatedLayout // <-- Buka komentar ini dan bungkus semuanya
-        //     header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Pengaturan / Akun</h2>}
-        // >
-        <div className="min-h-screen flex flex-col bg-gray-100 font-sans">
-            <Head title="Pengaturan Akun" />
+              <div
+                className="relative w-[177px] h-[177px] bg-[#3a2323] rounded-full border border-solid border-black bg-cover bg-center"
+                style={
+                  profileImage
+                    ? { backgroundImage: `url(${profileImage})` }
+                    : {}
+                }
+                role="img"
+                aria-label="Profile picture"
+              />
 
-            {/* === HEADER / NAVBAR === */}
-            <header className="bg-white shadow-sm border-b border-gray-900"> {/* Diubah ke border-gray-900 */}
-                <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-                    <div className="flex justify-between items-center h-16">
-                        {/* Kiri: Judul Halaman */}
-                        <div className="flex items-center">
-                            <button className="flex-shrink-0 flex items-center justify-center h-8 w-8 rounded-md hover:bg-gray-100 text-gray-700">
-                                <ArrowLeft className="h-5 w-5" />
-                            </button>
-                            <span className="ml-2 font-semibold text-lg text-gray-800">
-                                Pengaturan / Akun
-                            </span>
-                        </div>
-
-                        {/* Kanan: Tombol Log Out */}
-                        <div>
-                            <DangerButton className="flex items-center text-sm px-3 py-1.5">
-                                <LogOut className="h-4 w-4 mr-1.5" />
-                                Log Out
-                            </DangerButton>
-                        </div>
-                    </div>
+              <div
+                className="flex-col items-start gap-[5px] p-3.5 relative self-stretch flex-[0_0_auto] bg-red-100 flex w-full rounded-xl overflow-hidden border border-solid border-red-400"
+                role="alert"
+              >
+                <div className="inline-flex items-center gap-[5px] relative flex-[0_0_auto]">
+                  {/* DIGANTI: dari div bg-url ke <AlertCircle /> */}
+                  <AlertCircle
+                    className="relative w-[15px] h-3.5 text-red-500"
+                    aria-hidden="true"
+                  />
+                  <div className="relative flex items-center justify-center w-fit [font-family:'Inter-Regular',Helvetica] font-medium text-red-800 text-[15px] tracking-[0] leading-[normal] whitespace-nowrap">
+                    Perhatian!
+                  </div>
                 </div>
-            </header>
+                <p className="relative self-stretch [font-family:'Inter-Regular',Helvetica] font-normal text-red-700 text-[13px] tracking-[0] leading-[normal]">
+                  Gambar yang dikirim harus berukuran kurang lebih dari 1 MB
+                  dengan resolusi max 500 x 500 px, hanya support format foto:
+                  .png, .jpeg, .jpg, dan .gif
+                </p>
+              </div>
 
-            {/* === KONTEN UTAMA === */}
-            <main className="flex-grow">
-                <div className="py-8"> {/* Padding vertikal lebih kecil */}
-                    <div className="max-w-7xl mx-auto sm:px-6 lg:px-8 space-y-6">
+              <div className="flex items-center gap-[15px] relative self-stretch w-full">
+                <label className="flex items-center justify-center gap-2.5 px-3 py-3 relative flex-1 self-stretch grow bg-blue-600 text-white rounded-xl overflow-hidden cursor-pointer">
+                  <input
+                    type="file"
+                    accept=".png,.jpeg,.jpg,.gif"
+                    onChange={handleProfileImageUpload}
+                    className="sr-only"
+                    aria-label="Upload profile image"
+                  />
+                  {/* DIGANTI: dari div bg-url ke <UploadCloud /> */}
+                  <UploadCloud
+                    className="relative w-[18px] h-[17px]"
+                    aria-hidden="true"
+                  />
+                  <span className="relative w-fit [font-family:'Inter-Regular',Helvetica] font-normal text-[15px] tracking-[0] leading-[normal] whitespace-nowrap">
+                    Upload gambar profil
+                  </span>
+                </label>
 
-                        {/* === BAGIAN NAVIGASI === */}
-                        {/* Menghilangkan judul "Navigasi" agar lebih mirip gambar */}
-                        <div className="bg-white shadow-md border border-gray-900 rounded-md p-4"> {/* Padding dan border lebih kecil */} {/* Diubah ke border-gray-900 */}
-                            <h3 className="text-sm font-semibold text-gray-700 mb-3">Navigasi</h3> {/* Judul navigasi kecil */}
-                            <div className="flex flex-wrap gap-2"> {/* Gap lebih kecil */}
-                                <PrimaryButton className="flex-1 min-w-0 md:flex-none text-sm px-3 py-1.5"> {/* Ukuran tombol lebih kecil */}
-                                    <BookUser className="h-4 w-4 mr-1.5" />
-                                    Halaman Akun
-                                </PrimaryButton>
-                                <SecondaryButton className="flex-1 min-w-0 md:flex-none text-sm px-3 py-1.5"> {/* Ukuran tombol lebih kecil */}
-                                    <LogIn className="h-4 w-4 mr-1.5" />
-                                    Halaman Login
-                                </SecondaryButton>
-                            </div>
-                        </div>
+                <button
+                  type="button"
+                  onClick={handleDeleteProfileImage}
+                  className="flex flex-col w-12 h-12 items-center justify-center gap-2.5 relative bg-red-600 text-white rounded-xl aspect-[1]"
+                  aria-label="Delete profile image"
+                >
+                  {/* DIGANTI: dari div bg-url ke <Trash2 /> */}
+                  <Trash2
+                    className="relative w-[17px] h-5"
+                    aria-hidden="true"
+                  />
+                </button>
+              </div>
+            </aside>
 
-                        {/* === KONTEN PENGATURAN (Grid) === */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            {/* Kanan: Form Akun */}
+            <section className="flex flex-col items-start gap-[15px] p-5 relative flex-1 grow bg-white rounded-xl border border-solid border-black shadow-sm">
+              <div className="relative self-stretch w-full h-[29px]">
+                <h2 className="absolute top-[calc(50.00%_-_14px)] left-0 w-[285px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xl tracking-[0] leading-[normal]">
+                  Akun
+                </h2>
+                {/* DIGANTI: <img> dengan <hr /> */}
+                <hr className="absolute top-7 left-0 w-full border-black border-t" />
+              </div>
 
-                            {/* === KOLOM KIRI: GAMBAR PROFIL === */}
-                            <div className="lg:col-span-1 bg-white shadow-md border border-gray-900 rounded-md p-6 h-fit"> {/* Diubah ke border-gray-900 */}
-                                <h3 className="text-base font-semibold border-b border-gray-900 pb-3"> {/* Diubah ke border-gray-900 */}
-                                    Gambar Profil
-                                </h3>
-
-                                <div className="mt-4 flex justify-center"> {/* Margin top lebih kecil */}
-                                    <img
-                                        src={photoPreview || user.profile_photo_url}
-                                        alt="Gambar Profil"
-                                        className="h-32 w-32 rounded-full object-cover border border-gray-900 bg-gray-200" // Menambahkan border pada gambar profil // Diubah ke border-gray-900
-                                    />
-                                </div>
-
-                                {/* Alert Box (Merah) */}
-                                <div className="mt-4 rounded-md bg-red-50 p-3 border border-red-300"> {/* Padding dan warna lebih cerah */} {/* Border disesuaikan */}
-                                    <div className="flex">
-                                        <div className="flex-shrink-0 mt-0.5"> {/* Menyesuaikan posisi ikon */}
-                                            <AlertCircle className="h-4 w-4 text-red-400" aria-hidden="true" />
-                                        </div>
-                                        <div className="ml-2"> {/* Margin lebih kecil */}
-                                            <h3 className="text-xs font-medium text-red-800">Perhatian!</h3> {/* Ukuran font lebih kecil */}
-                                            <div className="mt-1 text-xs text-red-700"> {/* Ukuran font lebih kecil */}
-                                                <p>Gambar yang dikirim harus berukuran kurang lebih dari 1 MB dengan resolusi max 500 x 500 px, hanya support format foto: .png, .jpeg, .jpg, dan .gif</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Input file tersembunyi */}
-                                <input
-                                    type="file"
-                                    className="hidden"
-                                    ref={photoInputRef}
-                                    onChange={handlePhotoChange}
-                                    accept="image/*"
-                                />
-
-                                <div className="mt-4 flex gap-2"> {/* Margin top dan gap lebih kecil */}
-                                    <PrimaryButton
-                                        className="flex-1 text-xs px-3 py-1.5" // Ukuran tombol lebih kecil
-                                        onClick={triggerPhotoUpload}
-                                        disabled={photoProcessing}
-                                    >
-                                        <UploadCloud className="h-3.5 w-3.5 mr-1.5" /> {/* Ukuran ikon lebih kecil */}
-                                        {photoProcessing ? 'Mengunggah...' : 'Upload gambar profil'}
-                                    </PrimaryButton>
-                                    <DangerButton
-                                        className="p-1.5" // Ukuran tombol hapus lebih kecil dan kotak
-                                        onClick={deletePhoto}
-                                        disabled={photoProcessing}
-                                    >
-                                        <Trash2 className="h-3.5 w-3.5" /> {/* Ukuran ikon lebih kecil */}
-                                    </DangerButton>
-                                </div>
-                            </div>
-
-                            {/* === KOLOM KANAN: AKUN === */}
-                            <div className="lg:col-span-2 bg-white shadow-md border border-gray-900 rounded-md p-6"> {/* Diubah ke border-gray-900 */}
-                                <h3 className="text-base font-semibold border-b border-gray-900 pb-3"> {/* Diubah ke border-gray-900 */}
-                                    Akun
-                                </h3>
-
-                                <form onSubmit={submitInfoForm} className="mt-4 space-y-4"> {/* Margin top dan space-y lebih kecil */}
-                                    {/* Nama Pengguna */}
-                                    <div>
-                                        <InputLabel htmlFor="nama_pengguna" value="Nama pengguna" className="mb-1" /> {/* Margin bottom lebih kecil */}
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <User className="h-4 w-4 text-gray-400" /> {/* Ukuran ikon lebih kecil */}
-                                            </div>
-                                            <TextInput
-                                                id="nama_pengguna"
-                                                value={infoData.nama_pengguna}
-                                                onChange={(e) => setInfoData('nama_pengguna', e.target.value)}
-                                                className="pl-9 py-1.5" // Padding dan ukuran input lebih kecil
-                                            />
-                                        </div>
-                                        {infoErrors.nama_pengguna && <p className="mt-1 text-xs text-red-600">{infoErrors.nama_pengguna}</p>}
-                                    </div>
-
-                                    {/* Email Pengguna */}
-                                    <div>
-                                        <InputLabel htmlFor="email_pengguna" value="Email pengguna" className="mb-1" />
-                                        <div className="relative">
-                                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                <Mail className="h-4 w-4 text-gray-400" />
-                                            </div>
-                                            <TextInput
-                                                id="email_pengguna"
-                                                type="email"
-                                                value={infoData.email_pengguna}
-                                                onChange={(e) => setInfoData('email_pengguna', e.target.value)}
-                                                className="pl-9 py-1.5 disabled:bg-gray-100 disabled:text-gray-500" // Padding dan ukuran input lebih kecil, warna teks disabled
-                                                disabled // Sesuai gambar
-                                            />
-                                        </div>
-                                        {infoErrors.email_pengguna && <p className="mt-1 text-xs text-red-600">{infoErrors.email_pengguna}</p>}
-                                    </div>
-
-                                    {/* Password Old */}
-                                    <div>
-                                        <InputLabel htmlFor="password_old" value="Password lama" className="mb-1" />
-                                        {/* 1. Ubah div ini dari "relative" menjadi "flex" untuk mensejajarkan item */}
-                                        <div className="flex items-center gap-2">
-                                            
-                                            {/* 2. Buat wrapper baru HANYA untuk input field, agar ikon gembok tetap di dalam */}
-                                            <div className="relative w-full"> 
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <Lock className="h-4 w-4 text-gray-400" />
-                                                </div>
-                                                <TextInput
-                                                    id="password_old"
-                                                    type={showPassword ? 'text' : 'password'}
-                                                    value={infoData.password_old}
-                                                    onChange={(e) => setInfoData('password_old', e.target.value)}
-                                                    className="pl-9 py-1.5" 
-                                                    placeholder="Masukkan password lama"
-                                                />
-                                            </div>
-
-                                            {/* 4. Pindahkan tombol toggle ke luar wrapper input */}
-                                            <button
-                                                type="button"
-                                                onClick={() => setShowPassword(!showPassword)}
-                                                className="flex-shrink-0 bg-blue-600 text-white rounded-md p-2 flex items-center justify-center hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                                                aria-label={showPassword ? "Sembunyikan password" : "Tampilkan password"}
-                                            >
-                                                {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
-                                            </button>
-                                        </div>
-                                        {infoErrors.password_old && <p className="mt-1 text-xs text-red-600">{infoErrors.password_old}</p>}
-                                    </div>
-
-                                    {/* === Wrapper untuk Password Baru (Grid) === */}
-                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                        {/* Password Baru */}
-                                        <div>
-                                            <InputLabel htmlFor="password_new" value="Password baru" className="mb-1" />
-                                            <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <Lock className="h-4 w-4 text-gray-400" />
-                                                </div>
-                                                <TextInput
-                                                    id="password_new"
-                                                    type={showPassword ? 'text' : 'password'}
-                                                    value={infoData.password_new}
-                                                    onChange={(e) => setInfoData('password_new', e.target.value)}
-                                                    className="pl-9 py-1.5"
-                                                    placeholder="Masukkan password baru"
-                                                />
-                                            </div>
-                                            {infoErrors.password_new && <p className="mt-1 text-xs text-red-600">{infoErrors.password_new}</p>}
-                                        </div>
-                                        
-                                        {/* Konfirmasi Password Baru */}
-                                        <div>
-                                            <InputLabel htmlFor="password_confirmation" value="Konfirmasi password baru" className="mb-1" />
-                                            <div className="relative">
-                                                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                                    <Lock className="h-4 w-4 text-gray-400" />
-                                                </div>
-                                                <TextInput
-                                                    id="password_confirmation"
-                                                    type={showPassword ? 'text' : 'password'}
-                                                    value={infoData.password_confirmation}
-                                                    onChange={(e) => setInfoData('password_confirmation', e.target.value)}
-                                                    className="pl-9 py-1.5"
-                                                    placeholder="Konfirmasi password baru"
-                                                />
-                                            </div>
-                                            {infoErrors.password_confirmation && <p className="mt-1 text-xs text-red-600">{infoErrors.password_confirmation}</p>}
-                                        </div>
-                                    </div>
-                                    {/* === Akhir Wrapper Grid === */}
-
-
-                                    {/* Perubahan di div bawah ini: dihapus "flex items-center justify-between" */}
-                                    <div className="pt-4 border-t border-gray-900"> 
-                                        <PrimaryButton
-                                            type="submit"
-                                            className="text-sm px-4 py-2" // Ukuran tombol standar, tanpa uppercase
-                                            disabled={infoProcessing}
-                                        >
-                                            Simpan
-                                        </PrimaryButton>
-
-                                        {/* Tambahkan "block" dan "mt-3" (margin-top) agar link-nya pindah ke bawah tombol */}
-                                        <a href="#" className="block mt-3 text-sm text-gray-500 hover:text-gray-700 hover:underline"> 
-                                            Ada masalah? hubungi admin
-                                        </a>
-                                    </div>
-                                </form>
-                            </div>
-
-                        </div>
-                    </div>
+              <form
+                onSubmit={handleSaveChanges}
+                className="flex flex-col items-start gap-[15px] relative self-stretch w-full flex-[0_0_auto]"
+              >
+                {/* Nama Pengguna */}
+                <div className="flex flex-col items-start gap-[3px] relative self-stretch w-full flex-[0_0_auto]">
+                  <label
+                    htmlFor="username"
+                    className="relative self-stretch mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xs tracking-[0] leading-[normal]"
+                  >
+                    Nama pengguna
+                  </label>
+                  <div className="flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full bg-white rounded-xl border border-solid border-black">
+                    {/* DIGANTI: dari <Icon> ke <User /> */}
+                    <User
+                      className="!relative !w-4 !h-4"
+                      color="black"
+                      opacity="0.45"
+                      aria-hidden="true"
+                    />
+                    <input
+                      type="text"
+                      id="username"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      className="relative flex-1 [font-family:'Inter-Regular',Helvetica] font-normal text-black text-[15.4px] tracking-[0] leading-[normal] bg-transparent border-none outline-none"
+                      aria-label="Username"
+                    />
+                  </div>
                 </div>
-            </main>
 
-            {/* === FOOTER === */}
-            <footer className="text-center py-3 bg-white border-t border-gray-900 text-gray-600 text-xs"> {/* Padding dan ukuran font lebih kecil */} {/* Diubah ke border-gray-900 */}
-                Copyright Porem ipsum dolor sit ametPorem ipsum dolor sit amet
-            </footer>
-        </div>
-        // </AuthenticatedLayout> // <-- Penutup layout
-    );
-}
+                {/* Email Pengguna */}
+                <div className="flex flex-col items-start gap-[3px] relative self-stretch w-full flex-[0_0_auto]">
+                  <label
+                    htmlFor="email"
+                    className="relative self-stretch mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xs tracking-[0] leading-[normal]"
+                  >
+                    Email pengguna
+                  </label>
+                  <div className="h-[54px] self-stretch w-full bg-gray-200 flex items-center gap-[13px] p-3 relative rounded-xl border border-solid border-black">
+                    {/* DIGANTI: dari div bg-url ke <Mail /> */}
+                    <Mail
+                      className="relative w-5 h-4"
+                      color="black"
+                      opacity="0.45"
+                      aria-hidden="true"
+                    />
+                    <input
+                      type="email"
+                      id="email"
+                      value={email}
+                      disabled
+                      className="relative flex-1 [font-family:'Inter-Regular',Helvetica] font-normal text-gray-600 text-[15.4px] tracking-[0] leading-[normal] bg-transparent cursor-not-allowed border-none outline-none"
+                      aria-label="Email (disabled)"
+                    />
+                  </div>
+                </div>
 
+                {/* Password Lama */}
+                <div className="flex flex-col items-start gap-[3px] relative self-stretch w-full flex-[0_0_auto]">
+                  <label
+                    htmlFor="old-password"
+                    className="relative self-stretch mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xs tracking-[0] leading-[normal]"
+                  >
+                    Password lama
+                  </label>
+                  <div className="flex h-[54px] items-start gap-3.5 relative self-stretch w-full">
+                    <div className="flex-1 self-stretch grow bg-gray-200 flex items-center gap-[13px] p-3 relative rounded-xl border border-solid border-black">
+                      {/* MOCK: <IconComponentNode /> (ikon gembok) */}
+                      <IconComponentNode
+                        className="!relative !w-[19px] !h-[19px] !aspect-[1]"
+                        aria-hidden="true"
+                      />
+                      <input
+                        type={showOldPassword ? "text" : "password"}
+                        id="old-password"
+                        value={oldPassword}
+                        disabled
+                        className="relative flex-1 [font-family:'Inter-Regular',Helvetica] font-normal text-gray-600 text-[15.4px] tracking-[0] leading-[normal] bg-transparent cursor-not-allowed border-none outline-none"
+                        aria-label="Old password (disabled)"
+                      />
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setShowOldPassword(!showOldPassword)}
+                      className="flex flex-col w-[54px] h-[54px] items-center justify-center gap-2.5 p-[11px] relative bg-blue-600 text-white rounded-xl border border-solid border-black"
+                      aria-label={
+                        showOldPassword
+                          ? "Hide old password"
+                          : "Show old password"
+                      }
+                    >
+                      {/* MOCK: <Component1 /> (ikon mata) */}
+                      {/* LOGIKA DIPERBAIKI: Menampilkan EyeOff jika password terlihat */}
+                      {showOldPassword ? (
+                        <EyeOff className="!relative !w-[31px] !h-[31px] !aspect-[1]" />
+                      ) : (
+                        <Component1
+                          className="!relative !w-[31px] !h-[31px] !aspect-[1]"
+                          aria-hidden="true"
+                        />
+                      )}
+                    </button>
+                  </div>
+                </div>
 
+                {/* Password Baru & Konfirmasi */}
+                <div className="flex flex-col md:flex-row items-center gap-[15px] relative self-stretch w-full flex-[0_0_auto]">
+                  <div className="flex flex-col w-full md:w-[376px] items-start gap-[3px] relative">
+                    <label
+                      htmlFor="new-password"
+                      className="relative self-stretch mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xs tracking-[0] leading-[normal]"
+                    >
+                      Password baru
+                    </label>
+                    <div className="flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full bg-white rounded-xl border border-solid border-black">
+                      {/* MOCK: <IconComponentNode /> (ikon gembok) */}
+                      <IconComponentNode
+                        className="!relative !w-5 !h-5 !aspect-[1]"
+                        aria-hidden="true"
+                      />
+                      <input
+                        type="password"
+                        id="new-password"
+                        value={newPassword}
+                        onChange={(e) => setNewPassword(e.target.value)}
+                        placeholder="Masukkan password yang baru..."
+                        className="relative flex-1 [font-family:'Inter-Regular',Helvetica] font-normal text-[#00000080] text-[15.4px] tracking-[0] leading-[normal] bg-transparent placeholder:text-[#00000080] border-none outline-none"
+                        aria-label="New password"
+                      />
+                    </div>
+                  </div>
 
+                  <div className="flex flex-col items-start gap-[3px] relative flex-1 grow w-full">
+                    <label
+                      htmlFor="confirm-password"
+                      className="relative self-stretch mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xs tracking-[0] leading-[normal]"
+                    >
+                      Konfirmasi password baru
+                    </label>
+                    <div className="flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full bg-white rounded-xl border border-solid border-black">
+                      {/* MOCK: <IconComponentNode /> (ikon gembok) */}
+                      <IconComponentNode
+                        className="!relative !w-5 !h-5 !aspect-[1]"
+                        aria-hidden="true"
+                      />
+                      <input
+                        type="password"
+                        id="confirm-password"
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Konfirmasi password yang baru..."
+                        className="relative flex-1 [font-family:'Inter-Regular',Helvetica] font-normal text-[#00000080] text-[15.4px] tracking-[0] leading-[normal] bg-transparent placeholder:text-[#00000080] border-none outline-none"
+                        aria-label="Confirm new password"
+                      />
+                    </div>
+                  </div>
+                </div>
 
+                <div className="inline-flex flex-col items-start gap-2.5 relative flex-[0_0_auto]">
+                  <button
+                    type="submit"
+                    className="w-[223px] justify-center flex-[0_0_auto] bg-blue-600 text-white flex items-center gap-[13px] p-3 relative rounded-xl border border-solid border-black"
+                    aria-label="Save changes"
+                  >
+                    {/* MOCK: <Icon1 /> (ikon simpan) */}
+                    <Icon1
+                      className="!relative !w-[17px] !h-[17px] !aspect-[1]"
+                      aria-hidden="true"
+                    />
+                    <span className="relative w-fit mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-[15.4px] tracking-[0] leading-[normal]">
+                      Simpan
+                    </span>
+                  </button>
 
+                  <a
+                    href="#contact-admin"
+                    className="relative w-fit [font-family:'Inter-Regular',Helvetica] font-normal text-black text-[11.8px] tracking-[0] leading-[normal] underline whitespace-nowrap"
+                  >
+                    Ada masalah? hubungi admin
+                  </a>
+                </div>
+              </form>
+            </section>
+          </div>
+        </main>
+
+        <footer className="relative row-[3_/_4] col-[1_/_2] w-full h-full flex flex-col items-center justify-end bg-white p-4 rounded-xl shadow-sm border border-gray-900">
+          <div className="relative self-stretch w-full">
+            <div className="w-full h-full flex">
+              <div className="flex-1 flex items-center">
+                <p className="[font-family:'Inter-Regular',Helvetica] font-normal text-gray-500 text-base tracking-[0] leading-[normal] whitespace-nowrap">
+                  Copyright Porem ipsum dolor sit amet
+                </p>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+  );
+};
+
+// Ekspor default agar bisa di-render
+export default AdminSettingAkun;
