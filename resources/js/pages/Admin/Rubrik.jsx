@@ -8,68 +8,63 @@ import {
     Trash2,
 } from "lucide-react";
 
-export default function Rubrik() {
+export default function Stase() {
     return (
         <div className="flex h-screen bg-white overflow-hidden">
             {/* ===== KOLOM KIRI KOSONG (dengan garis pemisah kanan) ===== */}
             <aside className="w-20 border-r border-gray-300 flex flex-col items-center justify-between">
-                {/* Ruang kosong di atas */}
                 <div className="mt-4"></div>
-
-                {/* Ruang kosong di tengah */}
                 <div className="flex-1"></div>
-
-                {/* Ruang kosong di bawah */}
                 <div className="mb-4"></div>
             </aside>
 
             {/* ===== KONTEN UTAMA ===== */}
             <main className="flex-1 flex flex-col h-full">
-                {/* Header Input Rubrik */}
-                <header className="border-b p-4">
+                {/* Header Input Stase */}
+                <header className="border-b p-4 flex items-center space-x-3">
+                    <button className="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700">
+                        <ChevronLeft size={18} />
+                    </button>
                     <input
                         type="text"
-                        value="Rubrik"
+                        value="Menu Stase"
                         disabled
-                        className="border border-gray-400 rounded-lg px-4 py-2 text-sm w-full max-w-sm"
+                        className="border border-gray-400 rounded-lg px-4 py-2 text-sm w-full max-w-xl"
                     />
                 </header>
 
                 {/* ===== ISI HALAMAN ===== */}
                 <div className="flex-1 px-8 py-6 overflow-auto">
-                    {/* Menu Rubrik */}
-                    <h2 className="font-semibold text-lg mb-1">Menu Rubrik</h2>
+                    {/* Judul & Deskripsi */}
+                    <h2 className="font-semibold text-lg mb-1">Menu Stase</h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Halaman yang berfungsi untuk menambahkan rubrik, rubrik
-                        yang dibuat digunakan untuk menampung berbagai macam
-                        aspek penilaian
+                        Halaman stase mengatur ruangan yang nanti digunakan
+                        untuk penguji menilai mahasiswa
                     </p>
 
+                    {/* Tombol Tambah */}
                     <button className="flex items-center bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-lg mb-5">
                         <Plus size={16} className="mr-2" />
-                        Tambah Rubrik
+                        Tambah Stase
                     </button>
 
-                    {/* Search & Filter */}
+                    {/* Search Bar */}
                     <div className="flex items-center space-x-3 mb-6">
                         <div className="relative flex-grow">
                             <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
                             <input
                                 type="text"
-                                placeholder="Tuliskan data rubrik..."
+                                placeholder="Cari data stase..."
                                 className="w-full border border-gray-400 rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none"
                             />
                         </div>
-                        <select className="border border-gray-400 rounded-lg py-2 px-4 text-sm text-gray-600">
-                            <option>Jurusan...</option>
-                        </select>
                         <button className="bg-blue-600 text-white text-sm px-6 py-2 rounded-lg">
                             Cari
                         </button>
                     </div>
 
-                    {/* Table Rubrik */}
-                    <h2 className="font-semibold text-lg mb-2">Table Rubrik</h2>
+                    {/* Table */}
+                    <h2 className="font-semibold text-lg mb-2">Table State</h2>
                     <div className="border border-gray-400 rounded-lg overflow-hidden">
                         {/* Header Table */}
                         <div className="flex text-sm font-semibold bg-gray-50 border-b border-gray-400">
@@ -77,9 +72,12 @@ export default function Rubrik() {
                                 No
                             </div>
                             <div className="flex-1 px-4 py-2 border-r border-gray-400">
-                                Nama Rubrik
+                                Nama Stase
                             </div>
-                            <div className="w-80 px-4 py-2 text-center">
+                            <div className="w-56 px-4 py-2 border-r border-gray-400 text-center">
+                                Jumlah Aspek Penilaian
+                            </div>
+                            <div className="w-64 px-4 py-2 text-center">
                                 Action
                             </div>
                         </div>
@@ -89,17 +87,15 @@ export default function Rubrik() {
                             <div className="w-16 px-4 py-3 text-center text-sm">
                                 1
                             </div>
-                            <div className="flex-1 px-4 py-3 border-l border-gray-400">
-                                <p className="font-semibold text-sm">
-                                    Packet Rubrik 1
-                                </p>
-                                <p className="text-xs text-gray-500">
-                                    15 kompetensi | 2 belum diubah
-                                </p>
+                            <div className="flex-1 px-4 py-3 border-l border-gray-400 text-sm">
+                                5 Aspek Penilaian
                             </div>
-                            <div className="w-80 px-4 py-3 border-l border-gray-400 flex items-center justify-end space-x-3">
+                            <div className="w-56 px-4 py-3 border-l border-gray-400 text-center text-sm">
+                                5
+                            </div>
+                            <div className="w-64 px-4 py-3 border-l border-gray-400 flex items-center justify-center space-x-3">
                                 <button className="bg-blue-600 text-white text-xs px-3 py-2 rounded-md">
-                                    Setting Aspek Penilaian
+                                    Edit Aspek Penilaian
                                 </button>
                                 <button className="bg-blue-600 p-2 rounded-md text-white">
                                     <Edit2 size={14} />
