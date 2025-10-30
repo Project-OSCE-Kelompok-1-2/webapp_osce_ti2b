@@ -1,19 +1,38 @@
 import React, { useState } from "react";
-import { Trash2, Save } from "lucide-react";
+import { Trash2, Save, ArrowLeft } from "lucide-react";
+import { router } from "@inertiajs/react";
 
-export default function KompetensiForm({ onClose, onSubmit }) {
+export default function KompetensiForm() {
     const [deskripsi, setDeskripsi] = useState("");
     const [bobot, setBobot] = useState(1);
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        onSubmit({ deskripsi, bobot });
+        // nanti bisa diganti post ke backend
+        console.log({ deskripsi, bobot });
+        router.visit("/admin/kompetensi");
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-30 flex items-center justify-center z-50">
-            <div className="bg-white rounded-xl w-[400px] shadow-xl border border-gray-300 overflow-hidden">
-                {/* Header Form */}
+        <div className="p-6 bg-white rounded-lg shadow-sm">
+            {/* Breadcrumb */}
+            <div className="flex items-center gap-2 mb-4">
+                <button
+                    onClick={() => router.visit("/admin/kompetensi")}
+                    className="bg-red-600 text-white p-2 rounded-md"
+                >
+                    <ArrowLeft size={18} />
+                </button>
+                <input
+                    type="text"
+                    value="Stase \ Stase Lorem Ipsum Dolor \ Tambah Kompetensi"
+                    readOnly
+                    className="border rounded-md px-3 py-2 w-full text-sm"
+                />
+            </div>
+
+            {/* Form Card */}
+            <div className="mx-auto max-w-md border border-gray-300 rounded-xl shadow-md overflow-hidden">
                 <div className="bg-neutral-800 text-white text-center py-4">
                     <h2 className="text-lg font-semibold">
                         Form Tambah Kompetensi
@@ -24,7 +43,6 @@ export default function KompetensiForm({ onClose, onSubmit }) {
                     </p>
                 </div>
 
-                {/* Isi Form */}
                 <form onSubmit={handleSubmit} className="p-5">
                     <div className="mb-4">
                         <label className="block text-xs text-gray-700 font-medium mb-1">
@@ -57,7 +75,6 @@ export default function KompetensiForm({ onClose, onSubmit }) {
                         </select>
                     </div>
 
-                    {/* Tombol Submit & Hapus */}
                     <div className="flex justify-between items-center">
                         <button
                             type="submit"
@@ -68,7 +85,7 @@ export default function KompetensiForm({ onClose, onSubmit }) {
                         </button>
                         <button
                             type="button"
-                            onClick={onClose}
+                            onClick={() => router.visit("/admin/kompetensi")}
                             className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md text-sm w-1/2 transition-all"
                         >
                             <Trash2 size={16} />
@@ -77,6 +94,11 @@ export default function KompetensiForm({ onClose, onSubmit }) {
                     </div>
                 </form>
             </div>
+
+            {/* Footer */}
+            <footer className="text-sm text-gray-500 mt-6 border-t pt-2 text-center">
+                Copyright Porem ipsum dolor sit amet
+            </footer>
         </div>
     );
 }

@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { mockKompetensi } from "../../mockdata/mockKompetensi";
-import KompetensiForm from "./KompetensiForm";
 import { Pencil, Trash2, PlusCircle, Search, ArrowLeft } from "lucide-react";
+import { router } from "@inertiajs/react";
 
 export default function KompetensiPage() {
     const [kompetensi, setKompetensi] = useState(mockKompetensi);
@@ -31,7 +31,7 @@ export default function KompetensiPage() {
 
     return (
         <div className="p-6 bg-white rounded-lg shadow-sm">
-            {/* ======= Breadcrumb ======= */}
+            {/* Breadcrumb */}
             <div className="flex items-center gap-2 mb-4">
                 <button className="bg-blue-600 text-white p-2 rounded-md">
                     <ArrowLeft size={18} />
@@ -44,7 +44,7 @@ export default function KompetensiPage() {
                 />
             </div>
 
-            {/* ======= Header ======= */}
+            {/* Header */}
             <div className="mb-4">
                 <h2 className="font-semibold text-lg mb-1">Menu Kompetensi</h2>
                 <p className="text-sm text-gray-600 mb-3">
@@ -54,7 +54,7 @@ export default function KompetensiPage() {
                 </p>
 
                 <button
-                    onClick={() => setShowForm(true)}
+                    onClick={() => router.visit('/admin/kompetensi/form')}
                     className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md"
                 >
                     <PlusCircle size={18} />
@@ -62,7 +62,7 @@ export default function KompetensiPage() {
                 </button>
             </div>
 
-            {/* ======= Search Bar ======= */}
+            {/* Search Bar */}
             <div className="flex gap-2 mb-4">
                 <div className="relative flex-grow">
                     <Search
@@ -82,7 +82,7 @@ export default function KompetensiPage() {
                 </button>
             </div>
 
-            {/* ======= Table ======= */}
+            {/* Table */}
             <h3 className="font-semibold mb-2">Table Kompetensi</h3>
             <table className="w-full border border-gray-300 rounded-md text-sm">
                 <thead className="bg-gray-100 text-gray-700">
@@ -152,14 +152,6 @@ export default function KompetensiPage() {
             <footer className="text-sm text-gray-500 mt-6 border-t pt-2 text-center">
                 Copyright Porem ipsum dolor sit amet
             </footer>
-
-            {/* ======= Popup Form ======= */}
-            {showForm && (
-                <KompetensiForm
-                    onClose={() => setShowForm(false)}
-                    onSubmit={handleAdd}
-                />
-            )}
         </div>
     );
 }
