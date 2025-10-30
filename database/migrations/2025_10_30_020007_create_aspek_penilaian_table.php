@@ -16,9 +16,9 @@ return new class extends Migration
             $table->id('id_aspek_penilaian');
 
             // Sesuai ERD & Aturan: Foreign Key ke tabel 'stase'
-            #$table->foreignId('id_stase')
-            #      ->constrained('stase')
-            #      ->onDelete('cascade');
+            $table->foreignId('id_stase')
+                ->constrained('stase', 'id_stase')
+                ->onDelete('cascade');
 
             // Sesuai ERD: Kolom-kolom
             $table->string('aspek');

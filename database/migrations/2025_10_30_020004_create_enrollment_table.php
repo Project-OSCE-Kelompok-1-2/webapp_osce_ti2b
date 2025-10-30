@@ -13,9 +13,10 @@ return new class extends Migration
     {
         Schema::create('enrollment', function (Blueprint $table) {
             $table->id('id_enrollment');
+            $table->foreignId('id_mahasiswa')->constrained('mahasiswa', 'id_mahasiswa')->onDelete('cascade');
+            $table->foreignId('id_tahun_akademik')->constrained('tahun_akademik', 'id_tahun_akademik')->onDelete('cascade');
             $table->date('tanggal_daftar');
             $table->timestamps();
-
         });
     }
 

@@ -13,15 +13,10 @@ return new class extends Migration
     {
         Schema::create('nilai_osce', function (Blueprint $table) {
             $table->id('id_nilai_osce');
-            $table->unsignedBigInteger('id_enrollment_osce');
+            $table->foreignId('id_enrollment_osce')->constrained('enrollment_osce', 'id_enrollment_osce')->onDelete('cascade');
+            $table->foreignId('id_poin_aspek_penilaian')->constrained('poin_aspek_penilaian', 'id_poin_aspek_penilaian')->onDelete('cascade');
             $table->integer('nilai');
             $table->timestamps();
-
-            $table->foreign('id_enrollment_osce')
-                ->references('id_enrollment_osce')
-                ->on('enrollment_osce')
-                ->onDelete('cascade');
-
         });
     }
 

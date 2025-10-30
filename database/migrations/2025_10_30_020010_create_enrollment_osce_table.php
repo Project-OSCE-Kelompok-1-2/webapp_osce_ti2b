@@ -13,15 +13,19 @@ return new class extends Migration
     {
         Schema::create('enrollment_osce', function (Blueprint $table) {
             $table->id('id_enrollment_osce');
-            $table->unsignedBigInteger('id_osce');
-            $table->text('catatan')->nullable();
-            $table->timestamps();
 
-            $table->foreign('id_osce')
-                ->references('id_osce')
-                ->on('osce')
+            // Foreign key ke tabel osce
+            $table->foreignId('id_osce')
+                ->constrained('osce', 'id_osce')
                 ->onDelete('cascade');
 
+            // Foreign key ke tabel mahasiswa
+            $table->foreignId('id_mahasiswa')
+                ->constrained('mahasiswa', 'id_mahasiswa')
+                ->onDelete('cascade');
+
+            $table->text('catatan')->nullable();
+            $table->timestamps();
         });
     }
 
