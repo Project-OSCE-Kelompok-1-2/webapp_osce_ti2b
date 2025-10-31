@@ -1,78 +1,99 @@
 import React from "react";
+import Sidebar from "../../Components/Sidebar.jsx";
 
-export default function Dashboard() {
-    return (
-        <div className="flex h-screen bg-gray-50">
-            {/* Sidebar */}
-            <aside className="w-20 bg-white border-r flex flex-col items-center justify-between py-6">
-                {/* Logo Atas */}
-                <div className="flex flex-col items-center gap-6">
-                    <div className="w-10 h-10 bg-gray-800 rounded-full" />
-                    <div className="flex flex-col gap-4">
-                        <div className="w-8 h-8 bg-gray-800 rounded-md border-2 border-black" />
-                        <div className="w-8 h-8 bg-gray-400 rounded-md" />
-                        <div className="w-8 h-8 bg-gray-300 rounded-md" />
-                    </div>
-                </div>
+// 1. MENGGANTI IMPORT SVG DENGAN LUCIDE-REACT
+import {
+  Home,
+  // Users, (Dihapus)
+  // DollarSign, (Dihapus)
+  // CreditCard, (Dihapus)
+  // BarChart, (Dihapus)
+  // PieChart, (Dihapus)
+} from "lucide-react";
 
-                {/* Footer icon */}
-                <div className="w-8 h-8 bg-gray-800 rounded-full border-2 border-black" />
-            </aside>
+export const AdminDashboard = () => {
+  return (
+    // 🆕 Tambahkan relative dan overflow-hidden agar sidebar overlay bisa muncul di atas dashboard
+    <div className="relative bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans overflow-hidden">
+      
+      {/* Sidebar dipanggil langsung tanpa kontrol dari dashboard */}
+      <Sidebar />
 
-            {/* Main content */}
-            <main className="flex-1 flex flex-col p-6 overflow-y-auto">
-                {/* Header */}
-                <header className="mb-4">
-                    <input
-                        type="text"
-                        value="Dashboard"
-                        readOnly
-                        className="w-full border border-gray-400 rounded-md p-2 text-sm font-medium bg-white"
-                    />
-                </header>
+      {/* Struktur layout dashboard tetap sama */}
+      <div
+        className="grid w-full max-w-7xl h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-2.5 transition-all duration-300 md:ml-20"
+      >
+        {/* === HEADER === */}
+        <header className="relative row-[1_/_2] col-[1_/_2] w-full flex flex-col items-start gap-5 bg-white p-4 rounded-xl shadow-sm border border-gray-900">
+          <div className="flex items-center justify-between relative self-stretch w-full">
+            
+            {/* Tombol Home tetap tampil, tapi tidak lagi mengontrol sidebar */}
+            <button
+              className="flex w-[54px] h-[54px] items-center justify-center gap-[13px] p-3 relative bg-blue-600 text-white rounded-xl border border-solid border-black aspect-[1]"
+              aria-label="Home"
+            >
+              <Home className="relative w-[30px] h-[26px]" />
+            </button>
 
-                {/* Statistik Section */}
-                <section className="mb-8">
-                    <h2 className="font-semibold text-gray-800 mb-3">
-                        Statistika
-                    </h2>
-                    <div className="flex gap-4">
-                        {[1, 2, 3].map((i) => (
-                            <div
-                                key={i}
-                                className="flex-1 bg-white border-gray-400 rounded-lg shadow-sm p-4 flex flex-col justify-between"
-                            >
-                                <div className="flex justify-between items-start">
-                                    <h3 className="font-bold text-gray-900">
-                                        Porem ipsum dolor
-                                    </h3>
-                                    <div className="w-3 h-3 bg-grey-800 rounded-full" />
-                                </div>
-                                <p className="text-gray-500 text-xs mt-1">
-                                    0000 %
-                                </p>
-                            </div>
-                        ))}
-                    </div>
-                </section>
+            {/* Dibuat fleksibel */}
+            <div className="relative flex-1 h-[54px] ml-4">
+              <div className="w-full h-full flex items-center bg-white rounded-xl overflow-hidden border border-solid border-black">
+                <h1 className="h-6 ml-5 [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xl tracking-[0] leading-[normal] whitespace-nowrap">
+                  Beranda
+                </h1>
+              </div>
+            </div>
+          </div>
 
-                {/* Plot Section */}
-                <section className="mb-8">
-                    <h2 className="font-semibold text-gray-800 mb-3">Plot</h2>
-                    <div className="flex gap-4">
-                        <div className="flex-1 bg-white border-gray-400 rounded-lg h-64" />
-                        <div className="flex-1 bg-white border-gray-400 rounded-lg h-64" />
-                    </div>
-                </section>
+          <hr className="relative w-full border-black border-t" />
+        </header>
 
-                {/* Footer */}
-                <footer>
-                    <div className="w-full border-gray-400 rounded-md bg-white text-center text-xs text-gray-600 p-2">
-                        Copyright Porem ipsum dolor sit amet | Porem ipsum dolor
-                        sit amet
-                    </div>
-                </footer>
-            </main>
-        </div>
-    );
-}
+        {/* === MAIN CONTENT === */}
+        <main className="relative row-[2_/_3] col-[1_/_2] w-full h-full flex flex-col items-start gap-5">
+          <h2 className="relative w-fit [font-family:'Inter-Bold',Helvetica] font-bold text-black text-xl tracking-[0] leading-[normal] whitespace-nowrap">
+            Statistika
+          </h2>
+
+          <section
+            className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full"
+            aria-label="Statistics cards"
+          >
+            <article className="w-full h-[200px] bg-white rounded-xl border border-solid border-black p-6 flex flex-col justify-between"></article>
+            <article className="w-full h-[200px] bg-white rounded-xl border border-solid border-black p-6 flex flex-col justify-between"></article>
+            <article className="w-full h-[200px] bg-white rounded-xl border border-solid border-black p-6 flex flex-col justify-between"></article>
+          </section>
+
+          <hr className="relative w-full border-black border-t" />
+
+          <h2 className="relative w-fit [font-family:'Inter-Bold',Helvetica] font-bold text-black text-xl tracking-[0] leading-[normal] whitespace-nowrap">
+            Plot
+          </h2>
+
+          <section
+            className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-5 w-full"
+            aria-label="Plot charts"
+          >
+            <article className="w-full h-[360px] bg-white rounded-xl border border-solid border-black p-6 flex flex-col items-center justify-center"></article>
+            <article className="w-full h-[360px] bg-white rounded-xl border border-solid border-black p-6 flex flex-col items-center justify-center"></article>
+          </section>
+        </main>
+
+        {/* === FOOTER === */}
+        <footer className="relative row-[3_/_4] col-[1_/_2] w-full h-full flex flex-col items-center justify-end bg-white p-4 rounded-xl shadow-sm border border-gray-900">
+          <div className="relative self-stretch w-full">
+            <div className="w-full h-full flex">
+              <div className="flex-1 flex items-center">
+                <p className="[font-family:'Inter-Regular',Helvetica] font-normal text-gray-500 text-base tracking-[0] leading-[normal] whitespace-nowrap">
+                  Copyright Porem ipsum dolor sit amet
+                </p>
+              </div>
+            </div>
+          </div>
+        </footer>
+      </div>
+    </div>
+  );
+};
+
+// Ekspor default agar bisa di-render
+export default AdminDashboard;
