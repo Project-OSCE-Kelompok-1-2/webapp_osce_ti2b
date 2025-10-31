@@ -12,11 +12,6 @@ class RoleMiddleware
     {
         $user = $request->user();
 
-        if (!$user) {
-            // Belum login
-            return redirect()->route('login');
-        }
-
         // Cek apakah role user tidak sesuai
         if (!in_array($user->jenis_role, $roles)) {
             // Arahkan ke dashboard sesuai rolenya
