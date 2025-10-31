@@ -30,4 +30,10 @@ class Mahasiswa extends Model
     {
         return $this->hasMany(Enrollment::class, 'id_mahasiswa'); // Perlu Model Enrollment
     }
+
+    // Relasi ke enrollment_osce 1:M
+    public function enrollment_osce()
+    {
+        return $this->hasMany(EnrollmentOsce::class, 'id_mahasiswa');
+    }
 }
