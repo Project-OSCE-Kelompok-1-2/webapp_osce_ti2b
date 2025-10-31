@@ -22,3 +22,8 @@ Route::get('/admin/kompetensi', function () {
 Route::get('/admin/aspekpenilaian', function () {
     return Inertia::render('Admin/Aspekpenilaian');
 });
+
+Route::get('/admin/addaspekform', function () {
+    return Inertia::render('Admin/AddAspekForm');
+});
+
