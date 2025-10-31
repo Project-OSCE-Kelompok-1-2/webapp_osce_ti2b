@@ -46,7 +46,7 @@ class AdminController extends Controller
                 $foto = $request->file('foto');
                 
                 $filename = time() . '_' . $foto->getClientOriginalName();
-                $folderPath = storage_path('app/public/profiladmin');
+                $folderPath = storage_path('storage/profiladmin/');
                 $dbPath = 'storage/profiladmin/' . $filename; 
 
                 if (!File::isDirectory($folderPath)) {
@@ -58,14 +58,10 @@ class AdminController extends Controller
                     File::delete(public_path($admin->foto));
                 }
 
-                $foto->move(public_path('storage/profiladmin'), $filename); // Perbaikan: Gunakan public_path jika file diakses publik
+                $foto->move(public_path('storage/profiladmin/'), $filename); // Perbaikan: Gunakan public_path jika file diakses publik
                 $admin->foto = 'storage/profiladmin/' . $filename; 
             }
-            
-            if ($request->filled('nama')) {
-                $admin->nama = $request->nama;
-            }
-        
+
             $admin->save();
 
             // PENTING: Gunakan redirect ke route show, dan flash message akan ditangkap di frontend
@@ -79,15 +75,17 @@ class AdminController extends Controller
     public function update_password(Request $request)
     {
          $pengguna = Auth::user();
+         dd($pengguna);
+
          
          if (!$pengguna) {
-             return redirect()->route('admin.profil.show')->with('error_password', 'Anda harus login untuk mengakses ini.');
+             return redirect()->route('admin.profil.show')->with('error', 'Anda harus login untuk mengakses ini.');
          }
 
          $admin = $pengguna->admin; 
 
          if (!$admin) {
-           return redirect()->route('admin.profil.show')->with('error_password', 'Data admin tidak ditemukan.');
+           return redirect()->route('admin.profil.show')->with('error', 'Data admin tidak ditemukan.');
          }
          
          $request->validate([
@@ -97,15 +95,15 @@ class AdminController extends Controller
 
          try {
              if (!Hash::check($request->current_password, $admin->password)) {
-                 return redirect()->route('admin.profil.show')->withErrors(['current_password' => 'Password lama tidak sesuai.']); // Menggunakan withErrors untuk validasi field tertentu
+                 return redirect()->route('admin.profil.show')->with('error', 'Password lama tidak sesuai.'); // Menggunakan withErrors untuk validasi field tertentu
              }
 
              $admin->password = Hash::make($request->new_password);
              $admin->save();
 
-             return redirect()->route('admin.profil.show')->with('success_password', 'Password berhasil diperbarui.');
+             return redirect()->route('admin.profil.show')->with('success', 'Password berhasil diperbarui.');
          } catch (\Exception $e) {
-             return redirect()->route('admin.profil.show')->with('error_password', 'Gagal memperbarui password: ' . $e->getMessage());
+             return redirect()->route('admin.profil.show')->with('error', 'Gagal memperbarui password: ' . $e->getMessage());
          }
     }
     
@@ -113,10 +111,10 @@ class AdminController extends Controller
     {
          $pengguna = Auth::user();
 
-        //  if (!$pengguna) {
-        //      // Redireksi atau tampilkan halaman error jika tidak login
-        //      abort(403, "Akses ditolak. Anda harus login.");
-        //  }
+         if (!$pengguna) {
+             // Redireksi atau tampilkan halaman error jika tidak login
+             abort(403, "Akses ditolak. Anda harus login.");
+         }
 
          $admin = $pengguna->admin;
         

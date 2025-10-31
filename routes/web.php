@@ -20,6 +20,6 @@ Route::post('/login', [AuthController::class, 'login']);
 
 Route::get('/admin/profil', [AdminController::class, 'show_profile']) -> name('admin.profil.show');
 
-Route::put('/admin/profil/update', [AdminController::class, 'update_profile']) -> name('admin.profil.update');
+Route::patch('/admin/profil/update', [AdminController::class, 'update_profile']) -> name('admin.profil.update');
 
 Route::put('/admin/password/update', [AdminController::class, 'update_password']) -> name('admin.password.update');

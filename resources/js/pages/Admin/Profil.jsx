@@ -1,184 +1,227 @@
-import React from 'react';
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { useForm, usePage } from '@inertiajs/react';
+import { useState } from 'react';
 
-// Ambil props errors, flash messages (success, error), dan data auth
-export default function ProfilAdmin() {
-  const { auth, errors } = usePage().props;
-  // Flash message dari Laravel (Contoh: session('success'))
-  const successMessage = usePage().props.flash?.success;
-  const errorMessage = usePage().props.flash?.error;
-  const successPasswordMessage = usePage().props.flash?.success_password;
-  const errorPasswordMessage = usePage().props.flash?.error_password;
-  
-  const user = auth.user;
-  // console.log(user) // Hilangkan console.log yang tidak perlu
+// Asumsikan Anda memiliki komponen Layout
+// import Layout from '@/Layouts/AdminLayout'; 
 
-  // --- FORM UPDATE PROFIL ---
-  const { 
-    data: profileData, 
-    setData: setProfileData, 
-    put: putProfile, 
-    processing: processingProfile, 
-    progress: profileProgress,
-    reset: resetProfile,
-    // errors: profileErrors, // Inertia sudah menyediakan errors dari usePage().props
-  } = useForm({
-    // Inisialisasi data dari user yang di-share dari controller
-    nama: user?.nama || '', 
-    foto: null, 
-    // _method: 'PUT', // TIDAK PERLU lagi karena fungsi `put` dari useForm sudah otomatis menangani method spoofing.
-  });
-
-  // Fungsi submit profil
-  const handleSubmitProfile = (e) => {
-    e.preventDefault();
+export default function Profile({ user }) {
     
-    // Panggil putProfile dan kirim ke route update profil
-    // Inertia akan secara otomatis mendeteksi apakah ada file yang perlu diupload (multipart/form-data)
-    putProfile(route('admin.profil.update'), { // Pastikan Anda menggunakan route yang benar
-      onSuccess: () => {
-        resetProfile('foto'); // Kosongkan input file setelah berhasil
-      },
-      // Hapus logika untuk testing success/error yang tidak diperlukan
-      // preserveScroll: true, // Opsional: pertahankan posisi scroll
+    // 1. MENGAMBIL PAGE (UNTUK FLASH MESSAGES & ERRORS)
+    const { flash, errors } = usePage().props;
+
+    // 2. STATE UNTUK PREVIEW FOTO
+    const [photoPreview, setPhotoPreview] = useState(null);
+
+    // 3. FORM UPDATE PROFIL
+    const { data: profileData, setData: setProfileData, post: postProfile, processing: processingProfile, errors: profileErrors } = useForm({
+        nama: user?.nama || '',
+        foto: null, 
     });
-  }
 
-  // --- FORM UPDATE PASSWORD ---
-  const { 
-    data: passwordData, 
-    setData: setPasswordData, 
-    put: putPassword, 
-    processing: processingPassword,
-    reset: resetPassword
-    // errors: passwordErrors, // Sama, Inertia sudah menyediakan errors
-  } = useForm({
-    current_password: '',
-    new_password: '',
-    new_password_confirmation: '',
-    // _method: 'PUT', // TIDAK PERLU
-  });
-  
-  // Fungsi submit password
-  const handleSubmitPassword = (e) => {
-    e.preventDefault();
-    putPassword(route('admin.password.update'), {
-      onSuccess: () => {
-        resetPassword(); // Kosongkan semua field password
-      },
-      // preserveScroll: true, // Opsional
+    // 4. FORM UPDATE PASSWORD
+    // Field 'new_password_confirmation' wajib ada untuk validasi 'confirmed'
+    const { data: passwordData, setData: setPasswordData, post: postPassword, processing: processingPassword, errors: passwordErrors, reset: resetPassword } = useForm({
+        current_password: '',
+        new_password: '',
+        new_password_confirmation: '', 
     });
-  }
 
-  return (
-    <div className="max-w-4xl mx-auto p-4 sm:p-6 lg:p-8">
-      <Head title="Profil Admin" />
+    // 5. HELPER UNTUK MENAMPILKAN URL FOTO
+    function getFotoUrl() {
+        if (user?.foto) {
+            // Memastikan path dimulai dengan / jika disimpan sebagai storage/...
+            return `/${user.foto}`;
+        }
+        return 'https://via.placeholder.com/100/3182CE/FFFFFF?text=No+Foto';
+    }
 
-      {/* FORM UPDATE PROFIL */}
-      <div className="bg-white shadow-md rounded-lg p-6 mb-6">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Update Profil</h2>
+    // 6. FUNGSI HANDLER
+    function handlePhotoChange(e) {
+        const file = e.target.files[0];
+        if (!file) return;
 
-        {/* Menampilkan Flash Message dari Laravel */}
-        {successMessage && <div className="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg">✅ {successMessage}</div>}
-        {errorMessage && <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">❌ {errorMessage}</div>}
+        setProfileData('foto', file); 
 
-        <form onSubmit={handleSubmitProfile}>
-          {/* Input Nama */}
-          <div className="mb-4">
-            <label htmlFor="nama" className="block text-sm font-medium text-gray-700 mb-1">Nama</label>
-            <input
-              id="nama"
-              type="text"
-              value={profileData.nama} 
-              onChange={e => setProfileData('nama', e.target.value)}
-              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-            {/* Menggunakan errors dari usePage().props */}
-            {errors.nama && <div className="text-sm text-red-600 mt-1">{errors.nama}</div>}
-          </div>
+        const reader = new FileReader();
+        reader.onload = (event) => {
+            setPhotoPreview(event.target.result);
+        };
+        reader.readAsDataURL(file);
+    }
 
-          {/* Input Foto */}
-          <div className="mb-4">
-            <label htmlFor="foto" className="block text-sm font-medium text-gray-700 mb-1">Foto Profil (Baru)</label>
-            <input
-              id="foto"
-              type="file"
-              // Penting: gunakan callback untuk setData file
-              onChange={e => setProfileData('foto', e.target.files[0])}
-              className="block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none"
-            />
-            {errors.foto && <div className="text-sm text-red-600 mt-1">{errors.foto}</div>}
+    function submitProfile(e) {
+        e.preventDefault();
+        postProfile(route('admin.profil.update'), {
+            preserveScroll: true,
+            onSuccess: () => {
+                setPhotoPreview(null); 
+                const fileInput = document.getElementById('foto');
+                if (fileInput) fileInput.value = null; 
+            },
+        });
+    }
+
+    function submitPassword(e) {
+        e.preventDefault();
+        // Route disesuaikan
+        postPassword(route('admin.password.update'), {
+            preserveScroll: true,
+            onSuccess: () => resetPassword(), // Reset form password jika sukses
+        });
+    }
+
+    // 7. RENDER JSX
+    return (
+        // <Layout> 
+        <div className="container mx-auto p-8 font-sans">
             
-            {/* Indikator progress upload */}
-            {profileProgress && profileProgress.percentage < 100 && ( // Tampilkan saat progress < 100
-              <div className="w-full bg-gray-200 rounded-full h-2.5 mt-2">
-                <div className="bg-blue-600 h-2.5 rounded-full" style={{ width: `${profileProgress.percentage}%` }}></div>
-              </div>
+            {/* ===== NOTIFIKASI SUKSES (flash.success) ===== */}
+            <h3>Nanti di sini ada flash sukses</h3>
+            {flash.success && (
+                <div className="mb-6 p-4 bg-green-100 border-l-4 border-green-500 text-green-700 rounded-lg shadow-md" role="alert">
+                    <p className="font-bold">Berhasil!</p>
+                    <p>{flash.success}</p>
+                </div>
             )}
-          </div>
+            
+            {/* ===== NOTIFIKASI ERROR (flash.error) ===== */}
+            {flash.error && (
+                <div className="mb-6 p-4 bg-red-100 border-l-4 border-red-500 text-red-700 rounded-lg shadow-md" role="alert">
+                    <p className="font-bold">Gagal!</p>
+                    <p>{flash.error}</p>
+                </div>
+            )}
+            
+            {/* ====================================================== */}
 
-          <button type="submit" disabled={processingProfile} className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
-            {processingProfile ? 'Menyimpan...' : 'Simpan Profil'}
-          </button>
-        </form>
-      </div>
+            
+            {/* ===== FORM UPDATE PROFIL ===== */}
+            <div className="w-full max-w-lg p-6 bg-white shadow-xl rounded-lg mb-8">
+                <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Update Profil</h2>
+                
+                <form onSubmit={submitProfile}>
+                    
+                    {/* Nama */}
+                    <div className="mb-4">
+                        <label htmlFor="nama" className="block text-sm font-semibold text-gray-600">Nama</label>
+                        <input
+                            type="text"
+                            id="nama"
+                            value={profileData.nama}
+                            onChange={(e) => setProfileData('nama', e.target.value)}
+                            className={`mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${profileErrors.nama ? 'border-red-500' : 'border-gray-300'}`}
+                        />
+                        {profileErrors.nama && (
+                            <div className="text-xs text-red-600 mt-1">{profileErrors.nama}</div>
+                        )}
+                    </div>
 
-      <div className="border-t border-gray-200 my-6"></div>
+                    {/* Foto Profil (Baru) */}
+                    <div className="mb-6">
+                        <label htmlFor="foto" className="block text-sm font-semibold text-gray-600 mb-2">Foto Profil (Baru)</label>
+                        
+                        {/* Tampilkan Foto Saat Ini atau Preview */}
+                        <div className="mt-2 flex items-center mb-3">
+                            {photoPreview ? (
+                                <span
+                                    className="block h-24 w-24 rounded-full border-2 border-blue-500"
+                                    style={{
+                                        backgroundImage: `url('${photoPreview}')`,
+                                        backgroundSize: 'cover',
+                                        backgroundPosition: 'center',
+                                    }}
+                                    aria-label="New Photo Preview"
+                                />
+                            ) : (
+                                <img src={getFotoUrl()} alt="Foto Profil Saat Ini" className="h-24 w-24 rounded-full object-cover border-2 border-gray-300" />
+                            )}
+                            <span className='ml-4 text-sm text-gray-500'>*Foto akan tersimpan setelah menekan tombol Simpan.</span>
+                        </div>
+                        
+                        <input
+                            type="file"
+                            id="foto"
+                            onChange={handlePhotoChange}
+                            className={`mt-2 block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100 cursor-pointer ${profileErrors.foto ? 'border-red-500' : ''}`}
+                        />
+                        {profileErrors.foto && (
+                            <div className="text-xs text-red-600 mt-1">{profileErrors.foto}</div>
+                        )}
+                    </div>
+                    
+                    <button
+                        type="submit"
+                        disabled={processingProfile}
+                        className="w-full px-4 py-2 mt-4 bg-blue-600 text-white font-bold rounded-lg shadow-md hover:bg-blue-700 disabled:opacity-50 transition duration-150 ease-in-out"
+                    >
+                        {processingProfile ? 'Menyimpan...' : 'Simpan Profil'}
+                    </button>
+                </form>
+            </div>
 
-      {/* FORM UPDATE PASSWORD */}
-      <div className="bg-white shadow-md rounded-lg p-6">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-800">Update Password</h2>
-        
-        {/* Menampilkan Flash Message dari Laravel */}
-        {successPasswordMessage && <div className="p-4 mb-4 text-sm text-green-700 bg-green-100 rounded-lg">✅ {successPasswordMessage}</div>}
-        {errorPasswordMessage && <div className="p-4 mb-4 text-sm text-red-700 bg-red-100 rounded-lg">❌ {errorPasswordMessage}</div>}
+            {/* ===== FORM UPDATE PASSWORD ===== */}
+            <div className="w-full max-w-lg p-6 bg-white shadow-xl rounded-lg">
+                <h2 className="text-2xl font-bold mb-6 text-gray-800 border-b pb-2">Update Password</h2>
+                <form onSubmit={submitPassword}>
+                    
+                    {/* Password Lama */}
+                    <div className="mb-4">
+                        <label htmlFor="current_password" className="block text-sm font-semibold text-gray-600">Password Lama</label>
+                        <input
+                            type="password"
+                            id="current_password"
+                            value={passwordData.current_password}
+                            onChange={(e) => setPasswordData('current_password', e.target.value)}
+                            className={`mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${passwordErrors.current_password ? 'border-red-500' : 'border-gray-300'}`}
+                        />
+                        {/* Error validasi 422 (required) atau error dari controller (Password lama tidak sesuai) */}
+                        {(passwordErrors.current_password || errors.current_password) && (
+                            <div className="text-xs text-red-600 mt-1">
+                                {passwordErrors.current_password || errors.current_password}
+                            </div>
+                        )}
+                    </div>
+                    
+                    {/* Password Baru */}
+                    <div className="mb-4">
+                        <label htmlFor="new_password" className="block text-sm font-semibold text-gray-600">Password Baru</label>
+                        <input
+                            type="password"
+                            id="new_password"
+                            value={passwordData.new_password}
+                            onChange={(e) => setPasswordData('new_password', e.target.value)}
+                            className={`mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${passwordErrors.new_password ? 'border-red-500' : 'border-gray-300'}`}
+                        />
+                         {passwordErrors.new_password && (
+                            <div className="text-xs text-red-600 mt-1">{passwordErrors.new_password}</div>
+                        )}
+                    </div>
+                    
+                    {/* Konfirmasi Password Baru */}
+                    <div className="mb-6">
+                        <label htmlFor="new_password_confirmation" className="block text-sm font-semibold text-gray-600">Konfirmasi Password Baru</label>
+                        <input
+                            type="password"
+                            id="new_password_confirmation"
+                            value={passwordData.new_password_confirmation}
+                            onChange={(e) => setPasswordData('new_password_confirmation', e.target.value)}
+                            className={`mt-1 block w-full px-4 py-2 border rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 ${passwordErrors.new_password_confirmation ? 'border-red-500' : 'border-gray-300'}`}
+                        />
+                         {passwordErrors.new_password_confirmation && (
+                            <div className="text-xs text-red-600 mt-1">{passwordErrors.new_password_confirmation}</div>
+                        )}
+                    </div>
 
-        <form onSubmit={handleSubmitPassword}>
-          {/* Input Password Lama */}
-          <div className="mb-4">
-            <label htmlFor="current_password" className="block text-sm font-medium text-gray-700 mb-1">Password Lama</label>
-            <input
-              id="current_password"
-              type="password"
-              value={passwordData.current_password}
-              onChange={e => setPasswordData('current_password', e.target.value)}
-              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-            {errors.current_password && <div className="text-sm text-red-600 mt-1">{errors.current_password}</div>}
-          </div>
-
-          {/* Input Password Baru */}
-          <div className="mb-4">
-            <label htmlFor="new_password" className="block text-sm font-medium text-gray-700 mb-1">Password Baru</label>
-            <input
-              id="new_password"
-              type="password"
-              value={passwordData.new_password}
-              onChange={e => setPasswordData('new_password', e.target.value)}
-              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-            {errors.new_password && <div className="text-sm text-red-600 mt-1">{errors.new_password}</div>}
-          </div>
-
-          {/* Input Konfirmasi Password Baru */}
-          <div className="mb-4">
-            <label htmlFor="new_password_confirmation" className="block text-sm font-medium text-gray-700 mb-1">Konfirmasi Password Baru</label>
-            <input
-              id="new_password_confirmation"
-              type="password"
-              value={passwordData.new_password_confirmation}
-              onChange={e => setPasswordData('new_password_confirmation', e.target.value)}
-              className="block w-full border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-            />
-            {/* Error konfirmasi akan ada di errors.new_password (dari validasi `confirmed`) */}
-            {/* {errors.new_password_confirmation && <div className="text-sm text-red-600 mt-1">{errors.new_password_confirmation}</div>} */}
-          </div>
-
-          <button type="submit" disabled={processingPassword} className="inline-flex items-center px-4 py-2 bg-blue-600 border border-transparent rounded-md font-semibold text-xs text-white uppercase tracking-widest hover:bg-blue-700 active:bg-blue-900 focus:outline-none focus:border-blue-900 focus:ring ring-blue-300 disabled:opacity-25 transition ease-in-out duration-150">
-            {processingPassword ? 'Menyimpan...' : 'Update Password'}
-          </button>
-        </form>
-      </div>
-    </div>
-  );
+                    <button
+                        type="submit"
+                        disabled={processingPassword}
+                        className="w-full px-4 py-2 bg-red-600 text-white font-bold rounded-lg shadow-md hover:bg-red-700 disabled:opacity-50 transition duration-150 ease-in-out"
+                    >
+                        {processingPassword ? 'Mengupdate...' : 'Update Password'}
+                    </button>
+                </form>
+            </div>
+        </div>
+        // </Layout>
+    );
 }
