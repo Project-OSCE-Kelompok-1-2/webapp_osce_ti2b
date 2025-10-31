@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('id_pengguna');
             $table->string('username')->unique();
             $table->string('password');
-            $table->enum('jeni_role', ['admin', 'mahasiswa', 'penguji']);
+            $table->enum('jenis_role', ['admin', 'mahasiswa', 'penguji']);
             $table->timestamps();
         });
     }
