@@ -54,3 +54,5 @@ yarn-error.log
 /.vscode
 /.zed
  develop
+
+/routes/web.php
