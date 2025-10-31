@@ -16,6 +16,7 @@ class Pengguna extends Authenticatable
         'username',
         'password',
         'jenis_role',
+        'path_gambar',
     ];
 
     /**
