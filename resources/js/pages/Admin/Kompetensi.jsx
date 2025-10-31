@@ -44,55 +44,52 @@ export default function KompetensiPage() {
     return (
         <div className="p-6 pl-24 bg-white rounded-lg shadow-sm">
             {/* Breadcrumb */}
-            <div className="flex items-center gap-2 mb-4">
-                <button className="bg-blue-600 text-white p-2 rounded-md">
-                    <ArrowLeft size={18} />
+            <div className="flex items-center justify-between mb-6 bg-white">
+                <button className="bg-blue-600 text-white p-3 rounded-xl border border-black">
+                    <ArrowLeft size={20} />
                 </button>
-                <input
-                    type="text"
-                    value="Stase \ A. Persiapan \ Kompetensi"
-                    readOnly
-                    className="border rounded-md px-3 py-2 w-full text-sm"
-                />
+
+                <div className="flex-1 mx-3 border border-black rounded-xl px-4 py-2 bg-white">
+                    <p className="text-black text-lg">
+                        Stase \ Persiapan \ Kompetensi
+                    </p>
+                </div>
             </div>
 
             {/* Header */}
-            <div className="mb-4">
-                <h2 className="font-semibold text-lg mb-1">Menu Kompetensi</h2>
-                <p className="text-sm text-gray-600 mb-3">
-                    Halaman ini berisi aspek-aspek yang nanti dinilai oleh
-                    penguji, setiap rubrik bisa memiliki berbagai macam aspek
-                    penilaian
+            <div className="mb-6">
+                <h2 className="text-xl font-medium text-black mb-1">
+                    Menu Kompetensi
+                </h2>
+                <p className="text-sm text-gray-500 max-w-md">
+                    Jorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Nunc vulputate libero et velit interdum, ac aliquet odio
+                    mattis.
                 </p>
 
                 <button
                     onClick={() => router.visit("/admin/kompetensi/form")}
-                    className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md"
+                    className="flex items-center gap-2 mt-3 bg-blue-600 text-white px-5 py-3 rounded-xl border border-black"
                 >
-                    <PlusCircle size={18} />
+                    <PlusCircle size={20} />
                     Tambah Kompetensi
                 </button>
             </div>
 
             {/* Search Bar */}
-            <div className="flex gap-2 mb-4">
-                <div className="relative flex-grow">
-                    <Search
-                        size={18}
-                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500"
-                    />
+            <div className="flex items-center gap-3 mb-6">
+                <div className="flex flex-1 items-center gap-2 border border-black rounded-xl px-3 py-2">
+                    <Search size={18} className="text-gray-500" />
                     <input
                         type="text"
                         placeholder="Tuliskan data kompetensi..."
-                        className="border w-full rounded-md pl-10 pr-3 py-2"
+                        className="flex-1 outline-none text-sm text-gray-700"
                         value={search}
-                        onChange={(e) => {
-                            setSearch(e.target.value);
-                            setCurrentPage(1); // reset page ketika mencari
-                        }}
+                        onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
-                <button className="bg-blue-600 text-white px-24 rounded-md">
+
+                <button className="px-10 py-2 bg-blue-600 text-white rounded-xl border border-black">
                     Cari
                 </button>
             </div>
@@ -100,17 +97,22 @@ export default function KompetensiPage() {
             {/* Table */}
             <h3 className="font-semibold mb-2">Table Kompetensi</h3>
             <div className="relative">
-                <table className="w-full border border-gray-300 rounded-md text-sm">
-                    <thead className="bg-gray-100 text-gray-700">
-                        <tr>
-                            <th className="p-2 text-center w-10">No</th>
-                            <th className="p-2 text-left">
+                <table className="w-full border border-black rounded-xl overflow-hidden text-sm">
+                    <thead className="bg-white text-black">
+                        <tr className="border-b border-black/40">
+                            <th className="border-r border-black/40 py-2">
+                                No
+                            </th>
+                            <th className="border-r border-black/40 py-2 text-left px-3">
                                 Deskripsi Kompetensi
                             </th>
-                            <th className="p-2 text-center w-20">Bobot</th>
-                            <th className="p-2 text-center w-28">Action</th>
+                            <th className="border-r border-black/40 py-2">
+                                Bobot
+                            </th>
+                            <th className="py-2">Action</th>
                         </tr>
                     </thead>
+
                     <tbody>
                         {paginatedData.map((item, idx) => (
                             <tr
@@ -154,7 +156,7 @@ export default function KompetensiPage() {
                     </tbody>
                 </table>
 
-                {/* Pagination: di bawah kiri tabel, ukuran kecil */}
+                {/* Pagination */}
                 <div className="mt-3 flex items-center justify-start gap-2 text-sm text-gray-600">
                     {/* tombol previous */}
                     <button
@@ -207,31 +209,26 @@ export default function KompetensiPage() {
                 </div>
             </div>
 
-            {/* Footer Total Kompetensi / Aspek Penilaian (tampilan sesuai gambar) */}
-            <div className="mt-6">
-                <div className="w-full rounded-full border px-3 py-2 flex items-center justify-between">
-                    <div className="text-xs text-gray-700">
-                        Total bobot kompetensi / aspek penilaian
+            {/* Footer Total Kompetensi / Aspek Penilaian */}
+            <div className="mt-6 border border-black rounded-xl flex items-center justify-between px-4 py-2">
+                <p className="text-sm text-black">
+                    Total bobot kompetensi / aspek penilaian
+                </p>
+                <div className="flex gap-3">
+                    <div className="border border-black/50 rounded-xl px-8 py-1">
+                        <span className="font-medium">Kompetensi:</span>{" "}
+                        {kompetensi.length}
                     </div>
-
-                    <div className="flex gap-3 items-center">
-                        <div className="px-4 py-1 border rounded-lg bg-white text-xs">
-                            <span className="font-medium">Kompetensi: </span>
-                            <span>{kompetensi.length}</span>
-                        </div>
-                        <div className="px-4 py-1 border rounded-lg bg-white text-xs">
-                            <span className="font-medium">
-                                Aspek Penilaian:{" "}
-                            </span>
-                            <span>{totalBobot}</span>
-                        </div>
+                    <div className="border border-black/50 rounded-xl px-8 py-1">
+                        <span className="font-medium">Aspek Penilaian:</span>{" "}
+                        {totalBobot}
                     </div>
                 </div>
             </div>
 
             {/* Footer Copyright */}
-            <footer className="text-sm text-gray-500 mt-6 border-t pt-2 text-center">
-                Copyright Porem ipsum dolor sit amet
+            <footer className="mt-10 border border-black rounded-xl text-center py-4 text-sm text-gray-600">
+                Copyright All right reserved.
             </footer>
         </div>
     );
