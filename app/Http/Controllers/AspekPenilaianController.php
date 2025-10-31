@@ -14,6 +14,6 @@ class AspekPenilaianController extends Controller
         $id_stase = $id;
         $aspek_penilaian = AspekPenilaian::where("id_stase", $id_stase)->withCount("poinAspekPenilaian as jumlah_kompetensi")->get();
 
-        return Inertia::render("Admin/AspekPenilaian", ["datas" => $aspek_penilaian]);
+        return Inertia::render("Admin/AspekPenilaian", ["data" => $aspek_penilaian]);
     }
 }
