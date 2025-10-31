@@ -1,120 +1,24 @@
 import React, { useEffect, useState } from "react";
-// Import icons yang kita pakai di tabel
+// Import icons
 import { Trash2, Home, Pencil, Search } from "lucide-react"; 
+// PERHATIKAN INI: Kita import file form-nya
+import AddAspekForm from "./AddAspekForm"; 
 
-// =====================================================================
-// == KOMPONEN AddAspek (FORM TAMBAH / EDIT) ==
-// Tidak ada perubahan di bagian ini.
-// =====================================================================
-
-function AddAspek({ onBack, onSubmit, mode, initialData }) {
-  const [nama, setNama] = useState(initialData?.nama || ""); 
-  const [bobot, setBobot] = useState(initialData?.bobot || "30");
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onSubmit({
-      nama: nama,
-      bobot: parseInt(bobot) || 0,
-    });
-  };
-
-  const isEditMode = mode === 'edit';
-  const pageTitle = isEditMode ? 'Edit Aspek Kompetensi' : 'Tambah Aspek Kompetensi';
-  const formTitle = isEditMode ? 'Form Edit Aspek Penilaian' : 'Form Tambah Aspek Penilaian';
-
-  return (
-    <div className="p-4 space-y-6">
-      
-      <div className="flex items-center gap-3 text-sm text-gray-700 mb-6 border rounded-lg p-2 bg-white shadow-sm">
-        <button 
-          onClick={onBack}
-          className="bg-blue-600 text-white p-2 rounded-md flex items-center justify-center hover:bg-blue-700 transition"
-          title="Kembali"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2.5} stroke="currentColor" className="w-5 h-5">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 12h-15m0 0l6.75 6.75M4.5 12l6.75-6.75" />
-          </svg>
-        </button>
-        <span className="font-medium">Stase \ Menu Aspek Penilaian\ {pageTitle}</span>
-      </div>
-
-      <div className="max-w-xl mx-auto border-2 rounded-lg shadow-xl overflow-hidden">
-        
-        <div className="bg-gray-800 text-white px-6 py-5 text-center">
-          <h2 className="font-semibold text-xl">{formTitle}</h2>
-          <p className="text-sm text-gray-300 mt-1">
-            Dosen Penguji : Tahan Prahara., S.T., M.Kom
-          </p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="bg-white p-6 space-y-5">
-          <div>
-            <label htmlFor="nama-aspek" className="text-sm font-medium text-gray-700 block mb-2">
-              Nama Aspek Penilaian
-            </label>
-            <textarea
-              id="nama-aspek"
-              value={nama}
-              onChange={(e) => setNama(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-500 focus:border-blue-500"
-              rows={5}
-              required
-            ></textarea>
-          </div>
-
-          <div>
-            <label htmlFor="bobot-maksimal" className="text-sm font-medium text-gray-700 block mb-2">
-              Bobot Maksimal Aspek Penilaian
-            </label>
-            <input
-              id="bobot-maksimal"
-              type="number"
-              value={bobot}
-              onChange={(e) => setBobot(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-500 focus:border-blue-500"
-              required
-            />
-          </div>
-
-          <div className="pt-2">
-            <button
-              type="submit"
-              className="w-full bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-semibold flex justify-center items-center gap-2 hover:bg-blue-700 shadow-lg transition"
-            >
-              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-5 h-5">
-                <path strokeLinecap="round" strokeLinejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5M16.5 12L12 16.5m0 0L7.5 12m4.5 4.5V3" />
-              </svg>
-              Submit
-            </button>
-          </div>
-        </form>
-      </div>
-
-      <div className="text-center text-gray-400 text-sm mt-16 border-t pt-4">
-          Copyright Porem ipsum dolor sit ametPorem ipsum dolor sit amet
-      </div>
-    </div>
-  );
-}
-
-
-// =====================================================================
-// == KOMPONEN UTAMA (Kompetensi) ==
-// === PERUBAHAN DI SINI: Menambah logika untuk 'delete' ===
-// =====================================================================
-
+// Data mock (contoh)
 const mockAspekData = [
     { id: 1, no: "A", nama: "Penilaian Pertama", jmlKompetensi: 5, bobot: 30 },
     { id: 2, no: "B", nama: "Penilaian Kedua", jmlKompetensi: 5, bobot: 30 },
     { id: 3, no: "C", nama: "Penilaian Ketiga", jmlKompetensi: 5, bobot: 30 },
 ];
 
-const Kompetensi = () => {
+// Ini adalah komponen UTAMA (Induk)
+export default function Aspekpenilaian() { 
   const [aspekList, setAspekList] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [view, setView] = useState("list");
+  const [view, setView] = useState("list"); // 'list', 'add', atau 'edit'
   const [aspekToEdit, setAspekToEdit] = useState(null);
+
+  // --- SEMUA LOGIKA ADA DI SINI ---
 
   const fetchAspek = async () => {
     try {
@@ -169,23 +73,21 @@ const Kompetensi = () => {
     handleBackToList();
   };
 
-  // === 1. FUNGSI BARU UNTUK HAPUS ===
   const handleDeleteClick = (itemId) => {
-    // Tampilkan konfirmasi dulu
     if (window.confirm("Apakah kamu yakin ingin menghapus aspek ini?")) {
-      // Filter list, buang item yang ID-nya cocok
       const updatedList = aspekList.filter((item) => item.id !== itemId);
       setAspekList(updatedList);
-      // TODO: Nanti di sini kamu juga harus panggil API ke backend untuk hapus
     }
   };
 
+  // --- TAMPILAN BERDASARKAN VIEW ---
 
+  // 1. Tampilan mode 'add'
   if (view === "add") {
     return (
       <div className="flex min-h-screen bg-gray-50">
         <div className="flex-1 p-8">
-          <AddAspek 
+          <AddAspekForm 
             onBack={handleBackToList} 
             onSubmit={handleSubmitTambahAspek}
             mode="add"
@@ -195,11 +97,12 @@ const Kompetensi = () => {
     );
   }
 
+  // 2. Tampilan mode 'edit'
   if (view === "edit") {
     return (
       <div className="flex min-h-screen bg-gray-50">
         <div className="flex-1 p-8">
-          <AddAspek 
+          <AddAspekForm 
             onBack={handleBackToList} 
             onSubmit={handleSubmitEditAspek}
             mode="edit"
@@ -210,16 +113,17 @@ const Kompetensi = () => {
     );
   }
 
+  // 3. Tampilan 'list' (default)
   return (
     <div className="flex min-h-screen bg-gray-50">
       <div className="flex-1 p-8"> 
         
         {/* Header Breadcrumb */}
-        <div className="flex items-center gap-3 text-sm text-gray-700 mb-6 border rounded-lg p-2 bg-white shadow-sm">
+        <div className="flex items-center gap-3 text-sm text-gray-700 mb-6 border border-gray-400 rounded-lg p-2 bg-white shadow-sm">
           <div className="bg-blue-600 text-white p-2 rounded-md flex items-center justify-center">
             <Home size={20} />
           </div>
-          <span className="font-medium">Stase \ Menu Aspek Penilaian</span>
+          <span className="font-medium">Stase \ Stase Lorem Ipsum Dolor</span>
         </div>
 
         {/* Header Menu */}
@@ -242,7 +146,7 @@ const Kompetensi = () => {
           </button>
         </div>
 
-        {/* Search Bar */}
+        {/* Search Bar (Ikon di dalam) */}
         <div className="flex items-center w-full gap-3 mb-4">
           <div className="relative flex-1">
             <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
@@ -266,15 +170,17 @@ const Kompetensi = () => {
           </h3>
           
           <table className="w-full min-w-max">
+            {/* Header Tabel */}
             <thead>
-              <tr className="bg-gray-100 text-gray-700 text-sm font-medium">
-                <th className="py-3 px-3 border-b text-center w-[5%]">No</th>
-                <th className="py-3 px-4 border-b text-left w-[50%]">Deskripsi</th>
-                <th className="py-3 px-3 border-b text-center w-[15%]">Bobot maksimum</th>
-                <th className="py-3 px-3 border-b text-center w-[30%]">Action</th>
+              <tr className="bg-gray-100 text-gray-700 text-sm font-medium border-b-2 border-gray-300">
+                <th className="py-3 px-3 text-center w-[5%]">No</th>
+                <th className="py-3 px-4 text-left w-[50%] border-l border-gray-300">Deskripsi</th>
+                <th className="py-3 px-3 text-center w-[15%] border-l border-gray-300">Bobot maksimum</th>
+                <th className="py-3 px-3 text-center w-[30%] border-l border-gray-300">Action</th>
               </tr>
             </thead>
             
+            {/* Body Tabel */}
             <tbody>
               {isLoading ? (
                 <tr>
@@ -284,23 +190,22 @@ const Kompetensi = () => {
                 </tr>
               ) : (
                 aspekList.map((item, index) => (
-                  <tr key={item.id} className="text-gray-800 text-sm hover:bg-gray-50">
-                    <td className="py-3 px-3 border-b border-gray-200 text-center border-r border-gray-300">
+                  <tr key={item.id} className="text-gray-800 text-sm"> 
+                    <td className="py-3 px-3 text-center"> 
                       {index + 1}
                     </td>
-                    <td className="py-3 px-4 border-b border-gray-200">
+                    <td className="py-3 px-4 border-l border-gray-300">
                       <div className="font-semibold">{item.no}. {item.nama}</div>
                       <div className="text-xs text-gray-500 mt-1">{item.jmlKompetensi} Kompetensi</div>
                     </td>
-                    <td className="py-3 px-3 border-b border-gray-200 text-center border-l border-r border-gray-300">
+                    <td className="py-3 px-3 text-center border-l border-gray-300">
                       {item.bobot}
                     </td>
-                    <td className="py-3 px-3 border-b border-gray-200 text-center">
+                    <td className="py-3 px-3 text-center border-l border-gray-300">
                       <div className="flex justify-center gap-2">
                         <button className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm hover:bg-blue-700">
                           Edit Kompetensi
                         </button>
-                        
                         <button 
                           onClick={() => handleEditClick(item)}
                           className="p-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700" 
@@ -308,10 +213,8 @@ const Kompetensi = () => {
                         >
                           <Pencil size={16} />
                         </button>
-
-                        {/* === 2. TOMBOL HAPUS DIPASANG FUNGSI === */}
                         <button 
-                          onClick={() => handleDeleteClick(item.id)} // <-- DIPASANG DI SINI
+                          onClick={() => handleDeleteClick(item.id)}
                           className="p-2 bg-white text-black border border-black rounded-lg hover:bg-gray-100" 
                           title="Hapus"
                         >
@@ -323,25 +226,18 @@ const Kompetensi = () => {
                 ))
               )}
             </tbody>
-
-            {/* Pagination */}
-            <tfoot className="font-semibold">
-                <tr>
-                  <td colSpan="2" className="py-3 px-4 text-left border-b border-gray-200">
-                        <div className="flex justify-start items-center gap-4 text-sm">
-                            <button className="w-8 h-8 rounded-md bg-blue-600 text-white font-semibold flex items-center justify-center hover:bg-blue-700">◄</button>
-                            <button className="w-8 h-8 rounded-md bg-blue-600 text-white font-semibold">1</button>
-                            <span className="text-gray-600 px-1">2</span>
-                            <span className="text-gray-600 px-1">3</span>
-                            <span className="text-gray-600 px-1">4</span>
-                            <span className="text-gray-600 px-1">5</span>
-                            <button className="w-8 h-8 rounded-md bg-gray-100 text-gray-600 font-semibold flex items-center justify-center hover:bg-gray-200">►</button>
-                        </div>
-                    </td>
-                  <td colSpan="2" className="border-b border-gray-200"></td>
-                </tr>
-            </tfoot>
           </table>
+
+          {/* Pagination */}
+          <div className="flex justify-start items-center gap-4 text-sm p-4 border-t border-gray-200">
+            <button className="w-8 h-8 rounded-full bg-gray-800 text-white font-semibold flex items-center justify-center hover:bg-gray-700">◄</button>
+            <span className="text-gray-900 font-bold px-1">1</span>
+            <span className="text-gray-600 px-1">2</span>
+            <span className="text-gray-600 px-1">3</span>
+            <span className="text-gray-600 px-1">4</span>
+            <span className="text-gray-600 px-1">5</span>
+            <button className="w-8 h-8 rounded-full bg-gray-800 text-white font-semibold flex items-center justify-center hover:bg-gray-700">►</button>
+          </div>
         </div>
 
         {/* Baris Total (Tabel Terpisah) */}
@@ -361,14 +257,11 @@ const Kompetensi = () => {
             </table>
         </div>
 
-
         {/* Footer Copyright */}
         <div className="text-center text-gray-400 text-sm mt-16 border-t pt-4">
-          MOSAIC | Website Osce Politeknik Negeri Semarang
+          Copyright Porem ipsum dolor sit ametPorem ipsum dolor sit amet
         </div>
       </div>
     </div>
   );
 };
-
-export default Kompetensi;
