@@ -1,3 +1,4 @@
+import { router } from "@inertiajs/react";
 import React from "react";
 import {
     ChevronLeft,
@@ -43,7 +44,10 @@ export default function Stase() {
                     </p>
 
                     {/* Tombol Tambah */}
-                    <button className="flex items-center bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-lg mb-5">
+                    <button
+                        onClick={() => router.visit("/admin/tambahstase")}
+                        className="flex items-center bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
+                    >
                         <Plus size={16} className="mr-2" />
                         Tambah Stase
                     </button>

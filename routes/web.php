@@ -15,10 +15,12 @@ Route::get('/admin/dashboard', function () {
     return Inertia::render('Admin/Dashboard');
 });
    
-Route::get('/admin/rubrik', function () {
-    return Inertia::render('Admin/Rubrik');
+Route::get('/admin/menustase', function () {
+    return Inertia::render('Admin/MenuStase');
 });
 
-Route::get('/admin/tambahrubrik', function () {
-    return Inertia::render('Admin/TambahRubrik');
+Route::get('/admin/tambahstase', function () {
+    return Inertia::render('Admin/TambahStase');
 });
+
+Route::post('/stase/store', [StaseController::class, 'store'])->name('stase.store');

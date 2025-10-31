@@ -1,5 +1,5 @@
 import React from "react";
-import { Head, useForm, usePage } from "@inertiajs/react";
+import { Head, useForm, usePage, router} from "@inertiajs/react";
 import { Trash2, Save } from "lucide-react";
 
 export default function TambahStase() {
@@ -22,7 +22,7 @@ export default function TambahStase() {
                 {/* ===== Breadcrumb Header ===== */}
                 <div className="flex items-center border-b px-4 py-3">
                     <button
-                        onClick={() => window.history.back()}
+                        onClick={() => router.visit("/admin/menustase")}
                         className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 mr-3"
                     >
                         ←
