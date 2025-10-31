@@ -2,6 +2,7 @@
 
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 
 Route::get('/', function () {
@@ -11,6 +12,11 @@ Route::get('/', function () {
 Route::get('/admin/dashboard', function () {
     return Inertia::render("Admin/Dashboard");
 });
+
+Route::get('/login', [AuthController::class, 'show_login']);
+
+Route::post('/login', [AuthController::class, 'login']);
+
 
 Route::get('/admin/profil', [AdminController::class, 'show_profile']) -> name('admin.profil.show');
 
