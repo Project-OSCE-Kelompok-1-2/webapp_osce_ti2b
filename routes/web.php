@@ -22,3 +22,7 @@ Route::get('/admin/kompetensi', function () {
 Route::get('/admin/kompetensi/form', function () {
     return Inertia::render('Admin/KompetensiForm');
 });
+
+Route::get('/admin/pengaturanakun', function () {
+    return Inertia::render('Admin/PengaturanAkun');
+});
