@@ -18,10 +18,10 @@ export default function LoginMosaicPage() {
     };
 
     return (
-        <div className="min-h-screen bg-white flex items-center justify-center px-4">
-            <div className="w-full max-w-md border rounded-xl p-6 md:p-8 shadow-md">
+        <div className="login-bg min-h-screen bg-white flex items-center justify-center px-4">
+            <div className="w-full bg-white border-black max-w-md border rounded-xl p-8 md:p-8 shadow-md">
                 {/* Logo bulat */}
-                <div className="mx-auto w-20 h-20 rounded-full bg-slate-300" />
+                <div className="mx-auto w-20 h-20 rounded-full bg-blue-300" />
 
                 <h1 className="mt-4 text-center text-2xl font-bold">MOSAIC</h1>
                 <p className="text-center text-sm text-slate-600">
@@ -61,7 +61,7 @@ export default function LoginMosaicPage() {
                         <button
                             type="button"
                             onClick={() => setShowPwd((v) => !v)}
-                            className="w-10 h-10 flex items-center justify-center border rounded-md bg-gray-900 text-white hover:bg-gray-600"
+                            className="w-10 h-10 flex items-center justify-center border rounded-xl bg-gray-900 text-white hover:bg-gray-600"
                         >
                             {showPwd ? (
                                 <EyeOff className="w-4 h-4" />
@@ -85,7 +85,7 @@ export default function LoginMosaicPage() {
                     <div className="text-center text-xs text-blue-600 mt-2">
                         <a
                             href="#"
-                            className="underline hover:text-slate-800 transition-colors"
+                            className="underline hover:text-blue-800 transition-colors"
                         >
                             Ada masalah? Hubungi admin.
                         </a>
