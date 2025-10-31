@@ -54,10 +54,12 @@ class HandleInertiaRequests extends Middleware
                     'id' => $user?->id,
                     'username' => $user?->username,
                     'jenis_role' => $user?->jenis_role,
+                    // details berisi data dari admin / penguji / mahasiswa, tergantung role pengguna
                     'details' => $details,
                 ]
             ],
 
+            // untuk notifikasi error dan sukses yang digunakan di front end
             'flash' => [
                 'success' => fn() => $request->session()->get('success'),
                 'error' => fn() => $request->session()->get('error'),
