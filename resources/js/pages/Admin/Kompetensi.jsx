@@ -1,28 +1,40 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { mockKompetensi } from "../../mockdata/mockKompetensi";
 import { Pencil, Trash2, PlusCircle, Search, ArrowLeft } from "lucide-react";
 import { router } from "@inertiajs/react";
 
 export default function KompetensiPage() {
     const [kompetensi, setKompetensi] = useState(mockKompetensi);
-    const [showForm, setShowForm] = useState(false);
     const [search, setSearch] = useState("");
 
-    const handleAdd = (dataBaru) => {
-        setKompetensi([
-            ...kompetensi,
-            { ...dataBaru, id: kompetensi.length + 1 },
-        ]);
-        setShowForm(false);
-    };
+    // Pagination state
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 3; // sesuaikan jumlah baris per halaman
 
     const handleDelete = (id) => {
         setKompetensi(kompetensi.filter((item) => item.id !== id));
     };
 
-    const filteredData = kompetensi.filter((item) =>
-        item.deskripsi.toLowerCase().includes(search.toLowerCase())
+    const filteredData = useMemo(
+        () =>
+            kompetensi.filter((item) =>
+                item.deskripsi.toLowerCase().includes(search.toLowerCase())
+            ),
+        [kompetensi, search]
     );
+
+    // Pagination helpers
+    const totalItems = filteredData.length;
+    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
+
+    // pastikan currentPage valid saat jumlah item berubah
+    if (currentPage > totalPages) {
+        setCurrentPage(totalPages);
+    }
+
+    const startIndex = (currentPage - 1) * itemsPerPage;
+    const endIndex = startIndex + itemsPerPage;
+    const paginatedData = filteredData.slice(startIndex, endIndex);
 
     const totalBobot = kompetensi.reduce(
         (acc, curr) => acc + Number(curr.bobot),
@@ -30,7 +42,7 @@ export default function KompetensiPage() {
     );
 
     return (
-        <div className="p-6 bg-white rounded-lg shadow-sm">
+        <div className="p-6 pl-24 bg-white rounded-lg shadow-sm">
             {/* Breadcrumb */}
             <div className="flex items-center gap-2 mb-4">
                 <button className="bg-blue-600 text-white p-2 rounded-md">
@@ -38,7 +50,7 @@ export default function KompetensiPage() {
                 </button>
                 <input
                     type="text"
-                    value="Stase \ Stase Lorem Ipsum Dolor \ Kompetensi"
+                    value="Stase \ A. Persiapan \ Kompetensi"
                     readOnly
                     className="border rounded-md px-3 py-2 w-full text-sm"
                 />
@@ -54,7 +66,7 @@ export default function KompetensiPage() {
                 </p>
 
                 <button
-                    onClick={() => router.visit('/admin/kompetensi/form')}
+                    onClick={() => router.visit("/admin/kompetensi/form")}
                     className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-md"
                 >
                     <PlusCircle size={18} />
@@ -71,84 +83,153 @@ export default function KompetensiPage() {
                     />
                     <input
                         type="text"
-                        placeholder="Tuliskan data aspek penilaian..."
+                        placeholder="Tuliskan data kompetensi..."
                         className="border w-full rounded-md pl-10 pr-3 py-2"
                         value={search}
-                        onChange={(e) => setSearch(e.target.value)}
+                        onChange={(e) => {
+                            setSearch(e.target.value);
+                            setCurrentPage(1); // reset page ketika mencari
+                        }}
                     />
                 </div>
-                <button className="bg-blue-600 text-white px-6 rounded-md">
+                <button className="bg-blue-600 text-white px-24 rounded-md">
                     Cari
                 </button>
             </div>
 
             {/* Table */}
             <h3 className="font-semibold mb-2">Table Kompetensi</h3>
-            <table className="w-full border border-gray-300 rounded-md text-sm">
-                <thead className="bg-gray-100 text-gray-700">
-                    <tr>
-                        <th className="p-2 text-center w-10">No</th>
-                        <th className="p-2 text-left">Kompetensi</th>
-                        <th className="p-2 text-center w-20">Bobot</th>
-                        <th className="p-2 text-center w-24">Rentang Skor</th>
-                        <th className="p-2 text-center w-28">Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {filteredData.map((item, index) => (
-                        <tr key={item.id} className="border-t hover:bg-gray-50">
-                            <td className="p-2 text-center">{index + 1}</td>
-                            <td className="p-2 font-medium">
-                                {item.deskripsi}
-                            </td>
-                            <td className="p-2 text-center">{item.bobot}</td>
-                            <td className="p-2 text-center">0 - 4</td>
-                            <td className="p-2 text-center flex justify-center gap-2">
-                                <button className="text-blue-600 p-1 hover:bg-blue-100 rounded">
-                                    <Pencil size={16} />
-                                </button>
-                                <button
-                                    onClick={() => handleDelete(item.id)}
-                                    className="text-red-600 p-1 hover:bg-red-100 rounded"
-                                >
-                                    <Trash2 size={16} />
-                                </button>
-                            </td>
+            <div className="relative">
+                <table className="w-full border border-gray-300 rounded-md text-sm">
+                    <thead className="bg-gray-100 text-gray-700">
+                        <tr>
+                            <th className="p-2 text-center w-10">No</th>
+                            <th className="p-2 text-left">
+                                Deskripsi Kompetensi
+                            </th>
+                            <th className="p-2 text-center w-20">Bobot</th>
+                            <th className="p-2 text-center w-28">Action</th>
                         </tr>
-                    ))}
-                </tbody>
-            </table>
+                    </thead>
+                    <tbody>
+                        {paginatedData.map((item, idx) => (
+                            <tr
+                                key={item.id}
+                                className="border-t hover:bg-gray-50"
+                            >
+                                <td className="p-2 text-center">
+                                    {startIndex + idx + 1}
+                                </td>
+                                <td className="p-2 font-medium">
+                                    {item.deskripsi}
+                                </td>
+                                <td className="p-2 text-center">
+                                    {item.bobot}
+                                </td>
+                                <td className="p-2 text-center flex justify-center gap-2">
+                                    <button className="text-blue-600 p-1 hover:bg-blue-100 rounded">
+                                        <Pencil size={16} />
+                                    </button>
+                                    <button
+                                        onClick={() => handleDelete(item.id)}
+                                        className="text-red-600 p-1 hover:bg-red-100 rounded"
+                                    >
+                                        <Trash2 size={16} />
+                                    </button>
+                                </td>
+                            </tr>
+                        ))}
 
-            {/* ======= Pagination (dummy) ======= */}
-            <div className="flex items-center justify-center gap-2 mt-3 text-gray-600">
-                {[1, 2, 3, 4, 5].map((n) => (
+                        {/* jika tidak ada data di halaman ini */}
+                        {paginatedData.length === 0 && (
+                            <tr>
+                                <td
+                                    colSpan={4}
+                                    className="p-4 text-center text-gray-500"
+                                >
+                                    Data tidak ditemukan.
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+
+                {/* Pagination: di bawah kiri tabel, ukuran kecil */}
+                <div className="mt-3 flex items-center justify-start gap-2 text-sm text-gray-600">
+                    {/* tombol previous */}
                     <button
-                        key={n}
-                        className={`w-6 h-6 flex items-center justify-center rounded-full ${
-                            n === 1
-                                ? "bg-black text-white"
-                                : "border border-gray-400"
+                        onClick={() =>
+                            setCurrentPage((p) => Math.max(1, p - 1))
+                        }
+                        disabled={currentPage === 1}
+                        className={`px-2 py-0.5 rounded text-xs border ${
+                            currentPage === 1
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
                         }`}
                     >
-                        {n}
+                        &lt;
                     </button>
-                ))}
-            </div>
 
-            {/* ======= Footer Total ======= */}
-            <div className="flex justify-between items-center mt-4 border-t pt-3">
-                <div className="font-semibold">Total</div>
-                <div className="flex gap-2 items-center">
-                    <span className="border px-4 py-1 rounded-md bg-gray-50">
-                        {totalBobot}
-                    </span>
-                    <button className="bg-red-600 text-white px-4 py-1 rounded-md text-sm">
-                        Point Tidak Seimbang!
+                    {/* nomor halaman */}
+                    {Array.from({ length: totalPages }).map((_, i) => {
+                        const pageNum = i + 1;
+                        return (
+                            <button
+                                key={pageNum}
+                                onClick={() => setCurrentPage(pageNum)}
+                                className={`w-7 h-7 flex items-center justify-center rounded-full text-xs border ${
+                                    pageNum === currentPage
+                                        ? "bg-black text-white"
+                                        : "bg-white"
+                                }`}
+                                title={`Halaman ${pageNum}`}
+                            >
+                                {pageNum}
+                            </button>
+                        );
+                    })}
+
+                    {/* tombol next */}
+                    <button
+                        onClick={() =>
+                            setCurrentPage((p) => Math.min(totalPages, p + 1))
+                        }
+                        disabled={currentPage === totalPages}
+                        className={`px-2 py-0.5 rounded text-xs border ${
+                            currentPage === totalPages
+                                ? "opacity-50 cursor-not-allowed"
+                                : ""
+                        }`}
+                    >
+                        &gt;
                     </button>
                 </div>
             </div>
 
-            {/* ======= Footer Copyright ======= */}
+            {/* Footer Total Kompetensi / Aspek Penilaian (tampilan sesuai gambar) */}
+            <div className="mt-6">
+                <div className="w-full rounded-full border px-3 py-2 flex items-center justify-between">
+                    <div className="text-xs text-gray-700">
+                        Total bobot kompetensi / aspek penilaian
+                    </div>
+
+                    <div className="flex gap-3 items-center">
+                        <div className="px-4 py-1 border rounded-lg bg-white text-xs">
+                            <span className="font-medium">Kompetensi: </span>
+                            <span>{kompetensi.length}</span>
+                        </div>
+                        <div className="px-4 py-1 border rounded-lg bg-white text-xs">
+                            <span className="font-medium">
+                                Aspek Penilaian:{" "}
+                            </span>
+                            <span>{totalBobot}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Footer Copyright */}
             <footer className="text-sm text-gray-500 mt-6 border-t pt-2 text-center">
                 Copyright Porem ipsum dolor sit amet
             </footer>
