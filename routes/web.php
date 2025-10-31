@@ -4,7 +4,7 @@ use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
 Route::get('/', function () {
-    return Inertia("Home");
+    return Inertia::render("Home");
 });
 
 Route::get('/auth/login', function () {
@@ -15,12 +15,14 @@ Route::get('/admin/dashboard', function () {
     return Inertia::render('Admin/Dashboard');
 });
    
-Route::get('/admin/menustase', function () {
-    return Inertia::render('Admin/MenuStase');
+Route::get('/admin/kompetensi', function () {
+    return Inertia::render('Admin/Kompetensi');
 });
 
-Route::get('/admin/tambahstase', function () {
-    return Inertia::render('Admin/TambahStase');
+Route::get('/admin/kompetensi/form', function () {
+    return Inertia::render('Admin/KompetensiForm');
 });
 
-Route::post('/stase/store', [StaseController::class, 'store'])->name('stase.store');
+Route::get('/admin/pengaturanakun', function () {
+    return Inertia::render('Admin/PengaturanAkun');
+});
