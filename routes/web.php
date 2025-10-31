@@ -26,3 +26,21 @@ Route::get('/admin/kompetensi/form', function () {
 Route::get('/admin/pengaturanakun', function () {
     return Inertia::render('Admin/PengaturanAkun');
 });
+
+Route::get('/admin/menustase', function () {
+    return Inertia::render('Admin/MenuStase');
+});
+
+Route::get('/admin/tambahstase', function () {
+    return Inertia::render('Admin/TambahStase');
+});
+
+Route::get('/admin/aspekpenilaian', function () {
+    return Inertia::render('Admin/Aspekpenilaian');
+});
+
+Route::get('/admin/tambahaspek', function () {
+    return Inertia::render('Admin/AddAspekForm');
+});
+
+

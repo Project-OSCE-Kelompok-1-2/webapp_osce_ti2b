@@ -140,7 +140,7 @@ export default function Aspekpenilaian() {
         {/* Tombol Tambah */}
         <div className="mb-4">
           <button
-            onClick= {() => router.visit('/admin/addaspekform')}
+            onClick= {() => router.visit('/admin/tambahaspek')}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow font-medium"
           >
             ＋ Tambah Aspek Penilaian
