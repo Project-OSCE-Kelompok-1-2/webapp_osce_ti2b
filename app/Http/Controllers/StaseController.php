@@ -8,41 +8,36 @@ use Inertia\Inertia;
 
 class StaseController extends Controller
 {
-    // ... fungsi index sebelumnya (jika ada) ...
-
-    /**
-     * Mengambil semua data Stase dengan format minimal: id, nama, jumlah_aspek.
-     * Method: GET
-     * Endpoint: /api/stase/minimal (contoh)
-     */
-    public function get_all_stase()
+    public function get_all_stase(Request $request)
     {
-        // 1. Ambil data Stase dan hitung relasi 'aspekPenilaian'
-        $stases = Stase::query()
-            // Menghitung jumlah aspek penilaian dan memberinya alias 'jumlah_kompetensi'
-            ->withCount("aspekPenilaian as jumlah_kompetensi")
-            
-            // 2. Eksekusi query untuk mendapatkan semua data
-            ->get(); 
+        // Ambil kata kunci pencarian dari input (misal "nobis")
+        $search = $request->input('search');
+        // Query dasar  
+        $query = Stase::query()
+            ->withCount('aspekPenilaian as jumlah_kompetensi');
 
-        // 3. Format ulang data hanya untuk menyertakan kolom yang diminta (id, nama, jumlah_kompetensi)
+        // Jika ada pencarian, tambahkan filter WHERE
+        if (!empty($search)) {
+            $query->where('nama_stase', 'like', '%' . $search . '%');
+        }
+
+        // Ambil hasil query
+        $stases = $query->get();
+
+
+        // Format hasil untuk dikirim ke Inertia
         $formattedStases = $stases->map(function ($stase) {
             return [
-                // Pastikan nama kolom sesuai dengan nama di database dan alias 'id' yang Anda inginkan
-                'id' => $stase->id_stase, 
+                'id' => $stase->id_stase,
                 'nama' => $stase->nama_stase,
-                
-                // Mengambil hasil hitungan (alias dari withCount)
-                'jumlah_aspek' => $stase->jumlah_kompetensi, 
+                'jumlah_aspek' => $stase->jumlah_kompetensi,
             ];
         });
-        
-        // 4. Kirim data yang sudah diformat ke komponen Inertia
-        return Inertia::render("Stase", [
-            // Kirim array yang sudah diformat
-            "data" => $formattedStases 
+
+        // Render halaman Inertia
+        return Inertia::render('Stase', [
+            'data' => $formattedStases,
+            'search' => $search, // kirim balik ke frontend agar bisa mempertahankan nilai input
         ]);
     }
-
-    // ... fungsi lain ...
 }
