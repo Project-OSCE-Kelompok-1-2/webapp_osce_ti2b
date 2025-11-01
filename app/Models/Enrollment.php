@@ -12,7 +12,7 @@ class Enrollment extends Model
 
     protected $table = 'enrollment';
     protected $primaryKey = 'id_enrollment';
-    public $timestamps = false;
+    public $timestamps = true;
 
     /**
      * The attributes that are mass assignable.
