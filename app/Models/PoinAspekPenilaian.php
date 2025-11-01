@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PoinAspekPenilaian extends Model
 {
+    use HasFactory;
     /**
      * Menentukan nama tabel yang terkait dengan model.
      * Perlu didefinisikan karena nama tabel 'poin_aspek_penilaian' (singular)
