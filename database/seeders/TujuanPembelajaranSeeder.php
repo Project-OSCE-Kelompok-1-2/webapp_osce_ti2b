@@ -4,17 +4,15 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\TujuanPembelajaran;
 
-use App\Models\Stase;
-
-class StaseSeeder extends Seeder
+class TujuanPembelajaranSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-
-        Stase::factory()->count(15)->create();
+        TujuanPembelajaran::factory()->count(10)->create();
     }
 }

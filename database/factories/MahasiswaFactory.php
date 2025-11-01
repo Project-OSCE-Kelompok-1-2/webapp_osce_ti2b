@@ -17,6 +17,12 @@ class MahasiswaFactory extends Factory
             'nama'        => $this->faker->name(),
             'nim'         => $this->faker->unique()->numerify('NIM####'),
             'kelas'       => $this->faker->randomElement(['A', 'B', 'C']),
+            'prodi'       => $this->faker->randomElement([
+                'Kedokteran',
+                'Keperawatan',
+                'Farmasi',
+                'Kesehatan Masyarakat',
+            ]),
             'status'      => $this->faker->randomElement(['aktif', 'nonaktif']),
         ];
     }

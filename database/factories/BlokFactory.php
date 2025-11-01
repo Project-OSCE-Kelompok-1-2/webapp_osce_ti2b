@@ -18,8 +18,8 @@ class BlokFactory extends Factory
     public function definition(): array
     {
         return [
-            'nama_blok' =>$this->faker->word(),
-            'deksripsi' =>$this->faker->paragraph(),
+            'nama_blok' => $this->faker->word(),
+            'deskripsi' => $this->faker->paragraph(),
         ];
     }
 }

@@ -4,17 +4,15 @@ namespace Database\Seeders;
 
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use App\Models\Blok;
 
-use App\Models\Stase;
-
-class StaseSeeder extends Seeder
+class BlokSeeder extends Seeder
 {
     /**
      * Run the database seeds.
      */
     public function run(): void
     {
-
-        Stase::factory()->count(15)->create();
+        Blok::factory()->count(1)->create();
     }
 }

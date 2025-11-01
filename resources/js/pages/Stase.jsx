@@ -1,109 +1,103 @@
-import React, { useState } from 'react';
-import { Head, router } from '@inertiajs/react';
-// import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout'; // Opsional: Hapus jika Anda tidak pakai Layout
+import React, { useState } from "react";
+import { Head, usePage, router } from "@inertiajs/react";
 
-// --- PENTING ---
-// Jika Anda tidak menggunakan layout default (seperti AuthenticatedLayout),
-// hapus baris 'import AuthenticatedLayout' di atas
-// dan ubah bagian '<AuthenticatedLayout>' di bawah menjadi '<div>' biasa.
-// Saya akan membuatnya tanpa layout agar lebih sederhana.
+export default function Stase() {
+  // 🔹 Ambil semua props dari Laravel melalui Inertia
+  const { data, filters = {}, flash = {} } = usePage().props;
+  const stase = data;
+  console.log(stase);
 
-export default function Stase({ stase, filters, flash }) {
-  // State untuk menyimpan nilai input pencarian
-  const [searchTerm, setSearchTerm] = useState(filters.search || '');
+  // 🔹 State untuk pencarian
+  const [searchTerm, setSearchTerm] = useState(filters.search || "");
 
-  // Fungsi untuk menangani submit filter
-  function handleFilterSubmit(e) {
+  // 🔹 Fungsi handle filter pencarian
+  const handleFilterSubmit = (e) => {
     e.preventDefault();
-    
-    // Gunakan router Inertia untuk mengirim request GET baru
-    // dengan query parameter 'search'
-    router.get(route('stase.index'), {
-        search: searchTerm 
-      }, {
-        preserveState: true, // Pertahankan state komponen (misal: isi input)
-        replace: true,       // Ganti histori browser agar tombol back berfungsi normal
+    router.get(
+      route("stase.index"),
+      { search: searchTerm },
+      {
+        preserveState: true,
+        replace: true,
       }
     );
-  }
+  };
 
   return (
-    // Hapus 'AuthenticatedLayout' dan ganti dengan '<div>' jika Anda tidak menggunakannya
-    // <AuthenticatedLayout
-    //   header={<h2 className="font-semibold text-xl text-gray-800 leading-tight">Daftar Stase</h2>}
-    // >
-    <div className="container mx-auto p-4"> 
-      <Head title="Daftar Stase" />
+    <div className="container mx-auto p-6">
+      <Head title="Data Stase" />
+      <h1 className="text-2xl font-bold mb-4">Daftar Stase</h1>
 
-      {/* 1. Menampilkan Notifikasi 'flash' (jika ada) */}
+      {/* ✅ Notifikasi Flash Message */}
       {flash.message && (
-        <div className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4" role="alert">
+        <div
+          className="bg-green-100 border-l-4 border-green-500 text-green-700 p-4 mb-4"
+          role="alert"
+        >
           <p>{flash.message}</p>
         </div>
       )}
 
-      <h1 className="text-2xl font-bold mb-4">Daftar Stase</h1>
-
-      {/* 2. Form Filter Pencarian Sederhana */}
-      <form onSubmit={handleFilterSubmit} className="mb-4">
-        <label htmlFor="search" className="mr-2">Cari Stase:</label>
+      {/* ✅ Form Pencarian */}
+      <form onSubmit={handleFilterSubmit} className="mb-4 flex items-center">
+        <label htmlFor="search" className="mr-2 font-medium">
+          Cari Stase:
+        </label>
         <input
           type="text"
           id="search"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
-          className="border rounded px-2 py-1"
+          className="border rounded px-3 py-2 mr-2 w-64"
           placeholder="Nama stase..."
         />
-        <button type="submit" className="bg-blue-500 text-white px-4 py-1 rounded ml-2">
+        <button
+          type="submit"
+          className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+        >
           Cari
         </button>
       </form>
 
-      {/* 3. Tabel untuk Menampilkan Data 'stase' */}
-      <div className="overflow-x-auto bg-white shadow-md rounded">
+      {/* ✅ Tabel Data Stase */}
+      <div className="overflow-x-auto bg-white shadow rounded-lg">
         <table className="min-w-full divide-y divide-gray-200">
           <thead className="bg-gray-50">
             <tr>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                No
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Nama Stase
               </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Mata Kuliah
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                Deskripsi
-              </th>
-              <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+              <th className="px-6 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                 Jumlah Aspek
               </th>
             </tr>
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
-            {/* 4. Looping data 'stase' */}
-            {stase.length > 0 ? (
-              stase.map((item) => (
-                <tr key={item.id}>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm font-medium text-gray-900">{item.nama}</div>
-                  </td>
-                  <td className="px-6 py-4 whitespace-nowrap">
-                    <div className="text-sm text-gray-700">{item.nama_mata_kuliah}</div>
-                  </td>
-                  <td className="px-6 py-4">
-                    <div className="text-sm text-gray-700">{item.deskripsi}</div>
-                  </td>
+            {stase && stase.length > 0 ? (
+              stase.map((item, index) => (
+                <tr key={item.id} className="hover:bg-gray-50">
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700">
+                    {index + 1}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                    {item.nama}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-700 text-center">
                     {item.jumlah_aspek}
                   </td>
                 </tr>
               ))
             ) : (
-              // 5. Tampilkan pesan jika data kosong
               <tr>
-                <td colSpan="4" className="px-6 py-4 text-center text-sm text-gray-500">
-                  Tidak ada data stase yang ditemukan.
-                  {filters.search && ` (untuk pencarian: "${filters.search}")`}
+                <td
+                  colSpan="3"
+                  className="px-6 py-4 text-center text-gray-500 text-sm"
+                >
+                  Tidak ada data stase ditemukan
+                  {filters.search && ` (pencarian: "${filters.search}")`}
                 </td>
               </tr>
             )}
@@ -111,6 +105,5 @@ export default function Stase({ stase, filters, flash }) {
         </table>
       </div>
     </div>
-    // </AuthenticatedLayout>
   );
 }

@@ -39,6 +39,11 @@ class Enrollment extends Model
     {
         return $this->belongsTo(TahunAkademik::class, 'id_tahun_akademik'); //perlu relasi ke model TahunAkademik
     }
+    // relasi ke mata_kuliah 1:M
+    public function mataKuliah()
+    {
+        return $this->hasMany(MataKuliah::class, 'id_enrollment');
+    }
 
     protected function casts(): array
     {
