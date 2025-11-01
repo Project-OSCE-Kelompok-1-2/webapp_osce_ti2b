@@ -17,7 +17,7 @@ class PenggunaFactory extends Factory
     {
         return [
             'username'   => $this->faker->unique()->userName(),
-            'password'   => Hash::make('password123'),
+            'password'   => 'password123', // biarkan plain karena sudah di hash di model app/Models/Pengguna.php
             'jenis_role' => $this->faker->randomElement(['admin', 'mahasiswa', 'penguji']),
         ];
     }
