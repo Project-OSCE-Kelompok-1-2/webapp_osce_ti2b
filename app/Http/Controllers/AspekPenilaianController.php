@@ -14,7 +14,7 @@ class AspekPenilaianController extends Controller
     {
         $stase = Stase::findOrFail($id);
         // kueri parameter yang dikirim frontend untuk mencari aspek penilaian tertentu
-        $keyword = $request->query('q');
+        $keyword = $request->query('search');
 
         // jika ada keyword maka kirim aspek penilaian tertentu, jika tidak ada maka kirim semua aspek penilaian
         $aspek_penilaian = AspekPenilaian::where('id_stase', $id)
