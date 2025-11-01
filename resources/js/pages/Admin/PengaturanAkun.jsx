@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Head, useForm, usePage } from '@inertiajs/react';
+import { Head, useForm, usePage } from '@inertiajs/react'; // <-- IMPORT INERTIA
 
-// Menggunakan ikon dari lucide-react
+// Meenggunakan ikon dari lucide-react sebagai pengganti 
 import {
   User,
   Mail,
@@ -15,61 +15,71 @@ import {
   BookUser,
   LogIn,
   ArrowLeft,
-  Save,
+  Save, // Ikon untuk "Simpan"
 } from "lucide-react";
 
-// Komponen ini menerima 'user' prop dari AdminController
-export default function Profil({ auth, user }) {
-  // --- INERTIA HOOKS ---
-  const { flash, errors: formErrors } = usePage().props;
+// 2. MOCK UNTUK KOMPONEN YANG HILANG (TETAP SAMA)
+const Component1 = ({ className }) => <Eye className={className} />;
+const Icon1 = ({ className }) => <Save className={className} />;
+const IconComponentNode = ({ className }) => <Lock className={className} />;
 
-  // --- PERBAIKAN (ANTI-CRASH): Cek jika user ada ---
+// ================================================================
+// KODE YANG DISINKRONKAN DENGAN INERTIA
+// ================================================================
+
+// Ubah nama 'Profil' menjadi 'PengaturanAkun' agar sesuai nama file
+export default function PengaturanAkun({ auth, user }) { // <-- Terima 'user' prop
+
+  // --- LOGIKA BARU: INERTIA HOOKS ---
+  const { flash, errors: formErrors } = usePage().props;
+  
+  // Cek jika user tidak ada (untuk anti-crash layar putih)
   if (!user) {
     return (
         <div className="bg-gray-100 w-full min-h-screen flex justify-center items-center p-6 font-sans">
             <Head title="Loading..." />
-            <p>Loading data pengguna... (atau redirect ke login)</p>
+            <p>Loading data pengguna...</p>
         </div>
     );
   }
-  // --- Akhir Perbaikan ---
 
   const { data, setData, post, processing, reset } = useForm({
-    // Inisialisasi data dari 'user' prop
-    username: user.username || '',
+    // Inisialisasi dari 'user' prop, BUKAN useState
+    username: user.username || '', 
     foto: null, // Input file
-    old_password: '', // Mulai dari kosong
+    old_password: '', // Mulai kosong
     new_password: '',
     new_password_confirmation: '',
-    _method: 'POST' // Wajib POST untuk file upload
+    _method: 'POST', // Wajib POST untuk file upload
+    delete_foto: false // Opsi hapus foto
   });
 
-  // --- LOCAL STATE (Hanya untuk UI) ---
+  // --- State Lokal HANYA untuk UI (TETAP SAMA) ---
   const [showOldPassword, setShowOldPassword] = useState(false);
-  const [preview, setPreview] = useState(user.path_gambar || "https://via.placeholder.com/177/3a2323/FFFFFF?text=P");
+  const [preview, setPreview] = useState(
+    user.path_gambar || "https://via.placeholder.com/177/3a2323/FFFFFF?text=P"
+  );
 
-  // --- HELPER FUNCTIONS ---
-
-  // Handle saat gambar di-upload
+  // --- LOGIKA BARU: Update handler agar pakai setData ---
   const handleProfileImageUpload = (event) => {
     const file = event.target.files?.[0];
     if (file) {
-      setData('foto', file); // Simpan file di form state
-      setPreview(URL.createObjectURL(file)); // Tampilkan preview
+      setData('foto', file); // <-- BARU: Simpan file ke form Inertia
+      setData('delete_foto', false); 
+      setPreview(URL.createObjectURL(file)); // Tetap untuk preview
     }
   };
 
-  // Handle saat gambar dihapus
   const handleDeleteProfileImage = () => {
-    setData('foto', null); // Hapus file dari form state
-    setPreview("https://via.placeholder.com/177/3a2323/FFFFFF?text=P"); // Kembali ke placeholder
-    
+    setData('foto', null); // <-- BARU: Hapus file dari form Inertia
+    setData('delete_foto', true); // <-- KIRIM PERINTAH HAPUS
+    setPreview("https://via.placeholder.com/177/3a2323/FFFFFF?text=P");
     // Reset input file
     const fileInput = document.getElementById('foto-input');
     if(fileInput) fileInput.value = '';
   };
 
-  // Handle submit form utama
+  // --- LOGIKA BARU: Submit ke Backend ---
   const handleSaveChanges = (event) => {
     event.preventDefault();
     // Kirim data ke rute '/admin/akun'
@@ -81,11 +91,13 @@ export default function Profil({ auth, user }) {
             // Reset file input
             const fileInput = document.getElementById('foto-input');
             if(fileInput) fileInput.value = '';
+            // Reset 'delete_foto' flag setelah sukses
+            setData('delete_foto', false);
         },
     });
   };
 
-  // Cleanup untuk blob URL (mencegah memory leak)
+  // --- LOGIKA BARU: Cleanup Blob URL ---
   useEffect(() => {
     const blobUrl = preview && preview.startsWith('blob:');
     return () => {
@@ -95,7 +107,7 @@ export default function Profil({ auth, user }) {
     };
   }, [preview]);
 
-  // Tombol navigasi (hanya untuk UI, bisa Anda sesuaikan)
+  // Sisa UI Anda (TETAP SAMA)
   const navigationButtons = [
     {
       id: "account-page",
@@ -113,25 +125,34 @@ export default function Profil({ auth, user }) {
     },
   ];
 
+  const customColors = {
+    primary: '#3B82F6',
+    warning: '#F97316',
+  };
+
   return (
     <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans">
-      <Head title="Pengaturan Akun" />
-      
+      <Head title="Pengaturan Akun" /> {/* <-- BARU: Title halaman */}
+
       <div className="grid w-full max-w-7xl h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-2.5">
         
-        {/* === HEADER === */}
+        {/* === HEADER (TETAP SAMA) === */}
         <header className="relative row-[1_/_2] col-[1_/_2] w-full flex flex-col items-start gap-5 bg-white p-4 rounded-xl shadow-sm border border-gray-900">
           <div className="flex items-center justify-between relative self-stretch w-full">
             <button
               type="button"
               className="flex w-[54px] h-[54px] items-center justify-center gap-[13px] p-3 relative bg-blue-600 text-white rounded-xl border border-solid border-black aspect-[1]"
               aria-label="Home"
+              style={{ backgroundColor: customColors.primary }}
             >
               <ArrowLeft className="relative w-[30px] h-[26px]" />
             </button>
-            <nav className="relative flex-1 h-[54px] ml-4" aria-label="Breadcrumb">
+            <nav
+              className="relative flex-1 h-[54px] ml-4"
+              aria-label="Breadcrumb"
+            >
               <div className="h-full items-center bg-white flex w-full rounded-xl overflow-hidden border border-solid border-black">
-                <p className="h-6 ml-5 font-sans font-normal text-transparent text-xl tracking-[0] leading-[normal] whitespace-nowrap">
+                <p className="h-6 ml-5 [font-family:'Inter-Regular',Helvetica] font-normal text-transparent text-xl tracking-[0] leading-[normal] whitespace-nowrap">
                   <span className="text-[#000000bf]">Pengaturan</span>
                   <span className="text-black"> / Akun</span>
                 </p>
@@ -141,7 +162,7 @@ export default function Profil({ auth, user }) {
           <hr className="relative w-full border-black border-t" />
         </header>
 
-        {/* === NAVIGASI === */}
+        {/* === MAIN (Ada penambahan Flash Message) === */}
         <main className="relative row-[2_/_3] col-[1_/_2] w-full h-full flex flex-col items-start gap-3">
           <nav
             className="flex items-start gap-[15px] relative self-stretch w-full flex-[0_0_auto] bg-white p-4 rounded-xl shadow-sm border border-gray-900"
@@ -154,9 +175,10 @@ export default function Profil({ auth, user }) {
                   type="button"
                   className={`${button.bgColor} inline-flex items-center justify-center gap-[13px] p-3 relative rounded-xl text-white ${button.opacity}`}
                   aria-label={button.label}
+                  style={{ backgroundColor: customColors.primary }}
                 >
                   {button.icon}
-                  <span className="relative w-fit font-sans font-normal text-[15px] tracking-[0] leading-[normal] whitespace-nowrap">
+                  <span className="relative w-fit [font-family:'Inter-Regular',Helvetica] font-normal text-[15px] tracking-[0] leading-[normal] whitespace-nowrap">
                     {button.label}
                   </span>
                 </button>
@@ -168,34 +190,28 @@ export default function Profil({ auth, user }) {
                   aria-label="Log Out"
                 >
                   <LogOut className="relative w-[23px] h-[21px]" />
-                  <span className="relative w-fit font-sans font-normal text-[15px] tracking-[0] leading-[normal] whitespace-nowrap">
+                  <span className="relative w-fit [font-family:'Inter-Regular',Helvetica] font-normal text-[15px] tracking-[0] leading-[normal] whitespace-nowrap">
                     Log Out
                   </span>
                 </button>
               </div>
             </div>
           </nav>
-
-          {/* === FLASH MESSAGE (Pesan Sukses/Error) === */}
+          
+          {/* === BARU: FLASH MESSAGE (Pesan Sukses/Error) === */}
           {flash.success && (
             <div className="p-4 w-full bg-green-100 text-green-700 border border-green-300 rounded-xl">
               {flash.success}
             </div>
           )}
-          {/* Menampilkan error global jika ada */}
-          {formErrors.general && (
-            <div className="p-4 w-full bg-red-100 text-red-700 border border-red-300 rounded-xl">
-                {formErrors.general}
-            </div>
-          )}
           
-          {/* === FORM UTAMA (Gabungan) === */}
+          {/* Tag <form> harus membungkus KEDUA kolom (kiri & kanan) */}
           <form onSubmit={handleSaveChanges} className="flex flex-col lg:flex-row items-start gap-5 relative self-stretch w-full flex-[0_0_auto]">
             
-            {/* === KIRI: Gambar Profil === */}
+            {/* === KIRI: Gambar Profil (Ada penambahan Error Message) === */}
             <aside className="flex flex-col w-full lg:w-[403px] h-fit items-center gap-[17px] p-5 relative bg-white rounded-xl border border-solid border-black shadow-sm">
               <div className="relative self-stretch w-full h-[29px]">
-                <h2 className="absolute top-[calc(50.00%_-_14px)] left-0 w-[261px] font-sans font-normal text-black text-xl tracking-[0] leading-[normal]">
+                <h2 className="absolute top-[calc(50.00%_-_14px)] left-0 w-[261px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xl tracking-[0] leading-[normal]">
                   Gambar Profil
                 </h2>
                 <hr className="absolute top-7 left-0 w-full border-black border-t" />
@@ -208,7 +224,7 @@ export default function Profil({ auth, user }) {
                     : {}
                 }
                 role="img"
-                aria-label="Profile picture preview"
+                aria-label="Profile picture"
               />
               <div
                 className="flex-col items-start gap-[5px] p-3.5 relative self-stretch flex-[0_0_auto] bg-red-100 flex w-full rounded-xl overflow-hidden border border-solid border-red-400"
@@ -219,18 +235,18 @@ export default function Profil({ auth, user }) {
                     className="relative w-[15px] h-3.5 text-red-500"
                     aria-hidden="true"
                   />
-                  <div className="relative flex items-center justify-center w-fit font-sans font-medium text-red-800 text-[15px] tracking-[0] leading-[normal] whitespace-nowrap">
+                  <div className="relative flex items-center justify-center w-fit [font-family:'Inter-Regular',Helvetica] font-medium text-red-800 text-[15px] tracking-[0] leading-[normal] whitespace-nowrap">
                     Perhatian!
                   </div>
                 </div>
-                <p className="relative self-stretch font-sans font-normal text-red-700 text-[13px] tracking-[0] leading-[normal]">
+                <p className="relative self-stretch [font-family:'Inter-Regular',Helvetica] font-normal text-red-700 text-[13px] tracking-[0] leading-[normal]">
                   Gambar yang dikirim harus berukuran kurang lebih dari 1 MB
                   dengan resolusi max 500 x 500 px, hanya support format foto:
                   .png, .jpeg, .jpg, dan .gif
                 </p>
               </div>
 
-              {/* Input Error untuk 'foto' */}
+              {/* === BARU: Input Error untuk 'foto' === */}
               {formErrors.foto && (
                   <p className="w-full text-sm text-red-600">{formErrors.foto}</p>
               )}
@@ -249,7 +265,7 @@ export default function Profil({ auth, user }) {
                     className="relative w-[18px] h-[17px]"
                     aria-hidden="true"
                   />
-                  <span className="relative w-fit font-sans font-normal text-[15px] tracking-[0] leading-[normal] whitespace-nowrap">
+                  <span className="relative w-fit [font-family:'Inter-Regular',Helvetica] font-normal text-[15px] tracking-[0] leading-[normal] whitespace-nowrap">
                     Upload gambar profil
                   </span>
                 </label>
@@ -267,27 +283,28 @@ export default function Profil({ auth, user }) {
               </div>
             </aside>
 
-            {/* === KANAN: Form Akun === */}
+            {/* === KANAN: Form Akun (Input disinkronkan) === */}
             <section className="flex flex-col items-start gap-[15px] p-5 relative flex-1 grow bg-white rounded-xl border border-solid border-black shadow-sm">
               <div className="relative self-stretch w-full h-[29px]">
-                <h2 className="absolute top-[calc(50.00%_-_14px)] left-0 w-[285px] font-sans font-normal text-black text-xl tracking-[0] leading-[normal]">
+                <h2 className="absolute top-[calc(50.00%_-_14px)] left-0 w-[285px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xl tracking-[0] leading-[normal]">
                   Akun
                 </h2>
                 <hr className="absolute top-7 left-0 w-full border-black border-t" />
               </div>
 
               {/* Bagian dalam form, tidak perlu tag <form> lagi */}
+              {/* Tag <form> sudah ada di luar membungkus 2 kolom */}
               <div className="flex flex-col items-start gap-[15px] relative self-stretch w-full flex-[0_0_auto]">
                 
-                {/* --- Nama Pengguna --- */}
+                {/* --- Nama Pengguna (DIBUAT DISABLED) --- */}
                 <div className="flex flex-col items-start gap-[3px] relative self-stretch w-full flex-[0_0_auto]">
                   <label
                     htmlFor="username"
-                    className="relative self-stretch mt-[-1.00px] font-sans font-normal text-black text-xs tracking-[0] leading-[normal]"
+                    className="relative self-stretch mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xs tracking-[0] leading-[normal]"
                   >
                     Nama pengguna
                   </label>
-                  <div className="flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full bg-white rounded-xl border border-solid border-black">
+                  <div className="flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full bg-gray-200 rounded-xl border border-solid border-black"> {/* BUAT ABU-ABU */}
                     <User
                       className="!relative !w-4 !h-4"
                       color="black"
@@ -297,23 +314,19 @@ export default function Profil({ auth, user }) {
                     <input
                       type="text"
                       id="username"
-                      value={data.username} // Dari useForm
-                    //   onChange={(e) => setData('username', e.target.value)} // Dari useForm
-                    //   className="relative flex-1 font-sans font-normal text-black text-[15.4px] tracking-[0] leading-[normal] bg-transparent border-none outline-none"
-                      aria-label="Username"
+                      value={data.username} // <-- BARU: Dari useForm (user prop)
+                      disabled // <-- BARU: Dibuat disabled
+                      className="relative flex-1 [font-family:'Inter-Regular',Helvetica] font-normal text-gray-600 text-[15.4px] tracking-[0] leading-[normal] bg-transparent border-none outline-none cursor-not-allowed"
+                      aria-label="Username (tidak bisa diubah)"
                     />
                   </div>
-                  {/* Input Error untuk 'username' */}
-                  {formErrors.username && (
-                      <p className="text-sm text-red-600">{formErrors.username}</p>
-                  )}
                 </div>
 
-                {/* --- Email Pengguna --- */}
+                {/* --- Email Pengguna (TETAP DISABLED) --- */}
                 <div className="flex flex-col items-start gap-[3px] relative self-stretch w-full flex-[0_0_auto]">
                   <label
                     htmlFor="email"
-                    className="relative self-stretch mt-[-1.00px] font-sans font-normal text-black text-xs tracking-[0] leading-[normal]"
+                    className="relative self-stretch mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xs tracking-[0] leading-[normal]"
                   >
                     Email pengguna
                   </label>
@@ -327,41 +340,38 @@ export default function Profil({ auth, user }) {
                     <input
                       type="email"
                       id="email"
-                      // Model Pengguna.php Anda tidak punya email
-                      value={user.email || (user.username + '@email.com')} 
+                      value={user.email || 'email-tidak-tersedia@sistem.com'} // <-- BARU: dari user prop (atau placeholder)
                       disabled
-                      className="relative flex-1 font-sans font-normal text-gray-600 text-[15.4px] tracking-[0] leading-[normal] bg-transparent cursor-not-allowed border-none outline-none"
+                      className="relative flex-1 [font-family:'Inter-Regular',Helvetica] font-normal text-gray-600 text-[15.4px] tracking-[0] leading-[normal] bg-transparent cursor-not-allowed border-none outline-none"
                       aria-label="Email (disabled)"
                     />
                   </div>
                 </div>
 
-                {/* --- Password Lama --- */}
+                {/* --- Password Lama (DIBUAT BISA DIISI) --- */}
                 <div className="flex flex-col items-start gap-[3px] relative self-stretch w-full flex-[0_0_auto]">
                   <label
                     htmlFor="old-password"
-                    className="relative self-stretch mt-[-1.00px] font-sans font-normal text-black text-xs tracking-[0] leading-[normal]"
+                    className="relative self-stretch mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xs tracking-[0] leading-[normal]"
                   >
                     Password lama
                   </label>
                   <div className="flex h-[54px] items-start gap-3.5 relative self-stretch w-full">
-                    {/* Input field */}
-                    <div className="flex-1 self-stretch grow bg-white flex items-center gap-[13px] p-3 relative rounded-xl border border-solid border-black">
-                      <Lock
+                    <div className="flex-1 self-stretch grow bg-white flex items-center gap-[13px] p-3 relative rounded-xl border border-solid border-black"> {/* GANTI JADI PUTIH */}
+                      <IconComponentNode
                         className="!relative !w-[19px] !h-[19px] !aspect-[1]"
                         aria-hidden="true"
                       />
                       <input
                         type={showOldPassword ? "text" : "password"}
                         id="old-password"
-                        value={data.old_password} // Dari useForm
-                        onChange={(e) => setData('old_password', e.target.value)} // Dari useForm
-                        placeholder="Masukkan password lama..."
-                        className="relative flex-1 font-sans font-normal text-black text-[15.4px] tracking-[0] leading-[normal] bg-transparent placeholder:text-[#00000080] border-none outline-none"
+                        value={data.old_password} // <-- BARU: dari useForm
+                        onChange={(e) => setData('old_password', e.target.value)} // <-- BARU: pakai setData
+                        placeholder="Masukkan password lama..." // <-- BARU: Tambah placeholder
+                        className="relative flex-1 [font-family:'Inter-Regular',Helvetica] font-normal text-black text-[15.4px] tracking-[0] leading-[normal] bg-transparent border-none outline-none placeholder:text-[#00000080]"
                         aria-label="Old password"
                       />
                     </div>
-                    {/* Tombol Show/Hide */}
                     <button
                       type="button"
                       onClick={() => setShowOldPassword(!showOldPassword)}
@@ -371,95 +381,95 @@ export default function Profil({ auth, user }) {
                       {showOldPassword ? (
                         <EyeOff className="!relative !w-[31px] !h-[31px] !aspect-[1]" />
                       ) : (
-                        <Eye
+                        <Component1
                           className="!relative !w-[31px] !h-[31px] !aspect-[1]"
                           aria-hidden="true"
                         />
                       )}
                     </button>
                   </div>
-                  {/* Input Error untuk 'old_password' */}
+                  {/* === BARU: Input Error untuk 'old_password' === */}
                   {formErrors.old_password && (
-                      <p className="text-sm text-red-600">{formErrors.old_password}</p>
+                      <p className="w-full text-sm text-red-600">{formErrors.old_password}</p>
                   )}
                 </div>
 
-                {/* --- Password Baru & Konfirmasi --- */}
+                {/* --- Password Baru & Konfirmasi (Dihubungkan ke useForm) --- */}
                 <div className="flex flex-col md:flex-row items-start gap-[15px] relative self-stretch w-full flex-[0_0_auto]">
                   {/* Password Baru */}
                   <div className="flex flex-col w-full md:w-[376px] items-start gap-[3px] relative">
                     <label
                       htmlFor="new-password"
-                      className="relative self-stretch mt-[-1.00px] font-sans font-normal text-black text-xs tracking-[0] leading-[normal]"
+                      className="relative self-stretch mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xs tracking-[0] leading-[normal]"
                     >
                       Password baru
                     </label>
                     <div className="flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full bg-white rounded-xl border border-solid border-black">
-                      <Lock
+                      <IconComponentNode
                         className="!relative !w-5 !h-5 !aspect-[1]"
                         aria-hidden="true"
                       />
                       <input
                         type="password"
                         id="new-password"
-                        value={data.new_password} // Dari useForm
-                        onChange={(e) => setData('new_password', e.target.value)} // Dari useForm
+                        value={data.new_password} // <-- BARU: dari useForm
+                        onChange={(e) => setData('new_password', e.target.value)} // <-- BARU: pakai setData
                         placeholder="Masukkan password yang baru..."
-                        className="relative flex-1 font-sans font-normal text-[#00000080] text-[15.4px] tracking-[0] leading-[normal] bg-transparent placeholder:text-[#00000080] border-none outline-none"
+                        className="relative flex-1 [font-family:'Inter-Regular',Helvetica] font-normal text-[#00000080] text-[15.4px] tracking-[0] leading-[normal] bg-transparent placeholder:text-[#00000080] border-none outline-none"
                         aria-label="New password"
                       />
                     </div>
-                    {/* Input Error untuk 'new_password' */}
+                    {/* === BARU: Input Error untuk 'new_password' === */}
                     {formErrors.new_password && (
-                        <p className="text-sm text-red-600">{formErrors.new_password}</p>
+                        <p className="w-full text-sm text-red-600">{formErrors.new_password}</p>
                     )}
                   </div>
-
-                  {/* Konfirmasi Password Baru */}
+                  
+                  {/* Konfirmasi Password */}
                   <div className="flex flex-col items-start gap-[3px] relative flex-1 grow w-full">
                     <label
                       htmlFor="confirm-password"
-                      className="relative self-stretch mt-[-1.00px] font-sans font-normal text-black text-xs tracking-[0] leading-[normal]"
+                      className="relative self-stretch mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xs tracking-[0] leading-[normal]"
                     >
                       Konfirmasi password baru
                     </label>
                     <div className="flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full bg-white rounded-xl border border-solid border-black">
-                      <Lock
+                      <IconComponentNode
                         className="!relative !w-5 !h-5 !aspect-[1]"
                         aria-hidden="true"
                       />
                       <input
                         type="password"
                         id="confirm-password"
-                        value={data.new_password_confirmation} // Dari useForm
-                        onChange={(e) => setData('new_password_confirmation', e.target.value)} // Dari useForm
+                        value={data.new_password_confirmation} // <-- BARU: dari useForm
+                        onChange={(e) => setData('new_password_confirmation', e.target.value)} // <-- BARU: pakai setData
                         placeholder="Konfirmasi password yang baru..."
-                        className="relative flex-1 font-sans font-normal text-[#00000080] text-[15.4px] tracking-[0] leading-[normal] bg-transparent placeholder:text-[#00000080] border-none outline-none"
+                        className="relative flex-1 [font-family:'Inter-Regular',Helvetica] font-normal text-[#00000080] text-[15.4px] tracking-[0] leading-[normal] bg-transparent placeholder:text-[#00000080] border-none outline-none"
                         aria-label="Confirm new password"
                       />
                     </div>
                   </div>
                 </div>
 
-                {/* --- Tombol Simpan --- */}
+                {/* --- Tombol Simpan (Dihubungkan ke processing) --- */}
                 <div className="inline-flex flex-col items-start gap-2.5 relative flex-[0_0_auto]">
                   <button
-                    type="submit" // Tipe 'submit' untuk form
+                    type="submit" // <-- BARU: Tipe 'submit'
                     className="w-[223px] justify-center flex-[0_0_auto] bg-blue-600 text-white flex items-center gap-[13px] p-3 relative rounded-xl border border-solid border-black disabled:bg-gray-400"
                     aria-label="Save changes"
-                    disabled={processing} // Disable saat loading
+                    disabled={processing} // <-- BARU: Dibuat disabled saat loading
                   >
-                    <Save
+                    <Icon1
                       className="!relative !w-[17px] !h-[17px] !aspect-[1]"
                       aria-hidden="true"
                     />
-                    <span className="relative w-fit mt-[-1.00px] font-sans font-normal text-[15.4px] tracking-[0] leading-[normal]">
-                      {processing ? 'Menyimpan...' : 'Simpan'}
+                    <span className="relative w-fit mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-[15.4px] tracking-[0] leading-[normal]">
+                      {processing ? 'Menyimpan...' : 'Simpan'} {/* <-- BARU: Teks dinamis */}
                     </span>
                   </button>
                   <a
                     href="#contact-admin"
-                    className="relative w-fit font-sans font-normal text-black text-[11.8px] tracking-[0] leading-[normal] underline whitespace-nowrap"
+                    className="relative w-fit [font-family:'Inter-Regular',Helvetica] font-normal text-black text-[11.8px] tracking-[0] leading-[normal] underline whitespace-nowrap"
                   >
                     Ada masalah? hubungi admin
                   </a>
@@ -469,20 +479,22 @@ export default function Profil({ auth, user }) {
           </form> {/* === End Form === */}
         </main>
 
-        {/* === FOOTER === */}
+        {/* === FOOTER (TETAP SAMA) === */}
         <footer className="relative row-[3_/_4] col-[1_/_2] w-full h-full flex flex-col items-center justify-end bg-white p-4 rounded-xl shadow-sm border border-gray-900">
           <div className="relative self-stretch w-full">
             <div className="w-full h-full flex">
               <div className="flex-1 flex items-center">
-                <p className="font-sans font-normal text-gray-500 text-base tracking-[0] leading-[normal] whitespace-nowrap">
+                <p className="[font-family:'Inter-Regular',Helvetica] font-normal text-gray-500 text-base tracking-[0] leading-[normal] whitespace-nowrap">
                   Copyright Porem ipsum dolor sit amet
                 </p>
               </div>
             </div>
           </div>
         </footer>
-
       </div>
     </div>
   );
 }
+
+// Hapus 'export default AdminSettingAkun' jika sudah ada di atas
+// Pastikan hanya ada satu default export
