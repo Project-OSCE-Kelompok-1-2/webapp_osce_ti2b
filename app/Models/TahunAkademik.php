@@ -24,4 +24,10 @@ class TahunAkademik extends Model
     {
         return $this->hasMany(Enrollment::class, 'id_tahun_akademik'); // Perlu Model Enrollment
     }
+
+    // relasi ke osce 1:M
+    public function osce()
+    {
+        return $this->hasMany(Osce::class, 'id_tahun_akademik');
+    }
 }
