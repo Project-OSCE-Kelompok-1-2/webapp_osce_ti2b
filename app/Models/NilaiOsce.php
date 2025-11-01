@@ -12,7 +12,7 @@ class NilaiOsce extends Model
 
     protected $table = 'nilai_osce';
     protected $primaryKey = 'id_nilai_osce';
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'id_enrollment_osce',
