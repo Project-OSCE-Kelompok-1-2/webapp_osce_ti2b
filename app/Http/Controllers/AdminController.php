@@ -46,7 +46,7 @@ class AdminController extends Controller
                 'string', 
                 'max:255',
                 // Pastikan username unik, KECUALI untuk diri sendiri
-                Rule::unique('pengguna')->ignore($admin->id_pengguna, 'id_pengguna')
+                Rule::unique('pengguna', 'username')->ignore($admin->id_pengguna, 'id_pengguna')
             ],
             'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:1024'], // 1MB Sesuai UI
 
