@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('osce', function (Blueprint $table) {
             $table->id('id_osce');
             $table->foreignId('id_tahun_akademik')->constrained('tahun_akademik', 'id_tahun_akademik')->onDelete('cascade');
-            $table->string('nama_osce', 25);
+            $table->string('nama_osce', 100);
             $table->date('tanggal_mulai');
             $table->date('tanggal_selesai');
             $table->timestamps();
