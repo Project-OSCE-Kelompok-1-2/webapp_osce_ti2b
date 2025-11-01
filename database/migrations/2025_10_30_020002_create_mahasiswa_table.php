@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('nim')->unique();
             $table->string('kelas');
+            $table->string('prodi');
             $table->enum('status', ['aktif', 'nonaktif'])->default('aktif');
             $table->timestamps();
         });
