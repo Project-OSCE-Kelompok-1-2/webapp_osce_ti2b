@@ -17,23 +17,27 @@ class AuthController extends Controller
 
     public function login(Request $request)
     {
+        $request->validate([
+            'username' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
         $username = $request->username;
         $password = $request->password;
 
         $pengguna = Pengguna::where("username", $username)->first();
 
-        if (!$pengguna) return back()->with("error", "Pengguna tidak ditemukan");
-
-        if ($pengguna->password == $password) {
+        if ($pengguna && Hash::check($password, $pengguna->password)) {
             Auth::login($pengguna);
+            $request->session()->regenerate();
 
-            if ($pengguna->jenis_role == "admin") {
-                return redirect("/admin/dashboard")->with("success", "Berhasil login");
-            } else if ($pengguna->jenis_role == "mahasiswa") {
-                return redirect("/mahasiswa/dashboard")->with("success", "Berhasil login");
-            } else if ($pengguna->jenis_role == "penguji") {
-                return redirect("/penguji/dashboard")->with("success", "Berhasil login");
-            }
+            $redirectPath = match ($pengguna->jenis_role) {
+                "admin" => "/admin/dashboard",
+                "mahasiswa" => "/mahasiswa/dashboard",
+                "penguji" => "/penguji/dashboard",
+            };
+
+            return redirect($redirectPath)->with("success", "Berhasil login");
         } else {
             return back()->with("error", "Username atau password salah");
         }
