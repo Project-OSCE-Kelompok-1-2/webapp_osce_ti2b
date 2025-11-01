@@ -12,7 +12,7 @@ class OsceStase extends Model
 
     protected $table = 'osce_stase';
     protected $primaryKey = 'id_osce_stase';
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'id_penguji',
@@ -29,7 +29,7 @@ class OsceStase extends Model
     // relasi penguji M:1
     public function penguji()
     {
-        return $this->belongsTo(Penguji::class, 'id_penguji'); //perlu relasi ke model Penguji
+        return $this->belongsTo(Penguji::class, 'id_penguji');
     }
 
     // relasi ke ruang M:1
@@ -47,16 +47,13 @@ class OsceStase extends Model
     // relasi ke stase M:1
     public function stase()
     {
-        return $this->belongsTo(Stase::class, 'id_stase'); //perlu relasi ke model Stase
+        return $this->belongsTo(Stase::class, 'id_stase');
     }
 
-    protected function casts(): array
-    {
-        return [
-            'tanggal' => 'date',
-            'jam_mulai' => 'datetime:H:i',
-            'jam_selesai' => 'datetime:H:i',
-            'durasi_per_mahasiswa' => 'integer',
-        ];
-    }
+    protected $casts = [
+        'tanggal' => 'date',
+        'jam_mulai' => 'time',
+        'jam_selesai' => 'time',
+        'durasi_per_mahasiswa' => 'integer',
+    ];
 }
