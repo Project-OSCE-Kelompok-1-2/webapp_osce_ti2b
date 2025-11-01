@@ -3,11 +3,13 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class AspekPenilaian extends Model
 {
+    use HasFactory;
     /**
      * Menentukan nama tabel yang terkait dengan model.
      * Perlu didefinisikan karena nama tabel 'aspek_penilaian' (singular)
