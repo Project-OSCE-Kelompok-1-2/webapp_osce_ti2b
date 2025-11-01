@@ -15,6 +15,8 @@ class TahunAkademik extends Model
         'tahun',
         'semester',
         'status',
+        'mulai_input_nilai',
+        'selesai_input_nilai',
     ];
 
     // Relasi ke Enrollment 1:M
