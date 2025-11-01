@@ -53,4 +53,10 @@ class PoinAspekPenilaian extends Model
         // 3. Primary key di tabel aspek_penilaian (id_aspek_penilaian)
         return $this->belongsTo(AspekPenilaian::class, 'id_aspek_penilaian', 'id_aspek_penilaian');
     }
+
+    // relasi ke nilai_osce 1:M
+    public function nilai_osce()
+    {
+        return $this->hasMany(NilaiOsce::class, 'id_poin_aspek_penilaian');
+    }
 }
