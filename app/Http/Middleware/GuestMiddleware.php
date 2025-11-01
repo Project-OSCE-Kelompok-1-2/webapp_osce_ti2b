@@ -6,6 +6,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 
+// Middleware ini dibuat agar user yang sedang login tidak bisa mengakses halaman login dan otomatis redirect ke dashboard
 class GuestMiddleware
 {
     public function handle(Request $request, Closure $next): Response

@@ -49,6 +49,7 @@ class HandleInertiaRequests extends Middleware
         }
 
         return array_merge(parent::share($request), [
+            // memngirimkan data user yang sedang login ke front end
             'auth' => [
                 'user' => [
                     'id' => $user?->id,
