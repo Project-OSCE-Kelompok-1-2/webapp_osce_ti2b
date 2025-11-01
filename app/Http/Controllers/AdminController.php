@@ -2,135 +2,111 @@
 
 namespace App\Http\Controllers;
 
-use Inertia\Inertia;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Hash;
-
-
-// ... bagian use dan class AdminController ...
+use Illuminate\Support\Facades\Storage;
+use Inertia\Inertia;
+use Illuminate\Validation\Rule; // Import ini untuk validasi unik
 
 class AdminController extends Controller
 {
-    public function update_profile(Request $request)
+    /**
+     * 🔹 Menampilkan halaman profil admin
+     * (Fungsi ini tetap sama)
+     */
+    public function show_profile()
     {
-        // 1. VALIDASI DATA
-        $request->validate([
-            'nama' => 'nullable|max:255', 
-            // PENTING: Untuk upload file melalui PUT/PATCH, Anda harus menggunakan `post`
-            // Inertia secara otomatis akan mengirimkan _method:PUT/PATCH
-            // Jadi, pastikan route di Laravel Anda menggunakan PUT dan method spoofing diaktifkan
-            'foto' => 'nullable|image|mimes:jpeg,png,jpg,gif,svg|max:2048',
+        $admin = Auth::user();
+
+        // Sesuaikan dengan model Anda: gunakan 'path_gambar'
+        $admin->path_gambar = $admin->path_gambar ? ($admin->path_gambar) : null;
+
+        return Inertia::render('Admin/PengaturanAkun', [
+            // Kirim 'user' ke props 'user' di frontend
+            'user' => $admin, 
         ]);
-        
-        // 2. CEK AUTENTIKASI DAN AMBIL RELASI ADMIN
-        $pengguna = Auth::user();
-        
-        if (!$pengguna) {
-             return redirect()->route('admin.profil.show')->with('error', 'Anda harus login untuk mengakses ini.');
+    }
+
+    /**
+     * 🔹 [FUNGSI BARU] Update Akun (Profil DAN/ATAU Password)
+     * Ini adalah satu-satunya fungsi yang dipanggil oleh tombol "Simpan"
+     */
+    public function update_account(Request $request)
+    {
+        $admin = Auth::user();
+
+        // --- Validasi ---
+        // Kita validasi semua input yang mungkin
+        $request->validate([
+            // Data Profil
+            // (Sesuai Pengguna.php: 'username' dan 'path_gambar')
+            'username' => [
+                'required', 
+                'string', 
+                'max:255',
+                // Pastikan username unik, KECUALI untuk diri sendiri
+                Rule::unique('pengguna')->ignore($admin->id_pengguna, 'id_pengguna')
+            ],
+            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:1024'], // 1MB Sesuai UI
+
+            // Data Password (HANYA JIKA diisi)
+            // 'confirmed' akan cek 'new_password_confirmation'
+            'new_password' => ['nullable', 'string', 'min:6', 'confirmed'],
+            'old_password' => ['nullable', 'string'],
+            'delete_foto' => ['nullable', 'boolean'],
+        ]);
+
+        // --- Logika Update Profil ---
+        // (Selalu update username & foto jika ada)
+
+        // 1. Update Username
+        $admin->username = $request->username;
+
+        // --- LOGIKA FOTO DIPERBARUI ---
+        // Cek apakah frontend mengirim 'delete_foto: true'
+        if ($request->boolean('delete_foto')) {
+            // 1. HAPUS FOTO
+            if ($admin->path_gambar) {
+                $oldPath = str_replace('storage/', '', $admin->path_gambar);
+                Storage::disk('public')->delete($oldPath);
+            }
+            $admin->path_gambar = null; // Set 'path_gambar' di DB menjadi null
+        }
+        // 2. Update Foto (jika ada file baru)
+        elseif ($request->hasFile('foto')) {
+            // Hapus foto lama
+            if ($admin->path_gambar) {
+                $oldPath = str_replace('storage/', '', $admin->path_gambar);
+                Storage::disk('public')->delete($oldPath);
+            }
+            // Simpan foto baru
+            $fotoPath = $request->file('foto')->store('profiladmin', 'public');
+            $admin->path_gambar = 'storage/' . $fotoPath;
         }
 
-        $admin = $pengguna->admin;
+        // --- Logika Update Password ---
         
-        if (!$admin) {
-             return redirect()->route('admin.profil.show')->with('error', 'Data profil admin tidak ditemukan untuk user ini.');
-        }
-
-        try {
-            // 3. LOGIKA UPDATE
+        // Cek JIKA pengguna MENGISI field password baru
+        if ($request->filled('new_password')) {
             
-            if ($request->hasFile('foto')) {
-                // ... (Logika upload foto sudah benar) ...
-                $foto = $request->file('foto');
-                
-                $filename = time() . '_' . $foto->getClientOriginalName();
-                $folderPath = storage_path('app/public/profiladmin');
-                $dbPath = 'storage/profiladmin/' . $filename; 
-
-                if (!File::isDirectory($folderPath)) {
-                    File::makeDirectory($folderPath, 0755, true, true);
-                }
-                
-                // Hapus foto lama
-                if ($admin->foto && strpos($admin->foto, 'storage/') === 0 && File::exists(public_path($admin->foto))) {
-                    File::delete(public_path($admin->foto));
-                }
-
-                $foto->move(public_path('storage/profiladmin'), $filename); // Perbaikan: Gunakan public_path jika file diakses publik
-                $admin->foto = 'storage/profiladmin/' . $filename; 
+            // Jika password baru diisi, password lama WAJIB benar
+            if (!Hash::check($request->old_password, $admin->password)) {
+                // Kirim error HANYA untuk field old_password
+                return back()->withErrors([
+                    'old_password' => 'Password lama tidak sesuai.',
+                ]);
             }
             
-            if ($request->filled('nama')) {
-                $admin->nama = $request->nama;
-            }
-        
-            $admin->save();
-
-            // PENTING: Gunakan redirect ke route show, dan flash message akan ditangkap di frontend
-            return redirect()->route('admin.profil.show')->with('success', 'Profil berhasil diperbarui.');
-        } catch (\Exception $e) {
-            Log::error('Gagal memperbarui profil: ' . $e->getMessage());
-            return redirect()->route('admin.profil.show')->with('error', 'Gagal memperbarui profil: Terjadi kesalahan server.');
+            // 3. Update Password
+            // (Model Pengguna.php Anda sudah punya 'password' => 'hashed' cast,
+            // jadi kita bisa langsung set nilainya)
+            $admin->password = $request->new_password;
         }
-    }
-    
-    public function update_password(Request $request)
-    {
-         $pengguna = Auth::user();
-         
-         if (!$pengguna) {
-             return redirect()->route('admin.profil.show')->with('error_password', 'Anda harus login untuk mengakses ini.');
-         }
-
-         $admin = $pengguna->admin; 
-
-         if (!$admin) {
-           return redirect()->route('admin.profil.show')->with('error_password', 'Data admin tidak ditemukan.');
-         }
-         
-         $request->validate([
-              'current_password' => 'required',
-              'new_password' => 'required|min:5|confirmed',
-         ]);
-
-         try {
-             if (!Hash::check($request->current_password, $admin->password)) {
-                 return redirect()->route('admin.profil.show')->withErrors(['current_password' => 'Password lama tidak sesuai.']); // Menggunakan withErrors untuk validasi field tertentu
-             }
-
-             $admin->password = Hash::make($request->new_password);
-             $admin->save();
-
-             return redirect()->route('admin.profil.show')->with('success_password', 'Password berhasil diperbarui.');
-         } catch (\Exception $e) {
-             return redirect()->route('admin.profil.show')->with('error_password', 'Gagal memperbarui password: ' . $e->getMessage());
-         }
-    }
-    
-     public function show_profile(Request $request)
-    {
-         $pengguna = Auth::user();
-
-        //  if (!$pengguna) {
-        //      // Redireksi atau tampilkan halaman error jika tidak login
-        //      abort(403, "Akses ditolak. Anda harus login.");
-        //  }
-
-         $admin = $pengguna->admin;
         
-         if (!$admin) {
-             // Jika user ini tidak punya relasi admin
-             abort(404, "Data admin tidak ditemukan untuk user ini.");
-         }
+        // Simpan semua perubahan (username, foto, dan/atau password)
+        $admin->save();
 
-         return Inertia::render('Admin/Profil', [
-             'user' => [
-                 'nama' => $admin->nama,
-                 'email' => $admin->email,
-                 'foto' => $admin->foto,
-             ]
-         ]);
+        return back()->with('success', 'Akun berhasil diperbarui!');
     }
 }

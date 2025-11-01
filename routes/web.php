@@ -8,12 +8,19 @@ Route::get('/', function () {
     return Inertia::render("Home");
 });
 
-Route::get('/admin/dashboard', function () {
-    return Inertia::render("Admin/Dashboard");
+// 🧭 ADMIN AREA (wajib login)
+Route::middleware(['auth'])->group(function () {
+
+    // Dashboard admin
+    Route::get('/admin/dashboard', function () {
+        return Inertia::render('Admin/Dashboard');
+    })->name('admin.dashboard');
+
+    // Halaman profil
+    Route::get('/admin/pengaturanakun', [AdminController::class, 'show_profile'])
+        ->name('admin.profile.show');
+
+    // 2. Rute BARU untuk SUBMIT form (Gantikan 2 rute lama)
+    Route::post('/admin/profil/update', [AdminController::class, 'update_account'])
+        ->name('admin.account.update');
 });
-
-Route::get('/admin/profil', [AdminController::class, 'show_profile']) -> name('admin.profil.show');
-
-Route::put('/admin/profil/update', [AdminController::class, 'update_profile']) -> name('admin.profil.update');
-
-Route::put('/admin/password/update', [AdminController::class, 'update_password']) -> name('admin.password.update');
