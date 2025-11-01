@@ -18,7 +18,7 @@ class AspekPenilaianController extends Controller
         // kueri parameter yang dikirim frontend untuk mencari aspek penilaian tertentu
         $search = $request->query('search');
 
-        // jika ada keyword maka kirim aspek penilaian tertentu, jika tidak ada maka kirim semua aspek penilaian
+        // jika ada kueri parameter, maka kirim aspek penilaian tertentu. Jika tidak ada, maka kirim semua aspek penilaian
         $aspek_penilaian = AspekPenilaian::where('id_stase', $id)->select("id_aspek_penilaian as id", "aspek as nama", "bobot_maksimum")
             ->when($search, function ($query, $search) {
                 // Menggunakan LIKE untuk pencarian parsial
