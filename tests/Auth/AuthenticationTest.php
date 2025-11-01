@@ -9,7 +9,6 @@ use Tests\TestCase;
 class AuthenticationTest extends TestCase
 {
     use RefreshDatabase;
-    // use InteractsWithInertia; // <-- HAPUS INI
 
     /** @test */
     public function the_login_screen_can_be_rendered(): void
