@@ -52,8 +52,8 @@ class OsceStase extends Model
 
     protected $casts = [
         'tanggal' => 'date',
-        'jam_mulai' => 'time',
-        'jam_selesai' => 'time',
+        'jam_mulai' => 'string',
+        'jam_selesai' => 'string',
         'durasi_per_mahasiswa' => 'integer',
     ];
 }
