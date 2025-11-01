@@ -124,7 +124,7 @@ export default function Aspekpenilaian() {
           <div className="bg-blue-600 text-white p-2 rounded-md flex items-center justify-center">
             <Home size={20} />
           </div>
-          <span className="font-medium">Stase \ Stase Lorem Ipsum Dolor</span>
+          <span className="font-medium">Stase \ Stase 01-A</span>
         </div>
 
         {/* Header Menu */}
