@@ -29,6 +29,7 @@ class AspekPenilaianController extends Controller
 
         $data = [
             "nama_stase" => $stase->nama_stase,
+            "id_stase" => $stase->id_stase,
             "aspek_penilaian" => $aspek_penilaian,
         ];
 
