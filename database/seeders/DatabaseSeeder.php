@@ -24,6 +24,17 @@ class DatabaseSeeder extends Seeder
             AdminSeeder::class,
             MahasiswaSeeder::class,
             PengujiSeeder::class,
+            TahunAkademikSeeder::class,
+            EnrollmentSeeder::class,
+            BlokSeeder::class,
+            MataKuliahSeeder::class,
+            StaseSeeder::class,
+            TujuanPembelajaranSeeder::class,
+            AspekPenilaianSeeder::class,
+            PoinAspekPenilaianSeeder::class,
+            OsceSeeder::class,
+            NilaiOsceSeeder::class,
+            LogoInstitusiSeeder::class,
         ]);
     }
 }
