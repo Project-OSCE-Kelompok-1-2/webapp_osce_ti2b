@@ -17,7 +17,7 @@ export default function KompetensiForm() {
             {/* ======= HEADER ======= */}
             <header className="bg-white border-b border-gray-300 px-3 py-3 flex items-center justify-between gap-3">
                 <button
-                    onClick={() => router.visit("/admin/kompetensi")}
+                    onClick={() => router.visit("/admin/menukompetensi")}
                     className="bg-red-600 text-white p-3 rounded-xl border border-black hover:bg-red-500 transition-all"
                 >
                     <X size={20} />

@@ -76,7 +76,7 @@ export default function KompetensiPage() {
 
                 <button
                     onClick={() =>
-                        router.visit("/admin/kompetensi/tambahkompetensi")
+                        router.visit("/admin/menukompetensi/tambahkompetensi")
                     }
                     className="flex items-center gap-2 mt-3 bg-blue-700 hover:bg-blue-600 text-white px-5 py-3 rounded-xl"
                 >

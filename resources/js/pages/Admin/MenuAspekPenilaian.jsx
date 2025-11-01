@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 // Import icons
 import { Trash2, Home, Pencil, Search } from "lucide-react"; 
 // PERHATIKAN INI: Kita import file form-nya
-import AddAspekForm from "./AddAspekForm"; 
+import AddAspekForm from "./TambahAspekPenilaian"; 
 import { router } from "@inertiajs/react";  
 
 // Data mock (contoh)
@@ -140,7 +140,7 @@ export default function Aspekpenilaian() {
         {/* Tombol Tambah */}
         <div className="mb-4">
           <button
-            onClick= {() => router.visit('/admin/tambahaspek')}
+            onClick= {() => router.visit('/admin/menuaspekpenilaian/tambahaspekpenilaian')}
             className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow font-medium"
           >
             ＋ Tambah Aspek Penilaian

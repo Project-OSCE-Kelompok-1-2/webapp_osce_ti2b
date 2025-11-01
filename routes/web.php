@@ -15,12 +15,12 @@ Route::get('/admin/dashboard', function () {
     return Inertia::render('Admin/Dashboard');
 });
    
-Route::get('/admin/kompetensi', function () {
-    return Inertia::render('Admin/Kompetensi');
+Route::get('/admin/menukompetensi', function () {
+    return Inertia::render('Admin/MenuKompetensi');
 });
 
-Route::get('/admin/kompetensi/tambahkompetensi', function () {
-    return Inertia::render('Admin/KompetensiForm');
+Route::get('/admin/menukompetensi/tambahkompetensi', function () {
+    return Inertia::render('Admin/TambahKompetensi');
 });
 
 Route::get('/admin/pengaturanakun', function () {
@@ -31,16 +31,16 @@ Route::get('/admin/menustase', function () {
     return Inertia::render('Admin/MenuStase');
 });
 
-Route::get('/admin/tambahstase', function () {
+Route::get('/admin/menustase/tambahstase', function () {
     return Inertia::render('Admin/TambahStase');
 });
 
-Route::get('/admin/aspekpenilaian', function () {
-    return Inertia::render('Admin/Aspekpenilaian');
+Route::get('/admin/menuaspekpenilaian', function () {
+    return Inertia::render('Admin/MenuAspekPenilaian');
 });
 
-Route::get('/admin/tambahaspek', function () {
-    return Inertia::render('Admin/AddAspekForm');
+Route::get('/admin/menuaspekpenilaian/tambahaspekpenilaian', function () {
+    return Inertia::render('Admin/TambahAspekPenilaian');
 });
 
 
