@@ -57,6 +57,6 @@ class PoinAspekPenilaian extends Model
     // relasi ke nilai_osce 1:M
     public function nilai_osce()
     {
-        return $this->hasMany(NilaiOsce::class, 'id_poin_aspek_penilaian');
+        return $this->hasOne(NilaiOsce::class, 'id_poin_aspek_penilaian');
     }
 }
