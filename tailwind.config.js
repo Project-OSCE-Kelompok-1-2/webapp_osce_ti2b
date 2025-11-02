@@ -1,3 +1,6 @@
+// import { plugin } from "postcss";
+import plugin from "tailwindcss/plugin";
+// import iconPlugin from "./resources/js/iconplugin.js";
 import defaultTheme from "tailwindcss/defaultTheme";
 
 /** @type {import('tailwindcss').Config} */
@@ -12,9 +15,74 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ["Figtree", ...defaultTheme.fontFamily.sans],
+                sans: ["Inter", ...defaultTheme.fontFamily.sans],
             },
+            colors: {
+                'os-primary' : 'var(--os-primary)',
+                'os-secondary' : 'var(--os-secondary)',
+                'os-tertiary' : 'var(--os-tertiary)',
+                'os-black' : 'var(--os-black)',
+                'os-white' : 'var(--os-white)',
+                'os-warning' : 'var(--os-warning)',
+                'os-edit' : 'var(--os-edit)',
+                'os-danger' : 'var(--os-danger)',
+                'os-neutral' : 'var(--os-neutral)',
+                'os-success' : 'var(--os-success)',
+
+            },
+            opacity: {
+                'os-alpha-100': 'var(--os-alpha-100)',
+                'os-alpha-75': 'var(--os-alpha-75)',
+                'os-alpha-25': 'var(--os-alpha-25)',
+                'os-alpha-0': 'var(--os-alpha-0)',
+            },
+            spacing: {
+                "os-48": "var(--os-48)",
+                "os-36": "var(--os-36)",
+                "os-24": "var(--os-24)",
+                "os-20": "var(--os-20)",
+                "os-14": "var(--os-14)",
+                "os-12": "var(--os-12)",
+                "os-8": "var(--os-8)",
+                "os-4": "var(--os-4)",
+                "os-2": "var(--os-2)",
+            },
+            fontSize: {
+                'os-title': 'var(--os-title)',
+                'os-subtitle': 'var(--os-subtitle)',
+                'os-regular': 'var(--os-regular)',
+                'os-paragraft': 'var(--os-paragraft)',
+                'os-small': 'var(--os-small)',
+            },
+            borderWidth: {
+                'os-1': 'var(--os-1)',
+                'os-2': 'var(--os-2)',
+            },
+            borderColor: {
+                'os-primary' : 'var(--os-primary)'  ,
+            }
+
         },
     },
-    plugins: [],
+    plugins: [
+        // iconPlugin
+        // plugin(function ({ addComponents, theme }) {
+        //     addComponents({
+        //         ".os-link": {
+        //         color: theme("colors.os-link"),
+        //         fontWeight: "500",
+        //         textDecoration: "none",
+        //         transition: "color 0.2s ease-in-out",
+        //         textDecoration: "underline",
+        //         cursor: "pointer",
+        //         opacity: theme("opacity.os-alpha-75"),
+        //         },
+        //         ".os-link:hover": {
+        //         color: theme("colors.os-primary"),
+        //         textDecoration: "underline",
+        //         opacity: theme("opacity.os-alpha-100"),
+        //         },
+        //     });
+        // }),
+    ],
 };
