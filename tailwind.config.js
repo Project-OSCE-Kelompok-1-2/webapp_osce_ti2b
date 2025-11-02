@@ -1,6 +1,5 @@
-// import { plugin } from "postcss";
+import { plugin } from "postcss";
 import plugin from "tailwindcss/plugin";
-// import iconPlugin from "./resources/js/iconplugin.js";
 import defaultTheme from "tailwindcss/defaultTheme";
 
 /** @type {import('tailwindcss').Config} */
