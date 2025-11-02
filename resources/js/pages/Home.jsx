@@ -2,7 +2,7 @@
 import Os_button from "../components/button";
 import OsBreadCrumb from "../components/breadcrumb";
 import OsCopyright from "../components/copyright";
-// import Icon from "../components/icons";
+import OsIcon from "../components/icons";
 
 const Home = () => {
     return <div className="container flex flex-col w-full h-screen justify-between p-os-8 items-center bg-yellow-100" >
@@ -16,6 +16,7 @@ const Home = () => {
         <span>
             Welcome page
         </span>
+        <OsIcon name="home" className="w-os-48 os-icon-light" />
         <div className="flex flex-col gap-3" >
             <span className="os-link os-opa text-sm font-normal text-justify opacity-75" >
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Placeat eveniet reiciendis voluptatum delectus doloribus non exercitationem officiis? Quasi odit esse, pariatur doloribus quo, eum adipisci incidunt deleniti id illum minus?

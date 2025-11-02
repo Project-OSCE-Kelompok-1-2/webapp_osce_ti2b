@@ -65,24 +65,18 @@ export default {
         },
     },
     plugins: [
-        // iconPlugin
-        // plugin(function ({ addComponents, theme }) {
-        //     addComponents({
-        //         ".os-link": {
-        //         color: theme("colors.os-link"),
-        //         fontWeight: "500",
-        //         textDecoration: "none",
-        //         transition: "color 0.2s ease-in-out",
-        //         textDecoration: "underline",
-        //         cursor: "pointer",
-        //         opacity: theme("opacity.os-alpha-75"),
-        //         },
-        //         ".os-link:hover": {
-        //         color: theme("colors.os-primary"),
-        //         textDecoration: "underline",
-        //         opacity: theme("opacity.os-alpha-100"),
-        //         },
-        //     });
-        // }),
+        plugin(function ({ addUtilities, theme }) {
+            const newUtilities = {
+                ".os-icon-dark": {
+                filter:
+                    "invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)",
+                },
+                ".os-icon-light": {
+                filter:
+                    "invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)",
+                },
+            };
+            addUtilities(newUtilities, ["responsive", "hover"]);
+        }),
     ],
 };
