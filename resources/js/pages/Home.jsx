@@ -24,7 +24,7 @@ const Home = () => {
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Placeat eveniet reiciendis voluptatum delectus doloribus non exercitationem officiis? Quasi odit esse, pariatur doloribus quo, eum adipisci incidunt deleniti id illum minus?
             Lorem ipsum dolor sit amet consectetur adipisicing elit. Placeat eveniet reiciendis voluptatum delectus doloribus non exercitationem officiis? Quasi odit esse, pariatur doloribus quo, eum adipisci incidunt deleniti id illum minus?
         </span>
-        <Os_button 
+        <Os_button
             onClick={() => alert("More info clicked!")}>
             More info
         </Os_button>
@@ -35,3 +35,5 @@ const Home = () => {
 };
 
 export default Home;
+
+

@@ -12,11 +12,6 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // Data default bawaan Laravel
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
-        ]);
 
         //  Jalankan semua seeder kustom
         $this->call([
