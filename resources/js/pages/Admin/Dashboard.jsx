@@ -15,7 +15,7 @@ export const AdminDashboard = () => {
   return (
     // 🆕 Tambahkan relative dan overflow-hidden agar sidebar overlay bisa muncul di atas dashboard
     <div className="relative bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans overflow-hidden">
-      
+
       {/* Sidebar dipanggil langsung tanpa kontrol dari dashboard */}
       <Sidebar />
 
@@ -26,7 +26,7 @@ export const AdminDashboard = () => {
         {/* === HEADER === */}
         <header className="relative row-[1_/_2] col-[1_/_2] w-full flex flex-col items-start gap-5 bg-white p-4 rounded-xl shadow-sm border border-gray-900">
           <div className="flex items-center justify-between relative self-stretch w-full">
-            
+
             {/* Tombol Home tetap tampil, tapi tidak lagi mengontrol sidebar */}
             <button
               className="flex w-[54px] h-[54px] items-center justify-center gap-[13px] p-3 relative bg-blue-600 text-white rounded-xl border border-solid border-black aspect-[1]"
