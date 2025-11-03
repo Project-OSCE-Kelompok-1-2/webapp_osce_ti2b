@@ -44,7 +44,8 @@ class AspekPenilaianController extends Controller
             ...$validated,
         ]);
 
-        return redirect()->route('aspek.index', $id_stase)->with('success', 'Aspek berhasil ditambahkan');
+        return redirect()->route('aspek.index', $id_stase)
+            ->with('success', 'Aspek berhasil ditambahkan');
     }
 
     // PUT: edit aspek
@@ -58,7 +59,8 @@ class AspekPenilaianController extends Controller
         $aspek = AspekPenilaian::findOrFail($id_aspek);
         $aspek->update($validated);
 
-        return redirect()->route('aspek.index', $id_stase)->with('success', 'Aspek berhasil diperbarui');
+        return redirect()->route('aspek.index', $id_stase)
+            ->with('success', 'Aspek berhasil diperbarui');
     }
 
     // DELETE: hapus aspek

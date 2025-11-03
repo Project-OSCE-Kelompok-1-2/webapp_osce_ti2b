@@ -18,7 +18,7 @@ class StaseController extends Controller
         ]);
     }
 
-    // GET: form tambah / edit
+    // GET: form tambah/edit
     public function form($id = null)
     {
         $stase = $id ? Stase::findOrFail($id) : null;
