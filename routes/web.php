@@ -1,53 +1,57 @@
 <?php
 
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\AspekPenilaianController;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\StaseController;
+use App\Http\Controllers\KompetensiController; // Asumsi controller baru
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\StaseController;
 use App\Http\Controllers\AspekPenilaianController;
 
-// ======================== HALAMAN UMUM ========================
+/*
+|--------------------------------------------------------------------------
+| Web Routes
+|--------------------------------------------------------------------------
+*/
+
+// Halaman Awal -> Redirect ke Login
 Route::get('/', function () {
-    return Inertia::render("Home");
+    return redirect()->route('login');
 });
 
-Route::get('/auth/login', function () {
-    return Inertia::render("Auth/Login");
-})->name('login');
+// === RUTE AUTENTIKASI ===
+Route::middleware('guest')->group(function () {
+    Route::get('/login', [AuthController::class, 'show_login'])->name('login');
+    Route::post('/login', [AuthController::class, 'login']);
+});
+Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-Route::get('/admin/dashboard', function () {
-    return Inertia::render('Admin/Dashboard');
+
+// === RUTE UNTUK ADMIN ===
+Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->group(function () {
+    
+    // Dashboard
+    Route::get('dashboard', function () {
+        return Inertia::render('Admin/Dashboard');
+    })->name('dashboard');
+
+    // Pengaturan Akun
+    Route::get('/pengaturan-akun', [AdminController::class, 'show_profile'])->name('account.show');
+    Route::post('/pengaturan-akun', [AdminController::class, 'update_account'])->name('account.update');
+
+    // Menu Stase (CRUD)
+    Route::resource('stase', StaseController::class);
+
+    // Menu Aspek Penilaian (Nested di dalam Stase)
+    Route::resource('stase.aspek-penilaian', AspekPenilaianController::class)->except(['show'])->shallow();
+    
+    // Menu Kompetensi / Poin Penilaian (Nested di dalam Aspek)
+    Route::resource('aspek-penilaian.kompetensi', KompetensiController::class)->except(['show'])->shallow();
+
 });
 
-Route::get('/admin/kompetensi', function () {
-    return Inertia::render('Admin/Kompetensi');
-});
-
-Route::get('/admin/kompetensi/form', function () {
-    return Inertia::render('Admin/KompetensiForm');
-});
-
-Route::get('/admin/pengaturanakun', function () {
-    return Inertia::render('Admin/PengaturanAkun');
-});
-
-// ======================== STASE & ASPEK PENILAIAN ========================
-Route::prefix('admin')->group(function () {
-
-    // ---------- STASE ----------
-    Route::prefix('stase')->group(function () {
-        Route::get('/', [StaseController::class, 'index'])->name('stase.index');
-        Route::get('/form/{id?}', [StaseController::class, 'form'])->name('stase.form');
-        Route::post('/', [StaseController::class, 'store'])->name('stase.store');
-        Route::put('/{id}', [StaseController::class, 'update'])->name('stase.update');
-        Route::delete('/{id}', [StaseController::class, 'destroy'])->name('stase.destroy');
-
-        // ---------- ASPEK PENILAIAN ----------
-        Route::prefix('{id_stase}/aspek')->group(function () {
-            Route::get('/', [AspekPenilaianController::class, 'index'])->name('aspek.index');
-            Route::get('/form/{id_aspek?}', [AspekPenilaianController::class, 'form'])->name('aspek.form');
-            Route::post('/', [AspekPenilaianController::class, 'store'])->name('aspek.store');
-            Route::put('/{id_aspek}', [AspekPenilaianController::class, 'update'])->name('aspek.update');
-            Route::delete('/{id_aspek}', [AspekPenilaianController::class, 'destroy'])->name('aspek.destroy');
-        });
-    });
-});
+// Rute fallback atau untuk role lain bisa ditambahkan di sini
+// Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function() { ... });
+// Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });

@@ -2,74 +2,89 @@
 
 namespace App\Http\Controllers;
 
+use Inertia\Inertia;
+use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\Request;
 use App\Models\AspekPenilaian;
 use App\Models\Stase;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
 
 class AspekPenilaianController extends Controller
 {
-    // GET: semua aspek untuk satu stase
-    public function index($id_stase)
+    // Menggantikan get_aspek_penilaian
+    public function index(Request $request, Stase $stase)
     {
-        $stase = Stase::with('aspekPenilaian')->findOrFail($id_stase);
+        $aspek_penilaian = AspekPenilaian::where('id_stase', $stase->id_stase)
+            ->when($request->input('search'), function ($query, $search) {
+                $query->where('aspek', 'like', "%{$search}%");
+            })
+            ->withCount('poinAspekPenilaian as jumlah_kompetensi')
+            ->paginate(10)
+            ->withQueryString();
+        
+        // Mengubah nama kolom agar konsisten dengan frontend sebelumnya
+        $aspek_penilaian->getCollection()->transform(function ($item) {
+            $item->nama = $item->aspek;
+            $item->bobot = $item->bobot_maksimum;
+            $item->id = $item->id_aspek_penilaian;
+            return $item;
+        });
 
-        return Inertia::render('Admin/AspekPenilaian/Index', [
+        return Inertia::render('Admin/MenuAspekPenilaian', [
             'stase' => $stase,
-            'aspekPenilaians' => $stase->aspekPenilaian,
+            'aspek_penilaian' => $aspek_penilaian,
+            'filters' => $request->only(['search'])
         ]);
     }
-
-    // GET: form tambah/edit aspek
-    public function form($id_stase, $id_aspek = null)
+    
+    public function create(Stase $stase)
     {
-        $aspek = $id_aspek ? AspekPenilaian::findOrFail($id_aspek) : null;
-
-        return Inertia::render('Admin/AspekPenilaian/Form', [
-            'stase_id' => $id_stase,
-            'aspek' => $aspek,
+        return Inertia::render('Admin/TambahAspekPenilaian', [
+            'stase' => $stase,
+            'aspek' => null, // Kirim null untuk mode 'create'
         ]);
     }
 
-    // POST: tambah aspek baru
-    public function store(Request $request, $id_stase)
-    {
-        $validated = $request->validate([
-            'aspek' => 'required|string|max:255',
-            'bobot_maksimum' => 'required|numeric|min:0',
-        ]);
-
-        AspekPenilaian::create([
-            'id_stase' => $id_stase,
-            ...$validated,
-        ]);
-
-        return redirect()->route('aspek.index', $id_stase)
-            ->with('success', 'Aspek berhasil ditambahkan');
-    }
-
-    // PUT: edit aspek
-    public function update(Request $request, $id_stase, $id_aspek)
+    /**
+     * Menyimpan Aspek Penilaian baru.
+     */
+    public function store(Request $request, Stase $stase)
     {
         $validated = $request->validate([
-            'aspek' => 'required|string|max:255',
-            'bobot_maksimum' => 'required|numeric|min:0',
+            'aspek' => 'required|string',
+            'bobot_maksimum' => 'required|integer|min:0',
         ]);
 
-        $aspek = AspekPenilaian::findOrFail($id_aspek);
-        $aspek->update($validated);
+        $stase->aspekPenilaian()->create($validated);
 
-        return redirect()->route('aspek.index', $id_stase)
-            ->with('success', 'Aspek berhasil diperbarui');
+        return Redirect::route('admin.stase.aspek-penilaian.index', $stase->id_stase)
+            ->with('success', 'Aspek Penilaian berhasil ditambahkan.');
+    }
+    
+    /**
+     * Menampilkan form untuk mengedit Aspek Penilaian.
+     */
+    public function edit(AspekPenilaian $aspekPenilaian)
+    {
+        $aspekPenilaian->load('stase'); // Load relasi untuk breadcrumb
+        return Inertia::render('Admin/TambahAspekPenilaian', [
+            'stase' => $aspekPenilaian->stase,
+            'aspek' => $aspekPenilaian, // Kirim data aspek untuk di-edit
+        ]);
     }
 
-    // DELETE: hapus aspek
-    public function destroy($id_stase, $id_aspek)
+    /**
+     * Memperbarui Aspek Penilaian.
+     */
+    public function update(Request $request, AspekPenilaian $aspekPenilaian)
     {
-        AspekPenilaian::where('id_stase', $id_stase)
-            ->where('id_aspek_penilaian', $id_aspek)
-            ->delete();
+        $validated = $request->validate([
+            'aspek' => 'required|string',
+            'bobot_maksimum' => 'required|integer|min:0',
+        ]);
+        
+        $aspekPenilaian->update($validated);
 
-        return redirect()->back()->with('success', 'Aspek berhasil dihapus');
+        return Redirect::route('admin.stase.aspek-penilaian.index', $aspekPenilaian->id_stase)
+            ->with('success', 'Aspek Penilaian berhasil diperbarui.');
     }
 }

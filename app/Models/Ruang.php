@@ -12,7 +12,7 @@ class Ruang extends Model
 
     protected $table = 'ruang';
     protected $primaryKey = 'id_ruang';
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'nomor_ruangan',

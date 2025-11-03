@@ -12,7 +12,7 @@ class Enrollment extends Model
 
     protected $table = 'enrollment';
     protected $primaryKey = 'id_enrollment';
-    public $timestamps = false;
+    public $timestamps = true;
 
     /**
      * The attributes that are mass assignable.
@@ -38,6 +38,11 @@ class Enrollment extends Model
     public function tahunAkademik()
     {
         return $this->belongsTo(TahunAkademik::class, 'id_tahun_akademik'); //perlu relasi ke model TahunAkademik
+    }
+    // relasi ke mata_kuliah 1:M
+    public function mataKuliah()
+    {
+        return $this->hasMany(MataKuliah::class, 'id_enrollment');
     }
 
     protected function casts(): array

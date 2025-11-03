@@ -4,9 +4,11 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 class PoinAspekPenilaian extends Model
 {
+    use HasFactory;
     /**
      * Menentukan nama tabel yang terkait dengan model.
      * Perlu didefinisikan karena nama tabel 'poin_aspek_penilaian' (singular)
@@ -52,5 +54,11 @@ class PoinAspekPenilaian extends Model
         // 2. Foreign key di tabel ini (id_aspek_penilaian)
         // 3. Primary key di tabel aspek_penilaian (id_aspek_penilaian)
         return $this->belongsTo(AspekPenilaian::class, 'id_aspek_penilaian', 'id_aspek_penilaian');
+    }
+
+    // relasi ke nilai_osce 1:1
+    public function nilai_osce()
+    {
+        return $this->hasOne(NilaiOsce::class, 'id_poin_aspek_penilaian');
     }
 }

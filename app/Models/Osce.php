@@ -12,7 +12,7 @@ class Osce extends Model
 
     protected $table = 'osce';
     protected $primaryKey = 'id_osce';
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'id_tahun_akademik',
@@ -29,7 +29,7 @@ class Osce extends Model
     // Relasi ke osce_stase 1:M
     public function osceStase()
     {
-        return $this->hasMany(OsceStase::class, 'id_osce'); 
+        return $this->hasMany(OsceStase::class, 'id_osce');
     }
 
     // relasi ke enrollment_osce 1:M

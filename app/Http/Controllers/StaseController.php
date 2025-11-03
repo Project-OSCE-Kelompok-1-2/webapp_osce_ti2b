@@ -3,64 +3,90 @@
 namespace App\Http\Controllers;
 
 use App\Models\Stase;
+use App\Models\MataKuliah;
+use App\Models\TujuanPembelajaran;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rule;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Redirect;
 
 class StaseController extends Controller
 {
-    // GET: daftar semua stase
-    public function index()
+    public function index(Request $request)
     {
-        $stases = Stase::withCount('aspekPenilaian')->get();
+        $stase = Stase::query()
+            ->when($request->input('search'), function ($query, $search) {
+                $query->where('nama_stase', 'like', "%{$search}%");
+            })
+            ->withCount('aspekPenilaian')
+            ->paginate(10)
+            ->withQueryString();
 
-        return Inertia::render('Admin/Stase/Index', [
-            'stases' => $stases,
-        ]);
-    }
-
-    // GET: form tambah/edit
-    public function form($id = null)
-    {
-        $stase = $id ? Stase::findOrFail($id) : null;
-
-        return Inertia::render('Admin/Stase/Form', [
+        return Inertia::render('Admin/MenuStase', [
             'stase' => $stase,
+            'filters' => $request->only(['search']),
         ]);
     }
 
-    // POST: tambah stase baru
+    public function create()
+    {
+        // [UBAH] Ambil semua data yang diperlukan untuk dropdown
+        return Inertia::render('Admin/TambahStase', [
+            'mataKuliah' => MataKuliah::all(),
+            'tujuanPembelajaran' => TujuanPembelajaran::all(), // <-- [BARU]
+        ]);
+    }
+
     public function store(Request $request)
     {
-        $validated = $request->validate([
-            'nama_stase' => 'required|string|max:255',
+        // [UBAH] Tambahkan validasi untuk field baru
+        $request->validate([
+            'nama_stase' => 'required|string|max:255|unique:stase,nama_stase',
+            'id_mata_kuliah' => 'required|exists:mata_kuliah,id_mata_kuliah',
+            'id_tujuan_pembelajaran' => 'required|exists:tujuan_pembelajaran,id_tujuan_pembelajaran', // <-- [BARU]
+            'deskripsi' => 'nullable|string', // <-- [BARU]
+        ]);
+
+        Stase::create($request->all());
+
+        return Redirect::route('admin.stase.index')->with('success', 'Stase berhasil ditambahkan.');
+    }
+
+    public function edit(Stase $stase)
+    {
+        // Kirim semua data yang diperlukan untuk form
+        return Inertia::render('Admin/TambahStase', [
+            'mataKuliah' => MataKuliah::all(),
+            'tujuanPembelajaran' => TujuanPembelajaran::all(),
+            'stase' => $stase, // Kirim data stase yang akan diedit
+        ]);
+    }
+
+    public function update(Request $request, Stase $stase)
+    {
+        $request->validate([
+            // [UBAH] Aturan unique diubah agar mengabaikan data stase saat ini
+            'nama_stase' => [
+                'required',
+                'string',
+                'max:255',
+                Rule::unique('stase', 'nama_stase')->ignore($stase->id_stase, 'id_stase'),
+            ],
+            'id_mata_kuliah' => 'required|exists:mata_kuliah,id_mata_kuliah',
+            'id_tujuan_pembelajaran' => 'required|exists:tujuan_pembelajaran,id_tujuan_pembelajaran',
             'deskripsi' => 'nullable|string',
         ]);
 
-        Stase::create($validated);
+        $stase->update($request->all());
 
-        return redirect()->route('stase.index')->with('success', 'Stase berhasil ditambahkan');
+        return Redirect::route('admin.stase.index')->with('success', 'Stase berhasil diperbarui.');
     }
 
-    // PUT: update stase
-    public function update(Request $request, $id)
+    public function destroy(Stase $stase)
     {
-        $validated = $request->validate([
-            'nama_stase' => 'required|string|max:255',
-            'deskripsi' => 'nullable|string',
-        ]);
-
-        $stase = Stase::findOrFail($id);
-        $stase->update($validated);
-
-        return redirect()->route('stase.index')->with('success', 'Stase berhasil diperbarui');
-    }
-
-    // DELETE: hapus stase
-    public function destroy($id)
-    {
-        $stase = Stase::findOrFail($id);
         $stase->delete();
-
-        return redirect()->back()->with('success', 'Stase berhasil dihapus');
+        return Redirect::back()->with('success', 'Stase berhasil dihapus.');
     }
+    
+    // Anda bisa tambahkan fungsi edit() dan update() jika diperlukan nanti
 }

@@ -15,6 +15,6 @@ class TujuanPembelajaran extends Model
 
     public function stase()
     {
-        return $this->hasMnay(Stase::class, 'id_tujuan_pembelajaran');
+        return $this->hasMany(Stase::class, 'id_tujuan_pembelajaran');
     }
 }

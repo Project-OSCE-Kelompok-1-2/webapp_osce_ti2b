@@ -23,7 +23,7 @@ return new class extends Migration
 
             // Sesuai ERD: Kolom-kolom
             $table->text('kompetensi');
-            $table->integer('skor');
+            $table->integer('skor')->nullable();
             $table->integer('bobot');
 
             // Sesuai Aturan: Wajib ada timestamps

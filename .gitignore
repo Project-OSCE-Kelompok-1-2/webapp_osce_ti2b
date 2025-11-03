@@ -23,6 +23,8 @@ Homestead.json
 /.vagrant
 .phpunit.result.cache
 
+/routes/web.php
+
 /public/build
 /storage/pail
 .env.backup
@@ -54,3 +56,4 @@ yarn-error.log
 /.vscode
 /.zed
  develop
+r
