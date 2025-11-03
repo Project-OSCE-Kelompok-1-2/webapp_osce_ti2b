@@ -1,31 +1,43 @@
-import React, { useState } from "react";
+import React from "react";
 import { Trash2, Save, X } from "lucide-react";
-import { router } from "@inertiajs/react";
+// 👇 [UBAH] Impor hook yang diperlukan dari Inertia
+import { useForm, usePage, Link } from "@inertiajs/react";
 
 export default function KompetensiForm() {
-    const [deskripsi, setDeskripsi] = useState("");
-    const [bobot, setBobot] = useState(1);
+    // 1. Ambil data 'aspek' dan 'errors' dari props
+    const { aspek, errors } = usePage().props;
 
+    // 2. Gunakan useForm untuk mengelola state form
+    const { data, setData, post, processing, reset } = useForm({
+        // Sesuaikan nama field dengan kolom database
+        kompetensi: "",
+        bobot: 1,
+    });
+
+    // 3. Fungsi untuk mengirim data ke backend
     const handleSubmit = (e) => {
         e.preventDefault();
-        console.log({ deskripsi, bobot });
-        router.visit("/admin/kompetensi");
+        // Kirim request POST ke URL yang benar
+        post(`/admin/aspek-penilaian/${aspek.id_aspek_penilaian}/kompetensi`);
     };
 
     return (
         <div className="min-h-screen flex flex-col bg-white rounded-lg p-4">
             {/* ======= HEADER ======= */}
             <header className="bg-white border-b border-gray-300 px-3 py-3 flex items-center justify-between gap-3">
-                <button
-                    onClick={() => router.visit("/admin/menukompetensi")}
+                {/* 👇 [UBAH] Tombol 'X' diubah menjadi Link agar lebih efisien */}
+                <Link
+                    href={`/admin/aspek-penilaian/${aspek.id_aspek_penilaian}/kompetensi`}
                     className="bg-red-600 text-white p-3 rounded-xl border border-black hover:bg-red-500 transition-all"
                 >
                     <X size={20} />
-                </button>
+                </Link>
 
                 <div className="flex-1 mx-3 border border-black rounded-xl px-4 py-2 bg-white">
+                    {/* 👇 [UBAH] Breadcrumb dibuat dinamis */}
                     <p className="text-black text-base sm:text-lg truncate">
-                        Stase \ Persiapan \ Kompetensi \ Tambah Kompetensi
+                        {aspek.stase.nama_stase} / {aspek.aspek} / Tambah
+                        Kompetensi
                     </p>
                 </div>
             </header>
@@ -53,13 +65,22 @@ export default function KompetensiForm() {
                                 Deskripsi Kompetensi
                             </label>
                             <textarea
-                                value={deskripsi}
-                                onChange={(e) => setDeskripsi(e.target.value)}
+                                // 👇 [UBAH] Gunakan data dari useForm
+                                value={data.kompetensi}
+                                onChange={(e) =>
+                                    setData("kompetensi", e.target.value)
+                                }
                                 placeholder="Masukkan deskripsi kompetensi..."
                                 className="w-full border border-gray-700 rounded-lg p-3 text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                 rows={4}
                                 required
                             />
+                            {/* [BARU] Tampilkan error jika ada */}
+                            {errors.kompetensi && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.kompetensi}
+                                </p>
+                            )}
                         </div>
 
                         {/* Bobot */}
@@ -68,9 +89,10 @@ export default function KompetensiForm() {
                                 Bobot
                             </label>
                             <select
-                                value={bobot}
+                                // 👇 [UBAH] Gunakan data dari useForm
+                                value={data.bobot}
                                 onChange={(e) =>
-                                    setBobot(Number(e.target.value))
+                                    setData("bobot", Number(e.target.value))
                                 }
                                 className="w-full border border-gray-700 rounded-lg p-3 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             >
@@ -80,23 +102,31 @@ export default function KompetensiForm() {
                                     </option>
                                 ))}
                             </select>
+                            {/* [BARU] Tampilkan error jika ada */}
+                            {errors.bobot && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.bobot}
+                                </p>
+                            )}
                         </div>
 
                         {/* Tombol Aksi */}
                         <div className="flex flex-col sm:flex-row justify-between gap-3 pt-4">
                             <button
                                 type="submit"
-                                className="flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-500 text-white px-10 py-3 rounded-xl transition-all w-full"
+                                // 👇 [UBAH] Tambahkan disabled saat loading
+                                disabled={processing}
+                                className="flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-500 text-white px-10 py-3 rounded-xl transition-all w-full disabled:opacity-50"
                             >
                                 <Save size={20} />
-                                Submit
+                                {/* 👇 [UBAH] Ganti teks tombol saat loading */}
+                                {processing ? "Menyimpan..." : "Submit"}
                             </button>
 
+                            {/* 👇 [UBAH] Tombol 'Trash' sekarang berfungsi untuk mereset form */}
                             <button
                                 type="button"
-                                onClick={() =>
-                                    router.visit("/admin/kompetensi")
-                                }
+                                onClick={() => reset()}
                                 className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white px-3 py-3 rounded-xl text-sm border transition-all w-full sm:w-auto"
                             >
                                 <Trash2 size={20} />
@@ -108,7 +138,7 @@ export default function KompetensiForm() {
 
             {/* ======= FOOTER ======= */}
             <footer className="border border-black rounded-xl text-start px-4 py-4 text-sm text-gray-600">
-                © Jorem ipsum dolor sit amet, consectetur adipiscing elit. 
+                © Jorem ipsum dolor sit amet, consectetur adipiscing elit.
             </footer>
         </div>
     );

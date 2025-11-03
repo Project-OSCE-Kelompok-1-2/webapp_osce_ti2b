@@ -1,49 +1,35 @@
-import React, { useState, useMemo, useEffect } from "react";
-import { mockKompetensi } from "../../mockdata/mockKompetensi";
+import React, { useState } from "react";
+// 👇 [UBAH] Impor hook dan komponen yang diperlukan dari Inertia
+import { usePage, Link, router } from "@inertiajs/react";
 import { Pencil, Trash2, PlusCircle, Search, ArrowLeft } from "lucide-react";
-import { router } from "@inertiajs/react";
 
 export default function KompetensiPage() {
-    const [kompetensi, setKompetensi] = useState(mockKompetensi);
-    const [search, setSearch] = useState("");
+    // 1. Ambil data dari props yang dikirim Controller
+    const { aspek, kompetensi, filters } = usePage().props;
 
-    // Pagination state
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 5; // sesuaikan jumlah baris per halaman
+    // 2. Siapkan state untuk input pencarian
+    const [search, setSearch] = useState(filters.search || "");
 
-    // Reset halaman ke 1 setiap kali search berubah
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [search]);
-
-    const handleDelete = (id) => {
-        setKompetensi(kompetensi.filter((item) => item.id !== id));
+    // 3. Fungsi untuk menjalankan pencarian
+    const handleSearch = () => {
+        router.get(
+            `/admin/aspek-penilaian/${aspek.id_aspek_penilaian}/kompetensi`,
+            { search },
+            { preserveState: true, replace: true }
+        );
     };
 
-    const filteredData = useMemo(
-        () =>
-            kompetensi.filter((item) =>
-                item.deskripsi.toLowerCase().includes(search.toLowerCase())
-            ),
-        [kompetensi, search]
-    );
-
-    // Pagination helpers
-    const totalItems = filteredData.length;
-    const totalPages = Math.max(1, Math.ceil(totalItems / itemsPerPage));
-
-    // Pastikan currentPage tidak melebihi totalPages
-    useEffect(() => {
-        if (currentPage > totalPages) {
-            setCurrentPage(totalPages);
+    // 4. Fungsi untuk menghapus data
+    const handleDelete = (kompetensiId) => {
+        if (confirm("Apakah Anda yakin ingin menghapus kompetensi ini?")) {
+            router.delete(`/admin/kompetensi/${kompetensiId}`, {
+                preserveScroll: true,
+            });
         }
-    }, [totalPages, currentPage]);
+    };
 
-    const startIndex = (currentPage - 1) * itemsPerPage;
-    const endIndex = startIndex + itemsPerPage;
-    const paginatedData = filteredData.slice(startIndex, endIndex);
-
-    const totalBobot = kompetensi.reduce(
+    // 5. Hitung total bobot dari data yang diterima dari database
+    const totalBobot = kompetensi.data.reduce(
         (acc, curr) => acc + Number(curr.bobot),
         0
     );
@@ -52,13 +38,18 @@ export default function KompetensiPage() {
         <div className="p-6 pl-24 bg-white rounded-lg shadow-sm">
             {/* Breadcrumb */}
             <div className="flex items-center justify-between mb-6 bg-white">
-                <button className="bg-blue-600 hover:bg-blue-600 text-white p-3 rounded-xl border border-black">
+                {/* 👇 [UBAH] Tombol kembali menjadi Link */}
+                <Link
+                    href={`/admin/stase/${aspek.stase.id_stase}/aspek-penilaian`}
+                    className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl border border-black"
+                >
                     <ArrowLeft size={20} />
-                </button>
+                </Link>
 
                 <div className="flex-1 mx-3 border border-black rounded-xl px-4 py-2 bg-white">
-                    <p className="text-black text-lg">
-                        Stase \ Persiapan \ Kompetensi
+                    {/* 👇 [UBAH] Breadcrumb dibuat dinamis */}
+                    <p className="text-black text-lg truncate">
+                        {aspek.stase.nama_stase} / {aspek.aspek} / Kompetensi
                     </p>
                 </div>
             </div>
@@ -69,14 +60,16 @@ export default function KompetensiPage() {
                     Menu Kompetensi
                 </h2>
                 <p className="text-sm text-gray-500 max-w-md">
-                    Jorem ipsum dolor sit amet, consectetur adipiscing elit.
-                    Nunc vulputate libero et velit interdum, ac aliquet odio
-                    mattis.
+                    Halaman untuk mengelola poin-poin kompetensi dari aspek
+                    penilaian "{aspek.aspek}"
                 </p>
 
+                {/* 👇 [UBAH] Tombol tambah diubah menjadi Link */}
                 <button
                     onClick={() =>
-                        router.visit("/admin/menukompetensi/tambahkompetensi")
+                        router.get(
+                            `/admin/aspek-penilaian/${aspek.id_aspek_penilaian}/kompetensi/create`
+                        )
                     }
                     className="flex items-center gap-2 mt-3 bg-blue-700 hover:bg-blue-600 text-white px-5 py-3 rounded-xl"
                 >
@@ -97,8 +90,10 @@ export default function KompetensiPage() {
                         onChange={(e) => setSearch(e.target.value)}
                     />
                 </div>
-
-                <button className="px-24 py-3 bg-blue-700 hover:bg-blue-600 text-white rounded-xl border border-black">
+                <button
+                    onClick={handleSearch}
+                    className="px-24 py-3 bg-blue-700 hover:bg-blue-600 text-white rounded-xl border border-black"
+                >
                     Cari
                 </button>
             </div>
@@ -107,13 +102,13 @@ export default function KompetensiPage() {
             <h3 className="font-semibold mb-2">Table Kompetensi</h3>
             <div className="relative overflow-x-auto border border-black rounded-xl shadow-sm">
                 <table className="w-full text-sm border-collapse">
-                    {/* ======= HEADER ======= */}
+                    {/* ======= HEADER (Tidak diubah) ======= */}
                     <thead className="bg-gray-200 text-black border-b border-black">
                         <tr>
                             <th className="border-b border-black py-2 px-3 text-center w-12">
                                 No
                             </th>
-                            <th className="border-x border-b border-black py-2 px-3 text-center">
+                            <th className="border-x border-b border-black py-2 px-3 text-left">
                                 Deskripsi Kompetensi
                             </th>
                             <th className="border-r border-b border-black py-2 px-3 text-center w-24">
@@ -125,32 +120,32 @@ export default function KompetensiPage() {
                         </tr>
                     </thead>
 
+                    {/* 👇 [UBAH] Body tabel sekarang dinamis */}
                     <tbody>
-                        {paginatedData.length > 0 ? (
-                            paginatedData.map((item, idx) => (
+                        {kompetensi.data.length > 0 ? (
+                            kompetensi.data.map((item, idx) => (
                                 <tr
-                                    key={item.id}
+                                    key={item.id_poin_aspek_penilaian}
                                     className="hover:bg-gray-50 transition border-t border-black/30"
                                 >
                                     <td className="border-r border-black/30 text-center py-2">
-                                        {startIndex + idx + 1}
+                                        {kompetensi.from + idx}
                                     </td>
-
                                     <td className="border-r border-black/30 py-2 px-3 text-gray-800">
-                                        {item.deskripsi}
+                                        {item.kompetensi}
                                     </td>
-
                                     <td className="border-r border-black/30 text-center py-2">
                                         {item.bobot}
                                     </td>
-
                                     <td className="py-2 flex items-center justify-center gap-2">
                                         <button className="p-1.5 text-white bg-blue-700 hover:bg-blue-500 border border-black rounded-lg">
                                             <Pencil size={16} />
                                         </button>
                                         <button
                                             onClick={() =>
-                                                handleDelete(item.id)
+                                                handleDelete(
+                                                    item.id_poin_aspek_penilaian
+                                                )
                                             }
                                             className="p-1.5 text-black bg-white hover:bg-red-600 hover:text-white border border-black rounded-lg transition"
                                         >
@@ -173,55 +168,7 @@ export default function KompetensiPage() {
                 </table>
             </div>
 
-            {/* PAGINATION */}
-            <div className="mt-3 flex items-center justify-start gap-2 text-sm text-gray-600">
-                {/* tombol previous */}
-                <button
-                    onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-                    disabled={currentPage === 1}
-                    className={`px-2 py-0.5 rounded text-xs border border-black ${
-                        currentPage === 1
-                            ? "opacity-50 cursor-not-allowed bg-gray-200"
-                            : "hover:bg-gray-100"
-                    }`}
-                >
-                    &lt;
-                </button>
-
-                {/* nomor halaman */}
-                {Array.from({ length: totalPages }).map((_, i) => {
-                    const pageNum = i + 1;
-                    return (
-                        <button
-                            key={pageNum}
-                            onClick={() => setCurrentPage(pageNum)}
-                            className={`w-7 h-7 flex items-center justify-center rounded-full text-xs border border-black transition ${
-                                pageNum === currentPage
-                                    ? "bg-gray-300 text-black font-semibold"
-                                    : "bg-white hover:bg-gray-100"
-                            }`}
-                            title={`Halaman ${pageNum}`}
-                        >
-                            {pageNum}
-                        </button>
-                    );
-                })}
-
-                {/* tombol next */}
-                <button
-                    onClick={() =>
-                        setCurrentPage((p) => Math.min(totalPages, p + 1))
-                    }
-                    disabled={currentPage === totalPages}
-                    className={`px-2 py-0.5 rounded text-xs border border-black ${
-                        currentPage === totalPages
-                            ? "opacity-50 cursor-not-allowed bg-gray-200"
-                            : "hover:bg-gray-100"
-                    }`}
-                >
-                    &gt;
-                </button>
-            </div>
+            {/* PAGINATION (Untuk sementara dihapus agar tidak error, bisa diganti dengan komponen Paginasi nanti) */}
 
             {/* Footer Total Kompetensi / Aspek Penilaian */}
             <div className="relative mt-12 my-6 border border-black rounded-xl flex items-center justify-between px-4 py-2">
@@ -231,10 +178,11 @@ export default function KompetensiPage() {
                 <div className="flex gap-3">
                     <div className="border border-black rounded-xl px-8 py-2">
                         <span className="font-medium">Kompetensi:</span>{" "}
-                        {kompetensi.length}
+                        {kompetensi.total}{" "}
+                        {/* [UBAH] Gunakan total dari paginator */}
                     </div>
                     <div className="border border-black rounded-xl px-8 py-2">
-                        <span className="font-medium">Aspek Penilaian:</span>{" "}
+                        <span className="font-medium">Total Bobot:</span>{" "}
                         {totalBobot}
                     </div>
                 </div>

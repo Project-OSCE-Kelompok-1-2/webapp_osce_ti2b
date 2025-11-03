@@ -1,5 +1,5 @@
-import { router } from "@inertiajs/react";
-import React from "react";
+import { Link, usePage, router } from "@inertiajs/react";
+import React, { useState } from "react";
 import {
     ChevronLeft,
     ChevronRight,
@@ -10,6 +10,30 @@ import {
 } from "lucide-react";
 
 export default function Stase() {
+    // 1. Ambil data 'stase' dan 'filters' dari props yang dikirim Controller
+    const { stase, filters } = usePage().props;
+
+    // 2. Siapkan state untuk input pencarian
+    const [search, setSearch] = useState(filters.search || "");
+
+    // 3. Fungsi untuk menjalankan pencarian
+    const handleSearch = () => {
+        router.get(
+            "/admin/stase",
+            { search },
+            { preserveState: true, replace: true }
+        );
+    };
+
+    // 4. Fungsi untuk menghapus data
+    const handleDelete = (id) => {
+        if (confirm("Apakah Anda yakin ingin menghapus stase ini?")) {
+            router.delete(`/admin/stase/${id}`, {
+                preserveScroll: true,
+            });
+        }
+    };
+
     return (
         <div className="flex h-screen bg-white overflow-hidden">
             {/* ===== KOLOM KIRI KOSONG (dengan garis pemisah kanan) ===== */}
@@ -45,30 +69,35 @@ export default function Stase() {
 
                     {/* Tombol Tambah */}
                     <button
-                        onClick={() => router.visit("/admin/menustase/tambahstase")}
+                        onClick={() => router.get("/admin/stase/create")}
                         className="flex items-center bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                     >
                         <Plus size={16} className="mr-2" />
                         Tambah Stase
                     </button>
 
-                    {/* Search Bar */}
+                    {/* Search Bar dihubungkan ke state dan fungsi */}
                     <div className="flex items-center space-x-3 mb-6">
                         <div className="relative flex-grow">
                             <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
                             <input
                                 type="text"
                                 placeholder="Cari data stase..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
                                 className="w-full border border-gray-400 rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none"
                             />
                         </div>
-                        <button className="bg-blue-600 text-white text-sm px-6 py-2 rounded-lg">
+                        <button
+                            onClick={handleSearch}
+                            className="bg-blue-600 text-white text-sm px-6 py-2 rounded-lg"
+                        >
                             Cari
                         </button>
                     </div>
 
                     {/* Table */}
-                    <h2 className="font-semibold text-lg mb-2">Table State</h2>
+                    <h2 className="font-semibold text-lg mb-2">Table Stase</h2>
                     <div className="border border-gray-400 rounded-lg overflow-hidden">
                         {/* Header Table */}
                         <div className="flex text-sm font-semibold bg-gray-50 border-b border-gray-400">
@@ -86,57 +115,59 @@ export default function Stase() {
                             </div>
                         </div>
 
-                        {/* Isi Table */}
-                        <div className="flex items-center border-t border-gray-400">
-                            <div className="w-16 px-4 py-3 text-center text-sm">
-                                1
-                            </div>
-                            <div className="flex-1 px-4 py-3 border-l border-gray-400 text-sm">
-                                5 Aspek Penilaian
-                            </div>
-                            <div className="w-56 px-4 py-3 border-l border-gray-400 text-center text-sm">
-                                5
-                            </div>
-                            <div className="w-64 px-4 py-3 border-l border-gray-400 flex items-center justify-center space-x-3">
-                                <button className="bg-blue-600 text-white text-xs px-3 py-2 rounded-md">
-                                    Edit Aspek Penilaian
-                                </button>
-                                <button className="bg-blue-600 p-2 rounded-md text-white">
-                                    <Edit2 size={14} />
-                                </button>
-                                <button className="bg-white border border-gray-400 p-2 rounded-md">
-                                    <Trash2
-                                        size={14}
-                                        className="text-gray-700"
-                                    />
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Pagination */}
-                    <div className="flex items-center justify-start space-x-3 mt-3 text-sm text-gray-700">
-                        <button className="w-6 h-6 flex items-center justify-center rounded-full bg-black text-white hover:opacity-80">
-                            <ChevronLeft size={14} />
-                        </button>
-
-                        {[1, 2, 3, 4, 5].map((num) => (
-                            <button
-                                key={num}
-                                className={`w-6 h-6 flex items-center justify-center rounded-full ${
-                                    num === 1
-                                        ? "text-black font-semibold"
-                                        : "text-gray-500 hover:text-black"
-                                }`}
+                        {/* Isi Table dinamis dari database */}
+                        {stase.data.map((item, index) => (
+                            <div
+                                key={item.id_stase}
+                                className="flex items-center border-t border-gray-400"
                             >
-                                {num}
-                            </button>
+                                <div className="w-16 px-4 py-3 text-center text-sm">
+                                    {stase.from + index}
+                                </div>
+                                <div className="flex-1 px-4 py-3 border-l border-gray-400 text-sm">
+                                    {item.nama_stase}
+                                </div>
+                                <div className="w-56 px-4 py-3 border-l border-gray-400 text-center text-sm">
+                                    {item.aspek_penilaian_count}
+                                </div>
+                                <div className="w-64 px-4 py-3 border-l border-gray-400 flex items-center justify-center space-x-3">
+                                    <Link
+                                        href={`/admin/stase/${item.id_stase}/aspek-penilaian`}
+                                        className="bg-blue-600 text-white text-xs px-3 py-2 rounded-md"
+                                    >
+                                        Edit Aspek Penilaian
+                                    </Link>
+                                    <Link
+                                        href={`/admin/stase/${item.id_stase}/edit`}
+                                        className="bg-blue-600 p-2 rounded-md text-white"
+                                    >
+                                        <Edit2 size={14} />
+                                    </Link>
+                                    <button
+                                        onClick={() =>
+                                            handleDelete(item.id_stase)
+                                        }
+                                        className="bg-white border border-gray-400 p-2 rounded-md"
+                                    >
+                                        <Trash2
+                                            size={14}
+                                            className="text-gray-700"
+                                        />
+                                    </button>
+                                </div>
+                            </div>
                         ))}
-
-                        <button className="w-6 h-6 flex items-center justify-center rounded-full bg-black text-white hover:opacity-80">
-                            <ChevronRight size={14} />
-                        </button>
+                        {/* Pesan jika tidak ada data */}
+                        {stase.data.length === 0 && (
+                            <div className="flex items-center border-t border-gray-400">
+                                <p className="w-full text-center text-sm py-4 text-gray-500">
+                                    Data stase tidak ditemukan.
+                                </p>
+                            </div>
+                        )}
                     </div>
+
+                    {/* Bagian Pagination Dihapus dari Tampilan */}
                 </div>
 
                 {/* Footer */}
