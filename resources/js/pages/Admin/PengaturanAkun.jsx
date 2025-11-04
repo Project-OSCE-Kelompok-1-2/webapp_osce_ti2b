@@ -117,7 +117,7 @@ export default function AdminSettingAkun({ user }) {
     const customColors = { primary: "#3B82F6", warning: "#F97316" };
 
     return (
-        <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans">
+        <div className="bg-os-white w-full min-h-screen flex justify-center p-6 font-sans">
             <div className="grid w-full max-w-7xl h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-2.5">
                 <header className="relative row-[1_/_2] col-[1_/_2] w-full flex flex-col items-start gap-5 bg-white p-4 rounded-xl shadow-sm border border-gray-900">
                     <div className="flex items-center justify-between relative self-stretch w-full">
