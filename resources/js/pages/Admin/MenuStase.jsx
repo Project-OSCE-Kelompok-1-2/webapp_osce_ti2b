@@ -12,6 +12,14 @@ import Sidebar from "../../Components/Sidebar";
 import OsBreadCrumb from "../../components/breadcrumb";
 import OsCopyright from "../../components/copyright";
 import OsIcon from "../../components/icons";
+import OsTableHeader from "../../components/tableheader";
+
+const staseColumns = [
+  { content: 'No', width: 'w-16', classes: 'justify-center items-center' },
+  { content: 'Nama Stase', width: 'flex-1', classes: 'justify-start items-center px-4' },
+  { content: 'Jumlah Aspek', width: 'w-56', classes: 'justify-center items-center px-4' },
+  { content: 'Action', width: 'w-64', classes: 'justify-center items-center px-4' },
+];
 
 export default function Stase() {
     // 1. Ambil data 'stase' dan 'filters' dari props yang dikirim Controller
@@ -87,22 +95,23 @@ export default function Stase() {
 
                     {/* Table */}
                     <h2 className="font-semibold text-lg mb-2 mt-os-8   ">Table Stase</h2>
-                    <div className="overflow-hidden">
+                    <div >
                         {/* Header Table */}
-                        <div className="flex text-sm h-[48px] text-os-regular border-os-1 border-os-black mb-4 rounded-lg">
-                            <div className="w-16 flex justify-center items-center px-4 py-2 border-r">
+                        <OsTableHeader columns={staseColumns} />
+                        {/* <div className="flex text-sm h-[48px] text-os-regular border-os-1 border-os-black mb-4 rounded-lg py-os-8">
+                            <div className="w-16 flex justify-center items-center border-r-os-1 border-os-black">
                                 No
                             </div>
-                            <div className="flex-1 flex justify-start items-center px-4 py-2 border-r border-gray-400">
+                            <div className="flex-1 flex px-4 justify-start items-center border-r-os-1 border-os-black">
                                 Nama Stase
                             </div>
-                            <div className="w-56 px-4 flex justify-center items-center py-2 border-r border-gray-400 text-center">
+                            <div className="w-56 px-4 flex justify-center items-center border-r-os-1 border-os-black text-center">
                                 Jumlah Aspek Penilaian
                             </div>
-                            <div className="w-64 flex justify-center items-center px-4 py-2 text-center">
+                            <div className="w-64 flex justify-center items-center px-4 text-center">
                                 Action
                             </div>
-                        </div>
+                        </div> */}
 
                         {/* Isi Table dinamis dari database */}
                         {stase.data.map((item, index) => (
