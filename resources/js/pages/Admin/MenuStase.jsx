@@ -11,6 +11,7 @@ import {
 import Sidebar from "../../Components/Sidebar";
 import OsBreadCrumb from "../../components/breadcrumb";
 import OsCopyright from "../../components/copyright";
+import OsIcon from "../../components/icons";
 
 export default function Stase() {
     // 1. Ambil data 'stase' dan 'filters' dari props yang dikirim Controller
@@ -58,47 +59,47 @@ export default function Stase() {
                     {/* Tombol Tambah */}
                     <button
                         onClick={() => router.get("/admin/stase/create")}
-                        className="flex items-center bg-blue-600 text-white text-sm font-medium py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
+                        className="flex h-[46px] items-center bg-blue-600 text-white text-sm  py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                     >
-                        <Plus size={16} className="mr-2" />
+                        <OsIcon name="add" className="h-os-20 os-icon-light mr-os-8" />
                         Tambah Stase
                     </button>
 
                     {/* Search Bar dihubungkan ke state dan fungsi */}
-                    <div className="flex items-center space-x-3 mb-6">
-                        <div className="relative flex-grow">
-                            <Search className="absolute left-3 top-2.5 text-gray-400 w-5 h-5" />
+                    <div className="flex h-[46px] items-center space-x-3 mb-">
+                        <div className="relative h-full w-full ">
+                            <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
                             <input
                                 type="text"
                                 placeholder="Cari data stase..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
-                                className="w-full border border-gray-400 rounded-lg py-2 pl-10 pr-4 text-sm focus:outline-none"
+                                className="w-full rounded-lg py-2 pl-10 pr-4 h-full text-os-regular focus:outline- border-os-1 border-os-black"
                             />
                         </div>
                         <button
                             onClick={handleSearch}
-                            className="bg-blue-600 text-white text-sm px-6 py-2 rounded-lg"
+                            className="bg-blue-600 w-100 text-white h-full text-os-regular px-20 py-2 rounded-lg"
                         >
                             Cari
                         </button>
                     </div>
 
                     {/* Table */}
-                    <h2 className="font-semibold text-lg mb-2">Table Stase</h2>
-                    <div className="border border-gray-400 rounded-lg overflow-hidden">
+                    <h2 className="font-semibold text-lg mb-2 mt-os-8   ">Table Stase</h2>
+                    <div className="overflow-hidden">
                         {/* Header Table */}
-                        <div className="flex text-sm font-semibold bg-gray-50 border-b border-gray-400">
-                            <div className="w-16 px-4 py-2 border-r border-gray-400 text-center">
+                        <div className="flex text-sm h-[48px] text-os-regular border-os-1 border-os-black mb-4 rounded-lg">
+                            <div className="w-16 flex justify-center items-center px-4 py-2 border-r">
                                 No
                             </div>
-                            <div className="flex-1 px-4 py-2 border-r border-gray-400">
+                            <div className="flex-1 flex justify-start items-center px-4 py-2 border-r border-gray-400">
                                 Nama Stase
                             </div>
-                            <div className="w-56 px-4 py-2 border-r border-gray-400 text-center">
+                            <div className="w-56 px-4 flex justify-center items-center py-2 border-r border-gray-400 text-center">
                                 Jumlah Aspek Penilaian
                             </div>
-                            <div className="w-64 px-4 py-2 text-center">
+                            <div className="w-64 flex justify-center items-center px-4 py-2 text-center">
                                 Action
                             </div>
                         </div>
