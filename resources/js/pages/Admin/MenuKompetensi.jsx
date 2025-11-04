@@ -2,6 +2,7 @@ import React, { useState } from "react";
 // 👇 [UBAH] Impor hook dan komponen yang diperlukan dari Inertia
 import { usePage, Link, router } from "@inertiajs/react";
 import { Pencil, Trash2, PlusCircle, Search, ArrowLeft } from "lucide-react";
+import Sidebar from "../../Components/Sidebar";
 
 export default function KompetensiPage() {
     // 1. Ambil data dari props yang dikirim Controller
@@ -35,7 +36,13 @@ export default function KompetensiPage() {
     );
 
     return (
-        <div className="p-6 pl-24 bg-white rounded-lg shadow-sm">
+        // 🆕 Tambahkan relative dan overflow-hidden agar sidebar overlay bisa muncul di atas dashboard
+        <div className="relative bg-os-white w-full min-h-screen  flex justify-start p-os-12 font-sans overflow-hidden">
+
+            {/* Sidebar dipanggil langsung tanpa kontrol dari dashboard */}
+            <Sidebar/>
+
+            <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
             {/* Breadcrumb */}
             <div className="flex items-center justify-between mb-6 bg-white">
                 {/* 👇 [UBAH] Tombol kembali menjadi Link */}
@@ -193,5 +200,6 @@ export default function KompetensiPage() {
                 © Jorem ipsum dolor sit amet, consectetur adipiscing elit.
             </footer>
         </div>
+    </div>
     );
 }
