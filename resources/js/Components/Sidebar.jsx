@@ -12,12 +12,12 @@ import {
 
 // === MENU ASLI (TIDAK DIUBAH) ===
 const menuItems = [
-  { label: "Beranda", icon: <Home size={24} /> },
-  { label: "Mahasiswa", icon: <Users size={24} /> },
-  { label: "Dosen", icon: <UserCheck size={24} /> },
-  { label: "Rubrik", icon: <FileText size={24} /> },
-  { label: "OSCE", icon: <FileText size={24} /> },
-  { label: "Rekap Nilai Mahasiswa", icon: <Bookmark size={24} /> },
+  { label: "Beranda", icon: <Home size={24} />, href: "/admin/dashboard", opacity: '100' },
+  { label: "Stase", icon: <FileText size={24} />, href: "/admin/stase", opacity: '100'  },
+  { label: "Mahasiswa", icon: <Users size={24} />, href: "#", opacity: '50'  },
+  { label: "Dosen", icon: <UserCheck size={24} />, href: "#", opacity: '50'  },
+  { label: "OSCE", icon: <FileText size={24} />, href: "#", opacity: '50'  },
+  { label: "Rekap Nilai Mahasiswa", icon: <Bookmark size={24} />, href: "#", opacity: '50' },
 ];
 
 const Sidebar = () => {
@@ -58,45 +58,48 @@ const Sidebar = () => {
       </div>
 
       {/* === MENU NAVIGASI (DI TENGAH) === */}
-      {/* 🆕 UBAH: 
+      {/* 🆕 UBAH:
         - 'flex-grow': Membuat <nav> mengisi semua ruang kosong yang tersedia.
         - 'flex flex-col': Diperlukan agar justify-center bekerja secara vertikal.
         - 'justify-center': Mendorong item menu ke tengah-tengah <nav>.
       */}
-      <nav className="flex-grow flex flex-col justify-center">
-        {/* Kita bungkus tombol-tombol menu di dalam div lagi */}
-        {/* agar 'gap' dan 'mt' tidak mengganggu 'justify-center' */}
-        <div className="flex flex-col gap-2 mt-4">
-          {menuItems.map((item, index) => (
-            <button
-              key={index}
-              className={`flex items-center gap-4 p-3 hover:bg-gray-200 transition-colors ${
-                !isOpen ? "justify-center" : "px-5"
-              }`}
-            >
-              <div className="flex-shrink-0 w-6 h-6">{item.icon}</div>
-              {isOpen && (
-                <span className="text-sm whitespace-nowrap">{item.label}</span>
-              )}
-            </button>
-          ))}
-        </div>
-      </nav>
+            <nav className="flex-grow flex flex-col justify-center overflow-y-auto">
+                <div className="flex flex-col gap-2 p-3">
+                    {menuItems.map((item, index) => (
+                        // 🟢 PERUBAHAN KRUSIAL: Mengubah <button> menjadi <a>
+                        <a
+                            key={index}
+                            href={item.href} // Menambahkan link ke elemen
+                            className={`flex items-center gap-4 p-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 opacity-${item.opacity}
+                                ${!isOpen ? "justify-center" : "px-4"}
+                                ${item.label === 'Beranda' ? 'bg-blue-50 text-blue-600 font-medium' : ''}
+                            `}
+                        >
+                            <div className="flex-shrink-0 w-6 h-6">{item.icon}</div>
+                            {isOpen && (
+                                <span className="text-sm whitespace-nowrap">{item.label}</span>
+                            )}
+                        </a>
+                    ))}
+                </div>
+            </nav>
 
       {/* === BAGIAN PENGATURAN (DI BAWAH) === */}
       {/* 🆕 TAMBAH: flex-shrink-0 agar ukurannya tetap */}
-      <div className="flex-shrink-0 border-t border-gray-500 p-4">
-        <button
-          className={`flex items-center gap-4 p-3 hover:bg-gray-200 transition-colors w-full ${
-            !isOpen ? "justify-center" : "px-5"
-          }`}
-        >
-          <div className="flex-shrink-0 w-6 h-6">
-            <Settings size={24} />
-          </div>
-          {isOpen && <span className="whitespace-nowrap">Pengaturan</span>}
-        </button>
-      </div>
+            <div className="flex-shrink-0 border-t border-gray-100 p-3">
+                {/* 🟢 PERUBAHAN KRUSIAL: Mengubah <button> menjadi <a> */}
+                <a
+                    href="/admin/pengaturan-akun"
+                    className={`flex items-center gap-4 p-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors duration-200 w-full
+                        ${!isOpen ? "justify-center" : "px-4"}
+                    `}
+                >
+                    <div className="flex-shrink-0 w-6 h-6">
+                        <Settings size={24} />
+                    </div>
+                    {isOpen && <span className="whitespace-nowrap text-sm">Pengaturan</span>}
+                </a>
+            </div>
     </aside>
   );
 };

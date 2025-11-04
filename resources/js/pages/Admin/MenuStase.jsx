@@ -8,6 +8,9 @@ import {
     Edit2,
     Trash2,
 } from "lucide-react";
+import Sidebar from "../../Components/Sidebar";
+import OsBreadCrumb from "../../components/breadcrumb";
+import OsCopyright from "../../components/copyright";
 
 export default function Stase() {
     // 1. Ambil data 'stase' dan 'filters' dari props yang dikirim Controller
@@ -35,31 +38,16 @@ export default function Stase() {
     };
 
     return (
-        <div className="flex h-screen bg-white overflow-hidden">
-            {/* ===== KOLOM KIRI KOSONG (dengan garis pemisah kanan) ===== */}
-            <aside className="w-20 border-r border-gray-300 flex flex-col items-center justify-between">
-                <div className="mt-4"></div>
-                <div className="flex-1"></div>
-                <div className="mb-4"></div>
-            </aside>
+        <div className="relative bg-os-white w-full min-h-screen  flex justify-start p-os-12 font-sans overflow-hidden">
+            <Sidebar/>
 
             {/* ===== KONTEN UTAMA ===== */}
-            <main className="flex-1 flex flex-col h-full">
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* Header Input Stase */}
-                <header className="border-b p-4 flex items-center space-x-3">
-                    <button className="bg-blue-600 text-white p-2 rounded-md hover:bg-blue-700">
-                        <ChevronLeft size={18} />
-                    </button>
-                    <input
-                        type="text"
-                        value="Menu Stase"
-                        disabled
-                        className="border border-gray-400 rounded-lg px-4 py-2 text-sm w-full max-w-xl"
-                    />
-                </header>
+                <OsBreadCrumb className="fixed" />
 
                 {/* ===== ISI HALAMAN ===== */}
-                <div className="flex-1 px-8 py-6 overflow-auto">
+                <div className="flex-1 overflow-auto">
                     {/* Judul & Deskripsi */}
                     <h2 className="font-semibold text-lg mb-1">Menu Stase</h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
@@ -171,10 +159,7 @@ export default function Stase() {
                 </div>
 
                 {/* Footer */}
-                <footer className="border-t border-gray-300 p-3 text-center text-sm text-gray-600 bg-white">
-                    Copyright Porem ipsum dolor sit ametPorem ipsum dolor sit
-                    amet
-                </footer>
+                <OsCopyright/>
             </main>
         </div>
     );
