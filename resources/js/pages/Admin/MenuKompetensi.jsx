@@ -35,7 +35,7 @@ export default function KompetensiPage() {
     );
 
     return (
-        <div className="p-6 pl-24 bg-white rounded-lg shadow-sm">
+        <div className="p-6 pl-24 bg-os-white rounded-lg shadow-sm">
             {/* Breadcrumb */}
             <div className="flex items-center justify-between mb-6 bg-white">
                 {/* 👇 [UBAH] Tombol kembali menjadi Link */}
