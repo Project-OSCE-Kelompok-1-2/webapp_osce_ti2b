@@ -22,7 +22,7 @@ export default function KompetensiForm() {
     };
 
     return (
-        <div className="min-h-screen flex flex-col bg-white rounded-lg p-4">
+        <div className="min-h-screen flex flex-col bg-os-white rounded-lg p-4">
             {/* ======= HEADER ======= */}
             <header className="bg-white border-b border-gray-300 px-3 py-3 flex items-center justify-between gap-3">
                 {/* 👇 [UBAH] Tombol 'X' diubah menjadi Link agar lebih efisien */}
@@ -94,7 +94,7 @@ export default function KompetensiForm() {
                                 onChange={(e) =>
                                     setData("bobot", Number(e.target.value))
                                 }
-                                className="w-full border border-gray-700 rounded-lg p-3 text-sm bg-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                className="w-full border border-gray-700 rounded-lg p-3 text-sm bg-os-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             >
                                 {[1, 2, 3, 4, 5].map((num) => (
                                     <option key={num} value={num}>
