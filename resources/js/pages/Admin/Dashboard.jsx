@@ -38,7 +38,7 @@ export const AdminDashboard = () => {
             className="grid grid-cols-1 md:grid-cols-3 gap-os-14 w-full"
             aria-label="Statistics cards"
           >
-            <article className="w-full h-[200px] bg-white rounded-xl border border-solid border-black p-6 flex flex-col justify-between"></article>
+            <article className="w-full h-[200px] bg-os-white rounded-xl border border-solid border-black p-6 flex flex-col justify-between"></article>
             <article className="w-full h-[200px] bg-white rounded-xl border border-solid border-black p-6 flex flex-col justify-between"></article>
             <article className="w-full h-[200px] bg-white rounded-xl border border-solid border-black p-6 flex flex-col justify-between"></article>
           </section>
