@@ -4,7 +4,7 @@ use App\Http\Controllers\AdminController;
 use App\Http\Controllers\AspekPenilaianController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StaseController;
-use App\Http\Controllers\KompetensiController; // Asumsi controller baru
+use App\Http\Controllers\KompetensiController; 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
