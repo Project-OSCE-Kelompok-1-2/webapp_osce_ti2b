@@ -39,8 +39,8 @@ export const AdminDashboard = () => {
             aria-label="Statistics cards"
           >
             <article className="w-full h-[200px] bg-os-white rounded-xl border border-solid border-black p-6 flex flex-col justify-between"></article>
-            <article className="w-full h-[200px] bg-white rounded-xl border border-solid border-black p-6 flex flex-col justify-between"></article>
-            <article className="w-full h-[200px] bg-white rounded-xl border border-solid border-black p-6 flex flex-col justify-between"></article>
+            <article className="w-full h-[200px] bg-os-white rounded-xl border border-solid border-black p-6 flex flex-col justify-between"></article>
+            <article className="w-full h-[200px] bg-os-white rounded-xl border border-solid border-black p-6 flex flex-col justify-between"></article>
           </section>
 
           <hr className="relative w-full border-black border-t" />
@@ -53,8 +53,8 @@ export const AdminDashboard = () => {
             className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-os-14 w-full"
             aria-label="Plot charts"
           >
-            <article className="w-full h-[360px] bg-white rounded-xl border border-solid border-black p-6 flex flex-col items-center justify-center"></article>
-            <article className="w-full h-[360px] bg-white rounded-xl border border-solid border-black p-6 flex flex-col items-center justify-center"></article>
+            <article className="w-full h-[360px] bg-os-white rounded-xl border border-solid border-black p-6 flex flex-col items-center justify-center"></article>
+            <article className="w-full h-[360px] bg-os-white rounded-xl border border-solid border-black p-6 flex flex-col items-center justify-center"></article>
           </section>
         </main>
 
