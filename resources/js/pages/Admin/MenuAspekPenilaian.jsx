@@ -27,7 +27,7 @@ export default function MenuAspekPenilaian() {
         <div className="flex min-h-screen bg-os-white relative">
             <div className="flex-1 p-8">
                 {/* Header Breadcrumb (dibuat dinamis) */}
-                <div className="flex items-center gap-3 text-sm text-gray-700 mb-6 border border-gray-400 rounded-lg p-2 bg-white shadow-sm">
+                <div className="flex items-center gap-3 text-sm text-gray-700 mb-6 border border-gray-400 rounded-lg p-2 bg-os-white shadow-sm">
                     <div className="bg-blue-600 text-white p-2 rounded-md flex items-center justify-center">
                         <Home size={20} />
                     </div>
@@ -75,7 +75,7 @@ export default function MenuAspekPenilaian() {
                 </div>
 
                 {/* Tabel Aspek Penilaian */}
-                <div className="bg-white shadow rounded-lg overflow-x-auto border border-gray-200">
+                <div className="bg-os-white shadow rounded-lg overflow-x-auto border border-gray-200">
                     <h3 className="px-4 py-3 border-b text-gray-700 font-semibold text-lg">
                         Table Aspek Penilaian
                     </h3>
@@ -166,7 +166,7 @@ export default function MenuAspekPenilaian() {
                 </div>
 
                 {/* Baris Total */}
-                <div className="bg-white shadow rounded-lg overflow-x-auto mt-6">
+                <div className="bg-os-white shadow rounded-lg overflow-x-auto mt-6">
                     <table className="w-full min-w-max">
                         <tfoot className="font-semibold">
                             <tr>
