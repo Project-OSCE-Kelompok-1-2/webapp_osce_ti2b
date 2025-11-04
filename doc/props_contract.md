@@ -129,7 +129,7 @@ Bagian ini mengelola seluruh alur ujian OSCE, mulai dari pembuatan, konfigurasi 
 
 ### 3\. Menampilkan Stase dalam OSCE
 
-  - **Endpoint**: `/admin/osce/{id}/stase`
+  - **Endpoint**: `/admin/osce/{id_osce}/stase`
   - **Method**: `GET`
   - **Deskripsi**: Menampilkan daftar stase yang telah ditugaskan ke OSCE (data dari model `OsceStase` dengan relasi).
   - **Query Parameters**:
@@ -156,7 +156,7 @@ Bagian ini mengelola seluruh alur ujian OSCE, mulai dari pembuatan, konfigurasi 
 
 ### 4\. Menambahkan Stase ke OSCE
 
-  - **Endpoint**: `/admin/osce/{id}/stase`
+  - **Endpoint**: `/admin/osce/{id_osce}/stase`
   - **Method**: `POST`
   - **Deskripsi**: Menambahkan dan mengkonfigurasi stase baru untuk OSCE (menyimpan ke model `OsceStase`).
 
@@ -168,13 +168,12 @@ Bagian ini mengelola seluruh alur ujian OSCE, mulai dari pembuatan, konfigurasi 
   "id_stase": "integer",
   "id_penguji": "integer"
   // Catatan: Model OsceStase juga memiliki 'tanggal', 'jam_mulai', dll.
-  // Form ini mungkin disederhanakan.
 }
 ```
 
 ### 5\. Menampilkan Jadwal Sesi OSCE
 
-  - **Endpoint**: `/admin/osce/{id}/jadwal`
+  - **Endpoint**: `/admin/osce/{id_osce}/jadwal`
   - **Method**: `GET`
   - **Deskripsi**: Menampilkan daftar sesi jadwal per hari untuk OSCE (data dari `OsceStase`).
   - **Query Parameters**:
@@ -195,7 +194,7 @@ Bagian ini mengelola seluruh alur ujian OSCE, mulai dari pembuatan, konfigurasi 
 
 ### 6\. Menambah Jadwal Sesi OSCE
 
-  - **Endpoint**: `/admin/osce/{id}/jadwal`
+  - **Endpoint**: `/admin/osce/{id_osce}/jadwal`
   - **Method**: `POST`
   - **Deskripsi**: Membuat sesi jadwal ujian baru untuk OSCE (menyimpan ke model `OsceStase`).
 
@@ -204,7 +203,6 @@ Bagian ini mengelola seluruh alur ujian OSCE, mulai dari pembuatan, konfigurasi 
 ```json
 {
   "tanggal": "date"
-  // Sesuai form image_810c09.png ('Jadwal mulai')
   // Kemungkinan perlu field lain dari OsceStase
 }
 ```
@@ -242,6 +240,116 @@ Bagian ini mengelola seluruh alur ujian OSCE, mulai dari pembuatan, konfigurasi 
 ```json
 {
   "id_mahasiswa_array": ["array", "of", "integer"]
+}
+```
+
+-----
+
+## Rekap Nilai
+
+Bagian ini mengelola alur untuk melihat rekapitulasi nilai OSCE yang telah selesai.
+
+### 1\. Menampilkan Daftar OSCE (Rekap)
+
+  - **Endpoint**: `/admin/rekap-nilai`
+  - **Method**: `GET`
+  - **Deskripsi**: Menampilkan daftar OSCE yang sudah/sedang berjalan untuk rekapitulasi nilai.
+  - **Query Parameters**:
+      - `search`: `string`
+      - `tahun`: `string`
+
+**Response Body (Contoh Array):** (Uses `Osce` model)
+
+```json
+[
+  {
+    "id_osce": "integer",
+    "nama_rubrik": "string", // Alias for nama_osce
+    "rentang_tanggal": "string",
+    "tahun_akademik": "string", // From relation
+    "detail_mahasiswa": "string", // Computed
+    "detail_sesi": "string" // Computed
+  }
+]
+```
+
+### 2\. Menampilkan Daftar Sesi per OSCE (Rekap)
+
+  - **Endpoint**: `/admin/rekap-nilai/{id_osce}/sesi`
+  - **Method**: `GET`
+  - **Deskripsi**: Menampilkan daftar sesi (berdasarkan tanggal) untuk OSCE tertentu. 
+  - **Query Parameters**:
+      - `search`: `string`
+
+**Response Body (Contoh Array):** (Uses `OsceStase` model, grouped)
+
+```json
+[
+  {
+    "id_sesi": "string", // Unique identifier for the session (e.g., date)
+    "tanggal_sesi": "string",
+    "jumlah_mahasiswa": "integer" // Computed
+  }
+]
+```
+
+### 3\. Menampilkan Daftar Mahasiswa per Sesi (Rekap)
+
+  - **Endpoint**: `/admin/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa`
+  - **Method**: `GET`
+  - **Deskripsi**: Menampilkan daftar mahasiswa yang terdaftar pada sesi tertentu. 
+  - **Query Parameters**:
+      - `search`: `string`
+      - `angkatan`: `string` (from dropdown)
+
+**Response Body (Contoh Array):** (Uses `EnrollmentOsce` + `Mahasiswa`)
+
+```json
+[
+  {
+    "id_mahasiswa": "integer",
+    "nim": "string",
+    "nama": "string"
+  }
+]
+```
+
+### 4\. Menampilkan Nilai Detail Mahasiswa per Stase
+
+  - **Endpoint**: `/admin/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}`
+  - **Method**: `GET`
+  - **Deskripsi**: Menampilkan rincian nilai per stase untuk seorang mahasiswa dalam OSCE tertentu. (Sesuai deskripsi user).
+
+**Response Body (Contoh Objek):** (Uses `NilaiOsce` and relations)
+
+```json
+{
+  "mahasiswa": {
+    "nama": "string",
+    "nim": "string"
+  },
+  "osce": {
+    "nama_osce": "string"
+  },
+  "nilai_per_stase": [
+    {
+      "nama_stase": "string",
+      "nilai_akhir_stase": "decimal",
+      "aspek_penilaian": [
+        {
+          "aspek": "string",
+          "nilai": "decimal",
+          "kompetensi": [
+            {
+              "kompetensi": "string",
+              "nilai": "decimal"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "nilai_total_osce": "decimal"
 }
 ```
 
@@ -384,7 +492,7 @@ Bagian ini mengelola data master untuk Stase (template rubrik penilaian).
 
 ### 3\. Menampilkan aspek penilaian tiap stase
 
-  - **Endpoint**: `/stase/{id}/aspek`
+  - **Endpoint**: `/stase/{id_stase}/aspek`
   - **Method**: `GET`
   - **Deskripsi**: Mengambil data aspek dari `AspekPenilaian` berdasarkan `id_stase`.
 
@@ -403,7 +511,7 @@ Bagian ini mengelola data master untuk Stase (template rubrik penilaian).
 
 ### 4\. Tambah aspek penilaian per stase
 
-  - **Endpoint**: `/stase/{id}/aspek/{id}`
+  - **Endpoint**: `/stase/{id_stase}/aspek/{id_aspek}`
   - **Method**: `GET`
   - **Deskripsi**: Mengambil data detail satu `AspekPenilaian`.
 
@@ -419,7 +527,7 @@ Bagian ini mengelola data master untuk Stase (template rubrik penilaian).
 
 -----
 
-  - **Endpoint**: `/stase/{id}/aspek/{id}`
+  - **Endpoint**: `/stase/{id_stase}/aspek/{id_aspek}`
   - **Method**: `POST` atau `PUT`
   - **Deskripsi**: Mengubah data yang ada di tabel `aspek_penilaian`.
 
@@ -436,7 +544,7 @@ Bagian ini mengelola data master untuk Stase (template rubrik penilaian).
 
 ### 5\. Tambah Kompetensi per aspek
 
-  - **Endpoint**: `/stase/{id}/aspek/{id}/kompetensi`
+  - **Endpoint**: `/stase/{id_stase}/aspek/{id_aspek}/kompetensi`
   - **Method**: `GET`
   - **Deskripsi**: Mengambil data dari `poin_aspek_penilaian`.
 
@@ -455,7 +563,7 @@ Bagian ini mengelola data master untuk Stase (template rubrik penilaian).
 
 -----
 
-  - **Endpoint**: `/stase/{id}/aspek/{id}/kompetensi`
+  - **Endpoint**: `/stase/{id_sease}/aspek/{id_aspek}/kompetensi`
   - **Method**: `POST` atau `PUT`
   - **Deskripsi**: Mengubah data di tabel `poin_aspek_penilaian`.
 
