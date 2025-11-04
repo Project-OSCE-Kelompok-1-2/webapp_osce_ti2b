@@ -88,7 +88,7 @@ export default function Stase() {
                     <h2 className="font-semibold text-lg mb-2">Table Stase</h2>
                     <div className="border border-gray-400 rounded-lg overflow-hidden">
                         {/* Header Table */}
-                        <div className="flex text-sm font-semibold bg-gray-50 border-b border-gray-400">
+                        <div className="flex text-sm font-semibold bg-os-white border-b border-gray-400">
                             <div className="w-16 px-4 py-2 border-r border-gray-400 text-center">
                                 No
                             </div>
@@ -135,7 +135,7 @@ export default function Stase() {
                                         onClick={() =>
                                             handleDelete(item.id_stase)
                                         }
-                                        className="bg-white border border-gray-400 p-2 rounded-md"
+                                        className="bg-os-white border border-gray-400 p-2 rounded-md"
                                     >
                                         <Trash2
                                             size={14}
