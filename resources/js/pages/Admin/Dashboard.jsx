@@ -45,7 +45,7 @@ export const AdminDashboard = () => {
 
           <hr className="relative w-full border-black border-t" />
 
-          <h2 className="relative w-fit [font-family:'Inter-Bold',Helvetica] font-bold text-os-subtitle tracking-[0] leading-[normal] whitespace-nowrap">
+          <h2 className="relative w-fit font-bold text-os-subtitle tracking-[0] leading-[normal] whitespace-nowrap">
             Plot
           </h2>
 

@@ -16,6 +16,8 @@ import {
     ArrowLeft,
     Save,
 } from "lucide-react";
+import Sidebar from "../../Components/Sidebar";
+
 
 // Mock untuk <Component1 /> (tombol mata)
 const Component1 = ({ className }) => <Eye className={className} />;
@@ -117,8 +119,14 @@ export default function AdminSettingAkun({ user }) {
     const customColors = { primary: "#3B82F6", warning: "#F97316" };
 
     return (
-        <div className="bg-os-white w-full min-h-screen flex justify-center p-6 font-sans">
-            <div className="grid w-full max-w-7xl h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-2.5">
+        // 🆕 Tambahkan relative dan overflow-hidden agar sidebar overlay bisa muncul di atas dashboard
+        <div className="relative bg-os-white w-full min-h-screen  flex justify-start p-os-12 font-sans overflow-hidden">
+
+            {/* Sidebar dipanggil langsung tanpa kontrol dari dashboard */}
+            <Sidebar/>
+
+        <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans">
+            <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 <header className="relative row-[1_/_2] col-[1_/_2] w-full flex flex-col items-start gap-5 bg-white p-4 rounded-xl shadow-sm border border-gray-900">
                     <div className="flex items-center justify-between relative self-stretch w-full">
                         <button
@@ -479,5 +487,6 @@ export default function AdminSettingAkun({ user }) {
                 </footer>
             </div>
         </div>
+    </div>
     );
 }
