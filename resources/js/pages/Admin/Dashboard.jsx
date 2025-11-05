@@ -1,5 +1,5 @@
 import React from "react";
-import Sidebar from "../../components/Sidebar.jsx";
+import Sidebar from "../../Components_Riko/Sidebar.js";
 
 // 1. MENGGANTI IMPORT SVG DENGAN LUCIDE-REACT
 import {
@@ -10,8 +10,8 @@ import {
   // BarChart, (Dihapus)
   // PieChart, (Dihapus)
 } from "lucide-react";
-import OsBreadCrumb from "../../components/breadcrumb.jsx";
-import OsCopyright from "../../components/copyright.jsx";
+import OsBreadCrumb from "../../Components_Riko/breadcrumb.js";
+import OsCopyright from "../../Components_Riko/copyright.js";
 
 export const AdminDashboard = () => {
   return (
