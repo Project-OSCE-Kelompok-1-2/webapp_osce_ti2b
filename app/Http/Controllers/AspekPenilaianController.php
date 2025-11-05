@@ -87,4 +87,17 @@ class AspekPenilaianController extends Controller
         return Redirect::route('admin.stase.aspek-penilaian.index', $aspekPenilaian->id_stase)
             ->with('success', 'Aspek Penilaian berhasil diperbarui.');
     }
+
+    public function destroy(AspekPenilaian $aspekPenilaian)
+    {
+        // CATATAN: Hapus semua "poin kompetensi" yang terkait dulu
+        // untuk menghindari error foreign key (jika tidak di-setting ON DELETE CASCADE)
+        $aspekPenilaian->poinAspekPenilaian()->delete();
+        
+        // Hapus data aspek penilaian
+        $aspekPenilaian->delete();
+
+        // Redirect kembali ke halaman sebelumnya dengan pesan sukses
+        return Redirect::back()->with('success', 'Aspek penilaian berhasil dihapus.');
+    }
 }
