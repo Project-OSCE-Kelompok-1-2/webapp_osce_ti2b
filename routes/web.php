@@ -62,3 +62,15 @@ Route::get('admin/rekaposce', function () {
 Route::get('admin/rekapsesiosce', function () {
         return Inertia::render('Admin/RekapSesiPage');
 });
+
+Route::get('admin/rekapmahasiswa', function () {
+        return Inertia::render('Admin/RekapMahasiswaPage');
+});
+
+Route::get('admin/rekapmahasiswa/mahasiswa', function () {
+        return Inertia::render('Admin/RekapDetailMahasiswaPage');
+}); 
+
+Route::get('admin/rekapmahasiswa/mahasiswa/detail', function () {
+        return Inertia::render('Admin/RekapDetailNilaiPage');
+});
