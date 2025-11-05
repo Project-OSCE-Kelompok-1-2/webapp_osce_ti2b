@@ -40,7 +40,7 @@ export default function TambahStase({
             {/* [UBAH] Judul halaman dinamis */}
             <Head title={`Stase | ${isEditMode ? "Edit" : "Tambah"} Stase`} />
 
-            <div className="flex flex-col min-h-screen bg-white">
+            <div className="flex flex-col min-h-screen bg-os-white">
                 <div className="flex items-center border-b px-4 py-3">
                     <Link
                         href="/admin/stase"
