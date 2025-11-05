@@ -20,7 +20,7 @@ class AdminController extends Controller
         $admin = Auth::user();
 
         // Sesuaikan dengan model Anda: gunakan 'path_gambar'
-        $admin->path_gambar = $admin->path_gambar ? asset($admin->path_gambar) : null;
+        $admin->path_gambar = $admin->path_gambar ? ($admin->path_gambar) : null;
 
         return Inertia::render('Admin/PengaturanAkun', [
             // Kirim 'user' ke props 'user' di frontend
@@ -61,7 +61,7 @@ class AdminController extends Controller
         // (Selalu update username & foto jika ada)
 
         // 1. Update Username
-        // $admin->username = $request->username;
+        $admin->username = $request->username;
 
         // --- LOGIKA FOTO DIPERBARUI ---
         // Cek apakah frontend mengirim 'delete_foto: true'
@@ -107,16 +107,6 @@ class AdminController extends Controller
         // Simpan semua perubahan (username, foto, dan/atau password)
         $admin->save();
 
-        return back()->with('success', 'Akun berhasil diperbarui!');
+        return back()->with('success', 'Profil berhasil diperbarui!');
     }
-
-    /*
-    |--------------------------------------------------------------------------
-    | FUNGSI LAMA (BISA DIHAPUS)
-    |--------------------------------------------------------------------------
-    |
-    | public function update_profile(Request $request) { ... }
-    | public function update_password(Request $request) { ... }
-    |
-    */
 }

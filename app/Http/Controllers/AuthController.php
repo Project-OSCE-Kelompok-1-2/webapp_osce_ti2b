@@ -10,41 +10,45 @@ use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    public function show_login()
+    {
+        return Inertia::render("Auth/Login");
+    }
+
     public function login(Request $request)
     {
+        $request->validate([
+            'username' => 'required|string',
+            'password' => 'required|string',
+        ]);
+
         $username = $request->username;
         $password = $request->password;
 
         $pengguna = Pengguna::where("username", $username)->first();
 
-        if (!$pengguna) return back()->with("error", "Pengguna tidak ditemukan");
-
-        if (Hash::check($password, $pengguna->password)) {
+        if ($pengguna && Hash::check($password, $pengguna->password)) {
             Auth::login($pengguna);
-            return redirect("/admin/profil");
+            $request->session()->regenerate();
+
+            $redirectPath = match ($pengguna->jenis_role) {
+                "admin" => "/admin/dashboard",
+                "mahasiswa" => "/mahasiswa/dashboard",
+                "penguji" => "/penguji/dashboard",
+            };
+
+            return redirect($redirectPath)->with("success", "Berhasil login");
         } else {
             return back()->with("error", "Username atau password salah");
         }
     }
 
-    public function show_login()
-    {
-        return Inertia::render("Login");
-    }
-
-    public function logout()
+    public function logout(Request $request)
     {
         Auth::logout();
-        return redirect("/login");
-    }
+        $request->session()->invalidate();
+        $request->session()->regenerateToken();
 
-    public function show_dashboard_mahasiswa()
-    {
-        return Inertia::render("DashboardMahasiswa");
-    }
-
-    public function show_dashboard_admin()
-    {
-        return Inertia::render("Admin/Dashboard");
+        return redirect("/login")->with("success", "Berhasil logout");
     }
 }
