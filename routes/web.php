@@ -5,6 +5,7 @@ use App\Http\Controllers\AspekPenilaianController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\StaseController;
 use App\Http\Controllers\KompetensiController; 
+use App\Http\Controllers\PengujiController;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 
@@ -47,6 +48,10 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 
     // Menu Kompetensi / Poin Penilaian (Nested di dalam Aspek)
     Route::resource('aspek-penilaian.kompetensi', KompetensiController::class)->except(['show'])->shallow();
+
+    // Menu Penguji (CRUD)
+    Route::get('/dosen', [PengujiController::class, 'index'])->name('dosen.index');
+    Route::post('/dosen', [PengujiController::class, 'store'])->name('dosen.store');
 
 });
 
