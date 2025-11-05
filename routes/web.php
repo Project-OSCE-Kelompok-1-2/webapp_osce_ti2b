@@ -55,6 +55,10 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 // Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });
 
 
-Route::get('admin/rekaposcepage', function () {
+Route::get('admin/rekaposce', function () {
         return Inertia::render('Admin/RekapOscePage');
+});
+
+Route::get('admin/rekapsesiosce', function () {
+        return Inertia::render('Admin/RekapSesiPage');
 });
