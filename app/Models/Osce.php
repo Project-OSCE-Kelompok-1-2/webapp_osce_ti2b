@@ -21,21 +21,49 @@ class Osce extends Model
         'tanggal_selesai',
     ];
 
-    // Relasi ke tahun_akademik 1:1
+    // Otomatis menambahkan atribut tambahan ke response JSON
+    protected $appends = ['jumlah_stase', 'jumlah_mahasiswa'];
+
+    /**
+     * Relasi ke tabel tahun_akademik (1 OSCE : 1 Tahun Akademik)
+     */
     public function tahunAkademik()
     {
         return $this->belongsTo(TahunAkademik::class, 'id_tahun_akademik');
     }
-    // Relasi ke osce_stase 1:M
+
+    /**
+     * Relasi ke tabel osce_stase (1 OSCE : Banyak Stase)
+     */
     public function osceStase()
     {
         return $this->hasMany(OsceStase::class, 'id_osce');
     }
 
-    // relasi ke enrollment_osce 1:M
+    /**
+     * Relasi ke tabel enrollment_osce (1 OSCE : Banyak Mahasiswa)
+     */
     public function enrollmentOsce()
     {
         return $this->hasMany(EnrollmentOsce::class, 'id_osce');
+    }
+
+    /**
+     * Atribut tambahan: jumlah stase
+     */
+    public function getJumlahStaseAttribute()
+    {
+        return $this->osceStase()->count();
+    }
+
+    /**
+     * Atribut tambahan: jumlah mahasiswa unik
+     */
+    public function getJumlahMahasiswaAttribute()
+    {
+        return $this->enrollmentOsce()
+            ->distinct('id_mahasiswa')
+            ->count('id_mahasiswa');
     }
 
     protected function casts(): array
