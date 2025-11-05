@@ -1,3 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        /* COLORS */
+        --os-primary: #1447E6;
+        --os-secondary: #2B7FFF;
+        --os-tertiary: #737373;
+        --os-black: #000000;
+        --os-white: #ffffff;
+        --os-warning: #E81B1B;
+        --os-edit: #C5C831;
+        --os-neutral: #EEF2FF;
+        --os-success: #1BE85A;
+
+        /* FONT SIZE */
+        --os-title: 1.9rem;
+        --os-subtitle: 1.1rem;
+        --os-regular: 1rem;
+        --os-paragraph: 0.875rem;
+        --os-small: 0.75rem;
+
+        /* VAR */
+        --os-48 : 3rem;
+        --os-36 : 2.25rem;
+        --os-24: 1.5rem;
+        --os-20: 1.25rem;
+        --os-14: 0.85rem;
+        --os-12: 0.75rem;
+        --os-8: 0.5rem;
+        --os-4: 0.25rem;
+        --os-2: 1.25rem;
+
+        /* OPACITY */
+        --os-alpha-100 : 100%;
+        --os-alpha-75 : 75%;
+        --os-alpha-50 : 50%;
+        --os-alpha-25 : 25%;
+
+        /* BORDER */
+        --os-1 : 1px;
+        --os-2 : 2px;
+    }
+}
+

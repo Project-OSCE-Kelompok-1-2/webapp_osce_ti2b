@@ -64,6 +64,40 @@ class KompetensiController extends Controller
             ->with('success', 'Kompetensi berhasil ditambahkan.');
     }
 
+public function edit(PoinAspekPenilaian $kompetensi)
+    {
+        // Muat relasi
+        $kompetensi->load('aspekPenilaian.stase');
+
+        // Render component 'Tambah' (sesuai pola Anda)
+        return Inertia::render('Admin/TambahKompetensi', [
+            'aspek' => $kompetensi->aspekPenilaian,
+            'kompetensi' => $kompetensi, // Kirim data yang akan diedit
+        ]);
+    }
+
+    /**
+     * Memperbarui kompetensi di database.
+     * Route: PUT /admin/kompetensi/{kompetensi}
+     */
+    public function update(Request $request, PoinAspekPenilaian $kompetensi)
+    {
+        $validated = $request->validate([
+            'kompetensi' => [
+                'required', 'string',
+                Rule::unique('poin_aspek_penilaian', 'kompetensi')
+                    ->ignore($kompetensi->id_poin_aspek_penilaian, 'id_poin_aspek_penilaian')
+                    ->where('id_aspek_penilaian', $kompetensi->id_aspek_penilaian)
+            ],
+            'bobot' => 'required|integer|min:1|max:5',
+        ]);
+
+        $kompetensi->update($validated);
+
+        return Redirect::route('admin.aspek-penilaian.kompetensi.index', $kompetensi->id_aspek_penilaian)
+            ->with('success', 'Kompetensi berhasil diperbarui.');
+    }
+
     /**
      * Menghapus data kompetensi.
      */

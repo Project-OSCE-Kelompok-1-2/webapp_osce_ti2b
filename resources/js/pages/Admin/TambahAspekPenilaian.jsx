@@ -38,8 +38,8 @@ export default function TambahAspekPenilaian() {
         : "Form Tambah Aspek Penilaian";
 
     return (
-        <div className="p-4 space-y-6">
-            <div className="flex items-center gap-3 text-sm text-gray-700 mb-6 border rounded-lg p-2 bg-white shadow-sm">
+        <div className="p-4 space-y-6 bg-os-white">
+            <div className="flex items-center gap-3 text-sm text-gray-700 mb-6 border rounded-lg p-2 bg-os-white shadow-sm">
                 {/* 👇 [UBAH] Tombol 'kembali' diubah menjadi Link agar lebih efisien */}
                 <Link
                     href={`/admin/stase/${stase.id_stase}/aspek-penilaian`}
@@ -79,7 +79,7 @@ export default function TambahAspekPenilaian() {
 
                 <form
                     onSubmit={handleSubmit}
-                    className="bg-white p-6 space-y-5"
+                    className="bg-os-white p-6 space-y-5"
                 >
                     <div>
                         <label

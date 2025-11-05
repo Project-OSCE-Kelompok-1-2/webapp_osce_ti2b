@@ -2,6 +2,7 @@ import React from "react";
 // 👇 [UBAH] Impor hook yang diperlukan dari Inertia
 import { usePage, Link, router } from "@inertiajs/react";
 import { Trash2, Home, Pencil, Search } from "lucide-react";
+import Sidebar from "../../components/Sidebar.jsx";
 
 export default function MenuAspekPenilaian() {
     // 1. Ambil data 'stase' dan 'aspek_penilaian' dari props
@@ -24,10 +25,12 @@ export default function MenuAspekPenilaian() {
     );
 
     return (
-        <div className="flex min-h-screen bg-gray-50">
-            <div className="flex-1 p-8">
+        <div className="relative bg-os-white w-full min-h-screen  flex justify-start p-os-12 font-sans overflow-hidden">
+            <Sidebar />
+
+            <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* Header Breadcrumb (dibuat dinamis) */}
-                <div className="flex items-center gap-3 text-sm text-gray-700 mb-6 border border-gray-400 rounded-lg p-2 bg-white shadow-sm">
+                <div className="flex items-center gap-3 text-sm text-gray-700 mb-6 border border-gray-400 rounded-lg p-2 bg-os-white shadow-sm">
                     <div className="bg-blue-600 text-white p-2 rounded-md flex items-center justify-center">
                         <Home size={20} />
                     </div>
@@ -75,7 +78,7 @@ export default function MenuAspekPenilaian() {
                 </div>
 
                 {/* Tabel Aspek Penilaian */}
-                <div className="bg-white shadow rounded-lg overflow-x-auto border border-gray-200">
+                <div className="bg-os-white shadow rounded-lg overflow-x-auto border border-gray-200">
                     <h3 className="px-4 py-3 border-b text-gray-700 font-semibold text-lg">
                         Table Aspek Penilaian
                     </h3>
@@ -166,7 +169,7 @@ export default function MenuAspekPenilaian() {
                 </div>
 
                 {/* Baris Total */}
-                <div className="bg-white shadow rounded-lg overflow-x-auto mt-6">
+                <div className="bg-os-white shadow rounded-lg overflow-x-auto mt-6">
                     <table className="w-full min-w-max">
                         <tfoot className="font-semibold">
                             <tr>
