@@ -2,8 +2,7 @@ import React from "react";
 // 👇 [UBAH] Impor hook yang diperlukan dari Inertia
 import { usePage, Link, router } from "@inertiajs/react";
 import { Trash2, Home, Pencil, Search } from "lucide-react";
-import Sidebar from "../../components/Sidebar.js";
-
+import Sidebar from "../../components/Sidebar.jsx";
 
 export default function MenuAspekPenilaian() {
     // 1. Ambil data 'stase' dan 'aspek_penilaian' dari props
@@ -27,7 +26,7 @@ export default function MenuAspekPenilaian() {
 
     return (
         <div className="relative bg-os-white w-full min-h-screen  flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar/>
+            <Sidebar />
 
             <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* Header Breadcrumb (dibuat dinamis) */}
@@ -199,6 +198,5 @@ export default function MenuAspekPenilaian() {
                 </div>
             </div>
         </div>
-
     );
 }
