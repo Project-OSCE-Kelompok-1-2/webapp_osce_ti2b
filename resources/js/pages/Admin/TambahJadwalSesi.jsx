@@ -4,7 +4,7 @@ import { Head, useForm, Link } from '@inertiajs/react';
 // Import ikon-ikon
 import { ChevronLeft, Trash2, Calendar, Save } from "lucide-react";
 
-export default function TambahJadwalSesi({ stase }) { // Asumsi stase dikirim dari controller
+export default function TambahlahJadwalOsce() {
     
     // Gunakan 'useForm' untuk mengelola state form
     const { data, setData, post, processing, errors } = useForm({
@@ -21,8 +21,7 @@ export default function TambahJadwalSesi({ stase }) { // Asumsi stase dikirim da
 
     return (
         <>
-            {/* Ganti title-nya */}
-            <Head title="Tambah Jadwal Sesi" />
+            <Head title="Tambah Sesi" />
 
             {/* Layout utama: flex-col, h-screen */}
             <div className="flex flex-col min-h-screen bg-gray-50">
@@ -31,20 +30,18 @@ export default function TambahJadwalSesi({ stase }) { // Asumsi stase dikirim da
                 <header className="flex items-center gap-3 text-sm text-gray-700 p-4 border-b border-gray-300 bg-white">
                     <Link
                         // Ganti href ini ke halaman list JadwalSesi
-                        href="#" 
+                        href="/admin/jadwalsesi" // <-- Pastikan ini benar
                         className="bg-blue-600 text-white p-2 rounded-full flex items-center justify-center hover:bg-blue-700"
                         title="Kembali"
                     >
                         <ChevronLeft size={20} />
                     </Link>
                     <div className="flex-1 border border-gray-400 rounded-lg px-4 py-2 text-sm font-medium bg-white">
-                        {/* Teks breadcrumb dari gambar */}
                         OSCE \ OSCE Radiologi 01-A \ Jadwal Sesi \ Tambah Sesi
                     </div>
                 </header>
 
                 {/* ===== Form Container (Centered) ===== */}
-                {/* flex-1 akan mengisi sisa ruang, items-center & justify-center akan memusatkan form */}
                 <main className="flex flex-1 items-center justify-center p-6">
                     <form
                         onSubmit={handleSubmit}
@@ -106,7 +103,7 @@ export default function TambahJadwalSesi({ stase }) { // Asumsi stase dikirim da
                             </div>
                         </div>
                     </form>
-                </div>
+                </main>
 
                 {/* ===== Footer ===== */}
                 <footer className="text-center text-gray-400 text-sm p-4 mt-auto">
