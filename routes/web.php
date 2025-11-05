@@ -54,3 +54,10 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 // Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function() { ... });
 // Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });
 
+Route::get('/admin/jadwalsesi', function () {
+    return Inertia::render('Admin/OsceJadwalPage');
+});
+
+Route::get('/admin/tambahsesi', function () {
+    return Inertia::render('Admin/TambahSesi');
+});
