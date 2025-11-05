@@ -59,5 +59,11 @@ Route::get('/admin/jadwalsesi', function () {
 });
 
 Route::get('/admin/tambahjadwal', function () {
-    return Inertia::render('Admin/TambahJadwalOsce');
+    // Pastikan nama file ini sama persis
+    return Inertia::render('Admin/TambahlahJadwalOsce'); 
+});
+
+Route::get('/admin/tambahjadwalsesi', function () {
+    // Pastikan nama file ini sama persis
+    return Inertia::render('Admin/TambahlahJadwalSesi'); 
 });

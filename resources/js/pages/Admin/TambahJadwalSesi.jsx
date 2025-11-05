@@ -1,10 +1,10 @@
 import React from "react";
-// === Impor hook dan komponen Inertia ===
-import { Head, useForm, Link, router } from "@inertiajs/react";
-// === Impor ikon-ikon ===
+// Import Head, useForm, dan Link dari Inertia
+import { Head, useForm, Link } from '@inertiajs/react';
+// Import ikon-ikon
 import { ChevronLeft, Trash2, Calendar, Save } from "lucide-react";
 
-export default function TambahSesi() {
+export default function TambahJadwalSesi({ stase }) { // Asumsi stase dikirim dari controller
     
     // Gunakan 'useForm' untuk mengelola state form
     const { data, setData, post, processing, errors } = useForm({
@@ -21,7 +21,8 @@ export default function TambahSesi() {
 
     return (
         <>
-            <Head title="Tambah Sesi" />
+            {/* Ganti title-nya */}
+            <Head title="Tambah Jadwal Sesi" />
 
             {/* Layout utama: flex-col, h-screen */}
             <div className="flex flex-col min-h-screen bg-gray-50">
@@ -37,6 +38,7 @@ export default function TambahSesi() {
                         <ChevronLeft size={20} />
                     </Link>
                     <div className="flex-1 border border-gray-400 rounded-lg px-4 py-2 text-sm font-medium bg-white">
+                        {/* Teks breadcrumb dari gambar */}
                         OSCE \ OSCE Radiologi 01-A \ Jadwal Sesi \ Tambah Sesi
                     </div>
                 </header>
@@ -46,7 +48,7 @@ export default function TambahSesi() {
                 <main className="flex flex-1 items-center justify-center p-6">
                     <form
                         onSubmit={handleSubmit}
-                        className="w-full max-w-lg border rounded-xl shadow-lg overflow-hidden"
+                        className="w-full max-w-lg border rounded-xl shadow-lg overflow-hidden bg-white"
                     >
                         {/* ===== Header Form ===== */}
                         <div className="bg-neutral-800 text-white text-center p-6">
@@ -59,7 +61,7 @@ export default function TambahSesi() {
                         </div>
 
                         {/* ===== Isi Form ===== */}
-                        <div className="p-6 bg-white space-y-5">
+                        <div className="p-6 space-y-5">
                             <div>
                                 <label htmlFor="jadwal-mulai" className="text-sm font-medium text-gray-700 block mb-2">
                                     Jadwal mulai
