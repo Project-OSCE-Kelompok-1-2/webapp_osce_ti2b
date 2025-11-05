@@ -1,12 +1,13 @@
 <?php
 
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AspekPenilaianController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\StaseController;
-use App\Http\Controllers\KompetensiController; 
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\StaseController;
+use App\Http\Controllers\PengujiController;
+use App\Http\Controllers\KompetensiController; 
+use App\Http\Controllers\AspekPenilaianController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,6 +49,9 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     // Menu Kompetensi / Poin Penilaian (Nested di dalam Aspek)
     Route::resource('aspek-penilaian.kompetensi', KompetensiController::class)->except(['show'])->shallow();
 
+    // Menu Penguji (Dosen)
+    Route::get('/dosen', [PengujiController::class, 'index'])->name('dosen.index');
+    Route::post('/dosen', [PengujiController::class, 'store'])->name('dosen.store');
 });
 
 // Rute fallback atau untuk role lain bisa ditambahkan di sini
