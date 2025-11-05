@@ -145,7 +145,15 @@ export default function KompetensiPage() {
                                         {item.bobot}
                                     </td>
                                     <td className="py-2 flex items-center justify-center gap-2">
-                                        <button className="p-1.5 text-white bg-blue-700 hover:bg-blue-500 border border-black rounded-lg">
+                                        <button
+                                            onClick={() => {
+                                                // [BENAR] Arahkan ke route 'edit' yang sesuai route:resource
+                                                router.get(
+                                                    `/admin/kompetensi/${item.id_poin_aspek_penilaian}/edit`
+                                                );
+                                            }}
+                                            className="p-1.5 text-white bg-blue-700 hover:bg-blue-500 border border-black rounded-lg"
+                                        >
                                             <Pencil size={16} />
                                         </button>
                                         <button
