@@ -48,8 +48,32 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     // Menu Kompetensi / Poin Penilaian (Nested di dalam Aspek)
     Route::resource('aspek-penilaian.kompetensi', KompetensiController::class)->except(['show'])->shallow();
 
+    // Menu Mahasiswa
+    // Route::get('/mahasiswa', [MahasiswaController::class, 'index']);
+    // Route::post('/mahasiswa', [MahasiswaController::class, 'store']);
+    // Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
+    // Route::delete('/mahasiswa/{id}', [MahasiswaController::class, 'destroy']);
+
 });
 
 // Rute fallback atau untuk role lain bisa ditambahkan di sini
 // Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function() { ... });
 // Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });
+
+
+Route::get('admin/mahasiswa', function () {
+        return Inertia::render('Admin/MenuMahasiswa', [
+            'mahasiswa' => [
+                'data' => [
+                    ['id_mahasiswa' => 1, 'nim' => '123456', 'nama' => 'Khansa', 'kelas' => 'TI-2B', 'prodi' => 'Teknik Informatika'],
+                    ['id_mahasiswa' => 2, 'nim' => '654321', 'nama' => 'Intan', 'kelas' => 'TI-2A', 'prodi' => 'Sistem Informasi'],
+                ],
+                'links' => [],
+                'from' => 1,
+            ],
+            'filters' => [
+                'search' => '',
+                'angkatan' => '',
+            ],
+        ]);
+});
