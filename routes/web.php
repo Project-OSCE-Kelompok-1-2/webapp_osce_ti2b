@@ -65,8 +65,8 @@ Route::get('admin/mahasiswa', function () {
         return Inertia::render('Admin/MenuMahasiswa', [
             'mahasiswa' => [
                 'data' => [
-                    ['id_mahasiswa' => 1, 'nim' => '123456', 'nama' => 'Khansa', 'kelas' => 'TI-2B', 'prodi' => 'Teknik Informatika'],
-                    ['id_mahasiswa' => 2, 'nim' => '654321', 'nama' => 'Intan', 'kelas' => 'TI-2A', 'prodi' => 'Sistem Informasi'],
+                    ['id_mahasiswa' => 1, 'nim' => '123456', 'nama' => 'Agus', 'kelas' => 'TI-2B', 'prodi' => 'Teknik Informatika'],
+                    ['id_mahasiswa' => 2, 'nim' => '654321', 'nama' => 'Udin', 'kelas' => 'TI-2A', 'prodi' => 'Teknik Informatika'],
                 ],
                 'links' => [],
                 'from' => 1,
@@ -76,4 +76,8 @@ Route::get('admin/mahasiswa', function () {
                 'angkatan' => '',
             ],
         ]);
+});
+
+Route::get('admin/mahasiswa/create', function () {
+    return Inertia::render('Admin/TambahMahasiswa');
 });

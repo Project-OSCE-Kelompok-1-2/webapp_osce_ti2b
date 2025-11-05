@@ -86,7 +86,7 @@ export default function MenuMahasiswaPage() {
 
                     {/* Tombol Tambah */}
                     <button
-                        onClick={() => router.get("/admin/mahasiswa/create")}
+                        onClick={() => router.visit('admin/mahasiswa/create')}
                         className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                     >
                         <OsIcon
@@ -97,15 +97,18 @@ export default function MenuMahasiswaPage() {
                     </button>
 
                     {/* Filter & Search */}
-                    <div className="flex items-center gap-3 mb-6">
+                    <div className="flex items-center gap-3 mb-6 w-full max-w-4xl">
                         <OsSearchBar
                             search={search}
                             setSearch={setSearch}
                             onSearchClick={handleSearch}
                             placeholder="Cari data mahasiswa..."
+                            onKeyDown={(e) =>
+                                e.key === "Enter" && handleSearch()
+                            }
                         />
                         <select
-                            className="border border-gray-400 rounded-lg p-3 text-sm"
+                            className="border border-gray-400 rounded-lg p-3 px-24 text-sm"
                             value={angkatan}
                             onChange={(e) => setAngkatan(e.target.value)}
                         >
