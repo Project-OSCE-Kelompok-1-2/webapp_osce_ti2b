@@ -1,4 +1,4 @@
-import { plugin } from "postcss";
+// import { plugin } from "postcss";
 import plugin from "tailwindcss/plugin";
 import defaultTheme from "tailwindcss/defaultTheme";
 
@@ -14,7 +14,7 @@ export default {
     theme: {
         extend: {
             fontFamily: {
-                sans: ["Inter", ...defaultTheme.fontFamily.sans],
+                sans: ["Inter", "Manrope" , ...defaultTheme.fontFamily.sans],
             },
             colors: {
                 'os-primary' : 'var(--os-primary)',
@@ -24,7 +24,6 @@ export default {
                 'os-white' : 'var(--os-white)',
                 'os-warning' : 'var(--os-warning)',
                 'os-edit' : 'var(--os-edit)',
-                'os-danger' : 'var(--os-danger)',
                 'os-neutral' : 'var(--os-neutral)',
                 'os-success' : 'var(--os-success)',
 
@@ -44,22 +43,34 @@ export default {
                 "os-12": "var(--os-12)",
                 "os-8": "var(--os-8)",
                 "os-4": "var(--os-4)",
-                "os-2": "var(--os-2)",
             },
             fontSize: {
                 'os-title': 'var(--os-title)',
                 'os-subtitle': 'var(--os-subtitle)',
                 'os-regular': 'var(--os-regular)',
-                'os-paragraft': 'var(--os-paragraph)',
+                'os-paragraph': 'var(--os-paragraph)',
                 'os-small': 'var(--os-small)',
+            },
+            fontWeight: {
+                'os-weight-light': 'var(--os-font-light)',
+                'os-weight-regular': 'var(--os-font-regular)',
+                'os-weight-semibold': 'var(--os-font-semibold)',
+                'os-weight-bold': 'var(--os-font-bold)',
             },
             borderWidth: {
                 'os-1': 'var(--os-1)',
                 'os-2': 'var(--os-2)',
             },
-            borderColor: {
-                'os-primary' : 'var(--os-primary)'  ,
-            }
+            borderRadius: {
+                'os-radius-sm': 'var(--os-radius-sm, 0.25rem)',
+                'os-radius-md': 'var(--os-radius-md, 0.5rem)',
+                'os-radius-lg': 'var(--os-radius-lg, 1rem)',
+            },
+            transitionDuration: {
+                'os-fast': '150ms',
+                'os-normal': '300ms',
+                'os-slow': '500ms',
+            },
 
         },
     },
