@@ -8,9 +8,24 @@ use Illuminate\Http\Request;
 
 class OsceStaseController extends Controller
 {
-    public function index($id_osce)
+    public function index(Request $request, $id_osce)
     {
-        $osce_stase = OsceStase::where("id_osce", $id_osce)->with(["ruang", "penguji", "stase"])->get()->map(function ($item) {
+        // Ambil query parameter 'search'
+        $search = $request->query('search');
+
+        // Query dasar
+        $query = OsceStase::where("id_osce", $id_osce)
+            ->with(["ruang", "penguji", "stase"]);
+
+        // Jika ada parameter 'search', tambahkan filter
+        if ($search) {
+            $query->whereHas('stase', function ($q) use ($search) {
+                $q->where('nama_stase', 'like', '%' . $search . '%');
+            });
+        }
+
+        // Ambil hasil (boleh pakai get() atau paginate())
+        $osce_stase = $query->paginate(10)->through(function ($item) {
             return [
                 'id_osce_stase' => $item->id_osce_stase,
                 'ruang' => [
@@ -23,10 +38,17 @@ class OsceStaseController extends Controller
                     'nama' => $item->penguji->nama ?? null,
                 ],
             ];
-        });;
+        });
 
-        return Inertia::render("Stase", ["data" => $osce_stase]);
+        // Kirim ke React dengan props tambahan 'filters' agar bisa diingat
+        return Inertia::render("Stase", [
+            'osce_stase' => $osce_stase,
+            'filters' => [
+                'search' => $search,
+            ],
+        ]);
     }
+
 
     public function store(Request $request, $id_osce)
     {

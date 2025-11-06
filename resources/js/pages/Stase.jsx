@@ -1,5 +1,5 @@
-export default function Stase({ data }) {
-    console.log(data);
+export default function Stase({ osce_stase, links }) {
+    console.log(osce_stase);
 
     return (
         <div>
