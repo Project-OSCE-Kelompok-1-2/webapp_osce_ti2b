@@ -1,12 +1,13 @@
 <?php
 
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AspekPenilaianController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\StaseController;
-use App\Http\Controllers\KompetensiController; 
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\StaseController;
+use App\Http\Controllers\PengujiController;
+use App\Http\Controllers\KompetensiController; 
+use App\Http\Controllers\AspekPenilaianController;
 
 /*
 |--------------------------------------------------------------------------
@@ -48,36 +49,11 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     // Menu Kompetensi / Poin Penilaian (Nested di dalam Aspek)
     Route::resource('aspek-penilaian.kompetensi', KompetensiController::class)->except(['show'])->shallow();
 
-    // Menu Mahasiswa
-    // Route::get('/mahasiswa', [MahasiswaController::class, 'index']);
-    // Route::post('/mahasiswa', [MahasiswaController::class, 'store']);
-    // Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
-    // Route::delete('/mahasiswa/{id}', [MahasiswaController::class, 'destroy']);
-
+    // Menu Penguji (Dosen)
+    Route::get('/dosen', [PengujiController::class, 'index'])->name('dosen.index');
+    Route::post('/dosen', [PengujiController::class, 'store'])->name('dosen.store');
 });
 
 // Rute fallback atau untuk role lain bisa ditambahkan di sini
 // Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function() { ... });
 // Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });
-
-
-Route::get('admin/mahasiswa', function () {
-        return Inertia::render('Admin/MenuMahasiswa', [
-            'mahasiswa' => [
-                'data' => [
-                    ['id_mahasiswa' => 1, 'nim' => '123456', 'nama' => 'Agus', 'kelas' => 'TI-2B', 'prodi' => 'Teknik Informatika'],
-                    ['id_mahasiswa' => 2, 'nim' => '654321', 'nama' => 'Udin', 'kelas' => 'TI-2A', 'prodi' => 'Teknik Informatika'],
-                ],
-                'links' => [],
-                'from' => 1,
-            ],
-            'filters' => [
-                'search' => '',
-                'angkatan' => '',
-            ],
-        ]);
-});
-
-Route::get('admin/mahasiswa/create', function () {
-    return Inertia::render('Admin/TambahMahasiswa');
-});
