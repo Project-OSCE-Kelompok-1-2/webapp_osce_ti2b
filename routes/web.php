@@ -16,44 +16,61 @@ use App\Http\Controllers\AspekPenilaianController;
 */
 
 // Halaman Awal -> Redirect ke Login
-Route::get('/', function () {
-    return redirect()->route('login');
-});
+// Route::get('/', function () {
+//     return redirect()->route('login');
+// });
 
-// === RUTE AUTENTIKASI ===
-Route::middleware('guest')->group(function () {
-    Route::get('/login', [AuthController::class, 'show_login'])->name('login');
-    Route::post('/login', [AuthController::class, 'login']);
-});
-Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
+// // === RUTE AUTENTIKASI ===
+// Route::middleware('guest')->group(function () {
+//     Route::get('/login', [AuthController::class, 'show_login'])->name('login');
+//     Route::post('/login', [AuthController::class, 'login']);
+// });
+// Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 
-// === RUTE UNTUK ADMIN ===
-Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->group(function () {
+// // === RUTE UNTUK ADMIN ===
+// Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->group(function () {
 
-    // Dashboard
-    Route::get('dashboard', function () {
-        return Inertia::render('Admin/Dashboard');
-    })->name('dashboard');
+//     // Dashboard
+//     Route::get('dashboard', function () {
+//         return Inertia::render('Admin/Dashboard');
+//     })->name('dashboard');
 
-    // Pengaturan Akun
-    Route::get('/pengaturan-akun', [AdminController::class, 'show_profile'])->name('account.show');
-    Route::post('/pengaturan-akun', [AdminController::class, 'update_account'])->name('account.update');
+//     // Pengaturan Akun
+//     Route::get('/pengaturan-akun', [AdminController::class, 'show_profile'])->name('account.show');
+//     Route::post('/pengaturan-akun', [AdminController::class, 'update_account'])->name('account.update');
 
-    // Menu Stase (CRUD)
-    Route::resource('stase', StaseController::class);
+//     // Menu Stase (CRUD)
+//     Route::resource('stase', StaseController::class);
 
-    // Menu Aspek Penilaian (Nested di dalam Stase)
-    Route::resource('stase.aspek-penilaian', AspekPenilaianController::class)->except(['show'])->shallow();
+//     // Menu Aspek Penilaian (Nested di dalam Stase)
+//     Route::resource('stase.aspek-penilaian', AspekPenilaianController::class)->except(['show'])->shallow();
 
-    // Menu Kompetensi / Poin Penilaian (Nested di dalam Aspek)
-    Route::resource('aspek-penilaian.kompetensi', KompetensiController::class)->except(['show'])->shallow();
+//     // Menu Kompetensi / Poin Penilaian (Nested di dalam Aspek)
+//     Route::resource('aspek-penilaian.kompetensi', KompetensiController::class)->except(['show'])->shallow();
 
-    // Menu Penguji (Dosen)
-    Route::get('/dosen', [PengujiController::class, 'index'])->name('dosen.index');
-    Route::post('/dosen', [PengujiController::class, 'store'])->name('dosen.store');
-});
+//     // Menu Penguji (Dosen)
+//     Route::get('/dosen', [PengujiController::class, 'index'])->name('dosen.index');
+//     Route::post('/dosen', [PengujiController::class, 'store'])->name('dosen.store');
+// });
 
 // Rute fallback atau untuk role lain bisa ditambahkan di sini
 // Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function() { ... });
 // Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });
+
+Route::get('/osce', function () {
+        return Inertia::render('Admin/OsceListPage');
+});
+
+
+Route::get('/tambahosce', function () {
+        return Inertia::render('Admin/TambahOsce');
+});
+
+Route::get('/stase', function () {
+        return Inertia::render('Admin/OsceStasePage');
+});
+
+Route::get('/tambahoscestase', function () {
+        return Inertia::render('Admin/TambahOsceStase');
+});
