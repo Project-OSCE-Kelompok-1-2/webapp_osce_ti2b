@@ -1,6 +1,7 @@
 // import { plugin } from "postcss";
 import plugin from "tailwindcss/plugin";
 import defaultTheme from "tailwindcss/defaultTheme";
+import { Scale } from "lucide-react";
 
 /** @type {import('tailwindcss').Config} */
 export default {
@@ -26,6 +27,8 @@ export default {
                 'os-edit' : 'var(--os-edit)',
                 'os-neutral' : 'var(--os-neutral)',
                 'os-success' : 'var(--os-success)',
+                'os-primary-dark': 'var(--os-primary-dark)',
+                'os-secondary-dark': 'var(--os-secondary-dark)',
 
             },
             opacity: {
@@ -81,6 +84,7 @@ export default {
                 filter:
                     "invert(0%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(0%) contrast(100%)",
                 },
+
                 ".os-icon-light": {
                 filter:
                     "invert(100%) sepia(0%) saturate(0%) hue-rotate(0deg) brightness(100%) contrast(100%)",

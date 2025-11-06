@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff, User, KeyRound } from "lucide-react";
 // 👇 [UBAH] Impor hook yang diperlukan dari Inertia
 import { useForm, usePage } from "@inertiajs/react";
+import Os_button from "../../components/button";
 
 export default function LoginMosaicPage() {
     // 👇 [BARU] Ambil error dari props yang dikirim controller
@@ -102,15 +103,15 @@ export default function LoginMosaicPage() {
 
                     {/* Tombol Login */}
                     <div className="flex justify-center">
-                        <button
+                        <Os_button
                             type="submit"
                             // 👇 [UBAH] Tambahkan disabled saat loading
                             disabled={processing}
-                            className="w-3/5 bg-blue-600 text-white py-2 rounded-md text-sm font-semibold hover:bg-gray-600 disabled:opacity-50"
+                            className="w-3/5 btn-primary py-2 rounded-md text-sm font-semibold disabled:opacity-50"
                         >
                             {/* 👇 [UBAH] Ganti teks tombol saat loading */}
                             {processing ? "Loading..." : "Login"}
-                        </button>
+                        </Os_button>
                     </div>
 
                     {/* Link bantuan */}
