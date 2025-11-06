@@ -10,8 +10,8 @@ import {
     // BarChart, (Dihapus)
     // PieChart, (Dihapus)
 } from "lucide-react";
-import OsBreadCrumb from "../../components/breadcrumb.jsx";
-import OsCopyright from "../../components/copyright.jsx";
+import OsHeader from "../../components/Header.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
 
 export const AdminDashboard = () => {
     return (
@@ -23,7 +23,11 @@ export const AdminDashboard = () => {
             {/* Struktur layout dashboard tetap sama */}
             <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* === HEADER === */}
-                <OsBreadCrumb />
+                <OsHeader>
+                    <span>Hello</span>
+                    <span>Hello</span>
+                    <span>Hello</span>
+                </OsHeader>
 
                 {/* === MAIN CONTENT === */}
                 <main className="relative row-[2_/_3] col-[1_/_2] w-full h-full flex flex-col items-start gap-os-14">

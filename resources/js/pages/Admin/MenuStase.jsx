@@ -10,9 +10,9 @@ import {
 // --- Import Komponen ---
 // Catatan: Saya mengasumsikan OsPagination.jsx sudah diperbarui
 // dengan logic arrow hover hitam seperti permintaan terakhir Anda.
-import Sidebar from "../../Components/Sidebar";
-import OsBreadCrumb from "../../components/breadcrumb";
-import OsCopyright from "../../components/copyright";
+import Sidebar from "../../components/Sidebar.jsx";
+import OsHeader from "../../components/Header.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
 import OsIcon from "../../components/icons";
 import OsTableHeader from "../../components/tableheader";
 import OsSearchBar from "../../components/searchbar";
@@ -59,7 +59,9 @@ export default function Stase() {
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
 
                 {/* Header/Breadcrumb */}
-                <OsBreadCrumb className="fixed" />
+                <OsHeader>
+                    Menu Stase
+                </OsHeader>
 
                 {/* ===== ISI HALAMAN (Scrollable Area) ===== */}
                 <div className="flex-1 overflow-auto">

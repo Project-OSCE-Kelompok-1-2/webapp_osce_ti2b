@@ -1,7 +1,7 @@
 import React from "react";
 import { Home } from "lucide-react";
 
-export default function OsBreadCrumb({ children, className = "" }) {
+export default function OsHeader({ children, className = "" }) {
     const items = React.Children.toArray(children);
 
     return (
@@ -21,7 +21,7 @@ export default function OsBreadCrumb({ children, className = "" }) {
             <div className="relative flex-1 h-[46px] ml-4">
               <div className="w-full h-full flex items-center bg-white rounded-xl overflow-hidden border border-solid border-gray-300 shadow-inner">
                 <h1 className=" ml-5 text-os-regular text-black tracking-[0] leading-[normal] whitespace-nowrap">
-                  Beranda
+                  {children}
                 </h1>
               </div>
             </div>
