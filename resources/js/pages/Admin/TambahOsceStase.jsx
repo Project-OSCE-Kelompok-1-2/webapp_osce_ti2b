@@ -1,5 +1,5 @@
 import React from "react";
-import { Head, Link, useForm } from "@inertiajs/react";
+import { Head, Link, useForm, usePage } from "@inertiajs/react";
 import { ArrowLeft, Send, Trash2 } from "lucide-react";
 import { router } from "@inertiajs/react";
 export default function TambahStase({
@@ -11,19 +11,22 @@ export default function TambahStase({
     // 3. 'useForm' adalah cara paling elegan di Inertia.
     //    Dia sudah menangani state, error, dan status 'processing'.
     const { data, setData, post, processing, errors, reset } = useForm({
-        ruangan_id: "",
-        stase_id: "",
-        penguji_id: "",
+        id_ruang: "",
+        id_stase: "",
+        id_penguji: "",
     });
+
+    const { id_osce, flash } = usePage().props;
 
     // 4. Fungsi untuk submit form
     function handleSubmit(e) {
         e.preventDefault();
         // 'post' akan mengirim data ke route 'admin.stase.store'.
         // Pastikan Anda punya route ini di web.php
-        post(route("admin.stase.store", { osce: osce.id }), {
-            onSuccess: () => reset(), // Reset form jika sukses
-        });
+        post(`/osce/${id_osce}/stase`, { osce: osce.id }),
+            {
+                onSuccess: () => reset(), // Reset form jika sukses
+            };
     }
 
     // 5. Fungsi untuk tombol "Trash"
@@ -82,9 +85,9 @@ export default function TambahStase({
                                 </label>
                                 <select
                                     id="ruangan"
-                                    value={data.ruangan_id}
+                                    value={data.id_ruang}
                                     onChange={(e) =>
-                                        setData("ruangan_id", e.target.value)
+                                        setData("id_ruang", e.target.value)
                                     }
                                     className={`w-full border rounded-lg px-3 py-2 text-sm bg-white ${
                                         errors.ruangan_id
@@ -121,9 +124,9 @@ export default function TambahStase({
                                 </label>
                                 <select
                                     id="stase"
-                                    value={data.stase_id}
+                                    value={data.id_stase}
                                     onChange={(e) =>
-                                        setData("stase_id", e.target.value)
+                                        setData("id_stase", e.target.value)
                                     }
                                     className={`w-full border rounded-lg px-3 py-2 text-sm bg-white ${
                                         errors.stase_id
@@ -159,9 +162,9 @@ export default function TambahStase({
                                 </label>
                                 <select
                                     id="penguji"
-                                    value={data.penguji_id}
+                                    value={data.id_penguji}
                                     onChange={(e) =>
-                                        setData("penguji_id", e.target.value)
+                                        setData("id_penguji", e.target.value)
                                     }
                                     className={`w-full border rounded-lg px-3 py-2 text-sm bg-white ${
                                         errors.penguji_id
@@ -210,6 +213,12 @@ export default function TambahStase({
                     </div>
                 </form>
             </main>
+
+            {flash?.success && (
+                <div>
+                    <h1 className="text-green-500 text-xl">Berhasil dibuat!</h1>
+                </div>
+            )}
 
             {/* Footer */}
             <footer className="p-4 bg-white border-t mt-auto">

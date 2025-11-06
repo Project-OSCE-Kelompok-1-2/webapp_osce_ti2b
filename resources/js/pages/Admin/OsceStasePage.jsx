@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Sidebar from "../../Components/Sidebar"; // Pastikan path ini benar
-import { Link, router } from "@inertiajs/react";
+import { Link, router, usePage } from "@inertiajs/react";
 import {
     ClipboardList,
     CalendarClock,
@@ -23,6 +23,10 @@ export default function HalamanStase({ stase, osce, filters }) {
 
     // 4. State untuk search bar, ambil nilai default dari 'filters'
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
+
+    const { data } = usePage().props;
+    const osceStase = data;
+    console.log(data);
 
     /**
      * 5. Fungsi untuk menangani submit pencarian
@@ -145,24 +149,21 @@ export default function HalamanStase({ stase, osce, filters }) {
                                 </thead>
                                 <tbody>
                                     {/* 9. Gunakan 'stase.data' dari props */}
-                                    {stase?.data.map((item, index) => (
+                                    {osceStase.map((item, index) => (
                                         <tr
-                                            key={item.id} // Gunakan 'item.id'
+                                            key={index} // Gunakan 'item.id'
                                             className="border-b hover:bg-gray-50"
                                         >
                                             <td className="p-3 font-medium">
                                                 {/* Nomor urut dari pagination */}
-                                                {(stase.current_page - 1) *
-                                                    stase.per_page +
-                                                    index +
-                                                    1}
+                                                {index + 1}
                                             </td>
                                             <td className="p-3">
-                                                {item.ruangan}
+                                                Ruang {item.ruang.nomor_ruangan}
                                             </td>
                                             <td className="p-3">
-                                                {item.nama_stase}
-                                            </td>{" "}
+                                                {item.stase.nama_stase}
+                                            </td>
                                             {/* Sesuaikan nama kolom */}
                                             <td className="p-3">
                                                 <div className="flex items-center gap-1.5">
@@ -186,7 +187,7 @@ export default function HalamanStase({ stase, osce, filters }) {
                                                         />
                                                     </button>
                                                     <button
-                                                        className="p-2 rounded-md border bg-black text-white hover:bg-gray-100"
+                                                        className="p-2 rounded-md border bg-black text-white hover:bg-gray-400"
                                                         title="Edit"
                                                     >
                                                         <Edit size={14} />
