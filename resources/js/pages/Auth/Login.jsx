@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Eye, EyeOff, User, KeyRound } from "lucide-react";
 // 👇 [UBAH] Impor hook yang diperlukan dari Inertia
 import { useForm, usePage } from "@inertiajs/react";
-import Os_button from "../../components/button";
+import Os_button from "../../components/button.jsx";
 
 export default function LoginMosaicPage() {
     // 👇 [BARU] Ambil error dari props yang dikirim controller

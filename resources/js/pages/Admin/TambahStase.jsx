@@ -1,6 +1,7 @@
 import React from "react";
 import { Head, useForm, usePage, Link } from "@inertiajs/react";
 import { Trash2, Save } from "lucide-react";
+import OsInput from "../../components/Input";
 
 // [UBAH] Komponen sekarang menerima props 'stase' yang bisa jadi null
 export default function TambahStase({
@@ -75,31 +76,25 @@ export default function TambahStase({
                         <div className="p-6 space-y-4">
                             {/* Semua input di bawah ini sekarang sudah terisi otomatis jika dalam mode edit */}
                             <div>
-                                <label className="text-sm text-gray-700">
-                                    Mata Kuliah
-                                </label>
-                                <select
-                                    value={data.id_mata_kuliah}
-                                    onChange={(e) =>
-                                        setData(
-                                            "id_mata_kuliah",
-                                            e.target.value
-                                        )
+                                <OsInput
+                                label="Mata Kuliah"
+                                    type="suggest"
+                                    placeholder="Pilih Mata Kuliah..."
+                                    value={
+                                        mataKuliah.find((mk) => mk.id_mata_kuliah == data.id_mata_kuliah)
+                                            ?.nama_mata_kuliah || ""
                                     }
-                                    className="mt-1 w-full border rounded-lg px-3 py-2 bg-white ..."
-                                >
-                                    <option value="">
-                                        Pilih Mata Kuliah...
-                                    </option>
-                                    {mataKuliah.map((mk) => (
-                                        <option
-                                            key={mk.id_mata_kuliah}
-                                            value={mk.id_mata_kuliah}
-                                        >
-                                            {mk.nama_mata_kuliah}
-                                        </option>
-                                    ))}
-                                </select>
+                                    onChange={(val) => {
+                                        const selected = mataKuliah.find(
+                                            (mk) =>
+                                                mk.nama_mata_kuliah.toLowerCase() ===
+                                                val.toLowerCase()
+                                        );
+                                        setData("id_mata_kuliah", selected ? selected.id_mata_kuliah : "");
+                                    }}
+                                    suggestions={mataKuliah.map((mk) => mk.nama_mata_kuliah)}
+                                    className="mt-1 w-full"
+                                />
                                 {errors.id_mata_kuliah && (
                                     <p className="text-red-500 text-sm mt-1">
                                         {errors.id_mata_kuliah}
@@ -141,16 +136,14 @@ export default function TambahStase({
                             </div>
 
                             <div>
-                                <label className="text-sm text-gray-700">
-                                    Nama Stase
-                                </label>
-                                <input
+                                <OsInput
+                                    label="Nama Stase"
                                     type="text"
                                     value={data.nama_stase}
                                     onChange={(e) =>
                                         setData("nama_stase", e.target.value)
                                     }
-                                    className="mt-1 w-full border rounded-lg px-3 py-2 ..."
+                                    className="mt-1 w-full rounded-lg"
                                     placeholder="Masukkan nama stase..."
                                 />
                                 {errors.nama_stase && (

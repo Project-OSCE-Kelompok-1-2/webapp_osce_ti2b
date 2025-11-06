@@ -3,6 +3,10 @@ export default function OsButton({ name = "primary", children, onClick, classNam
 
 //   Warna yang tersedia: primary, secondary, tertiary, black, white, warning, edit, neutral, success
 // Berdasarkan isi COLOURS tailwind.config.js
+
+    // name= "primary" | Contoh penggunaan: <Os_button name="primary">Click Me</Os_button>
+
+
   return (
     <button
       onClick={onClick}
