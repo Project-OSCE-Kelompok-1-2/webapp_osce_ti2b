@@ -10,6 +10,7 @@ use App\Http\Controllers\KompetensiController;
 use App\Http\Controllers\AspekPenilaianController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\RekapNilaiController;
+use App\Http\Controllers\OsceEnrollmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -61,6 +62,22 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     // Rekap Nilai
     Route::get('/rekap-nilai', [RekapNilaiController::class, 'index']);
     Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi']);
+
+    // Rute enrollment yang salah (seperti di file Anda sebelumnya) telah dihapus dari sini
+});
+
+
+// ===================================================================
+// === RUTE BARU: OSCE ENROLLMENT (Membutuhkan osce_id & jadwal_id) ===
+// ===================================================================
+// Ini adalah rute yang benar untuk OsceEnrollmentController
+Route::middleware(['auth', 'role:admin'])->prefix('admin/osce/{osce_id}/jadwal/{jadwal_id}')->group(function () {
+    
+    // GET: /admin/osce/{osce_id}/jadwal/{jadwal_id}/enrollment (Tugas 1)
+    Route::get('/enrollment', [OsceEnrollmentController::class, 'index'])->name('admin.osce.enrollment.index');
+
+    // POST: /admin/osce/{osce_id}/jadwal/{jadwal_id}/enrollment (Tugas 2)
+    Route::post('/enrollment', [OsceEnrollmentController::class, 'sync'])->name('admin.osce.enrollment.sync');
 });
 
 // Rute fallback atau untuk role lain bisa ditambahkan di sini
