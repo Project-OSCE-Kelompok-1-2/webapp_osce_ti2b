@@ -41,7 +41,7 @@ class OsceStaseController extends Controller
         });
 
         // Kirim ke React dengan props tambahan 'filters' agar bisa diingat
-        return Inertia::render("Stase", [
+        return Inertia::render("Admin/OsceStasePage", [
             'osce_stase' => $osce_stase,
             'filters' => [
                 'search' => $search,
