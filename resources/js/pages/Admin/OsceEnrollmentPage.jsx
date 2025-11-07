@@ -31,40 +31,41 @@ export const Section = () => {
   ];
 
   return (
-    <div className="w-full min-h-screen bg-white p-6">
-      {/* Main Container */}
-      <div className="space-y-6">
+    <div className="w-full min-h-screen bg-white">
+      {/* Top Section */}
+      <div className="px-6 pt-4 pb-0">
         {/* Header */}
-        <div className="flex items-center gap-4">
-          <button className="flex items-center justify-center w-14 h-14 bg-blue-600 rounded-lg border-2 border-black hover:bg-blue-700">
-            <ChevronLeft className="w-7 h-7 text-white" />
+        <div className="flex items-center gap-3 mb-6">
+          <button className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg hover:bg-blue-700 flex-shrink-0">
+            <ChevronLeft className="w-6 h-6 text-white" />
           </button>
 
-          <div className="flex-1 flex items-center h-14 bg-white rounded-lg border-2 border-black px-5">
-            <span className="text-black text-base font-normal">
-              OSCE \ OSCE Radiologi 01-A \ Jadwal Sesi \ Enrollment Mahasiswa
-            </span>
-          </div>
+          <input
+            type="text"
+            value="OSCE \ OSCE Radiologi 01-A \ Jadwal Sesi \ Enrollment Mahasiswa"
+            readOnly
+            className="flex-1 h-10 bg-white border border-gray-300 rounded-lg px-4 py-2 text-sm text-gray-700"
+          />
         </div>
 
         {/* Divider */}
-        <div className="border-t-2 border-gray-300"></div>
+        <div className="border-b border-gray-300 mb-6"></div>
 
-        {/* Menu Title */}
-        <div>
-          <h2 className="text-base font-normal text-black mb-2">
+        {/* Menu Title Section */}
+        <div className="mb-6">
+          <h2 className="text-sm font-semibold text-black mb-2">
             Menu Enrollment Mahasiswa
           </h2>
-          <p className="text-xs text-gray-500 max-w-xs leading-relaxed">
+          <p className="text-xs text-gray-600 leading-relaxed max-w-md">
             Jorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
             vulputate libero et velit interdum, ac aliquet odio mattis.
           </p>
         </div>
 
         {/* Search and Filter Controls */}
-        <div className="flex gap-3">
-          <div className="flex-1 flex items-center gap-3 bg-white rounded-lg border-2 border-black px-4 py-3">
-            <Search className="w-5 h-5 text-gray-400" />
+        <div className="flex gap-3 mb-6">
+          <div className="flex-1 flex items-center gap-2 bg-white border border-gray-300 rounded-lg px-3 py-2">
+            <Search className="w-4 h-4 text-gray-400" />
             <input
               type="text"
               placeholder="cari data mahasiswa..."
@@ -77,103 +78,121 @@ export const Section = () => {
           <select
             value={selectedYear}
             onChange={(e) => setSelectedYear(e.target.value)}
-            className="w-32 bg-white rounded-lg border-2 border-black px-4 py-3 text-black font-medium focus:outline-none"
+            className="w-28 bg-white border border-gray-300 rounded-lg px-3 py-2 text-sm text-black font-medium focus:outline-none"
           >
             <option value="2025">2025</option>
             <option value="2024">2024</option>
             <option value="2023">2023</option>
           </select>
 
-          <button className="w-32 bg-blue-600 text-white font-bold rounded-lg border-2 border-black hover:bg-blue-700">
+          <button className="w-28 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 text-sm">
             Cari
           </button>
         </div>
 
-        {/* Table Section */}
-        <div>
-          <h3 className="text-base font-normal text-black mb-4">
-            Table Mahasiswa
-          </h3>
+        {/* Table Title */}
+        <h3 className="text-sm font-semibold text-black mb-3">
+          Table Mahasiswa
+        </h3>
 
-          {/* Table */}
-          <div className="border border-gray-400 rounded-lg overflow-hidden">
-            <table className="w-full">
-              {/* Table Header */}
-              <thead>
-                <tr className="border-b-2 border-gray-400">
-                  <th className="px-6 py-3 text-left text-sm font-normal text-black border-r border-gray-400 w-16">
-                    No
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-normal text-black border-r border-gray-400 w-40">
-                    Nim Mahasiswa
-                  </th>
-                  <th className="px-6 py-3 text-left text-sm font-normal text-black border-r border-gray-400 flex-1">
-                    Mahasiswa
-                  </th>
-                  <th className="px-6 py-3 text-center text-sm font-normal text-black w-24">
-                    Action
-                  </th>
+        {/* Divider */}
+        <div className="border-b border-gray-300 mb-0"></div>
+      </div>
+
+      {/* Table Section */}
+      <div className="px-6 pb-6">
+        {/* Table */}
+        <div className="border border-gray-300 rounded-lg overflow-hidden">
+          <table className="w-full">
+            {/* Table Header */}
+            <thead>
+              <tr className="bg-white border-b border-gray-300">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-black border-r border-gray-300 w-12">
+                  No
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-black border-r border-gray-300 w-32">
+                  Nim Mahasiswa
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-black border-r border-gray-300 flex-1">
+                  Mahasiswa
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-black w-20">
+                  Action
+                </th>
+              </tr>
+            </thead>
+
+            {/* Table Body */}
+            <tbody>
+              {students.map((student, index) => (
+                <tr
+                  key={student.id}
+                  className={`${
+                    student.bgColor === "bg-white" ? "bg-white" : "bg-gray-100"
+                  } border-b border-gray-300 hover:bg-gray-50`}
+                >
+                  <td className="px-4 py-4 text-xs text-black border-r border-gray-300">
+                    {index + 1}
+                  </td>
+                  <td className="px-4 py-4 text-xs text-black border-r border-gray-300">
+                    {student.nim}
+                  </td>
+                  <td className="px-4 py-4 text-xs text-black border-r border-gray-300">
+                    {student.name}
+                  </td>
+                  <td className="px-4 py-4 text-center">
+                    <div className="flex items-center justify-center">
+                      {student.checked && (
+                        <div className="flex items-center justify-center w-5 h-5 border border-gray-400 rounded">
+                          <Check className="w-4 h-4 text-black" />
+                        </div>
+                      )}
+                    </div>
+                  </td>
                 </tr>
-              </thead>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-              {/* Table Body */}
-              <tbody>
-                {students.map((student, index) => (
-                  <tr
-                    key={student.id}
-                    className={`${
-                      student.bgColor === "bg-white" ? "bg-white" : "bg-gray-200"
-                    } border-b border-gray-300`}
-                  >
-                    <td className="px-6 py-4 text-sm font-normal text-black border-r border-gray-300">
-                      {index + 1}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-normal text-black border-r border-gray-300">
-                      {student.nim}
-                    </td>
-                    <td className="px-6 py-4 text-sm font-normal text-black border-r border-gray-300">
-                      {student.name}
-                    </td>
-                    <td className="px-6 py-4 text-center">
-                      <div className="flex items-center justify-center">
-                        {student.checked && (
-                          <Check className="w-5 h-5 text-black bg-white border border-gray-400 rounded p-0.5" />
-                        )}
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+        {/* Divider */}
+        <div className="border-b border-gray-300 mt-4 mb-4"></div>
 
-          {/* Divider */}
-          <div className="border-b-2 border-gray-300 mt-4"></div>
+        {/* Pagination */}
+        <div className="flex items-center gap-2 mb-6">
+          <button className="flex items-center justify-center w-5 h-5 rounded-full bg-black hover:bg-gray-700">
+            <ChevronLeft className="w-3 h-3 text-white" />
+          </button>
 
-          {/* Pagination */}
-          <div className="flex items-center gap-2 mt-4">
-            <button className="flex items-center justify-center w-6 h-6 rounded-full bg-black hover:bg-gray-700">
-              <ChevronLeft className="w-4 h-4 text-white" />
+          {[1, 2, 3, 4, 5].map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`w-5 h-5 rounded text-xs font-normal flex items-center justify-center ${
+                currentPage === page
+                  ? "bg-black text-white"
+                  : "text-black"
+              }`}
+            >
+              {page}
             </button>
+          ))}
 
-            {[1, 2, 3, 4, 5].map((page) => (
-              <button
-                key={page}
-                onClick={() => setCurrentPage(page)}
-                className={`w-6 h-6 rounded text-sm font-normal ${
-                  currentPage === page
-                    ? "bg-black text-white"
-                    : "text-black"
-                }`}
-              >
-                {page}
-              </button>
-            ))}
+          <button className="flex items-center justify-center w-5 h-5 rounded-full bg-black hover:bg-gray-700">
+            <ChevronRight className="w-3 h-3 text-white" />
+          </button>
+        </div>
+      </div>
 
-            <button className="flex items-center justify-center w-6 h-6 rounded-full bg-black hover:bg-gray-700">
-              <ChevronRight className="w-4 h-4 text-white" />
-            </button>
-          </div>
+      {/* Bottom Spacing */}
+      <div className="h-24"></div>
+
+      {/* Footer */}
+      <div className="fixed bottom-0 left-0 right-0 px-6 py-4 bg-white">
+        <div className="h-10 bg-white border border-gray-400 rounded-lg px-4 py-2 flex items-center">
+          <span className="text-xs text-gray-600">
+            Copyright Porem ipsum dolor sit ametPorem ipsum dolor sit amet
+          </span>
         </div>
       </div>
     </div>

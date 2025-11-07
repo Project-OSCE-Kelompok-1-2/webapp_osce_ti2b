@@ -1,7 +1,7 @@
 import React from "react";
-// Import Head, useForm, dan Link dari Inertia
+// Impor Head, useForm, dan Link dari Inertia
 import { Head, useForm, Link } from '@inertiajs/react';
-// Import ikon-ikon
+// Impor ikon-ikon
 import { ChevronLeft, Trash2, Calendar, Save } from "lucide-react";
 
 export default function TambahlahJadwalOsce() {
@@ -21,7 +21,7 @@ export default function TambahlahJadwalOsce() {
 
     return (
         <>
-            <Head title="Tambah Sesi" />
+            <Head title="Tambah Jadwal Sesi" />
 
             {/* Layout utama: flex-col, h-screen */}
             <div className="flex flex-col min-h-screen bg-gray-50">

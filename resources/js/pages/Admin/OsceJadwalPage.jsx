@@ -1,186 +1,202 @@
-import React, { useState, useEffect } from "react";
-// Impor ikon-ikon yang kita butuhkan
-import { Home, ChevronLeft, Search, Plus, BarChart2, Trash2 } from "lucide-react";
-// Impor Link dari Inertia
-import { Link } from '@inertiajs/react';
+import React, { useState } from "react";
+import { ChevronLeft, ChevronRight, Search, Edit2, Copy, Trash2 } from "lucide-react";
 
-// Data palsu untuk mengisi tabel
-const mockSesiData = [
+export const JadwalSesi = () => {
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
+  const [activeTab, setActiveTab] = useState("jadwal"); // "halaman" or "jadwal"
+
+  const sessions = [
     {
-        id: 1,
-        tanggal: "Fri 01-01-2010 6:00",
-        jumlah: 135,
+      id: 1,
+      tanggal: "Fri 01-01-2010 6:00",
+      jumlah: "135 Mahasiswa",
     },
-    // Kamu bisa tambahkan data sesi lain di sini
-];
+  ];
 
-export default function JadwalSesi() {
-    // State untuk data (diisi dengan data palsu)
-    const [sesiList, setSesiList] = useState([]);
-    const [isLoading, setIsLoading] = useState(true);
+  return (
+    <div className="w-full min-h-screen bg-white">
+      {/* Header */}
+      <div className="px-6 pt-4 pb-4">
+        <div className="flex items-center gap-3 mb-6">
+          <button className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg hover:bg-blue-700 flex-shrink-0">
+            <ChevronLeft className="w-6 h-6 text-white" />
+          </button>
 
-    // Efek untuk memuat data palsu
-    useEffect(() => {
-        setIsLoading(true);
-        // Simulasi loading data
-        setTimeout(() => {
-            setSesiList(mockSesiData);
-            setIsLoading(false);
-        }, 500);
-    }, []);
-
-    return (
-        // Konten utama, flex-1 agar mengisi sisa ruang, bg-white
-        <div className="flex-1 flex flex-col h-screen bg-white overflow-hidden">
-            
-            {/* ===== 1. Header (Breadcrumb) ===== */}
-            <header className="flex items-center gap-3 text-sm text-gray-700 p-4 border-b border-gray-300">
-                <Link 
-                    href="/admin/rekapnilai" // Ganti dengan URL kembali-mu
-                    className="bg-blue-600 text-white p-2 rounded-full flex items-center justify-center hover:bg-blue-700"
-                >
-                    <ChevronLeft size={20} />
-                </Link>
-                {/* Kotak input "Rekap Nilai" */}
-                <div className="flex-1 border border-gray-400 rounded-lg px-4 py-2 text-sm font-medium bg-white">
-                    OSCE \ OSCE Radiologi 01-A \ Jadwal Sesi
-                </div>
-            </header>
-
-            {/* ===== 2. Konten Halaman (Bisa di-scroll) ===== */}
-            <main className="flex-1 p-8 overflow-y-auto">
-                
-                {/* Navigasi Internal */}
-                <div className="mb-4">
-                    <h3 className="text-gray-600 font-semibold mb-2">Navigasi</h3>
-                    <div className="flex gap-2">
-                        <Link href="#" className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium">
-                            Halaman Stase
-                        </Link>
-                        <Link href="#" className="bg-blue-600 text-white px-4 py-1.5 rounded-lg text-sm font-medium">
-                            Jadwal Sesi
-                        </Link>
-                    </div>
-                </div>
-
-                {/* Judul & Deskripsi */}
-                <div className="mb-4">
-                    <h2 className="text-xl font-semibold text-gray-800">Menu Sesi OSCE</h2>
-                    <p className="text-gray-500 text-sm mt-1">
-                        Jorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.
-                    </p>
-                </div>
-
-                {/* Tombol Tambah Sesi */}
-                <div className="mb-4">
-                    <button
-                        // onClick={...} // Ganti dengan fungsi tambah sesi
-                        className="flex items-center bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow font-medium"
-                    >
-                        <Plus size={20} className="mr-1" /> Masukkan Sesi
-                    </button>
-                </div>
-
-                {/* Search Bar */}
-                <div className="flex items-center w-full gap-3 mb-4">
-                    {/* Input Search dengan Ikon */}
-                    <div className="relative flex-1">
-                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <Search className="text-gray-400" size={20} />
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="cari data sesi..."
-                            className="w-full border-2 border-gray-300 rounded-lg pl-12 pr-4 py-3 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm"
-                        />
-                    </div>
-                    {/* Tombol Cari */}
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-3 rounded-lg shadow font-medium">
-                        Cari
-                    </button>
-                </div>
-
-                {/* Judul Tabel */}
-                <h2 className="text-lg font-semibold text-gray-800 mb-2">Table Mahasiswa</h2>
-                
-                {/* Kontainer Tabel */}
-                <div className="bg-white shadow rounded-lg overflow-x-auto border border-gray-300">
-                    <table className="w-full min-w-max">
-                        
-                        {/* Header Tabel */}
-                        <thead>
-                            <tr className="text-gray-700 text-sm font-medium border-b-2 border-gray-300">
-                                <th className="py-3 px-3 text-center w-[5%]">No</th>
-                                <th className="py-3 px-4 text-left w-[45%] border-l border-gray-300">Tanggal / Sesi</th>
-                                <th className="py-3 px-3 text-left w-[20%] border-l border-gray-300">Jumlah Mahasiswa</th>
-                                <th className="py-3 px-3 text-center w-[30%] border-l border-gray-300">Action</th>
-                            </tr>
-                        </thead>
-                        
-                        {/* Body Tabel */}
-                        <tbody>
-                            {isLoading ? (
-                                <tr>
-                                    <td colSpan="4" className="text-center py-6 text-gray-500">
-                                        Memuat data...
-                                    </td>
-                                </tr>
-                            ) : (
-                                sesiList.map((item, index) => (
-                                    <tr key={item.id} className="text-gray-800 text-sm"> 
-                                        <td className="py-4 px-3 text-center"> 
-                                            {index + 1}
-                                        </td>
-                                        <td className="py-4 px-4 border-l border-gray-300">
-                                            {item.tanggal}
-                                        </td>
-                                        <td className="py-4 px-3 border-l border-gray-300">
-                                            {item.jumlah} Mahasiswa
-                                        </td>
-                                        <td className="py-4 px-3 text-center border-l border-gray-300">
-                                            <div className="flex justify-center gap-2">
-                                                <button className="px-3 py-1 bg-gray-800 text-white rounded-md text-sm hover:bg-gray-700">
-                                                    Edit enrollment
-                                                </button>
-                                                <button 
-                                                    className="p-2 bg-gray-800 text-white rounded-lg hover:bg-gray-700" 
-                                                    title="Lihat Detail"
-                                                >
-                                                    <BarChart2 size={16} />
-                                                </button>
-                                                <button 
-                                                    className="p-2 bg-white text-black border border-black rounded-lg hover:bg-gray-100" 
-                                                    title="Hapus"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            )}
-                        </tbody>
-                    </table>
-
-                    {/* Pagination (di dalam kontainer tabel) */}
-                    <div className="flex justify-start items-center gap-4 text-sm p-4 border-t border-gray-200">
-                        <button className="w-8 h-8 rounded-full bg-gray-800 text-white font-semibold flex items-center justify-center hover:bg-gray-700">◄</button>
-                        <span className="text-gray-900 font-bold px-1">1</span>
-                        <span className="text-gray-600 px-1">2</span>
-                        <span className="text-gray-600 px-1">3</span>
-                        <span className="text-gray-600 px-1">4</span>
-                        <span className="text-gray-600 px-1">5</span>
-                        <button className="w-8 h-8 rounded-full bg-gray-800 text-white font-semibold flex items-center justify-center hover:bg-gray-700">►</button>
-                    </div>
-                </div>
-            </main>
-
-            {/* ===== 3. Footer (Copyright) ===== */}
-            <footer className="text-center text-gray-400 text-sm p-4 mt-auto">
-                 <div className="border-t border-gray-300 py-4">
-                    Copyright Porem ipsum dolor sit ametPorem ipsum dolor sit amet
-                 </div>
-            </footer>
+          <input
+            type="text"
+            value="OSCE \ OSCE Radiologi 01-A \ Jadwal Sesi"
+            readOnly
+            className="flex-1 h-10 bg-white border border-gray-400 rounded-lg px-4 py-2 text-sm text-gray-700"
+          />
         </div>
-    );
+
+        {/* Divider */}
+        <div className="border-b border-gray-300 mb-4"></div>
+
+        {/* Navigation Tabs */}
+        <div className="mb-6">
+          <h3 className="text-sm font-semibold text-black mb-3">Navigasi</h3>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setActiveTab("halaman")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
+                activeTab === "halaman"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-black hover:bg-gray-300"
+              }`}
+            >
+              <span>📄</span> Halaman Stase
+            </button>
+            <button
+              onClick={() => setActiveTab("jadwal")}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
+                activeTab === "jadwal"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200 text-black hover:bg-gray-300"
+              }`}
+            >
+              <span>📅</span> Jadwal Sesi
+            </button>
+          </div>
+        </div>
+
+        {/* Menu Section */}
+        <div className="mb-6">
+          <h3 className="text-sm font-semibold text-black mb-2">
+            Menu Sesi OSCE
+          </h3>
+          <p className="text-xs text-gray-600 leading-relaxed max-w-md mb-4">
+            Jorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
+            vulputate libero et velit interdum, ac aliquet odio mattis.
+          </p>
+
+          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
+            <span>➕</span> Masukkan Sesi
+          </button>
+        </div>
+
+        {/* Search and Button */}
+        <div className="flex gap-3 mb-6">
+          <div className="flex-1 flex items-center gap-2 bg-white border border-gray-400 rounded-lg px-3 py-2">
+            <Search className="w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="cari data sesi..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="flex-1 bg-transparent text-black placeholder-gray-400 focus:outline-none text-sm"
+            />
+          </div>
+
+          <button className="px-8 bg-blue-600 text-white font-bold rounded-lg hover:bg-blue-700 text-sm">
+            Cari
+          </button>
+        </div>
+
+        {/* Table Title */}
+        <h3 className="text-sm font-semibold text-black mb-3">
+          Table Mahasiswa
+        </h3>
+
+        {/* Divider */}
+        <div className="border-b border-gray-300"></div>
+      </div>
+
+      {/* Table Section */}
+      <div className="px-6 pb-6">
+        {/* Table */}
+        <div className="border border-gray-400 rounded-lg overflow-hidden mb-4">
+          <table className="w-full">
+            {/* Table Header */}
+            <thead>
+              <tr className="bg-white border-b border-gray-400">
+                <th className="px-4 py-3 text-left text-xs font-semibold text-black border-r border-gray-400 w-12">
+                  No
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-black border-r border-gray-400 w-48">
+                  Tanggal / Sesi
+                </th>
+                <th className="px-4 py-3 text-left text-xs font-semibold text-black border-r border-gray-400 flex-1">
+                  Jumlah Mahasiswa
+                </th>
+                <th className="px-4 py-3 text-center text-xs font-semibold text-black w-40">
+                  Action
+                </th>
+              </tr>
+            </thead>
+
+            {/* Table Body */}
+            <tbody>
+              {sessions.map((session, index) => (
+                <tr key={session.id} className="bg-white border-b border-gray-300 hover:bg-gray-50">
+                  <td className="px-4 py-4 text-xs text-black border-r border-gray-300">
+                    {index + 1}
+                  </td>
+                  <td className="px-4 py-4 text-xs text-black border-r border-gray-300">
+                    {session.tanggal}
+                  </td>
+                  <td className="px-4 py-4 text-xs text-black border-r border-gray-300">
+                    {session.jumlah}
+                  </td>
+                  <td className="px-4 py-4 text-center">
+                    <div className="flex items-center justify-center gap-2">
+                      <button className="px-3 py-1 bg-gray-800 text-white rounded text-xs font-medium hover:bg-gray-900 flex items-center gap-1">
+                        Edit enrollment
+                      </button>
+                      <button className="flex items-center justify-center w-7 h-7 bg-black text-white rounded hover:bg-gray-800">
+                        <Copy className="w-3.5 h-3.5" />
+                      </button>
+                      <button className="flex items-center justify-center w-7 h-7 bg-white border border-gray-400 text-gray-600 rounded hover:bg-gray-100">
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+
+        {/* Pagination */}
+        <div className="flex items-center gap-2 mb-12">
+          <button className="flex items-center justify-center w-5 h-5 rounded-full bg-black hover:bg-gray-700">
+            <ChevronLeft className="w-3 h-3 text-white" />
+          </button>
+
+          {[1, 2, 3, 4, 5].map((page) => (
+            <button
+              key={page}
+              onClick={() => setCurrentPage(page)}
+              className={`w-5 h-5 rounded text-xs font-normal flex items-center justify-center ${
+                currentPage === page
+                  ? "bg-black text-white"
+                  : "text-black"
+              }`}
+            >
+              {page}
+            </button>
+          ))}
+
+          <button className="flex items-center justify-center w-5 h-5 rounded-full bg-black hover:bg-gray-700">
+            <ChevronRight className="w-3 h-3 text-white" />
+          </button>
+        </div>
+      </div>
+
+      {/* Bottom Spacing */}
+      <div className="h-20"></div>
+
+      {/* Footer */}
+      <div className="fixed bottom-0 left-0 right-0 px-6 py-4 bg-white">
+        <div className="h-10 bg-white border border-gray-400 rounded-lg px-4 py-2 flex items-center">
+          <span className="text-xs text-gray-600">
+            Copyright Porem ipsum dolor sit ametPorem ipsum dolor sit amet
+          </span>
+        </div>
+      </div>
+    </div>
+  );
 };
+
+export default JadwalSesi;
