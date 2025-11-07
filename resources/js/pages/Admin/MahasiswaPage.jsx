@@ -86,7 +86,7 @@ export default function MahasiswaPage() {
             alert("Pilih file Excel terlebih dahulu.");
             return;
         }
-        alert("Mock: file berhasil diunggah (belum tersambung backend)");
+        alert("Mock: file berhasil diunggah");
         setShowExcelModal(false);
         setImportFile(null);
     };
@@ -116,7 +116,7 @@ export default function MahasiswaPage() {
                                 onClick={() =>
                                     router.visit("/admin/mahasiswa/create")
                                 }
-                                className="flex items-center h-[46px] bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
+                                className="flex items-center h-[46px] bg-blue-700 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
                             >
                                 <OsIcon
                                     name="add"
@@ -127,27 +127,32 @@ export default function MahasiswaPage() {
 
                             <button
                                 onClick={() => setShowExcelModal(true)}
-                                className="flex items-center gap-2 bg-blue-600 text-white py-2 px-4 rounded-md hover:bg-blue-700"
+                                className="flex items-center h-[46px] bg-blue-700 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
                             >
-                                <UploadCloud size={16} />
-                                <span className="text-sm">
-                                    Tambah Mahasiswa Dengan Excel
-                                </span>
+                                <OsIcon
+                                    name="Upload"
+                                    className="h-os-20 os-icon-light mr-os-8"
+                                />
+                                Tambah Mahasiswa Dengan Excel
                             </button>
                         </div>
 
                         {/* Filter */}
                         <div className="flex items-center gap-3 mb-4">
-                            <OsSearchBar
-                                search={search}
-                                setSearch={setSearch}
-                                onSearchClick={handleSearch}
+                            {/* Input pencarian */}
+                            <input
+                                type="text"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
                                 placeholder="cari data mahasiswa..."
+                                className="border border-gray-400 rounded-md px-4 py-3 flex-1"
                             />
+
+                            {/* Dropdown Tahun Angkatan */}
                             <select
                                 value={angkatan}
                                 onChange={(e) => setAngkatan(e.target.value)}
-                                className="border border-gray-400 rounded-md px-8 py-3"
+                                className="border border-gray-400 rounded-md px-4 py-3"
                             >
                                 {angkatanList.map((a) => (
                                     <option key={a.value} value={a.value}>
@@ -155,6 +160,14 @@ export default function MahasiswaPage() {
                                     </option>
                                 ))}
                             </select>
+
+                            {/* Tombol Cari */}
+                            <button
+                                onClick={handleSearch}
+                                className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700"
+                            >
+                                Cari
+                            </button>
                         </div>
                     </section>
 
