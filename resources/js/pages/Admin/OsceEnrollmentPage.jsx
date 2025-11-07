@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, Search, Check } from "lucide-react";
-import Sidebar from "../../components/Sidebar";
+import { Sidebar } from "lucide-react";
+
 export const Section = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedYear, setSelectedYear] = useState("2025");
