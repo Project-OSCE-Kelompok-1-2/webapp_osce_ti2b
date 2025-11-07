@@ -9,33 +9,28 @@ use Illuminate\Support\Facades\Redirect;
 
 class OsceController extends Controller
 {
-    /**
-     * Tampilkan daftar OSCE
-     */
+    
     public function index(Request $request)
     {
         $query = Osce::query();
 
-        // Filter pencarian jika ada
+    
         if ($request->has('search') && $request->search !== '') {
             $query->where('nama', 'like', '%' . $request->search . '%');
         }
 
-        // Urutkan berdasarkan tanggal mulai terbaru
+        
         $osceList = $query->orderBy('tanggal_mulai', 'desc')
             ->paginate(10)
             ->withQueryString();
 
-        // Render menggunakan Inertia
         return Inertia::render('Admin/OsceListPage', [
             'osce' => $osceList,
             'filters' => $request->only(['search', 'tahun']),
         ]);
     }
 
-    /**
-     * Simpan data OSCE baru
-     */
+    
     public function store(Request $request)
     {
         $validated = $request->validate([
