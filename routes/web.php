@@ -1,13 +1,16 @@
 <?php
 
-use App\Http\Controllers\AdminController;
-use App\Http\Controllers\AspekPenilaianController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\StaseController;
-use App\Http\Controllers\KompetensiController; 
 use App\Http\Controllers\OsceController; // ✅ Tambahkan ini
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\AdminController;
+use App\Http\Controllers\StaseController;
+use App\Http\Controllers\PengujiController;
+use App\Http\Controllers\KompetensiController;
+use App\Http\Controllers\AspekPenilaianController;
+use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\RekapNilaiController;
 
 /*
 |--------------------------------------------------------------------------

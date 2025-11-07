@@ -7,33 +7,26 @@ use Illuminate\Database\Eloquent\Model;
 
 class Osce extends Model
 {
-    /** @use HasFactory<\Database\Factories\OsceFactory> */
     use HasFactory;
-
-    protected $table = 'osce';
-    protected $primaryKey = 'id_osce';
-    public $timestamps = true;
 
     protected $fillable = [
         'id_tahun_akademik',
-        'nama_osce',
+        'nama',
         'tanggal_mulai',
         'tanggal_selesai',
+        'keterangan',
     ];
 
     // Otomatis menambahkan atribut tambahan ke response JSON
-    protected $appends = ['jumlah_stase', 'jumlah_mahasiswa'];
+    protected $appends = [
+        'detail_stase',
+        'detail_mahasiswa',
+        'detail_sesi',
+        'tahun_akademik_string',
+    ];
 
     /**
-     * Relasi ke tabel tahun_akademik (1 OSCE : 1 Tahun Akademik)
-     */
-    public function tahunAkademik()
-    {
-        return $this->belongsTo(TahunAkademik::class, 'id_tahun_akademik');
-    }
-
-    /**
-     * Relasi ke tabel osce_stase (1 OSCE : Banyak Stase)
+     * Relasi ke tabel osce_stase
      */
     public function osceStase()
     {
@@ -41,7 +34,7 @@ class Osce extends Model
     }
 
     /**
-     * Relasi ke tabel enrollment_osce (1 OSCE : Banyak Mahasiswa)
+     * Relasi ke tabel enrollment_osce
      */
     public function enrollmentOsce()
     {
@@ -49,28 +42,46 @@ class Osce extends Model
     }
 
     /**
-     * Atribut tambahan: jumlah stase
+     * Relasi ke tahun akademik
      */
-    public function getJumlahStaseAttribute()
+    public function tahunAkademik()
     {
-        return $this->osceStase()->count();
+        return $this->belongsTo(TahunAkademik::class, 'id_tahun_akademik');
     }
 
     /**
-     * Atribut tambahan: jumlah mahasiswa unik
+     * Atribut tambahan: detail stase
      */
-    public function getJumlahMahasiswaAttribute()
+    public function getDetailStaseAttribute()
+    {
+        return $this->osceStase()->count() . ' Stase';
+    }
+
+    /**
+     * Atribut tambahan: detail mahasiswa unik
+     */
+    public function getDetailMahasiswaAttribute()
     {
         return $this->enrollmentOsce()
             ->distinct('id_mahasiswa')
-            ->count('id_mahasiswa');
+            ->count('id_mahasiswa') . ' Mahasiswa';
     }
 
-    protected function casts(): array
+    /**
+     * Atribut tambahan: detail sesi unik berdasarkan tanggal dan jam
+     */
+    public function getDetailSesiAttribute()
     {
-        return [
-            'tanggal_mulai' => 'date',
-            'tanggal_selesai' => 'date',
-        ];
+        return $this->osceStase()
+            ->distinct(['tanggal', 'jam_mulai'])
+            ->count('tanggal') . ' Sesi';
+    }
+
+    /**
+     * Atribut tambahan: string tahun akademik
+     */
+    public function getTahunAkademikStringAttribute()
+    {
+        return $this->tahunAkademik ? $this->tahunAkademik->tahun : null;
     }
 }
