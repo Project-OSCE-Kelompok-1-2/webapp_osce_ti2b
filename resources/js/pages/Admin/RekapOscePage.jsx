@@ -105,8 +105,8 @@ export default function RekapOscePage() {
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.
                     </p>
 
-                    <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-5">
-                        <div className="relative w-full md:w-96">
+                    <div className="flex flex-col md:flex-row items-center gap-4 mb-5">
+                        <div className="relative w-full md:flex-1">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <Search className="h-5 w-5 text-gray-400" />
                             </div>
@@ -119,11 +119,11 @@ export default function RekapOscePage() {
                             />
                         </div>
                         
-                        <div className="flex items-center gap-3  w-full md:w-auto">
+                        <div className="flex w-full md:w-auto items-center gap-3">
                             <select
                                 value={year}
                                 onChange={(e) => setYear(e.target.value)}
-                                className= "border border-gray-700 rounded-lg h-[46px] focus:ring-blue-500 focus:border-blue-500"
+                                className= "border border-gray-700 rounded-lg h-[46px] flex-1 w-auto md:flex-none md:w-40 focus:ring-blue-500 focus:border-blue-500"
                             >
                                 <option>2025</option>
                                 <option>2024</option>
@@ -131,7 +131,7 @@ export default function RekapOscePage() {
                             </select>
                             <button
                                 onClick={handleSearch}
-                                className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
+                                className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700 w-auto justify-center"
                             >
                                 Cari
                             </button>
@@ -167,12 +167,12 @@ export default function RekapOscePage() {
 
                             <div className="w-48 h-[70px] flex items-center justify-center">
                                 <div className="border-l px-4 h-[50px] border-gray-400 flex w-full items-center justify-center">
-                                    <Link
-                                        href={`/admin/rekap-nilai/${item.id}`} 
+                                    <button
+                                        onClick={() => router.visit('/admin/rekapsesiosce')}
                                         className="bg-gray-800 h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md text-center flex items-center justify-center hover:bg-gray-700"
                                     >
                                         Detail
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
                         </div>

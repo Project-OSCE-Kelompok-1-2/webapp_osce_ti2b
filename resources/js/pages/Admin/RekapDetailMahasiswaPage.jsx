@@ -161,12 +161,12 @@ export default function RekapDetailMahasiswaPage() {
 
                                 <div className="w-48 h-[70px] flex items-center justify-center">
                                     <div className="border-l px-4 h-[50px] border-gray-400 flex w-full items-center justify-center">
-                                        <Link
-                                            href={`/admin/rekap-nilai/rubrik/${item.id}`} // Ganti URL
+                                        <button
+                                             onClick={() => router.visit('/admin/rekapmahasiswa/mahasiswa/detail')}// Ganti URL
                                             className="bg-blue-600 h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md text-center flex items-center justify-center hover:bg-blue-700"
                                         >
                                             Lihat Nilai
-                                        </Link>
+                                        </button>
                                     </div>
                                 </div>
                             </div>

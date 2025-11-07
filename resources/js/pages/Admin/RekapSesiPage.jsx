@@ -131,13 +131,13 @@ export default function RekapSesiPage() {
 
                             <div className="w-48 h-[70px] flex items-center justify-center">
                                 <div className="border-l px-4 h-[50px] border-gray-400 flex w-full items-center justify-center">
-                                    <Link
+                                    <button
                                         // Arahkan ke detail sesi (jika ada)
-                                        href={`/admin/rekap-nilai/sesi/${item.id}`} 
+                                        onClick={() => router.visit('/admin/rekapmahasiswa')}
                                         className="bg-gray-800 h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md text-center flex items-center justify-center hover:bg-gray-700"
                                     >
                                         Detail
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
                         </div>

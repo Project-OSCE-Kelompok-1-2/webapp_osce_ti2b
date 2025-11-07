@@ -137,13 +137,13 @@ export default function RekapMahasiwaPage() {
 
                             <div className="w-48 h-[70px] flex items-center justify-center">
                                 <div className="border-l px-4 h-[50px] border-gray-400 flex w-full items-center justify-center">
-                                    <Link
-                                        href={`/admin/rekap-nilai/mahasiswa/${item.id}`} // Ganti URL sesuai kebutuhan
+                                    <button
+                                        onClick={() => router.visit('/admin/rekapmahasiswa/mahasiswa')} // Ganti URL sesuai kebutuhan
                                         // Ganti style tombol menjadi BIRU
                                         className="bg-blue-600 h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md text-center flex items-center justify-center hover:bg-blue-700"
                                     >
                                         Lihat Nilai
-                                    </Link>
+                                    </button>
                                 </div>
                             </div>
                         </div>
