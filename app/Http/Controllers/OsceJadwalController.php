@@ -5,8 +5,8 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use App\Models\Osce;
-use App\Models\OsceStase;       
-use App\Models\EnrollmentOsce;  
+use App\Models\OsceStase;       // Asumsi nama model
+use App\Models\EnrollmentOsce;  // Asumsi nama model
 
 class OsceJadwalController extends Controller
 {
@@ -29,11 +29,18 @@ class OsceJadwalController extends Controller
             ->orderBy('jam_mulai', 'asc')
             ->get();
 
-        
+        // Logika untuk menghitung jumlah total mahasiswa
+        $jumlah_mahasiswa = EnrollmentOsce::where('id_osce', $id_osce)->count();
+
+        // Kirim semua data ke view
+        return view('admin.osce.jadwal.index', [
+            'osce' => $osce,
+            'sesi_list' => $sesi_virtual,
+            'total_mahasiswa' => $jumlah_mahasiswa,
+        ]);
     }
 
     
-    }
 
     // Anda mungkin butuh method 'create' untuk menampilkan form POST
     // GET /admin/osce/{id_osce}/jadwal/create
