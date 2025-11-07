@@ -55,9 +55,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/dosen', [PengujiController::class, 'index'])->name('dosen.index');
     Route::post('/dosen', [PengujiController::class, 'store'])->name('dosen.store');
 
-    // Mahasiswa
-    Route::get('/mahasiswa', [MahasiswaController::class, 'index']);
-    Route::post('/mahasiswa', [MahasiswaController::class, 'store']);
+    // Mahasiswa - Import dari Excel
     Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
 
     // Rekap Nilai
