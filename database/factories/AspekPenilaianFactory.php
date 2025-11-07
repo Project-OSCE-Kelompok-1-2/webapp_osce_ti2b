@@ -27,7 +27,7 @@ class AspekPenilaianFactory extends Factory
             'aspek' => $this->faker->sentence(3), // Membuat kalimat palsu (3 kata)
             
             // Sesuai ERD & Migrasi: bobot_maksimum (integer)
-            'bobot_maksimum' => $this->faker->numberBetween(1, 50), // Angka acak antara 10-100
+            'bobot_maksimum' => $this->faker->numberBetween(1, 50), // Angka acak antara 1-50
         ];
     }
 }
