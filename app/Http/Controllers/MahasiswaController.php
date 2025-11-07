@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-//use App\Models\Mahasiswa;
-//use App\Models\Pengguna;
+
 use Illuminate\Http\Request;
-//use Illuminate\Support\Facades\Hash;
-//use Inertia\Inertia;
 use App\Imports\MahasiswaImport;
 use Maatwebsite\Excel\Facades\Excel;
 
