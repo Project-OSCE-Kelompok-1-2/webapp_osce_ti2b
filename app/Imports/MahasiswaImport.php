@@ -29,7 +29,7 @@ class MahasiswaImport implements ToCollection, WithHeadingRow
             // Buat pengguna
             $pengguna = Pengguna::create([
                 'username'   => $row['nim'],
-                'password'   => $row['nim'],
+                'password'   => $row['nim'],
                 'jenis_role' => 'mahasiswa',
             ]);
 
