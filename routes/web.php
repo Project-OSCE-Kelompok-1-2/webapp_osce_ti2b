@@ -27,7 +27,6 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'show_login'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
 });
-
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 
@@ -35,7 +34,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->group(function () {
 
     // Dashboard
-    Route::get('/dashboard', function () {
+    Route::get('dashboard', function () {
         return Inertia::render('Admin/Dashboard');
     })->name('dashboard');
 
@@ -62,8 +61,6 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     // Rekap Nilai
     Route::get('/rekap-nilai', [RekapNilaiController::class, 'index']);
     Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi']);
-    Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerSesi']);
-    Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}', [RekapNilaiController::class, 'detailNilaiMahasiswa']);
 });
 
 // Rute fallback atau untuk role lain bisa ditambahkan di sini
