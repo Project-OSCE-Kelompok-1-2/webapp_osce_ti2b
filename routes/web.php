@@ -6,8 +6,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\StaseController;
 use App\Http\Controllers\PengujiController;
-use App\Http\Controllers\KompetensiController; 
+use App\Http\Controllers\KompetensiController;
 use App\Http\Controllers\AspekPenilaianController;
+use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\RekapNilaiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -52,6 +54,15 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     // Menu Penguji (Dosen)
     Route::get('/dosen', [PengujiController::class, 'index'])->name('dosen.index');
     Route::post('/dosen', [PengujiController::class, 'store'])->name('dosen.store');
+
+    // Mahasiswa - Import dari Excel
+    Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
+
+    // Rekap Nilai
+    Route::get('/rekap-nilai', [RekapNilaiController::class, 'index']);
+    Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi']);
+    Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerSesi']);
+    Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}', [RekapNilaiController::class, 'detailNilaiMahasiswa']);
 });
 
 // Rute fallback atau untuk role lain bisa ditambahkan di sini

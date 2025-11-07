@@ -8,7 +8,7 @@ use App\Models\OsceStase;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
-class RekapNilaiListTest extends TestCase
+class RekapNilaiControllerTest extends TestCase
 {
     use RefreshDatabase;
 
@@ -19,7 +19,10 @@ class RekapNilaiListTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
+
         $this->admin = Pengguna::factory()->create(['jenis_role' => 'admin']);
+
+        \App\Models\Mahasiswa::factory()->create();
         $this->osce = Osce::factory()->create(['nama_osce' => 'OSCE Rekap']);
         $this->osceStase = OsceStase::factory()->create(['id_osce' => $this->osce->id_osce]);
     }
@@ -32,11 +35,11 @@ class RekapNilaiListTest extends TestCase
             ->assertStatus(200)
             ->assertInertia(function ($assert) {
                 $assert->component('Admin/RekapOscePage') // Asumsi
-                       ->has('osce.data.0', function ($props) {
-                            // Cek struktur JSON Props Contract
-                            $props->hasAll(['id_osce', 'nama_rubrik', 'rentang_tanggal', 'tahun_akademik']);
-                            $props->where('nama_rubrik', 'OSCE Rekap');
-                       });
+                    ->has('osce.data.0', function ($props) {
+                        // Cek struktur JSON Props Contract
+                        $props->hasAll(['id_osce', 'nama_rubrik', 'rentang_tanggal', 'tahun_akademik']);
+                        $props->where('nama_rubrik', 'OSCE Rekap');
+                    });
             });
     }
 
@@ -48,9 +51,9 @@ class RekapNilaiListTest extends TestCase
             ->assertStatus(200)
             ->assertInertia(function ($assert) {
                 $assert->component('Admin/RekapSesiPage') // Asumsi
-                       ->has('sesi.0', function ($props) {
-                            $props->hasAll(['id_sesi', 'tanggal_sesi', 'jumlah_mahasiswa']);
-                       });
+                    ->has('sesi.0', function ($props) {
+                        $props->hasAll(['id_sesi', 'tanggal_sesi', 'jumlah_mahasiswa']);
+                    });
             });
     }
 }
