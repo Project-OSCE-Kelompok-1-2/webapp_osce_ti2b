@@ -50,7 +50,7 @@ export default {
                 'os-title': 'var(--os-title)',
                 'os-subtitle': 'var(--os-subtitle)',
                 'os-regular': 'var(--os-regular)',
-                'os-paragraft': 'var(--os-paragraph)',
+                'os-paragraph': 'var(--os-paragraph)',
                 'os-small': 'var(--os-small)',
             },
             borderWidth: {
