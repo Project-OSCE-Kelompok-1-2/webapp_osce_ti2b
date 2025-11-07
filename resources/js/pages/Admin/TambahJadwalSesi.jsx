@@ -12,7 +12,7 @@ export default function TambahlahJadwalOsce() {
     <div className="flex flex-col min-h-screen bg-gray-50">
       <header className="flex items-center gap-3 text-sm text-gray-700 p-4 border-b border-gray-300 bg-white">
         <button
-          onClick={() => router.visit("/admin/jadwalsesi")}
+          onClick={() => router.visit("/admin/jadwaljadwal")}
           className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700"
         >
           <ChevronLeft size={20} />

@@ -75,7 +75,7 @@ export const JadwalSesi = () => {
           </p>
 
           <button
-            onClick={() => router.visit("/admin/tambahjadwal")}
+            onClick={() => router.visit("/admin/tambahsesijadwal")}
             className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
           >
             ➕ Masukkan Sesi
@@ -141,7 +141,7 @@ export const JadwalSesi = () => {
                   <td className="px-4 py-4 text-center">
                     <div className="flex items-center justify-center gap-2">
                       <button
-                        onClick={() => router.visit("/admin/enrollment")}
+                        onClick={() => router.visit("/admin/enrollmentmhs")}
                         className="px-3 py-1 bg-gray-800 text-white rounded text-xs font-medium hover:bg-gray-900"
                       >
                         Edit enrollment
