@@ -16,9 +16,12 @@ class EnrollmentFactory extends Factory
 
     public function definition(): array
     {
+        $mahasiswa = Mahasiswa::inRandomOrder()->first() ?? Mahasiswa::factory()->create();
+        $tahunAkademik = TahunAkademik::inRandomOrder()->first() ?? TahunAkademik::factory()->create();
+
         return [
-            'id_mahasiswa' => Mahasiswa::inRandomOrder()->value('id_mahasiswa') ?? 1,
-            'id_tahun_akademik' => TahunAkademik::inRandomOrder()->value('id_tahun_akademik') ?? 1,
+            'id_mahasiswa' => $mahasiswa->id_mahasiswa,
+            'id_tahun_akademik' => $tahunAkademik->id_tahun_akademik,
             'tanggal_daftar' => fake()->dateTimeBetween('-1 year', 'now'),
         ];
     }
