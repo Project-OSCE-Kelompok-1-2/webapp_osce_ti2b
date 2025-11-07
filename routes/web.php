@@ -8,6 +8,7 @@ use App\Http\Controllers\StaseController;
 use App\Http\Controllers\PengujiController;
 use App\Http\Controllers\KompetensiController; 
 use App\Http\Controllers\AspekPenilaianController;
+use App\Http\Controllers\MahasiswaController; // ← Tambahkan ini
 
 /*
 |--------------------------------------------------------------------------
@@ -52,8 +53,9 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     // Menu Penguji (Dosen)
     Route::get('/dosen', [PengujiController::class, 'index'])->name('dosen.index');
     Route::post('/dosen', [PengujiController::class, 'store'])->name('dosen.store');
+
+    // === MENU MAHASISWA (baru ditambahkan) ===
+    Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
+    Route::post('/mahasiswa', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
 });
 
-// Rute fallback atau untuk role lain bisa ditambahkan di sini
-// Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function() { ... });
-// Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });
