@@ -2,6 +2,7 @@ import React from "react";
 import { Head, useForm, usePage, Link } from "@inertiajs/react";
 import { Trash2, Save } from "lucide-react";
 import OsInput from "../../components/Input";
+import OsHeader from "../../components/Header";
 
 // [UBAH] Komponen sekarang menerima props 'stase' yang bisa jadi null
 export default function TambahStase({
@@ -41,21 +42,10 @@ export default function TambahStase({
             {/* [UBAH] Judul halaman dinamis */}
             <Head title={`Stase | ${isEditMode ? "Edit" : "Tambah"} Stase`} />
 
-            <div className="flex flex-col min-h-screen bg-os-white">
-                <div className="flex items-center border-b px-4 py-3">
-                    <Link
-                        href="/admin/stase"
-                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 mr-3 w-8 h-8 flex items-center justify-center leading-none"
-                    >
-                        ←
-                    </Link>
-                    <span className="text-gray-700 font-medium">
-                        Stase {/* [UBAH] Breadcrumb dinamis */}
-                        <span className="text-gray-500">
-                            / {isEditMode ? "Edit" : "Tambah"} Stase
-                        </span>
-                    </span>
-                </div>
+            <div className="flex flex-col min-h-screen bg-os-white p-os-8">
+                <OsHeader variant="goback" backLink="/admin/stase">
+                    {isEditMode ? "Edit" : "Tambah"} Stase
+                </OsHeader>
 
                 <div className="flex flex-1 items-center justify-center py-10">
                     <form

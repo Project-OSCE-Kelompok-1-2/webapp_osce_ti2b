@@ -15,19 +15,19 @@ export default function Os_input({
     const [inputValue, setInputValue] = useState(value || "");
 
     /** 🔹 TEXT INPUT */
-    if (type === "text") {
+    if (type === "text" || type === "email" || type === "password" || type === "number") {
         return (
             <div className={`flex flex-col ${className}`}>
-                {label && <label className="mb-1 text-sm text-gray-600">{label}</label>}
+                {label && <label className="mb-1 text-os-small text-gray-600">{label}</label>}
                 <input
                     type="text"
                     value={inputValue}
                     onChange={(e) => {
                         setInputValue(e.target.value);
-                        onChange && onChange(e.target.value);
+                        onChange && onChange(e); // ✅ kirim event, bukan value
                     }}
                     placeholder={placeholder}
-                    className="w-full px-3 py-2 border rounded-lg outline-none focus:ring-2 focus:ring-os-primary"
+                    className="w-full min-h-[48px] px-3 py-2 rounded-lg text-os-paragraph border-os-1 border-os-black outline-none focus:border-os-primary focus:ring-1 focus:ring-os-primary"
                 />
             </div>
         );
@@ -47,12 +47,12 @@ export default function Os_input({
                     value={inputValue}
                     onChange={(e) => {
                         setInputValue(e.target.value);
-                        onChange && onChange(e.target.value);
+                        onChange && onChange(e); // ✅ kirim event, bukan value
                     }}
                     placeholder={placeholder}
                     onFocus={() => setFocused(true)}
                     onBlur={() => setTimeout(() => setFocused(false), 150)}
-                    className="w-full px-3 py-2 border rounded-lg bg-white outline-none focus:ring-2 focus:ring-os-primary"
+                    className="w-full min-h-[48px] px-3 py-2 border-os-1 border-os-black rounded-lg bg-white outline-none focus:border-os-primary focus:ring-1 focus:ring-os-primary"
                 />
                 {focused && filtered.length > 0 && (
                     <ul className="absolute z-10 mt-20 w-full bg-white border rounded-lg shadow-lg max-h-48 overflow-auto">
@@ -64,7 +64,7 @@ export default function Os_input({
                                     onChange && onChange(s);
                                     setFocused(false);
                                 }}
-                                className="px-3 py-2 hover:bg-os-primary hover:text-white cursor-pointer transition"
+                                className="px-3 py-2 hover:bg-os-secondary hover:text-white cursor-pointer transition"
                             >
                                 {s}
                             </li>
