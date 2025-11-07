@@ -34,7 +34,7 @@ export default function LoginMosaicPage() {
                     className="flex h-full flex-col gap-os-14 min-h-[450px] justify-around"
                 >
                     {/* Logo bulat */}
-                    {/* <div>
+                    <div>
                         <div className="mx-auto w-20 h-20 rounded-full bg-blue-300" />
                         <h1 className="mt-2 text-center text-2xl font-bold">
                             MOSAIC
@@ -42,7 +42,7 @@ export default function LoginMosaicPage() {
                         <p className="text-center text-sm text-slate-600">
                             Website OSCE | Fakultas Kedokteran
                         </p>
-                    </div> */}
+                    </div>
 
 
                     <div>
