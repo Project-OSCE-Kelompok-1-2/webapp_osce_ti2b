@@ -3,13 +3,13 @@ import { Link, router, usePage } from "@inertiajs/react";
 import { Trash2, Edit2 } from "lucide-react";
 
 // Komponen UI
-import Sidebar from "../../Components/Sidebar";
-import OsBreadCrumb from "../../components/breadcrumb";
-import OsTableHeader from "../../components/tableheader";
-import OsSearchBar from "../../components/searchbar";
+import Sidebar from "../../Components/Sidebar.jsx";
+import OsBreadCrumb from "../../components/breadcrumb.jsx";
+import OsTableHeader from "../../components/tableheader.jsx";
+import OsSearchBar from "../../components/searchbar.jsx";
 import OsPagination from "../../components/pagination.jsx";
-import OsIcon from "../../components/icons";
-import OsCopyright from "../../components/copyright";
+import OsIcon from "../../components/icons.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 
 const pengujiColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },

@@ -72,11 +72,14 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 // Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });
 
 Route::get('/admin/mahasiswa', function () {
-    return Inertia::render('Admin/MenuMahasiswa');
+    return Inertia::render('Admin/MahasiswaPage');
 });
 Route::get('/admin/mahasiswa/create', function () {
     return Inertia::render('Admin/TambahMahasiswa');
 });
 Route::get('/admin/penguji', function () {
-    return Inertia::render('Admin/MenuPenguji');
+    return Inertia::render('Admin/PengujiPage');
+});
+Route::get('/admin/penguji/create', function () {
+    return Inertia::render('Admin/TambahPenguji');
 });

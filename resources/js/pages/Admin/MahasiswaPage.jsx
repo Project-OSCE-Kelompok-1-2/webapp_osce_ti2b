@@ -3,13 +3,13 @@ import { Link, router, usePage } from "@inertiajs/react";
 import { Trash2, Edit2, UploadCloud, X } from "lucide-react";
 
 // Komponen UI
-import Sidebar from "../../Components/Sidebar";
-import OsBreadCrumb from "../../components/breadcrumb";
-import OsTableHeader from "../../components/tableheader";
-import OsSearchBar from "../../components/searchbar";
+import Sidebar from "../../Components/Sidebar.jsx";
+import OsBreadCrumb from "../../components/breadcrumb.jsx";
+import OsTableHeader from "../../components/tableheader.jsx";
+import OsSearchBar from "../../components/searchbar.jsx";
 import OsPagination from "../../components/pagination.jsx";
-import OsIcon from "../../components/icons";
-import OsCopyright from "../../components/copyright";
+import OsIcon from "../../components/icons.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 
 const mahasiswaColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
@@ -30,7 +30,7 @@ const mahasiswaColumns = [
     },
 ];
 
-export default function MenuMahasiswa() {
+export default function MahasiswaPage() {
     const { mahasiswa: backendMahasiswa, filters } = usePage().props;
 
     // Mock data (fallback)
@@ -302,7 +302,7 @@ export default function MenuMahasiswa() {
 
                             <button
                                 onClick={() => setShowExcelModal(false)}
-                                className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white p-3 rounded-full transition-colors"
+                                className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white p-3 rounded-lg transition-colors"
                             >
                                 <Trash2 size={18} />
                             </button>
