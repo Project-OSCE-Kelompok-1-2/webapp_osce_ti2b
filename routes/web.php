@@ -58,10 +58,10 @@ Route::get('/admin/tambahjadwal', function () {
     return Inertia::render('Admin/OsceJadwalPage'); 
 });
 
-Route::get('/admin/tambahsesi', function () {
-    return Inertia::render('Admin/TambahlahJadwalSesi'); 
-});
-
 Route::get('/admin/enrollmentmhs', function () {
     return Inertia::render('Admin/OsceEnrollmentPage'); 
+});
+
+Route::get('/admin/tambahsesijadwal', function () {
+    return Inertia::render('Admin/TambahJadwalSesi'); 
 });
