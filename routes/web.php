@@ -27,6 +27,7 @@ Route::middleware('guest')->group(function () {
     Route::get('/login', [AuthController::class, 'show_login'])->name('login');
     Route::post('/login', [AuthController::class, 'login']);
 });
+
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
 
@@ -34,7 +35,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->group(function () {
 
     // Dashboard
-    Route::get('dashboard', function () {
+    Route::get('/dashboard', function () {
         return Inertia::render('Admin/Dashboard');
     })->name('dashboard');
 

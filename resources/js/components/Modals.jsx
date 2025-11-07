@@ -16,7 +16,8 @@ export default function Modal({
         "Apakah anda yakin? Bila anda lupa password atau email, anda bisa menghubungi superadmin.",
       buttonText: "Log Out",
       buttonIcon: <LogOut size={18} className="mr-2" />,
-      buttonColor: "bg-red-600 hover:bg-red-700",
+      buttonColor: "bg-blue-600 hover:bg-blue-700",
+      alertColor: "bg-blue-50 border-blue-300 text-blue-700",
     },
     delete: {
       title: "Hapus Entitas?",
@@ -25,27 +26,29 @@ export default function Modal({
       buttonText: "Hapus",
       buttonIcon: <Trash2 size={18} className="mr-2" />,
       buttonColor: "bg-red-600 hover:bg-red-700",
+      alertColor: "bg-red-50 border-red-300 text-red-700",
     },
   };
 
-  const { title, alertMessage, buttonText, buttonIcon, buttonColor } =
+  const { title, alertMessage, buttonText, buttonIcon, buttonColor, alertColor } =
     modalConfig[variant];
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white w-[90%] max-w-md rounded-xl shadow-lg overflow-hidden animate-fade-in">
         
-        {/* Header abu-abu gelap (#2D2D2D) */}
+        {/* Header abu-abu gelap */}
         <div
           className="py-4 px-6 flex items-center justify-center relative border-b border-gray-300"
           style={{ backgroundColor: "#2D2D2D" }}
         >
-          {/* Tombol close di kiri */}
+          {/* Tombol close (X) putih tanpa background */}
           <button
             onClick={onClose}
-            className="absolute left-4 text-white/80 hover:text-red-400 transition"
+            className="absolute left-4 text-white hover:opacity-70 transition" // Removed 'p-0' and other padding for a tighter fit around the X
+            style={{ background: "transparent", border: "none" }}
           >
-            <X size={22} />
+            <X size={22} strokeWidth={2.5} color="white" />
           </button>
 
           {/* Judul di tengah */}
@@ -57,7 +60,9 @@ export default function Modal({
         {/* Body */}
         <div className="p-6 space-y-4">
           {/* Peringatan */}
-          <div className="bg-red-50 border border-red-300 rounded-md p-4 text-red-700 flex items-start gap-3">
+          <div
+            className={`${alertColor} border rounded-md p-4 flex items-start gap-3`}
+          >
             <AlertTriangle size={18} className="mt-0.5 flex-shrink-0" />
             <p className="text-sm leading-snug">
               <span className="font-semibold">Perhatian!</span> <br />
