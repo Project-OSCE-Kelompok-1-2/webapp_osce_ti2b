@@ -1,10 +1,10 @@
 import React from "react";
-// Impor Head, useForm, dan Link dari Inertia
+// Import Head, useForm, dan Link dari Inertia
 import { Head, useForm, Link } from '@inertiajs/react';
-// Impor ikon-ikon
+// Import ikon-ikon
 import { ChevronLeft, Trash2, Calendar, Save } from "lucide-react";
 
-export default function TambahlahJadwalOsce() {
+export default function TambahlahJadwalOsce() { // <-- Pastikan pakai 'export default'
     
     // Gunakan 'useForm' untuk mengelola state form
     const { data, setData, post, processing, errors } = useForm({
@@ -66,7 +66,7 @@ export default function TambahlahJadwalOsce() {
                                 <div className="relative">
                                     <input
                                         id="jadwal-mulai"
-                                        type="text" // Ganti ke type="date" jika kamu mau kalender asli
+                                        type="text" 
                                         value={data.jadwal_mulai}
                                         onChange={(e) => setData("jadwal_mulai", e.target.value)}
                                         className="w-full border border-gray-400 rounded-lg p-3 pr-10 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -75,7 +75,7 @@ export default function TambahlahJadwalOsce() {
                                     <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                                         <Calendar className="text-gray-500" size={18} />
                                     </div>
-                                </div>
+                                D</div>
                                 {errors.jadwal_mulai && (
                                     <p className="text-red-500 text-sm mt-1">
                                         {errors.jadwal_mulai}
@@ -95,7 +95,6 @@ export default function TambahlahJadwalOsce() {
                                 </button>
                                 <button
                                     type="button"
-                                    // onClick={() => reset()} // Fungsi untuk clear form
                                     className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg flex items-center justify-center"
                                 >
                                     <Trash2 size={18} />
