@@ -1,10 +1,11 @@
 import React, { useState } from "react";
+import { router } from "@inertiajs/react";
 import { ChevronLeft, ChevronRight, Search, Edit2, Copy, Trash2 } from "lucide-react";
 
 export const JadwalSesi = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentPage, setCurrentPage] = useState(1);
-  const [activeTab, setActiveTab] = useState("jadwal"); // "halaman" or "jadwal"
+  const [activeTab, setActiveTab] = useState("jadwal");
 
   const sessions = [
     {
@@ -19,7 +20,10 @@ export const JadwalSesi = () => {
       {/* Header */}
       <div className="px-6 pt-4 pb-4">
         <div className="flex items-center gap-3 mb-6">
-          <button className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg hover:bg-blue-700 flex-shrink-0">
+          <button
+            className="flex items-center justify-center w-10 h-10 bg-blue-600 rounded-lg hover:bg-blue-700 flex-shrink-0"
+            onClick={() => router.visit("/admin/dashboard")}
+          >
             <ChevronLeft className="w-6 h-6 text-white" />
           </button>
 
@@ -31,7 +35,6 @@ export const JadwalSesi = () => {
           />
         </div>
 
-        {/* Divider */}
         <div className="border-b border-gray-300 mb-4"></div>
 
         {/* Navigation Tabs */}
@@ -39,14 +42,14 @@ export const JadwalSesi = () => {
           <h3 className="text-sm font-semibold text-black mb-3">Navigasi</h3>
           <div className="flex gap-2">
             <button
-              onClick={() => setActiveTab("halaman")}
+              onClick={() => router.visit("/admin/stase")}
               className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition ${
                 activeTab === "halaman"
                   ? "bg-blue-600 text-white"
                   : "bg-gray-200 text-black hover:bg-gray-300"
               }`}
             >
-              <span>📄</span> Halaman Stase
+              📄 Halaman Stase
             </button>
             <button
               onClick={() => setActiveTab("jadwal")}
@@ -56,7 +59,7 @@ export const JadwalSesi = () => {
                   : "bg-gray-200 text-black hover:bg-gray-300"
               }`}
             >
-              <span>📅</span> Jadwal Sesi
+              📅 Jadwal Sesi
             </button>
           </div>
         </div>
@@ -71,12 +74,15 @@ export const JadwalSesi = () => {
             vulputate libero et velit interdum, ac aliquet odio mattis.
           </p>
 
-          <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700">
-            <span>➕</span> Masukkan Sesi
+          <button
+            onClick={() => router.visit("/admin/tambahjadwal")}
+            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700"
+          >
+            ➕ Masukkan Sesi
           </button>
         </div>
 
-        {/* Search and Button */}
+        {/* Search */}
         <div className="flex gap-3 mb-6">
           <div className="flex-1 flex items-center gap-2 bg-white border border-gray-400 rounded-lg px-3 py-2">
             <Search className="w-4 h-4 text-gray-400" />
@@ -95,20 +101,14 @@ export const JadwalSesi = () => {
         </div>
 
         {/* Table Title */}
-        <h3 className="text-sm font-semibold text-black mb-3">
-          Table Mahasiswa
-        </h3>
-
-        {/* Divider */}
+        <h3 className="text-sm font-semibold text-black mb-3">Table Mahasiswa</h3>
         <div className="border-b border-gray-300"></div>
       </div>
 
       {/* Table Section */}
       <div className="px-6 pb-6">
-        {/* Table */}
         <div className="border border-gray-400 rounded-lg overflow-hidden mb-4">
           <table className="w-full">
-            {/* Table Header */}
             <thead>
               <tr className="bg-white border-b border-gray-400">
                 <th className="px-4 py-3 text-left text-xs font-semibold text-black border-r border-gray-400 w-12">
@@ -126,10 +126,9 @@ export const JadwalSesi = () => {
               </tr>
             </thead>
 
-            {/* Table Body */}
             <tbody>
               {sessions.map((session, index) => (
-                <tr key={session.id} className="bg-white border-b border-gray-300 hover:bg-gray-50">
+                <tr key={session.id} className="border-b border-gray-300 hover:bg-gray-50">
                   <td className="px-4 py-4 text-xs text-black border-r border-gray-300">
                     {index + 1}
                   </td>
@@ -141,7 +140,10 @@ export const JadwalSesi = () => {
                   </td>
                   <td className="px-4 py-4 text-center">
                     <div className="flex items-center justify-center gap-2">
-                      <button className="px-3 py-1 bg-gray-800 text-white rounded text-xs font-medium hover:bg-gray-900 flex items-center gap-1">
+                      <button
+                        onClick={() => router.visit("/admin/enrollment")}
+                        className="px-3 py-1 bg-gray-800 text-white rounded text-xs font-medium hover:bg-gray-900"
+                      >
                         Edit enrollment
                       </button>
                       <button className="flex items-center justify-center w-7 h-7 bg-black text-white rounded hover:bg-gray-800">
@@ -156,43 +158,6 @@ export const JadwalSesi = () => {
               ))}
             </tbody>
           </table>
-        </div>
-
-        {/* Pagination */}
-        <div className="flex items-center gap-2 mb-12">
-          <button className="flex items-center justify-center w-5 h-5 rounded-full bg-black hover:bg-gray-700">
-            <ChevronLeft className="w-3 h-3 text-white" />
-          </button>
-
-          {[1, 2, 3, 4, 5].map((page) => (
-            <button
-              key={page}
-              onClick={() => setCurrentPage(page)}
-              className={`w-5 h-5 rounded text-xs font-normal flex items-center justify-center ${
-                currentPage === page
-                  ? "bg-black text-white"
-                  : "text-black"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-
-          <button className="flex items-center justify-center w-5 h-5 rounded-full bg-black hover:bg-gray-700">
-            <ChevronRight className="w-3 h-3 text-white" />
-          </button>
-        </div>
-      </div>
-
-      {/* Bottom Spacing */}
-      <div className="h-20"></div>
-
-      {/* Footer */}
-      <div className="fixed bottom-0 left-0 right-0 px-6 py-4 bg-white">
-        <div className="h-10 bg-white border border-gray-400 rounded-lg px-4 py-2 flex items-center">
-          <span className="text-xs text-gray-600">
-            Copyright Porem ipsum dolor sit ametPorem ipsum dolor sit amet
-          </span>
         </div>
       </div>
     </div>
