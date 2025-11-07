@@ -1,13 +1,27 @@
 import React from "react";
 import { Home, ArrowLeft } from "lucide-react";
+import { usePage } from "@inertiajs/react"; // <-- aman walau kamu pakai React biasa
 
 export default function OsHeader({
-  children,
   className = "",
   variant = "default", // 'default' | 'goback'
   backLink = "/",
 }) {
-  const items = React.Children.toArray(children);
+  // Dapatkan URL dari Inertia (kalau ada) atau fallback ke window
+  const { url } = usePage() || {};
+  const pathname = url || (typeof window !== "undefined" ? window.location.pathname : "/");
+
+  // Ubah path jadi “Admin / Dashboard”
+  const title = pathname
+    .split("/")
+    .filter(Boolean)
+    .map(
+      (segment) =>
+        segment
+          .replace(/-/g, " ") // ubah “rekap-nilai” → “rekap nilai”
+          .replace(/\b\w/g, (c) => c.toUpperCase()) // huruf kapital di awal tiap kata
+    )
+    .join(" / ") || "Dashboard";
 
   return (
     <header
@@ -37,7 +51,7 @@ export default function OsHeader({
         <div className="relative flex-1 h-[46px] ml-4">
           <div className="w-full h-full flex items-center bg-white rounded-xl overflow-hidden border border-solid border-gray-300 shadow-inner">
             <h1 className="ml-5 text-os-regular text-black tracking-[0] leading-[normal] whitespace-nowrap">
-              {children}
+              {title}
             </h1>
           </div>
         </div>

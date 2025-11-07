@@ -17,6 +17,7 @@ import OsIcon from "../../components/icons";
 import OsTableHeader from "../../components/tableheader";
 import OsSearchBar from "../../components/searchbar";
 import OsPagination from "../../components/pagination.jsx"; // Pastikan path ini benar!
+import OsButton from "../../components/button.jsx"; // Pastikan path ini benar!
 
 // --- Definisi Kolom Tabel ---
 const staseColumns = [
@@ -74,13 +75,13 @@ export default function Stase() {
                     </p>
 
                     {/* Tombol Tambah */}
-                    <button
+                    <OsButton
                         onClick={() => router.get("/admin/stase/create")}
                         className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                     >
                         <OsIcon name="add" className="h-os-20 os-icon-light mr-os-8" />
                         Tambah Stase
-                    </button>
+                    </OsButton>
 
                     {/* Search Bar */}
                     <OsSearchBar

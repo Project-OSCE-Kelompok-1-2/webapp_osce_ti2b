@@ -16,7 +16,8 @@ import {
     ArrowLeft,
     Save,
 } from "lucide-react";
-import Sidebar from "../../Components/Sidebar";
+import Sidebar from "../../components/Sidebar.jsx";
+import OsHeader from "../../components/Header.jsx";
 
 
 // Mock untuk <Component1 /> (tombol mata)
@@ -125,34 +126,9 @@ export default function AdminSettingAkun({ user }) {
             {/* Sidebar dipanggil langsung tanpa kontrol dari dashboard */}
             <Sidebar/>
 
-        <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans">
+        <div className="bg-os-white w-full min-h-screen flex justify-center font-sans">
             <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                <header className="relative row-[1_/_2] col-[1_/_2] w-full flex flex-col items-start gap-5 bg-white p-4 rounded-xl shadow-sm border border-gray-900">
-                    <div className="flex items-center justify-between relative self-stretch w-full">
-                        <button
-                            type="button"
-                            className="flex w-[54px] h-[54px] items-center justify-center gap-[13px] p-3 relative bg-blue-600 text-white rounded-xl border border-solid border-black aspect-[1]"
-                            aria-label="Home"
-                            style={{ backgroundColor: customColors.primary }}
-                        >
-                            <ArrowLeft className="relative w-[30px] h-[26px]" />
-                        </button>
-                        <nav
-                            className="relative flex-1 h-[54px] ml-4"
-                            aria-label="Breadcrumb"
-                        >
-                            <div className="h-full items-center bg-white flex w-full rounded-xl overflow-hidden border border-solid border-black">
-                                <p className="h-6 ml-5 [font-family:'Inter-Regular',Helvetica] font-normal text-transparent text-xl tracking-[0] leading-[normal] whitespace-nowrap">
-                                    <span className="text-[#000000bf]">
-                                        Pengaturan
-                                    </span>
-                                    <span className="text-black"> / Akun</span>
-                                </p>
-                            </div>
-                        </nav>
-                    </div>
-                    <hr className="relative w-full border-black border-t" />
-                </header>
+                <OsHeader/ >
 
                 <main className="relative row-[2_/_3] col-[1_/_2] w-full h-full flex flex-col items-start gap-3">
                     <nav
