@@ -11,9 +11,7 @@ use Illuminate\Support\Facades\DB;
 
 class MahasiswaController extends Controller
 {
-    /**
-     * Menampilkan daftar mahasiswa dengan filter search dan angkatan (kelas).
-     */
+    // Menammpilkan daftar mahasiswa dengan filter pencarian dan angkatan (kelas) 
     public function index(Request $request)
     {
         $search = $request->input('search');
@@ -29,7 +27,7 @@ class MahasiswaController extends Controller
             ->when($angkatan, function ($query, $angkatan) {
                 $query->where('kelas', 'like', "%{$angkatan}%");
             })
-            ->with('pengguna') // relasi agar bisa lihat akun pengguna
+            ->with('pengguna')
             ->orderBy('nama')
             ->paginate(10)
             ->withQueryString();
@@ -43,27 +41,33 @@ class MahasiswaController extends Controller
         ]);
     }
 
-    /**
-     * Menambahkan data pengguna (role mahasiswa) dan mahasiswa yang terhubung.
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
-            'nim'   => 'required|string|max:20|unique:mahasiswa,nim',
+            'nim'   => [
+                'required',
+                'string',
+                'max:20',
+                'unique:mahasiswa,nim',
+                function ($attribute, $value, $fail) {
+                    if (Pengguna::where('username', $value)->exists()) {
+                        $fail('NIM ini sudah digunakan sebagai username di tabel pengguna.');
+                    }
+                },
+            ],
             'nama'  => 'required|string|max:255',
             'kelas' => 'required|string|max:50',
             'prodi' => 'required|string|max:100',
         ]);
 
         DB::transaction(function () use ($validated) {
-            // 1. Buat akun pengguna baru
+            // Buat akun pengguna baru (role mahasiswa)
             $pengguna = Pengguna::create([
-                'username' => $validated['nim'], // gunakan NIM sebagai username
-                'password' => $validated['nim'], // password default (akan di-hash otomatis via cast)
+                'username' => $validated['nim'],   
+                'password' => $validated['nim'],   
                 'jenis_role' => 'mahasiswa',
             ]);
 
-            // 2. Buat data mahasiswa yang terhubung dengan pengguna
             Mahasiswa::create([
                 'id_pengguna' => $pengguna->id_pengguna,
                 'nim'   => $validated['nim'],
@@ -74,6 +78,7 @@ class MahasiswaController extends Controller
             ]);
         });
 
-        return Redirect::route('admin.mahasiswa.index')->with('success', 'Mahasiswa baru berhasil ditambahkan.');
+        return Redirect::route('admin.mahasiswa.index')
+            ->with('success', 'Mahasiswa baru berhasil ditambahkan.');
     }
 }
