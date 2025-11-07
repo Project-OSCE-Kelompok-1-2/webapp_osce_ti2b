@@ -61,7 +61,7 @@ export default function Stase() {
 
                 {/* Header/Breadcrumb */}
                 <OsHeader>
-                    Menu Stase
+
                 </OsHeader>
 
                 {/* ===== ISI HALAMAN (Scrollable Area) ===== */}

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import Sidebar from "../../Components/Sidebar"; // Pastikan path ini benar
+import Sidebar from "../../components/Sidebar"; // Pastikan path ini benar
 import { Link, router, usePage } from "@inertiajs/react";
 import {
     ClipboardList,
@@ -11,7 +11,7 @@ import {
     Edit, // (Ikon 'edit' di tabel)
     Trash2, // (Ikon 'delete' di tabel)
 } from "lucide-react";
-import OsBreadCrumb from "../../components/breadcrumb";
+import OsHeader from "../../components/Header"; // 1. Impor komponen breadcrumb
 
 // 2. Pastikan nama file komponen pagination Anda benar
 import OsPagination from "../../components/pagination";

@@ -1,7 +1,6 @@
 import React from "react";
-import Sidebar from "../../Components/Sidebar"
-import OsCopyright from "../../components/copyright";
-import OsBreadCrumb from "../../components/breadcrumb";
+import Sidebar from "../../components/Sidebar"
+import OsHeader from "../../components/Header";
 import { Head, router } from "@inertiajs/react";
 import OsPagination from "../../components/pagination";
 import {
@@ -37,7 +36,7 @@ export default function AdminOsce() {
                 <Head title="Admin OSCE" />
 
                 {/* Header */}
-             
+
                 <OsBreadCrumb />
 
                 {/* Menu OSCE */}

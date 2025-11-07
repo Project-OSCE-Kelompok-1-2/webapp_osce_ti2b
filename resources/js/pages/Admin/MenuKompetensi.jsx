@@ -2,7 +2,8 @@ import React, { useState } from "react";
 // 👇 [UBAH] Impor hook dan komponen yang diperlukan dari Inertia
 import { usePage, Link, router } from "@inertiajs/react";
 import { Pencil, Trash2, PlusCircle, Search, ArrowLeft } from "lucide-react";
-import Sidebar from "../../Components/Sidebar";
+import Sidebar from "../../components/Sidebar.jsx";
+import OsHeader from "../../components/Header.jsx";
 
 export default function KompetensiPage() {
     // 1. Ambil data dari props yang dikirim Controller
@@ -44,22 +45,7 @@ export default function KompetensiPage() {
 
             <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
             {/* Breadcrumb */}
-            <div className="flex items-center justify-between mb-6 bg-white">
-                {/* 👇 [UBAH] Tombol kembali menjadi Link */}
-                <Link
-                    href={`/admin/stase/${aspek.stase.id_stase}/aspek-penilaian`}
-                    className="bg-blue-600 hover:bg-blue-700 text-white p-3 rounded-xl border border-black"
-                >
-                    <ArrowLeft size={20} />
-                </Link>
-
-                <div className="flex-1 mx-3 border border-black rounded-xl px-4 py-2 bg-white">
-                    {/* 👇 [UBAH] Breadcrumb dibuat dinamis */}
-                    <p className="text-black text-lg truncate">
-                        {aspek.stase.nama_stase} / {aspek.aspek} / Kompetensi
-                    </p>
-                </div>
-            </div>
+            <OsHeader variant="goback" backLink={`/admin/stase/${aspek.stase.id_stase}/aspek-penilaian`}/>
 
             {/* Header */}
             <div className="mb-6">
