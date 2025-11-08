@@ -73,7 +73,6 @@ export default function RekapDetailMahasiswaPage() {
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 
-                {/* BREADCRUMB: Disesuaikan dengan gambar baru */}
                 <OsBreadCrumb 
                     className="fixed" 
                     title="Rekap Nilai / Nilai Enrollment Mahasiswa / Riko Aditya Zaki Sir Raja"
@@ -99,10 +98,9 @@ export default function RekapDetailMahasiswaPage() {
 
 
                     {/* --- BAGIAN FILTER (DIMODIFIKASI) --- */}
-                    {/* (Saya bungkus dalam card agar konsisten dengan gambar) */}
                     <div className="bg-white p-6 rounded-2xl shadow mb-6">
                         <div className="flex flex-col md:flex-row justify-between items-center gap-4">
-                            <div className="relative w-full md:w-96">
+                            <div className="relative w-full md:flex-1">
                                 <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                     <Search className="h-5 w-5 text-gray-400" />
                                 </div>
@@ -111,7 +109,7 @@ export default function RekapDetailMahasiswaPage() {
                                     placeholder="Cari data rubrik..."
                                     value={search}
                                     onChange={(e) => setSearch(e.target.value)}
-                                    className="block w-full pl-10 pr-4 py-2 h-[46px] border border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                                    className="block w-full  pl-10 pr-4 py-2 h-[46px] border border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                                 />
                             </div>
                             
@@ -119,7 +117,7 @@ export default function RekapDetailMahasiswaPage() {
                                 {/* Dropdown Tahun DIHAPUS */}
                                 <button
                                     onClick={handleSearch}
-                                    className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
+                                    className="flex h-[46px] items-center flex-1 w-auto md:flex-none md:w-40 bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
                                 >
                                     Cari
                                 </button>
