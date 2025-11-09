@@ -1,15 +1,15 @@
 import React, { useState } from "react";
 import { Link, router, usePage } from "@inertiajs/react";
-import { Trash2, Edit2 } from "lucide-react";
+import { X } from "lucide-react";
 
-// Komponen UI
 import Sidebar from "../../Components/Sidebar.jsx";
 import OsBreadCrumb from "../../components/breadcrumb.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
-import OsSearchBar from "../../components/searchbar.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsCopyright from "../../components/copyright.jsx";
+import Os_button from "../../components/button.jsx";
+import OsSearchBar from "../../components/searchbar.jsx";
 
 const pengujiColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
@@ -30,10 +30,9 @@ const pengujiColumns = [
     },
 ];
 
-export default function MenuPenguji() {
+export default function PengujiPage() {
     const { dosen: backendDosen, filters } = usePage().props;
 
-    // Mock data (fallback)
     const mockDosen = {
         data: [
             { id_penguji: 1, nip: "1987654321", nama: "Dr. Andi Surya" },
@@ -46,10 +45,8 @@ export default function MenuPenguji() {
 
     const dosen = backendDosen && backendDosen.data ? backendDosen : mockDosen;
 
-    // State
     const [search, setSearch] = useState(filters?.search || "");
 
-    // === Handlers ===
     const handleSearch = () => {
         router.get(
             "/admin/penguji",
@@ -65,17 +62,16 @@ export default function MenuPenguji() {
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar />
 
             <main className="flex flex-col flex-1 p-os-8 transition-all duration-300 md:ml-20">
-                {/* Breadcrumb */}
                 <OsBreadCrumb />
 
-                {/* Konten Utama */}
                 <div className="flex-1 overflow-auto">
+                    {/* === HEADER SECTION === */}
                     <section className="mb-8">
-                        <h2 className="font-semibold text-lg mb-1">
+                        <h2 className="font-semibold text-lg my-2">
                             Menu Penguji
                         </h2>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl">
@@ -86,35 +82,35 @@ export default function MenuPenguji() {
 
                         {/* Tombol Tambah Penguji */}
                         <div className="flex items-center gap-3 mb-5">
-                            <button
+                            <Os_button
                                 onClick={() =>
                                     router.visit("/admin/penguji/create")
                                 }
-                                className="flex items-center h-[46px] bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
+                                className="flex items-center h-[46px] rounded-xl"
                             >
                                 <OsIcon
                                     name="add"
                                     className="h-os-20 os-icon-light mr-os-8"
                                 />
                                 Tambah Penguji
-                            </button>
+                            </Os_button>
                         </div>
 
                         {/* Search Bar */}
-                        <div className="flex items-center gap-3 mb-4">
+                        <div className="w-full">
                             <OsSearchBar
                                 search={search}
                                 setSearch={setSearch}
                                 onSearchClick={handleSearch}
-                                placeholder="cari data penguji..."
+                                placeholder="Cari data penguji..."
                             />
                         </div>
                     </section>
 
-                    {/* Tabel Penguji */}
+                    {/* === TABEL PENGUJI === */}
                     <section>
                         <h2 className="font-semibold text-lg mb-2">
-                            Daftar Penguji
+                            Tabel Penguji
                         </h2>
 
                         <OsTableHeader columns={pengujiColumns} />
@@ -138,23 +134,27 @@ export default function MenuPenguji() {
                                         <div className="flex space-x-3">
                                             <Link
                                                 href={`/admin/penguji/${item.id_penguji}/edit`}
-                                                className="bg-blue-600 p-2 rounded-md text-white hover:bg-blue-700"
+                                                className="w-10 h-10 flex items-center justify-center bg-blue-700 p-2 border border-black rounded-xl text-white hover:bg-blue-600 transition"
                                             >
-                                                <Edit2 size={18} />
+                                                <OsIcon
+                                                    name="Edit"
+                                                    className="h-os-20 w-os-20 os-icon-light"
+                                                />
                                             </Link>
-                                            <button
+
+                                            <Os_button
                                                 onClick={() =>
                                                     handleDelete(
                                                         item.id_penguji
                                                     )
                                                 }
-                                                className="bg-white border border-gray-400 p-2 rounded-md hover:bg-gray-100"
+                                                className="w-10 h-10 flex items-center justify-center bg-white p-2 border border-black text-black rounded-xl hover:bg-gray-200 transition"
                                             >
-                                                <Trash2
-                                                    size={18}
-                                                    className="text-gray-700"
+                                                <OsIcon
+                                                    name="Trash"
+                                                    className="w-5 h-5 aspect-square scale-[3] os-icon-dark"
                                                 />
-                                            </button>
+                                            </Os_button>
                                         </div>
                                     </div>
                                 </div>
@@ -175,7 +175,7 @@ export default function MenuPenguji() {
                     </section>
                 </div>
 
-                {/* Footer */}
+                {/* === FOOTER === */}
                 <footer className="mt-auto pt-6 border-t border-gray-200">
                     <OsCopyright />
                 </footer>
