@@ -1,15 +1,14 @@
 import React, { useState } from "react";
 import { Link, router, usePage } from "@inertiajs/react";
-import { Trash2, Edit2, UploadCloud, X } from "lucide-react";
+import { Trash2, X } from "lucide-react";
 
-// Komponen UI
 import Sidebar from "../../Components/Sidebar.jsx";
 import OsBreadCrumb from "../../components/breadcrumb.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
-import OsSearchBar from "../../components/searchbar.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsCopyright from "../../components/copyright.jsx";
+import Os_button from "../../components/button.jsx"; 
 
 const mahasiswaColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
@@ -33,7 +32,6 @@ const mahasiswaColumns = [
 export default function MahasiswaPage() {
     const { mahasiswa: backendMahasiswa, filters } = usePage().props;
 
-    // Mock data (fallback)
     const mockMahasiswa = {
         data: [
             { id_mahasiswa: 1, nim: "TI23001", nama: "Ivan Hakim" },
@@ -50,7 +48,6 @@ export default function MahasiswaPage() {
             ? backendMahasiswa
             : mockMahasiswa;
 
-    // State
     const [search, setSearch] = useState(filters?.search || "");
     const [angkatan, setAngkatan] = useState(filters?.angkatan || "");
     const [importFile, setImportFile] = useState(null);
@@ -58,14 +55,13 @@ export default function MahasiswaPage() {
     const [showExcelModal, setShowExcelModal] = useState(false);
 
     const angkatanList = [
-        { value: "2025", label: "2025" },
-        { value: "2024", label: "2024" },
-        { value: "2023", label: "2023" },
-        { value: "2022", label: "2022" },
-        { value: "2021", label: "2021" },
+        { value: "2025/2026", label: "2025/2026" },
+        { value: "2024/2025", label: "2024/2025" },
+        { value: "2023/2024", label: "2023/2024" },
+        { value: "2022/2023", label: "2022/2023" },
+        { value: "2021/2022", label: "2021/2022" },
     ];
 
-    // === Handlers ===
     const handleSearch = () => {
         router.get(
             "/admin/mahasiswa",
@@ -86,23 +82,41 @@ export default function MahasiswaPage() {
             alert("Pilih file Excel terlebih dahulu.");
             return;
         }
-        alert("Mock: file berhasil diunggah");
-        setShowExcelModal(false);
-        setImportFile(null);
+
+        try {
+            setImporting(true);
+            const formData = new FormData();
+            formData.append("file", importFile);
+
+            await router.post("/admin/mahasiswa/import", formData, {
+                forceFormData: true,
+                onSuccess: () => {
+                    alert("File Excel berhasil diunggah!");
+                    setShowExcelModal(false);
+                    setImportFile(null);
+                },
+                onError: () => {
+                    alert("Terjadi kesalahan saat mengunggah file.");
+                },
+                onFinish: () => setImporting(false),
+            });
+        } catch (error) {
+            console.error("Upload error:", error);
+            alert("Gagal mengunggah file.");
+            setImporting(false);
+        }
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar />
 
             <main className="flex flex-col flex-1 p-os-8 transition-all duration-300 md:ml-20">
-                {/* Breadcrumb */}
                 <OsBreadCrumb />
 
-                {/* Konten Utama */}
                 <div className="flex-1 overflow-auto">
                     <section className="mb-8">
-                        <h2 className="font-semibold text-lg mb-1">
+                        <h2 className="font-semibold text-lg my-2">
                             Menu Mahasiswa
                         </h2>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl">
@@ -112,47 +126,53 @@ export default function MahasiswaPage() {
 
                         {/* Tombol Tambah & Import */}
                         <div className="flex items-center gap-3 mb-5">
-                            <button
+                            <Os_button
                                 onClick={() =>
                                     router.visit("/admin/mahasiswa/create")
                                 }
-                                className="flex items-center h-[46px] bg-blue-700 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
+                                className="flex items-center h-[46px] rounded-xl"
                             >
                                 <OsIcon
                                     name="add"
                                     className="h-os-20 os-icon-light mr-os-8"
                                 />
                                 Tambah Mahasiswa Dengan Form
-                            </button>
+                            </Os_button>
 
-                            <button
+                            <Os_button
                                 onClick={() => setShowExcelModal(true)}
-                                className="flex items-center h-[46px] bg-blue-700 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
+                                className="flex items-center h-[46px] rounded-xl"
                             >
                                 <OsIcon
                                     name="Upload"
                                     className="h-os-20 os-icon-light mr-os-8"
                                 />
                                 Tambah Mahasiswa Dengan Excel
-                            </button>
+                            </Os_button>
                         </div>
 
                         {/* Filter */}
                         <div className="flex items-center gap-3 mb-4">
                             {/* Input pencarian */}
-                            <input
-                                type="text"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder="cari data mahasiswa..."
-                                className="border border-gray-400 rounded-md px-4 py-3 flex-1"
-                            />
+                            <div className="relative flex-1">
+                                <OsIcon
+                                    name="Search"
+                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-os-20"
+                                />
+                                <input
+                                    type="text"
+                                    value={search}
+                                    onChange={(e) => setSearch(e.target.value)}
+                                    placeholder="Cari data mahasiswa..."
+                                    className="border border-black rounded-xl pl-10 pr-4 py-3 w-full focus:ring-2 focus:ring-blue-400 outline-none"
+                                />
+                            </div>
 
                             {/* Dropdown Tahun Angkatan */}
                             <select
                                 value={angkatan}
                                 onChange={(e) => setAngkatan(e.target.value)}
-                                className="border border-gray-400 rounded-md px-4 py-3"
+                                className="border border-black rounded-xl px-24 py-3"
                             >
                                 {angkatanList.map((a) => (
                                     <option key={a.value} value={a.value}>
@@ -162,12 +182,12 @@ export default function MahasiswaPage() {
                             </select>
 
                             {/* Tombol Cari */}
-                            <button
+                            <Os_button
                                 onClick={handleSearch}
-                                className="bg-blue-600 text-white px-6 py-3 rounded-md hover:bg-blue-700"
+                                className="border border-black rounded-xl px-28 py-3"
                             >
                                 Cari
-                            </button>
+                            </Os_button>
                         </div>
                     </section>
 
@@ -198,23 +218,27 @@ export default function MahasiswaPage() {
                                         <div className="flex space-x-3">
                                             <Link
                                                 href={`/admin/mahasiswa/${item.id_mahasiswa}/edit`}
-                                                className="bg-blue-600 p-2 rounded-md text-white hover:bg-blue-700"
+                                                className="w-10 h-10 flex items-center justify-center bg-blue-700 p-2 border border-black rounded-xl text-white hover:bg-blue-600 transition"
                                             >
-                                                <Edit2 size={18} />
+                                                <OsIcon
+                                                    name="Edit"
+                                                    className="h-os-20 w-os-20 os-icon-light"
+                                                />
                                             </Link>
-                                            <button
+
+                                            <Os_button
                                                 onClick={() =>
                                                     handleDelete(
                                                         item.id_mahasiswa
                                                     )
                                                 }
-                                                className="bg-white border border-gray-400 p-2 rounded-md hover:bg-gray-100"
+                                                className="w-10 h-10 flex items-center justify-center bg-white p-2 border border-black text-black rounded-xl hover:bg-gray-200 transition"
                                             >
-                                                <Trash2
-                                                    size={18}
-                                                    className="text-gray-700"
+                                                <OsIcon
+                                                    name="Trash"
+                                                    className="w-5 h-5 aspect-square scale-[3] os-icon-dark"
                                                 />
-                                            </button>
+                                            </Os_button>
                                         </div>
                                     </div>
                                 </div>
@@ -235,13 +259,12 @@ export default function MahasiswaPage() {
                     </section>
                 </div>
 
-                {/* Footer */}
                 <footer className="mt-auto pt-6 border-t border-gray-200">
                     <OsCopyright />
                 </footer>
             </main>
 
-            {/* === MODAL TAMBAH MAHASISWA DENGAN EXCEL === */}
+            {/* === MODAL IMPORT EXCEL === */}
             {showExcelModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg w-[420px] shadow-xl overflow-hidden">
@@ -252,7 +275,7 @@ export default function MahasiswaPage() {
                             </h2>
                             <p className="text-xs text-gray-300">
                                 Download file excel dan isi data mahasiswa
-                                sesuai dengan kolom yang tersedia
+                                sesuai kolom yang tersedia
                             </p>
                             <button
                                 onClick={() => setShowExcelModal(false)}
@@ -264,16 +287,15 @@ export default function MahasiswaPage() {
 
                         {/* Body */}
                         <div className="p-5 flex flex-col gap-4">
-                            <button className="bg-blue-600 hover:bg-blue-700 text-white w-full py-2 rounded-md text-sm font-medium transition-colors">
+                            <Os_button className="w-full">
                                 Download Template Excel
-                            </button>
+                            </Os_button>
 
                             <div className="bg-red-50 border border-red-300 text-red-700 text-xs rounded-md p-3 leading-relaxed">
                                 <strong>⚠️ Perhatian!</strong>
                                 <br />
                                 Jangan ubah heading karena menjadi patokan
-                                program untuk membuat data mahasiswa. Jangan
-                                menempatkan foto/video di dalam cell.
+                                program untuk membuat data mahasiswa.
                             </div>
 
                             <div className="flex flex-col items-center gap-2">
@@ -305,20 +327,20 @@ export default function MahasiswaPage() {
 
                         {/* Footer Modal */}
                         <div className="flex justify-between items-center px-5 py-3 bg-gray-50 border-t">
-                            <button
+                            <Os_button
                                 onClick={handleImport}
                                 disabled={importing}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-md text-sm font-medium w-full mr-2 transition-colors"
+                                className="w-full mr-2"
                             >
                                 {importing ? "Mengunggah..." : "Submit"}
-                            </button>
+                            </Os_button>
 
-                            <button
+                            <Os_button
                                 onClick={() => setShowExcelModal(false)}
                                 className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white p-3 rounded-lg transition-colors"
                             >
                                 <Trash2 size={18} />
-                            </button>
+                            </Os_button>
                         </div>
                     </div>
                 </div>

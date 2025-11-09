@@ -1,31 +1,13 @@
 import React from "react";
-import { X, Save, Trash2 } from "lucide-react";
+import { X } from "lucide-react";
 import { Link, useForm, usePage } from "@inertiajs/react";
 
-import Sidebar from "../../Components/Sidebar";
-import OsBreadCrumb from "../../components/breadcrumb";
-import OsCopyright from "../../components/copyright";
+import OsCopyright from "../../components/copyright.jsx";
+import Os_button from "../../components/button.jsx";
+import OsIcon from "../../components/icons.jsx";
 
 export default function TambahMahasiswa() {
-    // Ambil props dari Inertia (atau mock data)
-    const { mahasiswa: realMahasiswa = null, errors = {} } = usePage().props;
-
-    // Mock data (aktif kalau backend belum kirim data mahasiswa)
-    const mockMahasiswa = {
-        id_mahasiswa: 999,
-        nim: "TI23001",
-        nama: "Robin",
-        angkatan: "2023",
-        prodi: "Teknik Komputer",
-        email: "robin@example.com",
-    };
-
-    // Gunakan mockMahasiswa kalau belum ada data dari backend (simulasi edit)
-    const mahasiswa =
-        realMahasiswa ??
-        (window.location.search.includes("mockEdit=true")
-            ? mockMahasiswa
-            : null);
+    const { mahasiswa = null, errors = {} } = usePage().props;
     const isEditMode = !!mahasiswa;
 
     const { data, setData, post, put, processing, reset } = useForm({
@@ -38,34 +20,35 @@ export default function TambahMahasiswa() {
 
     function handleSubmit(e) {
         e.preventDefault();
-        if (isEditMode) {
-            alert("Simulasi PUT ke backend untuk update data mahasiswa (mock)");
-        } else {
-            alert("Simulasi POST ke backend untuk tambah mahasiswa (mock)");
-        }
+        post("/admin/mahasiswa");
     }
 
     return (
         <div className="min-h-screen flex flex-col bg-os-white rounded-lg p-4">
             {/* HEADER */}
             <header className="bg-white border-b border-gray-300 px-3 py-3 flex items-center justify-between gap-3">
+                {/* Tombol kembali */}
                 <Link
                     href="/admin/mahasiswa"
-                    className="bg-red-600 text-white p-3 rounded-xl border border-black hover:bg-red-500"
+                    className="bg-red-600 text-white p-3 rounded-xl border border-black hover:bg-red-500 transition"
                 >
                     <X size={20} />
                 </Link>
 
                 <div className="flex-1 mx-3 border border-black rounded-xl px-4 py-2 bg-white">
+                    {" "}
                     <p className="text-black text-base sm:text-lg truncate">
+                        {" "}
                         Mahasiswa /{" "}
-                        {isEditMode ? " Edit Mahasiswa" : " Tambah Mahasiswa"}
-                    </p>
+                        {isEditMode
+                            ? " Edit Mahasiswa"
+                            : " Tambah Mahasiswa"}{" "}
+                    </p>{" "}
                 </div>
             </header>
 
             {/* MAIN */}
-            <main className="flex-1 flex justify-center items-center sm:items-center p-4 sm:p-10">
+            <main className="flex-1 flex justify-center items-center p-4 sm:p-10">
                 <div className="w-full sm:max-w-md bg-white border border-gray-700 rounded-xl shadow-md overflow-hidden">
                     <div className="bg-neutral-800 text-white text-center py-6 px-4">
                         <h2 className="text-xl font-semibold">
@@ -113,9 +96,11 @@ export default function TambahMahasiswa() {
                                     required
                                 >
                                     <option value="">Pilih</option>
-                                    <option value="2025">2025</option>
-                                    <option value="2024">2024</option>
-                                    <option value="2023">2023</option>
+                                    <option value="2025/2026">2025/2026</option>
+                                    <option value="2024/2025">2024/2025</option>
+                                    <option value="2023/2024">2023/2024</option>
+                                    <option value="2022/2023">2022/2023</option>
+                                    <option value="2021/2022">2021/2022</option>
                                 </select>
                                 {errors.angkatan && (
                                     <p className="text-red-500 text-xs mt-1">
@@ -160,12 +145,8 @@ export default function TambahMahasiswa() {
                                 required
                             >
                                 <option value="">Pilih jurusan</option>
-                                <option value="Teknik Komputer">
-                                    Teknik Komputer
-                                </option>
-                                <option value="Ahli pernafasan hidung dan mulut">
-                                    Ahli pernafasan hidung dan mulut
-                                </option>
+                                <option value="Kedokteran">Kedokteran</option>
+                                <option value="Keperawatan">Keperawatan</option>
                             </select>
                             {errors.prodi && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -197,26 +178,39 @@ export default function TambahMahasiswa() {
 
                         {/* TOMBOL */}
                         <div className="flex flex-col sm:flex-row justify-between gap-3 pt-4">
-                            <button
+                            <Os_button
                                 type="submit"
                                 disabled={processing}
-                                className="flex items-center justify-center gap-2 bg-blue-700 hover:bg-blue-500 text-white px-10 py-3 rounded-xl transition-all w-full disabled:opacity-50"
+                                className="flex items-center justify-center rounded-xl gap-2 w-full"
                             >
-                                <Save size={18} />
+                                <OsIcon
+                                    name="Save"
+                                    className="h-os-20 os-icon-light"
+                                />
                                 {processing
                                     ? "Menyimpan..."
                                     : isEditMode
                                     ? "Perbarui"
                                     : "Submit"}
-                            </button>
+                            </Os_button>
 
-                            <button
+                            <Os_button
                                 type="button"
-                                onClick={() => reset()}
-                                className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 text-white px-3 py-3 rounded-xl text-sm border transition-all w-full sm:w-auto"
+                                onClick={() => {
+                                    if (
+                                        confirm(
+                                            "Yakin ingin mengosongkan form?"
+                                        )
+                                    )
+                                        reset();
+                                }}
+                                className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 rounded-xl w-full sm:w-auto"
                             >
-                                <Trash2 size={18} />
-                            </button>
+                                <OsIcon
+                                    name="Trash"
+                                    className="h-os-20 os-icon-light"
+                                />
+                            </Os_button>
                         </div>
                     </form>
                 </div>
