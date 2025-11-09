@@ -6,9 +6,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\StaseController;
 use App\Http\Controllers\PengujiController;
-use App\Http\Controllers\MahasiswaController;
-use App\Http\Controllers\KompetensiController; 
+use App\Http\Controllers\KompetensiController;
 use App\Http\Controllers\AspekPenilaianController;
+use App\Http\Controllers\MahasiswaController;
+use App\Http\Controllers\RekapNilaiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,32 +55,14 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/dosen', [PengujiController::class, 'index'])->name('dosen.index');
     Route::post('/dosen', [PengujiController::class, 'store'])->name('dosen.store');
 
-    // Menu Mahasiswa
-    // Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
-    // Route::get('/mahasiswa/create', [MahasiswaController::class, 'create'])->name('mahasiswa.create');
-    // Route::post('/mahasiswa', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
-    // Route::get('/mahasiswa/{id}/edit', [MahasiswaController::class, 'edit'])->name('mahasiswa.edit');
-    // Route::put('/mahasiswa/{id}', [MahasiswaController::class, 'update'])->name('mahasiswa.update');
-    // Route::delete('/mahasiswa/{id}', [MahasiswaController::class, 'destroy'])->name('mahasiswa.destroy');
+    // Mahasiswa - Import dari Excel
+    Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
 
-    // Import Excel
-    // Route::post('/mahasiswa/import', [MahasiswaController::class, 'import'])->name('mahasiswa.import');
-
+    // Rekap Nilai
+    Route::get('/rekap-nilai', [RekapNilaiController::class, 'index']);
+    Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi']);
 });
 
 // Rute fallback atau untuk role lain bisa ditambahkan di sini
 // Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function() { ... });
 // Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });
-
-Route::get('/admin/mahasiswa', function () {
-    return Inertia::render('Admin/MahasiswaPage');
-});
-Route::get('/admin/mahasiswa/create', function () {
-    return Inertia::render('Admin/TambahMahasiswa');
-});
-Route::get('/admin/penguji', function () {
-    return Inertia::render('Admin/PengujiPage');
-});
-Route::get('/admin/penguji/create', function () {
-    return Inertia::render('Admin/TambahPenguji');
-});
