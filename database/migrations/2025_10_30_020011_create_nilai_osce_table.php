@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id('id_nilai_osce');
             $table->foreignId('id_enrollment_osce')->constrained('enrollment_osce', 'id_enrollment_osce')->onDelete('cascade');
             $table->foreignId('id_poin_aspek_penilaian')->constrained('poin_aspek_penilaian', 'id_poin_aspek_penilaian')->onDelete('cascade');
-            $table->integer('nilai');
+            $table->decimal('nilai', 5, 2)->default(0); 
             $table->timestamps();
         });
     }
