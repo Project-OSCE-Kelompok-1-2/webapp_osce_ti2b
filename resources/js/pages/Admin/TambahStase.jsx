@@ -1,7 +1,7 @@
 import React from "react";
 import { Head, useForm, usePage, Link } from "@inertiajs/react";
 import { Trash2, Save } from "lucide-react";
-import OsInput from "../../components/Input";
+import OsInput from "../../components/input";
 import OsHeader from "../../components/Header";
 
 // [UBAH] Komponen sekarang menerima props 'stase' yang bisa jadi null
