@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { router, usePage } from "@inertiajs/react";
-import { Search, ArrowLeft } from "lucide-react";
+import { Search, ArrowLeft, Pencil, Trash2 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar";
 import OsBreadCrumb from "../../components/breadcrumb";
@@ -8,20 +8,16 @@ import OsCopyright from "../../components/copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
 
-// --- Definisi kolom tabel sesuai halaman OSCE Jadwal ---
 const jadwalColumns = [
   { content: "No", width: "w-16", classes: "justify-center items-center" },
   { content: "Tanggal / Sesi", width: "flex-1", classes: "justify-start items-center px-4" },
   { content: "Jumlah Mahasiswa", width: "w-80", classes: "justify-start items-center px-4" },
-  { content: "Action", width: "w-48", classes: "justify-center items-center px-4" },
+  { content: "Action", width: "w-72", classes: "justify-center items-center px-4" },
 ];
 
-// --- Mock data sementara ---
 const mockFilters = { search: "" };
 const mockSesi = {
-  data: [
-    { id: 1, tanggal: "Fri 01-01-2010 6:00", jumlah: "135 Mahasiswa" },
-  ],
+  data: [{ id: 1, tanggal: "Fri 01-01-2010 6:00", jumlah: "135 Mahasiswa" }],
   from: 1,
   links: [
     { url: null, label: "&laquo; Previous", active: false },
@@ -31,15 +27,14 @@ const mockSesi = {
   ],
 };
 
-// --- Komponen utama ---
 export default function OsceJadwalPage() {
   const { sesi = mockSesi, filters = mockFilters } = usePage().props;
   const [search, setSearch] = useState(filters.search || "");
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
-  const handleSearch = () => {
-    console.log("Mencari:", search);
-  };
+  const handleSearch = () => console.log("🔍 Mencari:", search);
+  const handleEdit = (id) => router.visit(`/admin/enrollmentmhs`);
+  const handleDelete = (id) => confirm("Yakin hapus data ini?") && console.log("🗑️ Hapus:", id);
 
   return (
     <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
@@ -50,14 +45,12 @@ export default function OsceJadwalPage() {
           sidebarOpen ? "ml-0" : "ml-20"
         }`}
       >
-        {/* === Breadcrumb === */}
         <OsBreadCrumb
           title="OSCE \\ OSCE Radiologi 01-A \\ Jadwal Sesi"
           icon={<ArrowLeft className="w-5 h-5" />}
           onClick={() => router.visit("/admin/dashboard")}
         />
 
-        {/* === Konten Utama === */}
         <div className="flex-1 overflow-auto">
           {/* Navigasi */}
           <h2 className="font-semibold text-lg mb-2">Navigasi</h2>
@@ -68,9 +61,7 @@ export default function OsceJadwalPage() {
             >
               📄 Halaman Stase
             </button>
-            <button
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg"
-            >
+            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg">
               📅 Jadwal Sesi
             </button>
           </div>
@@ -90,56 +81,79 @@ export default function OsceJadwalPage() {
           </button>
 
           {/* Filter/Search */}
-          <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
-            <div className="relative w-full md:w-96">
-              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400" />
-              </div>
+          <div className="flex items-center gap-3 mb-6">
+            <div className="relative flex-1">
+              <Search className="absolute left-3 top-3 text-gray-400 w-5 h-5" />
               <input
                 type="text"
-                placeholder="Cari data sesi..."
+                placeholder="cari data sesi..."
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                className="block w-full pl-10 pr-4 py-2 h-[46px] border border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500"
+                className="w-full pl-10 pr-4 py-2 h-[46px] border border-gray-700 rounded-lg text-sm focus:ring-blue-500 focus:border-blue-500"
               />
             </div>
             <button
               onClick={handleSearch}
-              className="h-[46px] px-6 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700"
+              className="px-8 h-[46px] bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 text-sm"
             >
               Cari
             </button>
           </div>
 
-          {/* Tabel */}
+          {/* === Table === */}
           <h2 className="font-semibold text-lg mb-3">Table Mahasiswa</h2>
-          <OsTableHeader columns={jadwalColumns} />
+          <div className="mb-3 w-full overflow-hidden">
+            <OsTableHeader columns={jadwalColumns} />
 
-          {sesi.data.map((item, index) => (
-            <div
-              key={item.id}
-              className="flex items-center border-t border-gray-400 hover:bg-gray-50 transition"
-            >
-              <div className="w-16 px-4 py-3 text-center text-gray-800">
-                {sesi.from + index}
-              </div>
-              <div className="flex-1 px-4 py-3 border-l border-gray-400 text-gray-800">
-                {item.tanggal}
-              </div>
-              <div className="w-80 px-4 py-3 border-l border-gray-400 text-gray-800">
-                {item.jumlah}
-              </div>
-              <div className="w-48 h-[70px] flex items-center justify-center border-l border-gray-400">
-                <button
-                  onClick={() => router.visit("/admin/enrollmentmhs")}
-                  className="bg-gray-800 h-[38px] w-[120px] text-white text-sm rounded-md hover:bg-gray-700"
-                >
-                  Edit enrollment
-                </button>
-              </div>
-            </div>
-          ))}
+            {sesi.data.map((item, index) => (
+              <div
+                key={item.id}
+                className="flex items-center text-sm hover:bg-gray-50 transition border-t border-gray-300 min-h-[70px]"
+              >
+                <div className="w-16 px-4 py-3 text-center">{sesi.from + index}</div>
+                <div className="flex-1 px-4 py-3 border-l border-gray-300">{item.tanggal}</div>
+                <div className="w-80 px-4 py-3 border-l border-gray-300">{item.jumlah}</div>
 
+                {/* ✅ Kolom Action — tampilan baru */}
+                <div className="w-[310px] px-5 py-3 border-l border-gray-300">
+                  <div className="w-full flex items-center justify-between pr-2">
+                    {/* Tombol besar */}
+                    <button
+                      onClick={() => handleEdit(item.id)}
+                      className="h-11 px-5 bg-neutral-800 text-white text-base rounded-2xl whitespace-nowrap
+                                 hover:bg-neutral-700 transition-colors"
+                    >
+                      Edit enrollment
+                    </button>
+
+                    {/* Garis pemisah */}
+                    <span className="mx-4 h-10 w-px bg-gray-300" />
+
+                    {/* Dua ikon kanan */}
+                    <div className="flex items-center gap-3">
+                      <button
+                        onClick={() => alert(`Edit ID ${item.id}`)}
+                        className="flex items-center justify-center w-11 h-11 rounded-2xl bg-neutral-800 text-white
+                                   hover:bg-neutral-700 transition-colors"
+                      >
+                        <Pencil size={18} />
+                      </button>
+
+                      <button
+                        onClick={() => handleDelete(item.id)}
+                        className="flex items-center justify-center w-11 h-11 rounded-2xl border border-gray-400
+                                   text-gray-800 bg-white hover:bg-gray-100 transition-colors"
+                      >
+                        <Trash2 size={18} />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+
+          {/* Pesan kosong */}
           {sesi.data.length === 0 && (
             <div className="flex items-center border-t border-gray-400">
               <p className="w-full text-center text-sm py-4 text-gray-500">
@@ -148,9 +162,9 @@ export default function OsceJadwalPage() {
             </div>
           )}
 
-          {/* Pagination */}
+          {/* Pagination kiri bawah */}
           {sesi.links && sesi.links.length > 0 && (
-            <div className="mt-8">
+            <div className="mt-6 border-t-4 border-black pt-4 flex justify-start">
               <OsPagination links={sesi.links} />
             </div>
           )}

@@ -7,7 +7,7 @@ export default function TambahSesiJadwal() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    alert("✅ Data jadwal berhasil disimpan!");
+    alert(`✅ Jadwal berhasil disimpan pada tanggal: ${tanggal}`);
   };
 
   return (
@@ -34,26 +34,26 @@ export default function TambahSesiJadwal() {
         >
           {/* Header Form */}
           <div className="bg-gray-900 text-white p-5">
-            <h2 className="text-lg font-semibold">Form jadwal Ujian</h2>
+            <h2 className="text-lg font-semibold">Form Jadwal Ujian</h2>
             <p className="text-xs text-gray-300 mt-1">
-              Jorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc
-              vulputate libero et velit interdum, ac aliquet odio mattis.
+              Pilih tanggal dan waktu mulai ujian sesuai jadwal OSCE.
             </p>
           </div>
 
           {/* Isi Form */}
           <div className="p-6 space-y-5">
             <div className="text-left">
-              <label className="text-sm font-medium text-gray-700 block mb-1">
+              <label className="text-sm font-medium text-gray-700 block mb-2">
                 Jadwal mulai
               </label>
               <div className="relative">
+                {/* GANTI type="date" */}
                 <input
-                  type="text"
-                  placeholder="Fri 01-01-2025"
+                  type="datetime-local"
                   value={tanggal}
                   onChange={(e) => setTanggal(e.target.value)}
                   className="w-full border border-gray-400 rounded-lg p-3 pr-10 text-sm focus:ring-2 focus:ring-blue-500"
+                  required
                 />
                 <div className="absolute inset-y-0 right-0 pr-3 flex items-center pointer-events-none">
                   <Calendar className="text-gray-500" size={18} />
@@ -83,7 +83,7 @@ export default function TambahSesiJadwal() {
 
       {/* ===== Footer Copyright ===== */}
       <footer className="border-t border-gray-300 p-3 text-center text-xs text-gray-600 bg-white">
-        Copyright © Lorem ipsum dolor sit amet.  
+        Copyright © Lorem ipsum dolor sit amet.
       </footer>
     </div>
   );
