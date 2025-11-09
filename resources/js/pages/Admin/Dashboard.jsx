@@ -1,5 +1,5 @@
 import React from "react";
-import Sidebar from "../../components/Sidebar.jsx";
+import Sidebar from "../../Components/Sidebar.jsx";
 
 // 1. MENGGANTI IMPORT SVG DENGAN LUCIDE-REACT
 import {

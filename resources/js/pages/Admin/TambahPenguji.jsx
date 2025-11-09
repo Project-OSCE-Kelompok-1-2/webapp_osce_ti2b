@@ -115,10 +115,9 @@ export default function TambahPenguji() {
           </form>
         </div>
       </main>
-
-      <footer className="border border-black rounded-xl text-start px-4 py-4 text-sm text-gray-600">
-        © Jorem ipsum dolor sit amet, consectetur adipiscing elit.
-      </footer>
+      
+        {/* Footer */}
+        <OsCopyright/>
     </div>
   );
 }
