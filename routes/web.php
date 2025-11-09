@@ -67,6 +67,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 // Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function() { ... });
 // Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });
 
+
+// coba-coba
 Route::get('/admin/mahasiswa', function () {
     return Inertia::render('Admin/MahasiswaPage');
 });
