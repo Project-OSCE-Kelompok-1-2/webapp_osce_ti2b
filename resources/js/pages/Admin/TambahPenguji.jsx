@@ -1,5 +1,5 @@
 import React from "react";
-import { X } from "lucide-react";
+import { X, CornerUpLeft } from "lucide-react";
 import { Link, useForm, usePage } from "@inertiajs/react";
 
 import Os_button from "../../components/button.jsx";
@@ -33,9 +33,9 @@ export default function TambahPenguji() {
                 {/* Tombol kembali */}
                 <Link
                     href="/admin/dosen"
-                    className="bg-red-600 text-white p-3 rounded-xl border border-black hover:bg-red-500 transition"
+                    className="bg-blue-600 text-white p-3 rounded-xl border border-black hover:bg-blue-700 transition"
                 >
-                    <X size={20} />
+                    <CornerUpLeft size={20} />
                 </Link>
 
                 <div className="flex-1 mx-3 border border-black rounded-xl px-4 py-2 bg-white">
