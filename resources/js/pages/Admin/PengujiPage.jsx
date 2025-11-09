@@ -1,6 +1,5 @@
 import React, { useState } from "react";
 import { Link, router, usePage } from "@inertiajs/react";
-import { X } from "lucide-react";
 
 import Sidebar from "../../Components/Sidebar.jsx";
 import OsBreadCrumb from "../../components/breadcrumb.jsx";
@@ -33,6 +32,7 @@ const pengujiColumns = [
 export default function PengujiPage() {
     const { dosen: backendDosen, filters } = usePage().props;
 
+    // Data dummy jika backend kosong
     const mockDosen = {
         data: [
             { id_penguji: 1, nip: "1987654321", nama: "Dr. Andi Surya" },
@@ -44,12 +44,11 @@ export default function PengujiPage() {
     };
 
     const dosen = backendDosen && backendDosen.data ? backendDosen : mockDosen;
-
     const [search, setSearch] = useState(filters?.search || "");
 
     const handleSearch = () => {
         router.get(
-            "/admin/penguji",
+            "/admin/dosen", // ✅ endpoint GET sesuai instruksi tugas
             { search },
             { preserveState: true, replace: true }
         );
@@ -57,7 +56,7 @@ export default function PengujiPage() {
 
     const handleDelete = (id) => {
         if (confirm("Apakah Anda yakin ingin menghapus penguji ini?")) {
-            router.delete(`/admin/penguji/${id}`, { preserveScroll: true });
+            router.delete(`/admin/dosen/${id}`, { preserveScroll: true }); // ✅ endpoint DELETE sesuai tugas
         }
     };
 
@@ -84,8 +83,8 @@ export default function PengujiPage() {
                         <div className="flex items-center gap-3 mb-5">
                             <Os_button
                                 onClick={() =>
-                                    router.visit("/admin/penguji/create")
-                                }
+                                    router.visit("/admin/dosen/create")
+                                } // ✅ endpoint tambah
                                 className="flex items-center h-[46px] rounded-xl"
                             >
                                 <OsIcon
@@ -132,8 +131,9 @@ export default function PengujiPage() {
                                     </div>
                                     <div className="w-56 h-[70px] flex items-center justify-center border-l border-gray-400">
                                         <div className="flex space-x-3">
+                                            {/* Tombol Edit */}
                                             <Link
-                                                href={`/admin/penguji/${item.id_penguji}/edit`}
+                                                href={`/admin/dosen/${item.id_penguji}/edit`} // ✅ endpoint edit
                                                 className="w-10 h-10 flex items-center justify-center bg-blue-700 p-2 border border-black rounded-xl text-white hover:bg-blue-600 transition"
                                             >
                                                 <OsIcon
@@ -142,6 +142,7 @@ export default function PengujiPage() {
                                                 />
                                             </Link>
 
+                                            {/* Tombol Delete */}
                                             <Os_button
                                                 onClick={() =>
                                                     handleDelete(
@@ -152,7 +153,7 @@ export default function PengujiPage() {
                                             >
                                                 <OsIcon
                                                     name="Trash"
-                                                    className="w-5 h-5 aspect-square scale-[3] os-icon-dark"
+                                                    className="w-5 h-5 aspect-square scale-[2.5] os-icon-dark"
                                                 />
                                             </Os_button>
                                         </div>

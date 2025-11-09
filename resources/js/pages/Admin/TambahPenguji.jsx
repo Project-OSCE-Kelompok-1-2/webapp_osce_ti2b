@@ -7,20 +7,20 @@ import OsIcon from "../../components/icons.jsx";
 import OsCopyright from "../../components/copyright.jsx";
 
 export default function TambahPenguji() {
-    const { penguji = null, errors = {} } = usePage().props;
-    const isEditMode = !!penguji;
+    const { dosen = null, errors = {} } = usePage().props;
+    const isEditMode = !!dosen;
 
     const { data, setData, post, put, processing, reset } = useForm({
-        nip: penguji ? penguji.nip : "",
-        nama: penguji ? penguji.nama : "",
-        alamat: penguji ? penguji.alamat : "",
-        email: penguji ? penguji.email : "",
+        nip: dosen ? dosen.nip : "",
+        nama: dosen ? dosen.nama : "",
+        alamat: dosen ? dosen.alamat : "",
+        email: dosen ? dosen.email : "",
     });
 
     function handleSubmit(e) {
         e.preventDefault();
         if (isEditMode) {
-            put(`/admin/dosen/${penguji.id_penguji}`);
+            put(`/admin/dosen/${dosen.id_penguji}`);
         } else {
             post("/admin/dosen");
         }
@@ -32,7 +32,7 @@ export default function TambahPenguji() {
             <header className="bg-white border-b border-gray-300 px-3 py-3 flex items-center justify-between gap-3">
                 {/* Tombol kembali */}
                 <Link
-                    href="/admin/penguji"
+                    href="/admin/dosen"
                     className="bg-red-600 text-white p-3 rounded-xl border border-black hover:bg-red-500 transition"
                 >
                     <X size={20} />
@@ -40,8 +40,7 @@ export default function TambahPenguji() {
 
                 <div className="flex-1 mx-3 border border-black rounded-xl px-4 py-2 bg-white">
                     <p className="text-black text-base sm:text-lg truncate">
-                        Penguji /{" "}
-                        {isEditMode ? "Edit Penguji" : "Tambah Penguji"}
+                        Penguji / {isEditMode ? "Edit Penguji" : "Tambah Penguji"}
                     </p>
                 </div>
             </header>
@@ -51,11 +50,12 @@ export default function TambahPenguji() {
                 <div className="w-full sm:max-w-md bg-white border border-gray-700 rounded-xl shadow-md overflow-hidden">
                     <div className="bg-neutral-800 text-white text-center py-6 px-4">
                         <h2 className="text-xl font-semibold">
-                            Form {isEditMode ? "Edit" : "Tambah"} Penguji
+                            Form {isEditMode ? "Edit" : "Tambah"} Dosen
                         </h2>
                         <p className="text-sm text-gray-300 mt-1">
-                            Form ini berisi semua data yang digunakan untuk
-                            {isEditMode ? " memperbarui" : " membuat"} penguji
+                            Form ini berisi data untuk{" "}
+                            {isEditMode ? "memperbarui" : "menambahkan"} dosen
+                            penguji
                         </p>
                     </div>
 
@@ -63,12 +63,12 @@ export default function TambahPenguji() {
                         {/* NIP */}
                         <div>
                             <label className="block text-xs text-gray-700 font-semibold mb-1">
-                                NIP Penguji
+                                NIP Dosen
                             </label>
                             <input
                                 value={data.nip}
                                 onChange={(e) => setData("nip", e.target.value)}
-                                placeholder="Masukkan NIP penguji..."
+                                placeholder="Masukkan NIP dosen..."
                                 className="w-full border border-gray-700 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                 required
                             />
@@ -82,14 +82,14 @@ export default function TambahPenguji() {
                         {/* NAMA */}
                         <div>
                             <label className="block text-xs text-gray-700 font-semibold mb-1">
-                                Nama Penguji
+                                Nama Dosen
                             </label>
                             <input
                                 value={data.nama}
                                 onChange={(e) =>
                                     setData("nama", e.target.value)
                                 }
-                                placeholder="Masukkan nama penguji..."
+                                placeholder="Masukkan nama dosen..."
                                 className="w-full border border-gray-700 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                 required
                             />
@@ -103,14 +103,14 @@ export default function TambahPenguji() {
                         {/* ALAMAT */}
                         <div>
                             <label className="block text-xs text-gray-700 font-semibold mb-1">
-                                Alamat Penguji
+                                Alamat Dosen
                             </label>
                             <textarea
                                 value={data.alamat}
                                 onChange={(e) =>
                                     setData("alamat", e.target.value)
                                 }
-                                placeholder="Masukkan alamat penguji..."
+                                placeholder="Masukkan alamat dosen..."
                                 className="w-full border border-gray-700 rounded-lg p-3 text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:outline-none"
                                 rows={4}
                             />
@@ -124,7 +124,7 @@ export default function TambahPenguji() {
                         {/* EMAIL */}
                         <div>
                             <label className="block text-xs text-gray-700 font-semibold mb-1">
-                                Email Penguji
+                                Email Dosen
                             </label>
                             <input
                                 type="email"
@@ -132,7 +132,7 @@ export default function TambahPenguji() {
                                 onChange={(e) =>
                                     setData("email", e.target.value)
                                 }
-                                placeholder="Masukkan email penguji..."
+                                placeholder="Masukkan email dosen..."
                                 className="w-full border border-gray-700 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
                             />
                             {errors.email && (

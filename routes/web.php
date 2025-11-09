@@ -73,9 +73,9 @@ Route::get('/admin/mahasiswa', function () {
 Route::get('/admin/mahasiswa/create', function () {
     return Inertia::render('Admin/TambahMahasiswa');
 });
-Route::get('/admin/penguji', function () {
+Route::get('/admin/dosen', function () {
     return Inertia::render('Admin/PengujiPage');
 });
-Route::get('/admin/penguji/create', function () {
+Route::get('/admin/dosen/create', function () {
     return Inertia::render('Admin/TambahPenguji');
 });
