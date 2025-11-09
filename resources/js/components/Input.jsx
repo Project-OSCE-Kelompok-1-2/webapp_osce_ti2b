@@ -15,10 +15,19 @@ export default function Os_input({
     const [inputValue, setInputValue] = useState(value || "");
 
     /** 🔹 TEXT INPUT */
-    if (type === "text" || type === "email" || type === "password" || type === "number") {
+    if (
+        type === "text" ||
+        type === "email" ||
+        type === "password" ||
+        type === "number"
+    ) {
         return (
             <div className={`flex flex-col ${className}`}>
-                {label && <label className="mb-1 text-os-small text-gray-600">{label}</label>}
+                {label && (
+                    <label className="mb-1 text-os-small text-gray-600">
+                        {label}
+                    </label>
+                )}
                 <input
                     type="text"
                     value={inputValue}
@@ -41,7 +50,11 @@ export default function Os_input({
 
         return (
             <div className={`relative flex flex-col ${className}`}>
-                {label && <label className="mb-1 text-sm text-gray-600">{label}</label>}
+                {label && (
+                    <label className="mb-1 text-sm text-gray-600">
+                        {label}
+                    </label>
+                )}
                 <input
                     type="text"
                     value={inputValue}
@@ -80,32 +93,39 @@ export default function Os_input({
     // const [rating, setRating] = useState("")
 
     if (type === "bullet") {
-        return (
-            <div className={`flex flex-col gap-2 ${className}`}>
-                {label && <label className="text-sm text-gray-600">{label}</label>}
-                <div className="flex gap-3">
-                    {options.map((opt, idx) => (
-                        <label
-                            key={idx}
-                            className="relative flex items-center justify-center cursor-pointer"
-                        >
+    return (
+        <div className={`flex flex-col items-center gap-4 ${className}`}>
+            {label && <label className="text-sm text-gray-600">{label}</label>}
+
+            <div className="flex gap-8 items-center">
+                {options.map((opt, idx) => (
+                    <label
+                        key={idx}
+                        className="flex flex-col items-center cursor-pointer select-none"
+                    >
+                        {/* label di atas bullet */}
+                        <span className="text-sm font-medium text-gray-700 mb-2">{opt}</span>
+
+                        {/* bullet custom */}
+                        <div className="relative flex items-center justify-center">
                             <input
                                 type="radio"
                                 name={name}
                                 value={opt}
                                 checked={String(value) === String(opt)}
                                 onChange={() => onChange && onChange(opt)}
-                                className="peer appearance-none w-6 h-6 rounded-full border-2 border-os-primary cursor-pointer transition-all duration-200 hover:scale-110 checked:bg-os-primary checked:border-os-primary"
+                                className="peer appearance-none w-8 h-8 rounded-full border-2 border-black cursor-pointer transition-all duration-200 hover:scale-110"
                             />
-                            <span className="absolute text-xs mb-12 text-gray-700 select-none">
-                                {opt}
-                            </span>
-                        </label>
-                    ))}
-                </div>
+                            {/* lingkaran tengah muncul kalau checked */}
+                            <div className="absolute w-6 h-6 rounded-full bg-black opacity-0 peer-checked:opacity-100 transition-all duration-200" />
+                        </div>
+                    </label>
+                ))}
             </div>
-        );
-    }
+        </div>
+    );
+}
+
 
     return null;
 }
