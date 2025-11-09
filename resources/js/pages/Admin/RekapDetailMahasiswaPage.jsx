@@ -84,7 +84,7 @@ export default function RekapDetailMahasiswaPage() {
                     {/* --- BAGIAN ACCOUNT (BARU) --- */}
                     {/* (Gambar Anda memiliki card, jadi saya tambahkan style card) */}
                     <div className="bg-white p-6 border border-black rounded-2xl shadow mb-6">
-                        <h2 className="font-semibold text-lg mb-4">Account</h2>
+                        <h2 className="font-semibold text-lg mb-4 border-b pb-2 border-black">Account</h2>
                         <div className="flex items-center">
                             {/* Avatar Placeholder */}
                             <div className="w-20 h-20 rounded-full mr-6 bg-gray-700 flex-shrink-0"></div> 
