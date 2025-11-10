@@ -75,8 +75,8 @@ class OsceJadwalController extends Controller
             'tanggal' => 'required|date',
             'jam_mulai' => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-            'stase_ids' => 'required|array|emin:1',
-            'stase_ids' => 'required|exists:osce_stase,id_osce_stase',
+            'stase_ids' => 'required|array|min:1',
+            'stase_ids.*' => 'required|exists:osce_stase,id_osce_stase',
         ]);
 
         
