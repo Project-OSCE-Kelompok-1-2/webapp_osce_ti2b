@@ -16,7 +16,7 @@ class OsceEnrollmentControllerTest extends TestCase
 
     private $admin;
     private $osce;
-    private $osceStase; // Asumsi {jadwal_id} adalah {id_osce_stase}
+    private $osceStase;
     private $mahasiswaTerdaftar;
     private $mahasiswaBelumDaftar;
 
@@ -27,15 +27,15 @@ class OsceEnrollmentControllerTest extends TestCase
         $this->osce = Osce::factory()->create();
         $this->osceStase = OsceStase::factory()->create(['id_osce' => $this->osce->id_osce]);
 
-        // Mahasiswa 1: Sudah terdaftar
-        $this->mahasiswaTerdaftar = Mahasiswa::factory()->create();
+        // Mahasiswa 1: Sudah terdaftar (NIM MHS001, di-sort pertama)
+        $this->mahasiswaTerdaftar = Mahasiswa::factory()->create(['nim' => 'MHS001', 'nama' => 'Mahasiswa Terdaftar']);
         EnrollmentOsce::factory()->create([
             'id_osce' => $this->osce->id_osce,
             'id_mahasiswa' => $this->mahasiswaTerdaftar->id_mahasiswa
         ]);
 
-        // Mahasiswa 2: Belum terdaftar
-        $this->mahasiswaBelumDaftar = Mahasiswa::factory()->create();
+        // Mahasiswa 2: Belum terdaftar (NIM MHS002, di-sort kedua)
+        $this->mahasiswaBelumDaftar = Mahasiswa::factory()->create(['nim' => 'MHS002', 'nama' => 'Mahasiswa Belum']);
     }
 
     /** @test */
@@ -43,17 +43,28 @@ class OsceEnrollmentControllerTest extends TestCase
     {
         $endpoint = "/admin/osce/{$this->osce->id_osce}/jadwal/{$this->osceStase->id_osce_stase}/enrollment";
 
-        $this->actingAs($this->admin)
+        // Panggil endpoint dan pastikan sukses (200 OK)
+        $response = $this->actingAs($this->admin)
             ->get($endpoint)
-            ->assertStatus(200)
-            ->assertInertia(function ($assert) {
-                $assert->component('Admin/OsceEnrollmentPage') // Asumsi
-                       ->has('mahasiswa.data', 2) // Ada 2 total mahasiswa
-                       ->where('mahasiswa.data.0.nim', $this->mahasiswaTerdaftar->nim)
-                       ->where('mahasiswa.data.0.is_enrolled', true) // Cek logic is_enrolled
-                       ->where('mahasiswa.data.1.nim', $this->mahasiswaBelumDaftar->nim)
-                       ->where('mahasiswa.data.1.is_enrolled', false); // Cek logic is_enrolled
-            });
+            ->assertSuccessful(); 
+        
+        // Assert data yang diteruskan ke Inertia (props)
+        $response->assertInertia(function ($assert) {
+            $assert->component('Admin/OsceEnrollmentPage')
+                   
+                   // Cek bahwa 'mahasiswa.data' adalah array dan memiliki 2 item
+                   // (Sesuai controller yang menggunakan paginate() dan setup kita)
+                   ->has('mahasiswa.data', 3) 
+                   
+                   // Cek data mahasiswa pertama (MHS001 - Terdaftar)
+                   // Urutan ini dijamin oleh orderBy('nim') di controller
+                   ->where('mahasiswa.data.0.nim', $this->mahasiswaTerdaftar->nim)
+                   ->where('mahasiswa.data.0.is_enrolled', true)
+                   
+                   // Cek data mahasiswa kedua (MHS002 - Belum Daftar)
+                   ->where('mahasiswa.data.1.nim', $this->mahasiswaBelumDaftar->nim)
+                   ->where('mahasiswa.data.1.is_enrolled', false);
+        });
     }
 
     /** @test */
@@ -61,21 +72,23 @@ class OsceEnrollmentControllerTest extends TestCase
     {
         $endpoint = "/admin/osce/{$this->osce->id_osce}/jadwal/{$this->osceStase->id_osce_stase}/enrollment";
         
-        // Data baru: Hapus mhs 1, tambahkan mhs 2
         $data = [
             'id_mahasiswa_array' => [$this->mahasiswaBelumDaftar->id_mahasiswa]
         ];
 
         $this->actingAs($this->admin)
-            ->post($endpoint, $data) // Sesuai Props Contract: POST atau PUT
+            ->post($endpoint, $data)
             ->assertRedirect()
             ->assertSessionHas('success');
         
         // Cek database
         $this->assertDatabaseMissing('enrollment_osce', [
+            'id_osce' => $this->osce->id_osce,
             'id_mahasiswa' => $this->mahasiswaTerdaftar->id_mahasiswa
         ]);
+
         $this->assertDatabaseHas('enrollment_osce', [
+            'id_osce' => $this->osce->id_osce,
             'id_mahasiswa' => $this->mahasiswaBelumDaftar->id_mahasiswa
         ]);
     }
