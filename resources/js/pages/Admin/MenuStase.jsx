@@ -18,7 +18,7 @@ import OsTableHeader from "../../components/tableheader";
 import OsSearchBar from "../../components/searchbar";
 import OsPagination from "../../components/pagination.jsx"; // Pastikan path ini benar!
 import OsTableBody from "../../components/tablecontain.jsx";
-import Os_button from "../../components/button.jsx";
+import OsButton from "../../components/button.jsx";
 
 // --- Definisi Kolom Tabel ---
 const staseColumns = [
@@ -61,10 +61,10 @@ export default function Stase() {
         action: (
           <div className="flex items-center justify-center space-x-3">
             {/* Edit Aspek Penilaian */}
-            <Os_button onClick={() => router.get(`/admin/stase/${item.id_stase}/aspek-penilaian`)}
+            <OsButton onClick={() => router.get(`/admin/stase/${item.id_stase}/aspek-penilaian`)}
             className="h-[38px] text-os-small w-full">
             Edit Aspek Penilaian
-            </Os_button>
+            </OsButton>
 
 
             {/* Edit Stase */}

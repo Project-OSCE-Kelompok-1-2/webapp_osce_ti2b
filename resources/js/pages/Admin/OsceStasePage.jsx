@@ -14,7 +14,6 @@ import {
 import OsHeader from "../../components/Header"; // 1. Impor komponen breadcrumb
 
 // 2. Pastikan nama file komponen pagination Anda benar
-import OsBreadCrumb from "../../components/breadcrumb";
 import OsPagination from "../../components/pagination";
 
 // 1. Terima props 'stase', 'osce', dan 'filters' dari controller
