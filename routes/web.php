@@ -54,6 +54,16 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     // ✅ Rute Modul OSCE (List & Create)
     Route::get('/osce', [OsceController::class, 'index'])->name('osce.index');
     Route::post('/osce', [OsceController::class, 'store'])->name('osce.store');
+    // Menu Penguji (Dosen)
+    Route::get('/dosen', [PengujiController::class, 'index'])->name('dosen.index');
+    Route::post('/dosen', [PengujiController::class, 'store'])->name('dosen.store');
+
+    // Mahasiswa - Import dari Excel
+    Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
+
+    // Rekap Nilai
+    Route::get('/rekap-nilai', [RekapNilaiController::class, 'index']);
+    Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi']);
 });
 
 // Rute fallback atau untuk role lain bisa ditambahkan di sini
