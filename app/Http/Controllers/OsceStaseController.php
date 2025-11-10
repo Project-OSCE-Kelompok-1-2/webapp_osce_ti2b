@@ -4,7 +4,9 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\OsceStase;
+use App\Models\Osce;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Redirect;
 
 class OsceStaseController extends Controller
 {
@@ -12,6 +14,8 @@ class OsceStaseController extends Controller
     {
         // Ambil query parameter 'search'
         $search = $request->query('search');
+
+        $osce = Osce::findOrFail($id_osce);
 
         // Query dasar
         $query = OsceStase::where("id_osce", $id_osce)
@@ -38,11 +42,12 @@ class OsceStaseController extends Controller
                     'nama' => $item->penguji->nama ?? null,
                 ],
             ];
-        });
+        })->withQueryString();
 
         // Kirim ke React dengan props tambahan 'filters' agar bisa diingat
         return Inertia::render("Admin/OsceStasePage", [
-            'osce_stase' => $osce_stase,
+            'stase' => $osce_stase,
+            'osce' => $osce,
             'filters' => [
                 'search' => $search,
             ],
@@ -57,30 +62,16 @@ class OsceStaseController extends Controller
             'id_ruang' => 'required|exists:ruang,id_ruang',
             'id_stase' => 'required|exists:stase,id_stase',
             'id_penguji' => 'required|exists:penguji,id_penguji',
-            'tanggal' => 'required|date',
-            'jam_mulai' => 'required|date_format:H:i',
-            'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-            'skenario' => 'nullable|string',
-            'durasi_per_mahasiswa' => 'required|integer|min:1',
         ]);
 
         // Simpan data ke database
-        $osceStase = OsceStase::create([
+        OsceStase::create([
             'id_ruang' => $validated['id_ruang'],
             'id_stase' => $validated['id_stase'],
             'id_penguji' => $validated['id_penguji'],
-            'tanggal' => $validated['tanggal'],
-            'jam_mulai' => $validated['jam_mulai'],
-            'jam_selesai' => $validated['jam_selesai'],
-            'skenario' => $validated['skenario'] ?? null,
-            'durasi_per_mahasiswa' => $validated['durasi_per_mahasiswa'],
             'id_osce' => $id_osce,
         ]);
 
-        if ($osceStase) {
-            return redirect()->back()->with('success', 'Stase berhasil ditambahkan ke OSCE!');
-        } else {
-            return redirect()->back()->with('error', 'Stase gagal ditambahkan ke OSCE!');
-        }
+       return Redirect::back()->with('success', 'Stase berhasil ditambahkan ke OSCE!');
     }
 }

@@ -8,6 +8,9 @@ use Illuminate\Database\Eloquent\Model;
 class Osce extends Model
 {
     use HasFactory;
+    protected $table = 'osce';
+
+    protected $primaryKey = 'id_osce';
 
     protected $fillable = [
         'id_tahun_akademik',

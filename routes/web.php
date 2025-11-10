@@ -1,6 +1,6 @@
 <?php
 
-use App\Http\Controllers\OsceController; // ✅ Tambahkan ini
+use App\Http\Controllers\OsceController; 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\AuthController;
@@ -11,6 +11,7 @@ use App\Http\Controllers\KompetensiController;
 use App\Http\Controllers\AspekPenilaianController;
 use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\RekapNilaiController;
+use App\Http\Controllers\OsceStaseController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +55,10 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     // ✅ Rute Modul OSCE (List & Create)
     Route::get('/osce', [OsceController::class, 'index'])->name('osce.index');
     Route::post('/osce', [OsceController::class, 'store'])->name('osce.store');
+
+    Route::get('/osce/{id_osce}/stase', [OsceStaseController::class, 'index'])->name('osce.stase.index');
+    Route::post('/osce/{id_osce}/stase', [OsceStaseController::class, 'store'])->name('osce.stase.store');
+    
     // Menu Penguji (Dosen)
     Route::get('/dosen', [PengujiController::class, 'index'])->name('dosen.index');
     Route::post('/dosen', [PengujiController::class, 'store'])->name('dosen.store');
