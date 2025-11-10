@@ -13,6 +13,7 @@ use App\Http\Controllers\MahasiswaController;
 use App\Http\Controllers\RekapNilaiController;
 use App\Http\Controllers\OsceEnrollmentController;
 use App\Http\Controllers\OsceStaseController;
+use App\Models\TahunAkademik;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +57,23 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     // ✅ Rute Modul OSCE (List & Create)
     Route::get('/osce', [OsceController::class, 'index'])->name('osce.index');
     Route::post('/osce', [OsceController::class, 'store'])->name('osce.store');
+
+Route::get('/osce/create', function () {
+        // Ambil data dari database
+        $tahunAkademik = TahunAkademik::orderBy('tahun', 'desc')->get()->map(fn ($th) => [
+            'value' => $th->id_tahun_akademik,
+            'label' => $th->tahun . ' - ' . $th->semester,
+        ]);
+        
+        // Kirim data 'tahunAkademikOptions' sebagai props ke component React
+        return Inertia::render('Admin/TambahOsce', [
+            'tahunAkademikOptions' => $tahunAkademik
+        ]); 
+    })->name('osce.create');
+
+    Route::get('/osce/{osce}/edit', [OsceController::class, 'edit'])->name('osce.edit');
+    Route::put('/osce/{osce}', [OsceController::class, 'update'])->name('osce.update');
+    Route::delete('/osce/{osce}', [OsceController::class, 'destroy'])->name('osce.destroy');
 
     Route::get('/osce/{id_osce}/stase', [OsceStaseController::class, 'index'])->name('osce.stase.index');
     Route::post('/osce/{id_osce}/stase', [OsceStaseController::class, 'store'])->name('osce.stase.store');

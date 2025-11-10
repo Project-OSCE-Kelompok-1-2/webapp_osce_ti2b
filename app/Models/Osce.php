@@ -14,7 +14,7 @@ class Osce extends Model
 
     protected $fillable = [
         'id_tahun_akademik',
-        'nama',
+        'nama_osce',
         'tanggal_mulai',
         'tanggal_selesai',
         'keterangan',
@@ -26,6 +26,11 @@ class Osce extends Model
         'detail_mahasiswa',
         'detail_sesi',
         'tahun_akademik_string',
+    ];
+
+    protected $casts = [
+        'tanggal_mulai' => 'datetime:d-m-Y', // Otomatis ubah ke Objek Tanggal
+        'tanggal_selesai' => 'datetime:d-m-Y', // Otomatis ubah ke Objek Tanggal
     ];
 
     /**

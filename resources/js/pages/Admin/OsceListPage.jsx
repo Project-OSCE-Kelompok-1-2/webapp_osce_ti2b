@@ -3,7 +3,7 @@ import Sidebar from "../../Components/Sidebar";
 import OsCopyright from "../../components/copyright";
 import OsBreadCrumb from "../../components/breadcrumb";
 // [PERBAIKAN] Import usePage untuk mengambil props
-import { Head, router, usePage } from "@inertiajs/react";
+import { Head, router, usePage, Link } from "@inertiajs/react";
 import OsPagination from "../../components/pagination";
 import {
     Home,
@@ -28,14 +28,25 @@ export default function OsceListPage({ osce, filters }) {
     // [PERBAIKAN] Buat handler untuk tombol "Cari"
     const handleSearch = (e) => {
         e.preventDefault();
+        // [PERBAIKAN] Ganti route() dengan URL string
         router.get(
-            route("admin.osce.index"), // Panggil route 'GET /admin/osce'
-            { search, tahun }, // Kirim state filter sebagai query parameter
+            "/admin/osce", // <-- Endpoint GET
+            { search, tahun },
             {
                 preserveState: true,
                 replace: true,
             }
         );
+    };
+
+    // [BARU] Tambahkan fungsi handleDelete
+    const handleDelete = (id) => {
+        if (confirm("Apakah Anda yakin ingin menghapus data OSCE ini?")) {
+            // [PERBAIKAN] Gunakan router.delete dengan URL string
+            router.delete(`/admin/osce/${id}`, {
+                preserveScroll: true,
+            });
+        }
     };
 
     return (
@@ -53,7 +64,8 @@ export default function OsceListPage({ osce, filters }) {
 
                     {/* [PERBAIKAN] Arahkan ke route 'create' */}
                     <button
-                        onClick={() => router.get(route("admin.osce.create"))} // Asumsi route create
+                        // Gunakan router.get() ke endpoint yang baru Anda buat
+                        onClick={() => router.get("/admin/osce/create")}
                         className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm mb-4"
                     >
                         <Plus size={18} className="mr-2" />
@@ -135,21 +147,32 @@ export default function OsceListPage({ osce, filters }) {
                                             {item.tahun_akademik_string}
                                         </td>
                                         <td className="p-3 flex items-center justify-center gap-2">
-                                            {/* [PERBAIKAN] Arahkan tombol ke halaman yang benar */}
                                             <button
                                                 onClick={() =>
                                                     router.get(
                                                         `/admin/osce/${item.id_osce}/stase`
                                                     )
-                                                } // Ke halaman stase (Tugas Ifad/Zian)
+                                                }
                                                 className="bg-gray-800 text-white text-xs rounded-lg hover:bg-gray-900 transition w-28 h-[38px]"
                                             >
                                                 Edit Property
                                             </button>
-                                            <button className="border bg-black text-white rounded-lg hover:bg-gray-100 w-10 h-[38px] flex items-center justify-center">
+
+                                            {/* Tombol Edit: Gunakan <Link> */}
+                                            <Link
+                                                href={`/admin/osce/${item.id_osce}/edit`}
+                                                className="border bg-black text-white rounded-lg hover:bg-gray-700 w-10 h-[38px] flex items-center justify-center"
+                                            >
                                                 <Edit2 size={14} />
-                                            </button>
-                                            <button className="border rounded-lg hover:bg-gray-100 w-10 h-[38px] flex items-center justify-center">
+                                            </Link>
+
+                                            {/* Tombol Delete: Gunakan <button> */}
+                                            <button
+                                                onClick={() =>
+                                                    handleDelete(item.id_osce)
+                                                }
+                                                className="border rounded-lg hover:bg-gray-100 text-red-600 hover:border-red-600 w-10 h-[38px] flex items-center justify-center"
+                                            >
                                                 <Trash2 size={14} />
                                             </button>
                                         </td>
