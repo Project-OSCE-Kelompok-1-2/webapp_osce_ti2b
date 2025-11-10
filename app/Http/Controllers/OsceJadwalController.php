@@ -27,10 +27,9 @@ class OsceJadwalController extends Controller
         // Ambil 'search' dari query parameter
         $search = $request->query('search');
 
-        // Buat query dasar (JANGAN ->get() dulu)
+        // Buat query dasar
         $sesi_virtual_query = DB::table('osce_stase')
             ->where('id_osce', $id_osce)
-            // Hanya tampilkan sesi yang sudah di-set tanggalnya
             ->whereNotNull('tanggal') 
             ->select('tanggal', 'jam_mulai', DB::raw('MIN(id_osce_stase) as id_osce_stase'))
             ->groupBy('tanggal', 'jam_mulai')
@@ -39,19 +38,23 @@ class OsceJadwalController extends Controller
 
         // Terapkan filter 'search' jika ada
         if ($search) {
-            // Asumsi 'search' mencari berdasarkan tanggal
             $sesi_virtual_query->where('tanggal', 'like', "%{$search}%");
         }
 
-        // Hitung jumlah total mahasiswa
-        $jumlah_mahasiswa = EnrollmentOsce::where('id_osce', $id_osce)->count();
+        // [DIHAPUS] Jangan hitung total di sini
+        // $jumlah_mahasiswa = EnrollmentOsce::where('id_osce', $id_osce)->count();
 
-        // Eksekusi query dengan PAGINATE, bukan get()
+        // Eksekusi query dengan PAGINATE
         $sesi_paginated = $sesi_virtual_query->paginate(10)->withQueryString();
 
-        // Gunakan 'through()' untuk inject data ke hasil paginasi
-        $sesi_data = $sesi_paginated->through(function ($sesi) use ($jumlah_mahasiswa) {
-            $sesi->jumlah_mahasiswa = $jumlah_mahasiswa;
+        // [PERBAIKAN] Gunakan 'through()' untuk inject data PER SESI
+        $sesi_data = $sesi_paginated->through(function ($sesi) use ($id_osce) { // <-- Ubah 'use'
+            
+            // [PERBAIKAN] Hitung jumlah mahasiswa HANYA untuk sesi ini
+            $sesi->jumlah_mahasiswa = EnrollmentOsce::where('id_osce', $id_osce)
+                ->where('tanggal_sesi', $sesi->tanggal) // <-- Filter berdasarkan tanggal sesi
+                ->where('jam_sesi', $sesi->jam_mulai)   // <-- Filter berdasarkan jam sesi
+                ->count();
             
             // Format tanggal agar lebih rapi di React
             $sesi->tanggal_formatted = (new \DateTime($sesi->tanggal))->format('d M Y');

@@ -2,137 +2,129 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Osce;
-use App\Models\Mahasiswa;
-use App\Models\EnrollmentOsce;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
-use Inertia\Inertia; // Digunakan karena feature test mengindikasikan Inertia
+use App\Models\Osce;
+use App\Models\OsceStase; // <-- Perlu ini untuk referensi sesi
+use App\Models\Mahasiswa;
+use App\Models\EnrollmentOsce;
+use Inertia\Inertia;
 
 class OsceEnrollmentController extends Controller
 {
     /**
-     * TUGAS 1: Menampilkan daftar Mahasiswa dan status Enrollment OSCE.
-     * Endpoint: GET /admin/osce/{osce_id}/jadwal/{jadwal_id}/enrollment
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $osce_id
-     * @param  int  $jadwal_id (Tidak digunakan, tapi tetap diterima sesuai rute)
-     * @return \Inertia\Response
+     * TUGAS 1: Menampilkan halaman enrollment (PERBAIKAN)
+     * GET /admin/osce/{osce_id}/jadwal/{jadwal_id}/enrollment
      */
-    public function index(Request $request, int $osce_id, int $jadwal_id)
+    public function index(Request $request, $osce_id, $jadwal_id)
     {
-        // 1. Ambil ID Mahasiswa yang sudah terdaftar di EnrollmentOsce untuk OSCE ini
-        // Pluck hanya mengambil kolom 'id_mahasiswa' dan mengubahnya menjadi array biasa.
-        $enrolled_mahasiswa_ids = EnrollmentOsce::where('id_osce', $osce_id)
-                                                ->pluck('id_mahasiswa')
-                                                ->toArray();
-        
-        // 2. Query SEMUA Mahasiswa
-        $mahasiswa_query = Mahasiswa::query()
-            ->select('id_mahasiswa', 'nim', 'nama', 'kelas', 'prodi'); // Pilih kolom yang relevan
+        // 1. Ambil data OSCE
+        $osce = Osce::findOrFail($osce_id);
 
-        // Terapkan filter 'search' pada NAMA atau NIM
-        if ($request->filled('search')) {
-            $search = '%' . $request->input('search') . '%';
-            $mahasiswa_query->where(function ($query) use ($search) {
-                $query->where('nama', 'like', $search)
-                      ->orWhere('nim', 'like', $search);
+        // 2. [FIX] Cari data Sesi (tanggal/jam) dari $jadwal_id
+        //    ($jadwal_id adalah MIN(id_osce_stase) dari sesi tersebut)
+        $sesi_ref = OsceStase::select('tanggal', 'jam_mulai')
+                        ->where('id_osce_stase', $jadwal_id)
+                        ->firstOrFail();
+
+        // 3. Ambil data filter
+        $search = $request->query('search');
+        $angkatan = $request->query('angkatan'); // 'angkatan' di React = 'kelas' di DB
+
+        // 4. Ambil SEMUA mahasiswa (dengan filter)
+        $mahasiswa_query = Mahasiswa::query();
+        if ($search) {
+            $mahasiswa_query->where(function ($q) use ($search) {
+                $q->where('nama', 'like', "%{$search}%")
+                  ->orWhere('nim', 'like', "%{$search}%");
             });
         }
-
-        // Terapkan filter 'angkatan'
-        // Karena di model Mahasiswa tidak ada kolom 'angkatan', 
-        // kita asumsikan 'angkatan' memfilter kolom 'prodi' atau 'kelas'
-        if ($request->filled('angkatan')) {
-            // Asumsi: angkatan merepresentasikan nilai di kolom 'prodi'
-            $mahasiswa_query->where('prodi', $request->input('angkatan')); 
+        if ($angkatan) {
+            // Sesuai konteks, 'angkatan' di form memfilter 'kelas' di DB
+            $mahasiswa_query->where('kelas', $angkatan); 
         }
 
-        // Ambil data mahasiswa dan urutkan
-        // Gunakan paginate untuk handling data besar (sesuai best practice Inertia)
-        $mahasiswa_data = $mahasiswa_query->orderBy('nim')
-                                          ->paginate(10); // Sesuaikan ukuran paginasi
+        // 5. [FIX] Ambil ID mahasiswa yang SUDAH terdaftar di SESI INI
+        $enrolled_ids = EnrollmentOsce::where('id_osce', $osce_id)
+            ->where('tanggal_sesi', $sesi_ref->tanggal) // <-- Filter berdasarkan sesi
+            ->where('jam_sesi', $sesi_ref->jam_mulai)   // <-- Filter berdasarkan sesi
+            ->pluck('id_mahasiswa')
+            ->all();
 
-        
-        // 3. Gabungkan data dan komputasi 'is_enrolled'
-        $mahasiswa_data->getCollection()->transform(function ($mahasiswa) use ($enrolled_mahasiswa_ids) {
-            return [
-                'id_mahasiswa' => $mahasiswa->id_mahasiswa,
-                'nim' => $mahasiswa->nim,
-                'nama' => $mahasiswa->nama,
-                // Logik is_enrolled: true jika ID mahasiswa ada di daftar yang sudah terdaftar
-                'is_enrolled' => in_array($mahasiswa->id_mahasiswa, $enrolled_mahasiswa_ids),
-            ];
-        });
+        // 6. Paginate mahasiswa dan tambahkan properti 'is_enrolled'
+        $mahasiswa_list = $mahasiswa_query->orderBy('nama', 'asc')
+            ->paginate(20) // Anda bisa sesuaikan jumlah ini
+            ->through(fn ($mhs) => [
+                'id_mahasiswa' => $mhs->id_mahasiswa,
+                'nim' => $mhs->nim,
+                'nama' => $mhs->nama,
+                'is_enrolled' => in_array($mhs->id_mahasiswa, $enrolled_ids) // Cek
+            ])->withQueryString();
 
-        // Kembalikan response Inertia
-        return Inertia::render('Admin/OsceEnrollmentPage', [ 
-            // Mengembalikan object pagination yang sudah di-transform
-            'mahasiswa' => $mahasiswa_data,
-            'osce_id' => $osce_id,
-            'jadwal_id' => $jadwal_id,
-            'filters' => $request->only(['search', 'angkatan']),
+        // 7. [FIX] Kirim props yang benar ke React
+        return Inertia::render('Admin/OsceEnrollmentPage', [
+            'osce' => $osce,
+            'sesi' => $sesi_ref, // Berisi tanggal & jam_mulai
+            'mahasiswa_list' => $mahasiswa_list, // Nama prop yang benar
+            'filters' => ['search' => $search, 'angkatan' => $angkatan],
         ]);
     }
 
     /**
-     * TUGAS 2: Menyimpan/Sync Enrollment OSCE.
-     * Endpoint: POST /admin/osce/{osce_id}/jadwal/{jadwal_id}/enrollment
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $osce_id
-     * @param  int  $jadwal_id
-     * @return \Illuminate\Http\RedirectResponse
+     * TUGAS 2: Menyimpan (sync) data enrollment (PERBAIKAN)
+     * POST /admin/osce/{osce_id}/jadwal/{jadwal_id}/enrollment
      */
-    public function sync(Request $request, int $osce_id, int $jadwal_id)
+    public function sync(Request $request, $osce_id, $jadwal_id)
     {
-        // Validasi input
-        $request->validate([
-            'id_mahasiswa_array' => 'nullable|array',
-            'id_mahasiswa_array.*' => 'integer|exists:mahasiswa,id_mahasiswa', // Pastikan ID valid
+        // 1. Validasi
+        $validated = $request->validate([
+            'id_mahasiswa_array' => 'present|array', // 'present' berarti boleh kosong
+            'id_mahasiswa_array.*' => 'integer|exists:mahasiswa,id_mahasiswa',
         ]);
-
-        $mahasiswa_ids = $request->input('id_mahasiswa_array', []);
         
-        // Gunakan Transaksi Database untuk menjamin atomisitas (Hapus dan Sisip harus berhasil semua)
+        $mahasiswa_ids = $validated['id_mahasiswa_array'];
+
+        // 2. [FIX] Ambil data Sesi (tanggal/jam) dari $jadwal_id
+        $sesi_ref = OsceStase::select('tanggal', 'jam_mulai')
+                        ->where('id_osce_stase', $jadwal_id)
+                        ->firstOrFail();
+
         DB::beginTransaction();
         try {
-            // 1. Hapus semua EnrollmentOsce yang ada untuk osce_id ini (Sync logic)
-            EnrollmentOsce::where('id_osce', $osce_id)->delete();
+            // 3. [FIX] Hapus semua enrollment LAMA HANYA untuk sesi ini
+            EnrollmentOsce::where('id_osce', $osce_id)
+                ->where('tanggal_sesi', $sesi_ref->tanggal) // <-- Filter berdasarkan sesi
+                ->where('jam_sesi', $sesi_ref->jam_mulai)   // <-- Filter berdasarkan sesi
+                ->delete();
 
-            // 2. Siapkan data baru untuk di-INSERT
-            $new_enrollments = [];
+            // 4. [FIX] Buat data baru untuk di-insert (dengan data sesi)
+            $data_to_insert = [];
             $now = now();
-            foreach ($mahasiswa_ids as $id_mahasiswa) {
-                $new_enrollments[] = [
+            foreach ($mahasiswa_ids as $id_mhs) {
+                $data_to_insert[] = [
                     'id_osce' => $osce_id,
-                    'id_mahasiswa' => $id_mahasiswa,
-                    'catatan' => null, 
+                    'id_mahasiswa' => $id_mhs,
+                    'tanggal_sesi' => $sesi_ref->tanggal, // <-- Simpan data sesi
+                    'jam_sesi' => $sesi_ref->jam_mulai,   // <-- Simpan data sesi
                     'created_at' => $now,
                     'updated_at' => $now,
                 ];
             }
 
-            // 3. INSERT data baru
-            if (!empty($new_enrollments)) {
-                // Gunakan insert untuk performa massal
-                EnrollmentOsce::insert($new_enrollments);
+            // 5. Insert data BARU
+            if (!empty($data_to_insert)) {
+                EnrollmentOsce::insert($data_to_insert);
             }
 
             DB::commit();
-
-            // Sesuai feature test, harus redirect dan memiliki session success
-            return redirect()->back()
-                ->with('success', 'Daftar enrollment mahasiswa berhasil diperbarui.');
+            
+            // [PERBAIKAN] Redirect ke halaman list jadwal, bukan back()
+            return redirect()->route('admin.osce.jadwal.index', $osce_id)
+                             ->with('success', 'Enrollment mahasiswa berhasil disimpan!');
 
         } catch (\Exception $e) {
             DB::rollBack();
-            // Log error untuk debugging
-            \Log::error("OSCE Enrollment Sync Failed for OSCE ID {$osce_id}: " . $e->getMessage());
-
-            return redirect()->back()
-                ->with('error', 'Gagal memperbarui enrollment mahasiswa. Silakan coba lagi.');
+            return redirect()->back()->with('error', 'Gagal menyimpan enrollment: ' . $e->getMessage());
         }
     }
 }

@@ -50,7 +50,7 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
     };
 
     // 6. [PERBAIKAN] handleEdit sekarang dinamis
-    const handleEdit = (jadwal_id) => {
+    const handleEditEnrollment = (jadwal_id) => {
         // 'jadwal_id' di sini adalah 'id_osce_stase' (MIN) yang kita
         // gunakan sebagai ID unik virtual untuk sesi tersebut.
         // Ini akan mengarah ke Rute Enrollment (Najwa)
@@ -123,10 +123,10 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
                             }
                             className="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-lg"
                         >
-                            📄 Halaman Stase
+                            Halaman Stase
                         </button>
                         <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg">
-                            📅 Jadwal Sesi
+                            Jadwal Sesi
                         </button>
                     </div>
 
