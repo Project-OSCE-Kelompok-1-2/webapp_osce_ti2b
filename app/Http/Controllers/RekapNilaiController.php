@@ -151,24 +151,32 @@ class RekapNilaiController extends Controller
 
         // Kelompokkan nilai berdasarkan Stase → Aspek → Kompetensi
         $nilaiPerStase = [];
+
+        // Loop setiap poin nilai OSCE (tiap kompetensi)
         foreach ($nilaiOsce as $nilai) {
             $poin   = $nilai->poinAspekPenilaian; // Poin aspek penilaian
+            if (!$poin) continue; // skip jika tidak ada poin
+
             $aspek  = $poin?->aspekPenilaian; // Aspek penilaian terkait
             $stase  = $aspek?->stase; // Stase per aspek
 
+            // Cegah error jika tidak ada stase
+            if (!$stase) continue;
+
             // Ambil info sesi OSCE beserta penguji
             $osceStase = OsceStase::where('id_osce', $enrollment->id_osce)
-                ->where('id_stase', $stase->id_stase ?? null)
+                ->where('id_stase', $stase->id_stase)
                 ->with('penguji')
                 ->first();
 
             // Gunakan nama stase sebagai key, jika null gunakan default
-                $staseKey = $stase?->nama_stase ?? 'Stase Tidak Dikenal';
+            $staseKey = $stase?->nama_stase ?? 'Stase Tidak Dikenal';
             if (!isset($nilaiPerStase[$staseKey])) {
                 $nilaiPerStase[$staseKey] = [
                     'nama_stase' => $staseKey,
                     'nama_penguji' => $osceStase?->penguji?->nama ?? '-', // Default
-                    'aspek_penilaian' => [],
+                    'total_skor_bobot' => 0, // Untuk menjumlah semua (skor x bobot)
+                    'aspek_penilaian' => [], // Untuk tampilan
                 ];
             }
 
@@ -177,20 +185,32 @@ class RekapNilaiController extends Controller
             if (!isset($nilaiPerStase[$staseKey]['aspek_penilaian'][$aspekKey])) {
                 $nilaiPerStase[$staseKey]['aspek_penilaian'][$aspekKey] = [
                     'aspek' => $aspekKey,
-                    'kompetensi' => [],
+                    'kompetensi' => [], // Daftar kompetensi di aspek ini
                 ];
             }
 
-            // Perhitungan nilai akhir per kompetensi
+            // Ambil skor dan bobot dari tabel poin_aspek_penilaian
             $skor = $poin?->skor ?? 0;     // input penguji (0–3)
             $bobot = $poin?->bobot ?? 0;   // dari rubrik
-            $nilaiAkhir = ($skor * $bobot) / 4; // hasil dibagi 4 sesuai rumus
+            $nilaiKali = $skor * $bobot; // hasil perkalian skor dan bobot untuk setiap kompetensinya
 
-            // Tambahakan nilai kompetensi ke array aspek
+            // Tambahkan ke total stase
+            $nilaiPerStase[$staseKey]['total_skor_bobot'] += $nilaiKali;
+
+            // Simpan detail kompetensi untuk tampilan
             $nilaiPerStase[$staseKey]['aspek_penilaian'][$aspekKey]['kompetensi'][] = [
                 'kompetensi' => $poin?->kompetensi ?? 'Kompetensi Tidak Dikenal',
-                'nilai' => $nilaiAkhir,
+                'skor' => $skor,
+                'bobot' => $bobot,
+                'hasil' => $nilaiKali,
+                'nilai' => $nilaiKali,
             ];
+        }
+
+        // Hitung nilai akhir per stase
+        foreach ($nilaiPerStase as $key => $stase) {
+            $totalSkorBobot = $stase['total_skor_bobot'] ?? 0;
+            $nilaiPerStase[$key]['nilai_akhir_stase'] = $totalSkorBobot / 4;
         }
 
         // Susun hasil akhir dengan array indexed agar lebih mudah diakses di frontend
