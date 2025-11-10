@@ -70,32 +70,24 @@ class OsceJadwalController extends Controller
      */
     public function store(Request $request, $id_osce)
     {
-        // 1. TAMBAHKAN 'durasi_per_mahasiswa' DI VALIDASI
+        
         $validated = $request->validate([
             'tanggal' => 'required|date',
             'jam_mulai' => 'required|date_format:H:i',
             'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-            'id_stase' => 'required|integer|exists:stase,id_stase',
-            'id_ruang' => 'required|integer|exists:ruang,id_ruang',
-            'id_penguji' => 'required|integer|exists:penguji,id_penguji',
-            'skenario' => 'required|string|max:255',
-            'durasi_per_mahasiswa' => 'required|integer|min:1', // <-- TAMBAHKAN INI
+            'stase_ids' => 'required|array|emin:1',
+            'stase_ids' => 'required|exists:osce_stase,id_osce_stase',
         ]);
 
-        // 2. KEMBALIKAN BLOK TRY...CATCH
+        
         try {
-            $newEntry = new OsceStase();
-            $newEntry->id_osce = $id_osce;
-            $newEntry->tanggal = $validated['tanggal'];
-            $newEntry->jam_mulai = $validated['jam_mulai'];
-            $newEntry->jam_selesai = $validated['jam_selesai']; 
-            $newEntry->id_stase = $validated['id_stase'];
-            $newEntry->id_ruang = $validated['id_ruang'];
-            $newEntry->id_penguji = $validated['id_penguji'];
-            $newEntry->skenario = $validated['skenario'];
-            $newEntry->durasi_per_mahasiswa = $validated['durasi_per_mahasiswa']; // <-- TAMBAHKAN INI
-
-            $newEntry->save(); // Sekarang ini akan BERHASIL
+            OsceStase::where('id_osce', $id_osce)
+                ->whereIn('id_osce_stase', $validated['stase_ids']) 
+                ->update([
+                    'tanggal' => $validated['tanggal'],
+                    'jam_mulai' => $validated['jam_mulai'],
+                    'jam_selesai' => $validated['jam_selesai'],
+                ]);
 
             // Tes akan mencari session 'success' ini dan menemukannya
             return redirect()->route('admin.osce.jadwal.index', $id_osce)
@@ -114,26 +106,17 @@ class OsceJadwalController extends Controller
     public function create($id_osce)
     {
         $osce = Osce::findOrFail($id_osce);
-
-        // Data untuk <select> dropdown di form
-        $list_stase = Stase::all(['id_stase', 'nama_stase']);
-        $list_ruang = Ruang::all(['id_ruang', 'nama_ruang']);
-        
-        // Asumsi relasi 'user' ada di model 'Penguji'
-        $list_penguji = Penguji::with('user')->get()->map(function($penguji) {
-            return [
-                'id_penguji' => $penguji->id_penguji,
-                // Pastikan 'nama' adalah kolom yang benar di tabel 'users'
-                'nama_penguji' => $penguji->user->nama ?? 'Nama Tidak Ditemukan' 
-            ];
-        });
-
-        // Menggunakan Inertia::render
-        return Inertia::render('Admin/OsceJadwalCreatePage', [ // Pastikan nama file ini ada
+        $stase_options = OsceStase::where('id_osce', $id_osce)
+            ->whereNull('tanggal') // Hanya yang belum dijadwalkan
+            ->with(['stase', 'ruang', 'penguji'])
+            ->get()
+            ->map(fn ($item) => [
+                'value' => $item->id_osce_stase,
+                'label' => $item->stase->nama_stase . ' - ' . $item->ruang->nomor_ruangan . ' (Penguji: ' . $item->penguji->nama . ')'
+            ]);
+        return Inertia::render('Admin/OsceJadwalCreatePage', [
             'osce' => $osce,
-            'list_stase' => $list_stase,
-            'list_ruang' => $list_ruang,
-            'list_penguji' => $list_penguji,
+            'stase_options' => $stase_options, // Kirim ini untuk <select>
         ]);
     }
 }
