@@ -83,15 +83,7 @@ class MahasiswaController extends Controller
         return Redirect::route('admin.mahasiswa.index')
             ->with('success', 'Mahasiswa baru berhasil ditambahkan.');
     }
-}
 
-
-class MahasiswaController extends Controller
-{
-    /**
-     * POST /admin/mahasiswa/import
-     * Import data mahasiswa dari file Excel
-     */
     public function import(Request $request)
     {
         $request->validate([
@@ -103,3 +95,5 @@ class MahasiswaController extends Controller
         return redirect()->back()->with('success', 'Data mahasiswa berhasil diimport.');
     }
 }
+
+
