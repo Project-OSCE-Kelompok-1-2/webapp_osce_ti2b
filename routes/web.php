@@ -1,19 +1,20 @@
 <?php
 
-use App\Http\Controllers\OsceController; 
-use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Models\TahunAkademik;
+use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\OsceController; 
 use App\Http\Controllers\StaseController;
 use App\Http\Controllers\PengujiController;
-use App\Http\Controllers\KompetensiController;
-use App\Http\Controllers\AspekPenilaianController;
 use App\Http\Controllers\MahasiswaController;
-use App\Http\Controllers\RekapNilaiController;
-use App\Http\Controllers\OsceEnrollmentController;
 use App\Http\Controllers\OsceStaseController;
-use App\Models\TahunAkademik;
+use App\Http\Controllers\KompetensiController;
+use App\Http\Controllers\OsceJadwalController;
+use App\Http\Controllers\RekapNilaiController;
+use App\Http\Controllers\AspekPenilaianController;
+use App\Http\Controllers\OsceEnrollmentController;
 
 /*
 |--------------------------------------------------------------------------
@@ -77,6 +78,18 @@ Route::get('/osce/create', function () {
 
     Route::get('/osce/{id_osce}/stase', [OsceStaseController::class, 'index'])->name('osce.stase.index');
     Route::post('/osce/{id_osce}/stase', [OsceStaseController::class, 'store'])->name('osce.stase.store');
+    Route::get('/osce/{id_osce}/stase/create', [OsceStaseController::class, 'create'])->name('osce.stase.create');
+    Route::delete('/osce/{id_osce}/stase/{id_osce_stase}', [OsceStaseController::class, 'destroy'])->name('osce.stase.destroy');
+
+    Route::get('/osce/{id_osce}/jadwal', [OsceJadwalController::class, 'index'])->name('osce.jadwal.index');
+    Route::get('/osce/{id_osce}/jadwal/create', [OsceJadwalController::class, 'create'])->name('osce.jadwal.create');
+    Route::post('/osce/{id_osce}/jadwal', [OsceJadwalController::class, 'store'])->name('osce.jadwal.store');
+    
+
+    Route::put('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'update'])->name('osce.jadwal.update');
+    Route::get('/osce/{id_osce}/jadwal/{sesi_id}/edit', [OsceJadwalController::class, 'edit'])->name('osce.jadwal.edit');
+    // Rute untuk menghapus sesi
+    Route::delete('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'destroy'])->name('osce.jadwal.destroy');
     
     // Menu Penguji (Dosen)
     Route::get('/dosen', [PengujiController::class, 'index'])->name('dosen.index');
@@ -117,15 +130,3 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin/osce/{osce_id}/jadwal/{
 // Rute fallback atau untuk role lain bisa ditambahkan di sini
 // Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function() { ... });
 // Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });
-
-Route::get('/admin/tambahjadwal', function () {
-    return Inertia::render('Admin/OsceJadwalPage'); 
-});
-
-Route::get('/admin/enrollmentmhs', function () {
-    return Inertia::render('Admin/OsceEnrollmentPage'); 
-});
-
-Route::get('/admin/tambahsesijadwal', function () {
-    return Inertia::render('Admin/TambahJadwalSesi'); 
-});

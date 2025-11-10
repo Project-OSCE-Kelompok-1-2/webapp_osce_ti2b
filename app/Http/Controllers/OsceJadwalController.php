@@ -16,61 +16,65 @@ use App\Models\Penguji;
 class OsceJadwalController extends Controller
 {
     /**
-     * TASK 1: Menampilkan daftar Sesi (Jadwal) yang sudah di-grup
+     * Menampilkan daftar Sesi (Jadwal) yang sudah di-grup
      * GET /admin/osce/{id_osce}/jadwal
-     *
-     * Kode ini telah disesuaikan untuk lolos tes 'afkar_tugas1'.
      */
-    public function index($id_osce)
+    public function index(Request $request, $id_osce) 
     {
         // Ambil data OSCE untuk judul halaman, dll.
         $osce = Osce::findOrFail($id_osce);
+        
+        // Ambil 'search' dari query parameter
+        $search = $request->query('search');
 
-        // --- AWAL PERBAIKAN UNTUK LOLOS 'afkar_tugas1' ---
-
-        // 1. Ambil data sesi (grup berdasarkan tanggal dan jam)
-        //    Tes 'afkar_tugas1' mengharapkan 2 sesi, jadi kita GROUP BY tanggal & jam_mulai.
-        //    Kita gunakan 'MIN(id_osce_stase)' agar query valid dan lolos
-        //    assertion tes 'hasAll(['id_osce_stase', ...])'.
-        $sesi_virtual = DB::table('osce_stase')
+        // Buat query dasar (JANGAN ->get() dulu)
+        $sesi_virtual_query = DB::table('osce_stase')
             ->where('id_osce', $id_osce)
+            // Hanya tampilkan sesi yang sudah di-set tanggalnya
+            ->whereNotNull('tanggal') 
             ->select('tanggal', 'jam_mulai', DB::raw('MIN(id_osce_stase) as id_osce_stase'))
-            ->groupBy('tanggal', 'jam_mulai') // Ini adalah perbaikan utama
+            ->groupBy('tanggal', 'jam_mulai')
             ->orderBy('tanggal', 'asc')
-            ->orderBy('jam_mulai', 'asc')
-            ->get();
+            ->orderBy('jam_mulai', 'asc');
 
-        // 2. Hitung jumlah total mahasiswa yang terdaftar di OSCE ini
-        //    Tes 'afkar_tugas1' mengharapkan 'jumlah_mahasiswa' berisi 5 (total enrollment)
-        //    dan ada di *dalam* setiap objek sesi.
+        // Terapkan filter 'search' jika ada
+        if ($search) {
+            // Asumsi 'search' mencari berdasarkan tanggal
+            $sesi_virtual_query->where('tanggal', 'like', "%{$search}%");
+        }
+
+        // Hitung jumlah total mahasiswa
         $jumlah_mahasiswa = EnrollmentOsce::where('id_osce', $id_osce)->count();
 
-        // 3. Tambahkan (inject) key 'jumlah_mahasiswa' ke setiap objek sesi
-        //    agar sesuai dengan ekspektasi tes: `props->where('jumlah_mahasiswa', 5);`
-        $sesi_virtual->map(function ($sesi) use ($jumlah_mahasiswa) {
+        // Eksekusi query dengan PAGINATE, bukan get()
+        $sesi_paginated = $sesi_virtual_query->paginate(10)->withQueryString();
+
+        // Gunakan 'through()' untuk inject data ke hasil paginasi
+        $sesi_data = $sesi_paginated->through(function ($sesi) use ($jumlah_mahasiswa) {
             $sesi->jumlah_mahasiswa = $jumlah_mahasiswa;
+            
+            // Format tanggal agar lebih rapi di React
+            $sesi->tanggal_formatted = (new \DateTime($sesi->tanggal))->format('d M Y');
+            // Format jam (hapus detik)
+            $sesi->jam_mulai_formatted = substr($sesi->jam_mulai, 0, 5);
+
             return $sesi;
         });
         
-        // --- AKHIR PERBAIKAN ---
-
-        // Kirim semua data ke view
+        // Kirim data paginasi ('sesi_data') dan 'filters'
         return Inertia::render('Admin/OsceJadwalPage', [
             'osce' => $osce,
-            'sesi' => $sesi_virtual, // Prop 'sesi' ini sekarang memiliki struktur yang benar
-            'total_mahasiswa' => $jumlah_mahasiswa, // Ini untuk tampilan total global
+            'sesi' => $sesi_data, // Prop 'sesi' sekarang berisi objek paginasi
+            'filters' => ['search' => $search] // Kirim 'filters' ke React
         ]);
     }
 
     /**
-     * TASK 2: Menyimpan data Jadwal/Sesi baru
+     * Menyimpan data Jadwal/Sesi baru
      * POST /admin/osce/{id_osce}/jadwal
-     *
-     * Kode ini sudah benar dan akan lolos tes 'afkar_tugas2'.
      */
     public function store(Request $request, $id_osce)
     {
-        
         $validated = $request->validate([
             'tanggal' => 'required|date',
             'jam_mulai' => 'required|date_format:H:i',
@@ -79,22 +83,34 @@ class OsceJadwalController extends Controller
             'stase_ids.*' => 'required|exists:osce_stase,id_osce_stase',
         ]);
 
-        
+        DB::beginTransaction();
         try {
-            OsceStase::where('id_osce', $id_osce)
-                ->whereIn('id_osce_stase', $validated['stase_ids']) 
-                ->update([
-                    'tanggal' => $validated['tanggal'],
-                    'jam_mulai' => $validated['jam_mulai'],
-                    'jam_selesai' => $validated['jam_selesai'],
-                ]);
+            // Loop melalui ID stase (template) yang dipilih
+            foreach ($validated['stase_ids'] as $template_stase_id) {
+                
+                // Cari template stase. (Bisa stase null atau stase dari sesi lain)
+                $template = OsceStase::find($template_stase_id);
 
-            // Tes akan mencari session 'success' ini dan menemukannya
+                if ($template) {
+                    // Duplikasi/Copy template
+                    $new_sesi_stase = $template->replicate(); 
+                    
+                    // Terapkan jadwal BARU pada salinan
+                    $new_sesi_stase->tanggal = $validated['tanggal'];
+                    $new_sesi_stase->jam_mulai = $validated['jam_mulai'];
+                    $new_sesi_stase->jam_selesai = $validated['jam_selesai'];
+                    
+                    // Simpan salinan sebagai baris BARU
+                    $new_sesi_stase->save();
+                }
+            }
+            
+            DB::commit();
             return redirect()->route('admin.osce.jadwal.index', $id_osce)
                 ->with('success', 'Jadwal sesi berhasil dibuat!');
                 
         } catch (\Exception $e) {
-            // Blok ini untuk jaga-jaga jika ada error tak terduga
+            DB::rollBack();
             return redirect()->back()->with('error', 'Gagal menyimpan jadwal: ' . $e->getMessage());
         }
     }
@@ -106,17 +122,167 @@ class OsceJadwalController extends Controller
     public function create($id_osce)
     {
         $osce = Osce::findOrFail($id_osce);
-        $stase_options = OsceStase::where('id_osce', $id_osce)
-            ->whereNull('tanggal') // Hanya yang belum dijadwalkan
+        
+        // [PERBAIKAN] Ambil HANYA stase template (yang tanggalnya null)
+        $stase_options = OsceStase::where('id_osce', $id_osce) 
+            ->whereNull('tanggal') // <-- INI KUNCINYA
             ->with(['stase', 'ruang', 'penguji'])
             ->get()
             ->map(fn ($item) => [
                 'value' => $item->id_osce_stase,
                 'label' => $item->stase->nama_stase . ' - ' . $item->ruang->nomor_ruangan . ' (Penguji: ' . $item->penguji->nama . ')'
             ]);
-        return Inertia::render('Admin/OsceJadwalCreatePage', [
+
+        return Inertia::render('Admin/TambahJadwalSesi', [
             'osce' => $osce,
-            'stase_options' => $stase_options, // Kirim ini untuk <select>
+            'stase_options' => $stase_options,
+            'sesi' => null,
+            'stase_terpilih' => [],
         ]);
+    }
+
+    /**
+     * Menampilkan form untuk EDIT jadwal sesi
+     * GET /admin/osce/{id_osce}/jadwal/{sesi_id}/edit
+     */
+    public function edit($id_osce, $sesi_id)
+    {
+        $osce = Osce::findOrFail($id_osce);
+        
+        list($tanggal, $jam_mulai_full) = explode('_', $sesi_id); 
+
+        $sesi_data = OsceStase::where('id_osce', $id_osce)
+                        ->where('tanggal', $tanggal)
+                        ->where('jam_mulai', $jam_mulai_full)
+                        ->select('tanggal', 'jam_mulai', 'jam_selesai')
+                        ->first();
+
+        if (!$sesi_data) {
+            return redirect()->route('admin.osce.jadwal.index', $id_osce)
+                             ->with('error', 'Sesi tidak ditemukan.');
+        }
+
+        $tanggal_formatted = (new \DateTime($sesi_data->tanggal))->format('Y-m-d');
+
+        $sesi = (object)[
+            'tanggal' => $tanggal_formatted,
+            'jam_mulai' => substr($sesi_data->jam_mulai, 0, 5),
+            'jam_selesai' => substr($sesi_data->jam_selesai, 0, 5),
+            'jam_mulai_full' => $sesi_data->jam_mulai,
+        ];
+
+        // 1. [PERBAIKAN] Ambil HANYA stase template (tanggal null)
+        // Ini akan menjadi daftar checklist
+        $stase_options = OsceStase::where('id_osce', $id_osce)
+            ->whereNull('tanggal') // <-- INI KUNCINYA
+            ->with(['stase', 'ruang', 'penguji'])
+            ->get();
+
+        // 2. Ambil stase (salinan) yang ada di sesi ini
+        $stase_in_session = OsceStase::where('id_osce', $id_osce)
+            ->where('tanggal', $tanggal)
+            ->where('jam_mulai', $jam_mulai_full)
+            ->select('id_stase', 'id_penguji', 'id_ruang') // Pilih konfigurasinya
+            ->get();
+        
+        // 3. Tentukan template mana yang harus diceklis
+        $stase_terpilih_ids = [];
+        
+        foreach ($stase_options as $template) {
+            // Cek apakah ada stase di sesi ini yang konfigurasinya
+            // sama dengan template ini
+            $is_selected = $stase_in_session->first(function ($session_instance) use ($template) {
+                return $session_instance->id_stase === $template->id_stase &&
+                       $session_instance->id_penguji === $template->id_penguji &&
+                       $session_instance->id_ruang === $template->id_ruang;
+            });
+
+            if ($is_selected) {
+                // Jika ya, tambahkan ID TEMPLATE ke daftar ceklis
+                $stase_terpilih_ids[] = $template->id_osce_stase;
+            }
+        }
+
+        // 4. Format opsi untuk React
+        $stase_options_formatted = $stase_options->map(fn ($item) => [
+            'value' => $item->id_osce_stase,
+            'label' => $item->stase->nama_stase . ' - ' . $item->ruang->nomor_ruangan . ' (Penguji: ' . $item->penguji->nama . ')'
+        ]);
+
+        return Inertia::render('Admin/TambahJadwalSesi', [
+            'osce' => $osce,
+            'sesi' => $sesi,
+            'stase_options' => $stase_options_formatted,
+            'stase_terpilih' => array_unique($stase_terpilih_ids), // Kirim ID template yg diceklis
+        ]);
+    }
+
+    /**
+     * Mengupdate jadwal sesi yang sudah ada
+     * PUT /admin/osce/{id_osce}/jadwal/{sesi_id}
+     */
+    public function update(Request $request, $id_osce, $sesi_id)
+    {
+        $validated = $request->validate([
+            'tanggal' => 'required|date',
+            'jam_mulai' => 'required|date_format:H:i',
+            'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
+            'stase_ids' => 'required|array|min:1',
+            'stase_ids.*' => 'required|exists:osce_stase,id_osce_stase',
+        ]);
+
+        list($old_tanggal, $old_jam_mulai) = explode('_', $sesi_id);
+
+        DB::beginTransaction();
+        try {
+            // 1. HAPUS semua baris stase yang terikat pada sesi LAMA
+            OsceStase::where('id_osce', $id_osce)
+                ->where('tanggal', $old_tanggal)
+                ->where('jam_mulai', $old_jam_mulai)
+                ->delete(); // Ganti dari update() menjadi delete()
+
+            // 2. BUAT BARU (Replicate) dari template stase yang dipilih
+            foreach ($validated['stase_ids'] as $template_stase_id) {
+                $template = OsceStase::find($template_stase_id);
+                if ($template) {
+                    $new_sesi_stase = $template->replicate(); 
+                    
+                    // Terapkan jadwal BARU pada salinan
+                    $new_sesi_stase->tanggal = $validated['tanggal'];
+                    $new_sesi_stase->jam_mulai = $validated['jam_mulai'];
+                    $new_sesi_stase->jam_selesai = $validated['jam_selesai'];
+                    
+                    // Simpan salinan sebagai baris BARU
+                    $new_sesi_stase->save();
+                }
+            }
+            
+            DB::commit();
+            return redirect()->route('admin.osce.jadwal.index', $id_osce)
+                ->with('success', 'Jadwal sesi berhasil diperbarui!');
+                
+        } catch (\Exception $e) {
+            DB::rollBack();
+            return redirect()->back()->with('error', 'Gagal memperbarui jadwal: ' . $e->getMessage());
+        }
+    }
+
+
+    /**
+     * Menghapus (me-reset) jadwal sesi
+     * DELETE /admin/osce/{id_osce}/jadwal/{sesi_id}
+     */
+    public function destroy($id_osce, $sesi_id)
+    {
+        list($tanggal, $jam_mulai) = explode('_', $sesi_id);
+
+        // Cari semua OsceStase yang cocok dan HAPUS
+        OsceStase::where('id_osce', $id_osce)
+            ->where('tanggal', $tanggal)
+            ->where('jam_mulai', $jam_mulai)
+            ->delete(); // Ganti dari update() menjadi delete()
+
+        return redirect()->route('admin.osce.jadwal.index', $id_osce)
+            ->with('success', 'Jadwal sesi berhasil dihapus.');
     }
 }

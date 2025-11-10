@@ -7,9 +7,9 @@ import {
     Plus,
     Search,
     ExternalLink,
-    ArrowUpRightFromSquare,
-    Edit,
-    Trash2,
+    ArrowUpRightFromSquare, // (Ikon 'open' di tabel)
+    Edit, // (Ikon 'edit' di tabel)
+    Trash2, // (Ikon 'delete' di tabel)
 } from "lucide-react";
 import OsBreadCrumb from "../../components/breadcrumb";
 import OsPagination from "../../components/pagination";
@@ -43,6 +43,18 @@ export default function HalamanStase({ stase, osce, filters }) {
         );
     }
 
+    function handleDelete(staseId) {
+        if (
+            confirm(
+                "Yakin ingin menghapus stase ini? Ini akan menghapus stase ini dari SEMUA sesi terjadwal."
+            )
+        ) {
+            router.delete(`/admin/osce/${osce.id_osce}/stase/${staseId}`, {
+                preserveScroll: true, // Agar halaman tidak loncat
+            });
+        }
+    }
+
     return (
         <div className="min-h-screen flex ">
             <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
@@ -64,7 +76,15 @@ export default function HalamanStase({ stase, osce, filters }) {
                                 <ClipboardList size={16} />
                                 Halaman Stase
                             </button>
-                            <button className="flex items-center gap-2 px-4 py-2 bg-white border text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">
+                            {/* [PERBAIKAN] Tombol "Jadwal Sesi" sekarang berfungsi */}
+                            <button
+                                onClick={() =>
+                                    router.get(
+                                        `/admin/osce/${osce.id_osce}/jadwal`
+                                    )
+                                }
+                                className="flex items-center gap-2 px-4 py-2 bg-white border text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
+                            >
                                 <CalendarClock size={16} />
                                 Jadwal Sesi
                             </button>
@@ -81,8 +101,13 @@ export default function HalamanStase({ stase, osce, filters }) {
                             elit. Nunc vulputate libero et velit interdum, ac
                             aliquet odio mattis.
                         </p>
+                        {/* [PERBAIKAN] Tombol "Masukkan Stase" sekarang berfungsi */}
                         <button
-                            onClick={() => router.visit("/tambahoscestase")} // Asumsi ini adalah route 'create'
+                            onClick={() =>
+                                router.get(
+                                    `/admin/osce/${osce.id_osce}/stase/create`
+                                )
+                            }
                             className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
                         >
                             <Plus size={18} className="mr-2" />
@@ -191,6 +216,11 @@ export default function HalamanStase({ stase, osce, filters }) {
                                                         <Edit size={14} />
                                                     </button>
                                                     <button
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                item.id_osce_stase
+                                                            )
+                                                        }
                                                         className="p-2 rounded-md border text-red-600 hover:bg-red-50"
                                                         title="Delete"
                                                     >
