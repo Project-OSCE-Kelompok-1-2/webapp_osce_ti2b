@@ -7,35 +7,37 @@ import {
     Plus,
     Search,
     ExternalLink,
-    ArrowUpRightFromSquare, // (Ikon 'open' di tabel)
-    Edit, // (Ikon 'edit' di tabel)
-    Trash2, // (Ikon 'delete' di tabel)
+    ArrowUpRightFromSquare,
+    Edit,
+    Trash2,
 } from "lucide-react";
 import OsHeader from "../../components/Header"; // 1. Impor komponen breadcrumb
 
 // 2. Pastikan nama file komponen pagination Anda benar
+import OsBreadCrumb from "../../components/breadcrumb";
 import OsPagination from "../../components/pagination";
 
-// 3. Terima props 'stase', 'osce', dan 'filters' dari controller
+// 1. Terima props 'stase', 'osce', dan 'filters' dari controller
 export default function HalamanStase({ stase, osce, filters }) {
     // State untuk sidebar
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // 4. State untuk search bar, ambil nilai default dari 'filters'
+    // 2. State untuk search bar, ambil nilai default dari 'filters'
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
 
-    const { data } = usePage().props;
-    const osceStase = data;
-    console.log(data);
+    // 3. [PERBAIKAN] Hapus pengambilan data yang salah dari usePage
+    // const { data } = usePage().props;
+    // const osceStase = data;
 
     /**
-     * 5. Fungsi untuk menangani submit pencarian
+     * 4. [PERBAIKAN] Fungsi untuk menangani submit pencarian
      */
     function handleSearch(e) {
         e.preventDefault(); // Mencegah reload halaman
 
+        // Arahkan ke endpoint Ifad yang benar
         router.get(
-            route("admin.stase.index", { id_osce: osce.id }),
+            `/admin/osce/${osce.id_osce}/stase`,
             { search: searchTerm }, // Data query parameter
             {
                 preserveState: true, // Jaga state (seperti sidebar)
@@ -53,7 +55,7 @@ export default function HalamanStase({ stase, osce, filters }) {
                     isSidebarOpen ? "ml-64" : "ml-20"
                 }`}
             >
-                {/* Beri props ke Breadcrumb agar dinamis */}
+                {/* 5. Pastikan Ifad mengirim prop 'osce' */}
                 <OsBreadCrumb osce={osce} />
 
                 <div className="flex-1 p-2">
@@ -83,7 +85,7 @@ export default function HalamanStase({ stase, osce, filters }) {
                             aliquet odio mattis.
                         </p>
                         <button
-                            onClick={() => router.visit("/tambahoscestase")}
+                            onClick={() => router.visit("/tambahoscestase")} // Asumsi ini adalah route 'create'
                             className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
                         >
                             <Plus size={18} className="mr-2" />
@@ -93,7 +95,7 @@ export default function HalamanStase({ stase, osce, filters }) {
 
                     {/* Filter & Table OSCE */}
                     <section className="bg-white rounded-lg shadow-sm">
-                        {/* 6. Filter Bar sekarang adalah <form> */}
+                        {/* 6. Filter Bar (Form sudah benar) */}
                         <form
                             onSubmit={handleSearch}
                             className="mb-4 flex-wrap gap-3"
@@ -108,7 +110,7 @@ export default function HalamanStase({ stase, osce, filters }) {
                                         type="text"
                                         placeholder="cari data stase..."
                                         className="border rounded-lg pl-10 pr-4 py-2.5 text-sm w-full sm:w-80 outline-blue-500"
-                                        // 7. Hubungkan input ke state React
+                                        // State input sudah benar
                                         value={searchTerm}
                                         onChange={(e) =>
                                             setSearchTerm(e.target.value)
@@ -116,7 +118,7 @@ export default function HalamanStase({ stase, osce, filters }) {
                                     />
                                 </div>
                                 <button
-                                    type="submit" // 8. Tombol 'Cari' sebagai submit
+                                    type="submit"
                                     className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium w-full sm:w-auto"
                                 >
                                     Cari
@@ -148,15 +150,16 @@ export default function HalamanStase({ stase, osce, filters }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {/* 9. Gunakan 'stase.data' dari props */}
-                                    {osceStase.map((item, index) => (
+                                    {/* 7. [PERBAIKAN] Loop 'stase.data' dari props paginasi */}
+                                    {stase.data.map((item, index) => (
                                         <tr
-                                            key={index} // Gunakan 'item.id'
+                                            // 8. [PERBAIKAN] Gunakan ID unik
+                                            key={item.id_osce_stase}
                                             className="border-b hover:bg-gray-50"
                                         >
                                             <td className="p-3 font-medium">
-                                                {/* Nomor urut dari pagination */}
-                                                {index + 1}
+                                                {/* 9. [PERBAIKAN] Gunakan 'from' untuk nomor paginasi */}
+                                                {stase.from + index}
                                             </td>
                                             <td className="p-3">
                                                 Ruang {item.ruang.nomor_ruangan}
@@ -164,7 +167,6 @@ export default function HalamanStase({ stase, osce, filters }) {
                                             <td className="p-3">
                                                 {item.stase.nama_stase}
                                             </td>
-                                            {/* Sesuaikan nama kolom */}
                                             <td className="p-3">
                                                 <div className="flex items-center gap-1.5">
                                                     <ExternalLink
@@ -172,8 +174,7 @@ export default function HalamanStase({ stase, osce, filters }) {
                                                         className="text-blue-600"
                                                     />
                                                     {item.penguji?.nama ||
-                                                        "Belum diatur"}{" "}
-                                                    {/* Sesuaikan relasi */}
+                                                        "Belum diatur"}
                                                 </div>
                                             </td>
                                             <td className="p-3">
@@ -206,7 +207,7 @@ export default function HalamanStase({ stase, osce, filters }) {
                             </table>
                         </div>
 
-                        {/* 10. Gunakan 'stase.links' dari props */}
+                        {/* 10. Pagination (sudah benar) */}
                         <OsPagination links={stase?.links} />
                     </section>
                 </div>

@@ -76,3 +76,70 @@
     }
 }
 
+:root {
+  --os-primary: #1E1A4D;
+  --os-secondary: #3B347E;
+  --os-white: #ffffff;
+  --os-black: #000000;
+}
+
+.react-datepicker__input-container input {
+  font-family: 'Inter', sans-serif;
+  border: 1px solid var(--os-primary);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  width: 100%;
+  color: var(--os-black);
+}
+
+.react-datepicker {
+  font-family: 'Inter', sans-serif;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.react-datepicker__header {
+  background-color: var(--os-primary);
+  color: var(--os-white);
+  border-bottom: none;
+  padding-top: 0.50rem;
+}
+
+.react-datepicker__current-month {
+  color: var(--os-white);
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0.25rem 0;
+  text-transform: capitalize;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: var(--os-primary);
+  color: white;
+  border-radius: 50%;
+}
+
+.react-datepicker__day:hover {
+  background-color: var(--os-secondary);
+  color: white;
+  border-radius: 50%;
+}
+
+.react-datepicker__triangle {
+  display: none;
+}
+
+/* Spinner button */
+button {
+  background-color: var(--os-primary) !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background-color: var(--os-secondary) !important;
+}

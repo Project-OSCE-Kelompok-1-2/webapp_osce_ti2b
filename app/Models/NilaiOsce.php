@@ -35,7 +35,7 @@ class NilaiOsce extends Model
     protected function casts(): array
     {
         return [
-            'nilai' => 'decimal:2',
+            'nilai' => 'float',
         ];
     }
 }

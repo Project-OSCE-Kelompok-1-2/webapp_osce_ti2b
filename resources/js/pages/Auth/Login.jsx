@@ -5,6 +5,7 @@ import { useForm, usePage } from "@inertiajs/react";
 import Os_button from "../../components/button.jsx";
 import OsInput from "../../components/input.jsx";
 import OsIcon from "../../components/icons.jsx";
+import OsModal from "../../components/Modal";
 
 export default function LoginMosaicPage() {
     // 👇 [BARU] Ambil error dari props yang dikirim controller
@@ -12,6 +13,7 @@ export default function LoginMosaicPage() {
 
     // State untuk show/hide password tetap sama
     const [showPwd, setShowPwd] = useState(false);
+    const [showModal, setShowModal] = useState(false);
 
     // 👇 [UBAH] Ganti useState dengan useForm untuk data login
     const { data, setData, post, processing } = useForm({
