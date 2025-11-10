@@ -75,6 +75,9 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/rekap-nilai', [RekapNilaiController::class, 'index']);
     Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi']);
 
+    // Rekap Nilai Method Detail
+    Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerStase']); 
+    Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}', [RekapNilaiController::class, 'detailNilaiMahasiswa']);
     // Rute enrollment yang salah (seperti di file Anda sebelumnya) telah dihapus dari sini
 });
 
