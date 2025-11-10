@@ -51,9 +51,6 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
 
     // 6. [PERBAIKAN] handleEdit sekarang dinamis
     const handleEditEnrollment = (jadwal_id) => {
-        // 'jadwal_id' di sini adalah 'id_osce_stase' (MIN) yang kita
-        // gunakan sebagai ID unik virtual untuk sesi tersebut.
-        // Ini akan mengarah ke Rute Enrollment (Najwa)
         router.visit(
             `/admin/osce/${osce.id_osce}/jadwal/${jadwal_id}/enrollment`
         );
@@ -242,9 +239,6 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
                                                 <Trash2 size={17} />
                                             </button>
                                         </div>
-                                        {/* ================================== */}
-                                        {/* == 🔼 AKHIR PERBAIKAN 🔼 == */}
-                                        {/* ================================== */}
                                     </div>
                                 </div>
                             </div>
@@ -261,7 +255,6 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
                     )}
 
                     {/* Pagination */}
-                    {/* 12. [PERBAIKAN] Paginasi sekarang dinamis */}
                     {sesi.links && sesi.links.length > 3 && (
                         <div className="mt-6 border-t-4 border-black pt-4 flex justify-start">
                             <OsPagination links={sesi.links} />
