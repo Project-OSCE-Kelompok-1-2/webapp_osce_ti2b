@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, router, usePage } from "@inertiajs/react";
+import { Link, router, usePage, Head } from "@inertiajs/react";
 
 import Sidebar from "../../Components/Sidebar.jsx";
 import OsBreadCrumb from "../../components/breadcrumb.jsx";
@@ -30,25 +30,17 @@ const pengujiColumns = [
 ];
 
 export default function PengujiPage() {
-    const { dosen: backendDosen, filters } = usePage().props;
+    // 2. [PERBAIKAN] Ambil props langsung dari usePage()
+    const { dosen, filters, flash } = usePage().props;
 
-    // Data dummy jika backend kosong
-    const mockDosen = {
-        data: [
-            { id_penguji: 1, nip: "1987654321", nama: "Dr. Andi Surya" },
-            { id_penguji: 2, nip: "1987654322", nama: "Prof. Rina Dewi" },
-            { id_penguji: 3, nip: "1987654323", nama: "Ir. Hendra Wijaya" },
-        ],
-        from: 1,
-        links: [],
-    };
-
-    const dosen = backendDosen && backendDosen.data ? backendDosen : mockDosen;
+    // 5. State (sudah benar)
     const [search, setSearch] = useState(filters?.search || "");
 
-    const handleSearch = () => {
+    const handleSearch = (e) => {
+        // [PERBAIKAN] Bungkus dalam form.preventDefault()
+        e.preventDefault();
         router.get(
-            "/admin/dosen", // ✅ endpoint GET sesuai instruksi tugas
+            "/admin/dosen",
             { search },
             { preserveState: true, replace: true }
         );
@@ -56,12 +48,13 @@ export default function PengujiPage() {
 
     const handleDelete = (id) => {
         if (confirm("Apakah Anda yakin ingin menghapus penguji ini?")) {
-            router.delete(`/admin/dosen/${id}`, { preserveScroll: true }); // ✅ endpoint DELETE sesuai tugas
+            router.delete(`/admin/dosen/${id}`, { preserveScroll: true });
         }
     };
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            <Head title="Manajemen Penguji" />
             <Sidebar />
 
             <main className="flex flex-col flex-1 p-os-8 transition-all duration-300 md:ml-20">
@@ -75,8 +68,7 @@ export default function PengujiPage() {
                         </h2>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl">
                             Halaman ini digunakan untuk mengelola data penguji
-                            (dosen yang akan menguji mahasiswa pada setiap
-                            stase).
+                            (dosen).
                         </p>
 
                         {/* Tombol Tambah Penguji */}
@@ -84,7 +76,7 @@ export default function PengujiPage() {
                             <Os_button
                                 onClick={() =>
                                     router.visit("/admin/dosen/create")
-                                } // ✅ endpoint tambah
+                                }
                                 className="flex items-center h-[46px] rounded-xl"
                             >
                                 <OsIcon
@@ -95,13 +87,27 @@ export default function PengujiPage() {
                             </Os_button>
                         </div>
 
+                        {/* [BARU] Notifikasi Sukses/Error */}
+                        {flash.success && (
+                            <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
+                                {flash.success}
+                            </div>
+                        )}
+                        {flash.error && (
+                            <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
+                                {flash.error}
+                            </div>
+                        )}
+
                         {/* Search Bar */}
                         <div className="w-full">
                             <OsSearchBar
+                                // Bungkus dalam form untuk submit on Enter
+                                onSubmit={handleSearch}
                                 search={search}
                                 setSearch={setSearch}
                                 onSearchClick={handleSearch}
-                                placeholder="Cari data penguji..."
+                                placeholder="Cari NIP atau Nama Penguji..."
                             />
                         </div>
                     </section>
@@ -133,7 +139,7 @@ export default function PengujiPage() {
                                         <div className="flex space-x-3">
                                             {/* Tombol Edit */}
                                             <Link
-                                                href={`/admin/dosen/${item.id_penguji}/edit`} // ✅ endpoint edit
+                                                href={`/admin/dosen/${item.id_penguji}/edit`}
                                                 className="w-10 h-10 flex items-center justify-center bg-blue-700 p-2 border border-black rounded-xl text-white hover:bg-blue-600 transition"
                                             >
                                                 <OsIcon
@@ -168,7 +174,8 @@ export default function PengujiPage() {
                             </div>
                         )}
 
-                        {dosen.links?.length > 0 && (
+                        {/* Paginasi */}
+                        {dosen.links && dosen.links.length > 3 && (
                             <div className="mt-8">
                                 <OsPagination links={dosen.links} />
                             </div>

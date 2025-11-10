@@ -1,30 +1,45 @@
 import React from "react";
 import { X } from "lucide-react";
-import { Link, useForm, usePage } from "@inertiajs/react";
+import { Link, useForm, usePage, Head } from "@inertiajs/react"; // 1. Import Head
 
 import OsCopyright from "../../components/copyright.jsx";
 import Os_button from "../../components/button.jsx";
 import OsIcon from "../../components/icons.jsx";
 
 export default function TambahMahasiswa() {
+    // 2. Ambil props dengan benar
     const { mahasiswa = null, errors = {} } = usePage().props;
     const isEditMode = !!mahasiswa;
 
+    // 3. [PERBAIKAN] Sesuaikan state form dengan controller
     const { data, setData, post, put, processing, reset } = useForm({
-        nim: mahasiswa ? mahasiswa.nim : "",
-        nama: mahasiswa ? mahasiswa.nama : "",
-        angkatan: mahasiswa ? mahasiswa.angkatan : "",
-        prodi: mahasiswa ? mahasiswa.prodi : "",
-        email: mahasiswa ? mahasiswa.email : "",
+        nim: mahasiswa?.nim || "",
+        nama: mahasiswa?.nama || "",
+        kelas: mahasiswa?.kelas || "", // Ganti 'angkatan' jadi 'kelas'
+        prodi: mahasiswa?.prodi || "",
+        // 'email' dihapus karena tidak ada di validasi controller
     });
 
+    // 4. [PERBAIKAN] handleSubmit sekarang menangani Edit dan Create
     function handleSubmit(e) {
         e.preventDefault();
-        post("/admin/mahasiswa");
+        if (isEditMode) {
+            // Kirim PUT ke route 'update'
+            put(`/admin/mahasiswa/${mahasiswa.id_mahasiswa}`, {
+                onSuccess: () => reset(),
+            });
+        } else {
+            // Kirim POST ke route 'store'
+            post("/admin/mahasiswa", {
+                onSuccess: () => reset(),
+            });
+        }
     }
 
     return (
         <div className="min-h-screen flex flex-col bg-os-white rounded-lg p-4">
+            <Head title={isEditMode ? "Edit Mahasiswa" : "Tambah Mahasiswa"} />
+
             {/* HEADER */}
             <header className="bg-white border-b border-gray-300 px-3 py-3 flex items-center justify-between gap-3">
                 {/* Tombol kembali */}
@@ -36,14 +51,10 @@ export default function TambahMahasiswa() {
                 </Link>
 
                 <div className="flex-1 mx-3 border border-black rounded-xl px-4 py-2 bg-white">
-                    {" "}
                     <p className="text-black text-base sm:text-lg truncate">
-                        {" "}
-                        Mahasiswa /{" "}
-                        {isEditMode
-                            ? " Edit Mahasiswa"
-                            : " Tambah Mahasiswa"}{" "}
-                    </p>{" "}
+                        Mahasiswa /
+                        {isEditMode ? " Edit Mahasiswa" : " Tambah Mahasiswa"}
+                    </p>
                 </div>
             </header>
 
@@ -61,7 +72,7 @@ export default function TambahMahasiswa() {
                     </div>
 
                     <form onSubmit={handleSubmit} className="p-6 space-y-3">
-                        {/* NIM & ANGKATAN */}
+                        {/* NIM & ANGKATAN (KELAS) */}
                         <div className="flex flex-col sm:flex-row gap-3">
                             <div className="w-full">
                                 <label className="block text-xs text-gray-700 font-semibold mb-1">
@@ -73,7 +84,11 @@ export default function TambahMahasiswa() {
                                         setData("nim", e.target.value)
                                     }
                                     placeholder="Masukkan NIM mahasiswa..."
-                                    className="w-full border border-gray-700 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className={`w-full border rounded-lg p-3 text-sm focus:ring-2 focus:outline-none ${
+                                        errors.nim
+                                            ? "border-red-500"
+                                            : "border-gray-700"
+                                    }`}
                                     required
                                 />
                                 {errors.nim && (
@@ -87,24 +102,30 @@ export default function TambahMahasiswa() {
                                 <label className="block text-xs text-gray-700 font-semibold mb-1">
                                     Angkatan
                                 </label>
+                                {/* 5. [PERBAIKAN] value dan onChange menggunakan 'kelas' */}
                                 <select
-                                    value={data.angkatan}
+                                    value={data.kelas}
                                     onChange={(e) =>
-                                        setData("angkatan", e.target.value)
+                                        setData("kelas", e.target.value)
                                     }
-                                    className="w-full border border-gray-700 rounded-lg p-3 text-sm bg-os-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                    className={`w-full border rounded-lg p-3 text-sm bg-os-white focus:ring-2 focus:outline-none ${
+                                        errors.kelas
+                                            ? "border-red-500"
+                                            : "border-gray-700"
+                                    }`}
                                     required
                                 >
                                     <option value="">Pilih</option>
-                                    <option value="2025/2026">2025/2026</option>
-                                    <option value="2024/2025">2024/2025</option>
-                                    <option value="2023/2024">2023/2024</option>
-                                    <option value="2022/2023">2022/2023</option>
-                                    <option value="2021/2022">2021/2022</option>
+                                    {/* Sesuaikan opsi ini dengan data 'kelas' Anda */}
+                                    <option value="2025">2025</option>
+                                    <option value="2024">2024</option>
+                                    <option value="2023">2023</option>
+                                    <option value="2022">2022</option>
+                                    <option value="2021">2021</option>
                                 </select>
-                                {errors.angkatan && (
+                                {errors.kelas && (
                                     <p className="text-red-500 text-xs mt-1">
-                                        {errors.angkatan}
+                                        {errors.kelas}
                                     </p>
                                 )}
                             </div>
@@ -121,7 +142,11 @@ export default function TambahMahasiswa() {
                                     setData("nama", e.target.value)
                                 }
                                 placeholder="Masukkan nama mahasiswa..."
-                                className="w-full border border-gray-700 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                className={`w-full border rounded-lg p-3 text-sm focus:ring-2 focus:outline-none ${
+                                    errors.nama
+                                        ? "border-red-500"
+                                        : "border-gray-700"
+                                }`}
                                 required
                             />
                             {errors.nama && (
@@ -131,22 +156,27 @@ export default function TambahMahasiswa() {
                             )}
                         </div>
 
-                        {/* JURUSAN */}
+                        {/* JURUSAN (PRODI) */}
                         <div>
                             <label className="block text-xs text-gray-700 font-semibold mb-1">
-                                Jurusan
+                                Jurusan (Prodi)
                             </label>
                             <select
                                 value={data.prodi}
                                 onChange={(e) =>
                                     setData("prodi", e.target.value)
                                 }
-                                className="w-full border border-gray-700 rounded-lg p-3 text-sm bg-os-white focus:ring-2 focus:ring-blue-500 focus:outline-none"
+                                className={`w-full border rounded-lg p-3 text-sm bg-os-white focus:ring-2 focus:outline-none ${
+                                    errors.prodi
+                                        ? "border-red-500"
+                                        : "border-gray-700"
+                                }`}
                                 required
                             >
                                 <option value="">Pilih jurusan</option>
                                 <option value="Kedokteran">Kedokteran</option>
                                 <option value="Keperawatan">Keperawatan</option>
+                                {/* Tambahkan prodi lain jika ada */}
                             </select>
                             {errors.prodi && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -155,26 +185,7 @@ export default function TambahMahasiswa() {
                             )}
                         </div>
 
-                        {/* EMAIL MAHASISWA */}
-                        <div>
-                            <label className="block text-xs text-gray-700 font-semibold mb-1">
-                                Email Mahasiswa
-                            </label>
-                            <input
-                                type="email"
-                                value={data.email}
-                                onChange={(e) =>
-                                    setData("email", e.target.value)
-                                }
-                                placeholder="Masukkan email mahasiswa..."
-                                className="w-full border border-gray-700 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            />
-                            {errors.email && (
-                                <p className="text-red-500 text-xs mt-1">
-                                    {errors.email}
-                                </p>
-                            )}
-                        </div>
+                        {/* EMAIL (Dihapus karena tidak ada di controller) */}
 
                         {/* TOMBOL */}
                         <div className="flex flex-col sm:flex-row justify-between gap-3 pt-4">
@@ -192,24 +203,6 @@ export default function TambahMahasiswa() {
                                     : isEditMode
                                     ? "Perbarui"
                                     : "Submit"}
-                            </Os_button>
-
-                            <Os_button
-                                type="button"
-                                onClick={() => {
-                                    if (
-                                        confirm(
-                                            "Yakin ingin mengosongkan form?"
-                                        )
-                                    )
-                                        reset();
-                                }}
-                                className="flex items-center justify-center gap-2 bg-red-600 hover:bg-red-500 rounded-xl w-full sm:w-auto"
-                            >
-                                <OsIcon
-                                    name="Trash"
-                                    className="h-os-20 os-icon-light"
-                                />
                             </Os_button>
                         </div>
                     </form>

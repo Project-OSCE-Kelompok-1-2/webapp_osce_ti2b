@@ -92,12 +92,10 @@ Route::get('/osce/create', function () {
     Route::delete('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'destroy'])->name('osce.jadwal.destroy');
     
     // Menu Penguji (Dosen)
-    Route::get('/dosen', [PengujiController::class, 'index'])->name('dosen.index');
-    Route::post('/dosen', [PengujiController::class, 'store'])->name('dosen.store');
+    Route::resource('dosen', PengujiController::class)->except(['show']);
 
     // === MENU MAHASISWA (baru ditambahkan) ===
-    Route::get('/mahasiswa', [MahasiswaController::class, 'index'])->name('mahasiswa.index');
-    Route::post('/mahasiswa', [MahasiswaController::class, 'store'])->name('mahasiswa.store');
+    Route::resource('mahasiswa', MahasiswaController::class)->except(['show']);
 
     // Mahasiswa - Import dari Excel
     Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
@@ -113,9 +111,7 @@ Route::get('/osce/create', function () {
 });
 
 
-// ===================================================================
-// === RUTE BARU: OSCE ENROLLMENT (Membutuhkan osce_id & jadwal_id) ===
-// ===================================================================
+
 // Ini adalah rute yang benar untuk OsceEnrollmentController
 Route::middleware(['auth', 'role:admin'])->prefix('admin/osce/{osce_id}/jadwal/{jadwal_id}')->group(function () {
     

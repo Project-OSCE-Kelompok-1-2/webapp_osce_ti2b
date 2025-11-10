@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, router, usePage } from "@inertiajs/react";
+import { Link, router, usePage, Head } from "@inertiajs/react"; // Tambahkan Head
 import { Trash2, X } from "lucide-react";
 
 import Sidebar from "../../Components/Sidebar.jsx";
@@ -8,8 +8,9 @@ import OsTableHeader from "../../components/tableheader.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsCopyright from "../../components/copyright.jsx";
-import Os_button from "../../components/button.jsx"; 
+import Os_button from "../../components/button.jsx";
 
+// Kolom tabel (sudah benar)
 const mahasiswaColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
     {
@@ -30,39 +31,29 @@ const mahasiswaColumns = [
 ];
 
 export default function MahasiswaPage() {
-    const { mahasiswa: backendMahasiswa, filters } = usePage().props;
+    // 1. [PERBAIKAN] Ambil props langsung. Hapus mock data.
+    const { mahasiswa, filters, flash } = usePage().props;
 
-    const mockMahasiswa = {
-        data: [
-            { id_mahasiswa: 1, nim: "TI23001", nama: "Ivan Hakim" },
-            { id_mahasiswa: 2, nim: "TI23002", nama: "Rafi Pratama" },
-            { id_mahasiswa: 3, nim: "TI23003", nama: "Nadia Putri" },
-            { id_mahasiswa: 4, nim: "TI23004", nama: "Ilham Nur" },
-        ],
-        from: 1,
-        links: [],
-    };
-
-    const mahasiswa =
-        backendMahasiswa && backendMahasiswa.data
-            ? backendMahasiswa
-            : mockMahasiswa;
-
+    // 2. [PERBAIKAN] State filter (sudah benar)
     const [search, setSearch] = useState(filters?.search || "");
-    const [angkatan, setAngkatan] = useState(filters?.angkatan || "");
+    const [angkatan, setAngkatan] = useState(filters?.angkatan || ""); // 'angkatan' ini adalah 'kelas' di DB
     const [importFile, setImportFile] = useState(null);
     const [importing, setImporting] = useState(false);
     const [showExcelModal, setShowExcelModal] = useState(false);
 
+    // 3. [PERBAIKAN] Daftar angkatan yang lebih logis
     const angkatanList = [
-        { value: "2025/2026", label: "2025/2026" },
-        { value: "2024/2025", label: "2024/2025" },
-        { value: "2023/2024", label: "2023/2024" },
-        { value: "2022/2023", label: "2022/2023" },
-        { value: "2021/2022", label: "2021/2022" },
+        { value: "", label: "Semua Angkatan" },
+        { value: "2025", label: "2025" },
+        { value: "2024", label: "2024" },
+        { value: "2023", label: "2023" },
+        { value: "2022", label: "2022" },
+        { value: "2021", label: "2021" },
     ];
 
-    const handleSearch = () => {
+    // 4. [PERBAIKAN] Fungsi search dibungkus di form submit
+    const handleSearch = (e) => {
+        e.preventDefault();
         router.get(
             "/admin/mahasiswa",
             { search, angkatan },
@@ -70,45 +61,41 @@ export default function MahasiswaPage() {
         );
     };
 
+    // 5. Fungsi delete (sudah benar)
     const handleDelete = (id) => {
-        if (confirm("Apakah Anda yakin ingin menghapus mahasiswa ini?")) {
+        if (
+            confirm(
+                "Apakah Anda yakin ingin menghapus mahasiswa ini? Ini juga akan menghapus akun login mereka."
+            )
+        ) {
             router.delete(`/admin/mahasiswa/${id}`, { preserveScroll: true });
         }
     };
 
+    // 6. Fungsi import (sudah benar)
     const handleImport = async (e) => {
         e.preventDefault();
-        if (!importFile) {
-            alert("Pilih file Excel terlebih dahulu.");
-            return;
-        }
-
-        try {
-            setImporting(true);
-            const formData = new FormData();
-            formData.append("file", importFile);
-
-            await router.post("/admin/mahasiswa/import", formData, {
+        if (!importFile) return alert("Pilih file Excel terlebih dahulu.");
+        setImporting(true);
+        router.post(
+            "/admin/mahasiswa/import",
+            { file: importFile },
+            {
                 forceFormData: true,
                 onSuccess: () => {
                     alert("File Excel berhasil diunggah!");
                     setShowExcelModal(false);
                     setImportFile(null);
                 },
-                onError: () => {
-                    alert("Terjadi kesalahan saat mengunggah file.");
-                },
+                onError: () => alert("Terjadi kesalahan saat mengunggah file."),
                 onFinish: () => setImporting(false),
-            });
-        } catch (error) {
-            console.error("Upload error:", error);
-            alert("Gagal mengunggah file.");
-            setImporting(false);
-        }
+            }
+        );
     };
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            <Head title="Manajemen Mahasiswa" />
             <Sidebar />
 
             <main className="flex flex-col flex-1 p-os-8 transition-all duration-300 md:ml-20">
@@ -136,9 +123,8 @@ export default function MahasiswaPage() {
                                     name="add"
                                     className="h-os-20 os-icon-light mr-os-8"
                                 />
-                                Tambah Mahasiswa Dengan Form
+                                Tambah Mahasiswa
                             </Os_button>
-
                             <Os_button
                                 onClick={() => setShowExcelModal(true)}
                                 className="flex items-center h-[46px] rounded-xl"
@@ -147,13 +133,27 @@ export default function MahasiswaPage() {
                                     name="Upload"
                                     className="h-os-20 os-icon-light mr-os-8"
                                 />
-                                Tambah Mahasiswa Dengan Excel
+                                Import dari Excel
                             </Os_button>
                         </div>
 
-                        {/* Filter */}
-                        <div className="flex items-center gap-3 mb-4">
-                            {/* Input pencarian */}
+                        {/* Notifikasi Sukses/Error */}
+                        {flash.success && (
+                            <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
+                                {flash.success}
+                            </div>
+                        )}
+                        {flash.error && (
+                            <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
+                                {flash.error}
+                            </div>
+                        )}
+
+                        {/* 7. [PERBAIKAN] Filter dibungkus <form> */}
+                        <form
+                            onSubmit={handleSearch}
+                            className="flex items-center gap-3 mb-4"
+                        >
                             <div className="relative flex-1">
                                 <OsIcon
                                     name="Search"
@@ -168,11 +168,11 @@ export default function MahasiswaPage() {
                                 />
                             </div>
 
-                            {/* Dropdown Tahun Angkatan */}
                             <select
                                 value={angkatan}
                                 onChange={(e) => setAngkatan(e.target.value)}
-                                className="border border-black rounded-xl px-24 py-3"
+                                // [PERBAIKAN] Styling padding
+                                className="border border-black rounded-xl px-4 py-3"
                             >
                                 {angkatanList.map((a) => (
                                     <option key={a.value} value={a.value}>
@@ -181,14 +181,14 @@ export default function MahasiswaPage() {
                                 ))}
                             </select>
 
-                            {/* Tombol Cari */}
                             <Os_button
-                                onClick={handleSearch}
-                                className="border border-black rounded-xl px-28 py-3"
+                                type="submit"
+                                // [PERBAIKAN] Styling padding
+                                className="border border-black rounded-xl px-8 py-3"
                             >
                                 Cari
                             </Os_button>
-                        </div>
+                        </form>
                     </section>
 
                     {/* Tabel Mahasiswa */}
@@ -196,7 +196,6 @@ export default function MahasiswaPage() {
                         <h2 className="font-semibold text-lg mb-2">
                             Tabel Mahasiswa
                         </h2>
-
                         <OsTableHeader columns={mahasiswaColumns} />
 
                         {mahasiswa.data.length > 0 ? (
@@ -225,7 +224,6 @@ export default function MahasiswaPage() {
                                                     className="h-os-20 w-os-20 os-icon-light"
                                                 />
                                             </Link>
-
                                             <Os_button
                                                 onClick={() =>
                                                     handleDelete(
@@ -251,7 +249,8 @@ export default function MahasiswaPage() {
                             </div>
                         )}
 
-                        {mahasiswa.links?.length > 0 && (
+                        {/* Paginasi */}
+                        {mahasiswa.links && mahasiswa.links.length > 3 && (
                             <div className="mt-8">
                                 <OsPagination links={mahasiswa.links} />
                             </div>
@@ -264,7 +263,7 @@ export default function MahasiswaPage() {
                 </footer>
             </main>
 
-            {/* === MODAL IMPORT EXCEL === */}
+            {/* === MODAL IMPORT EXCEL === (Kode modal Anda sudah benar) */}
             {showExcelModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg w-[420px] shadow-xl overflow-hidden">
@@ -275,7 +274,6 @@ export default function MahasiswaPage() {
                             </h2>
                             <p className="text-xs text-gray-300">
                                 Download file excel dan isi data mahasiswa
-                                sesuai kolom yang tersedia
                             </p>
                             <button
                                 onClick={() => setShowExcelModal(false)}
@@ -290,20 +288,19 @@ export default function MahasiswaPage() {
                             <Os_button className="w-full">
                                 Download Template Excel
                             </Os_button>
-
                             <div className="bg-red-50 border border-red-300 text-red-700 text-xs rounded-md p-3 leading-relaxed">
                                 <strong>⚠️ Perhatian!</strong>
                                 <br />
-                                Jangan ubah heading karena menjadi patokan
-                                program untuk membuat data mahasiswa.
+                                Jangan ubah heading untuk patokan program.
                             </div>
-
                             <div className="flex flex-col items-center gap-2">
                                 <label
                                     htmlFor="mahasiswa-import-file"
                                     className="border border-blue-600 text-blue-600 hover:bg-blue-50 py-2 px-4 rounded-md cursor-pointer text-sm font-medium w-full text-center transition-colors"
                                 >
-                                    Upload file excel
+                                    {importFile
+                                        ? importFile.name
+                                        : "Upload file excel"}
                                 </label>
                                 <input
                                     id="mahasiswa-import-file"
@@ -329,12 +326,11 @@ export default function MahasiswaPage() {
                         <div className="flex justify-between items-center px-5 py-3 bg-gray-50 border-t">
                             <Os_button
                                 onClick={handleImport}
-                                disabled={importing}
-                                className="w-full mr-2"
+                                disabled={importing || !importFile}
+                                className="w-full mr-2 disabled:opacity-50"
                             >
                                 {importing ? "Mengunggah..." : "Submit"}
                             </Os_button>
-
                             <Os_button
                                 onClick={() => setShowExcelModal(false)}
                                 className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white p-3 rounded-lg transition-colors"
