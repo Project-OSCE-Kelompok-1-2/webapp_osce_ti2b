@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
+use App\Imports\MahasiswaImport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class MahasiswaController extends Controller
 {
@@ -80,5 +82,24 @@ class MahasiswaController extends Controller
 
         return Redirect::route('admin.mahasiswa.index')
             ->with('success', 'Mahasiswa baru berhasil ditambahkan.');
+    }
+}
+
+
+class MahasiswaController extends Controller
+{
+    /**
+     * POST /admin/mahasiswa/import
+     * Import data mahasiswa dari file Excel
+     */
+    public function import(Request $request)
+    {
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls',
+        ]);
+
+        Excel::import(new MahasiswaImport, $request->file('file'));
+
+        return redirect()->back()->with('success', 'Data mahasiswa berhasil diimport.');
     }
 }
