@@ -1,7 +1,8 @@
 <?php
 
-use Inertia\Inertia;
+use App\Http\Controllers\OsceController; // ✅ Tambahkan ini
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\StaseController;
@@ -29,7 +30,6 @@ Route::middleware('guest')->group(function () {
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-
 // === RUTE UNTUK ADMIN ===
 Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->group(function () {
 
@@ -51,6 +51,9 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     // Menu Kompetensi / Poin Penilaian (Nested di dalam Aspek)
     Route::resource('aspek-penilaian.kompetensi', KompetensiController::class)->except(['show'])->shallow();
 
+    // ✅ Rute Modul OSCE (List & Create)
+    Route::get('/osce', [OsceController::class, 'index'])->name('osce.index');
+    Route::post('/osce', [OsceController::class, 'store'])->name('osce.store');
     // Menu Penguji (Dosen)
     Route::get('/dosen', [PengujiController::class, 'index'])->name('dosen.index');
     Route::post('/dosen', [PengujiController::class, 'store'])->name('dosen.store');
