@@ -2,7 +2,7 @@ import React, { useState } from "react";
 // 👇 [UBAH] Impor hook dan komponen yang diperlukan dari Inertia
 import { usePage, Link, router } from "@inertiajs/react";
 import { Pencil, Trash2, PlusCircle, Search, ArrowLeft } from "lucide-react";
-import Sidebar from "../../Components/Sidebar";
+import Sidebar from "../../components/Sidebar";
 
 export default function KompetensiPage() {
     // 1. Ambil data dari props yang dikirim Controller
