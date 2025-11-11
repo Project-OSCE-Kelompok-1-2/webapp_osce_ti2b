@@ -1,29 +1,21 @@
 import React from "react";
 import { Trash2, Save, X } from "lucide-react";
-// 👇 [UBAH] Impor hook yang diperlukan dari Inertia
 import { useForm, usePage, Link } from "@inertiajs/react";
 
-// [FIX] Ganti nama 'KompetensiForm' menjadi 'TambahKompetensi'
 export default function TambahKompetensi() {
-    // 1. [FIX] Ambil 'aspek', 'errors', dan 'kompetensi' (yang bisa jadi null)
     const { aspek, kompetensi = null, errors } = usePage().props;
 
-    // 2. [FIX] Tentukan apakah ini mode edit (VARIABEL YANG HILANG)
     const isEditMode = !!kompetensi;
 
-    // 3. [FIX] Ambil 'put' dari useForm dan isi data awal jika mode edit
     const { data, setData, post, put, processing, reset } = useForm({
-        // Sesuaikan nama field dengan kolom database
         kompetensi: kompetensi ? kompetensi.kompetensi : "",
         bobot: kompetensi ? kompetensi.bobot : 1, // Default ke 1 jika mode create
     });
 
-    // 4. Fungsi 'handleSubmit' Anda sekarang akan BERFUNGSI
     function handleSubmit(e) {
         e.preventDefault();
 
         if (isEditMode) {
-            // <-- Variabel 'isEditMode' sekarang sudah didefinisikan
             // Mode EDIT: Kirim PUT ke /admin/kompetensi/{id}
             put(`/admin/kompetensi/${kompetensi.id_poin_aspek_penilaian}`);
         } else {

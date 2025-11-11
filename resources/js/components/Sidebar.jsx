@@ -47,7 +47,9 @@ const Sidebar = () => {
           {isOpen && (
             <div className="overflow-hidden">
               <p className="font-semibold text-black truncate">Admin1234</p>
-              <p className="text-sm text-gray-500 truncate">Admin1234@gmail.com</p>
+              <p className="text-sm text-gray-500 truncate">
+                Admin1234@gmail.com
+              </p>
             </div>
           )}
         </div>
@@ -73,7 +75,11 @@ const Sidebar = () => {
                 `}
               >
                 <div className="flex-shrink-0 w-6 h-6">{item.icon}</div>
-                {isOpen && <span className="text-sm whitespace-nowrap">{item.label}</span>}
+                {isOpen && (
+                  <span className="text-sm whitespace-nowrap">
+                    {item.label}
+                  </span>
+                )}
               </a>
             );
           })}
@@ -96,7 +102,9 @@ const Sidebar = () => {
           <div className="flex-shrink-0 w-6 h-6">
             <Settings size={24} />
           </div>
-          {isOpen && <span className="whitespace-nowrap text-sm">Pengaturan</span>}
+          {isOpen && (
+            <span className="whitespace-nowrap text-sm">Pengaturan</span>
+          )}
         </a>
       </div>
     </aside>

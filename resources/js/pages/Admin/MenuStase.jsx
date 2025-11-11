@@ -16,17 +16,37 @@ import OsCopyright from "../../components/Copyright.jsx";
 import OsIcon from "../../components/icons";
 import OsTableHeader from "../../components/tableheader";
 import OsSearchBar from "../../components/searchbar";
-import OsPagination from "../../components/pagination.jsx"; // Pastikan path ini benar!
+import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
 
 // --- Definisi Kolom Tabel ---
 const staseColumns = [
-    { key: "no", content: "No", width: "w-16", classes: "justify-center items-center" },
-    { key: "nama_stase", content: "Nama Stase", width: "flex-1", classes: "justify-start items-center px-4" },
-    { key: "jumlah_aspek", content: "Jumlah Aspek", width: "w-56", classes: "justify-center items-center px-4" },
-    { key: "action", content: "Action", width: "w-80", classes: "justify-center items-center px-4" },
-  ];
+    {
+        key: "no",
+        content: "No",
+        width: "w-16",
+        classes: "justify-center items-center",
+    },
+    {
+        key: "nama_stase",
+        content: "Nama Stase",
+        width: "flex-1",
+        classes: "justify-start items-center px-4",
+    },
+    {
+        key: "jumlah_aspek",
+        content: "Jumlah Aspek",
+        width: "w-56",
+        classes: "justify-center items-center px-4",
+    },
+    {
+        key: "action",
+        content: "Action",
+        width: "w-80",
+        classes: "justify-center items-center px-4",
+    },
+];
 
 export default function Stase() {
     // 1. Ambil data 'stase' dan 'filters' dari props yang dikirim Controller
@@ -90,11 +110,10 @@ export default function Stase() {
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar/>
+            <Sidebar />
 
             {/* ===== KONTEN UTAMA ===== */}
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-
                 {/* Header/Breadcrumb */}
                 <OsHeader>
 
@@ -102,7 +121,6 @@ export default function Stase() {
 
                 {/* ===== ISI HALAMAN (Scrollable Area) ===== */}
                 <div className="flex-1 overflow-auto">
-
                     {/* Judul & Deskripsi */}
                     <h2 className="font-semibold text-lg mb-1">Menu Stase</h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
@@ -115,7 +133,10 @@ export default function Stase() {
                         onClick={() => router.get("/admin/stase/create")}
                         className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                     >
-                        <OsIcon name="add" className="h-os-20 os-icon-light mr-os-8" />
+                        <OsIcon
+                            name="add"
+                            className="h-os-20 os-icon-light mr-os-8"
+                        />
                         Tambah Stase
                     </OsButton>
 
@@ -128,10 +149,12 @@ export default function Stase() {
                     />
 
                     {/* Table Header */}
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">Table Stase</h2>
+                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        Table Stase
+                    </h2>
                     <OsTableHeader columns={staseColumns} />
 
-                     {/* Data Rows */}
+                    {/* Data Rows */}
                     <OsTableBody data={tableData} columns={staseColumns} />
 
                     {/* Pesan jika tidak ada data */}
@@ -152,7 +175,7 @@ export default function Stase() {
                 </div>
 
                 {/* Footer */}
-                <OsCopyright/>
+                <OsCopyright />
             </main>
         </div>
     );

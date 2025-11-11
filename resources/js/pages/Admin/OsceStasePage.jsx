@@ -7,9 +7,9 @@ import {
     Plus,
     Search,
     ExternalLink,
-    ArrowUpRightFromSquare,
-    Edit,
-    Trash2,
+    ArrowUpRightFromSquare, // (Ikon 'open' di tabel)
+    Edit, // (Ikon 'edit' di tabel)
+    Trash2, // (Ikon 'delete' di tabel)
 } from "lucide-react";
 import OsHeader from "../../components/Header"; // 1. Impor komponen breadcrumb
 
@@ -24,13 +24,6 @@ export default function HalamanStase({ stase, osce, filters }) {
     // 2. State untuk search bar, ambil nilai default dari 'filters'
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
 
-    // 3. [PERBAIKAN] Hapus pengambilan data yang salah dari usePage
-    // const { data } = usePage().props;
-    // const osceStase = data;
-
-    /**
-     * 4. [PERBAIKAN] Fungsi untuk menangani submit pencarian
-     */
     function handleSearch(e) {
         e.preventDefault(); // Mencegah reload halaman
 
@@ -45,6 +38,18 @@ export default function HalamanStase({ stase, osce, filters }) {
         );
     }
 
+    function handleDelete(staseId) {
+        if (
+            confirm(
+                "Yakin ingin menghapus stase ini? Ini akan menghapus stase ini dari SEMUA sesi terjadwal."
+            )
+        ) {
+            router.delete(`/admin/osce/${osce.id_osce}/stase/${staseId}`, {
+                preserveScroll: true, // Agar halaman tidak loncat
+            });
+        }
+    }
+
     return (
         <div className="min-h-screen flex ">
             <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
@@ -54,7 +59,7 @@ export default function HalamanStase({ stase, osce, filters }) {
                     isSidebarOpen ? "ml-64" : "ml-20"
                 }`}
             >
-                {/* 5. Pastikan Ifad mengirim prop 'osce' */}
+                {/* 5. Pastikan backend mengirim prop 'osce' */}
                 <OsBreadCrumb osce={osce} />
 
                 <div className="flex-1 p-2">
@@ -66,7 +71,14 @@ export default function HalamanStase({ stase, osce, filters }) {
                                 <ClipboardList size={16} />
                                 Halaman Stase
                             </button>
-                            <button className="flex items-center gap-2 px-4 py-2 bg-white border text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">
+                            <button
+                                onClick={() =>
+                                    router.get(
+                                        `/admin/osce/${osce.id_osce}/jadwal`
+                                    )
+                                }
+                                className="flex items-center gap-2 px-4 py-2 bg-white border text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
+                            >
                                 <CalendarClock size={16} />
                                 Jadwal Sesi
                             </button>
@@ -83,8 +95,13 @@ export default function HalamanStase({ stase, osce, filters }) {
                             elit. Nunc vulputate libero et velit interdum, ac
                             aliquet odio mattis.
                         </p>
+                        {/* [PERBAIKAN] Tombol "Masukkan Stase" sekarang berfungsi */}
                         <button
-                            onClick={() => router.visit("/tambahoscestase")} // Asumsi ini adalah route 'create'
+                            onClick={() =>
+                                router.get(
+                                    `/admin/osce/${osce.id_osce}/stase/create`
+                                )
+                            }
                             className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
                         >
                             <Plus size={18} className="mr-2" />
@@ -149,15 +166,12 @@ export default function HalamanStase({ stase, osce, filters }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {/* 7. [PERBAIKAN] Loop 'stase.data' dari props paginasi */}
                                     {stase.data.map((item, index) => (
                                         <tr
-                                            // 8. [PERBAIKAN] Gunakan ID unik
                                             key={item.id_osce_stase}
                                             className="border-b hover:bg-gray-50"
                                         >
                                             <td className="p-3 font-medium">
-                                                {/* 9. [PERBAIKAN] Gunakan 'from' untuk nomor paginasi */}
                                                 {stase.from + index}
                                             </td>
                                             <td className="p-3">
@@ -193,6 +207,11 @@ export default function HalamanStase({ stase, osce, filters }) {
                                                         <Edit size={14} />
                                                     </button>
                                                     <button
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                item.id_osce_stase
+                                                            )
+                                                        }
                                                         className="p-2 rounded-md border text-red-600 hover:bg-red-50"
                                                         title="Delete"
                                                     >
