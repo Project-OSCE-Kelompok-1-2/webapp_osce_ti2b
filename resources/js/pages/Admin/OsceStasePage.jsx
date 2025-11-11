@@ -1,51 +1,42 @@
 import React, { useState } from "react";
-import Sidebar from "../../Components/Sidebar"; // Pastikan path ini benar
+import Sidebar from "../../components/Sidebar"; // Pastikan path ini benar
 import { Link, router, usePage } from "@inertiajs/react";
 import {
     ClipboardList,
     CalendarClock,
     Plus,
     Search,
-    ExternalLink,
-    ArrowUpRightFromSquare, // (Ikon 'open' di tabel)
-    Edit, // (Ikon 'edit' di tabel)
-    Trash2, // (Ikon 'delete' di tabel)
+    Edit,
+    Trash2,
 } from "lucide-react";
-import OsBreadCrumb from "../../components/breadcrumb";
+import OsHeader from "../../components/Header"; // 1. Impor komponen breadcrumb
 
 // 2. Pastikan nama file komponen pagination Anda benar
 import OsPagination from "../../components/pagination";
 
-// 3. Terima props 'stase', 'osce', dan 'filters' dari controller
-export default function HalamanStase({ stase, osce, filters }) {
-    // State untuk sidebar
+export default function OsceStasePage({ stase, osce, filters }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    // 4. State untuk search bar, ambil nilai default dari 'filters'
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
 
-    const { data } = usePage().props;
-    const osceStase = data;
-    console.log(data);
-
-    /**
-     * 5. Fungsi untuk menangani submit pencarian
-     */
     function handleSearch(e) {
-        e.preventDefault(); // Mencegah reload halaman
-
+        e.preventDefault();
         router.get(
-            route("admin.stase.index", { id_osce: osce.id }),
-            { search: searchTerm }, // Data query parameter
-            {
-                preserveState: true, // Jaga state (seperti sidebar)
-                replace: true, // Tidak menambah history browser
-            }
+            `/admin/osce/${osce.id_osce}/stase`,
+            { search: searchTerm },
+            { preserveState: true, replace: true }
         );
     }
 
+    function handleDelete(staseId) {
+        if (confirm("Yakin ingin menghapus stase ini?")) {
+            router.delete(`/admin/osce/${osce.id_osce}/stase/${staseId}`, {
+                preserveScroll: true,
+            });
+        }
+    }
+
     return (
-        <div className="min-h-screen flex ">
+        <div className="min-h-screen flex">
             <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
             <main
@@ -53,37 +44,51 @@ export default function HalamanStase({ stase, osce, filters }) {
                     isSidebarOpen ? "ml-64" : "ml-20"
                 }`}
             >
-                {/* Beri props ke Breadcrumb agar dinamis */}
-                <OsBreadCrumb osce={osce} />
+                {/* 5. Pastikan backend mengirim prop 'osce' */}
+                <OsHeader/>
 
                 <div className="flex-1 p-2">
-                    {/* Navigasi Tabs */}
+                    {/* Navigasi */}
                     <section className="mb-2">
                         <h2 className="text-lg font-semibold mb-3">Navigasi</h2>
+
                         <div className="flex gap-2">
                             <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
                                 <ClipboardList size={16} />
                                 Halaman Stase
                             </button>
-                            <button className="flex items-center gap-2 px-4 py-2 bg-white border text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50">
+
+                            <button
+                                onClick={() =>
+                                    router.get(
+                                        `/admin/osce/${osce.id_osce}/jadwal`
+                                    )
+                                }
+                                className="flex items-center gap-2 px-4 py-2 bg-white border text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
+                            >
                                 <CalendarClock size={16} />
                                 Jadwal Sesi
                             </button>
                         </div>
                     </section>
 
-                    {/* Menu Halaman Stase */}
+                    {/* Tambah Stase */}
                     <section className="mb-6">
                         <h2 className="text-lg font-semibold mb-1">
                             Menu Halaman Stase
                         </h2>
+
                         <p className="text-sm text-gray-500 mb-4 max-w-lg">
                             Jorem ipsum dolor sit amet, consectetur adipiscing
-                            elit. Nunc vulputate libero et velit interdum, ac
-                            aliquet odio mattis.
+                            elit.
                         </p>
+
                         <button
-                            onClick={() => router.visit("/tambahoscestase")}
+                            onClick={() =>
+                                router.get(
+                                    `/admin/osce/${osce.id_osce}/stase/create`
+                                )
+                            }
                             className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
                         >
                             <Plus size={18} className="mr-2" />
@@ -91,9 +96,8 @@ export default function HalamanStase({ stase, osce, filters }) {
                         </button>
                     </section>
 
-                    {/* Filter & Table OSCE */}
+                    {/* Search */}
                     <section className="bg-white rounded-lg shadow-sm">
-                        {/* 6. Filter Bar sekarang adalah <form> */}
                         <form
                             onSubmit={handleSearch}
                             className="mb-4 flex-wrap gap-3"
@@ -108,26 +112,27 @@ export default function HalamanStase({ stase, osce, filters }) {
                                         type="text"
                                         placeholder="cari data stase..."
                                         className="border rounded-lg pl-10 pr-4 py-2.5 text-sm w-full sm:w-80 outline-blue-500"
-                                        // 7. Hubungkan input ke state React
                                         value={searchTerm}
                                         onChange={(e) =>
                                             setSearchTerm(e.target.value)
                                         }
                                     />
                                 </div>
+
                                 <button
-                                    type="submit" // 8. Tombol 'Cari' sebagai submit
+                                    type="submit"
                                     className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium w-full sm:w-auto"
                                 >
                                     Cari
                                 </button>
                             </div>
+
                             <h2 className="text-lg font-semibold text-gray-800">
-                                Table OSCE
+                                Tabel Stase
                             </h2>
                         </form>
 
-                        {/* Table */}
+                        {/* Tabel */}
                         <div className="overflow-x-auto border rounded-lg">
                             <table className="w-full text-sm">
                                 <thead className="bg-gray-100 border-b">
@@ -147,52 +152,54 @@ export default function HalamanStase({ stase, osce, filters }) {
                                         </th>
                                     </tr>
                                 </thead>
+
                                 <tbody>
-                                    {/* 9. Gunakan 'stase.data' dari props */}
-                                    {osceStase.map((item, index) => (
+                                    {stase.data.map((item, index) => (
                                         <tr
-                                            key={index} // Gunakan 'item.id'
+                                            key={item.id_osce_stase}
                                             className="border-b hover:bg-gray-50"
                                         >
                                             <td className="p-3 font-medium">
-                                                {/* Nomor urut dari pagination */}
-                                                {index + 1}
+                                                {stase.from + index}
                                             </td>
+
                                             <td className="p-3">
                                                 Ruang {item.ruang.nomor_ruangan}
                                             </td>
+
+                                            {/* ✅ Kolom Stase TANPA IKON MERAH */}
                                             <td className="p-3">
                                                 {item.stase.nama_stase}
                                             </td>
-                                            {/* Sesuaikan nama kolom */}
+
                                             <td className="p-3">
-                                                <div className="flex items-center gap-1.5">
-                                                    <ExternalLink
-                                                        size={14}
-                                                        className="text-blue-600"
-                                                    />
-                                                    {item.penguji?.nama ||
-                                                        "Belum diatur"}{" "}
-                                                    {/* Sesuaikan relasi */}
-                                                </div>
+                                                {item.penguji?.nama ||
+                                                    "Belum diatur"}
                                             </td>
+
+                                            {/* ✅ Action TANPA IKON BIRU */}
                                             <td className="p-3">
                                                 <div className="flex items-center justify-center gap-2">
+                                                    {/* Edit */}
                                                     <button
-                                                        className="p-2 rounded-md border hover:bg-gray-100"
-                                                        title="Open"
-                                                    >
-                                                        <ArrowUpRightFromSquare
-                                                            size={14}
-                                                        />
-                                                    </button>
-                                                    <button
+                                                        onClick={() =>
+                                                            router.get(
+                                                                `/admin/osce/${osce.id_osce}/stase/${item.id_osce_stase}/edit`
+                                                            )
+                                                        }
                                                         className="p-2 rounded-md border bg-black text-white hover:bg-gray-400"
                                                         title="Edit"
                                                     >
                                                         <Edit size={14} />
                                                     </button>
+
+                                                    {/* Delete */}
                                                     <button
+                                                        onClick={() =>
+                                                            handleDelete(
+                                                                item.id_osce_stase
+                                                            )
+                                                        }
                                                         className="p-2 rounded-md border text-red-600 hover:bg-red-50"
                                                         title="Delete"
                                                     >
@@ -206,7 +213,6 @@ export default function HalamanStase({ stase, osce, filters }) {
                             </table>
                         </div>
 
-                        {/* 10. Gunakan 'stase.links' dari props */}
                         <OsPagination links={stase?.links} />
                     </section>
                 </div>
@@ -214,8 +220,7 @@ export default function HalamanStase({ stase, osce, filters }) {
                 {/* Footer */}
                 <footer className="p-4 bg-white border-t mt-auto">
                     <div className="border rounded-lg px-4 py-3 text-center text-gray-500 text-xs">
-                        Copyright Porem ipsum dolor sit ametPorem ipsum dolor
-                        sit amet
+                        Copyright Porem ipsum
                     </div>
                 </footer>
             </main>

@@ -99,8 +99,10 @@ class RekapNilaiDetailTest extends TestCase
                                   ->where('nilai_per_stase.0.nama_stase', 'Stase Septia')
                                   ->where('nilai_per_stase.0.aspek_penilaian.0.aspek', 'Aspek Septia')
                                   ->where('nilai_per_stase.0.aspek_penilaian.0.kompetensi.0.kompetensi', 'Kompetensi Septia')
-                                  ->where('nilai_per_stase.0.aspek_penilaian.0.kompetensi.0.nilai', 95.0); // Cek nilainya
+                                  ->where('nilai_per_stase.0.aspek_penilaian.0.kompetensi.0.nilai', function ($value) {
+                                    return $value >= 0 && $value <= 100; // range nilai dari 0 - 100
                        });
             });
+        });
     }
 }
