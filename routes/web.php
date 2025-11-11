@@ -38,9 +38,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->group(function () {
 
     // Dashboard
-    Route::get('dashboard', function () {
-        return Inertia::render('Admin/Dashboard');
-    })->name('dashboard');
+    Route::get('dashboard', [AdminController::class, 'dashboard'])->name('dashboard');
 
     // Pengaturan Akun
     Route::get('/pengaturan-akun', [AdminController::class, 'show_profile'])->name('account.show');
