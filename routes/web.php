@@ -72,5 +72,5 @@ Route::get('admin/rekapmahasiswa/mahasiswa', function () {
 }); 
 
 Route::get('admin/rekapmahasiswa/mahasiswa/detail', function () {
-        return Inertia::render('Admin/RekapDetailNilaiPage');
+        return Inertia::render('Admin/RekapDetailPage');
 });
