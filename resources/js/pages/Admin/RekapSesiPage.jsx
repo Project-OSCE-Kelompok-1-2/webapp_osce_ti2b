@@ -5,9 +5,10 @@ import { Search, ArrowLeft } from "lucide-react";
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
 // OsBreadCrumb dihapus, kita buat statis
-import OsCopyright from "../../components/copyright";
+import OsCopyright from "../../components/Copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
+Os
 
 // --- Definisi Kolom Tabel (Sudah Benar) ---
 const sesiColumns = [
