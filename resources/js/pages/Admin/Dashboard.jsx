@@ -12,7 +12,6 @@ import Sidebar from "../../Components/Sidebar.jsx";
 import OsCopyright from "../../components/copyright.jsx";
 
 /**
- * StatCard: versi yang lebih "visual" sesuai mock.
  * props: title, value, description, icon, colorClass
  */
 const StatCard = ({ title, value, description, icon, colorClass }) => {
