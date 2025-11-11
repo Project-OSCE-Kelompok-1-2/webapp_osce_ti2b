@@ -1,151 +1,149 @@
-import { Link, usePage, router } from "@inertiajs/react";
+import { Link, usePage, router, Head } from "@inertiajs/react";
 import React, { useState } from "react";
 import { Search } from "lucide-react";
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
-import OsBreadCrumb from "../../components/breadcrumb";
+// import OsBreadCrumb from "../../components/breadcrumb"; // Breadcrumb statis lebih cocok di sini
 import OsCopyright from "../../components/copyright";
 import OsTableHeader from "../../components/tableheader";
-import OsPagination from "../../components/pagination"; 
+import OsPagination from "../../components/pagination";
 
-// --- Definisi Kolom Tabel ---
+// --- Definisi Kolom Tabel (Sudah Benar) ---
 const rekapColumns = [
-    { content: 'No', width: 'w-16', classes: 'justify-center items-center' },
-    { content: 'Nama Rubrik', width: 'flex-1', classes: 'justify-start items-center px-4' },
-    { content: 'Rentang Tanggal', width: 'w-80', classes: 'justify-start items-center px-4' },
-    { content: 'Tahun Akademik', width: 'w-48', classes: 'justify-center items-center px-4' },
-    { content: 'Action', width: 'w-48', classes: 'justify-center items-center px-4' },
+    { content: "No", width: "w-16", classes: "justify-center items-center" },
+    {
+        content: "Nama Rubrik",
+        width: "flex-1",
+        classes: "justify-start items-center px-4",
+    },
+    {
+        content: "Rentang Tanggal",
+        width: "w-80",
+        classes: "justify-start items-center px-4",
+    },
+    {
+        content: "Tahun Akademik",
+        width: "w-48",
+        classes: "justify-center items-center px-4",
+    },
+    {
+        content: "Action",
+        width: "w-48",
+        classes: "justify-center items-center px-4",
+    },
 ];
 
-// ========================================================================
-// ===== 1. TAMBAHKAN DATA PALSU (MOCK DATA) UNTUK TAMPILAN =====
-// ========================================================================
-const mockFilters = {
-    search: "",
-    year: "2025"
-};
+// 2. [HAPUS] Mock data (mockFilters dan mockOsce) tidak diperlukan lagi
 
-const mockOsce = {
-    data: [
-        { 
-            id: 1, 
-            nama_rubrik: "OSCE Radiologi 01-A (Mock)", 
-            detail_rubrik: "135 Mahasiswa | 2 Sesi", 
-            rentang_tanggal: "Fri 01-01-2010 6:00 - Fri 01-01-2010 6:00", 
-            tahun_akademik: 2025 
-        },
-        { 
-            id: 2, 
-            nama_rubrik: "OSCE Bedah Minor 02-B (Mock)", 
-            detail_rubrik: "120 Mahasiswa | 1 Sesi", 
-            rentang_tanggal: "Sat 02-01-2010 8:00 - Sat 02-01-2010 9:00", 
-            tahun_akademik: 2025 
-        },
-    ],
-    from: 1, // Nomor awal untuk paginasi
-    links: [
-        // Data palsu untuk komponen OsPagination
-        { url: null, label: "&laquo; Previous", active: false },
-        { url: "#", label: "1", active: true },
-        { url: "#", label: "2", active: false },
-        { url: "#", label: "3", active: false },
-        { url: null, label: "Next &raquo;", active: false },
-    ]
-};
-// ========================================================================
-// ========================================================================
+export default function RekapOscePage() {
+    // 3. [PERBAIKAN] Ambil props dinamis langsung dari usePage
+    const { osce, filters, flash } = usePage().props;
 
-
-// Pastikan nama fungsi ini = 'RekapOscePage' jika nama file Anda 'RekapOscePage.jsx'
-// atau sesuaikan 'export default' di bawah.
-// Saya akan ganti nama fungsinya agar sesuai dengan nama file Anda.
-export default function RekapOscePage() { 
-    
-    // ========================================================================
-    // ===== 2. UBAH BARIS INI UNTUK MENGGUNAKAN MOCK DATA =====
-    // ========================================================================
-    // Kode Asli:
-    // const { osce, filters } = usePage().props;
-    
-    // Kode Baru (dengan default value):
-    const { osce = mockOsce, filters = mockFilters } = usePage().props;
-    // ========================================================================
-    // ========================================================================
-
-
-    // 2. Siapkan state untuk filter
-    // Kode ini sekarang aman karena 'filters' sudah ada nilainya
+    // 4. [PERBAIKAN] State filter disesuaikan dengan 'tahun' (dari contract)
     const [search, setSearch] = useState(filters.search || "");
-    const [year, setYear] = useState(filters.year || "2025"); 
+    const [tahun, setTahun] = useState(filters.tahun || ""); // Ganti 'year' menjadi 'tahun'
 
-    // 3. Fungsi untuk menjalankan pencarian
-    const handleSearch = () => {
-        // Fungsi ini tidak akan error, tapi hanya akan me-refresh halaman
-        // karena data aslinya tidak difilter di backend.
+    // 5. [PERBAIKAN] Fungsi untuk menjalankan pencarian
+    const handleSearch = (e) => {
+        e.preventDefault(); // Bungkus dalam form
         router.get(
-            "/admin/rekapnilai", // URL route Anda
-            { search, year },     
+            "/admin/rekap-nilai", // URL route yang benar (sesuai contract)
+            { search, tahun }, // Kirim 'tahun', bukan 'year'
             { preserveState: true, replace: true }
         );
     };
 
+    // Daftar tahun (bisa dibuat dinamis jika perlu)
+    const tahunList = [
+        { value: "", label: "Semua Tahun" },
+        { value: "2025/2026", label: "2025/2026" },
+        { value: "2024/2025", label: "2024/2025" },
+        { value: "2023/2024", label: "2023/2024" },
+    ];
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            <Head title="Rekap Nilai OSCE" />
             <Sidebar />
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-
-                <OsBreadCrumb className="fixed" />
+                {/* Breadcrumb Statis */}
+                <div className="flex items-center gap-3 text-sm text-gray-700">
+                    <div className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium bg-white">
+                        Rekap Nilai
+                    </div>
+                </div>
 
                 <div className="flex-1 overflow-auto">
+                    {/* Notifikasi Sukses/Error */}
+                    {flash.success && (
+                        <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
+                            {flash.success}
+                        </div>
+                    )}
+                    {flash.error && (
+                        <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
+                            {flash.error}
+                        </div>
+                    )}
 
-                    <h2 className="font-semibold text-lg mb-1">Menu Rekap Nilai</h2>
+                    <h2 className="font-semibold text-lg mb-1">
+                        Menu Rekap Nilai
+                    </h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum, ac aliquet odio mattis.
+                        Pilih OSCE yang telah selesai untuk melihat rekapitulasi
+                        nilai mahasiswa.
                     </p>
 
-                    <div className="flex flex-col md:flex-row items-center gap-4 mb-5">
+                    {/* 6. [PERBAIKAN] Filter bar dibungkus <form> */}
+                    <form
+                        onSubmit={handleSearch}
+                        className="flex flex-col md:flex-row items-center gap-4 mb-5"
+                    >
                         <div className="relative w-full md:flex-1">
                             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                                 <Search className="h-5 w-5 text-gray-400" />
                             </div>
                             <input
                                 type="text"
-                                placeholder="cari data OSCE..."
+                                placeholder="Cari data OSCE..."
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 className="block w-full pl-10 pr-4 py-2 h-[46px] border border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500"
                             />
                         </div>
-                        
+
                         <div className="flex w-full md:w-auto items-center gap-3">
                             <select
-                                value={year}
-                                onChange={(e) => setYear(e.target.value)}
-                                className= "border border-gray-700 rounded-lg h-[46px] flex-1 w-auto md:flex-none md:w-40 focus:ring-blue-500 focus:border-blue-500"
+                                value={tahun} // Gunakan state 'tahun'
+                                onChange={(e) => setTahun(e.target.value)} // Set state 'tahun'
+                                className="border border-gray-700 rounded-lg h-[46px] flex-1 w-auto md:flex-none md:w-40 focus:ring-blue-500 focus:border-blue-500"
                             >
-                                <option>2025</option>
-                                <option>2024</option>
-                                <option>2023</option>
+                                {tahunList.map((t) => (
+                                    <option key={t.value} value={t.value}>
+                                        {t.label}
+                                    </option>
+                                ))}
                             </select>
                             <button
-                                onClick={handleSearch}
+                                type="submit" // Tipe submit
                                 className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700 w-auto justify-center"
                             >
                                 Cari
                             </button>
                         </div>
-                    </div>
+                    </form>
 
-
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">Table OSCE</h2>
+                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        Table OSCE
+                    </h2>
                     <OsTableHeader columns={rekapColumns} />
 
-                    {/* Data Rows (Sekarang me-render dari mockOsce.data) */}
+                    {/* 7. [PERBAIKAN] Data Rows Dinamis */}
                     {osce.data.map((item, index) => (
                         <div
-                            key={item.id} 
+                            key={item.id_osce} // Gunakan id_osce
                             className="flex items-center border-t border-gray-400"
                         >
                             <div className="w-16 px-4 py-3 text-center text-os-paragraft">
@@ -153,8 +151,13 @@ export default function RekapOscePage() {
                             </div>
 
                             <div className="flex-1 px-4 py-3 border-l border-gray-400 text-os-paragraft">
-                                <div className="font-medium text-gray-900">{item.nama_rubrik}</div>
-                                <div className="text-sm text-gray-500">{item.detail_rubrik}</div>
+                                <div className="font-medium text-gray-900">
+                                    {item.nama_rubrik}
+                                </div>
+                                {/* Gunakan detail_mahasiswa dan detail_sesi dari contract */}
+                                <div className="text-sm text-gray-500">
+                                    {item.detail_mahasiswa} | {item.detail_sesi}
+                                </div>
                             </div>
 
                             <div className="w-80 px-4 py-3 border-l border-gray-400 text-os-paragraft">
@@ -167,8 +170,13 @@ export default function RekapOscePage() {
 
                             <div className="w-48 h-[70px] flex items-center justify-center">
                                 <div className="border-l px-4 h-[50px] border-gray-400 flex w-full items-center justify-center">
+                                    {/* 8. [PERBAIKAN] Tombol Detail Dinamis */}
                                     <button
-                                        onClick={() => router.visit('/admin/rekapsesiosce')}
+                                        onClick={() =>
+                                            router.visit(
+                                                `/admin/rekap-nilai/${item.id_osce}/sesi`
+                                            )
+                                        }
                                         className="bg-gray-800 h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md text-center flex items-center justify-center hover:bg-gray-700"
                                     >
                                         Detail
@@ -187,12 +195,13 @@ export default function RekapOscePage() {
                         </div>
                     )}
 
-                    {/* Pagination (Sekarang me-render dari mockOsce.links) */}
-                    {osce.links && osce.links.length > 0 && (
-                        <div className="mt-8">
-                            <OsPagination links={osce.links} />
-                        </div>
-                    )}
+                    {/* 9. [PERBAIKAN] Paginasi Dinamis */}
+                    {osce.links &&
+                        osce.links.length > 3 && ( // Hanya tampilkan jika ada lebih dari 1 halaman
+                            <div className="mt-8">
+                                <OsPagination links={osce.links} />
+                            </div>
+                        )}
                 </div>
 
                 <OsCopyright />
@@ -200,10 +209,3 @@ export default function RekapOscePage() {
         </div>
     );
 }
-
-// Catatan: Jika nama fungsi Anda SEBELUMNYA adalah 'RekapNilai'
-// dan Anda mendapat error 'reading 'default'',
-// pastikan nama fungsi di atas (RekapOscePage) sama dengan nama file Anda,
-// atau ubah 'export default' Anda.
-// Saya sudah mengganti 'export default function RekapNilai()' menjadi 'export default function RekapOscePage()'
-// agar cocok dengan pemanggilan route Anda 'Inertia::render('/Admin/RekapOscePage')'
