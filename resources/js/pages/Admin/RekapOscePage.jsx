@@ -156,7 +156,12 @@ export default function RekapOscePage() {
                                 </div>
                                 {/* Gunakan detail_mahasiswa dan detail_sesi dari contract */}
                                 <div className="text-sm text-gray-500">
-                                    {item.detail_mahasiswa} | {item.detail_sesi}
+                                    {item.detail_mahasiswa}
+                                    {/* Tampilkan | hanya jika kedua data ada */}
+                                    {item.detail_mahasiswa &&
+                                        item.detail_sesi &&
+                                        " | "}
+                                    {item.detail_sesi}
                                 </div>
                             </div>
 
