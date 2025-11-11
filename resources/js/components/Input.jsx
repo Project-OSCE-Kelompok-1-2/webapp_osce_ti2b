@@ -18,7 +18,7 @@ export default function Os_input({
     if (
         type === "text" ||
         type === "email" ||
-        type === "password" ||
+        type === "password" || // Tipe "password" masuk ke blok ini
         type === "number"
     ) {
         return (
@@ -29,7 +29,10 @@ export default function Os_input({
                     </label>
                 )}
                 <input
-                    type="text"
+                    // [UBAH] Baris ini diubah dari "text" menjadi {type}
+                    // Ini akan membuat input mendengarkan prop 'type'
+                    // (misalnya "text" atau "password")
+                    type={type}
                     value={inputValue}
                     onChange={(e) => {
                         setInputValue(e.target.value);
@@ -93,39 +96,42 @@ export default function Os_input({
     // const [rating, setRating] = useState("")
 
     if (type === "bullet") {
-    return (
-        <div className={`flex flex-col items-center gap-4 ${className}`}>
-            {label && <label className="text-sm text-gray-600">{label}</label>}
+        return (
+            <div className={`flex flex-col items-center gap-4 ${className}`}>
+                {label && (
+                    <label className="text-sm text-gray-600">{label}</label>
+                )}
 
-            <div className="flex gap-8 items-center">
-                {options.map((opt, idx) => (
-                    <label
-                        key={idx}
-                        className="flex flex-col items-center cursor-pointer select-none"
-                    >
-                        {/* label di atas bullet */}
-                        <span className="text-sm font-medium text-gray-700 mb-2">{opt}</span>
+                <div className="flex gap-8 items-center">
+                    {options.map((opt, idx) => (
+                        <label
+                            key={idx}
+                            className="flex flex-col items-center cursor-pointer select-none"
+                        >
+                            {/* label di atas bullet */}
+                            <span className="text-sm font-medium text-gray-700 mb-2">
+                                {opt}
+                            </span>
 
-                        {/* bullet custom */}
-                        <div className="relative flex items-center justify-center">
-                            <input
-                                type="radio"
-                                name={name}
-                                value={opt}
-                                checked={String(value) === String(opt)}
-                                onChange={() => onChange && onChange(opt)}
-                                className="peer appearance-none w-8 h-8 rounded-full border-2 border-black cursor-pointer transition-all duration-200 hover:scale-110"
-                            />
-                            {/* lingkaran tengah muncul kalau checked */}
-                            <div className="absolute w-6 h-6 rounded-full bg-black opacity-0 peer-checked:opacity-100 transition-all duration-200" />
-                        </div>
-                    </label>
-                ))}
+                            {/* bullet custom */}
+                            <div className="relative flex items-center justify-center">
+                                <input
+                                    type="radio"
+                                    name={name}
+                                    value={opt}
+                                    checked={String(value) === String(opt)}
+                                    onChange={() => onChange && onChange(opt)}
+                                    className="peer appearance-none w-8 h-8 rounded-full border-2 border-black cursor-pointer transition-all duration-200 hover:scale-110"
+                                />
+                                {/* lingkaran tengah muncul kalau checked */}
+                                <div className="absolute w-6 h-6 rounded-full bg-black opacity-0 peer-checked:opacity-100 transition-all duration-200" />
+                            </div>
+                        </label>
+                    ))}
+                </div>
             </div>
-        </div>
-    );
-}
-
+        );
+    }
 
     return null;
 }
