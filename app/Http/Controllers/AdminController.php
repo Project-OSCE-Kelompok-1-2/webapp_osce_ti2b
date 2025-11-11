@@ -17,16 +17,14 @@ class AdminController extends Controller
 {
     public function dashboard()
     {
-        // 1. Ambil data Statistika
         $stats = [
             'total_osce' => Osce::count(),
             'total_mahasiswa' => Mahasiswa::count(),
             'total_penguji' => Penguji::count(),
         ];
 
-        // 2. [PERBAIKAN] Ambil data Notifikasi
         $notifikasi_bobot = Stase::query()
-            ->with('aspekPenilaian') // <-- [FIX] Tambahkan ini untuk load relasi
+            ->with('aspekPenilaian') 
             ->withSum('aspekPenilaian', 'bobot_maksimum')
             ->get()
             ->filter(function ($stase) {

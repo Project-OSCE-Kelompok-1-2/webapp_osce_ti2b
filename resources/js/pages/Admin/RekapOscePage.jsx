@@ -13,7 +13,7 @@ import OsPagination from "../../components/pagination";
 const rekapColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
     {
-        content: "Nama Rubrik",
+        content: "Nama OSCE",
         width: "flex-1",
         classes: "justify-start items-center px-4",
     },
