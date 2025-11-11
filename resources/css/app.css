@@ -1,3 +1,138 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+@layer base {
+    :root {
+        /* COLORS */
+        --os-primary: #1447E6;
+        --os-secondary: #2B7FFF;
+        --os-tertiary: #737373;
+        --os-black: #000000;
+        --os-white: #ffffff;
+        --os-warning: #E81B1B;
+        --os-edit: #C5C831;
+        --os-neutral: #EEF2FF;
+        --os-success: #1BE85A;
+
+        /* Digunakan untuk styling tombol */
+        --os-primary-light: #4D73F0;
+        --os-primary-dark: #0F36B3;
+
+        /* FONT FAMILY */
+        --os-font-family: 'Inter', 'Manrope', sans-serif;
+
+        /* FONT WEIGHT */
+        --os-font-light: 300;
+        --os-font-regular: 400;
+        --os-font-semibold: 500;
+        --os-font-bold: 700;
+
+        /* FONT SIZE */
+        --os-title: 1.9rem;
+        --os-subtitle: 1.1rem;
+        --os-regular: 1rem;
+        --os-paragraph: 0.875rem;
+        --os-small: 0.75rem;
+
+        /* VAR */
+        --os-48 : 3rem;
+        --os-36 : 2.25rem;
+        --os-24: 1.5rem;
+        --os-20: 1.25rem;
+        --os-14: 0.85rem;
+        --os-12: 0.75rem;
+        --os-8: 0.5rem;
+        --os-4: 0.25rem;
+
+        /* OPACITY */
+        --os-alpha-100 : 100%;
+        --os-alpha-75 : 75%;
+        --os-alpha-50 : 50%;
+        --os-alpha-25 : 25%;
+
+        /* BORDER */
+        --os-1 : 1px;
+        --os-2 : 2px;
+
+        /* BORDER RADIUS */
+        --os-radius-sm: 0.25rem;
+        --os-radius-md: 0.5rem;
+        --os-radius-lg: 1rem;
+
+        /* TRANSITION  */
+        --os-transition-fast: 150ms ease-in-out;
+        --os-transition-normal: 300ms ease-in-out;
+        --os-transition-slow: 500ms ease-in-out;
+    }
+
+    /* DEFAULT DESIGN */
+
+    body {
+        font-family: var(--os-font-family);
+        font-weight: var(--os-font-regular);
+    }
+}
+
+.react-datepicker__input-container input {
+  font-family: 'Inter', sans-serif;
+  border: 1px solid var(--os-primary);
+  border-radius: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  width: 100%;
+  color: var(--os-black);
+}
+
+.react-datepicker {
+  font-family: 'Inter', sans-serif;
+  border: none;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.react-datepicker__header {
+  background-color: var(--os-primary);
+  color: var(--os-white);
+  border-bottom: none;
+  padding-top: 0.50rem;
+}
+
+.react-datepicker__current-month {
+  color: var(--os-white);
+  font-weight: 600;
+  font-size: 1rem;
+  margin: 0.25rem 0;
+  text-transform: capitalize;
+}
+
+.react-datepicker__day--selected,
+.react-datepicker__day--keyboard-selected {
+  background-color: var(--os-primary);
+  color: white;
+  border-radius: 50%;
+}
+
+.react-datepicker__day:hover {
+  background-color: var(--os-secondary);
+  color: white;
+  border-radius: 50%;
+}
+
+.react-datepicker__triangle {
+  display: none;
+}
+
+/* Spinner button */
+button {
+  background-color: var(--os-primary) !important;
+  border: none !important;
+  color: white !important;
+  font-weight: 500;
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+button:hover {
+  background-color: var(--os-secondary) !important;
+}
