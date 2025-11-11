@@ -1,7 +1,7 @@
 import React from "react";
 import { Head, useForm, usePage, Link } from "@inertiajs/react";
 import { Trash2, Save, X } from "lucide-react";
-
+import OsCopyright from "../../components/copyright.jsx";
 export default function TambahStase({
     mataKuliah,
     tujuanPembelajaran,
@@ -246,8 +246,8 @@ export default function TambahStase({
                     </form>
                 </div>
 
-                <footer className="border-t mt-auto text-center text-gray-500 text-sm py-2">
-                    Copyright Porem ipsum dolor sit amet
+                <footer className="mt-6 border-t border-gray-200">
+                    <OsCopyright />
                 </footer>
             </div>
         </>
