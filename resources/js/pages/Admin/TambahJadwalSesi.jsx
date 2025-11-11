@@ -37,7 +37,6 @@ export default function TambahJadwalSesi({
         }
     }
 
-    // 5. [PERBAIKAN] handleSubmit sekarang cerdas
     const handleSubmit = (e) => {
         e.preventDefault();
 

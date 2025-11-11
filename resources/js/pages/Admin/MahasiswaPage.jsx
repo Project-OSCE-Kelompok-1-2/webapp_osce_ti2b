@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Link, router, usePage, Head } from "@inertiajs/react"; // Tambahkan Head
+import { Link, router, usePage, Head } from "@inertiajs/react";
 import { Trash2, X } from "lucide-react";
 
 import Sidebar from "../../Components/Sidebar.jsx";
@@ -31,17 +31,14 @@ const mahasiswaColumns = [
 ];
 
 export default function MahasiswaPage() {
-    // 1. [PERBAIKAN] Ambil props langsung. Hapus mock data.
     const { mahasiswa, filters, flash } = usePage().props;
 
-    // 2. [PERBAIKAN] State filter (sudah benar)
     const [search, setSearch] = useState(filters?.search || "");
     const [angkatan, setAngkatan] = useState(filters?.angkatan || ""); // 'angkatan' ini adalah 'kelas' di DB
     const [importFile, setImportFile] = useState(null);
     const [importing, setImporting] = useState(false);
     const [showExcelModal, setShowExcelModal] = useState(false);
 
-    // 3. [PERBAIKAN] Daftar angkatan yang lebih logis
     const angkatanList = [
         { value: "", label: "Semua Angkatan" },
         { value: "2025", label: "2025" },
@@ -51,7 +48,6 @@ export default function MahasiswaPage() {
         { value: "2021", label: "2021" },
     ];
 
-    // 4. [PERBAIKAN] Fungsi search dibungkus di form submit
     const handleSearch = (e) => {
         e.preventDefault();
         router.get(
@@ -61,7 +57,6 @@ export default function MahasiswaPage() {
         );
     };
 
-    // 5. Fungsi delete (sudah benar)
     const handleDelete = (id) => {
         if (
             confirm(
@@ -171,7 +166,6 @@ export default function MahasiswaPage() {
                             <select
                                 value={angkatan}
                                 onChange={(e) => setAngkatan(e.target.value)}
-                                // [PERBAIKAN] Styling padding
                                 className="border border-black rounded-xl px-4 py-3"
                             >
                                 {angkatanList.map((a) => (
@@ -183,7 +177,6 @@ export default function MahasiswaPage() {
 
                             <Os_button
                                 type="submit"
-                                // [PERBAIKAN] Styling padding
                                 className="border border-black rounded-xl px-8 py-3"
                             >
                                 Cari

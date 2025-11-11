@@ -7,20 +7,16 @@ import Os_button from "../../components/button.jsx";
 import OsIcon from "../../components/icons.jsx";
 
 export default function TambahMahasiswa() {
-    // 2. Ambil props dengan benar
     const { mahasiswa = null, errors = {} } = usePage().props;
     const isEditMode = !!mahasiswa;
 
-    // 3. [PERBAIKAN] Sesuaikan state form dengan controller
     const { data, setData, post, put, processing, reset } = useForm({
         nim: mahasiswa?.nim || "",
         nama: mahasiswa?.nama || "",
-        kelas: mahasiswa?.kelas || "", // Ganti 'angkatan' jadi 'kelas'
+        kelas: mahasiswa?.kelas || "",
         prodi: mahasiswa?.prodi || "",
-        // 'email' dihapus karena tidak ada di validasi controller
     });
 
-    // 4. [PERBAIKAN] handleSubmit sekarang menangani Edit dan Create
     function handleSubmit(e) {
         e.preventDefault();
         if (isEditMode) {
@@ -102,7 +98,6 @@ export default function TambahMahasiswa() {
                                 <label className="block text-xs text-gray-700 font-semibold mb-1">
                                     Angkatan
                                 </label>
-                                {/* 5. [PERBAIKAN] value dan onChange menggunakan 'kelas' */}
                                 <select
                                     value={data.kelas}
                                     onChange={(e) =>
@@ -116,7 +111,6 @@ export default function TambahMahasiswa() {
                                     required
                                 >
                                     <option value="">Pilih</option>
-                                    {/* Sesuaikan opsi ini dengan data 'kelas' Anda */}
                                     <option value="2025">2025</option>
                                     <option value="2024">2024</option>
                                     <option value="2023">2023</option>
@@ -176,7 +170,6 @@ export default function TambahMahasiswa() {
                                 <option value="">Pilih jurusan</option>
                                 <option value="Kedokteran">Kedokteran</option>
                                 <option value="Keperawatan">Keperawatan</option>
-                                {/* Tambahkan prodi lain jika ada */}
                             </select>
                             {errors.prodi && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -184,8 +177,6 @@ export default function TambahMahasiswa() {
                                 </p>
                             )}
                         </div>
-
-                        {/* EMAIL (Dihapus karena tidak ada di controller) */}
 
                         {/* TOMBOL */}
                         <div className="flex flex-col sm:flex-row justify-between gap-3 pt-4">

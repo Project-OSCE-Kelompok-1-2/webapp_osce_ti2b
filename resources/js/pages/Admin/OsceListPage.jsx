@@ -1,4 +1,4 @@
-import React, { useState } from "react"; // [PERBAIKAN] Import useState
+import React, { useState } from "react";
 import Sidebar from "../../Components/Sidebar";
 import OsCopyright from "../../components/copyright";
 import OsBreadCrumb from "../../components/breadcrumb";
@@ -16,16 +16,10 @@ import {
     Copyright,
 } from "lucide-react";
 
-// [PERBAIKAN] Terima props 'osce' dan 'filters' dari Controller Bintang
 export default function OsceListPage({ osce, filters }) {
-    // [PERBAIKAN] Hapus mock data 'osceList'
-    // const osceList = [ ... ];
-
-    // [PERBAIKAN] Tambahkan state untuk filter, ambil nilai dari props
     const [search, setSearch] = useState(filters.search || "");
     const [tahun, setTahun] = useState(filters.tahun || "2025"); // Asumsi default
 
-    // [PERBAIKAN] Buat handler untuk tombol "Cari"
     const handleSearch = (e) => {
         e.preventDefault();
         // [PERBAIKAN] Ganti route() dengan URL string
@@ -39,7 +33,6 @@ export default function OsceListPage({ osce, filters }) {
         );
     };
 
-    // [BARU] Tambahkan fungsi handleDelete
     const handleDelete = (id) => {
         if (confirm("Apakah Anda yakin ingin menghapus data OSCE ini?")) {
             // [PERBAIKAN] Gunakan router.delete dengan URL string
@@ -62,9 +55,7 @@ export default function OsceListPage({ osce, filters }) {
                         {/* ... (Deskripsi) ... */}
                     </p>
 
-                    {/* [PERBAIKAN] Arahkan ke route 'create' */}
                     <button
-                        // Gunakan router.get() ke endpoint yang baru Anda buat
                         onClick={() => router.get("/admin/osce/create")}
                         className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm mb-4"
                     >
@@ -76,7 +67,6 @@ export default function OsceListPage({ osce, filters }) {
                 <section>
                     <h2 className="text-lg font-semibold mb-4">Table OSCE</h2>
 
-                    {/* [PERBAIKAN] Bungkus filter dengan <form> */}
                     <form
                         onSubmit={handleSearch}
                         className="flex justify-between items-center mb-4 flex-wrap gap-3 "
@@ -87,7 +77,6 @@ export default function OsceListPage({ osce, filters }) {
                                 type="text"
                                 placeholder="cari data OSCE..."
                                 className="flex-1 text-sm outline-none"
-                                // [PERBAIKAN] Hubungkan ke state
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                             />
@@ -95,7 +84,6 @@ export default function OsceListPage({ osce, filters }) {
                         <div className="flex items-center justify-end gap-3 max-w-[300px] w-full">
                             <select
                                 className="w-full border border-black rounded-lg px-3 py-2 text-sm h-[42px] "
-                                // [PERBAIKAN] Hubungkan ke state
                                 value={tahun}
                                 onChange={(e) => setTahun(e.target.value)}
                             >
@@ -105,7 +93,7 @@ export default function OsceListPage({ osce, filters }) {
                                 <option value="2023">2023</option>
                             </select>
                             <button
-                                type="submit" // [PERBAIKAN] Tipe submit
+                                type="submit"
                                 className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm w-32"
                             >
                                 Cari
@@ -116,20 +104,16 @@ export default function OsceListPage({ osce, filters }) {
                     {/* Table */}
                     <div className="overflow-hidden border rounded-lg">
                         <table className="w-full text-sm border-collapse">
-                            {/* ... (thead Anda sudah benar) ... */}
                             <tbody>
-                                {/* [PERBAIKAN] Loop data dari 'osce.data' (props) */}
                                 {osce.data.map((item, i) => (
                                     <tr
-                                        key={item.id_osce} // [PERBAIKAN] Gunakan ID unik
+                                        key={item.id_osce}
                                         className="border-b hover:bg-gray-50 transition"
                                     >
                                         <td className="p-3 text-center border-r">
-                                            {/* [PERBAIKAN] Gunakan 'from' untuk nomor paginasi */}
                                             {osce.from + i}
                                         </td>
                                         <td className="p-3 border-r">
-                                            {/* [PERBAIKAN FATAL] Ganti key sesuai Props Contract */}
                                             <div className="font-semibold text-gray-900">
                                                 {item.nama_osce}
                                             </div>
@@ -193,7 +177,6 @@ export default function OsceListPage({ osce, filters }) {
                         </table>
                     </div>
 
-                    {/* [PERBAIKAN] Kirim 'links' dari props ke pagination */}
                     <OsPagination links={osce.links} />
                 </section>
 

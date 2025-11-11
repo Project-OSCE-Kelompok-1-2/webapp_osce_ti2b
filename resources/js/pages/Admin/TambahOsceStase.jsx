@@ -16,14 +16,11 @@ export default function TambahStase({
         id_penguji: "",
     });
 
-    // Ambil flash message saja
     const { flash } = usePage().props;
 
-    // 2. [PERBAIKAN] Fungsi handleSubmit
     function handleSubmit(e) {
         e.preventDefault();
 
-        // URL Post harus lengkap, sesuai 'web.php'
         // 'post' (method) + 'admin' (prefix) + '/osce/{id_osce}/stase' (route)
         const url = `/admin/osce/${osce.id_osce}/stase`;
 
@@ -37,7 +34,6 @@ export default function TambahStase({
         reset();
     }
 
-    // 3. [PERBAIKAN] Fungsi tombol back
     function handleBack() {
         // Kembali ke halaman list stase untuk OSCE ini
         router.visit(`/admin/osce/${osce.id_osce}/stase`);
@@ -50,8 +46,8 @@ export default function TambahStase({
             {/* Header / Breadcrumb */}
             <header className="flex items-center gap-3 p-4 bg-white border-b sticky top-0 z-10">
                 <button
-                    type="button" // Tipe 'button' agar tidak submit
-                    onClick={handleBack} // Panggil fungsi back yang benar
+                    type="button"
+                    onClick={handleBack}
                     className="w-10 h-10 flex-shrink-0 flex items-center justify-center rounded-full bg-blue-600 text-white hover:bg-blue-700 transition"
                 >
                     <ArrowLeft size={20} />
@@ -93,7 +89,6 @@ export default function TambahStase({
                                     onChange={(e) =>
                                         setData("id_ruang", e.target.value)
                                     }
-                                    // [PERBAIKAN] Cek error 'id_ruang'
                                     className={`w-full border rounded-lg px-3 py-2 text-sm bg-white ${
                                         errors.id_ruang
                                             ? "border-red-500"
@@ -112,7 +107,6 @@ export default function TambahStase({
                                         </option>
                                     ))}
                                 </select>
-                                {/* [PERBAIKAN] Tampilkan error 'id_ruang' */}
                                 {errors.id_ruang && (
                                     <div className="text-red-600 text-xs mt-1">
                                         {errors.id_ruang}
@@ -134,7 +128,6 @@ export default function TambahStase({
                                     onChange={(e) =>
                                         setData("id_stase", e.target.value)
                                     }
-                                    // [PERBAIKAN] Cek error 'id_stase'
                                     className={`w-full border rounded-lg px-3 py-2 text-sm bg-white ${
                                         errors.id_stase
                                             ? "border-red-500"

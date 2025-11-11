@@ -39,7 +39,6 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
     const [search, setSearch] = useState(filters.search || "");
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // 5. [PERBAIKAN] handleSearch sekarang memanggil router.get
     const handleSearch = (e) => {
         e.preventDefault(); // Mencegah form submit
         router.get(
@@ -49,7 +48,6 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
         );
     };
 
-    // 6. [PERBAIKAN] handleEdit sekarang dinamis
     const handleEditEnrollment = (jadwal_id) => {
         router.visit(
             `/admin/osce/${osce.id_osce}/jadwal/${jadwal_id}/enrollment`
@@ -57,16 +55,13 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
     };
 
     const handleEditSesi = (item) => {
-        // ID unik sesi adalah gabungan tanggal & jam
         const sesiId = `${item.tanggal}_${item.jam_mulai}`;
 
-        // Kita akan buat route ini di backend nanti
         router.visit(`/admin/osce/${osce.id_osce}/jadwal/${sesiId}/edit`);
     };
 
     // [PERBAIKAN] Fungsi untuk tombol TRASH (Delete Sesi)
     const handleDeleteSesi = (item) => {
-        // ID unik sesi adalah gabungan tanggal & jam
         const sesiId = `${item.tanggal}_${item.jam_mulai}`;
 
         if (
@@ -74,7 +69,6 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
                 "Yakin hapus sesi ini? Ini akan meng-unset jadwal untuk semua stase di sesi ini."
             )
         ) {
-            // Kita akan buat route DELETE ini di backend
             router.delete(`/admin/osce/${osce.id_osce}/jadwal/${sesiId}`, {
                 preserveScroll: true, // Agar halaman tidak loncat
             });
@@ -90,7 +84,6 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
                     sidebarOpen ? "ml-0" : "ml-20"
                 }`}
             >
-                {/* 💙 Breadcrumb [PERBAIKAN] Dibuat dinamis */}
                 <div className="flex items-center gap-3 text-sm text-gray-700 px-5 py-[10px] border-b border-gray-300 bg-white">
                     <button
                         // Kembali ke halaman list OSCE
@@ -108,7 +101,6 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
 
                 {/* 💻 Content */}
                 <div className="flex-1 overflow-auto px-8 pb-8">
-                    {/* Navigasi [PERBAIKAN] Dibuat dinamis */}
                     <h2 className="font-semibold text-lg mb-2">Navigasi</h2>
                     <div className="flex gap-2 mb-6">
                         <button
@@ -148,7 +140,6 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
                         Masukkan Sesi
                     </button>
 
-                    {/* 🔹 Filter/Search [PERBAIKAN] Dibungkus <form> */}
                     <form
                         onSubmit={handleSearch}
                         className="flex items-center gap-3 mb-6 w-full"
@@ -177,21 +168,16 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
                     <div className="mb-3 w-full overflow-hidden border-t border-gray-400">
                         <OsTableHeader columns={jadwalColumns} />
 
-                        {/* 7. [PERBAIKAN] Loop 'sesi.data' (dari paginasi) */}
                         {sesi.data.map((item, index) => (
                             <div
-                                // 8. [PERBAIKAN] Key menggunakan id unik
                                 key={item.id_osce_stase}
                                 className={`flex items-center text-sm border-t border-gray-300 min-h-[70px] ${
                                     index % 2 === 1 ? "bg-gray-50" : "bg-white"
                                 }`}
                             >
-                                {/* 9. [PERBAIKAN] Nomor urut dari paginasi */}
                                 <div className="w-16 px-4 text-center">
                                     {sesi.from + index}
                                 </div>
-
-                                {/* 10. [PERBAIKAN] Tampilkan data dari controller */}
                                 <div className="flex-1 px-4 border-l border-gray-300">
                                     {item.tanggal_formatted} (Pukul{" "}
                                     {item.jam_mulai_formatted})

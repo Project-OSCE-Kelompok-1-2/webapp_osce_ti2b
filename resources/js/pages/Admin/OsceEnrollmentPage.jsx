@@ -34,32 +34,25 @@ const columns = [
     },
 ];
 
-// 2. [HAPUS] mockData dihapus
-
-// 3. [PERBAIKAN] Terima props dinamis dari controller
 export default function OsceEnrollmentPage({
     osce,
     sesi,
     mahasiswa_list,
     filters,
 }) {
-    // 4. [PERBAIKAN] State filter mengambil dari props
     const [search, setSearch] = useState(filters.search || "");
-    const [angkatan, setAngkatan] = useState(filters.angkatan || ""); // Ganti 'year' jadi 'angkatan'
+    const [angkatan, setAngkatan] = useState(filters.angkatan || "");
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // Ambil flash message (untuk error)
     const { flash } = usePage().props;
 
-    // 5. [PERBAIKAN] Gunakan useForm untuk mengelola ID terpilih
     const { data, setData, post, processing, errors } = useForm({
-        // Isi 'id_mahasiswa_array' dengan ID yang sudah ter-enroll dari controller
         id_mahasiswa_array: mahasiswa_list.data
             .filter((mhs) => mhs.is_enrolled)
             .map((mhs) => mhs.id_mahasiswa),
     });
 
-    // 6. [PERBAIKAN] handleSearch sekarang memanggil router.get
     const handleSearch = (e) => {
         e.preventDefault();
         router.get(
@@ -69,7 +62,6 @@ export default function OsceEnrollmentPage({
         );
     };
 
-    // 7. [PERBAIKAN] handleCheck sekarang memodifikasi state 'useForm'
     const handleCheck = (id) => {
         const { id_mahasiswa_array } = data;
         setData(
@@ -80,7 +72,6 @@ export default function OsceEnrollmentPage({
         );
     };
 
-    // 8. [BARU] handleSave untuk submit form
     const handleSave = (e) => {
         e.preventDefault();
         post(window.location.pathname, {
@@ -248,7 +239,6 @@ export default function OsceEnrollmentPage({
                         </div>
                     )}
 
-                    {/* 12. [PERBAIKAN] Pagination dinamis */}
                     {mahasiswa_list.links &&
                         mahasiswa_list.links.length > 3 && (
                             <div className="mt-8 border-t-4 border-black pt-4 flex justify-start">

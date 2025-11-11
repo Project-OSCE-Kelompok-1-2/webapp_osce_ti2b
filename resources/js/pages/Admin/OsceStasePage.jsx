@@ -22,13 +22,6 @@ export default function HalamanStase({ stase, osce, filters }) {
     // 2. State untuk search bar, ambil nilai default dari 'filters'
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
 
-    // 3. [PERBAIKAN] Hapus pengambilan data yang salah dari usePage
-    // const { data } = usePage().props;
-    // const osceStase = data;
-
-    /**
-     * 4. [PERBAIKAN] Fungsi untuk menangani submit pencarian
-     */
     function handleSearch(e) {
         e.preventDefault(); // Mencegah reload halaman
 
@@ -64,7 +57,7 @@ export default function HalamanStase({ stase, osce, filters }) {
                     isSidebarOpen ? "ml-64" : "ml-20"
                 }`}
             >
-                {/* 5. Pastikan Ifad mengirim prop 'osce' */}
+                {/* 5. Pastikan backend mengirim prop 'osce' */}
                 <OsBreadCrumb osce={osce} />
 
                 <div className="flex-1 p-2">
@@ -76,7 +69,6 @@ export default function HalamanStase({ stase, osce, filters }) {
                                 <ClipboardList size={16} />
                                 Halaman Stase
                             </button>
-                            {/* [PERBAIKAN] Tombol "Jadwal Sesi" sekarang berfungsi */}
                             <button
                                 onClick={() =>
                                     router.get(
@@ -172,15 +164,12 @@ export default function HalamanStase({ stase, osce, filters }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {/* 7. [PERBAIKAN] Loop 'stase.data' dari props paginasi */}
                                     {stase.data.map((item, index) => (
                                         <tr
-                                            // 8. [PERBAIKAN] Gunakan ID unik
                                             key={item.id_osce_stase}
                                             className="border-b hover:bg-gray-50"
                                         >
                                             <td className="p-3 font-medium">
-                                                {/* 9. [PERBAIKAN] Gunakan 'from' untuk nomor paginasi */}
                                                 {stase.from + index}
                                             </td>
                                             <td className="p-3">

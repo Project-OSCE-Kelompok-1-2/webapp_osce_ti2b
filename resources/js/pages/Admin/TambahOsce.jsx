@@ -1,6 +1,6 @@
-import { Head, router, useForm, usePage, Link } from "@inertiajs/react"; // [UBAH] Import Link dan useForm
-import { ChevronLeft, Trash2, Send } from "lucide-react"; // [UBAH] Hapus ikon tanggal yang tidak perlu
-import React from "react"; // [UBAH] Import React
+import { Head, router, useForm, usePage, Link } from "@inertiajs/react";
+import { ChevronLeft, Trash2, Send } from "lucide-react";
+import React from "react";
 
 // [UBAH] Terima props 'tahunAkademikOptions' dari controller
 export default function TambahOsce({ tahunAkademikOptions = [], osce = null }) {
@@ -40,9 +40,8 @@ export default function TambahOsce({ tahunAkademikOptions = [], osce = null }) {
 
             {/* Header Atas */}
             <header className="flex items-center gap-3 p-4 border-b bg-gray-50">
-                {/* [UBAH] Gunakan Link, bukan router.visit */}
                 <Link
-                    href="/admin/osce" // <-- Arahkan ke endpoint list yang benar
+                    href="/admin/osce"
                     className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-2 flex items-center justify-center transition"
                 >
                     <ChevronLeft size={20} />
@@ -219,16 +218,16 @@ export default function TambahOsce({ tahunAkademikOptions = [], osce = null }) {
                         {/* Tombol Submit dan Delete */}
                         <div className="flex items-center justify-between pt-[5rem]">
                             <button
-                                type="submit" // [UBAH] Tambah type
-                                disabled={processing} // [UBAH] Disable saat loading
+                                type="submit"
+                                disabled={processing}
                                 className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm flex-1 mr-2 transition disabled:opacity-50"
                             >
                                 <Send size={16} className="mr-2" />
                                 {processing ? "Menyimpan..." : "Submit"}
                             </button>
                             <button
-                                type="button" // [UBAH] Tambah type
-                                onClick={() => reset()} // [UBAH] Tambah onClick reset
+                                type="button"
+                                onClick={() => reset()}
                                 className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg transition"
                             >
                                 <Trash2 size={16} />
