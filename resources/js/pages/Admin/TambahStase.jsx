@@ -191,7 +191,7 @@ export default function TambahStase({
                                     onChange={(e) =>
                                         setData("nama_stase", e.target.value)
                                     }
-                                    className="mt-1 w-full border rounded-lg px-3 py-2"
+                                    className="mt-1 w-full"
                                     placeholder="Masukkan nama stase..."
                                 />
                             </div>
