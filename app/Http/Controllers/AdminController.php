@@ -81,13 +81,13 @@ class AdminController extends Controller
         $request->validate([
             // Data Profil
             // (Sesuai Pengguna.php: 'username' dan 'path_gambar')
-            'username' => [
-                'required', 
-                'string', 
-                'max:255',
-                // Pastikan username unik, KECUALI untuk diri sendiri
-                Rule::unique('pengguna', 'username')->ignore($admin->id_pengguna, 'id_pengguna')
-            ],
+            // 'username' => [
+            //     'required', 
+            //     'string', 
+            //     'max:255',
+            //     // Pastikan username unik, KECUALI untuk diri sendiri
+            //     Rule::unique('pengguna', 'username')->ignore($admin->id_pengguna, 'id_pengguna')
+            // ],
             'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:1024'], // 1MB Sesuai UI
 
             // Data Password (HANYA JIKA diisi)
@@ -101,7 +101,7 @@ class AdminController extends Controller
         // (Selalu update username & foto jika ada)
 
         // 1. Update Username
-        $admin->username = $request->username;
+        // $admin->username = $request->username;
 
         // --- LOGIKA FOTO DIPERBARUI ---
         // Cek apakah frontend mengirim 'delete_foto: true'

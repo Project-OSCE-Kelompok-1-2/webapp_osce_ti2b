@@ -20,11 +20,7 @@ import Sidebar from "../../Components/Sidebar";
 
 // Mock untuk <Component1 /> (tombol mata)
 const Component1 = ({ className }) => <Eye className={className} />;
-
-// Mock untuk <Icon1 /> (ikon simpan)
 const Icon1 = ({ className }) => <Save className={className} />;
-
-// Mock untuk <IconComponentNode /> (ikon gembok)
 const IconComponentNode = ({ className }) => <Lock className={className} />;
 
 // ================================================================
@@ -292,6 +288,7 @@ export default function AdminSettingAkun({ user }) {
                                                 aria-hidden="true"
                                             />
                                             <input
+                                            disabled
                                                 type="text"
                                                 id="username"
                                                 value={data.username}
@@ -310,31 +307,6 @@ export default function AdminSettingAkun({ user }) {
                                                 {errors.username}
                                             </p>
                                         )}
-                                    </div>
-
-                                    <div className="flex flex-col items-start gap-[3px] relative self-stretch w-full flex-[0_0_auto]">
-                                        <label
-                                            htmlFor="email"
-                                            className="relative self-stretch mt-[-1.00px] [font-family:'Inter-Regular',Helvetica] font-normal text-black text-xs tracking-[0] leading-[normal]"
-                                        >
-                                            Email pengguna
-                                        </label>
-                                        <div className="h-[54px] self-stretch w-full bg-gray-200 flex items-center gap-[13px] p-3 relative rounded-xl border border-solid border-black">
-                                            <Mail
-                                                className="relative w-5 h-4"
-                                                color="black"
-                                                opacity="0.45"
-                                                aria-hidden="true"
-                                            />
-                                            <input
-                                                type="email"
-                                                id="email"
-                                                value={data.email}
-                                                disabled
-                                                className="relative flex-1 [font-family:'Inter-Regular',Helvetica] font-normal text-gray-600 text-[15.4px] tracking-[0] leading-[normal] bg-transparent cursor-not-allowed border-none outline-none"
-                                                aria-label="Email (disabled)"
-                                            />
-                                        </div>
                                     </div>
 
                                     <div className="flex flex-col items-start gap-[3px] relative self-stretch w-full flex-[0_0_auto]">
@@ -364,7 +336,7 @@ export default function AdminSettingAkun({ user }) {
                                                             e.target.value
                                                         )
                                                     }
-                                                    placeholder="Isi jika ingin ganti password"
+                                                    placeholder="Masukkan password yang lama"
                                                     className="relative flex-1 [font-family:'Inter-Regular',Helvetica] font-normal text-gray-600 text-[15.4px] tracking-[0] leading-[normal] bg-transparent border-none outline-none"
                                                     aria-label="Old password"
                                                 />
