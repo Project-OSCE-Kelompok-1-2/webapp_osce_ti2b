@@ -1,6 +1,6 @@
 import React from "react";
 import { Head, useForm, usePage, Link } from "@inertiajs/react";
-import { Trash2, Save } from "lucide-react";
+import { Trash2, Save, X } from "lucide-react";
 import OsInput from "../../components/input";
 import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/Copyright";
@@ -97,12 +97,15 @@ export default function TambahStase({
                             {/* Mata Kuliah */}
                             <div>
                                 <OsInput
-                                label="Mata Kuliah"
+                                    label="Mata Kuliah"
                                     type="suggest"
                                     placeholder="Pilih Mata Kuliah..."
                                     value={
-                                        mataKuliah.find((mk) => mk.id_mata_kuliah == data.id_mata_kuliah)
-                                            ?.nama_mata_kuliah || ""
+                                        mataKuliah.find(
+                                            (mk) =>
+                                                mk.id_mata_kuliah ==
+                                                data.id_mata_kuliah
+                                        )?.nama_mata_kuliah || ""
                                     }
                                     onChange={(val) => {
                                         const selected = mataKuliah.find(
@@ -110,9 +113,16 @@ export default function TambahStase({
                                                 mk.nama_mata_kuliah.toLowerCase() ===
                                                 val.toLowerCase()
                                         );
-                                        setData("id_mata_kuliah", selected ? selected.id_mata_kuliah : "");
+                                        setData(
+                                            "id_mata_kuliah",
+                                            selected
+                                                ? selected.id_mata_kuliah
+                                                : ""
+                                        );
                                     }}
-                                    suggestions={mataKuliah.map((mk) => mk.nama_mata_kuliah)}
+                                    suggestions={mataKuliah.map(
+                                        (mk) => mk.nama_mata_kuliah
+                                    )}
                                     className="mt-1 w-full"
                                 />
                                 {errors.id_mata_kuliah && (
