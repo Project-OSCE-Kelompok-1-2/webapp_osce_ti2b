@@ -124,3 +124,7 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin/osce/{osce_id}/jadwal/{
 // Rute fallback atau untuk role lain bisa ditambahkan di sini
 // Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function() { ... });
 // Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });
+
+Route::get('/admin/osce/{id_osce}/stase/{id_stase}/edit', 
+    [OsceStaseController::class, 'edit']
+)->name('osce.stase.edit');
