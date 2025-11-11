@@ -23,7 +23,7 @@ const StaseHeader = ({ staseNumber, staseName, examinerName, totalScore }) => {
           {staseName || "Stase Bedah Umum"}
         </span>
         <span className="text-white text-xs font-bold">
-          {examinerName ? Penguji : ${examinerName} : "Penguji : Dr Mafkar Afkar"}
+          {examinerName ? `Penguji : ${examinerName}` : "Penguji : Dr Mafkar Afkar"}
         </span>
       </div>
       <div 
@@ -74,7 +74,7 @@ const OsAssessmentRow = ({ columns = [], isBold = false }) => {
   const boldStyle = isBold ? "font-bold" : "";
 
   return (
-    <div className={${baseStyle} ${boldStyle}}>
+    <div className={`${baseStyle} ${boldStyle}`}>
       {columns.map((column, index) => (
         <div
           key={index}

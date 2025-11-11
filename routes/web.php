@@ -124,3 +124,24 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin/osce/{osce_id}/jadwal/{
 // Rute fallback atau untuk role lain bisa ditambahkan di sini
 // Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function() { ... });
 // Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });
+
+
+Route::get('admin/rekaposce', function () {
+        return Inertia::render('Admin/RekapOscePage');
+});
+
+Route::get('admin/rekapsesiosce', function () {
+        return Inertia::render('Admin/RekapSesiPage');
+});
+
+Route::get('admin/rekapmahasiswa', function () {
+        return Inertia::render('Admin/RekapMahasiswaPage');
+});
+
+Route::get('admin/rekapmahasiswa/mahasiswa', function () {
+        return Inertia::render('Admin/RekapDetailMahasiswaPage');
+}); 
+
+Route::get('admin/rekapmahasiswa/mahasiswa/detail', function () {
+        return Inertia::render('Admin/RekapDetailPage');
+});
