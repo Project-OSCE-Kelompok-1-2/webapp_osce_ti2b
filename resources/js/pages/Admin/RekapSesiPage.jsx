@@ -8,7 +8,6 @@ import Sidebar from "../../components/Sidebar";
 import OsCopyright from "../../components/Copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
-Os
 
 // --- Definisi Kolom Tabel (Sudah Benar) ---
 const sesiColumns = [
