@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Link, router, usePage, Head } from "@inertiajs/react";
 
-import Sidebar from "../../Components/Sidebar.jsx";
-import OsBreadCrumb from "../../components/breadcrumb.jsx";
+import Sidebar from "../../components/Sidebar.jsx";
+import OsHeader from "../../components/Header.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsIcon from "../../components/icons.jsx";
-import OsCopyright from "../../components/copyright.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
 import Os_button from "../../components/button.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
 
@@ -58,7 +58,7 @@ export default function PengujiPage() {
             <Sidebar />
 
             <main className="flex flex-col flex-1 p-os-8 transition-all duration-300 md:ml-20">
-                <OsBreadCrumb />
+                <OsHeader/>
 
                 <div className="flex-1 overflow-auto">
                     {/* === HEADER SECTION === */}

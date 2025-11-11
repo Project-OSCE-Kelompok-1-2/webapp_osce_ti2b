@@ -106,7 +106,7 @@ export default function TambahJadwalSesi({
                         <div>
                             <label
                                 htmlFor="tanggal"
-                                className="text-sm font-medium text-gray-700 block mb-2 flex items-center gap-2"
+                                className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2"
                             >
                                 <Calendar size={16} /> Tanggal Sesi
                             </label>
@@ -135,7 +135,7 @@ export default function TambahJadwalSesi({
                             <div className="flex-1">
                                 <label
                                     htmlFor="jam_mulai"
-                                    className="text-sm font-medium text-gray-700 block mb-2 flex items-center gap-2"
+                                    className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2"
                                 >
                                     <Clock size={16} /> Jam Mulai
                                 </label>
@@ -161,7 +161,7 @@ export default function TambahJadwalSesi({
                             <div className="flex-1">
                                 <label
                                     htmlFor="jam_selesai"
-                                    className="text-sm font-medium text-gray-700 block mb-2 flex items-center gap-2"
+                                    className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2"
                                 >
                                     <Clock size={16} /> Jam Selesai
                                 </label>
@@ -188,7 +188,7 @@ export default function TambahJadwalSesi({
 
                         {/* Pilihan Stase */}
                         <div>
-                            <label className="text-sm font-medium text-gray-700 block mb-2 flex items-center gap-2">
+                            <label className="text-sm font-medium text-gray-700 mb-2 flex items-center gap-2">
                                 <List size={16} /> Pilih Stase untuk Sesi Ini
                             </label>
                             <div className="w-full border border-gray-400 rounded-lg p-4 h-64 overflow-y-auto space-y-2">

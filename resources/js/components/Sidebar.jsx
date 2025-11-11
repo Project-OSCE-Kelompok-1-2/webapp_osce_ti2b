@@ -13,9 +13,9 @@ import {
 const menuItems = [
   { label: "Beranda", icon: <Home size={24} />, href: "/admin/dashboard", opacity: "100" },
   { label: "Stase", icon: <FileText size={24} />, href: "/admin/stase", opacity: "100" },
-  { label: "Mahasiswa", icon: <Users size={24} />, href: "#", opacity: "50" },
-  { label: "Dosen", icon: <UserCheck size={24} />, href: "#", opacity: "50" },
-  { label: "OSCE", icon: <FileText size={24} />, href: "#", opacity: "50" },
+  { label: "Mahasiswa", icon: <Users size={24} />, href: "/admin/mahasiswa", opacity: "50" },
+  { label: "Dosen", icon: <UserCheck size={24} />, href: "/admin/dosen", opacity: "50" },
+  { label: "OSCE", icon: <FileText size={24} />, href: "/admin/osce", opacity: "50" },
   { label: "Rekap Nilai Mahasiswa", icon: <Bookmark size={24} />, href: "#", opacity: "50" },
 ];
 

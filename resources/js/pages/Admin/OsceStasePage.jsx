@@ -60,7 +60,7 @@ export default function HalamanStase({ stase, osce, filters }) {
                 }`}
             >
                 {/* 5. Pastikan backend mengirim prop 'osce' */}
-                <OsBreadCrumb osce={osce} />
+                <OsHeader/>
 
                 <div className="flex-1 p-2">
                     {/* Navigasi Tabs */}

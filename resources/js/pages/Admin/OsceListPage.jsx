@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import Sidebar from "../../components/Sidebar.jsx";
-import OsBreadCrumb from "../../components/breadcrumb";
+import OsHeader from "../../components/Header";
 // [PERBAIKAN] Import usePage untuk mengambil props
 import { Head, router, usePage, Link } from "@inertiajs/react";
 import OsPagination from "../../components/pagination";
@@ -46,7 +46,7 @@ export default function OsceListPage({ osce, filters }) {
             <Sidebar />
             <main className="flex-1 p-6 ml-[5rem]">
                 <Head title="Admin OSCE" />
-                <OsBreadCrumb />
+                <OsHeader/>
 
                 <section className="mb-1 mt-2">
                     <h2 className="text-lg font-semibold mb-1">Menu OSCE</h2>

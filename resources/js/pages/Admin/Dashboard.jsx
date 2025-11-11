@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
+import Sidebar from "../../components/Sidebar.jsx";
 
 /**
  * props: title, value, description, icon, colorClass
