@@ -112,9 +112,6 @@ class OsceController extends Controller
     public function destroy(Osce $osce)
     {
         try {
-            // (Opsional) Hapus relasi anak terlebih dahulu jika ada
-            // $osce->osceStase()->delete();
-            // $osce->enrollmentOsce()->delete();
             
             $osce->delete();
 

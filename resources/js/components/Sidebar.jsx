@@ -45,7 +45,7 @@ const menuItems = [
     {
         label: "Rekap Nilai Mahasiswa",
         icon: <Bookmark size={24} />,
-        href: "/admin/rekaposce",
+        href: "/admin/rekap-nilai",
         opacity: "50",
     },
 ];
