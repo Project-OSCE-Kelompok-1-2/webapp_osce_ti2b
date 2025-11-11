@@ -1,6 +1,6 @@
 <?php
 
-use Inertia\Inertia;
+use Inertia\Inertia; // Pastikan Inertia di-import
 use App\Models\TahunAkademik;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
@@ -104,8 +104,64 @@ Route::get('/osce/create', function () {
 
     // Rekap Nilai Method Detail
     Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerStase']); 
-    Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}', [RekapNilaiController::class, 'detailNilaiMahasiswa']);
-    // Rute enrollment yang salah (seperti di file Anda sebelumnya) telah dihapus dari sini
+    
+    // ==========================================================
+    // == 👇 RUTE DUMMY UNTUK REKAP DETAIL PAGE 👇 ==
+    // ==========================================================
+    // Rute asli di-komentari:
+    // Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}', [RekapNilaiController::class, 'detailNilaiMahasiswa']);
+    
+    Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}', function () {
+        $dummyData = [
+            "mahasiswa" => [ "nama" => "Riko Aditya (Dummy)", "nim" => "123456", "id_mahasiswa" => 1 ],
+            "osce" => [ "nama_osce" => "OSCE Radiologi 01-A (Dummy)" ],
+            "nilai_per_stase" => [
+                [
+                    "nama_stase" => "Stase Bedah Umum",
+                    "nama_penguji" => "Dr. Afkar",
+                    "nilai_akhir_stase" => 22.25,
+                    "aspek_penilaian" => [
+                        [
+                            "aspek" => "Anamnesis",
+                            "kompetensi" => [
+                                [ "kompetensi" => "Menyapa pasien", "skor" => 3, "bobot" => 10, "nilai" => 30 ],
+                                [ "kompetensi" => "Keluhan utama", "skor" => 2, "bobot" => 10, "nilai" => 20 ]
+                            ]
+                        ],
+                        [
+                            "aspek" => "Pemeriksaan Fisik",
+                            "kompetensi" => [
+                                [ "kompetensi" => "Inspeksi", "skor" => 3, "bobot" => 10, "nilai" => 30 ],
+                                [ "kompetensi" => "Palpasi", "skor" => 1, "bobot" => 9, "nilai" => 9 ]
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    "nama_stase" => "Stase Anak",
+                    "nama_penguji" => "Dr. Pedri",
+                    "nilai_akhir_stase" => 23.00,
+                    "aspek_penilaian" => [
+                        [
+                            "aspek" => "Komunikasi",
+                            "kompetensi" => [
+                                [ "kompetensi" => "Bicara dengan ortu", "skor" => 3, "bobot" => 10, "nilai" => 30 ],
+                                [ "kompetensi" => "Bicara dengan anak", "skor" => 3, "bobot" => 10, "nilai" => 30 ]
+                            ]
+                        ]
+                    ]
+                ]
+            ],
+            "nilai_total_osce" => 45.25
+        ];
+
+        return Inertia::render('Admin/RekapDetailPage', [
+            'detailNilai' => $dummyData
+        ]);
+    });
+    // ==========================================================
+    // == 🔼 AKHIR DARI RUTE DUMMY 🔼 ==
+    // ==========================================================
 });
 
 
@@ -124,7 +180,3 @@ Route::middleware(['auth', 'role:admin'])->prefix('admin/osce/{osce_id}/jadwal/{
 // Rute fallback atau untuk role lain bisa ditambahkan di sini
 // Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function() { ... });
 // Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });
-
-Route::get('/admin/osce/{id_osce}/stase/{id_stase}/edit', 
-    [OsceStaseController::class, 'edit']
-)->name('osce.stase.edit');
