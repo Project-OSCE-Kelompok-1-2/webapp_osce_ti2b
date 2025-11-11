@@ -2,7 +2,7 @@ import { Link, usePage, router } from "@inertiajs/react";
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight, Edit2, Trash2 } from "lucide-react";
 
-import Sidebar from "../../components/Sidebar";
+import Sidebar from "../../Components/Sidebar";
 import OsBreadCrumb from "../../components/breadcrumb";
 import OsCopyright from "../../components/copyright";
 import OsIcon from "../../components/icons";

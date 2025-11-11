@@ -10,7 +10,7 @@ import {
     XCircle,
 } from "lucide-react"; // Tambah ikon
 
-import Sidebar from "../../components/Sidebar";
+import Sidebar from "../../Components/Sidebar";
 import OsCopyright from "../../components/copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";

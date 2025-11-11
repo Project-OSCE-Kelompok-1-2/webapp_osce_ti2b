@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { usePage, Link, router } from "@inertiajs/react";
 import { Pencil, Trash2, PlusCircle, Search, ArrowLeft } from "lucide-react";
-import Sidebar from "../../components/Sidebar";
+import Sidebar from "../../Components/Sidebar";
 
 export default function KompetensiPage() {
     // 1. Ambil data dari props yang dikirim Controller
