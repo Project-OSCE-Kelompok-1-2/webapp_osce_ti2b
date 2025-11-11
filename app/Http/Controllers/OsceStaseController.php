@@ -121,6 +121,48 @@ public function create($id_osce)
         ->with('success', 'Stase berhasil ditambahkan ke OSCE!');
 }
 
+    public function edit($id_osce, OsceStase $osce_stase)
+    {
+        // 1. Ambil data OSCE saat ini
+        $osce = Osce::findOrFail($id_osce);
+
+        // 2. Ambil data master untuk dropdown (sama seperti create)
+        $ruanganOptions = Ruang::select('id_ruang', 'nomor_ruangan')
+            ->get()->map(fn($r) => ['value' => $r->id_ruang, 'label' => $r->nomor_ruangan]);
+            
+        $staseOptions = Stase::select('id_stase', 'nama_stase')
+            ->get()->map(fn($s) => ['value' => $s->id_stase, 'label' => $s->nama_stase]);
+
+        $pengujiOptions = Penguji::select('id_penguji', 'nama')
+            ->get()->map(fn($p) => ['value' => $p->id_penguji, 'label' => $p->nama]);
+
+        // 3. Render halaman form, TAPI kirimkan data stase yang mau diedit
+        return Inertia::render("Admin/TambahOsceStase", [
+            'osce' => $osce,
+            'stase_template' => $osce_stase, // Kirim data stase yg mau diedit
+            'ruanganOptions' => $ruanganOptions,
+            'staseOptions'   => $staseOptions,
+            'pengujiOptions' => $pengujiOptions,
+        ]);
+    }
+
+    public function update(Request $request, $id_osce, OsceStase $osce_stase)
+    {
+        // 1. Validasi
+        $validated = $request->validate([
+            'id_ruang' => 'required|exists:ruang,id_ruang',
+            'id_stase' => 'required|exists:stase,id_stase',
+            'id_penguji' => 'required|exists:penguji,id_penguji',
+        ]);
+
+        // 2. Update data stase template
+        $osce_stase->update($validated);
+
+        // 3. Redirect kembali ke halaman index stase
+        return Redirect::route('admin.osce.stase.index', ['id_osce' => $id_osce])
+            ->with('success', 'Stase berhasil diperbarui.');
+    }
+
     public function destroy($id_osce, $id_osce_stase)
     {
         DB::beginTransaction();
