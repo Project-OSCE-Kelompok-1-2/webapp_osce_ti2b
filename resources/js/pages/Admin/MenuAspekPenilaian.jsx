@@ -1,8 +1,7 @@
 import React from "react";
-// 👇 [UBAH] Impor hook yang diperlukan dari Inertia
 import { usePage, Link, router } from "@inertiajs/react";
 import { Trash2, Home, Pencil, Search } from "lucide-react";
-import Sidebar from "../../components/Sidebar.jsx";
+import Sidebar from "../../Components/Sidebar.jsx";
 
 export default function MenuAspekPenilaian() {
     // 1. Ambil data 'stase' dan 'aspek_penilaian' dari props

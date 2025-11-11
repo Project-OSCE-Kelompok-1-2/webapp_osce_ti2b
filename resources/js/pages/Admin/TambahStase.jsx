@@ -2,18 +2,14 @@ import React from "react";
 import { Head, useForm, usePage, Link } from "@inertiajs/react";
 import { Trash2, Save } from "lucide-react";
 
-// [UBAH] Komponen sekarang menerima props 'stase' yang bisa jadi null
 export default function TambahStase({
     mataKuliah,
     tujuanPembelajaran,
     stase = null,
 }) {
-    // [BARU] Cek apakah ini mode edit atau tambah
     const isEditMode = !!stase;
-
     const { errors } = usePage().props;
 
-    // [UBAH] Isi form dengan data 'stase' jika ada, jika tidak, kosongkan
     const { data, setData, post, put, reset, processing } = useForm({
         nama_stase: stase?.nama_stase || "",
         id_mata_kuliah: stase?.id_mata_kuliah || "",
@@ -23,7 +19,6 @@ export default function TambahStase({
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        // [UBAH] Logika submit sekarang dinamis
         if (isEditMode) {
             // Jika mode edit, kirim request PUT ke URL update
             put(`/admin/stase/${stase.id_stase}`);
@@ -184,7 +179,6 @@ export default function TambahStase({
                                 <button
                                     type="submit"
                                     disabled={processing}
-                                    // 👇 [UBAH] ClassName disamakan dengan contoh
                                     className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
                                 >
                                     <Save size={16} />
@@ -193,7 +187,6 @@ export default function TambahStase({
                                 <button
                                     type="button"
                                     onClick={() => reset()}
-                                    // 👇 [UBAH] ClassName disamakan dengan contoh
                                     className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg flex items-center justify-center"
                                 >
                                     <Trash2 size={16} />

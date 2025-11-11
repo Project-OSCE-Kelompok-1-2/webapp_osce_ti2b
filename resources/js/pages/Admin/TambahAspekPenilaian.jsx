@@ -1,16 +1,11 @@
 import React from "react";
-// 👇 [UBAH] Impor hook yang diperlukan dari Inertia
 import { useForm, usePage, Link } from "@inertiajs/react";
 
-// 👇 [UBAH] Komponen ini sekarang menjadi halaman mandiri
 export default function TambahAspekPenilaian() {
-    // 1. Ambil data dari props yang dikirim controller
     const { stase, aspek = null, errors } = usePage().props;
 
-    // 2. Tentukan apakah ini mode edit atau tambah
     const isEditMode = !!aspek;
 
-    // 3. Gunakan useForm untuk mengelola state form
     const { data, setData, post, put, processing } = useForm({
         // Sesuaikan nama field dengan kolom database
         aspek: aspek?.aspek || "",
@@ -29,7 +24,6 @@ export default function TambahAspekPenilaian() {
         }
     };
 
-    // Logika judul dinamis tetap sama
     const pageTitle = isEditMode
         ? "Edit Aspek Penilaian"
         : "Tambah Aspek Penilaian";
@@ -90,7 +84,6 @@ export default function TambahAspekPenilaian() {
                         </label>
                         <textarea
                             id="nama-aspek"
-                            // 👇 [UBAH] Gunakan data dari useForm
                             value={data.aspek}
                             onChange={(e) => setData("aspek", e.target.value)}
                             className="w-full border border-gray-300 rounded-lg p-3 text-sm focus:ring-blue-500 focus:border-blue-500"
@@ -115,7 +108,6 @@ export default function TambahAspekPenilaian() {
                         <input
                             id="bobot-maksimal"
                             type="number"
-                            // 👇 [UBAH] Gunakan data dari useForm
                             value={data.bobot_maksimum}
                             onChange={(e) =>
                                 setData("bobot_maksimum", e.target.value)
@@ -135,7 +127,6 @@ export default function TambahAspekPenilaian() {
                         <div className="flex items-center gap-3">
                             <button
                                 type="submit"
-                                // 👇 [UBAH] Tambahkan disabled saat loading
                                 disabled={processing}
                                 className={` ${
                                     isEditMode ? "flex-1" : "w-full"
@@ -155,7 +146,6 @@ export default function TambahAspekPenilaian() {
                                         d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                                     />
                                 </svg>
-                                {/* 👇 [UBAH] Ganti teks tombol saat loading */}
                                 {processing ? "Menyimpan..." : "Submit"}
                             </button>
 
