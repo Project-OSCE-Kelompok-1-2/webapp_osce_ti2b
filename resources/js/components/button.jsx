@@ -1,4 +1,4 @@
-export default function OsButton({ name = "primary", children, onClick, className = "" }) {
+export default function OsButton({ name = "os-primary", children, onClick, className = "" }) {
   const baseColor = `var(--os-${name})`;
 
 //   Warna yang tersedia: primary, secondary, tertiary, black, white, warning, edit, neutral, success

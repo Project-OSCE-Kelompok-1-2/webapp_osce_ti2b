@@ -76,13 +76,6 @@
     }
 }
 
-:root {
-  --os-primary: #1E1A4D;
-  --os-secondary: #3B347E;
-  --os-white: #ffffff;
-  --os-black: #000000;
-}
-
 .react-datepicker__input-container input {
   font-family: 'Inter', sans-serif;
   border: 1px solid var(--os-primary);
