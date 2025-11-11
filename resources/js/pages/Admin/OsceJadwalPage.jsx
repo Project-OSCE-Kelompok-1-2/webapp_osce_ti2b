@@ -3,7 +3,7 @@ import React, { useState } from "react";
 import { router } from "@inertiajs/react";
 import { Search, ArrowLeft, Pencil, Trash2 } from "lucide-react";
 
-import Sidebar from "../..components/Sidebar";
+import Sidebar from "../../components/Sidebar";
 // Hapus OsBreadCrumb jika tidak digunakan, atau sesuaikan
 // import OsBreadCrumb from "../../components/breadcrumb";
 import OsCopyright from "../../components/Copyright";
