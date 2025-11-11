@@ -5,9 +5,10 @@ import { Search } from "lucide-react";
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
 // import OsBreadCrumb from "../../components/breadcrumb"; // Breadcrumb statis lebih cocok di sini
-import OsCopyright from "../../components/copyright";
+import OsCopyright from "../../components/Copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
+import OsHeader from "../../components/Header";
 
 // --- Definisi Kolom Tabel (Sudah Benar) ---
 const rekapColumns = [

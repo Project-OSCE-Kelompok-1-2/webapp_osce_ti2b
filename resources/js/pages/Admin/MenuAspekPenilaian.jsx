@@ -1,7 +1,8 @@
 import React from "react";
 import { usePage, Link, router } from "@inertiajs/react";
 import { Trash2, Home, Pencil, Search } from "lucide-react";
-import Sidebar from "../../Components/Sidebar.jsx";
+import Sidebar from "../../components/Sidebar.jsx";
+import OsHeader from "../../components/Header.jsx";
 
 export default function MenuAspekPenilaian() {
     // 1. Ambil data 'stase' dan 'aspek_penilaian' dari props
@@ -29,14 +30,7 @@ export default function MenuAspekPenilaian() {
 
             <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* Header Breadcrumb (dibuat dinamis) */}
-                <div className="flex items-center gap-3 text-sm text-gray-700 mb-6 border border-gray-400 rounded-lg p-2 bg-os-white shadow-sm">
-                    <div className="bg-blue-600 text-white p-2 rounded-md flex items-center justify-center">
-                        <Home size={20} />
-                    </div>
-                    <span className="font-medium">
-                        Stase / {stase.nama_stase}
-                    </span>
-                </div>
+                <OsHeader variant="goback" backLink="/admin/stase"/>
 
                 {/* Header Menu */}
                 <div className="mb-4">

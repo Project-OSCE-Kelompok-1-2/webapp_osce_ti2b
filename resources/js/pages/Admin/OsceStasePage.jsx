@@ -1,7 +1,6 @@
 import React, { useState } from "react";
-import Sidebar from "../../Components/Sidebar";
-import { Link, router } from "@inertiajs/react";
-
+import Sidebar from "../../components/Sidebar"; // Pastikan path ini benar
+import { Link, router, usePage } from "@inertiajs/react";
 import {
     ClipboardList,
     CalendarClock,
@@ -10,8 +9,9 @@ import {
     Edit,
     Trash2,
 } from "lucide-react";
+import OsHeader from "../../components/Header"; // 1. Impor komponen breadcrumb
 
-import OsBreadCrumb from "../../components/breadcrumb";
+// 2. Pastikan nama file komponen pagination Anda benar
 import OsPagination from "../../components/pagination";
 
 export default function OsceStasePage({ stase, osce, filters }) {
@@ -44,7 +44,8 @@ export default function OsceStasePage({ stase, osce, filters }) {
                     isSidebarOpen ? "ml-64" : "ml-20"
                 }`}
             >
-                <OsBreadCrumb osce={osce} />
+                {/* 5. Pastikan backend mengirim prop 'osce' */}
+                <OsHeader/>
 
                 <div className="flex-1 p-2">
                     {/* Navigasi */}

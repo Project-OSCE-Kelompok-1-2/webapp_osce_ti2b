@@ -2,7 +2,7 @@ import React from "react";
 import { X } from "lucide-react";
 import { Link, useForm, usePage, Head } from "@inertiajs/react"; // 1. Import Head
 
-import OsCopyright from "../../components/copyright.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
 import Os_button from "../../components/button.jsx";
 import OsIcon from "../../components/icons.jsx";
 

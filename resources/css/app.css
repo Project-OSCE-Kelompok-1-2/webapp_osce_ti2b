@@ -1,4 +1,5 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Manrope:wght@200..800&display=swap');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -16,6 +17,19 @@
         --os-neutral: #EEF2FF;
         --os-success: #1BE85A;
 
+        /* Digunakan untuk styling tombol */
+        --os-primary-light: #4D73F0;
+        --os-primary-dark: #0F36B3;
+
+        /* FONT FAMILY */
+        --os-font-family: 'Inter', 'Manrope', sans-serif;
+
+        /* FONT WEIGHT */
+        --os-font-light: 300;
+        --os-font-regular: 400;
+        --os-font-semibold: 500;
+        --os-font-bold: 700;
+
         /* FONT SIZE */
         --os-title: 1.9rem;
         --os-subtitle: 1.1rem;
@@ -32,7 +46,6 @@
         --os-12: 0.75rem;
         --os-8: 0.5rem;
         --os-4: 0.25rem;
-        --os-2: 1.25rem;
 
         /* OPACITY */
         --os-alpha-100 : 100%;
@@ -43,14 +56,24 @@
         /* BORDER */
         --os-1 : 1px;
         --os-2 : 2px;
-    }
-}
 
-:root {
-  --os-primary: #1E1A4D;
-  --os-secondary: #3B347E;
-  --os-white: #ffffff;
-  --os-black: #000000;
+        /* BORDER RADIUS */
+        --os-radius-sm: 0.25rem;
+        --os-radius-md: 0.5rem;
+        --os-radius-lg: 1rem;
+
+        /* TRANSITION  */
+        --os-transition-fast: 150ms ease-in-out;
+        --os-transition-normal: 300ms ease-in-out;
+        --os-transition-slow: 500ms ease-in-out;
+    }
+
+    /* DEFAULT DESIGN */
+
+    body {
+        font-family: var(--os-font-family);
+        font-weight: var(--os-font-regular);
+    }
 }
 
 .react-datepicker__input-container input {

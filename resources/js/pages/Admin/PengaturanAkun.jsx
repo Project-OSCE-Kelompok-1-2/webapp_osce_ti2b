@@ -16,7 +16,8 @@ import {
     ArrowLeft,
     Save,
 } from "lucide-react";
-import Sidebar from "../../Components/Sidebar";
+import Sidebar from "../../components/Sidebar.jsx";
+import OsHeader from "../../components/Header.jsx";
 
 // Mock untuk <Component1 /> (tombol mata)
 const Component1 = ({ className }) => <Eye className={className} />;

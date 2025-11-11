@@ -4,7 +4,7 @@ import { Link, useForm, usePage } from "@inertiajs/react";
 
 import Os_button from "../../components/button.jsx";
 import OsIcon from "../../components/icons.jsx";
-import OsCopyright from "../../components/copyright.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
 
 export default function TambahPenguji() {
     const { dosen = null, errors = {} } = usePage().props;

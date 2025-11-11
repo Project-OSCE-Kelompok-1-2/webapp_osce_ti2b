@@ -1,16 +1,24 @@
 import { Link, usePage, router } from "@inertiajs/react";
 import React, { useState } from "react";
-import { ChevronLeft, ChevronRight, Edit2, Trash2 } from "lucide-react";
+import {
+    ChevronLeft,
+    ChevronRight,
+    Edit2,
+    Trash2,
+} from "lucide-react";
 
-import Sidebar from "../../Components/Sidebar";
-import OsBreadCrumb from "../../components/breadcrumb";
-import OsCopyright from "../../components/copyright";
+// --- Import Komponen ---
+// Catatan: Saya mengasumsikan OsPagination.jsx sudah diperbarui
+// dengan logic arrow hover hitam seperti permintaan terakhir Anda.
+import Sidebar from "../../components/Sidebar.jsx";
+import OsHeader from "../../components/Header.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
 import OsIcon from "../../components/icons";
 import OsTableHeader from "../../components/tableheader";
 import OsSearchBar from "../../components/searchbar";
 import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
-import Os_button from "../../components/button.jsx";
+import OsButton from "../../components/button.jsx";
 
 // --- Definisi Kolom Tabel ---
 const staseColumns = [
@@ -71,37 +79,34 @@ export default function Stase() {
         nama_stase: item.nama_stase,
         jumlah_aspek: item.aspek_penilaian_count,
         action: (
-            <div className="flex items-center justify-center space-x-3">
-                {/* Edit Aspek Penilaian */}
-                <Os_button
-                    onClick={() =>
-                        router.get(
-                            `/admin/stase/${item.id_stase}/aspek-penilaian`
-                        )
-                    }
-                    className="h-[38px] text-os-small w-full"
-                >
-                    Edit Aspek Penilaian
-                </Os_button>
+          <div className="flex items-center justify-center space-x-3">
+            {/* Edit Aspek Penilaian */}
+            <OsButton onClick={() => router.get(`/admin/stase/${item.id_stase}/aspek-penilaian`)}
+            className="h-[38px] text-os-small w-full">
+            Edit Aspek Penilaian
+            </OsButton>
 
-                {/* Edit Stase */}
-                <Link
-                    href={`/admin/stase/${item.id_stase}/edit`}
-                    className="bg-blue-600 p-2 rounded-md text-white"
-                >
-                    <Edit2 size={20} />
-                </Link>
 
-                {/* Delete Stase */}
-                <button
-                    onClick={() => handleDelete(item.id_stase)}
-                    className="bg-white border border-gray-400 p-2 rounded-md"
-                >
-                    <Trash2 size={20} className="text-gray-700" />
-                </button>
-            </div>
+            {/* Edit Stase */}
+            <Link
+              href={`/admin/stase/${item.id_stase}/edit`}
+              className="bg-blue-600 p-2 rounded-md text-white"
+            >
+              <Edit2 size={20} />
+            </Link>
+
+            {/* Delete Stase */}
+            <button
+              onClick={() => handleDelete(item.id_stase)}
+              className="bg-white border border-gray-400 p-2 rounded-md"
+            >
+              <Trash2 size={20} className="text-gray-700" />
+            </button>
+          </div>
         ),
-    }));
+      }));
+
+
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
@@ -110,7 +115,9 @@ export default function Stase() {
             {/* ===== KONTEN UTAMA ===== */}
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* Header/Breadcrumb */}
-                <OsBreadCrumb className="fixed" />
+                <OsHeader>
+
+                </OsHeader>
 
                 {/* ===== ISI HALAMAN (Scrollable Area) ===== */}
                 <div className="flex-1 overflow-auto">
@@ -122,7 +129,7 @@ export default function Stase() {
                     </p>
 
                     {/* Tombol Tambah */}
-                    <button
+                    <OsButton
                         onClick={() => router.get("/admin/stase/create")}
                         className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                     >
@@ -131,7 +138,7 @@ export default function Stase() {
                             className="h-os-20 os-icon-light mr-os-8"
                         />
                         Tambah Stase
-                    </button>
+                    </OsButton>
 
                     {/* Search Bar */}
                     <OsSearchBar

@@ -4,7 +4,7 @@ import { ArrowLeft, Download } from "lucide-react";
 
 // --- Import Komponen Halaman ---
 import Sidebar from "../../components/Sidebar";
-import OsCopyright from "../../components/copyright";
+import OsCopyright from "../../components/Copyright";
 import StaseAssessmentView from "../../components/NilaiDetail"; // Komponen anak
 
 //=================================================================
