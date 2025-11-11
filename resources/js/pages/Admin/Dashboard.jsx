@@ -1,66 +1,222 @@
-import React from "react";
-import Sidebar from "../../components/Sidebar.jsx";
-
-// 1. MENGGANTI IMPORT SVG DENGAN LUCIDE-REACT
+import React, { useState } from "react";
+import { usePage, Link } from "@inertiajs/react";
 import {
-    Home,
-    // Users, (Dihapus)
-    // DollarSign, (Dihapus)
-    // CreditCard, (Dihapus)
-    // BarChart, (Dihapus)
-    // PieChart, (Dihapus)
+    ClipboardList,
+    Users,
+    UserCheck,
+    ExternalLink,
+    Bookmark,
 } from "lucide-react";
-import OsBreadCrumb from "../../components/breadcrumb.jsx";
+
+import Sidebar from "../../Components/Sidebar.jsx";
 import OsCopyright from "../../components/copyright.jsx";
 
-export const AdminDashboard = () => {
+/**
+ * props: title, value, description, icon, colorClass
+ */
+const StatCard = ({ title, value, description, icon, colorClass }) => {
     return (
-        // 🆕 Tambahkan relative dan overflow-hidden agar sidebar overlay bisa muncul di atas dashboard
-        <div className="relative bg-os-white w-full min-h-screen  flex justify-start p-os-12 font-sans overflow-hidden">
-            {/* Sidebar dipanggil langsung tanpa kontrol dari dashboard */}
-            <Sidebar />
+        <article
+            className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass} shadow-sm`}
+        >
+            <div>
+                <div className="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 className="font-medium text-sm text-gray-800">
+                            {title}
+                        </h3>
+                        <p className="text-xs text-gray-500 mt-1">
+                            {description}
+                        </p>
+                    </div>
+                    <div className="p-1 rounded bg-white/60 border">
+                        <Bookmark size={16} className="text-gray-600" />
+                    </div>
+                </div>
+            </div>
 
-            {/* Struktur layout dashboard tetap sama */}
-            <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                {/* === HEADER === */}
-                <OsBreadCrumb />
-
-                {/* === MAIN CONTENT === */}
-                <main className="relative row-[2_/_3] col-[1_/_2] w-full h-full flex flex-col items-start gap-os-14">
-                    <h2 className="relative w-fit font-bold text-black text-os-subtitle tracking-[0] leading-[normal] whitespace-nowrap">
-                        Statistika
-                    </h2>
-
-                    <section
-                        className="grid grid-cols-1 md:grid-cols-3 gap-os-14 w-full"
-                        aria-label="Statistics cards"
+            <div className="flex items-center justify-between mt-4">
+                <div>
+                    <div className="text-4xl font-extrabold text-gray-900 leading-none">
+                        {value}
+                    </div>
+                    <button
+                        type="button"
+                        className="mt-2 inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border bg-white/80"
                     >
-                        <article className="w-full h-[200px] bg-os-white rounded-xl border border-solid border-black p-6 flex flex-col justify-between"></article>
-                        <article className="w-full h-[200px] bg-os-white rounded-xl border border-solid border-black p-6 flex flex-col justify-between"></article>
-                        <article className="w-full h-[200px] bg-os-white rounded-xl border border-solid border-black p-6 flex flex-col justify-between"></article>
-                    </section>
+                        <ClipboardList size={14} />
+                        <span>Tampilkan lebih</span>
+                    </button>
+                </div>
 
-                    <hr className="relative w-full border-black border-t" />
+                <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-white/60 border">
+                    {icon}
+                </div>
+            </div>
+        </article>
+    );
+};
 
-                    <h2 className="relative w-fit font-bold text-os-subtitle tracking-[0] leading-[normal] whitespace-nowrap">
-                        Plot
-                    </h2>
+/**
+ * NotificationItem: layout sesuai mock
+ */
+const NotificationItem = ({ stase, index }) => {
+    return (
+        <div className="flex items-center justify-between bg-white border rounded-lg shadow-sm overflow-hidden">
+            {/* Left: number */}
+            <div className="flex items-center px-4 py-4 border-r">
+                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-700">
+                    {index}
+                </div>
+            </div>
 
-                    <section
-                        className="grid grid-cols-1 lg:grid-cols-[1fr_400px] gap-os-14 w-full"
-                        aria-label="Plot charts"
-                    >
-                        <article className="w-full h-[360px] bg-os-white rounded-xl border border-solid border-black p-6 flex flex-col items-center justify-center"></article>
-                        <article className="w-full h-[360px] bg-os-white rounded-xl border border-solid border-black p-6 flex flex-col items-center justify-center"></article>
-                    </section>
-                </main>
+            {/* Middle: title + subtitle */}
+            <div className="flex-1 px-4 py-4">
+                <h4 className="font-semibold text-gray-800">
+                    {stase.nama_stase}
+                </h4>
+                <p className="text-sm text-gray-500 mt-1">{stase.sub_judul}</p>
+            </div>
 
-                {/* === FOOTER === */}
-                <OsCopyright />
+            {/* Right: pill + external link */}
+            <div className="flex items-center gap-3 px-4 py-4">
+                <div className="px-4 py-2 rounded-full bg-red-100 border border-red-300 text-red-700 text-xs font-semibold">
+                    Nilai tidak seimbang ({stase.total_bobot}%)
+                </div>
+                <Link
+                    href={`/admin/stase/${stase.id_stase}/edit`}
+                    className="p-2 rounded-md border text-gray-600 hover:bg-gray-50"
+                    title="Edit stase"
+                >
+                    <ExternalLink size={16} />
+                </Link>
             </div>
         </div>
     );
 };
 
-// Ekspor default agar bisa di-render
-export default AdminDashboard;
+export default function Dashboard() {
+    // fallback aman jika props belum ada
+    const {
+        stats = { total_osce: 0, total_mahasiswa: 0, total_penguji: 0 },
+        notifikasi = [],
+    } = usePage().props || {};
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    // format angka (2 digit seperti mock)
+    const totalOsce = (stats.total_osce ?? 0).toString().padStart(2, "0");
+    const totalMahasiswa = (stats.total_mahasiswa ?? 0)
+        .toString()
+        .padStart(2, "0");
+    const totalPenguji = (stats.total_penguji ?? 0).toString().padStart(2, "0");
+
+    return (
+        <div className="relative bg-gray-50 w-full min-h-screen flex justify-start font-sans overflow-hidden">
+            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+
+            <main
+                className={`flex flex-col flex-1 transition-all duration-300 ${
+                    sidebarOpen ? "md:ml-64" : "md:ml-20"
+                } p-6`}
+            >
+                {/* Header / Breadcrumb */}
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="p-2 bg-blue-600 text-white rounded-md">
+                        <svg
+                            width="20"
+                            height="20"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            xmlns="http://www.w3.org/2000/svg"
+                        >
+                            <path
+                                d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z"
+                                fill="white"
+                            />
+                        </svg>
+                    </div>
+                    <div className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium bg-white">
+                        Beranda
+                    </div>
+                </div>
+
+                {/* MAIN */}
+                <div className="flex-1 overflow-auto">
+                    {/* Statistika */}
+                    <section className="mb-8">
+                        <h2 className="font-bold text-lg text-gray-900 mb-4">
+                            Statistika
+                        </h2>
+
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <StatCard
+                                title="Total OSCE"
+                                description="Jumlah total OSCE yang terdaftar"
+                                value={totalOsce}
+                                icon={
+                                    <ClipboardList
+                                        size={22}
+                                        className="text-blue-700"
+                                    />
+                                }
+                                colorClass="bg-blue-50 border-blue-200"
+                            />
+                            <StatCard
+                                title="Total Mahasiswa"
+                                description="Jumlah total mahasiswa terdaftar"
+                                value={totalMahasiswa}
+                                icon={
+                                    <Users
+                                        size={22}
+                                        className="text-gray-700"
+                                    />
+                                }
+                                colorClass="bg-white border-gray-200"
+                            />
+                            <StatCard
+                                title="Total Penguji"
+                                description="Jumlah total penguji terdaftar"
+                                value={totalPenguji}
+                                icon={
+                                    <UserCheck
+                                        size={22}
+                                        className="text-gray-700"
+                                    />
+                                }
+                                colorClass="bg-white border-gray-200"
+                            />
+                        </div>
+                    </section>
+
+                    {/* Notifikasi */}
+                    <section>
+                        <h2 className="font-bold text-lg text-gray-900 mb-4">
+                            Notifikasi
+                        </h2>
+
+                        <div className="flex flex-col gap-3">
+                            {notifikasi && notifikasi.length > 0 ? (
+                                notifikasi.map((item, idx) => (
+                                    <NotificationItem
+                                        key={item.id_stase ?? idx}
+                                        stase={item}
+                                        index={idx + 1}
+                                    />
+                                ))
+                            ) : (
+                                <p className="text-sm text-gray-500 text-center py-4 bg-white border rounded-lg">
+                                    Tidak ada notifikasi.
+                                </p>
+                            )}
+                        </div>
+                    </section>
+                </div>
+
+                {/* Footer */}
+                <div className="mt-8">
+                    <OsCopyright />
+                </div>
+            </main>
+        </div>
+    );
+}

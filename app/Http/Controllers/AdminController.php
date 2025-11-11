@@ -7,10 +7,52 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
 use Inertia\Inertia;
+use App\Models\Osce;
+use App\Models\Mahasiswa;
+use App\Models\Penguji;
+use App\Models\Stase;
 use Illuminate\Validation\Rule; // Import ini untuk validasi unik
 
 class AdminController extends Controller
 {
+    public function dashboard()
+    {
+        // 1. Ambil data Statistika
+        $stats = [
+            'total_osce' => Osce::count(),
+            'total_mahasiswa' => Mahasiswa::count(),
+            'total_penguji' => Penguji::count(),
+        ];
+
+        // 2. [PERBAIKAN] Ambil data Notifikasi
+        $notifikasi_bobot = Stase::query()
+            ->with('aspekPenilaian') // <-- [FIX] Tambahkan ini untuk load relasi
+            ->withSum('aspekPenilaian', 'bobot_maksimum')
+            ->get()
+            ->filter(function ($stase) {
+                $total_bobot = $stase->aspek_penilaian_sum_bobot_maksimum ?? 0;
+                return $total_bobot != 100;
+            })
+            ->map(function($stase) { // Gunakan multi-baris agar lebih aman
+                
+                // Cek dengan aman
+                $first_aspek = $stase->aspekPenilaian->first();
+                $sub_judul = $first_aspek ? $first_aspek->aspek : 'Bobot belum diatur';
+
+                return [
+                    'id_stase' => $stase->id_stase,
+                    'nama_stase' => $stase->nama_stase,
+                    'sub_judul' => $sub_judul,
+                    'total_bobot' => $stase->aspek_penilaian_sum_bobot_maksimum ?? 0,
+                ];
+            });
+
+        // 3. Kirim data ke view
+        return Inertia::render('Admin/Dashboard', [
+            'stats' => $stats,
+            'notifikasi' => $notifikasi_bobot,
+        ]);
+    }
     /**
      * 🔹 Menampilkan halaman profil admin
      * (Fungsi ini tetap sama)
