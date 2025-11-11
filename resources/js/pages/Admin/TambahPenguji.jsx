@@ -13,8 +13,6 @@ export default function TambahPenguji() {
     const { data, setData, post, put, processing, reset } = useForm({
         nip: dosen ? dosen.nip : "",
         nama: dosen ? dosen.nama : "",
-        alamat: dosen ? dosen.alamat : "",
-        email: dosen ? dosen.email : "",
     });
 
     function handleSubmit(e) {
@@ -36,7 +34,7 @@ export default function TambahPenguji() {
                     className="bg-blue-600 text-white p-3 rounded-xl border border-black hover:bg-blue-700 transition"
                 >
                     <CornerUpLeft size={20} />
-                </Link>
+                </Link> 
 
                 <div className="flex-1 mx-3 border border-black rounded-xl px-4 py-2 bg-white">
                     <p className="text-black text-base sm:text-lg truncate">
@@ -100,47 +98,7 @@ export default function TambahPenguji() {
                             )}
                         </div>
 
-                        {/* ALAMAT */}
-                        <div>
-                            <label className="block text-xs text-gray-700 font-semibold mb-1">
-                                Alamat Dosen
-                            </label>
-                            <textarea
-                                value={data.alamat}
-                                onChange={(e) =>
-                                    setData("alamat", e.target.value)
-                                }
-                                placeholder="Masukkan alamat dosen..."
-                                className="w-full border border-gray-700 rounded-lg p-3 text-sm resize-none focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                                rows={4}
-                            />
-                            {errors.alamat && (
-                                <p className="text-red-500 text-xs mt-1">
-                                    {errors.alamat}
-                                </p>
-                            )}
-                        </div>
-
-                        {/* EMAIL */}
-                        <div>
-                            <label className="block text-xs text-gray-700 font-semibold mb-1">
-                                Email Dosen
-                            </label>
-                            <input
-                                type="email"
-                                value={data.email}
-                                onChange={(e) =>
-                                    setData("email", e.target.value)
-                                }
-                                placeholder="Masukkan email dosen..."
-                                className="w-full border border-gray-700 rounded-lg p-3 text-sm focus:ring-2 focus:ring-blue-500 focus:outline-none"
-                            />
-                            {errors.email && (
-                                <p className="text-red-500 text-xs mt-1">
-                                    {errors.email}
-                                </p>
-                            )}
-                        </div>
+                       
 
                         {/* TOMBOL */}
                         <div className="flex flex-col sm:flex-row justify-between gap-3 pt-4">
