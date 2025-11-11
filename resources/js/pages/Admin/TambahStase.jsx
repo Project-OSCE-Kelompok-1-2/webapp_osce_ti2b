@@ -1,9 +1,7 @@
 import React from "react";
 import { Head, useForm, usePage, Link } from "@inertiajs/react";
-import { Trash2, Save, X } from "lucide-react";
-import OsInput from "../../components/input";
-import OsHeader from "../../components/Header";
-import OsCopyright from "../../components/Copyright";
+import { Trash2, Save, X } from "lucide-react"; // X tidak lagi dipakai, tapi tidak apa-apa
+import OsCopyright from "../../components/copyright.jsx";
 
 export default function TambahStase({
     mataKuliah,
@@ -13,49 +11,16 @@ export default function TambahStase({
     const isEditMode = !!stase;
     const { errors } = usePage().props;
 
-    // Konversi agar semua ID selalu string
-    const initialTP = (stase?.id_tujuan_pembelajaran_array || []).map(String);
-
+    // [UBAH] Kembalikan ke state awal (string tunggal, bukan array)
     const { data, setData, post, put, reset, processing } = useForm({
         nama_stase: stase?.nama_stase || "",
         id_mata_kuliah: stase?.id_mata_kuliah?.toString() || "",
-        id_tujuan_pembelajaran: initialTP,
+        id_tujuan_pembelajaran: stase?.id_tujuan_pembelajaran?.toString() || "", // <-- DIUBAH
         deskripsi: stase?.deskripsi || "",
     });
 
-    const selectedTP = data.id_tujuan_pembelajaran;
-
-    // ✅ Dropdown: hanya tampilkan yang BELUM dipilih
-    const filteredTP = tujuanPembelajaran.filter(
-        (tp) => !selectedTP.includes(String(tp.id_tujuan_pembelajaran))
-    );
-
-    // ✅ Tambah tujuan dari dropdown
-    const handleAddTP = (e) => {
-        const value = e.target.value;
-        if (!value) return;
-
-        const strValue = String(value);
-
-        if (selectedTP.length >= 10) {
-            alert("Maksimal memilih 10 tujuan pembelajaran");
-            e.target.value = "";
-            return;
-        }
-
-        setData("id_tujuan_pembelajaran", [...selectedTP, strValue]);
-
-        // Reset dropdown
-        e.target.value = "";
-    };
-
-    // ✅ Hapus chip
-    const removeTP = (id) => {
-        setData(
-            "id_tujuan_pembelajaran",
-            selectedTP.filter((item) => item !== id)
-        );
-    };
+    // [HAPUS] Semua logika array (selectedTP, filteredTP, handleAddTP, removeTP)
+    // ...dihapus...
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -73,16 +38,29 @@ export default function TambahStase({
         <>
             <Head title={`Stase | ${isEditMode ? "Edit" : "Tambah"} Stase`} />
 
-            <div className="flex flex-col min-h-screen bg-os-white p-os-8">
-                <OsHeader variant="goback" backLink="/admin/stase">
-                    {isEditMode ? "Edit" : "Tambah"} Stase
-                </OsHeader>
+            <div className="flex flex-col min-h-screen bg-os-white">
+                {/* ... Header ... */}
+                <div className="flex items-center border-b px-4 py-3">
+                    <Link
+                        href="/admin/stase"
+                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 mr-3 w-8 h-8 flex items-center justify-center"
+                    >
+                        ←
+                    </Link>
+                    <span className="text-gray-700 font-medium">
+                        Stase{" "}
+                        <span className="text-gray-500">
+                            / {isEditMode ? "Edit" : "Tambah"} Stase
+                        </span>
+                    </span>
+                </div>
 
                 <div className="flex flex-1 items-center justify-center py-10">
                     <form
                         onSubmit={handleSubmit}
                         className="w-full max-w-md border rounded-xl shadow-sm overflow-hidden"
                     >
+                        {/* ... Judul Form ... */}
                         <div className="bg-neutral-800 text-white text-center py-4">
                             <h2 className="text-lg font-semibold">
                                 Form {isEditMode ? "Edit" : "Tambah"} Stase
@@ -94,57 +72,55 @@ export default function TambahStase({
                         </div>
 
                         <div className="p-6 space-y-4">
-                            {/* Mata Kuliah */}
-                            <div>
-                                <OsInput
-                                    label="Mata Kuliah"
-                                    type="suggest"
-                                    placeholder="Pilih Mata Kuliah..."
-                                    value={
-                                        mataKuliah.find(
-                                            (mk) =>
-                                                mk.id_mata_kuliah ==
-                                                data.id_mata_kuliah
-                                        )?.nama_mata_kuliah || ""
-                                    }
-                                    onChange={(val) => {
-                                        const selected = mataKuliah.find(
-                                            (mk) =>
-                                                mk.nama_mata_kuliah.toLowerCase() ===
-                                                val.toLowerCase()
-                                        );
-                                        setData(
-                                            "id_mata_kuliah",
-                                            selected
-                                                ? selected.id_mata_kuliah
-                                                : ""
-                                        );
-                                    }}
-                                    suggestions={mataKuliah.map(
-                                        (mk) => mk.nama_mata_kuliah
-                                    )}
-                                    className="mt-1 w-full"
-                                />
-                                {errors.id_mata_kuliah && (
-                                    <p className="text-red-500 text-sm mt-1">
-                                        {errors.id_mata_kuliah}
-                                    </p>
-                                )}
-                            </div>
-
-                            {/* Tujuan Pembelajaran */}
+                            {/* Mata Kuliah (Tidak berubah) */}
                             <div>
                                 <label className="text-sm text-gray-700">
-                                    Pilih Tujuan Pembelajaran (Maksimal 10)
+                                    Mata Kuliah
                                 </label>
-
-                                {/* Dropdown hanya item yang belum dipilih */}
                                 <select
-                                    onChange={handleAddTP}
+                                    value={data.id_mata_kuliah}
+                                    onChange={(e) =>
+                                        setData(
+                                            "id_mata_kuliah",
+                                            e.target.value
+                                        )
+                                    }
+                                    className="mt-1 w-full border rounded-lg px-3 py-2 bg-white"
+                                >
+                                    <option value="">
+                                        Pilih Mata Kuliah...
+                                    </option>
+                                    {mataKuliah.map((mk) => (
+                                        <option
+                                            key={mk.id_mata_kuliah}
+                                            value={mk.id_mata_kuliah}
+                                        >
+                                            {mk.nama_mata_kuliah}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
+
+                            {/* [UBAH] Tujuan Pembelajaran (Kembali ke <select> biasa) */}
+                            <div>
+                                <label className="text-sm text-gray-700">
+                                    Tujuan Pembelajaran
+                                </label>
+                                <select
+                                    // [UBAH] Value langsung dari data form
+                                    value={data.id_tujuan_pembelajaran}
+                                    // [UBAH] onChange langsung setData
+                                    onChange={(e) =>
+                                        setData(
+                                            "id_tujuan_pembelajaran",
+                                            e.target.value
+                                        )
+                                    }
                                     className="mt-1 w-full border rounded-lg px-3 py-2 bg-white"
                                 >
                                     <option value="">Pilih tujuan...</option>
-                                    {filteredTP.map((tp) => (
+                                    {/* [UBAH] Looping semua 'tujuanPembelajaran', bukan 'filteredTP' */}
+                                    {tujuanPembelajaran.map((tp) => (
                                         <option
                                             key={tp.id_tujuan_pembelajaran}
                                             value={tp.id_tujuan_pembelajaran}
@@ -153,60 +129,27 @@ export default function TambahStase({
                                         </option>
                                     ))}
                                 </select>
-
-                                {/* ✅ CHIP dengan layout 1 kolom → 2 kolom setelah 5 item */}
-                                <div
-                                    className={
-                                        selectedTP.length > 5
-                                            ? "grid grid-cols-2 gap-2 mt-2"
-                                            : "flex flex-wrap gap-2 mt-2"
-                                    }
-                                >
-                                    {selectedTP.map((id) => {
-                                        const tp = tujuanPembelajaran.find(
-                                            (i) =>
-                                                String(
-                                                    i.id_tujuan_pembelajaran
-                                                ) === id
-                                        );
-
-                                        return (
-                                            <span
-                                                key={id}
-                                                className="bg-blue-100 text-blue-700 px-2 py-1 rounded-lg text-sm flex items-center gap-1 truncate max-w-[180px]"
-                                            >
-                                                <span className="truncate">
-                                                    {tp?.tujuan}
-                                                </span>
-
-                                                <button
-                                                    type="button"
-                                                    onClick={() => removeTP(id)}
-                                                    className="text-blue-600 hover:text-blue-900"
-                                                >
-                                                    <X size={14} />
-                                                </button>
-                                            </span>
-                                        );
-                                    })}
-                                </div>
                             </div>
 
-                            {/* Nama Stase */}
+                            {/* [HAPUS] Div untuk rendering chips dihapus */}
+
+                            {/* Nama Stase (Tidak berubah) */}
                             <div>
-                                <OsInput
-                                    label="Nama Stase"
+                                <label className="text-sm text-gray-700">
+                                    Nama Stase
+                                </label>
+                                <input
                                     type="text"
                                     value={data.nama_stase}
                                     onChange={(e) =>
                                         setData("nama_stase", e.target.value)
                                     }
-                                    className="mt-1 w-full"
+                                    className="mt-1 w-full border rounded-lg px-3 py-2"
                                     placeholder="Masukkan nama stase..."
                                 />
                             </div>
 
-                            {/* Deskripsi */}
+                            {/* Deskripsi (Tidak berubah) */}
                             <div>
                                 <label className="text-sm text-gray-700">
                                     Deskripsi
@@ -222,6 +165,7 @@ export default function TambahStase({
                                 ></textarea>
                             </div>
 
+                            {/* Tombol (Tidak berubah) */}
                             {/* Tombol */}
                             <div className="flex justify-between pt-4">
                                 <button
