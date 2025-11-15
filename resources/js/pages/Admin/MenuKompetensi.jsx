@@ -3,10 +3,15 @@ import { usePage, Link, router } from "@inertiajs/react";
 import { Pencil, Trash2, PlusCircle, Search, ArrowLeft } from "lucide-react";
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
+import OsButton from "../../components/button.jsx";
+import OsInput from "../../components/input.jsx";
+import OsModal from "../../components/Modal.jsx";
 
 export default function KompetensiPage() {
     // 1. Ambil data dari props yang dikirim Controller
     const { aspek, kompetensi, filters } = usePage().props;
+    const [showModal, setShowModal] = useState(false);
 
     // 2. Siapkan state untuk input pencarian
     const [search, setSearch] = useState(filters.search || "");
@@ -42,32 +47,36 @@ export default function KompetensiPage() {
             <Sidebar />
 
             <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-            {/* Breadcrumb */}
-            <OsHeader variant="goback" backLink={`/admin/stase/${aspek.stase.id_stase}/aspek-penilaian`}/>
+                {/* Breadcrumb */}
+                <OsHeader
+                    variant="goback"
+                    backLink={`/admin/stase/${aspek.stase.id_stase}/aspek-penilaian`}
+                />
 
-            {/* Header */}
-            <div className="mb-6">
-                <h2 className="text-xl font-medium text-black mb-1">
-                    Menu Kompetensi
-                </h2>
-                <p className="text-sm text-gray-500 max-w-md">
-                    Halaman untuk mengelola poin-poin kompetensi dari aspek
-                    penilaian "{aspek.aspek}"
-                </p>
+                {/* Header */}
+                <div className="mb-6">
+                    <h2 className="text-xl font-medium text-black mb-1">
+                        Menu Kompetensi
+                    </h2>
+                    <p className="text-sm text-gray-500 max-w-md">
+                        Halaman untuk mengelola poin-poin kompetensi dari aspek
+                        penilaian "{aspek.aspek}"
+                    </p>
 
-                {/* 👇 [UBAH] Tombol tambah diubah menjadi Link */}
-                <button
-                    onClick={() =>
-                        router.get(
-                            `/admin/aspek-penilaian/${aspek.id_aspek_penilaian}/kompetensi/create`
-                        )
-                    }
-                    className="flex items-center gap-2 mt-3 bg-blue-700 hover:bg-blue-600 text-white px-5 py-3 rounded-xl"
-                >
-                    <PlusCircle size={20} />
-                    Tambah Kompetensi
-                </button>
-            </div>
+                    {/* 👇 [UBAH] Tombol tambah diubah menjadi Link */}
+                    <OsButton
+                        // onClick={() =>
+                        //     router.get(
+                        //         `/admin/aspek-penilaian/${aspek.id_aspek_penilaian}/kompetensi/create`
+                        //     )
+                        // }
+                        onClick={() => setShowModal(true)}
+                        className="flex items-center gap-2 mt-3 bg-blue-700 hover:bg-blue-600 text-white px-5 py-3 rounded-xl"
+                    >
+                        <PlusCircle size={20} />
+                        Tambah Kompetensi
+                    </OsButton>
+                </div>
 
                 {/* Search Bar */}
                 <div className="flex items-center gap-3 mb-6">
@@ -187,9 +196,31 @@ export default function KompetensiPage() {
                 </div>
 
                 {/* Footer Copyright */}
-                <footer className="border border-black rounded-xl text-start px-4 py-4 text-sm text-gray-600">
-                    © Jorem ipsum dolor sit amet, consectetur adipiscing elit.
+                <footer>
+                    <OsCopyright />
                 </footer>
+                {/* Modal Tambah Stase */}
+                <OsModal
+                    show={showModal}
+                    onClose={() => setShowModal(false)}
+                    title="Tambah Menu Kompetensi Baru"
+                    subtitle="Isi form di bawah untuk menambahkan kompetensi baru."
+                >
+                    <OsInput
+                        label="Deskripsi Kompetensi"
+                        type="textarea"
+                        name="nama_stase"
+                        placeholder="Masukkan Deskripsi Kompetensi..."
+                        required
+                    />
+                    <OsInput
+                        label="Bobot Kompetensi"
+                        type="number"
+                        name="nama_stase"
+                        placeholder="Masukkan Bobot Kompetensi..."
+                        required
+                    />
+                </OsModal>
             </div>
         </div>
     );

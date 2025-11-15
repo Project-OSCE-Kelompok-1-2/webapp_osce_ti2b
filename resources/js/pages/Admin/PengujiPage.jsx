@@ -9,6 +9,11 @@ import OsIcon from "../../components/icons.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 import Os_button from "../../components/button.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
+import OsModal from "../../components/Modal.jsx";
+import OsInput from "../../components/input.jsx";
+import OsButton from "../../components/button.jsx";
+
+// --- Definisi Kolom Tabel Penguji ---
 
 const pengujiColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
@@ -32,6 +37,7 @@ const pengujiColumns = [
 export default function PengujiPage() {
     // 2. [PERBAIKAN] Ambil props langsung dari usePage()
     const { dosen, filters, flash } = usePage().props;
+    const [showModal, setShowModal] = useState(false);
 
     // 5. State (sudah benar)
     const [search, setSearch] = useState(filters?.search || "");
@@ -57,22 +63,20 @@ export default function PengujiPage() {
             <Head title="Manajemen Penguji" />
             <Sidebar />
 
-            <main className="flex flex-col flex-1 p-os-8 transition-all duration-300 md:ml-20">
-                <OsHeader/>
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
+                <OsHeader />
 
                 <div className="flex-1 overflow-auto">
                     {/* === HEADER SECTION === */}
-                    <section className="mb-8">
-                        <h2 className="font-semibold text-lg my-2">
-                            Menu Penguji
-                        </h2>
-                        <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                            Halaman ini digunakan untuk mengelola data penguji
-                            (dosen).
-                        </p>
+                    <h2 className="font-semibold text-lg mb-1">Menu Penguji</h2>
+                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                        Menu Penguji (Dosen) digunakan untuk mengelola proses penilaian,
+                        pemantauan, dan evaluasi mahasiswa selama kegiatan atau
+                        stase berlangsung.
+                    </p>
 
-                        {/* Tombol Tambah Penguji */}
-                        <div className="flex items-center gap-3 mb-5">
+                    {/* Tombol Tambah Penguji */}
+                    {/* <div className="flex items-center gap-3 mb-5">
                             <Os_button
                                 onClick={() =>
                                     router.visit("/admin/dosen/create")
@@ -85,32 +89,42 @@ export default function PengujiPage() {
                                 />
                                 Tambah Penguji
                             </Os_button>
-                        </div>
+                        </div> */}
+                    <OsButton
+                        // onClick={() => router.get("/admin/stase/create")}
+                        onClick={() => setShowModal(true)}
+                        className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
+                    >
+                        <OsIcon
+                            name="add"
+                            className="h-os-20 os-icon-light mr-os-8"
+                        />
+                        Tambah Penguji
+                    </OsButton>
 
-                        {/* [BARU] Notifikasi Sukses/Error */}
-                        {flash.success && (
-                            <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
-                                {flash.success}
-                            </div>
-                        )}
-                        {flash.error && (
-                            <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
-                                {flash.error}
-                            </div>
-                        )}
-
-                        {/* Search Bar */}
-                        <div className="w-full">
-                            <OsSearchBar
-                                // Bungkus dalam form untuk submit on Enter
-                                onSubmit={handleSearch}
-                                search={search}
-                                setSearch={setSearch}
-                                onSearchClick={handleSearch}
-                                placeholder="Cari NIP atau Nama Penguji..."
-                            />
+                    {/* [BARU] Notifikasi Sukses/Error */}
+                    {flash.success && (
+                        <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
+                            {flash.success}
                         </div>
-                    </section>
+                    )}
+                    {flash.error && (
+                        <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
+                            {flash.error}
+                        </div>
+                    )}
+
+                    {/* Search Bar */}
+                    <div className="w-full">
+                        <OsSearchBar
+                            // Bungkus dalam form untuk submit on Enter
+                            onSubmit={handleSearch}
+                            search={search}
+                            setSearch={setSearch}
+                            onSearchClick={handleSearch}
+                            placeholder="Cari NIP atau Nama Penguji..."
+                        />
+                    </div>
 
                     {/* === TABEL PENGUJI === */}
                     <section>
@@ -187,6 +201,29 @@ export default function PengujiPage() {
                 <footer className="mt-auto pt-6 border-t border-gray-200">
                     <OsCopyright />
                 </footer>
+
+                {/* Modal Tambah Stase */}
+                <OsModal
+                    show={showModal}
+                    onClose={() => setShowModal(false)}
+                    title="Tambah Penguji Baru"
+                    subtitle="Isi form di bawah untuk menambahkan penguji baru."
+                >
+                    <OsInput
+                        label="NIP Penguji"
+                        type="text"
+                        name="nama_stase"
+                        placeholder="Masukkan NIP Penguji..."
+                        required
+                    />
+                    <OsInput
+                        label="Nama Penguji"
+                        type="text"
+                        name="nama_stase"
+                        placeholder="Masukkan Nama Penguji..."
+                        required
+                    />
+                </OsModal>
             </main>
         </div>
     );

@@ -117,7 +117,7 @@ export default function Stase() {
             {/* ===== KONTEN UTAMA ===== */}
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* Header/Breadcrumb */}
-                <OsHeader></OsHeader>
+                <OsHeader/>
 
                 {/* ===== ISI HALAMAN (Scrollable Area) ===== */}
                 <div className="flex-1 overflow-auto">

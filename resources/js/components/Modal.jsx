@@ -33,7 +33,7 @@ export default function OsModal({ show, children, onClose, title, subtitle }) {
                 </header>
 
                 {/* Body */}
-                <form className="flex flex-col gap-3 overflow-y-auto p-os-20">
+                <form className="flex flex-col gap-3 overflow-y-scroll p-os-20">
                     {children || (
                         <p className="text-center text-os-paragraph text-gray-500">
                             No content
@@ -48,7 +48,7 @@ export default function OsModal({ show, children, onClose, title, subtitle }) {
                             type="submit"
                             className="flex w-full items-center gap-2 h-[48px] bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
                         >
-                            <FilePlus size={18} />
+                            <FilePlus size={20} />
                             Submit
                         </OsButton>
 
@@ -56,7 +56,7 @@ export default function OsModal({ show, children, onClose, title, subtitle }) {
                             type="button"
                             className="flex items-center gap-2 h-[48px] !bg-red-500 text-white px-4 py-2 rounded-lg hover:!bg-red-600"
                         >
-                            <Trash2 size={18} />
+                            <Trash2 size={20} />
                         </OsButton>
                     </div>
                 </footer>
