@@ -3,6 +3,21 @@ import { usePage, Link, router } from "@inertiajs/react";
 import { Pencil, Trash2, PlusCircle, Search, ArrowLeft } from "lucide-react";
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
+import OsIcon from "../../components/icons";
+import OsTableHeader from "../../components/tableheader";
+import OsSearchBar from "../../components/searchbar";
+import OsPagination from "../../components/pagination.jsx";
+import OsTableBody from "../../components/tablecontain.jsx";
+
+
+//Definisi kolom tabel 
+const columns = [
+    { content: "No", width: "w-16", classes: "justify-center", key: "no" },
+    { content: "Deskripsi Kompetensi", width: "flex-1", classes: "justify-start px-4", key: "kompetensi" },
+    { content: "Bobot", width: "w-20", classes: "justify-center", key: "bobot" },
+    { content: "Action", width: "w-28", classes: "justify-center", key: "action" }
+];
+
 
 export default function KompetensiPage() {
     // 1. Ambil data dari props yang dikirim Controller
@@ -34,6 +49,33 @@ export default function KompetensiPage() {
         (acc, curr) => acc + Number(curr.bobot),
         0
     );
+
+    // 6. Fungsi untuk siapin data isi tabel
+    const tableData = kompetensi.data.map((item, idx) => ({
+        no: kompetensi.from + idx,
+        kompetensi: item.kompetensi,
+        bobot: item.bobot,
+        action: (
+            <div className="flex gap-2 justify-center">
+                <button
+                    onClick={() =>
+                        router.get(`/admin/kompetensi/${item.id_poin_aspek_penilaian}/edit`)
+                    }
+                    className="p-1.5 text-white bg-blue-700 hover:bg-blue-500 border border-black rounded-lg"
+                >
+                    <Pencil size={16} />
+                </button>
+    
+                <button
+                    onClick={() => handleDelete(item.id_poin_aspek_penilaian)}
+                    className="p-1.5 text-black bg-white hover:bg-red-600 hover:text-white border border-black rounded-lg"
+                >
+                    <Trash2 size={16} />
+                </button>
+            </div>
+        )
+    }));
+    
 
     return (
         // 🆕 Tambahkan relative dan overflow-hidden agar sidebar overlay bisa muncul di atas dashboard
@@ -70,103 +112,24 @@ export default function KompetensiPage() {
             </div>
 
                 {/* Search Bar */}
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="flex flex-1 items-center gap-2 border border-black rounded-xl px-3 py-3">
-                        <Search size={18} className="text-gray-500" />
-                        <input
-                            type="text"
-                            placeholder="Tuliskan data kompetensi..."
-                            className="flex-1 outline-none text-sm text-gray-700"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-                    <button
-                        onClick={handleSearch}
-                        className="px-24 py-3 bg-blue-700 hover:bg-blue-600 text-white rounded-xl border border-black"
-                    >
-                        Cari
-                    </button>
-                </div>
+                <OsSearchBar
+                    search={search}
+                    setSearch={setSearch}
+                    onSearchClick={handleSearch}
+                    placeholder="Cari kompetensi..."
+                />
 
                 {/* Tabel Kompetensi */}
                 <h3 className="font-semibold mb-2">Table Kompetensi</h3>
-                <div className="relative overflow-x-auto border border-black rounded-xl shadow-sm">
-                    <table className="w-full text-sm border-collapse">
-                        {/* ======= HEADER (Tidak diubah) ======= */}
-                        <thead className="bg-gray-200 text-black border-b border-black">
-                            <tr>
-                                <th className="border-b border-black py-2 px-3 text-center w-12">
-                                    No
-                                </th>
-                                <th className="border-x border-b border-black py-2 px-3 text-left">
-                                    Deskripsi Kompetensi
-                                </th>
-                                <th className="border-r border-b border-black py-2 px-3 text-center w-24">
-                                    Bobot
-                                </th>
-                                <th className="border-b border-black py-2 px-3 text-center w-28">
-                                    Action
-                                </th>
-                            </tr>
-                        </thead>
 
-                        <tbody>
-                            {kompetensi.data.length > 0 ? (
-                                kompetensi.data.map((item, idx) => (
-                                    <tr
-                                        key={item.id_poin_aspek_penilaian}
-                                        className="hover:bg-gray-50 transition border-t border-black/30"
-                                    >
-                                        <td className="border-r border-black/30 text-center py-2">
-                                            {kompetensi.from + idx}
-                                        </td>
-                                        <td className="border-r border-black/30 py-2 px-3 text-gray-800">
-                                            {item.kompetensi}
-                                        </td>
-                                        <td className="border-r border-black/30 text-center py-2">
-                                            {item.bobot}
-                                        </td>
-                                        <td className="py-2 flex items-center justify-center gap-2">
-                                            <button
-                                                onClick={() => {
-                                                    // [BENAR] Arahkan ke route 'edit' yang sesuai route:resource
-                                                    router.get(
-                                                        `/admin/kompetensi/${item.id_poin_aspek_penilaian}/edit`
-                                                    );
-                                                }}
-                                                className="p-1.5 text-white bg-blue-700 hover:bg-blue-500 border border-black rounded-lg"
-                                            >
-                                                <Pencil size={16} />
-                                            </button>
-                                            <button
-                                                onClick={() =>
-                                                    handleDelete(
-                                                        item.id_poin_aspek_penilaian
-                                                    )
-                                                }
-                                                className="p-1.5 text-black bg-white hover:bg-red-600 hover:text-white border border-black rounded-lg transition"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td
-                                        colSpan={4}
-                                        className="text-center text-gray-500 py-4 border-t border-black/30"
-                                    >
-                                        Data tidak ditemukan.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
+                <OsTableHeader columns={columns} />
 
-                {/* PAGINATION (Untuk sementara dihapus agar tidak error, bisa diganti dengan komponen Paginasi nanti) */}
+                <OsTableBody data={tableData} columns={columns} />
+
+
+                {/* PAGINATION */}
+                <OsPagination links={kompetensi.links} />
+
 
                 {/* Footer Total Kompetensi / Aspek Penilaian */}
                 <div className="relative mt-12 my-6 border border-black rounded-xl flex items-center justify-between px-4 py-2">
