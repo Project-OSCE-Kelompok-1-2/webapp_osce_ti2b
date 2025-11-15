@@ -16,7 +16,7 @@ export default function OsButton({ name = "os-primary", children, onClick, class
         transition: "all 0.25s ease-in-out",
         fontWeight: "var(--os-font-regular)",
       }}
-      className={`px-4 py-2 min-h-[45px] rounded-md font-os-weight-semibold transform hover:scale-105 active:scale-95 ${className}`}
+      className={`px-4 py-2 min-h-[45px] rounded-md font-os-weight-semibold transform hover:scale-[102%] active:scale-95 ${className}`}
       onMouseEnter={(e) => {
 
         // Buat efek hover warna sedikit gelap

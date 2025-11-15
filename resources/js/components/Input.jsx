@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function Os_input({
+export default function OsInput({
     type = "text",
     placeholder = "",
     suggestions = [],
@@ -40,6 +40,28 @@ export default function Os_input({
                     }}
                     placeholder={placeholder}
                     className="w-full min-h-[48px] px-3 py-2 rounded-lg text-os-paragraph border-os-1 border-os-black outline-none focus:border-os-primary focus:ring-1 focus:ring-os-primary"
+                />
+            </div>
+        );
+    }
+
+    /** 🔹 TEXTAREA */
+    if (type === "textarea") {
+        return (
+            <div className={`flex flex-col ${className}`}>
+                {label && (
+                    <label className="mb-1 text-os-small text-gray-600">
+                        {label}
+                    </label>
+                )}
+                <textarea
+                    value={inputValue}
+                    onChange={(e) => {
+                        setInputValue(e.target.value);
+                        onChange && onChange(e);
+                    }}
+                    placeholder={placeholder}
+                    className="w-full min-h-[100px] px-3 py-2 rounded-lg text-os-paragraph border-os-1 border-os-black outline-none focus:border-os-primary focus:ring-1 focus:ring-os-primary"
                 />
             </div>
         );

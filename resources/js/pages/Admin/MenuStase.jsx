@@ -1,11 +1,6 @@
 import { Link, usePage, router } from "@inertiajs/react";
 import React, { useState } from "react";
-import {
-    ChevronLeft,
-    ChevronRight,
-    Edit2,
-    Trash2,
-} from "lucide-react";
+import { ChevronLeft, ChevronRight, Edit2, Trash2 } from "lucide-react";
 
 // --- Import Komponen ---
 // Catatan: Saya mengasumsikan OsPagination.jsx sudah diperbarui
@@ -19,6 +14,8 @@ import OsSearchBar from "../../components/searchbar";
 import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
+import OsModal from "../../components/Modal.jsx";
+import OsInput from "../../components/input.jsx";
 
 // --- Definisi Kolom Tabel ---
 const staseColumns = [
@@ -52,6 +49,8 @@ export default function Stase() {
     // 1. Ambil data 'stase' dan 'filters' dari props yang dikirim Controller
     const { stase, filters } = usePage().props;
 
+    const [showModal, setShowModal] = useState(false);
+
     // 2. Siapkan state untuk input pencarian
     const [search, setSearch] = useState(filters.search || "");
 
@@ -79,34 +78,37 @@ export default function Stase() {
         nama_stase: item.nama_stase,
         jumlah_aspek: item.aspek_penilaian_count,
         action: (
-          <div className="flex items-center justify-center space-x-3">
-            {/* Edit Aspek Penilaian */}
-            <OsButton onClick={() => router.get(`/admin/stase/${item.id_stase}/aspek-penilaian`)}
-            className="h-[38px] text-os-small w-full">
-            Edit Aspek Penilaian
-            </OsButton>
+            <div className="flex items-center justify-center space-x-3">
+                {/* Edit Aspek Penilaian */}
+                <OsButton
+                    onClick={() =>
+                        router.get(
+                            `/admin/stase/${item.id_stase}/aspek-penilaian`
+                        )
+                    }
+                    className="h-[38px] text-os-small w-full"
+                >
+                    Edit Aspek Penilaian
+                </OsButton>
 
+                {/* Edit Stase */}
+                <Link
+                    href={`/admin/stase/${item.id_stase}/edit`}
+                    className="bg-blue-600 p-2 rounded-md text-white"
+                >
+                    <Edit2 size={20} />
+                </Link>
 
-            {/* Edit Stase */}
-            <Link
-              href={`/admin/stase/${item.id_stase}/edit`}
-              className="bg-blue-600 p-2 rounded-md text-white"
-            >
-              <Edit2 size={20} />
-            </Link>
-
-            {/* Delete Stase */}
-            <button
-              onClick={() => handleDelete(item.id_stase)}
-              className="bg-white border border-gray-400 p-2 rounded-md"
-            >
-              <Trash2 size={20} className="text-gray-700" />
-            </button>
-          </div>
+                {/* Delete Stase */}
+                <button
+                    onClick={() => handleDelete(item.id_stase)}
+                    className="bg-white border border-gray-400 p-2 rounded-md"
+                >
+                    <Trash2 size={20} className="text-gray-700" />
+                </button>
+            </div>
         ),
-      }));
-
-
+    }));
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
@@ -115,9 +117,7 @@ export default function Stase() {
             {/* ===== KONTEN UTAMA ===== */}
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* Header/Breadcrumb */}
-                <OsHeader>
-
-                </OsHeader>
+                <OsHeader></OsHeader>
 
                 {/* ===== ISI HALAMAN (Scrollable Area) ===== */}
                 <div className="flex-1 overflow-auto">
@@ -130,7 +130,8 @@ export default function Stase() {
 
                     {/* Tombol Tambah */}
                     <OsButton
-                        onClick={() => router.get("/admin/stase/create")}
+                        // onClick={() => router.get("/admin/stase/create")}
+                        onClick={() => setShowModal(true)}
                         className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                     >
                         <OsIcon
@@ -176,6 +177,43 @@ export default function Stase() {
 
                 {/* Footer */}
                 <OsCopyright />
+
+                {/* Modal Tambah Stase */}
+                <OsModal
+                    show={showModal}
+                    onClose={() => setShowModal(false)}
+                    title="Tambah Stase Baru"
+                    subtitle="Isi form di bawah untuk menambahkan stase baru."
+                >
+                    <OsInput
+                        label="Matakuliah"
+                        type="suggest"
+                        name="nama_stase"
+                        placeholder="Masukkan Matakuliah..."
+                        required
+                    />
+                    <OsInput
+                        label="Tujuan Pembelajaran"
+                        type="suggest"
+                        name="nama_stase"
+                        placeholder="Masukkan Tujuan Pembelajaran..."
+                        required
+                    />
+                    <OsInput
+                        label="Nama Stase"
+                        type="text"
+                        name="nama_stase"
+                        placeholder="Masukkan Nama Stase..."
+                        required
+                    />
+                    <OsInput
+                        label="Deskripsi"
+                        type="textarea"
+                        name="nama_stase"
+                        placeholder="Masukkan Deskripsi Stase..."
+                        required
+                    />
+                </OsModal>
             </main>
         </div>
     );

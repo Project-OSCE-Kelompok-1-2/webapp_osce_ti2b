@@ -1,7 +1,9 @@
 import React from "react";
 import { Head, useForm, usePage, Link } from "@inertiajs/react";
 import { Trash2, Save, X } from "lucide-react"; // X tidak lagi dipakai, tapi tidak apa-apa
-import OsCopyright from "../../components/copyright.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
+import OsHeader from "../../components/Header.jsx";
+import OsInput from "../../components/Input.jsx";
 
 export default function TambahStase({
     mataKuliah,
@@ -36,24 +38,8 @@ export default function TambahStase({
 
     return (
         <>
-            <Head title={`Stase | ${isEditMode ? "Edit" : "Tambah"} Stase`} />
-
-            <div className="flex flex-col min-h-screen bg-os-white">
-                {/* ... Header ... */}
-                <div className="flex items-center border-b px-4 py-3">
-                    <Link
-                        href="/admin/stase"
-                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 mr-3 w-8 h-8 flex items-center justify-center"
-                    >
-                        ←
-                    </Link>
-                    <span className="text-gray-700 font-medium">
-                        Stase{" "}
-                        <span className="text-gray-500">
-                            / {isEditMode ? "Edit" : "Tambah"} Stase
-                        </span>
-                    </span>
-                </div>
+            <div className="flex flex-col min-h-screen bg-os-white p-os-20">
+                <OsHeader variant="goback" backLink="/admin/stase" />
 
                 <div className="flex flex-1 items-center justify-center py-10">
                     <form
@@ -73,33 +59,22 @@ export default function TambahStase({
 
                         <div className="p-6 space-y-4">
                             {/* Mata Kuliah (Tidak berubah) */}
-                            <div>
-                                <label className="text-sm text-gray-700">
-                                    Mata Kuliah
-                                </label>
-                                <select
+                            <OsInput
+                                    type="suggest"
                                     value={data.id_mata_kuliah}
+                                    label="Mata Kuliah"
                                     onChange={(e) =>
                                         setData(
                                             "id_mata_kuliah",
                                             e.target.value
                                         )
                                     }
+                                    suggestions={mataKuliah.map(
+                                        (mk) => mk.nama_mata_kuliah
+                                    )}
+                                    placeholder="Pilih Mata Kuliah..."
                                     className="mt-1 w-full border rounded-lg px-3 py-2 bg-white"
-                                >
-                                    <option value="">
-                                        Pilih Mata Kuliah...
-                                    </option>
-                                    {mataKuliah.map((mk) => (
-                                        <option
-                                            key={mk.id_mata_kuliah}
-                                            value={mk.id_mata_kuliah}
-                                        >
-                                            {mk.nama_mata_kuliah}
-                                        </option>
-                                    ))}
-                                </select>
-                            </div>
+                                />
 
                             {/* [UBAH] Tujuan Pembelajaran (Kembali ke <select> biasa) */}
                             <div>
