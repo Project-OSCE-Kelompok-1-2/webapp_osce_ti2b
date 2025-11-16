@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Models\Osce;
-use App\Models\OsceStase;
-use App\Models\EnrollmentOsce;
+use Inertia\Inertia;
 use App\Models\Mahasiswa;
 use App\Models\NilaiOsce;
+use App\Models\OsceStase;
 use Illuminate\Http\Request;
-use Inertia\Inertia;
+use App\Models\EnrollmentOsce;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 class RekapNilaiController extends Controller
 {
@@ -280,4 +281,5 @@ class RekapNilaiController extends Controller
             'detailNilai' => $detailNilai,
         ]);
     }
+    
 }
