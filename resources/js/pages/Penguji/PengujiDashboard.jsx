@@ -1,28 +1,22 @@
 import React, { useState } from "react";
 import { usePage, Link } from "@inertiajs/react";
+import { ArrowRight } from "lucide-react";
 import Sidebar from "../../components/Sidebar";
-import OsHeader from "../../components/Header"; // ⬅️ tambahan penting
+import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/Copyright";
-
-import {
-    ClipboardList,
-    CheckSquare,
-    Pencil,
-} from "lucide-react";
+import OsIcon from "../../components/icons";
 
 /* -------------------------------------------------
    CARD STATISTIK
 ---------------------------------------------------*/
 const StatCard = ({ title, value, icon }) => (
-    <div className="w-full bg-blue-50 border border-blue-200 rounded-xl p-5 shadow-sm flex flex-col justify-between">
+    <div className="w-full bg-blue-100 border rounded-xl p-5 flex flex-col justify-between">
         <div className="flex justify-between mb-4">
-            <h3 className="font-bold text-sm text-gray-700">{title}</h3>
-            <div className="p-2 rounded-md bg-white border">
-                {icon}
-            </div>
+            <h3 className="font-bold text-lg text-gray-700">{title}</h3>
+            <div>{icon}</div>
         </div>
 
-        <div className="text-4xl font-extrabold text-gray-900">{value}</div>
+        <div className="text-6xl font-extrabold text-gray-900">{value}</div>
     </div>
 );
 
@@ -40,7 +34,9 @@ const JadwalCard = ({ item }) => {
                 </div>
 
                 <div>
-                    <h4 className="font-bold text-blue-700 text-sm">{item.nama_osce}</h4>
+                    <h4 className="font-bold text-blue-700 text-sm">
+                        {item.nama_osce}
+                    </h4>
                     <p className="text-xs text-gray-500">
                         {item.jumlah_mahasiswa} Mahasiswa | Sesi {item.sesi}
                     </p>
@@ -82,56 +78,82 @@ export default function PengujiDashboard() {
                     sidebarOpen ? "md:ml-64" : "md:ml-20"
                 }`}
             >
-                {/* 🔵 HEADER KOMPONEN UTAMA */}
+                {/* HEADER KOMPONEN UTAMA */}
                 <OsHeader className="mb-6" />
 
                 {/* WELCOME SECTION */}
                 <div className="mb-6">
-                    <p className="text-sm text-gray-600">Selamat Datang!</p>
-                    <h1 className="font-bold text-2xl">{dashboard.nama_penguji}</h1>
-                    <p className="text-gray-500 text-sm mt-1">
+                    <p className="text-lg text-black">Selamat Datang!</p>
+                    <h1 className="font-bold text-3xl my-2">
+                        {dashboard.nama_penguji}
+                    </h1>
+                    <p className="text-gray-700 text-sm mt-1">
                         {dashboard.deskripsi ||
                             "Lorem ipsum dolor sit amet consectetur adipiscing elit"}
                     </p>
                 </div>
 
                 {/* STATISTIK */}
-                <section className="mb-10">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <StatCard
-                            title="OSCE Mendatang"
-                            value={mendatang}
-                            icon={<ClipboardList size={18} className="text-blue-700" />}
-                        />
-                        <StatCard
-                            title="OSCE Edit Nilai"
-                            value={editNilai}
-                            icon={<Pencil size={18} className="text-blue-700" />}
-                        />
-                        <StatCard
-                            title="OSCE Selesai"
-                            value={selesai}
-                            icon={<CheckSquare size={18} className="text-blue-700" />}
-                        />
+                <section className="my-6">
+                    <div className="border-t border-b border-black">
+                        <div className="py-4">
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <StatCard
+                                    title="OSCE Mendatang"
+                                    value={mendatang}
+                                    icon={
+                                        <OsIcon
+                                            name="book"
+                                            className="h-os-24 os-icon-dark"
+                                        />
+                                    }
+                                />
+                                <StatCard
+                                    title="OSCE Edit Nilai"
+                                    value={editNilai}
+                                    icon={
+                                        <OsIcon
+                                            name="Edit"
+                                            className="h-os-24 os-icon-dark"
+                                        />
+                                    }
+                                />
+                                <StatCard
+                                    title="OSCE Selesai"
+                                    value={selesai}
+                                    icon={
+                                        <OsIcon
+                                            name="Mark (Yes)"
+                                            className="h-os-24 os-icon-dark"
+                                        />
+                                    }
+                                />
+                            </div>
+                        </div>
                     </div>
                 </section>
 
                 {/* JADWAL PENTING */}
                 <section>
                     <div className="flex justify-between items-center mb-4">
-                        <h2 className="font-bold text-lg text-gray-800">Jadwal Penting</h2>
+                        <h2 className="font-bold text-lg text-gray-800">
+                            Jadwal Penting
+                        </h2>
 
                         <Link
                             href="/penguji/osce"
-                            className="text-blue-600 text-sm hover:underline"
+                            className="text-blue-400 text-sm hover:underline flex items-center gap-1"
                         >
-                            Lihat Jadwal Lengkap →
+                            Lihat Jadwal Lengkap
+                            <ArrowRight size={20}/>
                         </Link>
                     </div>
 
                     <div className="flex flex-col gap-3">
                         {jadwal.length > 0 ? (
-                            jadwal.map((item, idx) => <JadwalCard key={idx} item={item} />)
+                            jadwal.map((item, idx) => (
+                                <JadwalCard key={idx} item={item} />
+                            ))
                         ) : (
                             <p className="text-sm text-gray-500 text-center py-4 bg-white border rounded-lg">
                                 Tidak ada jadwal.
@@ -140,6 +162,7 @@ export default function PengujiDashboard() {
                     </div>
                 </section>
 
+                {/* FOOTER COPYRIGHT */}
                 <div className="mt-8">
                     <OsCopyright />
                 </div>
