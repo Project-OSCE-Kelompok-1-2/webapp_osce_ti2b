@@ -1,20 +1,21 @@
 <?php
 
-use Inertia\Inertia; // Pastikan Inertia di-import
 use App\Models\TahunAkademik;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\OsceController; 
 use App\Http\Controllers\Admin\StaseController;
-use App\Http\Controllers\Admin\PengujiController;
+use Inertia\Inertia; // Pastikan Inertia di-import
 use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Admin\OsceStaseController;
+use App\Http\Controllers\Admin\PengujiController;
 use App\Http\Controllers\Admin\KompetensiController;
 use App\Http\Controllers\Admin\OsceJadwalController;
 use App\Http\Controllers\Admin\RekapNilaiController;
 use App\Http\Controllers\Admin\AspekPenilaianController;
 use App\Http\Controllers\Admin\OsceEnrollmentController;
+use App\Http\Controllers\Penguji\ProfilController;
 
 /*
 |--------------------------------------------------------------------------
@@ -34,6 +35,12 @@ Route::middleware('guest')->group(function () {
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
+Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function () {
+
+    // --- Dashboard & Akun ---
+    Route::get('/pengaturan-akun', [ProfilController::class, 'show_profile'])->name('account.show');
+    Route::post('/pengaturan-akun', [ProfilController::class, 'update_account'])->name('account.update');
+});
 
 // =========================
 // === RUTE UNTUK ADMIN ===
