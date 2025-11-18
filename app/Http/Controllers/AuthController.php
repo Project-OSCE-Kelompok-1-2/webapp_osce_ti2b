@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use Illuminate\Http\Request;
-use App\Services\AuthService; // <-- Import Service
+use App\Services\AuthService; 
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller

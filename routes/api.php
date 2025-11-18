@@ -10,7 +10,6 @@ Route::prefix('v1')->group(function () {
     });
 
     // 2. Route API Asli (POST)
-    // Ini yang dipakai Aplikasi Mobile
     Route::post('/login', [AuthController::class, 'login']);
 
     // Routes yang butuh Token (Protected)
