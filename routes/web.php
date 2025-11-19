@@ -168,3 +168,6 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 Route::get('/penguji/dashboard', function () {
     return Inertia::render('Penguji/PengujiDashboard');
 });
+Route::get('/penguji/profil', function () {
+    return Inertia::render('Penguji/PengujiProfil');
+});

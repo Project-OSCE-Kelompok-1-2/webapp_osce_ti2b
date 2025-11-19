@@ -3,6 +3,7 @@ import { usePage, Link } from "@inertiajs/react";
 import { ArrowRight } from "lucide-react";
 import Sidebar from "../../components/Sidebar";
 import OsHeader from "../../components/Header";
+import CustomDatePicker from "../../components/datepicker";
 import OsCopyright from "../../components/Copyright";
 import OsIcon from "../../components/icons";
 
@@ -140,12 +141,16 @@ export default function PengujiDashboard() {
                             Jadwal Penting
                         </h2>
 
+                        <div className="flex items-center gap-3">
+                            <CustomDatePicker />
+                        </div>
+
                         <Link
                             href="/penguji/osce"
                             className="text-blue-400 text-sm hover:underline flex items-center gap-1"
                         >
                             Lihat Jadwal Lengkap
-                            <ArrowRight size={20}/>
+                            <ArrowRight size={20} />
                         </Link>
                     </div>
 
