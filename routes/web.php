@@ -171,3 +171,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 // Rute fallback atau untuk role lain bisa ditambahkan di sini
 // Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function() { ... });
 // Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });
+
+Route::get('penguji/rekapmahasiswapage', function () {
+    return Inertia::render('Penguji/RekapMahasiswaPage');
+});
