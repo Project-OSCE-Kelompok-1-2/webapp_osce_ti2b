@@ -14,6 +14,7 @@ import {
 import Sidebar from "../../components/Sidebar.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 import Os_input from "../../components/Input.jsx";
+import OsIcon from "../../components/icons.jsx";
 
 export default function PengujiProfil({ user = {} }) {
     const { errors } = usePage().props;
@@ -201,6 +202,12 @@ export default function PengujiProfil({ user = {} }) {
                                         value={data.email}
                                         onChange={(e) =>
                                             setData("email", e.target.value)
+                                        }
+                                        icon={
+                                            <OsIcon
+                                                name="Mail"
+                                                className="w-5 h-5"
+                                            />
                                         }
                                     />
 
