@@ -34,7 +34,6 @@ class OsceJadwalService
 
         $sesi_paginated = $sesi_virtual_query->paginate(10)->withQueryString();
 
-        // --- PERUBAHAN DI SINI ---
         // Transformasi data agar output JSON sesuai spesifikasi yang diminta
         $sesi_data = $sesi_paginated->through(function ($sesi) use ($id_osce) {
             // Hitung jumlah mahasiswa
@@ -45,13 +44,12 @@ class OsceJadwalService
 
             // Return ARRAY BARU sesuai struktur permintaan
             return [
-                'id_osce_stase' => (int) $sesi->id_osce_stase, // Pastikan integer
+                'id_osce_stase' => (int) $sesi->id_osce_stase, // Integer ID
                 'tanggal' => $sesi->tanggal,                    // Format YYYY-MM-DD
                 'jam_mulai' => $sesi->jam_mulai,                // Format HH:MM:SS
                 'jumlah_mahasiswa' => (int) $jumlah_mahasiswa,  // Integer
             ];
         });
-        // -------------------------
 
         return [
             'osce' => $osce,
@@ -61,7 +59,6 @@ class OsceJadwalService
 
     /**
      * Mendapatkan opsi template stase (untuk form create/edit).
-     * Template adalah row di osce_stase yang tanggalnya NULL.
      */
     public function getTemplates($id_osce)
     {
@@ -112,15 +109,48 @@ class OsceJadwalService
     }
 
     /**
+     * Helper privat untuk menyelesaikan target Tanggal & Jam dari ID (baik integer maupun string)
+     */
+    private function resolveSessionTarget($id_osce, $sesi_id)
+    {
+        // Coba cari berdasarkan ID (integer)
+        $refStase = OsceStase::where('id_osce', $id_osce)
+            ->where('id_osce_stase', $sesi_id)
+            ->first();
+
+        if ($refStase) {
+            return [
+                'tanggal' => $refStase->tanggal,
+                'jam_mulai' => $refStase->jam_mulai
+            ];
+        }
+
+        // Fallback: Cek format composite string (YYYY-MM-DD_HH:mm:ss)
+        if (str_contains($sesi_id, '_')) {
+            list($tgl, $jam) = explode('_', $sesi_id);
+            return [
+                'tanggal' => $tgl,
+                'jam_mulai' => $jam
+            ];
+        }
+
+        return null;
+    }
+
+    /**
      * Mengambil detail sesi untuk diedit.
      */
     public function getSessionDetail($id_osce, $sesi_id)
     {
-        if (!str_contains($sesi_id, '_')) {
-            throw ValidationException::withMessages(['id' => 'Format ID sesi tidak valid.']);
+        // Gunakan helper untuk mencari target tanggal/jam
+        $target = $this->resolveSessionTarget($id_osce, $sesi_id);
+
+        if (!$target) {
+            return null; // Not found
         }
 
-        list($tanggal, $jam_mulai_full) = explode('_', $sesi_id);
+        $tanggal = $target['tanggal'];
+        $jam_mulai_full = $target['jam_mulai'];
 
         $osce = Osce::findOrFail($id_osce);
 
@@ -163,7 +193,7 @@ class OsceJadwalService
                 'tanggal' => (new \DateTime($sesi_data->tanggal))->format('Y-m-d'),
                 'jam_mulai' => substr($sesi_data->jam_mulai, 0, 5),
                 'jam_selesai' => substr($sesi_data->jam_selesai, 0, 5),
-                'composite_id' => $sesi_id
+                'id' => $sesi_id // Return ID asli yang diminta
             ],
             'stase_options' => $stase_options,
             'stase_terpilih' => array_unique($stase_terpilih_ids),
@@ -175,8 +205,10 @@ class OsceJadwalService
      */
     public function updateSession(Request $request, $id_osce, $sesi_id)
     {
-        if (!str_contains($sesi_id, '_')) {
-            throw ValidationException::withMessages(['id' => 'Format ID sesi tidak valid.']);
+        $target = $this->resolveSessionTarget($id_osce, $sesi_id);
+
+        if (!$target) {
+            throw ValidationException::withMessages(['id' => 'Sesi tidak ditemukan atau ID tidak valid.']);
         }
 
         $validated = $request->validate([
@@ -187,14 +219,17 @@ class OsceJadwalService
             'stase_ids.*' => 'required|exists:osce_stase,id_osce_stase',
         ]);
 
-        list($old_tanggal, $old_jam_mulai) = explode('_', $sesi_id);
+        $old_tanggal = $target['tanggal'];
+        $old_jam_mulai = $target['jam_mulai'];
 
         return DB::transaction(function () use ($id_osce, $old_tanggal, $old_jam_mulai, $validated) {
+            // Hapus semua yang memiliki tanggal & jam lama
             OsceStase::where('id_osce', $id_osce)
                 ->where('tanggal', $old_tanggal)
                 ->where('jam_mulai', $old_jam_mulai)
                 ->delete();
 
+            // Buat baru
             foreach ($validated['stase_ids'] as $template_stase_id) {
                 $template = OsceStase::find($template_stase_id);
                 if ($template) {
@@ -214,12 +249,17 @@ class OsceJadwalService
      */
     public function deleteSession($id_osce, $sesi_id)
     {
-        if (!str_contains($sesi_id, '_')) {
-            throw ValidationException::withMessages(['id' => 'Format ID sesi tidak valid.']);
+        // Cari target tanggal & jam berdasarkan ID (integer/string)
+        $target = $this->resolveSessionTarget($id_osce, $sesi_id);
+
+        if (!$target) {
+            throw ValidationException::withMessages(['id' => 'Sesi tidak ditemukan atau ID tidak valid.']);
         }
 
-        list($tanggal, $jam_mulai) = explode('_', $sesi_id);
+        $tanggal = $target['tanggal'];
+        $jam_mulai = $target['jam_mulai'];
 
+        // Hapus semua baris yang cocok dengan tanggal & jam ini
         $deletedCount = OsceStase::where('id_osce', $id_osce)
             ->where('tanggal', $tanggal)
             ->where('jam_mulai', $jam_mulai)

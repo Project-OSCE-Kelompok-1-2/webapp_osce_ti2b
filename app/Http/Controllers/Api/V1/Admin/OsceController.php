@@ -1,6 +1,7 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Http\Controllers\Api\V1\Admin;
+
 
 use App\Models\Osce;
 use Illuminate\Http\Request;

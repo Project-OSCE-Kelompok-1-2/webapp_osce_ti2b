@@ -3,17 +3,17 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\OsceController;
-use App\Http\Controllers\Api\V1\AdminController;
-use App\Http\Controllers\Api\V1\StaseController;
-use App\Http\Controllers\Api\V1\PengujiController;
-use App\Http\Controllers\Api\V1\MahasiswaController;
-use App\Http\Controllers\Api\V1\OsceStaseController;
-use App\Http\Controllers\Api\V1\KompetensiController;
-use App\Http\Controllers\Api\V1\OsceJadwalController;
-use App\Http\Controllers\Api\V1\RekapNilaiController;
-use App\Http\Controllers\Api\V1\AspekPenilaianController;
-use App\Http\Controllers\Api\V1\OsceEnrollmentController;
+use App\Http\Controllers\Api\V1\Admin\OsceController;
+use App\Http\Controllers\Api\V1\Admin\AdminController;
+use App\Http\Controllers\Api\V1\Admin\StaseController;
+use App\Http\Controllers\Api\V1\Admin\PengujiController;
+use App\Http\Controllers\Api\V1\Admin\MahasiswaController;
+use App\Http\Controllers\Api\V1\Admin\OsceStaseController;
+use App\Http\Controllers\Api\V1\Admin\KompetensiController;
+use App\Http\Controllers\Api\V1\Admin\OsceJadwalController;
+use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
+use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
+use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
 
 Route::prefix('v1')->group(function () {
     Route::get('/login', function () {
@@ -41,12 +41,10 @@ Route::prefix('v1')->group(function () {
     Route::apiResource('stase', StaseController::class)->except(['show']);
 
     // --- OSCE Stase ---
-    Route::get('/osce/{id_osce}/stase', [OsceStaseController::class, 'index'])->name('osce.stase.index');
-    Route::post('/osce/{id_osce}/stase', [OsceStaseController::class, 'store'])->name('osce.stase.store');
-    Route::get('/osce/{id_osce}/stase/create', [OsceStaseController::class, 'create'])->name('osce.stase.create');
-    Route::get('/osce/{id_osce}/stase/{osce_stase}/edit', [OsceStaseController::class, 'edit'])->name('osce.stase.edit');
-    Route::put('/osce/{id_osce}/stase/{osce_stase}', [OsceStaseController::class, 'update'])->name('osce.stase.update');
-    Route::delete('/osce/{id_osce}/stase/{id_osce_stase}', [OsceStaseController::class, 'destroy'])->name('osce.stase.destroy');
+    Route::get('/osce/{id_osce}/stase', [OsceStaseController::class, 'index']);
+    Route::post('/osce/{id_osce}/stase', [OsceStaseController::class, 'store']);
+    Route::put('/osce/{id_osce}/stase/{osce_stase}', [OsceStaseController::class, 'update']);
+    Route::delete('/osce/{id_osce}/stase/{id_osce_stase}', [OsceStaseController::class, 'destroy']);
 
     // --- OSCE Enrollment ---
     Route::get(
@@ -84,8 +82,6 @@ Route::prefix('v1')->group(function () {
     // --- OSCE Jadwal (Nested di bawah OSCE) ---
     Route::get('/osce/{id_osce}/jadwal', [OsceJadwalController::class, 'index']);
     Route::post('/osce/{id_osce}/jadwal', [OsceJadwalController::class, 'store']);
-    Route::get('/osce/{id_osce}/jadwal/create', [OsceJadwalController::class, 'create']);
-    Route::get('/osce/{id_osce}/jadwal/{sesi_id}/edit', [OsceJadwalController::class, 'edit']);
     Route::put('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'update']);
     Route::delete('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'destroy']);
 }); 
