@@ -158,6 +158,16 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
         ]);
     })->name('rekap.detail'); // <-- Rute dummy diberi nama
 });
+
+
+Route::get('/Penguji/penilaian-stase', function () {
+    return Inertia::render('Penguji/LivePenilaian');
+});
+
+Route::get('/Penguji/Rubrikdisubmit', function () {
+    return Inertia::render('Penguji/SubmitRubrik');
+});
+
 // === AKHIR GRUP ADMIN ===
 
 
