@@ -36,13 +36,13 @@ class DashboardController extends Controller
             'osce_selesai'    => (clone $baseOsceQuery)->where('tanggal_selesai', '<', $now)->count(),
         ];
 
-        $jadwalMendatang = OsceStase::with(['osce.enrollmentOsce']) // Eager load enrollment untuk hitung jumlah
+        $jadwalMendatang = OsceStase::with(['osce.enrollmentOsce']) 
             ->where('id_penguji', $penguji->id_penguji)
             ->whereDate('tanggal', '>=', $now)
-            ->whereDate('tanggal', '<=', $now->copy()->addDays(30)) // Tampilkan jadwal 30 hari kedepan
+            ->whereDate('tanggal', '<=', $now->copy()->addDays(30)) 
             ->orderBy('tanggal', 'asc')
             ->orderBy('jam_mulai', 'asc')
-            ->take(5) // Limit 5 jadwal teratas saja agar tidak penuh
+            ->take(5) 
             ->get()
             ->map(function ($stase) use ($now) {
                 $osce = $stase->osce;
@@ -60,10 +60,10 @@ class DashboardController extends Controller
                     'id_osce_stase'    => $stase->id_osce_stase,
                     'nama_osce'        => $osce->nama_osce,
                     // Data spesifik untuk UI Card
-                    'hari'             => $stase->tanggal->format('d'), // Ambil tanggal saja (misal: 21)
-                    'bulan'            => $stase->tanggal->format('M'), // Ambil bulan (misal: Nov)
-                    'sesi'             => substr($stase->jam_mulai, 0, 5), // Ambil jam (08:00)
-                    'jumlah_mahasiswa' => $osce->enrollmentOsce->count(), // Hitung jumlah mhs
+                    'hari'             => $stase->tanggal->format('d'), 
+                    'bulan'            => $stase->tanggal->format('M'), 
+                    'sesi'             => substr($stase->jam_mulai, 0, 5), 
+                    'jumlah_mahasiswa' => $osce->enrollmentOsce->count(), 
                     'status'           => $status,
                 ];
             });
