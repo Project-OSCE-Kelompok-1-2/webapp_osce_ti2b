@@ -4,9 +4,12 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\OsceController;
+use App\Http\Controllers\Api\V1\AdminController;
 use App\Http\Controllers\Api\V1\StaseController;
 use App\Http\Controllers\Api\V1\PengujiController;
 use App\Http\Controllers\Api\V1\OsceStaseController;
+use App\Http\Controllers\Api\V1\RekapNilaiController;
+use App\Http\Controllers\Api\V1\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\OsceEnrollmentController;
 
 Route::prefix('v1')->group(function () {
@@ -55,4 +58,17 @@ Route::prefix('v1')->group(function () {
 
     // --- Penguji ---
     Route::apiResource('penguji', PengujiController::class);
+
+    // --- Aspek penilaian ---
+    Route::apiResource('stase.aspek-penilaian', AspekPenilaianController::class);
+
+    // --- Rekap Nilai ---
+    Route::get('/rekap-nilai', [RekapNilaiController::class, 'index']);
+    Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi']);
+    Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerStase']); // <-- Diberi nama
+
+    // --- Admin ---
+    Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
+    Route::get('/admin/pengaturan-akun', [AdminController::class, 'show_profile']);
+    Route::post('/admin/pengaturan-akun', [AdminController::class, 'update_account'])->middleware("auth:sanctum");
 });

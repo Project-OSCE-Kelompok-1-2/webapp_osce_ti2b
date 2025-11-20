@@ -20,6 +20,7 @@ class EnrollmentOsceFactory extends Factory
             'id_osce' => Osce::inRandomOrder()->value('id_osce') ?? 1,
             'id_mahasiswa' => Mahasiswa::inRandomOrder()->value('id_mahasiswa') ?? 1,
             'catatan' => fake()->text(600),
+            'tanggal_sesi' => fake()->date('Y-m-d', '+1 month')
         ];
     }
 }
