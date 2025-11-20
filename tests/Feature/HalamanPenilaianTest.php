@@ -117,8 +117,9 @@ class HalamanPenilaianTest extends TestCase
         $aspek2 = AspekPenilaian::factory()->create(['id_stase' => $this->stase->id_stase, 'aspek' => 'Fisik']);
         $poin2A = PoinAspekPenilaian::factory()->create(['id_aspek_penilaian' => $aspek2->id_aspek_penilaian, 'kompetensi' => 'Periksa', 'bobot' => 10]);
 
+        // [UPDATE] Gunakan 'penguji.penilaian.show'
         $response = $this->actingAs($this->userPenguji)
-            ->get(route('penguji.penilaian', ['id_enrollment_osce' => $enroll->id_enrollment_osce]));
+            ->get(route('penguji.penilaian.show', ['id_enrollment_osce' => $enroll->id_enrollment_osce]));
 
         $response->assertStatus(200)
             ->assertInertia(
@@ -142,7 +143,7 @@ class HalamanPenilaianTest extends TestCase
         $enroll = EnrollmentOsce::factory()->create(['id_osce' => $this->osce->id_osce, 'id_mahasiswa' => $mhs->id_mahasiswa]);
 
         $aspek = AspekPenilaian::factory()->create(['id_stase' => $this->stase->id_stase]);
-        $poinA = PoinAspekPenilaian::factory()->create(['id_aspek_penilaian' => $aspek->id_aspek_penilaian, 'bobot' => 13]); // Pembulatan dari 12.5
+        $poinA = PoinAspekPenilaian::factory()->create(['id_aspek_penilaian' => $aspek->id_aspek_penilaian, 'bobot' => 13]);
         $poinB = PoinAspekPenilaian::factory()->create(['id_aspek_penilaian' => $aspek->id_aspek_penilaian, 'bobot' => 20]);
         $poinC = PoinAspekPenilaian::factory()->create(['id_aspek_penilaian' => $aspek->id_aspek_penilaian, 'bobot' => 50]);
 
@@ -150,8 +151,9 @@ class HalamanPenilaianTest extends TestCase
         NilaiOsce::factory()->create(['id_enrollment_osce' => $enroll->id_enrollment_osce, 'id_poin_aspek_penilaian' => $poinB->id_poin_aspek_penilaian, 'nilai' => 0]);
         NilaiOsce::factory()->create(['id_enrollment_osce' => $enroll->id_enrollment_osce, 'id_poin_aspek_penilaian' => $poinC->id_poin_aspek_penilaian, 'nilai' => 4]);
 
+        // [UPDATE] Gunakan 'penguji.penilaian.show'
         $response = $this->actingAs($this->userPenguji)
-            ->get(route('penguji.penilaian', ['id_enrollment_osce' => $enroll->id_enrollment_osce]));
+            ->get(route('penguji.penilaian.show', ['id_enrollment_osce' => $enroll->id_enrollment_osce]));
 
         $response->assertInertia(
             fn(Assert $page) => $page
@@ -184,8 +186,9 @@ class HalamanPenilaianTest extends TestCase
         $aspekStaseSaya = AspekPenilaian::factory()->create(['id_stase' => $this->stase->id_stase, 'aspek' => 'Aspek Saya']);
         $aspekStaseOrang = AspekPenilaian::factory()->create(['id_stase' => $staseB->id_stase, 'aspek' => 'Aspek Orang Lain']);
 
+        // [UPDATE] Gunakan 'penguji.penilaian.show'
         $response = $this->actingAs($this->userPenguji)
-            ->get(route('penguji.penilaian', ['id_enrollment_osce' => $enroll->id_enrollment_osce]));
+            ->get(route('penguji.penilaian.show', ['id_enrollment_osce' => $enroll->id_enrollment_osce]));
 
         $response->assertStatus(200)
             ->assertInertia(
@@ -205,8 +208,9 @@ class HalamanPenilaianTest extends TestCase
             'id_mahasiswa' => Mahasiswa::factory()->create()->id_mahasiswa
         ]);
 
+        // [UPDATE] Gunakan 'penguji.penilaian.show'
         $this->actingAs($this->userPenguji)
-            ->get(route('penguji.penilaian', ['id_enrollment_osce' => $enrollLain->id_enrollment_osce]))
+            ->get(route('penguji.penilaian.show', ['id_enrollment_osce' => $enrollLain->id_enrollment_osce]))
             ->assertStatus(404);
     }
 
@@ -221,8 +225,9 @@ class HalamanPenilaianTest extends TestCase
             ->get(route('penguji.antrian', ['id_osce' => 1, 'id_osce_stase' => 1]))
             ->assertStatus(302);
 
+        // [UPDATE] Gunakan 'penguji.penilaian.show'
         $this->actingAs($userMhs)
-            ->get(route('penguji.penilaian', ['id_enrollment_osce' => 1]))
+            ->get(route('penguji.penilaian.show', ['id_enrollment_osce' => 1]))
             ->assertStatus(302);
     }
 
@@ -232,8 +237,9 @@ class HalamanPenilaianTest extends TestCase
         $mhs = Mahasiswa::factory()->create();
         $enroll = EnrollmentOsce::factory()->create(['id_osce' => $this->osce->id_osce, 'id_mahasiswa' => $mhs->id_mahasiswa]);
 
+        // [UPDATE] Gunakan 'penguji.penilaian.show'
         $response = $this->actingAs($this->userPenguji)
-            ->get(route('penguji.penilaian', ['id_enrollment_osce' => $enroll->id_enrollment_osce]));
+            ->get(route('penguji.penilaian.show', ['id_enrollment_osce' => $enroll->id_enrollment_osce]));
 
         $response->assertInertia(
             fn(Assert $page) => $page
@@ -247,13 +253,6 @@ class HalamanPenilaianTest extends TestCase
     /** @test */
     public function alur_penilaian_berurutan_dari_mahasiswa_A_ke_B()
     {
-        // --- SKENARIO ---
-        // 1. Penguji melihat antrian: A & B status "Belum Dinilai".
-        // 2. Penguji menilai A.
-        // 3. Penguji kembali ke antrian: A "Sudah Dinilai", B "Belum".
-        // 4. Penguji lanjut ke B, form B harus masih kosong (bersih).
-
-        // ARRANGE
         $mhsA = Mahasiswa::factory()->create(['nama' => 'Andi']);
         $mhsB = Mahasiswa::factory()->create(['nama' => 'Budi']);
 
@@ -263,45 +262,59 @@ class HalamanPenilaianTest extends TestCase
         $aspek = AspekPenilaian::factory()->create(['id_stase' => $this->stase->id_stase]);
         $poin = PoinAspekPenilaian::factory()->create(['id_aspek_penilaian' => $aspek->id_aspek_penilaian]);
 
-        // STEP 1: Cek Antrian Awal
         $response1 = $this->actingAs($this->userPenguji)
             ->get(route('penguji.antrian', ['id_osce' => $this->osce->id_osce, 'id_osce_stase' => $this->osceStase->id_osce_stase]));
 
         $response1->assertInertia(
             fn(Assert $page) => $page
-                ->where('antrian_mahasiswa.0.status_penilaian', 'Belum Dinilai') // Andi
-                ->where('antrian_mahasiswa.1.status_penilaian', 'Belum Dinilai') // Budi
+                ->where('antrian_mahasiswa.0.status_penilaian', 'Belum Dinilai')
+                ->where('antrian_mahasiswa.1.status_penilaian', 'Belum Dinilai')
         );
 
-        // STEP 2: Simulasi Penguji Menilai A (Simpan ke DB)
-        // Karena kita belum punya route store, kita simulasi via factory langsung
         NilaiOsce::factory()->create([
             'id_enrollment_osce' => $enrollA->id_enrollment_osce,
             'id_poin_aspek_penilaian' => $poin->id_poin_aspek_penilaian,
             'nilai' => 4
         ]);
 
-        // STEP 3: Cek Antrian Lagi (Harus Update Otomatis)
         $response2 = $this->actingAs($this->userPenguji)
             ->get(route('penguji.antrian', ['id_osce' => $this->osce->id_osce, 'id_osce_stase' => $this->osceStase->id_osce_stase]));
 
         $response2->assertInertia(
             fn(Assert $page) => $page
-                // Andi harus berubah jadi SUDAH
                 ->where('antrian_mahasiswa.0.status_penilaian', 'Sudah Dinilai')
-                // Budi harus tetap BELUM
                 ->where('antrian_mahasiswa.1.status_penilaian', 'Belum Dinilai')
         );
 
-        // STEP 4: Buka Form Penilaian B (Harus Kosong)
+        // [UPDATE] Gunakan 'penguji.penilaian.show'
         $response3 = $this->actingAs($this->userPenguji)
-            ->get(route('penguji.penilaian', ['id_enrollment_osce' => $enrollB->id_enrollment_osce]));
+            ->get(route('penguji.penilaian.show', ['id_enrollment_osce' => $enrollB->id_enrollment_osce]));
 
         $response3->assertInertia(
             fn(Assert $page) => $page
-                // Pastikan saved_scores kosong untuk Budi
                 ->has('saved_scores', 0)
                 ->where('total_nilai_server', "0.00")
         );
+    }
+
+    /** @test */
+    public function penguji_tidak_bisa_mengintip_antrian_stase_milik_penguji_lain()
+    {
+        $pengujiLain = Penguji::factory()->create();
+        $staseLain = Stase::factory()->create();
+
+        $osceStaseLain = OsceStase::factory()->create([
+            'id_osce' => $this->osce->id_osce,
+            'id_stase' => $staseLain->id_stase,
+            'id_penguji' => $pengujiLain->id_penguji
+        ]);
+
+        $response = $this->actingAs($this->userPenguji)
+            ->get(route('penguji.antrian', [
+                'id_osce' => $this->osce->id_osce,
+                'id_osce_stase' => $osceStaseLain->id_osce_stase
+            ]));
+
+        $response->assertStatus(404);
     }
 }
