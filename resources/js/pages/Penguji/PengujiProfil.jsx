@@ -67,6 +67,10 @@ export default function PengujiProfil({ user = {} }) {
         post("/penguji/profil/update", { preserveScroll: true });
     };
 
+    const handleLogout = () => {
+        post("/logout");
+    };
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar />
@@ -97,17 +101,21 @@ export default function PengujiProfil({ user = {} }) {
                                     }
                                 />
 
-                                <div className="p-3.5 w-full bg-red-100 rounded-xl border border-red-400">
+                                <div className="p-3.5 w-full bg-red-300 rounded-xl border border-black">
                                     <div className="flex items-center gap-2">
-                                        <AlertCircle className="text-red-500 w-4 h-4" />
-                                        <span className="text-red-800 font-medium">
+                                        <OsIcon
+                                            name="Warning"
+                                            className="text-red-500 w-4 h-4"
+                                        />
+                                        <span className="text-black font-medium">
                                             Perhatian!
                                         </span>
                                     </div>
-                                    <p className="text-red-700 text-sm mt-1">
-                                        Gambar harus <b>&lt; 1MB</b>, max
-                                        resolusi <b>500×500</b>, format
-                                        <b> .png, .jpeg, .jpg, .gif</b>.
+                                    <p className="text-black text-sm mt-1">
+                                        Gambar yang dikirim harus berukuran
+                                        kurang lebih dari 1 MB dengan resolusi
+                                        max 500 x 500 px, hanya support format
+                                        foto: .png, .jpeg, .jpg, dan .gif
                                     </p>
                                 </div>
 
@@ -273,18 +281,34 @@ export default function PengujiProfil({ user = {} }) {
                                         />
                                     </div>
 
-                                    {/* Tombol Simpan */}
-                                    <OsButton
-                                        name="primary"
-                                        className="flex items-center justify-center w-[223px] gap-2 border border-black"
-                                        onClick={handleSave}
-                                    >
-                                        <OsIcon
-                                            name="Save"
-                                            className="h-os-20 os-icon-light"
-                                        />
-                                        {processing ? "Menyimpan..." : "Simpan"}
-                                    </OsButton>
+                                    {/* Tombol Simpan & Logout */}
+                                    <div className="flex gap-3">
+                                        <OsButton
+                                            name="primary"
+                                            className="flex items-center justify-center w-[223px] gap-2 border border-black"
+                                            onClick={handleSave}
+                                        >
+                                            <OsIcon
+                                                name="Save"
+                                                className="h-os-20 os-icon-light"
+                                            />
+                                            {processing
+                                                ? "Menyimpan..."
+                                                : "Simpan"}
+                                        </OsButton>
+
+                                        <OsButton
+                                            name="danger"
+                                            className="flex items-center justify-center w-[223px] gap-2 border border-black bg-red-600"
+                                            onClick={handleLogout}
+                                        >
+                                            <OsIcon
+                                                name="Logout"
+                                                className="h-os-20 os-icon-light"
+                                            />
+                                            Logout
+                                        </OsButton>
+                                    </div>
 
                                     <a
                                         href="#contact-admin"
