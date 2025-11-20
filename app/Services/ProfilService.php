@@ -14,8 +14,6 @@ class ProfilService
      */
     public function updateProfile($user, array $data, ?UploadedFile $fileFoto = null)
     {
-        // HAPUS baris ini: $akun = $penguji->pengguna;
-        // Kita gunakan variabel $user langsung karena itu sudah merupakan data Akun/Pengguna.
 
         // 1. LOGIKA FOTO
         if (isset($data['delete_foto']) && $data['delete_foto']) {

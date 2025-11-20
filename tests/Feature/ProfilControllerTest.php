@@ -12,7 +12,7 @@ use Illuminate\Support\Facades\Storage;
 use Inertia\Testing\AssertableInertia as Assert;
 use Exception;
 
-class ProfilIntegrationTest extends TestCase
+class ProfilControllerTest extends TestCase
 {
     use RefreshDatabase;
 

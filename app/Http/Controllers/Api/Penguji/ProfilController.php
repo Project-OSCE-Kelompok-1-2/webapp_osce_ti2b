@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Penguji; // <--- PERHATIKAN INI HARUS ADA 'Api'
+namespace App\Http\Controllers\Api\Penguji;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
