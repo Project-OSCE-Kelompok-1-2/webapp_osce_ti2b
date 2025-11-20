@@ -179,3 +179,7 @@ Route::get('penguji/rekapmahasiswapage', function () {
 Route::get('penguji/viewnilaidetail', function () {
     return Inertia::render('Penguji/ViewNilaiDetail');
 });
+
+Route::get('penguji/editnilaiform', function () {
+    return Inertia::render('Penguji/EditNilaiForm');
+});
