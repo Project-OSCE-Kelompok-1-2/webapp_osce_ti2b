@@ -29,7 +29,7 @@ export default function SubmitConfirmationModal({ isOpen, onClose, onConfirm }) 
         </div>
 
         {/* --- BODY --- */}
-        <div className="p-6 flex flex-col gap-6">
+        <div className="p-6 flex flex-col gap-44 pb-12">
           
           {/* Kotak Peringatan Merah */}
           <div className="bg-[#E57373] bg-opacity-60 border border-black rounded-xl p-4 flex items-start gap-3">

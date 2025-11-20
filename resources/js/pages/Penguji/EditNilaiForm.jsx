@@ -1,14 +1,14 @@
 import React, { useState } from "react";
-import { Link, usePage } from "@inertiajs/react";
-import { ArrowLeft, Search, Download, Edit3 } from "lucide-react";
+import { Link, usePage, useForm } from "@inertiajs/react";
+import { ArrowLeft, Search, Edit3, ExternalLink } from "lucide-react";
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
 import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/copyright";
-import SubmitConfirmationModal from "../../components/SubmitConfirmationModal";
+import SubmitConfirmationModal from "../../components/SubmitConfirmationModal"; // Pastikan path ini benar
 
-// --- Mock Data (Untuk Tampilan) ---
+// --- Mock Data ---
 const mockInfoOSCE = {
   stasiun: "01",
   rubrik: "Stase CT Scan",
@@ -24,16 +24,30 @@ const mockStudents = [
 ];
 
 export default function EditNilaiForm() {
-  // Gunakan props jika ada data real
   const { osceInfo = mockInfoOSCE, students = mockStudents } = usePage().props;
   
   const [search, setSearch] = useState("");
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
-  // Filter sederhana
+  // Filter mahasiswa
   const filteredStudents = students.filter(mhs => 
     mhs.nama.toLowerCase().includes(search.toLowerCase()) || 
     mhs.nim.includes(search)
   );
+
+  // --- HANDLERS ---
+  
+  // 1. Handler saat tombol SUBMIT besar ditekan
+  const handleOpenModal = () => {
+    setIsModalOpen(true);
+  };
+
+  // 2. Handler saat tombol di dalam Modal ditekan
+  const handleConfirmSubmit = () => {
+    setIsModalOpen(false);
+    // Di sini logika kirim ke backend
+    alert("Data berhasil disubmit ke server!"); 
+  };
 
   return (
     <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
@@ -41,7 +55,7 @@ export default function EditNilaiForm() {
 
       <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
         
-        {/* 1. Header */}
+        {/* Header */}
         <OsHeader
           className="fixed" 
           title="OSCE / OSCE Radiologi 01-A/ Edit Nilai"
@@ -50,7 +64,7 @@ export default function EditNilaiForm() {
 
         <div className="flex-1 overflow-auto">
           
-            {/* 2. Header Biru Besar (Detail OSCE) - SAMA PERSIS DENGAN HALAMAN SEBELUMNYA */}
+            {/* 2. Header Biru Besar (Detail OSCE) */}
             <div className="w-full rounded-xl overflow-hidden border border-black mb-6 shadow-sm">
                 <div className="bg-[#3177C8] text-white text-center py-6">
                     <h1 className="text-2xl font-bold mb-1">Detail OSCE</h1>
@@ -58,38 +72,60 @@ export default function EditNilaiForm() {
                 </div>
                 <div className="bg-white p-6">
                     <div className="flex flex-col lg:flex-row border border-gray-400 rounded-xl divide-y lg:divide-y-0 lg:divide-x divide-gray-400">
+                        
+                        {/* Kolom 1: Stasiun */}
                         <div className="p-4 flex flex-col w-full lg:w-auto min-w-[120px]">
                             <span className="text-xs text-gray-600 mb-2">Stasiun</span>
                             <div className="bg-[#3177C8] text-white w-16 h-16 rounded-xl flex items-center justify-center text-3xl font-bold shadow-md">
                                 {osceInfo.stasiun}
                             </div>
                         </div>
+
+                        {/* Kolom 2: Rubrik */}
                         <div className="p-4 flex-1 flex flex-col justify-between">
-                            <span className="text-xs text-gray-600 block mb-1">Rubrik</span>
-                            <span className="text-sm font-bold block">{osceInfo.rubrik}</span>
+                            <div>
+                                <span className="text-xs text-gray-600 block mb-1">Rubrik</span>
+                                <span className="text-sm font-bold block">{osceInfo.rubrik}</span>
+                            </div>
+                            <ExternalLink className="w-4 h-4 text-gray-400 mt-4" />
                         </div>
+
+                        {/* Kolom 3: Waktu */}
                         <div className="p-4 flex-1 flex flex-col justify-between">
-                            <span className="text-xs text-gray-600 block mb-1">Waktu per rubrik</span>
-                            <span className="text-sm font-bold block">{osceInfo.waktu}</span>
+                            <div>
+                                <span className="text-xs text-gray-600 block mb-1">Waktu per rubrik</span>
+                                <span className="text-sm font-bold block">{osceInfo.waktu}</span>
+                            </div>
+                            <ExternalLink className="w-4 h-4 text-gray-400 mt-4" />
                         </div>
+
+                        {/* Kolom 4: Enrollment */}
                         <div className="p-4 flex-1 flex flex-col justify-between">
-                            <span className="text-xs text-gray-600 block mb-1">Enrollment Mahasiswa</span>
-                            <span className="text-sm font-bold block">{osceInfo.enrollment}</span>
+                            <div>
+                                <span className="text-xs text-gray-600 block mb-1">Enrollment Mahasiswa</span>
+                                <span className="text-sm font-bold block">{osceInfo.enrollment}</span>
+                            </div>
+                            <ExternalLink className="w-4 h-4 text-gray-400 mt-4" />
                         </div>
+
+                        {/* Kolom 5: Penguji */}
                         <div className="p-4 flex-[1.5] flex flex-col justify-between">
-                            <span className="text-xs text-gray-600 block mb-1">Penguji</span>
-                            <span className="text-sm font-bold block">{osceInfo.penguji}</span>
+                            <div>
+                                <span className="text-xs text-gray-600 block mb-1">Penguji</span>
+                                <span className="text-sm font-bold block">{osceInfo.penguji}</span>
+                            </div>
+                            <ExternalLink className="w-4 h-4 text-gray-400 mt-4" />
                         </div>
+
                     </div>
                 </div>
             </div>
 
-            {/* 3. Navigasi (Teks Saja) */}
+            {/* 3. Navigasi & Search */}
             <div className="mb-4">
                 <p className="text-sm font-medium">Navigasi</p>
             </div>
 
-            {/* 4. Search Bar & Button */}
             <div className="flex gap-4 mb-4">
                 <div className="relative flex-1">
                     <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -108,17 +144,15 @@ export default function EditNilaiForm() {
                 </button>
             </div>
 
-            {/* 5. Info Count */}
             <div className="mb-2">
                 <span className="text-sm font-medium">
                     Mahasiswa <span className="text-gray-400 mx-1">|</span> menampilkan {filteredStudents.length} Mahasiswa
                 </span>
             </div>
 
-            {/* Divider Line */}
             <div className="h-px w-full bg-gray-300 mb-4"></div>
 
-            {/* 6. Tabel Mahasiswa (Edit Mode) */}
+            {/* 6. Tabel Mahasiswa */}
             <div className="overflow-x-auto rounded-xl border border-black mb-8">
                 <table className="w-full text-left border-collapse">
                     <thead>
@@ -150,7 +184,6 @@ export default function EditNilaiForm() {
                                 </td>
                                 <td className="py-6 px-6 text-center">
                                     <div className="flex justify-center">
-                                        {/* Tombol Edit Biru dengan Icon Pensil */}
                                         <Link 
                                             href={`#`} 
                                             className="bg-[#1447E6] text-white p-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center"
@@ -172,9 +205,12 @@ export default function EditNilaiForm() {
                     </tbody>
                 </table>
 
-                {/* Tombol Submit Besar di dalam Container Tabel (Bagian Bawah) */}
+                {/* --- TOMBOL SUBMIT BESAR (MODAL TRIGGER) --- */}
                 <div className="bg-white p-4 border-t border-black flex justify-center">
-                     <button className="bg-[#1447E6] text-white w-1/2 py-3 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-md">
+                     <button 
+                        onClick={handleOpenModal} // <-- Memicu Modal
+                        className="bg-[#1447E6] text-white w-1/2 py-3 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-md"
+                     >
                          SUBMIT
                      </button>
                 </div>
@@ -183,6 +219,14 @@ export default function EditNilaiForm() {
         </div>
         <OsCopyright />
       </main>
+
+      {/* --- KOMPONEN MODAL --- */}
+      <SubmitConfirmationModal 
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onConfirm={handleConfirmSubmit}
+      />
+
     </div>
   );
 }
