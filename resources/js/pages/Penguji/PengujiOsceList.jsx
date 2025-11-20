@@ -1,4 +1,4 @@
-import { Head } from "@inertiajs/react";
+import { Head, usePage, router, Link } from "@inertiajs/react";
 import React, { useState, useEffect } from "react";
 
 // Sidebar khusus Penguji
@@ -46,7 +46,7 @@ const osceColumns = [
     },
 ];
 
-// Button Style
+// Button Style Logic
 const getButtonStyle = (status) => {
     switch (status) {
         case "Aktif":
@@ -82,57 +82,58 @@ const getButtonStyle = (status) => {
 };
 
 export default function PengujiOsceList() {
-    // State Data OSCE
-    const [data, setData] = useState([]);
-    const [loading, setLoading] = useState(true);
+    // 1. AMBIL PROPS DARI INERTIA (Backend)
+    const { osce_list, filters } = usePage().props;
+    const { data, links, current_page, from } = osce_list; // Destructure data pagination
 
-    // Search & Filter Tahun
-    const [search, setSearch] = useState("");
-    const [tahun, setTahun] = useState("2025/2026");
+    // State Search & Filter (Inisialisasi dari props filter agar persisten)
+    const [search, setSearch] = useState(filters.search || "");
+    const [tahun, setTahun] = useState(filters.tahun || "");
 
     const tahunList = [
+        { value: "", label: "Semua Tahun" }, // Opsi default
         { value: "2025/2026", label: "2025/2026" },
         { value: "2024/2025", label: "2024/2025" },
         { value: "2023/2024", label: "2023/2024" },
     ];
 
-    // =============================
-    // FETCH LOGIC
-    // =============================
-    const fetchData = async () => {
-        try {
-            setLoading(true);
-
-            // Kirim query ke backend
-            const res = await fetch(
-                `/penguji/osce?search=${search}&tahun=${tahun}`
-            );
-            const json = await res.json();
-
-            setData(json.data || []);
-        } catch (error) {
-            console.error("Gagal fetch OSCE:", error);
-        } finally {
-            setLoading(false);
-        }
+    // 2. HANDLE FILTER CHANGE (Server-side Filtering via Inertia)
+    const handleSearch = (e) => {
+        e.preventDefault();
+        router.get(
+            "/penguji/osce",
+            { search, tahun },
+            { preserveState: true, replace: true }
+        );
     };
 
-    // Fetch pertama kali saat halaman dibuka
+    // Auto-submit saat dropdown tahun berubah
     useEffect(() => {
-        fetchData();
-    }, []);
+        if (tahun !== filters.tahun) {
+            router.get(
+                "/penguji/osce",
+                { search, tahun },
+                { preserveState: true, replace: true }
+            );
+        }
+    }, [tahun]);
 
-    // Fetch ulang ketika search atau tahun berubah
-    useEffect(() => {
-        fetchData();
-    }, [search, tahun]);
-
-    // Mapping data ke tabel
+    // 3. MAPPING DATA KE TABEL UI
     const mappedData = data.map((item, index) => {
         const btn = getButtonStyle(item.status);
 
+        // Tentukan link berdasarkan status
+        let linkHref = "#";
+        if (item.status === "Aktif") {
+            // Ke halaman antrian (Live)
+            linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}`;
+        } else if (item.status === "Selesai") {
+            // Ke halaman rekap (Read Only)
+            linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}/rekap`;
+        }
+
         return {
-            no: index + 1,
+            no: from + index, // Nomor urut sesuai pagination
             nama: (
                 <div className="text-left px-2">
                     <div className="font-medium text-gray-900">{item.nama}</div>
@@ -143,13 +144,28 @@ export default function PengujiOsceList() {
             ),
             tanggal_mulai: item.tanggal_mulai,
             tanggal_akhir: item.tanggal_akhir,
-            status: item.status,
+            status: (
+                <span
+                    className={`px-3 py-1 rounded-full text-xs font-medium ${
+                        item.status === "Aktif"
+                            ? "bg-green-100 text-green-800"
+                            : item.status === "Belum Dimulai"
+                            ? "bg-yellow-100 text-yellow-800"
+                            : "bg-gray-100 text-gray-800"
+                    }`}
+                >
+                    {item.status}
+                </span>
+            ),
             action: (
-                <button
-                    className={`${btn.className} h-[38px] w-full max-w-[140px] rounded-lg text-sm font-medium`}
+                <Link
+                    href={linkHref}
+                    as="button"
+                    className={`${btn.className} h-[38px] w-full max-w-[140px] rounded-lg text-sm font-medium transition-colors flex items-center justify-center`}
+                    disabled={item.status === "Belum Dimulai"}
                 >
                     {btn.label}
-                </button>
+                </Link>
             ),
         };
     });
@@ -175,7 +191,7 @@ export default function PengujiOsceList() {
 
                     {/* Filter Bar */}
                     <form
-                        onSubmit={(e) => e.preventDefault()}
+                        onSubmit={handleSearch}
                         className="flex flex-col md:flex-row items-center gap-4 mb-5"
                     >
                         <input
@@ -190,7 +206,7 @@ export default function PengujiOsceList() {
                             <select
                                 value={tahun}
                                 onChange={(e) => setTahun(e.target.value)}
-                                className="border border-gray-700 rounded-lg h-[46px] w-full md:w-40"
+                                className="border border-gray-700 rounded-lg h-[46px] w-full md:w-40 bg-white"
                             >
                                 {tahunList.map((t) => (
                                     <option key={t.value} value={t.value}>
@@ -201,7 +217,7 @@ export default function PengujiOsceList() {
 
                             <button
                                 type="submit"
-                                className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg h-[46px] px-5"
+                                className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg h-[46px] px-5 transition-colors"
                             >
                                 Cari
                             </button>
@@ -212,9 +228,8 @@ export default function PengujiOsceList() {
                         Daftar OSCE
                     </h2>
 
-                    {loading ? (
-                        <p className="text-gray-600 text-sm">Memuat data...</p>
-                    ) : (
+                    {/* Tabel Data */}
+                    {data.length > 0 ? (
                         <>
                             <OsTableHeader columns={osceColumns} />
                             <OsTableBody
@@ -222,10 +237,15 @@ export default function PengujiOsceList() {
                                 columns={osceColumns}
                             />
                         </>
+                    ) : (
+                        <div className="p-10 text-center border rounded-xl bg-white text-gray-500">
+                            Tidak ada data OSCE ditemukan.
+                        </div>
                     )}
 
+                    {/* Pagination */}
                     <div className="mt-8">
-                        <OsPagination />
+                        <OsPagination links={links} />
                     </div>
                 </div>
 

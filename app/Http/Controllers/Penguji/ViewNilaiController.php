@@ -23,7 +23,7 @@ class ViewNilaiController extends Controller
             ->findOrFail($id_enrollment_osce);
 
         // --- VALIDASI AKSES (PERBAIKAN) ---
-        $penguji = Auth::user(); 
+        $user = Auth::user(); 
         $penguji = $user->penguji;
         
         $isAuthorized = OsceStase::where('id_osce', $enrollment->id_osce)
@@ -91,7 +91,7 @@ class ViewNilaiController extends Controller
         // Mengambil dari kolom 'catatan' di tabel enrollment_osce
         $feedback = $enrollment->catatan;
 
-        return Inertia::render('Penguji/Nilai/View', [
+        return Inertia::render('Penguji/ViewNilaiDetail', [
             'mahasiswa' => [
                 'nama'    => $enrollment->mahasiswa->nama,
                 'nim'     => $enrollment->mahasiswa->nim,
