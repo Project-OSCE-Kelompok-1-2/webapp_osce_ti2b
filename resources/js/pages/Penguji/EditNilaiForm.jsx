@@ -3,7 +3,7 @@ import { Link, usePage, useForm } from "@inertiajs/react";
 import { ArrowLeft, Search, Edit3, ExternalLink } from "lucide-react";
 
 // --- Import Komponen ---
-import SidebarPenguji from "../../components/SidebarPenguji";
+import SidebarUniversal from "../../components/SidebarUniversal";
 import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/copyright";
 import SubmitConfirmationModal from "../../components/SubmitConfirmationModal"; // Pastikan path ini benar
@@ -51,7 +51,7 @@ export default function EditNilaiForm() {
 
   return (
     <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-      <SidebarPenguji />
+      <SidebarUniversal />
 
       <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
         

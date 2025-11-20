@@ -9,7 +9,7 @@ import {
 } from "lucide-react";
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
-import Sidebar from "../../components/Sidebar.jsx";
+import SidebarUniversal from "../../components/SidebarUniversal.jsx";
 
 /**
  * props: title, value, description, icon, colorClass, href
@@ -118,7 +118,7 @@ export default function Dashboard() {
 
     return (
         <div className="relative bg-gray-50 w-full min-h-screen flex justify-start font-sans overflow-hidden">
-            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+            <SidebarUniversal isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
             <main
                 className={`flex flex-col flex-1 transition-all duration-300 ${
