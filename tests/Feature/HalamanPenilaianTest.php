@@ -220,6 +220,7 @@ class HalamanPenilaianTest extends TestCase
         $this->get(route('penguji.antrian', ['id_osce' => 1, 'id_osce_stase' => 1]))
             ->assertRedirect(route('login'));
 
+        /** @var \App\Models\Pengguna $userMhs */
         $userMhs = Pengguna::factory()->create(['jenis_role' => 'mahasiswa']);
         $this->actingAs($userMhs)
             ->get(route('penguji.antrian', ['id_osce' => 1, 'id_osce_stase' => 1]))
