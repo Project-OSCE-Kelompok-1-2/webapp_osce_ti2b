@@ -173,35 +173,6 @@ export default function MahasiswaPage() {
                     )}
 
                     {/* 7. [PERBAIKAN] Filter dibungkus <form> */}
-                    <form
-                        onSubmit={handleSearch}
-                        className="flex items-center gap-3 mb-4"
-                    >
-                        <div className="relative flex-1">
-                            <OsIcon
-                                name="Search"
-                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-os-20"
-                            />
-                            <input
-                                type="text"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Cari data mahasiswa..."
-                                className="border border-black rounded-xl pl-10 pr-4 py-3 w-full focus:ring-2 focus:ring-blue-400 outline-none"
-                            />
-                        </div>
-
-                        <select
-                            value={angkatan}
-                            onChange={(e) => setAngkatan(e.target.value)}
-                            className="border border-black rounded-xl px-4 py-3"
-                        >
-                            {angkatanList.map((a) => (
-                                <option key={a.value} value={a.value}>
-                                    {a.label}
-                                </option>
-                            ))}
-                        </select>
                         {/* Filter Search */}
                         <form
                             onSubmit={handleSearch}
@@ -425,7 +396,7 @@ export default function MahasiswaPage() {
                         </div>
                     </div>
                 </div>
-            )} */}
+            )}
             <OsModal
                 show={showExcelModal}
                 onClose={() => setShowExcelModal(false)}

@@ -7,7 +7,10 @@ import {
     Search,
     Edit,
     Trash2,
+    ArrowLeft,   // <-- tambahkan ini
+    Pencil       // <-- kamu juga perlu ini karena kamu pakai <Pencil />
 } from "lucide-react";
+
 
 import Sidebar from "../../components/Sidebar";
 import OsCopyright from "../../components/Copyright";
@@ -15,6 +18,7 @@ import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
 import OsHeader from "../../components/Header";
 import OsButton from "../../components/button";
+import OsIcon from "../../components/icons";
 
 // ⬅️ Tambahkan ini
 import Modals from "../../components/Modals";

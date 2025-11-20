@@ -14,7 +14,6 @@ import OsButton from "../../components/button";
 import OsCopyright from "../../components/Copyright";
 
 // 2. Pastikan nama file komponen pagination Anda benar
-import OsHeader from "../../components/Header";
 import OsPagination from "../../components/pagination";
 
 // IMPORT MODALS

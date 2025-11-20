@@ -206,9 +206,7 @@ export default function OsceListPage({ osce, filters }) {
                                                 {/* Tombol Delete: Gunakan <button> */}
                                                 <button
                                                     onClick={() =>
-                                                        handleDelete(
-                                                            item.id_osce
-                                                        )
+                                                        openDeleteModal(item)
                                                     }
                                                     className="border rounded-lg hover:bg-gray-100 text-red-600 hover:border-red-600 w-10 h-[38px] flex items-center justify-center"
                                                 >
@@ -223,12 +221,6 @@ export default function OsceListPage({ osce, filters }) {
                                             <td
                                                 colSpan="5"
                                                 className="p-4 text-center text-gray-500"
-                                            {/* 🔥 Tombol Delete: Panggil openDeleteModal */}
-                                            <button
-                                                onClick={() =>
-                                                    openDeleteModal(item)
-                                                }
-                                                className="border rounded-lg hover:bg-gray-100 text-red-600 hover:border-red-600 w-10 h-[38px] flex items-center justify-center"
                                             >
                                                 Data OSCE tidak ditemukan.
                                             </td>

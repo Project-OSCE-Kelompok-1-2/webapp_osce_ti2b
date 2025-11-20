@@ -121,7 +121,7 @@ export default function PengujiPage() {
                         <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
                             {flash.success}
                         </div>
-
+                    )}
                         {/* Flash message */}
                         {flash.success && (
                             <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
@@ -143,19 +143,7 @@ export default function PengujiPage() {
                                 placeholder="Cari NIP atau Nama Penguji..."
                             />
                         </div>
-                    )}
 
-                    {/* Search Bar */}
-                    <div className="w-full">
-                        <OsSearchBar
-                            // Bungkus dalam form untuk submit on Enter
-                            onSubmit={handleSearch}
-                            search={search}
-                            setSearch={setSearch}
-                            onSearchClick={handleSearch}
-                            placeholder="Cari NIP atau Nama Penguji..."
-                        />
-                    </div>
 
                     {/* === TABEL PENGUJI === */}
                     <section>
