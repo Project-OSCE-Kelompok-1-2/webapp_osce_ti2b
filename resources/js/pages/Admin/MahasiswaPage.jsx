@@ -10,6 +10,8 @@ import OsCopyright from "../../components/Copyright.jsx";
 import Os_button from "../../components/button.jsx";
 import OsHeader from "../../components/Header.jsx";
 
+import Modals from "../../components/Modals.jsx"; // 🔥 MODAL IMPORT
+
 // Kolom tabel (sudah benar)
 const mahasiswaColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
@@ -34,10 +36,14 @@ export default function MahasiswaPage() {
     const { mahasiswa, filters, flash } = usePage().props;
 
     const [search, setSearch] = useState(filters?.search || "");
-    const [angkatan, setAngkatan] = useState(filters?.angkatan || ""); // 'angkatan' ini adalah 'kelas' di DB
+    const [angkatan, setAngkatan] = useState(filters?.angkatan || "");
     const [importFile, setImportFile] = useState(null);
     const [importing, setImporting] = useState(false);
     const [showExcelModal, setShowExcelModal] = useState(false);
+
+    // 🔥 STATE UNTUK DELETE MODAL
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedMahasiswa, setSelectedMahasiswa] = useState(null);
 
     const angkatanList = [
         { value: "", label: "Semua Angkatan" },
@@ -57,14 +63,10 @@ export default function MahasiswaPage() {
         );
     };
 
-    const handleDelete = (id) => {
-        if (
-            confirm(
-                "Apakah Anda yakin ingin menghapus mahasiswa ini? Ini juga akan menghapus akun login mereka."
-            )
-        ) {
-            router.delete(`/admin/mahasiswa/${id}`, { preserveScroll: true });
-        }
+    // 🔥 HANDLE DELETE DENGAN MODAL
+    const handleDelete = (id, nama) => {
+        setSelectedMahasiswa({ id, nama });
+        setShowDeleteModal(true);
     };
 
     // 6. Fungsi import (sudah benar)
@@ -94,7 +96,7 @@ export default function MahasiswaPage() {
             <Sidebar />
 
             <main className="flex flex-col flex-1 p-os-8 transition-all duration-300 md:ml-20">
-                <OsHeader/>
+                <OsHeader />
 
                 <div className="flex-1 overflow-auto">
                     <section className="mb-8">
@@ -144,7 +146,7 @@ export default function MahasiswaPage() {
                             </div>
                         )}
 
-                        {/* 7. [PERBAIKAN] Filter dibungkus <form> */}
+                        {/* Filter Search */}
                         <form
                             onSubmit={handleSearch}
                             className="flex items-center gap-3 mb-4"
@@ -157,7 +159,9 @@ export default function MahasiswaPage() {
                                 <input
                                     type="text"
                                     value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
+                                    onChange={(e) =>
+                                        setSearch(e.target.value)
+                                    }
                                     placeholder="Cari data mahasiswa..."
                                     className="border border-black rounded-xl pl-10 pr-4 py-3 w-full focus:ring-2 focus:ring-blue-400 outline-none"
                                 />
@@ -165,7 +169,9 @@ export default function MahasiswaPage() {
 
                             <select
                                 value={angkatan}
-                                onChange={(e) => setAngkatan(e.target.value)}
+                                onChange={(e) =>
+                                    setAngkatan(e.target.value)
+                                }
                                 className="border border-black rounded-xl px-4 py-3"
                             >
                                 {angkatanList.map((a) => (
@@ -217,10 +223,13 @@ export default function MahasiswaPage() {
                                                     className="h-os-20 w-os-20 os-icon-light"
                                                 />
                                             </Link>
+
+                                            {/* 🔥 GANTI DELETE BUTTON → MODAL */}
                                             <Os_button
                                                 onClick={() =>
                                                     handleDelete(
-                                                        item.id_mahasiswa
+                                                        item.id_mahasiswa,
+                                                        item.nama
                                                     )
                                                 }
                                                 className="w-10 h-10 flex items-center justify-center bg-white p-2 border border-black text-black rounded-xl hover:bg-gray-200 transition"
@@ -242,7 +251,6 @@ export default function MahasiswaPage() {
                             </div>
                         )}
 
-                        {/* Paginasi */}
                         {mahasiswa.links && mahasiswa.links.length > 3 && (
                             <div className="mt-8">
                                 <OsPagination links={mahasiswa.links} />
@@ -256,11 +264,36 @@ export default function MahasiswaPage() {
                 </footer>
             </main>
 
-            {/* === MODAL IMPORT EXCEL === (Kode modal Anda sudah benar) */}
+            {/* 🔥 MODAL DELETE MAHASISWA */}
+            {showDeleteModal && (
+                <Modals
+                    isOpen={showDeleteModal}
+                    onClose={() => setShowDeleteModal(false)}
+                    variant="delete"
+                    dataToDelete={[
+                        {
+                            key: "Nama Mahasiswa",
+                            value: selectedMahasiswa?.nama,
+                        },
+                        { key: "ID", value: selectedMahasiswa?.id },
+                    ]}
+                    onConfirm={() => {
+                        router.delete(
+                            `/admin/mahasiswa/${selectedMahasiswa.id}`,
+                            {
+                                preserveScroll: true,
+                                onSuccess: () =>
+                                    setShowDeleteModal(false),
+                            }
+                        );
+                    }}
+                />
+            )}
+
+            {/* ===== MODAL IMPORT EXCEL (TIDAK DIUBAH) ===== */}
             {showExcelModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg w-[420px] shadow-xl overflow-hidden">
-                        {/* Header */}
                         <div className="bg-gray-900 text-white text-center py-3 relative">
                             <h2 className="text-base font-semibold">
                                 Template Excel Mahasiswa
@@ -276,7 +309,6 @@ export default function MahasiswaPage() {
                             </button>
                         </div>
 
-                        {/* Body */}
                         <div className="p-5 flex flex-col gap-4">
                             <Os_button className="w-full">
                                 Download Template Excel
@@ -306,6 +338,7 @@ export default function MahasiswaPage() {
                                     }
                                     className="hidden"
                                 />
+
                                 <a
                                     href="#"
                                     className="text-xs text-blue-600 underline hover:text-blue-800"
@@ -315,15 +348,17 @@ export default function MahasiswaPage() {
                             </div>
                         </div>
 
-                        {/* Footer Modal */}
                         <div className="flex justify-between items-center px-5 py-3 bg-gray-50 border-t">
                             <Os_button
                                 onClick={handleImport}
                                 disabled={importing || !importFile}
                                 className="w-full mr-2 disabled:opacity-50"
                             >
-                                {importing ? "Mengunggah..." : "Submit"}
+                                {importing
+                                    ? "Mengunggah..."
+                                    : "Submit"}
                             </Os_button>
+
                             <Os_button
                                 onClick={() => setShowExcelModal(false)}
                                 className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white p-3 rounded-lg transition-colors"
