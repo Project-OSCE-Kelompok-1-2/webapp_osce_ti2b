@@ -1,92 +1,127 @@
 import React, { useState, useEffect } from "react";
-import { useForm, usePage, Link } from "@inertiajs/react";
-import {
-    Lock,
-    Eye,
-    EyeOff,
-    UploadCloud,
-    Trash2,
-    AlertCircle,
-    ArrowLeft,
-    Save,
-} from "lucide-react";
+import { useForm, usePage, Link, router } from "@inertiajs/react";
+import { Eye, EyeOff } from "lucide-react";
 
-// GANTI SIDEBAR KE VERSI PENGUJI
 import SidebarPenguji from "../../components/SidebarPenguji.jsx";
-
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 import Os_input from "../../components/Input.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsButton from "../../components/button.jsx";
 
-export default function PengujiProfil({ user = {} }) {
+export default function PengujiProfil() {
     const { errors } = usePage().props;
 
     const [showOldPassword, setShowOldPassword] = useState(false);
-    const [profileImage, setProfileImage] = useState(null);
+    const [profileImage, setProfileImage] = useState(
+        "https://via.placeholder.com/177?text=U"
+    );
 
-    const { data, setData, post, processing, wasSuccessful, reset } = useForm({
-        username: user.username || "",
-        email: user.email || "",
-        alamat: user.alamat || "",
-        foto: null,
-        delete_foto: false,
+    // FORM BIODATA
+    const biodataForm = useForm({
+        username: "",
+        email: "",
+        alamat: "",
+    });
+
+    // FORM PASSWORD
+    const passwordForm = useForm({
         old_password: "",
         new_password: "",
         new_password_confirmation: "",
     });
 
-    useEffect(() => {
-        if (user.path_gambar) {
-            setProfileImage(`/${user.path_gambar}`);
-        } else {
-            setProfileImage("https://via.placeholder.com/177?text=U");
-        }
-    }, [user.path_gambar]);
+    // FORM FOTO
+    const fotoForm = useForm({
+        foto: null,
+    });
 
+    // GET PROFIL
     useEffect(() => {
-        if (wasSuccessful) {
-            reset("old_password", "new_password", "new_password_confirmation");
-        }
-    }, [wasSuccessful]);
+        fetch("/penguji/profil")
+            .then((res) => res.json())
+            .then((user) => {
+                biodataForm.setData({
+                    username: user.username || "",
+                    email: user.email || "",
+                    alamat: user.alamat || "",
+                });
 
+                if (user.path_gambar) {
+                    setProfileImage("/" + user.path_gambar);
+                }
+            });
+    }, []);
+
+    // SIMPAN SEMUA (Biodata + Password)
+    const handleSaveAll = (e) => {
+        e.preventDefault();
+
+        // 1. Update biodata
+        biodataForm.put("/penguji/profil", {
+            preserveScroll: true,
+        });
+
+        // 2. Jika password diisi, update password
+        if (
+            passwordForm.data.old_password ||
+            passwordForm.data.new_password ||
+            passwordForm.data.new_password_confirmation
+        ) {
+            passwordForm.put("/penguji/profil/password", {
+                preserveScroll: true,
+                onSuccess: () => passwordForm.reset(),
+            });
+        }
+    };
+
+    // UPLOAD FOTO
     const handleProfileImageUpload = (event) => {
         const file = event.target.files?.[0];
-        if (file) {
-            setData({ ...data, foto: file, delete_foto: false });
-            setProfileImage(URL.createObjectURL(file));
-        }
+        if (!file) return;
+
+        setProfileImage(URL.createObjectURL(file));
+        fotoForm.setData("foto", file);
+
+        fotoForm.post("/penguji/profil/foto", {
+            forceFormData: true,
+            preserveScroll: true,
+        });
     };
 
+    // DELETE FOTO
     const handleDeleteProfileImage = () => {
-        setData({ ...data, foto: null, delete_foto: true });
         setProfileImage("https://via.placeholder.com/177?text=U");
+
+        router.post(
+            "/penguji/profil/foto/delete",
+            {},
+            {
+                preserveScroll: true,
+            }
+        );
     };
 
-    const handleSave = (e) => {
-        e.preventDefault();
-        post("/penguji/profil/update", { preserveScroll: true });
-    };
-
+    // ==================================
+    // LOGOUT
+    // ==================================
     const handleLogout = () => {
-        post("/logout");
+        router.post("/logout");
     };
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            {/* GUNAKAN SIDEBAR PENGUJI */}
             <SidebarPenguji />
 
             <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans md:ml-20 transition-all duration-300">
                 <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14">
-                    {/* HEADER */}
                     <OsHeader variant="goback" backLink="/penguji/dashboard" />
 
-                    {/* MAIN CONTENT */}
                     <main className="flex flex-col gap-5 w-full">
                         <div className="flex flex-col lg:flex-row items-start gap-5 relative w-full">
-                            {/* PROFILE IMAGE */}
+                            {/* ======================================
+                                GAMBAR PROFIL
+                            ====================================== */}
                             <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5 bg-white rounded-xl border border-black shadow-sm">
                                 <h2 className="text-xl font-normal">
                                     Gambar Profil
@@ -95,13 +130,9 @@ export default function PengujiProfil({ user = {} }) {
 
                                 <div
                                     className="w-[177px] h-[177px] rounded-full border border-black bg-cover bg-center"
-                                    style={
-                                        profileImage
-                                            ? {
-                                                  backgroundImage: `url(${profileImage})`,
-                                              }
-                                            : {}
-                                    }
+                                    style={{
+                                        backgroundImage: `url(${profileImage})`,
+                                    }}
                                 />
 
                                 <div className="p-3.5 w-full bg-red-300 rounded-xl border border-black">
@@ -115,9 +146,8 @@ export default function PengujiProfil({ user = {} }) {
                                         </span>
                                     </div>
                                     <p className="text-black text-sm mt-1">
-                                        Gambar yang dikirim harus berukuran
-                                        kurang lebih dari 1 MB dengan resolusi
-                                        max 500x500 px. Format foto: .png,
+                                        Gambar harus berukuran kurang dari 1 MB,
+                                        resolusi max 500x500 px. Format: .png,
                                         .jpeg, .jpg, .gif
                                     </p>
                                 </div>
@@ -158,47 +188,50 @@ export default function PengujiProfil({ user = {} }) {
                                 </div>
                             </aside>
 
-                            {/* FORM ACCOUNT */}
+                            {/* ======================================
+                                FORM BIODATA + PASSWORD
+                            ====================================== */}
                             <section className="flex flex-col p-5 bg-white rounded-xl border border-black shadow-sm flex-1">
                                 <h2 className="text-xl font-normal">Akun</h2>
                                 <hr className="w-full border-black mb-4" />
 
-                                <form
-                                    onSubmit={handleSave}
-                                    className="flex flex-col gap-5 w-full"
-                                >
+                                <form className="flex flex-col gap-5 w-full">
                                     <Os_input
                                         type="text"
                                         label="Nama pengguna"
-                                        name="username"
                                         disabled
-                                        value={data.username}
+                                        value={biodataForm.data.username}
                                         onChange={(e) =>
-                                            setData("username", e.target.value)
+                                            biodataForm.setData(
+                                                "username",
+                                                e.target.value
+                                            )
                                         }
                                     />
 
-                                    {/* Alamat */}
                                     <Os_input
                                         type="text"
                                         label="Alamat pengguna"
-                                        name="alamat"
                                         placeholder="Masukkan alamat pengguna..."
-                                        value={data.alamat}
+                                        value={biodataForm.data.alamat}
                                         onChange={(e) =>
-                                            setData("alamat", e.target.value)
+                                            biodataForm.setData(
+                                                "alamat",
+                                                e.target.value
+                                            )
                                         }
                                     />
 
-                                    {/* Email */}
                                     <Os_input
                                         type="email"
                                         label="Email pengguna"
-                                        name="email"
                                         disabled
-                                        value={data.email}
+                                        value={biodataForm.data.email}
                                         onChange={(e) =>
-                                            setData("email", e.target.value)
+                                            biodataForm.setData(
+                                                "email",
+                                                e.target.value
+                                            )
                                         }
                                         icon={
                                             <OsIcon
@@ -208,7 +241,6 @@ export default function PengujiProfil({ user = {} }) {
                                         }
                                     />
 
-                                    {/* Password lama */}
                                     <Os_input
                                         type={
                                             showOldPassword
@@ -216,11 +248,10 @@ export default function PengujiProfil({ user = {} }) {
                                                 : "password"
                                         }
                                         label="Password lama"
-                                        name="old_password"
                                         placeholder="Masukkan password lama..."
-                                        value={data.old_password}
+                                        value={passwordForm.data.old_password}
                                         onChange={(e) =>
-                                            setData(
+                                            passwordForm.setData(
                                                 "old_password",
                                                 e.target.value
                                             )
@@ -242,23 +273,18 @@ export default function PengujiProfil({ user = {} }) {
                                             </button>
                                         }
                                     />
-                                    {errors.old_password && (
-                                        <p className="text-red-500 text-sm">
-                                            {errors.old_password}
-                                        </p>
-                                    )}
 
-                                    {/* Password baru + konfirmasi */}
                                     <div className="flex flex-col lg:flex-row gap-5 w-full">
                                         <Os_input
                                             className="flex-1"
                                             type="password"
                                             label="Password baru"
-                                            name="new_password"
                                             placeholder="Masukkan password baru..."
-                                            value={data.new_password}
+                                            value={
+                                                passwordForm.data.new_password
+                                            }
                                             onChange={(e) =>
-                                                setData(
+                                                passwordForm.setData(
                                                     "new_password",
                                                     e.target.value
                                                 )
@@ -269,13 +295,13 @@ export default function PengujiProfil({ user = {} }) {
                                             className="flex-1"
                                             type="password"
                                             label="Konfirmasi password baru"
-                                            name="new_password_confirmation"
                                             placeholder="Konfirmasi password..."
                                             value={
-                                                data.new_password_confirmation
+                                                passwordForm.data
+                                                    .new_password_confirmation
                                             }
                                             onChange={(e) =>
-                                                setData(
+                                                passwordForm.setData(
                                                     "new_password_confirmation",
                                                     e.target.value
                                                 )
@@ -287,13 +313,14 @@ export default function PengujiProfil({ user = {} }) {
                                         <OsButton
                                             name="primary"
                                             className="flex items-center justify-center w-[223px] gap-2 border border-black"
-                                            onClick={handleSave}
+                                            onClick={handleSaveAll}
                                         >
                                             <OsIcon
                                                 name="Save"
                                                 className="h-os-20 os-icon-light"
                                             />
-                                            {processing
+                                            {biodataForm.processing ||
+                                            passwordForm.processing
                                                 ? "Menyimpan..."
                                                 : "Simpan"}
                                         </OsButton>
@@ -322,7 +349,7 @@ export default function PengujiProfil({ user = {} }) {
                         </div>
                     </main>
 
-                    {/* FOOTER */}
+                    {/* FOOTER COPYRIGHT */}
                     <OsCopyright />
                 </div>
             </div>
