@@ -20,12 +20,14 @@ class ProfilController extends Controller
 
     public function show_profile()
     {
-        $penguji = Auth::user();
+        $user = Auth::user();
         
-        $penguji->path_gambar = $penguji->path_gambar ? $penguji->path_gambar : null;
+        $user->load('penguji');
+
+        $user->path_gambar = $user->path_gambar ? $user->path_gambar : null;
 
         return Inertia::render('Penguji/PengaturanAkun', [
-            'user' => $penguji, 
+            'user' => $user, 
         ]);
     }
 

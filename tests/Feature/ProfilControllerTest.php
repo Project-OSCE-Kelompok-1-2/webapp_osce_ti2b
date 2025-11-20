@@ -181,11 +181,16 @@ class ProfilControllerTest extends TestCase
                          ->getJson(route('api.penguji.account.show'));
 
         $response->assertStatus(200)
-                 ->assertJsonStructure([
-                     'success',
-                     'message',
-                     'data' => ['username', 'path_gambar'] // Sesuaikan dengan struktur tabel Anda
-                 ]);
+             ->assertJsonStructure([
+                 'success',
+                 'message',
+                 'data' => [
+                     'username', 
+                     'path_gambar',
+                     'nama', // <-- Pastikan ini ada
+                     'nip'   // <-- Pastikan ini ada
+                 ] 
+             ]);
     }
 
     /** @test */

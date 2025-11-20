@@ -22,13 +22,21 @@ class ProfilController extends Controller
      */
     public function show_profile()
     {
-        $penguji = Auth::user();
+        $user = Auth::user();
+        $user->load('penguji');
 
         return response()->json([
-            'success' => true,
-            'message' => 'Detail profil penguji',
-            'data'    => $penguji
-        ], 200);
+        'success' => true,
+        'message' => 'Detail profil penguji',
+        'data'    => [
+            'id_pengguna' => $user->id_pengguna,
+            'username'    => $user->username,
+            'path_gambar' => $user->path_gambar,
+            // Ambil dari relasi
+            'nama'        => $user->penguji ? $user->penguji->nama : null,
+            'nip'         => $user->penguji ? $user->penguji->nip : null,
+        ]
+    ], 200);
     }
 
     /**
