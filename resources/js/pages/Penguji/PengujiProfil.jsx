@@ -298,7 +298,7 @@ export default function PengujiProfil({ user = {} }) {
                                         </OsButton>
 
                                         <OsButton
-                                            name="danger"
+                                            name="warning"
                                             className="flex items-center justify-center w-[223px] gap-2 border border-black bg-red-600"
                                             onClick={handleLogout}
                                         >
