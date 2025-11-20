@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\RekapNilaiController;
 use App\Http\Controllers\Admin\AspekPenilaianController;
 use App\Http\Controllers\Admin\OsceEnrollmentController;
 use App\Http\Controllers\Penguji\ProfilController;
+use App\Http\Controllers\Penguji\AksiPenilaianController;
 
 /*
 |--------------------------------------------------------------------------
@@ -114,6 +115,31 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/rekap-nilai', [RekapNilaiController::class, 'index'])->name('rekap.index'); // <-- Diberi nama
     Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi'])->name('rekap.sesi'); // <-- Diberi nama
     Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerStase'])->name('rekap.mahasiswa'); // <-- Diberi nama
+
+});
+
+// ==========================
+// === RUTE UNTUK PENGUJI ===
+// ==========================
+
+Route::middleware(['auth'])->prefix('penguji')->group(function () {
+
+    // SIMPAN NILAI
+    Route::post('/penilaian/{id_enrollment_osce}', 
+        [AksiPenilaianController::class, 'simpanNilai']
+    );
+
+    // ROTASI
+    Route::get('/rotasi/{id_osce_stase}', 
+        [AksiPenilaianController::class, 'rotasi']
+    );
+
+    // SELESAI SESI
+    Route::post('/rotasi/{id_osce_stase}/selesai', 
+        [AksiPenilaianController::class, 'selesaiSesi']
+    );
+
+});
     
     // V V V BLOK INI TIDAK DIUBAH SESUAI PERMINTAAN V V V
     Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}', function () {
@@ -164,7 +190,6 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
             'detailNilai' => $dummyData
         ]);
     })->name('rekap.detail'); // <-- Rute dummy diberi nama
-});
 // === AKHIR GRUP ADMIN ===
 
 
