@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
-
 use Illuminate\Http\Request;
 use App\Services\OsceJadwalService;
 use App\Http\Controllers\Controller;
@@ -41,7 +40,6 @@ class OsceJadwalController extends Controller
 
     /**
      * GET /osce/{id_osce}/jadwal/templates
-     * (Untuk keperluan dropdown di form create)
      */
     public function getTemplates($id_osce)
     {
@@ -66,11 +64,13 @@ class OsceJadwalController extends Controller
     public function store(Request $request, $id_osce)
     {
         try {
-            $this->service->createSession($request, $id_osce);
+            // Tangkap data sesi baru dari service
+            $newSessionData = $this->service->createSession($request, $id_osce);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Jadwal sesi berhasil dibuat!',
+                'data' => $newSessionData // Kembalikan data yang dibuat
             ], 201);
         } catch (ValidationException $e) {
             return response()->json(['status' => 'error', 'message' => 'Validasi gagal.', 'errors' => $e->errors()], 422);
@@ -81,7 +81,6 @@ class OsceJadwalController extends Controller
 
     /**
      * GET /osce/{id_osce}/jadwal/{sesi_id}
-     * (Detail untuk Edit)
      */
     public function show($id_osce, $sesi_id)
     {
@@ -111,11 +110,13 @@ class OsceJadwalController extends Controller
     public function update(Request $request, $id_osce, $sesi_id)
     {
         try {
-            $this->service->updateSession($request, $id_osce, $sesi_id);
+            // Tangkap data sesi terupdate dari service
+            $updatedSessionData = $this->service->updateSession($request, $id_osce, $sesi_id);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Jadwal sesi berhasil diperbarui!',
+                'data' => $updatedSessionData // Kembalikan data yang diupdate
             ]);
         } catch (ValidationException $e) {
             return response()->json(['status' => 'error', 'message' => 'Validasi gagal.', 'errors' => $e->errors()], 422);

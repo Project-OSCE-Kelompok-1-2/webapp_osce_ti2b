@@ -10,14 +10,11 @@ use App\Models\PoinAspekPenilaian;
 class KompetensiService
 {
     /**
-     * Mengambil daftar kompetensi berdasarkan aspek penilaian.
+     * Mengambil daftar kompetensi dengan transformasi struktur data.
      */
     public function getByAspek(Request $request, AspekPenilaian $aspekPenilaian)
     {
-        // Muat relasi stase
-        $aspekPenilaian->load('stase');
-
-        // Ambil data kompetensi dengan paginasi dan fitur pencarian
+        // Ambil data kompetensi dengan paginasi
         $kompetensi = $aspekPenilaian->poinAspekPenilaian()
             ->when($request->input('search'), function ($query, $search) {
                 $query->where('kompetensi', 'like', "%{$search}%");
@@ -25,10 +22,17 @@ class KompetensiService
             ->paginate(10)
             ->withQueryString();
 
-        return [
-            'aspek' => $aspekPenilaian,
-            'kompetensi' => $kompetensi
-        ];
+        // TRANSFORMASI: Sesuaikan struktur data dengan permintaan
+        $kompetensi->getCollection()->transform(function ($item) {
+            return [
+                'id_poin_aspek_penilaian' => $item->id_poin_aspek_penilaian,
+                'kompetensi' => $item->kompetensi,
+                'skor' => $item->skor ?? 0, // Default 0 jika null
+                'bobot' => $item->bobot,
+            ];
+        });
+
+        return $kompetensi;
     }
 
     /**
@@ -38,19 +42,11 @@ class KompetensiService
     {
         $validated = $request->validate([
             'kompetensi' => 'required|string',
-            'bobot' => 'required|integer|min:1|max:5',
+            'skor' => 'required|integer|min:0', // Ditambahkan agar sesuai output
+            'bobot' => 'required|integer|min:1',
         ]);
 
         return $aspekPenilaian->poinAspekPenilaian()->create($validated);
-    }
-
-    /**
-     * Mengambil satu data kompetensi (berguna untuk edit/show).
-     */
-    public function getOne(PoinAspekPenilaian $kompetensi)
-    {
-        $kompetensi->load('aspekPenilaian.stase');
-        return $kompetensi;
     }
 
     /**
@@ -62,12 +58,13 @@ class KompetensiService
             'kompetensi' => [
                 'required',
                 'string',
-                // Validasi unik berdasarkan aspek penilaian terkait
+                // Validasi unik, kecuali untuk ID ini
                 Rule::unique('poin_aspek_penilaian', 'kompetensi')
                     ->ignore($kompetensi->id_poin_aspek_penilaian, 'id_poin_aspek_penilaian')
                     ->where('id_aspek_penilaian', $kompetensi->id_aspek_penilaian)
             ],
-            'bobot' => 'required|integer|min:1|max:5',
+            'skor' => 'required|integer|min:0', // Ditambahkan
+            'bobot' => 'required|integer|min:1',
         ]);
 
         $kompetensi->update($validated);

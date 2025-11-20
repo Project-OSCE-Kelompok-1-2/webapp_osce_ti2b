@@ -81,6 +81,7 @@ class OsceJadwalService
 
     /**
      * Membuat jadwal baru berdasarkan template.
+     * MENGEMBALIKAN DATA SESI BARU.
      */
     public function createSession(Request $request, $id_osce)
     {
@@ -92,7 +93,9 @@ class OsceJadwalService
             'stase_ids.*' => 'required|exists:osce_stase,id_osce_stase',
         ]);
 
-        return DB::transaction(function () use ($validated) {
+        return DB::transaction(function () use ($validated, $id_osce) {
+            $firstCreatedId = null;
+
             foreach ($validated['stase_ids'] as $template_stase_id) {
                 $template = OsceStase::find($template_stase_id);
 
@@ -102,14 +105,32 @@ class OsceJadwalService
                     $new_sesi_stase->jam_mulai = $validated['jam_mulai'];
                     $new_sesi_stase->jam_selesai = $validated['jam_selesai'];
                     $new_sesi_stase->save();
+
+                    // Simpan ID pertama sebagai referensi ID sesi (seperti logic MIN di list)
+                    if (!$firstCreatedId) {
+                        $firstCreatedId = $new_sesi_stase->id_osce_stase;
+                    }
                 }
             }
-            return true;
+
+            // Hitung jumlah mahasiswa (biasanya 0 saat baru buat, tapi kita query biar konsisten)
+            $jumlah_mahasiswa = EnrollmentOsce::where('id_osce', $id_osce)
+                ->where('tanggal_sesi', $validated['tanggal'])
+                ->where('jam_sesi', $validated['jam_mulai']) // Menggunakan input karena database mungkin simpan H:i:s
+                ->count();
+
+            // Kembalikan struktur data yang sama dengan list
+            return [
+                'id_osce_stase' => (int) $firstCreatedId,
+                'tanggal' => $validated['tanggal'],
+                'jam_mulai' => $validated['jam_mulai'], // Return format input (biasanya H:i)
+                'jumlah_mahasiswa' => (int) $jumlah_mahasiswa,
+            ];
         });
     }
 
     /**
-     * Helper privat untuk menyelesaikan target Tanggal & Jam dari ID (baik integer maupun string)
+     * Helper privat untuk menyelesaikan target Tanggal & Jam dari ID
      */
     private function resolveSessionTarget($id_osce, $sesi_id)
     {
@@ -142,11 +163,10 @@ class OsceJadwalService
      */
     public function getSessionDetail($id_osce, $sesi_id)
     {
-        // Gunakan helper untuk mencari target tanggal/jam
         $target = $this->resolveSessionTarget($id_osce, $sesi_id);
 
         if (!$target) {
-            return null; // Not found
+            return null;
         }
 
         $tanggal = $target['tanggal'];
@@ -193,7 +213,7 @@ class OsceJadwalService
                 'tanggal' => (new \DateTime($sesi_data->tanggal))->format('Y-m-d'),
                 'jam_mulai' => substr($sesi_data->jam_mulai, 0, 5),
                 'jam_selesai' => substr($sesi_data->jam_selesai, 0, 5),
-                'id' => $sesi_id // Return ID asli yang diminta
+                'id' => $sesi_id
             ],
             'stase_options' => $stase_options,
             'stase_terpilih' => array_unique($stase_terpilih_ids),
@@ -202,6 +222,7 @@ class OsceJadwalService
 
     /**
      * Update sesi (Hapus lama -> Buat baru).
+     * MENGEMBALIKAN DATA SESI TERBARU.
      */
     public function updateSession(Request $request, $id_osce, $sesi_id)
     {
@@ -229,6 +250,8 @@ class OsceJadwalService
                 ->where('jam_mulai', $old_jam_mulai)
                 ->delete();
 
+            $firstCreatedId = null;
+
             // Buat baru
             foreach ($validated['stase_ids'] as $template_stase_id) {
                 $template = OsceStase::find($template_stase_id);
@@ -238,9 +261,25 @@ class OsceJadwalService
                     $new_sesi_stase->jam_mulai = $validated['jam_mulai'];
                     $new_sesi_stase->jam_selesai = $validated['jam_selesai'];
                     $new_sesi_stase->save();
+
+                    if (!$firstCreatedId) {
+                        $firstCreatedId = $new_sesi_stase->id_osce_stase;
+                    }
                 }
             }
-            return true;
+
+            // Hitung jumlah mahasiswa (untuk konsistensi respon)
+            $jumlah_mahasiswa = EnrollmentOsce::where('id_osce', $id_osce)
+                ->where('tanggal_sesi', $validated['tanggal'])
+                ->where('jam_sesi', $validated['jam_mulai'])
+                ->count();
+
+            return [
+                'id_osce_stase' => (int) $firstCreatedId,
+                'tanggal' => $validated['tanggal'],
+                'jam_mulai' => $validated['jam_mulai'],
+                'jumlah_mahasiswa' => (int) $jumlah_mahasiswa,
+            ];
         });
     }
 
@@ -249,7 +288,6 @@ class OsceJadwalService
      */
     public function deleteSession($id_osce, $sesi_id)
     {
-        // Cari target tanggal & jam berdasarkan ID (integer/string)
         $target = $this->resolveSessionTarget($id_osce, $sesi_id);
 
         if (!$target) {
@@ -259,7 +297,6 @@ class OsceJadwalService
         $tanggal = $target['tanggal'];
         $jam_mulai = $target['jam_mulai'];
 
-        // Hapus semua baris yang cocok dengan tanggal & jam ini
         $deletedCount = OsceStase::where('id_osce', $id_osce)
             ->where('tanggal', $tanggal)
             ->where('jam_mulai', $jam_mulai)

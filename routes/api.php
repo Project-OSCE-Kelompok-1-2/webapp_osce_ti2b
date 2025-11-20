@@ -60,7 +60,7 @@ Route::prefix('v1')->group(function () {
         Route::apiResource('penguji', PengujiController::class);
 
         // --- Aspek penilaian ---
-        Route::apiResource('stase.aspek-penilaian', AspekPenilaianController::class)->except("show");
+        Route::apiResource('stase.aspek-penilaian', AspekPenilaianController::class);
 
         // --- Rekap Nilai ---
         Route::get('/rekap-nilai', [RekapNilaiController::class, 'index']);

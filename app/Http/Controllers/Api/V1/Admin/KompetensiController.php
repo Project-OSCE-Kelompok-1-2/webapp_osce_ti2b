@@ -2,12 +2,12 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
-
 use Illuminate\Http\Request;
 use App\Models\AspekPenilaian;
 use App\Models\PoinAspekPenilaian;
 use App\Http\Controllers\Controller;
 use App\Services\KompetensiService;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class KompetensiController extends Controller
 {
@@ -19,71 +19,138 @@ class KompetensiController extends Controller
     }
 
     /**
-     * GET /aspek-penilaian/{aspek}/kompetensi
+     * GET /aspek-penilaian/{id_aspek}/kompetensi
      */
-    public function index(Request $request, AspekPenilaian $aspekPenilaian)
+    public function index(Request $request, $id_aspek)
     {
-        $data = $this->service->getByAspek($request, $aspekPenilaian);
+        try {
+            $aspekPenilaian = AspekPenilaian::findOrFail($id_aspek);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $data['kompetensi'],
-            'filters' => $request->only(['search']),
-        ]);
+            $paginator = $this->service->getByAspek($request, $aspekPenilaian);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $paginator, // Isi data sudah ditransformasi di Service
+                'filters' => $request->only(['search']),
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data Aspek Penilaian tidak ditemukan.'
+            ], 404);
+        }
     }
 
     /**
-     * POST /aspek-penilaian/{aspek}/kompetensi
+     * POST /aspek-penilaian/{id_aspek}/kompetensi
      */
-    public function store(Request $request, AspekPenilaian $aspekPenilaian)
+    public function store(Request $request, $id_aspek)
     {
-        $kompetensi = $this->service->create($request, $aspekPenilaian);
+        try {
+            $aspekPenilaian = AspekPenilaian::findOrFail($id_aspek);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Kompetensi berhasil ditambahkan.',
-            'data' => $kompetensi
-        ], 201);
+            $kompetensi = $this->service->create($request, $aspekPenilaian);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Kompetensi berhasil ditambahkan.',
+                'data' => [
+                    'id_poin_aspek_penilaian' => $kompetensi->id_poin_aspek_penilaian,
+                    'kompetensi' => $kompetensi->kompetensi,
+                    'skor' => $kompetensi->skor,
+                    'bobot' => $kompetensi->bobot
+                ]
+            ], 201);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data Aspek Penilaian tidak ditemukan.'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menyimpan data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
-     * GET /kompetensi/{kompetensi}
-     * (Opsional: setara dengan fungsi edit di controller lama, untuk mengambil data detail)
+     * GET /kompetensi/{id}
      */
-    public function show(PoinAspekPenilaian $kompetensi)
+    public function show($id)
     {
-        $data = $this->service->getOne($kompetensi);
+        try {
+            $kompetensi = PoinAspekPenilaian::findOrFail($id);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $data
-        ]);
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'id_poin_aspek_penilaian' => $kompetensi->id_poin_aspek_penilaian,
+                    'kompetensi' => $kompetensi->kompetensi,
+                    'skor' => $kompetensi->skor,
+                    'bobot' => $kompetensi->bobot
+                ]
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data Kompetensi tidak ditemukan.'
+            ], 404);
+        }
     }
 
     /**
-     * PUT /kompetensi/{kompetensi}
+     * PUT /kompetensi/{id}
      */
-    public function update(Request $request, PoinAspekPenilaian $kompetensi)
+    public function update(Request $request, $id)
     {
-        $updatedData = $this->service->update($request, $kompetensi);
+        try {
+            $kompetensi = PoinAspekPenilaian::findOrFail($id);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Kompetensi berhasil diperbarui.',
-            'data' => $updatedData
-        ]);
+            $updatedData = $this->service->update($request, $kompetensi);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Kompetensi berhasil diperbarui.',
+                'data' => [
+                    'id_poin_aspek_penilaian' => $updatedData->id_poin_aspek_penilaian,
+                    'kompetensi' => $updatedData->kompetensi,
+                    'skor' => $updatedData->skor,
+                    'bobot' => $updatedData->bobot
+                ]
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data Kompetensi tidak ditemukan.'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal memperbarui data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
-     * DELETE /kompetensi/{kompetensi}
+     * DELETE /kompetensi/{id}
      */
-    public function destroy(PoinAspekPenilaian $kompetensi)
+    public function destroy($id)
     {
-        $this->service->delete($kompetensi);
+        try {
+            $kompetensi = PoinAspekPenilaian::findOrFail($id);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Kompetensi berhasil dihapus.'
-        ]);
+            $this->service->delete($kompetensi);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Kompetensi berhasil dihapus.'
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data Kompetensi tidak ditemukan.'
+            ], 404);
+        }
     }
 }
