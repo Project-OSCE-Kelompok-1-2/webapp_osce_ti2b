@@ -1,15 +1,17 @@
 import { Head } from "@inertiajs/react";
 import React, { useState } from "react";
 
+// Sidebar khusus Penguji
+import SidebarPenguji from "../../components/SidebarPenguji";
+
 // Layout & Components
-import Sidebar from "../../components/Sidebar";
 import OsCopyright from "../../components/Copyright";
-import OsHeader from "../../components/Header"; // ← pastikan path benar
+import OsHeader from "../../components/Header";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
 import OsTableBody from "../../components/tablecontain";
 
-// Struktur kolom
+// Struktur kolom tabel
 const osceColumns = [
     { key: "no", content: "No", width: "w-16", classes: "justify-center" },
     {
@@ -44,30 +46,70 @@ const osceColumns = [
     },
 ];
 
+// Mapping button style sesuai UI/UX
+const getButtonStyle = (status) => {
+    switch (status) {
+        case "Aktif":
+            return {
+                label: "Mulai Ujian",
+                className: "bg-blue-600 hover:bg-blue-700 text-white",
+            };
+
+        case "Tidak Aktif":
+            return {
+                label: "Ajukan Edit Nilai",
+                className: "bg-blue-400 hover:bg-blue-500 text-white",
+            };
+
+        case "Selesai":
+            return {
+                label: "Lihat Rekap Nilai",
+                className: "bg-blue-700 hover:bg-blue-800 text-white",
+            };
+
+        case "Belum Dimulai":
+            return {
+                label: "Lihat",
+                className: "bg-gray-400 hover:bg-gray-500 text-white",
+            };
+
+        default:
+            return {
+                label: "Detail",
+                className: "bg-blue-500 text-white",
+            };
+    }
+};
+
 export default function PengujiOsceList() {
-    // Dummy Data Sementara
+    // Dummy data sementara
     const [data] = useState([
         {
             id: 1,
             nama: "OSCE Blok 3",
             tanggal_mulai: "2025-01-10",
             tanggal_akhir: "2025-01-12",
-            jumlah_mahasiswa: "120",
-            sesi: "4",
+            jumlah_mahasiswa: 120,
+            sesi: 4,
             status: "Aktif",
-            buttonLabel: "Detail",
-            buttonColor: "#2563eb",
         },
         {
             id: 2,
             nama: "OSCE Blok 5",
             tanggal_mulai: "2025-02-15",
             tanggal_akhir: "2025-02-16",
-            jumlah_mahasiswa: "98",
-            sesi: "3",
-            status: "Belum Dimulai",
-            buttonLabel: "Lihat",
-            buttonColor: "#6b7280",
+            jumlah_mahasiswa: 98,
+            sesi: 3,
+            status: "Tidak Aktif",
+        },
+        {
+            id: 3,
+            nama: "OSCE Radiologi",
+            tanggal_mulai: "2025-03-01",
+            tanggal_akhir: "2025-03-03",
+            jumlah_mahasiswa: 135,
+            sesi: 1,
+            status: "Selesai",
         },
     ]);
 
@@ -80,37 +122,45 @@ export default function PengujiOsceList() {
         { value: "2023/2024", label: "2023/2024" },
     ];
 
-    // Formatting data untuk OsTableBody
-    const mappedData = data.map((item, index) => ({
-        no: index + 1,
-        nama: (
-            <div className="text-left px-2">
-                <div className="font-medium text-gray-900">{item.nama}</div>
-                <div className="text-xs text-gray-500">
-                    {item.jumlah_mahasiswa} Mahasiswa | Sesi {item.sesi}
+    // Mapping data untuk OsTableBody
+    const mappedData = data.map((item, index) => {
+        const btn = getButtonStyle(item.status);
+
+        return {
+            no: index + 1,
+            nama: (
+                <div className="text-left px-2">
+                    <div className="font-medium text-gray-900">{item.nama}</div>
+                    <div className="text-xs text-gray-500">
+                        {item.jumlah_mahasiswa} Mahasiswa | Sesi {item.sesi}
+                    </div>
                 </div>
-            </div>
-        ),
-        tanggal_mulai: item.tanggal_mulai,
-        tanggal_akhir: item.tanggal_akhir,
-        status: item.status,
-        action: (
-            <button
-                className="h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md"
-                style={{ background: item.buttonColor }}
-            >
-                {item.buttonLabel}
-            </button>
-        ),
-    }));
+            ),
+            tanggal_mulai: item.tanggal_mulai,
+            tanggal_akhir: item.tanggal_akhir,
+            status: item.status,
+            action: (
+                <button
+                    className={`${btn.className} h-[38px] w-full max-w-[140px] rounded-lg text-sm font-medium`}
+                >
+                    {btn.label}
+                </button>
+            ),
+        };
+    });
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head title="Jadwal OSCE" />
-            <Sidebar />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                {/* 🔹 HEADER BAR (dari komponen OsHeader) */}
+            {/* Sidebar Penguji */}
+            <SidebarPenguji />
+
+            {/* Konten utama */}
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 
+                grid-rows-[auto_1fr_auto] gap-os-14 
+                transition-all duration-300 md:ml-20">
+
                 <OsHeader variant="goback" backLink="/penguji/dashboard" />
 
                 <div className="flex-1 overflow-auto">
@@ -118,30 +168,27 @@ export default function PengujiOsceList() {
                         Menu Jadwal OSCE
                     </h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Pilih OSCE untuk melihat jadwal, detail sesi, dan daftar
-                        mahasiswa.
+                        Pilih OSCE untuk melihat jadwal, detail sesi, dan daftar mahasiswa.
                     </p>
 
-                    {/* 🔹 Filter Bar */}
+                    {/* Filter Bar */}
                     <form
                         onSubmit={(e) => e.preventDefault()}
                         className="flex flex-col md:flex-row items-center gap-4 mb-5"
                     >
-                        <div className="relative w-full md:flex-1">
-                            <input
-                                type="text"
-                                placeholder="Cari data OSCE..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="block w-full pl-4 pr-4 py-2 h-[46px] border border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        </div>
+                        <input
+                            type="text"
+                            placeholder="Cari data OSCE..."
+                            value={search}
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="block w-full md:flex-1 pl-4 pr-4 py-2 h-[46px] border border-gray-700 rounded-lg"
+                        />
 
                         <div className="flex w-full md:w-auto items-center gap-3">
                             <select
                                 value={tahun}
                                 onChange={(e) => setTahun(e.target.value)}
-                                className="border border-gray-700 rounded-lg h-[46px] flex-1 w-auto md:flex-none md:w-40 focus:ring-blue-500 focus:border-blue-500"
+                                className="border border-gray-700 rounded-lg h-[46px] w-full md:w-40"
                             >
                                 {tahunList.map((t) => (
                                     <option key={t.value} value={t.value}>
@@ -152,31 +199,21 @@ export default function PengujiOsceList() {
 
                             <button
                                 type="submit"
-                                className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700 w-auto justify-center"
+                                className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg h-[46px] px-5"
                             >
                                 Cari
                             </button>
                         </div>
                     </form>
 
-                    {/* Header tabel */}
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Daftar OSCE
                     </h2>
                     <OsTableHeader columns={osceColumns} />
-
-                    {/* Body tabel */}
                     <OsTableBody data={mappedData} columns={osceColumns} />
 
-                    {/* Dummy Pagination */}
                     <div className="mt-8">
-                        <OsPagination
-                            links={[
-                                { label: "1", active: true },
-                                { label: "2", active: false },
-                                { label: "3", active: false },
-                            ]}
-                        />
+                        <OsPagination />
                     </div>
                 </div>
 

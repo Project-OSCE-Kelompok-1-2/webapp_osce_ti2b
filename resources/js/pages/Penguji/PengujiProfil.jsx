@@ -11,7 +11,9 @@ import {
     Save,
 } from "lucide-react";
 
-import Sidebar from "../../components/Sidebar.jsx";
+// GANTI SIDEBAR KE VERSI PENGUJI
+import SidebarPenguji from "../../components/SidebarPenguji.jsx";
+
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 import Os_input from "../../components/Input.jsx";
@@ -73,10 +75,11 @@ export default function PengujiProfil({ user = {} }) {
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar />
+            {/* GUNAKAN SIDEBAR PENGUJI */}
+            <SidebarPenguji />
 
-            <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans">
-                <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 md:ml-20">
+            <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans md:ml-20 transition-all duration-300">
+                <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14">
                     {/* HEADER */}
                     <OsHeader variant="goback" backLink="/penguji/dashboard" />
 
@@ -114,8 +117,8 @@ export default function PengujiProfil({ user = {} }) {
                                     <p className="text-black text-sm mt-1">
                                         Gambar yang dikirim harus berukuran
                                         kurang lebih dari 1 MB dengan resolusi
-                                        max 500 x 500 px, hanya support format
-                                        foto: .png, .jpeg, .jpg, dan .gif
+                                        max 500x500 px. Format foto: .png,
+                                        .jpeg, .jpg, .gif
                                     </p>
                                 </div>
 
@@ -164,7 +167,6 @@ export default function PengujiProfil({ user = {} }) {
                                     onSubmit={handleSave}
                                     className="flex flex-col gap-5 w-full"
                                 >
-                                    {/* Username */}
                                     <Os_input
                                         type="text"
                                         label="Nama pengguna"
@@ -268,7 +270,7 @@ export default function PengujiProfil({ user = {} }) {
                                             type="password"
                                             label="Konfirmasi password baru"
                                             name="new_password_confirmation"
-                                            placeholder="Konfirmasi password baru..."
+                                            placeholder="Konfirmasi password..."
                                             value={
                                                 data.new_password_confirmation
                                             }
@@ -281,7 +283,6 @@ export default function PengujiProfil({ user = {} }) {
                                         />
                                     </div>
 
-                                    {/* Tombol Simpan & Logout */}
                                     <div className="flex gap-3">
                                         <OsButton
                                             name="primary"

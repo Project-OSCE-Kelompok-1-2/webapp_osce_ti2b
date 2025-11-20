@@ -1,8 +1,9 @@
 import React, { useState } from "react";
 import { usePage, Link } from "@inertiajs/react";
 import { ArrowRight } from "lucide-react";
-import Sidebar from "../../components/Sidebar";
-import OsHeader from "../../components/Header";
+
+import SidebarPenguji from "../../components/SidebarPenguji.jsx";
+import OsHeader from "../../components/Header.jsx";
 import CustomDatePicker from "../../components/datepicker";
 import OsCopyright from "../../components/Copyright";
 import OsIcon from "../../components/icons";
@@ -72,14 +73,15 @@ export default function PengujiDashboard() {
 
     return (
         <div className="relative bg-gray-50 w-full min-h-screen flex">
-            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+            {/* ==== SIDEBAR PENGUJI BARU ==== */}
+            <SidebarPenguji isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
             <main
                 className={`flex-1 p-6 transition-all duration-300 ${
                     sidebarOpen ? "md:ml-64" : "md:ml-20"
                 }`}
             >
-                {/* HEADER KOMPONEN UTAMA */}
+                {/* HEADER */}
                 <OsHeader className="mb-6" />
 
                 {/* WELCOME SECTION */}
@@ -167,7 +169,7 @@ export default function PengujiDashboard() {
                     </div>
                 </section>
 
-                {/* FOOTER COPYRIGHT */}
+                {/* FOOTER */}
                 <div className="mt-8">
                     <OsCopyright />
                 </div>
