@@ -1,200 +1,187 @@
-import React, {useState} from "react";
-export default (props) => {
-	const [input1, onChangeInput1] = useState('');
-	const [input2, onChangeInput2] = useState('');
-	const [input3, onChangeInput3] = useState('');
-	return (
-		<div className="items-start bg-white">
-			<div className="flex flex-col w-[1391px] gap-2.5">
-				<div className="flex flex-col self-stretch bg-white pb-0.5 gap-5">
-					<div className="flex items-start self-stretch gap-[13px]">
-						<img
-							src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/I1JF6HlbfB/dx1bsj49_expires_30_days.png"} 
-							className="w-[54px] h-[54px] object-fill"
-						/>
-						<input
-							placeholder={"OSCE / OSCE Radiologi 01-A/ Edit Nilai"}
-							value={input1}
-							onChange={(event)=>onChangeInput1(event.target.value)}
-							className="text-black bg-white text-xl w-[1324px] py-[15px] px-[19px] rounded-xl border border-solid border-black"
-						/>
-					</div>
-					<img
-						src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/I1JF6HlbfB/8xnmvti7_expires_30_days.png"} 
-						className="self-stretch h-[1px] object-fill"
-					/>
-				</div>
-				<div className="self-stretch bg-white py-[39px] px-[55px]">
-					<div className="flex flex-col items-start self-stretch pb-[9px] rounded-xl border border-solid border-black">
-						<button className="flex flex-col items-center self-stretch bg-[#3177C8] text-left py-[29px] mb-2.5 gap-[13px] rounded-tl-xl rounded-tr-xl border-0"
-							onClick={()=>alert("Pressed!")}>
-							<span className="text-white text-[25px] font-bold" >
-								{"Detail OSCE"}
-							</span>
-							<span className="text-white text-[13px]" >
-								{"OSCE Radiologi 01-A"}
-							</span>
-						</button>
-						<span className="text-black text-[15px] mb-1.5 ml-6" >
-							{"Navigasi"}
-						</span>
-						<div className="flex items-start self-stretch p-2.5 mb-[7px] ml-6 mr-[43px] gap-0.5 rounded-xl border border-solid border-black">
-							<div className="flex flex-col items-center w-[85px] gap-[3px]">
-								<span className="text-black text-[11px]" >
-									{"Stasiun"}
-								</span>
-								<button className="flex flex-col items-center self-stretch bg-[#3177C8] text-left py-[17px] rounded-xl border border-solid border-black"
-									onClick={()=>alert("Pressed!")}>
-									<span className="text-white text-[35px]" >
-										{"01"}
-									</span>
-								</button>
-							</div>
-							<div className="flex flex-col items-start w-[275px] pb-1.5 pl-2.5">
-								<span className="text-black text-[11px] mb-[1px] mr-[234px]" >
-									{"Rubrik"}
-								</span>
-								<span className="text-black text-[13px] font-bold mb-10 mr-[175px]" >
-									{"Stase CT Scan"}
-								</span>
-								<img
-									src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/I1JF6HlbfB/u3jx8ei9_expires_30_days.png"} 
-									className="w-[17px] h-[17px] mr-[248px] object-fill"
-								/>
-							</div>
-							<div className="flex flex-col items-start w-[275px] py-[3px] pl-2.5">
-								<span className="text-black text-[11px] mr-[179px]" >
-									{"Waktu per rubrik"}
-								</span>
-								<span className="text-black text-[13px] font-bold mb-10 mr-[210px]" >
-									{"30 Menit"}
-								</span>
-								<img
-									src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/I1JF6HlbfB/dweofuks_expires_30_days.png"} 
-									className="w-[17px] h-[17px] mr-[247px] object-fill"
-								/>
-							</div>
-							<div className="flex flex-col items-start w-[275px] py-[3px] pl-2.5">
-								<span className="text-black text-[11px] mr-[151px]" >
-									{"Enrollment Mahasiswa"}
-								</span>
-								<span className="text-black text-[13px] font-bold mb-10 mr-[169px]" >
-									{"135 Mahasiswa"}
-								</span>
-								<img
-									src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/I1JF6HlbfB/2pz8i2l6_expires_30_days.png"} 
-									className="w-[17px] h-[17px] mr-[247px] object-fill"
-								/>
-							</div>
-							<div className="flex flex-col items-start w-[275px] py-[3px] pl-2.5">
-								<span className="text-black text-[11px] mr-[228px]" >
-									{"Penguji"}
-								</span>
-								<span className="text-black text-[13px] font-bold w-[135px] mb-6 mr-[129px]" >
-									{"Prof. dr. Rudi Hartono, Sp.B, Ph.D"}
-								</span>
-								<img
-									src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/I1JF6HlbfB/uhgn4aug_expires_30_days.png"} 
-									className="w-[17px] h-[17px] mr-[247px] object-fill"
-								/>
-							</div>
-						</div>
-						<div className="flex items-start self-stretch mb-[7px] ml-6 gap-[15px]">
-							<div className="flex items-center bg-white w-[973px] rounded-xl border border-solid border-black">
-								<img
-									src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/I1JF6HlbfB/ewlrcafw_expires_30_days.png"} 
-									className="w-[21px] h-[21px] ml-3 mr-[13px] rounded-xl object-fill"
-								/>
-								<input
-									placeholder={"cari nama mahasiswa"}
-									value={input2}
-									onChange={(event)=>onChangeInput2(event.target.value)}
-									className="flex-1 self-stretch text-black bg-transparent text-[15px] py-[17px] mr-1 border-0"
-								/>
-							</div>
-							<div className="flex flex-col items-start bg-[#1447E6] w-[268px] py-[17px] px-[120px] rounded-xl border border-solid border-black">
-								<span className="text-white text-[15px] font-bold" >
-									{"Cari"}
-								</span>
-							</div>
-						</div>
-						<span className="text-black text-[15px] mb-[7px] ml-6" >
-							{"Mahasiswa | menampilkan 135 Mahasiswa"}
-						</span>
-						<img
-							src={"https://storage.googleapis.com/tagjs-prod.appspot.com/v1/I1JF6HlbfB/qmnrfwdb_expires_30_days.png"} 
-							className="self-stretch h-[1px] mb-1.5 mx-6 object-fill"
-						/>
-						<div className="flex items-start self-stretch bg-white py-[5px] px-3 mb-[7px] ml-6 mr-[3px] gap-2.5 rounded-xl border border-solid border-black">
-							<div className="flex flex-col items-start w-[51px] py-[9px] px-4">
-								<span className="text-black text-[15px]" >
-									{"No"}
-								</span>
-							</div>
-							<div className="flex flex-col items-start w-[390px] py-[9px] px-[134px]">
-								<span className="text-black text-[15px]" >
-									{"Nama Mahasiswa"}
-								</span>
-							</div>
-							<div className="flex flex-col items-start w-[359px] py-[9px] px-[166px]">
-								<span className="text-black text-[15px]" >
-									{"NIM"}
-								</span>
-							</div>
-							<div className="flex flex-col items-start w-[195px] py-[9px] px-[83px]">
-								<span className="text-black text-[15px]" >
-									{"Nilai"}
-								</span>
-							</div>
-							<div className="flex flex-col items-start w-[195px] py-[9px] px-[83px]">
-								<span className="text-black text-[15px]" >
-									{"Aksi"}
-								</span>
-							</div>
-						</div>
-						<div className="flex items-center self-stretch bg-white mb-[7px] ml-6 mr-[3px] rounded-xl">
-							<div className="flex flex-col items-start w-[49px] py-7 pl-3 mr-2.5">
-								<span className="text-black text-[22px]" >
-									{"1"}
-								</span>
-							</div>
-							<div className="w-[1px] h-[85px]">
-							</div>
-							<div className="w-[1px] mr-[9px]">
-								<div className="self-stretch h-[61px]">
-								</div>
-								<div className="self-stretch bg-[#00000080] h-[61px]">
-								</div>
-							</div>
-							<span className="text-black text-[15px] font-bold mr-[247px]" >
-								{"Putri Levina Agatha"}
-							</span>
-							<div className="w-0.5 h-[85px]">
-							</div>
-							<div className="w-[1px] mr-[9px]">
-								<div className="self-stretch h-[61px]">
-								</div>
-								<div className="self-stretch bg-[#00000080] h-[61px]">
-								</div>
-							</div>
-							<span className="text-black text-[15px]" >
-								{"4.33.24.1.20"}
-							</span>
-							<div className="flex-1 self-stretch">
-							</div>
-							<div className="w-[11px] h-[85px]">
-							</div>
-							<div className="w-[1px] mr-[83px]">
-								<div className="self-stretch h-[61px]">
-								</div>
-								<div className="self-stretch bg-[#00000080] h-[61px]">
-								</div>
-							</div>
-							<span className="text-black text-[15px] mr-[87px]" >
-								{"100"}
-							</span>
-							<div className="w-[9px] h-[85px]">
-							</div>
-							<div className="w-[1px] mr-24">
-								<div className="self-stretch h-[61px]">
-								</div>
+import React, { useState } from "react";
+import { Link, usePage } from "@inertiajs/react";
+import { ArrowLeft, Search, Download, Edit3 } from "lucide-react";
+
+// --- Import Komponen ---
+import Sidebar from "../../components/Sidebar";
+import OsHeader from "../../components/Header";
+import OsCopyright from "../../components/copyright";
+
+// --- Mock Data (Untuk Tampilan) ---
+const mockInfoOSCE = {
+  stasiun: "01",
+  rubrik: "Stase CT Scan",
+  waktu: "30 Menit",
+  enrollment: "135 Mahasiswa",
+  penguji: "Prof. dr. Rudi Hartono, Sp.B, Ph.D"
+};
+
+const mockStudents = [
+  { id: 1, nama: "Putri Levina Agatha", nim: "4.33.24.1.20", nilai: "100" },
+  { id: 2, nama: "Riko Aditya", nim: "4.33.24.1.20", nilai: "100" },
+  { id: 3, nama: "Maria Imaculta", nim: "4.33.24.1.20", nilai: "100" },
+];
+
+export default function EditNilaiForm() {
+  // Gunakan props jika ada data real
+  const { osceInfo = mockInfoOSCE, students = mockStudents } = usePage().props;
+  
+  const [search, setSearch] = useState("");
+
+  // Filter sederhana
+  const filteredStudents = students.filter(mhs => 
+    mhs.nama.toLowerCase().includes(search.toLowerCase()) || 
+    mhs.nim.includes(search)
+  );
+
+  return (
+    <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+      <Sidebar />
+
+      <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
+        
+        {/* 1. Header */}
+        <OsHeader
+          className="fixed" 
+          title="OSCE / OSCE Radiologi 01-A/ Edit Nilai"
+          icon={<ArrowLeft className="w-5 h-5" />}
+        />
+
+        <div className="flex-1 overflow-auto">
+          
+            {/* 2. Header Biru Besar (Detail OSCE) - SAMA PERSIS DENGAN HALAMAN SEBELUMNYA */}
+            <div className="w-full rounded-xl overflow-hidden border border-black mb-6 shadow-sm">
+                <div className="bg-[#3177C8] text-white text-center py-6">
+                    <h1 className="text-2xl font-bold mb-1">Detail OSCE</h1>
+                    <p className="text-sm opacity-90">OSCE Radiologi 01-A</p>
+                </div>
+                <div className="bg-white p-6">
+                    <div className="flex flex-col lg:flex-row border border-gray-400 rounded-xl divide-y lg:divide-y-0 lg:divide-x divide-gray-400">
+                        <div className="p-4 flex flex-col w-full lg:w-auto min-w-[120px]">
+                            <span className="text-xs text-gray-600 mb-2">Stasiun</span>
+                            <div className="bg-[#3177C8] text-white w-16 h-16 rounded-xl flex items-center justify-center text-3xl font-bold shadow-md">
+                                {osceInfo.stasiun}
+                            </div>
+                        </div>
+                        <div className="p-4 flex-1 flex flex-col justify-between">
+                            <span className="text-xs text-gray-600 block mb-1">Rubrik</span>
+                            <span className="text-sm font-bold block">{osceInfo.rubrik}</span>
+                        </div>
+                        <div className="p-4 flex-1 flex flex-col justify-between">
+                            <span className="text-xs text-gray-600 block mb-1">Waktu per rubrik</span>
+                            <span className="text-sm font-bold block">{osceInfo.waktu}</span>
+                        </div>
+                        <div className="p-4 flex-1 flex flex-col justify-between">
+                            <span className="text-xs text-gray-600 block mb-1">Enrollment Mahasiswa</span>
+                            <span className="text-sm font-bold block">{osceInfo.enrollment}</span>
+                        </div>
+                        <div className="p-4 flex-[1.5] flex flex-col justify-between">
+                            <span className="text-xs text-gray-600 block mb-1">Penguji</span>
+                            <span className="text-sm font-bold block">{osceInfo.penguji}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* 3. Navigasi (Teks Saja) */}
+            <div className="mb-4">
+                <p className="text-sm font-medium">Navigasi</p>
+            </div>
+
+            {/* 4. Search Bar & Button */}
+            <div className="flex gap-4 mb-4">
+                <div className="relative flex-1">
+                    <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                        <Search className="h-5 w-5 text-gray-900" />
+                    </div>
+                    <input
+                        type="text"
+                        placeholder="cari nama mahasiswa"
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="block w-full pl-10 pr-4 py-3 border border-gray-400 rounded-xl focus:ring-blue-500 focus:border-blue-500"
+                    />
+                </div>
+                <button className="bg-[#1447E6] text-white px-12 py-3 rounded-xl font-semibold hover:bg-blue-700 transition">
+                    Cari
+                </button>
+            </div>
+
+            {/* 5. Info Count */}
+            <div className="mb-2">
+                <span className="text-sm font-medium">
+                    Mahasiswa <span className="text-gray-400 mx-1">|</span> menampilkan {filteredStudents.length} Mahasiswa
+                </span>
+            </div>
+
+            {/* Divider Line */}
+            <div className="h-px w-full bg-gray-300 mb-4"></div>
+
+            {/* 6. Tabel Mahasiswa (Edit Mode) */}
+            <div className="overflow-x-auto rounded-xl border border-black mb-8">
+                <table className="w-full text-left border-collapse">
+                    <thead>
+                        <tr className="bg-white border-b border-black">
+                            <th className="py-4 px-6 text-center font-medium text-sm border-r border-gray-400 w-16">No</th>
+                            <th className="py-4 px-6 font-medium text-sm border-r border-gray-400 w-[30%] text-center">Nama Mahasiswa</th>
+                            <th className="py-4 px-6 font-medium text-sm text-center border-r border-gray-400 w-[25%]">NIM</th>
+                            <th className="py-4 px-6 font-medium text-sm text-center border-r border-gray-400 w-[15%]">Nilai</th>
+                            <th className="py-4 px-6 font-medium text-sm text-center w-[20%]">Aksi</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {filteredStudents.map((mhs, index) => (
+                            <tr 
+                                key={mhs.id} 
+                                className={`border-b border-gray-300 last:border-b-0 ${index % 2 === 1 ? 'bg-gray-300' : 'bg-white'}`}
+                            >
+                                <td className="py-6 px-6 text-center text-xl border-r border-gray-400">
+                                    {index + 1}
+                                </td>
+                                <td className="py-6 px-6 font-bold text-gray-900 border-r border-gray-400">
+                                    {mhs.nama}
+                                </td>
+                                <td className="py-6 px-6 text-center text-gray-700 border-r border-gray-400">
+                                    {mhs.nim}
+                                </td>
+                                <td className="py-6 px-6 text-center text-gray-700 border-r border-gray-400">
+                                    {mhs.nilai}
+                                </td>
+                                <td className="py-6 px-6 text-center">
+                                    <div className="flex justify-center">
+                                        {/* Tombol Edit Biru dengan Icon Pensil */}
+                                        <Link 
+                                            href={`#`} 
+                                            className="bg-[#1447E6] text-white p-2 rounded-lg hover:bg-blue-700 transition flex items-center justify-center"
+                                        >
+                                            <Edit3 className="w-5 h-5" />
+                                        </Link>
+                                    </div>
+                                </td>
+                            </tr>
+                        ))}
+                        
+                        {filteredStudents.length === 0 && (
+                            <tr>
+                                <td colSpan="5" className="py-8 text-center text-gray-500 italic">
+                                    Data mahasiswa tidak ditemukan
+                                </td>
+                            </tr>
+                        )}
+                    </tbody>
+                </table>
+
+                {/* Tombol Submit Besar di dalam Container Tabel (Bagian Bawah) */}
+                <div className="bg-white p-4 border-t border-black flex justify-center">
+                     <button className="bg-[#1447E6] text-white w-1/2 py-3 rounded-xl font-bold text-lg hover:bg-blue-700 transition shadow-md">
+                         SUBMIT
+                     </button>
+                </div>
+            </div>
+
+        </div>
+        <OsCopyright />
+      </main>
+    </div>
+  );
+}
