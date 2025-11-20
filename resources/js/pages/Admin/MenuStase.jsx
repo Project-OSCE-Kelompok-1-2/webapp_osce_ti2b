@@ -12,7 +12,7 @@ import {
 // dengan logic arrow hover hitam seperti permintaan terakhir Anda.
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsIcon from "../../components/icons";
 import OsTableHeader from "../../components/tableheader";
 import OsSearchBar from "../../components/searchbar";
