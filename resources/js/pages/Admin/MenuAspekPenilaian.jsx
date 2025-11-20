@@ -1,16 +1,24 @@
 import React, { useState } from "react";
 import { usePage, Link, router } from "@inertiajs/react";
 import { Trash2, Pencil, Search } from "lucide-react";
+
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsButton from "../../components/button.jsx";
 import OsIcon from "../../components/icons.jsx";
 import Modals from "../../components/Modals.jsx";
+import OsModal from "../../components/Modal.jsx";
+import OsInput from "../../components/input.jsx";
 
 export default function MenuAspekPenilaian() {
     const { stase, aspek_penilaian } = usePage().props;
 
-    const [showModal, setShowModal] = useState(false);
+    // ========= STATE ========
+    const [showModal, setShowModal] = useState(false); // modal tambah
+    const [editModalOpen, setEditModalOpen] = useState(false); // modal edit
+    const [editData, setEditData] = useState(null);
+
+    // ======== DELETE ========
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedAspek, setSelectedAspek] = useState(null);
 
@@ -31,6 +39,12 @@ export default function MenuAspekPenilaian() {
         });
     };
 
+    // ======== EDIT ========
+    const openEditModal = (item) => {
+        setEditData(item);
+        setEditModalOpen(true);
+    };
+
     const totalBobot = aspek_penilaian.data.reduce(
         (sum, item) => sum + item.bobot_maksimum,
         0
@@ -41,7 +55,6 @@ export default function MenuAspekPenilaian() {
             <Sidebar />
 
             <main className="grid w-full min-w-min p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-
                 {/* HEADER */}
                 <OsHeader variant="goback" backLink="/admin/stase" />
 
@@ -118,6 +131,7 @@ export default function MenuAspekPenilaian() {
 
                                             <td className="py-3 px-3 text-center border-l border-gray-300">
                                                 <div className="flex justify-center gap-2">
+
                                                     <Link
                                                         href={`/admin/aspek-penilaian/${item.id_aspek_penilaian}/kompetensi`}
                                                         className="px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:bg-green-700"
@@ -125,13 +139,15 @@ export default function MenuAspekPenilaian() {
                                                         Lihat Kompetensi
                                                     </Link>
 
-                                                    <Link
-                                                        href={`/admin/aspek-penilaian/${item.id_aspek_penilaian}/edit`}
+                                                    {/* EDIT → BUKA MODAL */}
+                                                    <button
+                                                        onClick={() => openEditModal(item)}
                                                         className="p-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
                                                     >
                                                         <Pencil size={16} />
-                                                    </Link>
+                                                    </button>
 
+                                                    {/* DELETE */}
                                                     <button
                                                         onClick={() => openDeleteModal(item)}
                                                         className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
@@ -184,7 +200,45 @@ export default function MenuAspekPenilaian() {
                 </div>
             </main>
 
-            {/* ===== MODAL DELETE ===== */}
+            {/* ================= MODAL TAMBAH ================= */}
+            <OsModal
+                show={showModal}
+                onClose={() => setShowModal(false)}
+                title="Tambah Aspek Penilaian"
+                subtitle="Isi form di bawah"
+            >
+                <OsInput label="Aspek" type="text" name="aspek" placeholder="Masukkan aspek..." required />
+                <OsInput label="Bobot" type="number" name="bobot" placeholder="Masukkan bobot..." required />
+            </OsModal>
+
+            {/* ================= MODAL EDIT ================= */}
+            <OsModal
+                show={editModalOpen}
+                onClose={() => setEditModalOpen(false)}
+                variant="edit"
+                title="Edit Aspek Penilaian"
+                subtitle={editData?.aspek}
+            >
+                <OsInput
+                    label="Aspek"
+                    type="text"
+                    name="aspek"
+                    value={editData?.aspek}
+                    onChange={(e) => setEditData({ ...editData, aspek: e.target.value })}
+                />
+
+                <OsInput
+                    label="Bobot Maksimum"
+                    type="number"
+                    name="bobot_maksimum"
+                    value={editData?.bobot_maksimum}
+                    onChange={(e) =>
+                        setEditData({ ...editData, bobot_maksimum: e.target.value })
+                    }
+                />
+            </OsModal>
+
+            {/* ================= MODAL DELETE ================= */}
             <Modals
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}

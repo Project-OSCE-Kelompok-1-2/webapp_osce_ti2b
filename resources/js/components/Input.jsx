@@ -112,7 +112,7 @@ export default function OsInput({
         return (
             <div className={`relative flex flex-col ${className}`}>
                 {label && (
-                    <label className="mb-1 text-sm text-gray-600">
+                    <label className="mb-1 text-os-small text-gray-600">
                         {label}
                     </label>
                 )}

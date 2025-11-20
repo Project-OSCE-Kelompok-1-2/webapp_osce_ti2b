@@ -9,25 +9,41 @@ import {
     Edit,
     Trash2,
 } from "lucide-react";
-import OsHeader from "../../components/Header"; // 1. Impor komponen breadcrumb
+
+import OsHeader from "../../components/Header";
 import OsButton from "../../components/button";
 import OsCopyright from "../../components/Copyright";
-
-// 2. Pastikan nama file komponen pagination Anda benar
 import OsPagination from "../../components/pagination";
+import OsInput from "../../components/input";
 
-// IMPORT MODALS
+// 🔥 Modal Delete Konfirmasi (versi lama)
 import Modals from "../../components/Modals";
+
+// 🔥 Modal ADD + EDIT
+import OsModal from "../../components/Modal";
 
 export default function OsceStasePage({ stase, osce, filters }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
 
     // ================================
-    // MODAL DELETE STATES
+    //  DELETE MODAL STATES
     // ================================
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedStase, setSelectedStase] = useState(null);
+
+    // ================================
+    //  ADD / EDIT MODAL STATES
+    // ================================
+    const [isAddOpen, setIsAddOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+
+    // Form fields (sederhana saja)
+    const [formData, setFormData] = useState({
+        ruangan: "",
+        nama_stase: "",
+        penguji: "",
+    });
 
     function handleSearch(e) {
         e.preventDefault();
@@ -39,16 +55,84 @@ export default function OsceStasePage({ stase, osce, filters }) {
     }
 
     // ============================
-    // OPEN MODAL DELETE
+    //  OPEN MODAL ADD
+    // ============================
+    function openAddModal() {
+        setFormData({
+            ruangan: "",
+            nama_stase: "",
+            penguji: "",
+        });
+        setIsAddOpen(true);
+    }
+
+    // ============================
+    //  OPEN MODAL EDIT
+    // ============================
+    function openEditModal(item) {
+        setSelectedStase(item);
+        setFormData({
+            ruangan: item?.ruang?.nomor_ruangan || "",
+            nama_stase: item?.stase?.nama_stase || "",
+            penguji: item?.penguji?.nama || "",
+        });
+        setIsEditOpen(true);
+    }
+
+    // ============================
+    //  ADD SUBMIT
+    // ============================
+    function handleSubmitAdd(e) {
+        e.preventDefault();
+
+        router.post(
+            `/admin/osce/${osce.id_osce}/stase`,
+            { ...formData },
+            {
+                onFinish: () => setIsAddOpen(false),
+            }
+        );
+    }
+
+    // ============================
+    //  EDIT SUBMIT
+    // ============================
+    function handleSubmitEdit(e) {
+        e.preventDefault();
+
+        if (!selectedStase) return;
+
+        router.put(
+            `/admin/osce/${osce.id_osce}/stase/${selectedStase.id_osce_stase}`,
+            { ...formData },
+            {
+                onFinish: () => setIsEditOpen(false),
+            }
+        );
+    }
+
+    // ============================
+    //  DELETE FROM EDIT MODAL
+    // ============================
+    function handleDeleteInsideEdit() {
+        if (!selectedStase) return;
+
+        router.delete(
+            `/admin/osce/${osce.id_osce}/stase/${selectedStase.id_osce_stase}`,
+            {
+                onFinish: () => setIsEditOpen(false),
+            }
+        );
+    }
+
+    // ============================
+    //  DELETE CONFIRM MODAL
     // ============================
     function openDeleteModal(item) {
         setSelectedStase(item);
         setIsModalOpen(true);
     }
 
-    // ============================
-    // CONFIRM DELETE
-    // ============================
     function confirmDelete() {
         if (!selectedStase) return;
 
@@ -65,14 +149,9 @@ export default function OsceStasePage({ stase, osce, filters }) {
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
-            <main
-                className={`grid w-full min-w-min p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20`}
-            >
-                {/* 5. Pastikan backend mengirim prop 'osce' */}
-                <OsHeader
-                    variant="goback"
-                    backLink="/admin/osce/"
-                />
+            <main className="grid w-full min-w-min p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 md:ml-20">
+
+                <OsHeader variant="goback" backLink="/admin/osce/" />
 
                 <div className="flex-1">
                     {/* Navigasi */}
@@ -80,11 +159,10 @@ export default function OsceStasePage({ stase, osce, filters }) {
                         <h2 className="text-lg font-semibold mb-2">Navigasi</h2>
 
                         <div className="flex gap-2">
-                            <OsButton className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
+                            <OsButton
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
                                 onClick={() =>
-                                    router.get(
-                                        `/admin/osce/${osce.id_osce}/stase`
-                                    )
+                                    router.get(`/admin/osce/${osce.id_osce}/stase`)
                                 }
                             >
                                 <ClipboardList size={16} />
@@ -98,25 +176,21 @@ export default function OsceStasePage({ stase, osce, filters }) {
                                 className="flex items-center gap-2 px-4 py-2 bg-white border text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
                             >
                                 <CalendarClock size={16} />
-                                Jadwal Sesi
+                                Jadwal Stase
                             </OsButton>
                         </div>
                     </section>
 
-                    {/* Tambah Stase */}
+                    {/* Tombol Add */}
                     <section className="mb-6">
-                        <h2 className="text-lg font-semibold mb-1">
-                            Menu Halaman Stase
-                        </h2>
+                        <h2 className="text-lg font-semibold mb-1">Menu Halaman Stase</h2>
 
                         <p className="text-sm text-gray-500 mb-4 max-w-lg">
-                            Jorem ipsum dolor sit amet, consectetur adipiscing elit.
+                            Jorem ipsum dolor sit amet.
                         </p>
 
                         <OsButton
-                            onClick={() =>
-                                router.get(`/admin/osce/${osce.id_osce}/stase/create`)
-                            }
+                            onClick={openAddModal}
                             className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
                         >
                             <Plus size={18} className="mr-2" />
@@ -125,12 +199,12 @@ export default function OsceStasePage({ stase, osce, filters }) {
                     </section>
 
                     {/* Search */}
-                    <section className=" rounded-lg w-full shadow-sm">
+                    <section className="rounded-lg w-full shadow-sm">
                         <form
                             onSubmit={handleSearch}
-                            className="mb-4 flex-wrap gap-3 "
+                            className="mb-4 flex-wrap gap-3"
                         >
-                            <div className="flex items-center w-full mb-2 gap-3 ">
+                            <div className="flex items-center w-full mb-2 gap-3">
                                 <div className="relative w-full">
                                     <Search
                                         size={18}
@@ -141,13 +215,15 @@ export default function OsceStasePage({ stase, osce, filters }) {
                                         placeholder="cari data stase..."
                                         className="border rounded-lg pl-10 pr-4 py-2.5 text-sm w-full sm:w-80 outline-blue-500"
                                         value={searchTerm}
-                                        onChange={(e) => setSearchTerm(e.target.value)}
+                                        onChange={(e) =>
+                                            setSearchTerm(e.target.value)
+                                        }
                                     />
                                 </div>
 
                                 <button
                                     type="submit"
-                                    className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium w-full sm:w-auto"
+                                    className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 text-sm font-medium"
                                 >
                                     Cari
                                 </button>
@@ -158,49 +234,38 @@ export default function OsceStasePage({ stase, osce, filters }) {
                             </h2>
                         </form>
 
-                        {/* Tabel */}
+                        {/* Table */}
                         <div className="overflow-x-auto border rounded-lg">
                             <table className="w-full text-sm">
                                 <thead className="bg-gray-100 border-b">
                                     <tr>
-                                        <th className="p-3 text-left w-16">No</th>
-                                        <th className="p-3 text-left">Ruangan</th>
-                                        <th className="p-3 text-left">Stase</th>
-                                        <th className="p-3 text-left">Penguji</th>
-                                        <th className="p-3 text-center w-32">Action</th>
+                                        <th className="p-3">No</th>
+                                        <th className="p-3">Ruangan</th>
+                                        <th className="p-3">Stase</th>
+                                        <th className="p-3">Penguji</th>
+                                        <th className="p-3 text-center">Action</th>
                                     </tr>
                                 </thead>
 
                                 <tbody>
                                     {stase.data.map((item, index) => (
-                                        <tr
-                                            key={item.id_osce_stase}
-                                            className="border-b hover:bg-gray-50"
-                                        >
-                                            <td className="p-3 font-medium">
-                                                {stase.from + index}
-                                            </td>
-
+                                        <tr key={item.id_osce_stase} className="border-b">
+                                            <td className="p-3">{stase.from + index}</td>
                                             <td className="p-3">
                                                 Ruang {item.ruang.nomor_ruangan}
                                             </td>
-
                                             <td className="p-3">
                                                 {item.stase.nama_stase}
                                             </td>
-
                                             <td className="p-3">
                                                 {item.penguji?.nama || "Belum diatur"}
                                             </td>
 
                                             <td className="p-3">
                                                 <div className="flex items-center justify-center gap-2">
-                                                    {/* Edit */}
                                                     <button
                                                         onClick={() =>
-                                                            router.get(
-                                                                `/admin/osce/${osce.id_osce}/stase/${item.id_osce_stase}/edit`
-                                                            )
+                                                            openEditModal(item)
                                                         }
                                                         className="p-2 rounded-md border bg-black text-white hover:bg-gray-400"
                                                         title="Edit"
@@ -208,7 +273,6 @@ export default function OsceStasePage({ stase, osce, filters }) {
                                                         <Edit size={14} />
                                                     </button>
 
-                                                    {/* Delete → OPEN MODAL */}
                                                     <button
                                                         onClick={() => openDeleteModal(item)}
                                                         className="p-2 rounded-md border text-red-600 hover:bg-red-50"
@@ -228,15 +292,12 @@ export default function OsceStasePage({ stase, osce, filters }) {
                     </section>
                 </div>
 
-                {/* Footer */}
-                <footer >
+                <footer>
                     <OsCopyright />
                 </footer>
             </main>
 
-            {/* ======================== */}
-            {/* MODAL DELETE */}
-            {/* ======================== */}
+            {/* DELETE CONFIRM MODAL */}
             <Modals
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
@@ -255,6 +316,94 @@ export default function OsceStasePage({ stase, osce, filters }) {
                 }
                 confirmText="Hapus"
             />
+
+            {/* ADD MODAL */}
+            <OsModal
+                show={isAddOpen}
+                onClose={() => setIsAddOpen(false)}
+                title="Tambah Stase"
+                subtitle="Masukkan data stase baru"
+                variant="add"
+                onSubmit={handleSubmitAdd}
+                onClear={() =>
+                    setFormData({ ruangan: "", nama_stase: "", penguji: "" })
+                }
+            >
+                {/* Form ADD */}
+                <div className="flex flex-col gap-3">
+                    <OsInput
+                        type="suggest"
+                        label="Nomor Ruangan"
+                        placeholder="Nomor Ruangan"
+                        value={formData.ruangan}
+                        onChange={(e) =>
+                            setFormData({ ...formData, ruangan: e.target.value })
+                        }
+                    />
+
+                    <OsInput
+                        type="suggest"
+                        label="Stase"
+                        placeholder="Nomor Stase"
+                        value={formData.ruangan}
+                        onChange={(e) =>
+                            setFormData({ ...formData, ruangan: e.target.value })
+                        }
+                    />
+                    <OsInput
+                        type="suggest"
+                        label="Penguji"
+                        placeholder="Nomor Penguji"
+                        value={formData.ruangan}
+                        onChange={(e) =>
+                            setFormData({ ...formData, ruangan: e.target.value })
+                        }
+                    />
+                </div>
+            </OsModal>
+
+            {/* EDIT MODAL */}
+            <OsModal
+                show={isEditOpen}
+                onClose={() => setIsEditOpen(false)}
+                title="Edit Stase"
+                subtitle={selectedStase?.stase?.nama_stase}
+                variant="edit"
+                onSubmit={handleSubmitEdit}
+                onDelete={handleDeleteInsideEdit}
+            >
+                {/* Form EDIT */}
+                <div className="flex flex-col gap-3">
+                    <OsInput
+                        type="suggest"
+                        label="Nomor Ruangan"
+                        placeholder="Nomor Ruangan"
+                        value={formData.ruangan}
+                        onChange={(e) =>
+                            setFormData({ ...formData, ruangan: e.target.value })
+                        }
+                    />
+
+                    <OsInput
+                        type="suggest"
+                        label="Stase"
+                        placeholder="Nomor Stase"
+                        value={formData.nama_stase}
+                        onChange={(e) =>
+                            setFormData({ ...formData, ruangan: e.target.value })
+                        }
+                    />
+                    <OsInput
+                        type="suggest"
+                        label="Penguji"
+                        placeholder="Nomor Penguji"
+                        value={formData.penguji}
+                        onChange={(e) =>
+                            setFormData({ ...formData, ruangan: e.target.value })
+                        }
+                    />
+                </div>
+            </OsModal>
         </div>
     );
 }
