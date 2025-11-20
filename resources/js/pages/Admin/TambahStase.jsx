@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import { Head, useForm, usePage, Link } from "@inertiajs/react";
 import { Trash2, Save } from "lucide-react";
-import OsCopyright from "../../components/copyright.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
 
 // === IMPORT MODALS ===
 import Modals from "../../components/Modals.jsx";
