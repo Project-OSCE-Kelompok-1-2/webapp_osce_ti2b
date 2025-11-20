@@ -171,3 +171,6 @@ Route::get('/penguji/dashboard', function () {
 Route::get('/penguji/profil', function () {
     return Inertia::render('Penguji/PengujiProfil');
 });
+Route::get('/penguji/osce', function () {
+    return Inertia::render('Penguji/PengujiOsceList');
+});
