@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { usePage, Link, router } from "@inertiajs/react";
-import { Trash2, Home, Pencil, Search } from "lucide-react";
+import { Trash2, Pencil, Search } from "lucide-react";
+
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsTableHeader from "../../components/tableheader.jsx"; 
@@ -18,20 +19,40 @@ const columns = [
 
 
 export default function MenuAspekPenilaian() {
-    // 1. Ambil data 'stase' dan 'aspek_penilaian' dari props
     const { stase, aspek_penilaian } = usePage().props;
 
-    // 2. Fungsi untuk menghapus data
-    const handleDeleteClick = (aspekId) => {
-        if (confirm("Apakah kamu yakin ingin menghapus aspek ini?")) {
-            // URL untuk hapus data, sesuai dengan shallow resource route
-            router.delete(`/admin/aspek-penilaian/${aspekId}`, {
-                preserveScroll: true,
-            });
-        }
+    // ========= STATE ========
+    const [showModal, setShowModal] = useState(false); // modal tambah
+    const [editModalOpen, setEditModalOpen] = useState(false); // modal edit
+    const [editData, setEditData] = useState(null);
+
+    // ======== DELETE ========
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedAspek, setSelectedAspek] = useState(null);
+
+    const openDeleteModal = (aspek) => {
+        setSelectedAspek(aspek);
+        setIsModalOpen(true);
     };
 
-    // [BARU] Hitung total bobot dari data yang diterima
+    const confirmDelete = () => {
+        if (!selectedAspek) return;
+
+        router.delete(`/admin/aspek-penilaian/${selectedAspek.id_aspek_penilaian}`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsModalOpen(false);
+                setSelectedAspek(null);
+            },
+        });
+    };
+
+    // ======== EDIT ========
+    const openEditModal = (item) => {
+        setEditData(item);
+        setEditModalOpen(true);
+    };
+
     const totalBobot = aspek_penilaian.data.reduce(
         (sum, item) => sum + item.bobot_maksimum,
         0
@@ -93,33 +114,36 @@ export default function MenuAspekPenilaian() {
     }));
     
     return (
-        <div className="relative bg-os-white w-full min-h-screen  flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar />
 
-            <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                {/* Header Breadcrumb (dibuat dinamis) */}
-                <OsHeader variant="goback" backLink="/admin/stase"/>
+            <main className="grid w-full min-w-min p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
+                {/* HEADER */}
+                <OsHeader variant="goback" backLink="/admin/stase" />
 
-                {/* Header Menu */}
-                <div className="mb-4">
-                    <h2 className="text-xl font-semibold text-gray-800">
-                        Menu Aspek Penilaian
-                    </h2>
-                    <p className="text-gray-500 text-sm mt-1">
-                        Halaman ini berfungsi untuk menambahkan aspek penilaian
-                        pada stase "{stase.nama_stase}"
+                <div className="flex-1 overflow-auto">
+                    <h2 className="font-semibold text-lg mb-1">Menu Aspek Penilaian</h2>
+
+                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                        Halaman ini berfungsi untuk menambahkan aspek penilaian <br />
+                        pada stase "<strong>{stase.nama_stase}</strong>"
                     </p>
-                </div>
-                
-                {/* Tombol Tambah diubah menjadi Link */}
-                <div className="mb-4">
-                    <Link
-                        href={`/admin/stase/${stase.id_stase}/aspek-penilaian/create`}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow font-medium"
+
+                    {/* BUTTON TAMBAH */}
+                    <OsButton
+                        onClick={() => setShowModal(true)}
+                        className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                     >
-                        ＋ Tambah Aspek Penilaian
-                    </Link>
-                </div>
+                        <OsIcon name="add" className="h-os-20 os-icon-light mr-os-8" />
+                        Tambah Stase
+                    </OsButton>
+
+                    {/* SEARCH BAR */}
+                    <div className="flex items-center w-full gap-3 mb-4">
+                        <div className="relative flex-1">
+                            <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                                <Search className="text-gray-400" size={20} />
+                            </div>
 
                 {/* Search */}
                 <OsSearchBar
@@ -167,13 +191,57 @@ export default function MenuAspekPenilaian() {
                         </tfoot>
                     </table>
                 </div>
+            </main>
 
-                {/* Footer Copyright */}
-                <div className="text-center text-gray-400 text-sm mt-16 border-t pt-4">
-                    Copyright Porem ipsum dolor sit ametPorem ipsum dolor sit
-                    amet
-                </div>
-            </div>
+            {/* ================= MODAL TAMBAH ================= */}
+            <OsModal
+                show={showModal}
+                onClose={() => setShowModal(false)}
+                title="Tambah Aspek Penilaian"
+                subtitle="Isi form di bawah"
+            >
+                <OsInput label="Aspek" type="text" name="aspek" placeholder="Masukkan aspek..." required />
+                <OsInput label="Bobot" type="number" name="bobot" placeholder="Masukkan bobot..." required />
+            </OsModal>
+
+            {/* ================= MODAL EDIT ================= */}
+            <OsModal
+                show={editModalOpen}
+                onClose={() => setEditModalOpen(false)}
+                variant="edit"
+                title="Edit Aspek Penilaian"
+                subtitle={editData?.aspek}
+            >
+                <OsInput
+                    label="Aspek"
+                    type="text"
+                    name="aspek"
+                    value={editData?.aspek}
+                    onChange={(e) => setEditData({ ...editData, aspek: e.target.value })}
+                />
+
+                <OsInput
+                    label="Bobot Maksimum"
+                    type="number"
+                    name="bobot_maksimum"
+                    value={editData?.bobot_maksimum}
+                    onChange={(e) =>
+                        setEditData({ ...editData, bobot_maksimum: e.target.value })
+                    }
+                />
+            </OsModal>
+
+            {/* ================= MODAL DELETE ================= */}
+            <Modals
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                variant="delete"
+                dataToDelete={[
+                    selectedAspek?.aspek,
+                    `${selectedAspek?.bobot_maksimum} poin`,
+                ]}
+                onConfirm={confirmDelete}
+            />
         </div>
     );
 }

@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-export default function Os_input({
+export default function OsInput({
     type = "text",
     placeholder = "",
     suggestions = [],
@@ -14,12 +14,51 @@ export default function Os_input({
     const [focused, setFocused] = useState(false);
     const [inputValue, setInputValue] = useState(value || "");
 
+    /** #########################################################
+     * 🔹 CUSTOM NUMBER INPUT (ADA PANAH ATAS & BAWAH)
+     ######################################################### */
+    if (type === "number") {
+        const increase = () => {
+            const newValue = Number(inputValue || 0) + 1;
+            setInputValue(newValue);
+            onChange && onChange({ target: { value: newValue } });
+        };
+
+        const decrease = () => {
+            const newValue = Number(inputValue || 0) - 1;
+            setInputValue(newValue);
+            onChange && onChange({ target: { value: newValue } });
+        };
+
+        return (
+            <div className={`flex flex-col ${className}`}>
+                {label && (
+                    <label className="mb-1 text-os-small text-gray-600">
+                        {label}
+                    </label>
+                )}
+
+                <div className="relative w-full">
+                    <input
+                        type="number"
+                        value={inputValue}
+                        onChange={(e) => {
+                            setInputValue(e.target.value);
+                            onChange && onChange(e);
+                        }}
+                        placeholder={placeholder}
+                        className="w-full min-h-[48px] px-3 py-2 rounded-lg text-os-paragraph border-os-1 border-os-black outline-none focus:border-os-primary focus:ring-1 focus:ring-os-primary"
+                    />
+                </div>
+            </div>
+        );
+    }
+
     /** 🔹 TEXT INPUT */
     if (
         type === "text" ||
         type === "email" ||
-        type === "password" || // Tipe "password" masuk ke blok ini
-        type === "number"
+        type === "password"
     ) {
         return (
             <div className={`flex flex-col ${className}`}>
@@ -29,14 +68,11 @@ export default function Os_input({
                     </label>
                 )}
                 <input
-                    // [UBAH] Baris ini diubah dari "text" menjadi {type}
-                    // Ini akan membuat input mendengarkan prop 'type'
-                    // (misalnya "text" atau "password")
                     type={type}
                     value={inputValue}
                     onChange={(e) => {
                         setInputValue(e.target.value);
-                        onChange && onChange(e); // ✅ kirim event, bukan value
+                        onChange && onChange(e);
                     }}
                     placeholder={placeholder}
                     className="w-full min-h-[48px] px-3 py-2 rounded-lg text-os-paragraph border-os-1 border-os-black outline-none focus:border-os-primary focus:ring-1 focus:ring-os-primary"
@@ -45,7 +81,29 @@ export default function Os_input({
         );
     }
 
-    /** 🔹 SUGGEST INPUT (AUTOCOMPLETE) */
+    /** 🔹 TEXTAREA */
+    if (type === "textarea") {
+        return (
+            <div className={`flex flex-col ${className}`}>
+                {label && (
+                    <label className="mb-1 text-os-small text-gray-600">
+                        {label}
+                    </label>
+                )}
+                <textarea
+                    value={inputValue}
+                    onChange={(e) => {
+                        setInputValue(e.target.value);
+                        onChange && onChange(e);
+                    }}
+                    placeholder={placeholder}
+                    className="w-full min-h-[100px] px-3 py-2 rounded-lg text-os-paragraph border-os-1 border-os-black outline-none focus:border-os-primary focus:ring-1 focus:ring-os-primary"
+                />
+            </div>
+        );
+    }
+
+    /** 🔹 SUGGEST INPUT */
     if (type === "suggest") {
         const filtered = suggestions.filter((s) =>
             s.toLowerCase().includes(inputValue.toLowerCase())
@@ -54,7 +112,7 @@ export default function Os_input({
         return (
             <div className={`relative flex flex-col ${className}`}>
                 {label && (
-                    <label className="mb-1 text-sm text-gray-600">
+                    <label className="mb-1 text-os-small text-gray-600">
                         {label}
                     </label>
                 )}
@@ -63,7 +121,7 @@ export default function Os_input({
                     value={inputValue}
                     onChange={(e) => {
                         setInputValue(e.target.value);
-                        onChange && onChange(e); // ✅ kirim event, bukan value
+                        onChange && onChange(e);
                     }}
                     placeholder={placeholder}
                     onFocus={() => setFocused(true)}
@@ -92,9 +150,6 @@ export default function Os_input({
     }
 
     /** 🔹 BULLET RADIO BUTTON GROUP */
-    // Gunakan import { useState } from "react";
-    // const [rating, setRating] = useState("")
-
     if (type === "bullet") {
         return (
             <div className={`flex flex-col items-center gap-4 ${className}`}>
@@ -108,12 +163,10 @@ export default function Os_input({
                             key={idx}
                             className="flex flex-col items-center cursor-pointer select-none"
                         >
-                            {/* label di atas bullet */}
                             <span className="text-sm font-medium text-gray-700 mb-2">
                                 {opt}
                             </span>
 
-                            {/* bullet custom */}
                             <div className="relative flex items-center justify-center">
                                 <input
                                     type="radio"
@@ -123,7 +176,6 @@ export default function Os_input({
                                     onChange={() => onChange && onChange(opt)}
                                     className="peer appearance-none w-8 h-8 rounded-full border-2 border-black cursor-pointer transition-all duration-200 hover:scale-110"
                                 />
-                                {/* lingkaran tengah muncul kalau checked */}
                                 <div className="absolute w-6 h-6 rounded-full bg-black opacity-0 peer-checked:opacity-100 transition-all duration-200" />
                             </div>
                         </label>

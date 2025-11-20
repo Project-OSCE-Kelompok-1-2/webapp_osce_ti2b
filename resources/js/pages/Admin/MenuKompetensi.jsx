@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { usePage, Link, router } from "@inertiajs/react";
-import { Pencil, Trash2, PlusCircle, Search, ArrowLeft } from "lucide-react";
+import { usePage, router } from "@inertiajs/react";
+import { Pencil, Trash2, PlusCircle, Search } from "lucide-react";
+
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsIcon from "../../components/icons";
@@ -20,13 +21,18 @@ const columns = [
 
 
 export default function KompetensiPage() {
-    // 1. Ambil data dari props yang dikirim Controller
     const { aspek, kompetensi, filters } = usePage().props;
 
-    // 2. Siapkan state untuk input pencarian
+    // FORM STATES
     const [search, setSearch] = useState(filters.search || "");
+    const [form, setForm] = useState({ deskripsi: "", bobot: "" });
 
-    // 3. Fungsi untuk menjalankan pencarian
+    // MODAL CONTROL
+    const [modalType, setModalType] = useState(""); // add | edit | delete
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selected, setSelected] = useState(null);
+
+    /* ----------------------- SEARCH ----------------------- */
     const handleSearch = () => {
         router.get(
             `/admin/aspek-penilaian/${aspek.id_aspek_penilaian}/kompetensi`,
@@ -35,16 +41,65 @@ export default function KompetensiPage() {
         );
     };
 
-    // 4. Fungsi untuk menghapus data
-    const handleDelete = (kompetensiId) => {
-        if (confirm("Apakah Anda yakin ingin menghapus kompetensi ini?")) {
-            router.delete(`/admin/kompetensi/${kompetensiId}`, {
-                preserveScroll: true,
-            });
-        }
+    /* ----------------------- ADD DATA ----------------------- */
+    const openAddModal = () => {
+        setForm({ deskripsi: "", bobot: "" });
+        setModalType("add");
+        setModalOpen(true);
     };
 
-    // 5. Hitung total bobot dari data yang diterima dari database
+    const handleAddSubmit = () => {
+        router.post(
+            `/admin/kompetensi/${aspek.id_aspek_penilaian}`,
+            {
+                kompetensi: form.deskripsi,
+                bobot: form.bobot,
+            },
+            { onSuccess: () => setModalOpen(false) }
+        );
+    };
+
+    /* ----------------------- EDIT DATA ----------------------- */
+    const openEditModal = (item) => {
+        setSelected(item);
+        setForm({
+            deskripsi: item.kompetensi,
+            bobot: item.bobot,
+        });
+        setModalType("edit");
+        setModalOpen(true);
+    };
+
+    const handleEditSubmit = () => {
+        if (!selected) return;
+
+        router.put(
+            `/admin/kompetensi/${selected.id_poin_aspek_penilaian}`,
+            {
+                kompetensi: form.deskripsi,
+                bobot: form.bobot,
+            },
+            { onSuccess: () => setModalOpen(false) }
+        );
+    };
+
+    /* ----------------------- DELETE DATA ----------------------- */
+    const openDeleteModal = (item) => {
+        setSelected(item);
+        setModalType("delete");
+        setModalOpen(true);
+    };
+
+    const handleDeleteSubmit = () => {
+        if (!selected) return;
+
+        router.delete(
+            `/admin/kompetensi/${selected.id_poin_aspek_penilaian}`,
+            { onSuccess: () => setModalOpen(false) }
+        );
+    };
+
+    /* ----------------------- TOTAL BOBOT ----------------------- */
     const totalBobot = kompetensi.data.reduce(
         (acc, curr) => acc + Number(curr.bobot),
         0
@@ -78,9 +133,7 @@ export default function KompetensiPage() {
     
 
     return (
-        // 🆕 Tambahkan relative dan overflow-hidden agar sidebar overlay bisa muncul di atas dashboard
-        <div className="relative bg-os-white w-full min-h-screen  flex justify-start p-os-12 font-sans overflow-hidden">
-            {/* Sidebar dipanggil langsung tanpa kontrol dari dashboard */}
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar />
 
             <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
@@ -119,7 +172,7 @@ export default function KompetensiPage() {
                     placeholder="Cari kompetensi..."
                 />
 
-                {/* Tabel Kompetensi */}
+                {/* TABLE */}
                 <h3 className="font-semibold mb-2">Table Kompetensi</h3>
 
                 <OsTableHeader columns={columns} />
@@ -138,22 +191,70 @@ export default function KompetensiPage() {
                     </p>
                     <div className="flex gap-3">
                         <div className="border border-black rounded-xl px-8 py-2">
-                            <span className="font-medium">Kompetensi:</span>{" "}
-                            {kompetensi.total}{" "}
-                            {/* [UBAH] Gunakan total dari paginator */}
+                            <span className="font-medium">Kompetensi:</span> {kompetensi.total}
                         </div>
                         <div className="border border-black rounded-xl px-8 py-2">
-                            <span className="font-medium">Total Bobot:</span>{" "}
-                            {totalBobot}
+                            <span className="font-medium">Total Bobot:</span> {totalBobot}
                         </div>
                     </div>
                 </div>
 
-                {/* Footer Copyright */}
-                <footer className="border border-black rounded-xl text-start px-4 py-4 text-sm text-gray-600">
-                    © Jorem ipsum dolor sit amet, consectetur adipiscing elit.
+                <footer>
+                    <OsCopyright />
                 </footer>
-            </div>
+            </main>
+
+{/* 🔥 MODAL ADD / EDIT (pakai OsModal) */}
+<OsModal
+    show={modalOpen && modalType !== "delete"}
+    onClose={() => setModalOpen(false)}
+    onSubmit={
+        modalType === "add"
+            ? handleAddSubmit
+            : handleEditSubmit
+    }
+    variant={modalType}
+    title="Kompetensi"
+    subtitle="Isi form berikut"
+>
+    <OsInput
+        label="Deskripsi Kompetensi"
+        type="textarea"
+        name="deskripsi"
+        value={form.deskripsi}
+        onChange={(e) =>
+            setForm({ ...form, deskripsi: e.target.value })
+        }
+        required
+    />
+
+    <OsInput
+        label="Bobot Kompetensi"
+        type="number"
+        name="bobot"
+        value={form.bobot}
+        onChange={(e) =>
+            setForm({ ...form, bobot: e.target.value })
+        }
+        required
+    />
+</OsModal>
+
+{/* 🗑️ MODAL DELETE (pakai modal lama, TIDAK DIUBAH) */}
+<Modals
+    isOpen={modalOpen && modalType === "delete"}
+    onClose={() => setModalOpen(false)}
+    onConfirm={handleDeleteSubmit}
+    variant="delete"
+    title="Hapus Kompetensi?"
+    message="Apakah Anda yakin ingin menghapus kompetensi ini?"
+    confirmText="Hapus"
+    dataToDelete={[
+        { key: "Deskripsi", value: selected?.kompetensi || "-" },
+        { key: "Bobot", value: selected?.bobot || "-" },
+    ]}
+/>
+
         </div>
     );
 }
