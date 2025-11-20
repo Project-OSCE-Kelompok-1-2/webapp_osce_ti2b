@@ -13,7 +13,7 @@
         --os-black: #000000;
         --os-white: #ffffff;
         --os-warning: #E81B1B;
-        --os-edit: #C5C831;
+        --os-edit: #4CAF50;
         --os-neutral: #EEF2FF;
         --os-success: #1BE85A;
 
@@ -125,14 +125,14 @@
 
 /* Spinner button */
 button {
-  background-color: var(--os-primary) !important;
-  border: none !important;
-  color: white !important;
+  background-color: var(--os-primary);
+  border: none;
+  color: white;
   font-weight: 500;
   border-radius: 0.5rem;
   transition: all 0.2s ease;
 }
 
 button:hover {
-  background-color: var(--os-secondary) !important;
+  background-color: var(--os-secondary);
 }

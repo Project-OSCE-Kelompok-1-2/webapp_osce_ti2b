@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { usePage, router } from "@inertiajs/react";
 import { Pencil, Trash2, PlusCircle, Search } from "lucide-react";
 
+// Mengimpor komponen yang hilang (asumsi lokasi dan nama file)
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsIcon from "../../components/icons";
@@ -10,8 +11,13 @@ import OsSearchBar from "../../components/searchbar";
 import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 
+// Tambahan impor untuk komponen yang tidak ada
+import OsModal from "../../components/Modal.jsx";
+import OsInput from "../../components/input.jsx";
+import Modals from "../../components/Modals.jsx";
+import OsCopyright from "../../components/Copyright.jsx";// Asumsi nama file
 
-//Definisi kolom tabel 
+//Definisi kolom tabel
 const columns = [
     { content: "No", width: "w-16", classes: "justify-center", key: "no" },
     { content: "Deskripsi Kompetensi", width: "flex-1", classes: "justify-start px-4", key: "kompetensi" },
@@ -50,10 +56,13 @@ export default function KompetensiPage() {
 
     const handleAddSubmit = () => {
         router.post(
-            `/admin/kompetensi/${aspek.id_aspek_penilaian}`,
+            // Perbaiki rute post, harusnya ke endpoint kompetensi/tambah
+            `/admin/kompetensi/add`, // Menggunakan rute add umum atau rute yang spesifik jika ada
             {
                 kompetensi: form.deskripsi,
                 bobot: form.bobot,
+                // Tambahkan ID aspek yang diperlukan untuk menyimpan
+                id_aspek_penilaian: aspek.id_aspek_penilaian,
             },
             { onSuccess: () => setModalOpen(false) }
         );
@@ -113,16 +122,14 @@ export default function KompetensiPage() {
         action: (
             <div className="flex gap-2 justify-center">
                 <button
-                    onClick={() =>
-                        router.get(`/admin/kompetensi/${item.id_poin_aspek_penilaian}/edit`)
-                    }
+                    onClick={() => openEditModal(item)} // 🔥 Diubah: Memanggil fungsi openEditModal
                     className="p-1.5 text-white bg-blue-700 hover:bg-blue-500 border border-black rounded-lg"
                 >
                     <Pencil size={16} />
                 </button>
-    
+
                 <button
-                    onClick={() => handleDelete(item.id_poin_aspek_penilaian)}
+                    onClick={() => openDeleteModal(item)} // 🔥 Diubah: Memanggil openDeleteModal
                     className="p-1.5 text-black bg-white hover:bg-red-600 hover:text-white border border-black rounded-lg"
                 >
                     <Trash2 size={16} />
@@ -130,7 +137,7 @@ export default function KompetensiPage() {
             </div>
         )
     }));
-    
+
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
@@ -150,13 +157,9 @@ export default function KompetensiPage() {
                     penilaian "{aspek.aspek}"
                 </p>
 
-                {/* 👇 [UBAH] Tombol tambah diubah menjadi Link */}
+                {/* Tombol tambah diubah untuk membuka modal Add */}
                 <button
-                    onClick={() =>
-                        router.get(
-                            `/admin/aspek-penilaian/${aspek.id_aspek_penilaian}/kompetensi/create`
-                        )
-                    }
+                    onClick={openAddModal} // 🔥 Diubah: Memanggil openAddModal
                     className="flex items-center gap-2 mt-3 bg-blue-700 hover:bg-blue-600 text-white px-5 py-3 rounded-xl"
                 >
                     <PlusCircle size={20} />
@@ -177,7 +180,13 @@ export default function KompetensiPage() {
 
                 <OsTableHeader columns={columns} />
 
-                <OsTableBody data={tableData} columns={columns} />
+                {tableData.length > 0 ? (
+                    <OsTableBody data={tableData} columns={columns} />
+                ) : (
+                    <div className="py-6 text-center text-gray-500 border-b">
+                        Belum ada kompetensi untuk aspek ini.
+                    </div>
+                )}
 
 
                 {/* PAGINATION */}
@@ -202,7 +211,7 @@ export default function KompetensiPage() {
                 <footer>
                     <OsCopyright />
                 </footer>
-            </main>
+            </div>
 
 {/* 🔥 MODAL ADD / EDIT (pakai OsModal) */}
 <OsModal
@@ -214,7 +223,7 @@ export default function KompetensiPage() {
             : handleEditSubmit
     }
     variant={modalType}
-    title="Kompetensi"
+    title={modalType === "add" ? "Tambah Kompetensi" : "Edit Kompetensi"}
     subtitle="Isi form berikut"
 >
     <OsInput
@@ -240,7 +249,7 @@ export default function KompetensiPage() {
     />
 </OsModal>
 
-{/* 🗑️ MODAL DELETE (pakai modal lama, TIDAK DIUBAH) */}
+{/* 🗑️ MODAL DELETE (pakai modal lama) */}
 <Modals
     isOpen={modalOpen && modalType === "delete"}
     onClose={() => setModalOpen(false)}

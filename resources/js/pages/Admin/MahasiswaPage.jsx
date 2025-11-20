@@ -10,7 +10,6 @@ import OsCopyright from "../../components/Copyright.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
-import Os_input from "../../components/Input.jsx";
 import OsInput from "../../components/input.jsx";
 import OsModal from "../../components/Modal.jsx";
 import OsButton from "../../components/button.jsx";
@@ -72,8 +71,8 @@ export default function MahasiswaPage() {
     const handleSearch = () => {
         router.get("/admin/mahasiswa", { search, angkatan });
     };
-    
-    
+
+
 
     // 🔥 HANDLE EDIT DENGAN MODAL
     const handleEdit = (item) => {
@@ -118,7 +117,7 @@ export default function MahasiswaPage() {
         );
     };
 
-    //7. Siapin untuk isi data tabel 
+    //7. Siapin untuk isi data tabel
     const tableData = mahasiswa.data.map((item, index) => ({
         no: mahasiswa.from + index,
         nim_mahasiswa: item.nim,
@@ -218,7 +217,7 @@ export default function MahasiswaPage() {
                         </div>
 
                         {/* search + dropdown tahun*/}
-                    
+
 
                         <OsSearchBar
                             search={search}
@@ -233,20 +232,20 @@ export default function MahasiswaPage() {
                                     onChange={(e) => {
                                         const val = e.target.value;
                                         setAngkatan(val);
-                                    
+
                                         router.get(
                                             "/admin/mahasiswa",
                                             { search, angkatan: val },
                                             { preserveState: true, replace: true, preserveScroll: true }
                                         );
                                     }}
-                                    
-                                    
+
+
                                     options={angkatanList}
                                 />
                             </div>
                         </OsSearchBar>
-                    </section>
+                    </form>
 
                     {/* Tabel Mahasiswa */}
                     <section>

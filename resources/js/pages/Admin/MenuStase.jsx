@@ -5,7 +5,7 @@ import { Edit2, Trash2 } from "lucide-react";
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
-import OsCopyright from "../../components/copyright.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
 import OsIcon from "../../components/icons";
 import OsTableHeader from "../../components/tableheader";
 import OsSearchBar from "../../components/searchbar";
@@ -20,9 +20,9 @@ import Modals from "../../components/Modals.jsx";
 
 const staseColumns = [
     { key: "no", content: "No", width: "w-16", classes: "justify-center items-center" },
-    { key: "nama_stase", content: "Nama Stase", width: "flex-1", classes: "justify-start items-center px-4" },
-    { key: "jumlah_aspek", content: "Jumlah Aspek", width: "w-56", classes: "justify-center items-center px-4" },
-    { key: "action", content: "Action", width: "w-80", classes: "justify-center items-center px-4" },
+    { key: "nama_stase", content: "Nama Stase", width: "w-7/12", classes: "justify-start items-center px-4" },
+    { key: "jumlah_aspek", content: "Jumlah Aspek", width: "w-2/12", classes: "justify-center items-center px-4" },
+    { key: "action", content: "Action", width: "w-3/12", classes: "justify-center items-center px-4" },
 ];
 
 export default function Stase() {
@@ -127,27 +127,33 @@ export default function Stase() {
 
                 {/* Edit Aspek Penilaian */}
                 <OsButton
+                    name="primary"
                     onClick={() => router.get(`/admin/stase/${item.id_stase}/aspek-penilaian`)}
-                    className="h-[38px] text-os-small w-full"
+                    className="h-[38px] text-os-small w-full flex justify-between items-center gap-3"
                 >
+                    <OsIcon
+                        name={'add'}
+                        className="os-icon-light h-[20px]"
+
+                    />
                     Edit Aspek Penilaian
                 </OsButton>
 
                 {/* EDIT */}
-                <button
+                <OsButton
+                    name="edit"
                     onClick={() => openEditModal(item)}
-                    className="bg-blue-600 p-2 rounded-md text-white"
                 >
-                    <Edit2 size={20} />
-                </button>
+                    <Edit2 size={18} />
+                </OsButton>
 
                 {/* DELETE */}
-                <button
+                <OsButton
+                    name="warning"
                     onClick={() => openDeleteModal(item.id_stase, item.nama_stase)}
-                    className="bg-white border border-gray-400 p-2 rounded-md"
                 >
-                    <Trash2 size={20} className="text-gray-700" />
-                </button>
+                    <Trash2 size={18} className="text-os-white" />
+                </OsButton>
             </div>
         ),
     }));
@@ -156,17 +162,18 @@ export default function Stase() {
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
                 <OsHeader />
 
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">Menu Stase</h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Halaman stase mengatur ruangan untuk penguji menilai mahasiswa
+                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                        Kelola konten Stase secara menyeluruh, termasuk daftar kompetensi inti yang diujikan serta aspek penilaian (kriteria checklist atau skor) yang digunakan penguji untuk mengukur pencapaian kompetensi tersebut.
                     </p>
 
                     {/* 🔵 BUTTON TAMBAH */}
                     <OsButton
+                        name="primary"
                         onClick={openAddModal}
                         className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                     >
@@ -188,7 +195,7 @@ export default function Stase() {
 
                     {stase.data.length === 0 && (
                         <div className="flex items-center border-t border-gray-400">
-                            <p className="w-full text-center text-sm py-4 text-gray-500">
+                            <p className="w-full text-center text-sm py-os-48 text-gray-500">
                                 Data stase tidak ditemukan.
                             </p>
                         </div>
@@ -208,6 +215,7 @@ export default function Stase() {
             <OsModal
                 show={showModal}
                 onClose={() => setShowModal(false)}
+                variant={modalMode}
                 title={modalMode === "edit" ? "Edit Stase" : "Tambah Stase Baru"}
                 subtitle={
                     modalMode === "edit"
@@ -217,12 +225,12 @@ export default function Stase() {
             >
                 <form onSubmit={handleSubmit} className="space-y-3">
                     <OsInput
-                        label="Matakuliah"
+                        label="Mata kuliah"
                         type="text"
                         name="matakuliah"
                         value={form.matakuliah}
                         onChange={(e) => setForm({ ...form, matakuliah: e.target.value })}
-                        placeholder="Masukkan Matakuliah..."
+                        placeholder="Masukkan Mata kuliah..."
                         required
                     />
                     <OsInput

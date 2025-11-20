@@ -1,6 +1,7 @@
 import React, { useEffect } from "react";
 import { X, Trash2, FilePlus } from "lucide-react";
 import OsButton from "./button";
+import OsIcon from "./icons";
 
 export default function OsModal({
     show,
@@ -59,7 +60,8 @@ export default function OsModal({
                         <div className="flex items-start justify-between gap-os-14">
                             <OsButton
                                 type="submit"
-                                className="flex w-full items-center gap-2 h-[48px] bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                name="primary"
+                                className="flex w-full items-center gap-2 h-[48px] text-white rounded-lg hover:bg-blue-700"
                             >
                                 <FilePlus size={20} />
                                 Submit
@@ -70,27 +72,21 @@ export default function OsModal({
                                 onClick={onClear}
                                 className="flex items-center gap-2 h-[48px] !bg-red-500 text-white rounded-lg hover:!bg-red-600"
                             >
-                                <Trash2 size={20} />
-                                Clear
+                                <OsIcon
+                                    name={'erase'}
+                                    className="w-[24px] os-icon-light"
+                                />
                             </OsButton>
                         </div>
                     ) : (
                         <div className="flex items-start justify-between gap-os-14">
                             <OsButton
                                 type="submit"
-                                className="flex w-full items-center gap-2 h-[48px] bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                                name="primary"
+                                className="flex w-full items-center gap-2 h-[48px] text-white rounded-lg hover:bg-blue-700"
                             >
                                 <FilePlus size={20} />
                                 Simpan Perubahan
-                            </OsButton>
-
-                            <OsButton
-                                type="button"
-                                onClick={onDelete}
-                                className="flex items-center gap-2 h-[48px] !bg-red-500 text-white rounded-lg hover:!bg-red-600"
-                            >
-                                <Trash2 size={20} />
-                                Hapus
                             </OsButton>
                         </div>
                     )}

@@ -11,12 +11,12 @@ import {
 } from "lucide-react"; // Tambah ikon
 
 import Sidebar from "../../components/Sidebar";
-import OsCopyright from "../../components/copyright";
+import OsCopyright from "../../components/Copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
-import Os_input from "../../components/Input.jsx";
+import OsInput from "../../components/input.jsx";
 
 const columns = [
     { key: "no", content: "No", width: "w-16", classes: "justify-center items-center" },
@@ -106,7 +106,7 @@ export default function OsceEnrollmentPage({
             </button>
         )
     }));
-    
+
     return (
         <div className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
             <Head title={`Enrollment - ${osce.nama_osce}`} />

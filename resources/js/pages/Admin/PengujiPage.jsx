@@ -164,7 +164,7 @@ export default function PengujiPage() {
         setEditFormData({ nip: "", nama: "" });
     };
 
-    //6. Siapin untuk isi data tabel 
+    //6. Siapin untuk isi data tabel
     const tableData = dosen.data.map((item, index) => ({
         no: dosen.from + index,
         nip_penguji: item.nip,
@@ -177,7 +177,7 @@ export default function PengujiPage() {
                 >
                     <OsIcon name="Edit" className="h-os-20 w-os-20 os-icon-light" />
                 </Link>
-    
+
                 <Os_button
                     onClick={() => handleDelete(item.id_penguji)}
                     className="w-10 h-10 flex items-center justify-center bg-white p-2 border border-black text-black rounded-xl hover:bg-gray-200 transition"
@@ -187,7 +187,7 @@ export default function PengujiPage() {
             </div>
         ),
     }));
-    
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head title="Manajemen Penguji" />
@@ -249,7 +249,7 @@ export default function PengujiPage() {
 
                         {tableData.length > 0 ? (
                             <OsTableBody data={tableData} columns={pengujiColumns} />
-                        {dosen.data.length > 0 ? (
+                        ) : dosen.data.length > 0 ? (
                             dosen.data.map((item, index) => (
                                 <div
                                     key={item.id_penguji}
@@ -301,7 +301,7 @@ export default function PengujiPage() {
                                 </p>
                             </div>
                         )}
-                        
+
                         {/* Paginasi */}
 
                         {dosen.links && dosen.links.length > 3 && (
