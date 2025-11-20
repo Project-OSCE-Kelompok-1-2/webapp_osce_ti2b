@@ -2,11 +2,13 @@
 
 use App\Models\TahunAkademik;
 use Illuminate\Support\Facades\Route;
+use Inertia\Inertia;
+
+// --- Auth & Admin Controllers ---
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\OsceController;
 use App\Http\Controllers\Admin\StaseController;
-use Inertia\Inertia; // Pastikan Inertia di-import
 use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Admin\OsceStaseController;
 use App\Http\Controllers\Admin\PengujiController;
@@ -15,8 +17,16 @@ use App\Http\Controllers\Admin\OsceJadwalController;
 use App\Http\Controllers\Admin\RekapNilaiController;
 use App\Http\Controllers\Admin\AspekPenilaianController;
 use App\Http\Controllers\Admin\OsceEnrollmentController;
+
+// --- PENGUJI CONTROLLERS (LENGKAP) ---
 use App\Http\Controllers\Penguji\ProfilController;
+use App\Http\Controllers\Penguji\DashboardController;
+use App\Http\Controllers\Penguji\OsceController as PengujiOsceController;
 use App\Http\Controllers\Penguji\HalamanPenilaianController;
+use App\Http\Controllers\Penguji\AksiPenilaianController;
+use App\Http\Controllers\Penguji\RekapController;
+use App\Http\Controllers\Penguji\EditNilaiController;
+use App\Http\Controllers\Penguji\ViewNilaiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -36,26 +46,57 @@ Route::middleware('guest')->group(function () {
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
-// ==========================
+
+// ===========================
 // === RUTE UNTUK PENGUJI ===
-// ==========================
+// ===========================
 Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function () {
 
-    // --- Dashboard & Akun ---
+    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+
+    Route::get('/osce', [PengujiOsceController::class, 'index'])->name('osce.index');
+
     Route::get('/pengaturan-akun', [ProfilController::class, 'show_profile'])->name('account.show');
     Route::post('/pengaturan-akun', [ProfilController::class, 'update_account'])->name('account.update');
 
-    // --- Penilaian OSCE (Live) ---
-    // URL: /penguji/osce/{id_osce}/stase/{id_osce_stase}
-    // Nama Rute: penguji.antrian
+
+    // --- ALUR PENILAIAN LIVE (Pandu & Septia) ---
+
     Route::get('/osce/{id_osce}/stase/{id_osce_stase}', [HalamanPenilaianController::class, 'showAntrian'])
         ->name('antrian');
 
-    // URL: /penguji/penilaian/{id_enrollment_osce}
-    // Nama Rute: penguji.penilaian
     Route::get('/penilaian/{id_enrollment_osce}', [HalamanPenilaianController::class, 'showPenilaian'])
-        ->name('penilaian');
+        ->name('penilaian.show');
+
+    Route::post('/penilaian/{id_enrollment_osce}', [AksiPenilaianController::class, 'store'])
+        ->name('penilaian.store');
+
+
+    Route::get('/osce/{id_osce}/stase/{id_osce_stase}/rotasi', [AksiPenilaianController::class, 'rotasi'])
+        ->name('rotasi');
+
+    Route::post('/osce/{id_osce}/stase/{id_osce_stase}/selesai', [AksiPenilaianController::class, 'selesai'])
+        ->name('selesai');
+
+
+    // --- ALUR PASCA UJIAN / REKAP (Bintang, Najwa, Afkar) ---
+
+    Route::get('/osce/{id_osce}/stase/{id_osce_stase}/rekap', [RekapController::class, 'rekap'])
+        ->name('rekap.list');
+
+    Route::get('/osce/{id_osce}/stase/{id_osce_stase}/edit-nilai', [RekapController::class, 'editNilai'])
+        ->name('edit.list');
+
+    Route::get('/penilaian/{id_enrollment_osce}/edit', [EditNilaiController::class, 'edit'])
+        ->name('penilaian.edit');
+
+    Route::put('/penilaian/{id_enrollment_osce}', [EditNilaiController::class, 'update'])
+        ->name('penilaian.update');
+
+    Route::get('/penilaian/{id_enrollment_osce}/view', ViewNilaiController::class)
+        ->name('penilaian.view');
 });
+
 
 // =========================
 // === RUTE UNTUK ADMIN ===
@@ -74,7 +115,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 
     Route::resource('dosen', PengujiController::class)->except(['show']);
     Route::resource('mahasiswa', MahasiswaController::class)->except(['show']);
-    Route::post('/mahasiswa/import', [MahasiswaController::class, 'import'])->name('mahasiswa.import'); // <-- Diberi nama
+    Route::post('/mahasiswa/import', [MahasiswaController::class, 'import'])->name('mahasiswa.import');
 
 
     // --- Modul OSCE ---
@@ -82,13 +123,11 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::post('/osce', [OsceController::class, 'store'])->name('osce.store');
 
     Route::get('/osce/create', function () {
-        // Ambil data dari database
         $tahunAkademik = TahunAkademik::orderBy('tahun', 'desc')->get()->map(fn($th) => [
             'value' => $th->id_tahun_akademik,
             'label' => $th->tahun . ' - ' . $th->semester,
         ]);
 
-        // Kirim data 'tahunAkademikOptions' sebagai props ke component React
         return Inertia::render('Admin/TambahOsce', [
             'tahunAkademikOptions' => $tahunAkademik
         ]);
@@ -118,7 +157,6 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 
 
     // --- OSCE Enrollment (Nested di bawah Jadwal) ---
-    // (Grup ini dipindahkan ke dalam grup admin utama)
     Route::prefix('osce/{osce_id}/jadwal/{jadwal_id}')->name('osce.enrollment.')->group(function () {
         Route::get('/enrollment', [OsceEnrollmentController::class, 'index'])->name('index');
         Route::post('/enrollment', [OsceEnrollmentController::class, 'sync'])->name('sync');
@@ -126,11 +164,11 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 
 
     // --- Rekap Nilai ---
-    Route::get('/rekap-nilai', [RekapNilaiController::class, 'index'])->name('rekap.index'); // <-- Diberi nama
-    Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi'])->name('rekap.sesi'); // <-- Diberi nama
-    Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerStase'])->name('rekap.mahasiswa'); // <-- Diberi nama
+    Route::get('/rekap-nilai', [RekapNilaiController::class, 'index'])->name('rekap.index');
+    Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi'])->name('rekap.sesi');
+    Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerStase'])->name('rekap.mahasiswa');
 
-    // V V V BLOK INI TIDAK DIUBAH SESUAI PERMINTAAN V V V
+    // --- Dummy Detail Rekap ---
     Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}', function () {
         $dummyData = [
             "mahasiswa" => ["nama" => "Riko Aditya (Dummy)", "nim" => "123456", "id_mahasiswa" => 1],
@@ -156,20 +194,6 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
                             ]
                         ]
                     ]
-                ],
-                [
-                    "nama_stase" => "Stase Anak",
-                    "nama_penguji" => "Dr. Pedri",
-                    "nilai_akhir_stase" => 23.00,
-                    "aspek_penilaian" => [
-                        [
-                            "aspek" => "Komunikasi",
-                            "kompetensi" => [
-                                ["kompetensi" => "Bicara dengan ortu", "skor" => 3, "bobot" => 10, "nilai" => 30],
-                                ["kompetensi" => "Bicara dengan anak", "skor" => 3, "bobot" => 10, "nilai" => 30]
-                            ]
-                        ]
-                    ]
                 ]
             ],
             "nilai_total_osce" => 45.25
@@ -178,11 +202,5 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
         return Inertia::render('Admin/RekapDetailPage', [
             'detailNilai' => $dummyData
         ]);
-    })->name('rekap.detail'); // <-- Rute dummy diberi nama
+    })->name('rekap.detail');
 });
-// === AKHIR GRUP ADMIN ===
-
-
-// Rute fallback atau untuk role lain bisa ditambahkan di sini
-// Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function() { ... });
-// Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function() { ... });

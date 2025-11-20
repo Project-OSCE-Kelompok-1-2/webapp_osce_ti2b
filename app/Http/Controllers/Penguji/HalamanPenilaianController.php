@@ -19,18 +19,27 @@ class HalamanPenilaianController extends Controller
 {
     public function showAntrian($id_osce, $id_osce_stase)
     {
-        // [STRICT] Cek keamanan manual (Memaksa 403 jika middleware redirect)
+        // 1. Cek keamanan Auth (Strict)
         $user = Auth::user();
         if (!$user || !$user->penguji) {
             abort(403, 'Akses ditolak. Anda bukan Penguji.');
         }
+        $penguji = $user->penguji; // Ambil data model Penguji
 
-        // [UPDATE] Tambahkan relasi 'ruang' untuk mengambil nomor stasiun
+        // 2. [SECURITY FIX] Ambil Detail OSCE & Stase DENGAN Validasi Penguji
+        // Kita tambahkan `where('id_penguji', ...)` agar penguji hanya bisa lihat antrian miliknya sendiri
         $osceStaseContext = OsceStase::with(['osce', 'stase', 'ruang'])
             ->where('id_osce', $id_osce)
             ->where('id_osce_stase', $id_osce_stase)
-            ->firstOrFail();
+            ->where('id_penguji', $penguji->id_penguji) // <--- Validasi Hak Akses Stase
+            ->first();
 
+        // Jika data tidak ditemukan, berarti stase tidak ada ATAU bukan milik penguji ini
+        if (!$osceStaseContext) {
+            abort(404, 'Akses Ditolak. Anda tidak ditugaskan di stase ini.');
+        }
+
+        // 3. Hitung total mahasiswa
         $totalMahasiswa = EnrollmentOsce::where('id_osce', $id_osce)->count();
 
         $osceDetail = [
@@ -38,10 +47,10 @@ class HalamanPenilaianController extends Controller
             'nama_stase'           => $osceStaseContext->stase->nama_stase,
             'durasi_per_mahasiswa' => $osceStaseContext->durasi_per_mahasiswa,
             'total_mahasiswa'      => $totalMahasiswa,
-            // [BARU] Ambil nomor ruangan, default ke '-' jika null
             'nomor_stasiun'        => $osceStaseContext->ruang->nomor_ruangan ?? '-',
         ];
 
+        // 4. Ambil Antrian Mahasiswa
         $enrollments = EnrollmentOsce::with(['mahasiswa'])
             ->where('id_osce', $id_osce)
             ->whereHas('mahasiswa', function ($query) {
@@ -79,17 +88,17 @@ class HalamanPenilaianController extends Controller
         $enrollment = EnrollmentOsce::with(['mahasiswa.pengguna', 'osce'])
             ->findOrFail($id_enrollment_osce);
 
-        // 2. Auth Check (Strict 403)
+        // 2. Auth Check (Strict)
         $user = Auth::user();
         if (!$user || !$user->penguji) {
             abort(403, 'Akses ditolak. Anda bukan Penguji.');
         }
         $penguji = $user->penguji;
 
-        // 3. Cari Stase Penguji
+        // 3. Cari Stase Penguji (Validasi Hak Akses Stase)
         $osceStase = OsceStase::with(['stase'])
             ->where('id_osce', $enrollment->id_osce)
-            ->where('id_penguji', $penguji->id_penguji)
+            ->where('id_penguji', $penguji->id_penguji) // <--- Validasi Hak Akses Stase
             ->first();
 
         if (!$osceStase) {
@@ -134,7 +143,7 @@ class HalamanPenilaianController extends Controller
             ];
         });
 
-        // 7. Sisa Waktu
+        // 7. Sisa Waktu & Feedback
         $sisaWaktuDetik = ($osceStase->durasi_per_mahasiswa ?? 0) * 60;
         $existingFeedback = $enrollment->catatan;
 
@@ -163,10 +172,7 @@ class HalamanPenilaianController extends Controller
             'id_enrollment_osce'  => $enrollment->id_enrollment_osce,
             'existing_feedback'   => $existingFeedback,
             'saved_scores'        => $savedScores,
-
-            // [FIX ERROR 1] Tambahkan props ini agar test 'total_nilai_server' passed
             'total_nilai_server'  => number_format($totalNilaiAkhir, 2),
-
             'calculation_summary' => [
                 'total_akumulasi' => $totalAkumulasi,
                 'total_nilai'     => $totalNilaiAkhir,
