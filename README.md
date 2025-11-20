@@ -74,32 +74,32 @@ We would like to extend our thanks to the incredible team working on this projec
 
 ### Management & QA
 
-  - **Ray** 
+  - [**Ray**](https://github.com/Dice128)
 
 ### Backend & Database Team
 
-  - **Ifad** 
-  - **Ilham** 
-  - **Asdif** 
-  - **Pandu** 
-  - **Septia** 
-  - **Najwa** 
-  - **Afkar** 
-  - **Bintang** 
+  - [**Ifad**](https://github.com/Dhlih) 
+  - [**Ilham**](https://github.com/IlhamThrq)
+  - [**Asdif**](https://github.com/asdiffada) 
+  - [**Pandu**](https://github.com/setyanoegraha) 
+  - [**Septia**](https://github.com/luzyi0) 
+  - [**Najwa**](https://github.com/najwarahma) 
+  - [**Afkar**](https://github.com/Afkar5115) 
+  - [**Bintang**](https://github.com/tommystarrrrrrr) 
 
 ### Frontend Team
 
-  - **Khansa** 
-  - **Zian** 
-  - **Sendy** 
-  - **Hafizh** 
+  - [**Khansa**](https://github.com/khansaintania) 
+  - [**Zian**](https://github.com/Ziannnniiii) 
+  - [**Sendy**](https://github.com/sendyprstyo) 
+  - [**Hafizh**](https://github.com/HfzhImn) 
 
 ### UI/UX Team
 
-  - **Riko**
-  - **Levina**
-  - **Maria**
-  - **Nadja** 
+  - [**Riko**](https://github.com/Radityaz)
+  - [**Levina**](https://github.com/Agtna)
+  - [**Maria**](https://github.com/mariaulia)
+  - [**Nadja**](https://github.com/nadjakencana) 
 
 ## API Documentation
 
