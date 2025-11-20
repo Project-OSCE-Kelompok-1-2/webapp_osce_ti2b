@@ -61,8 +61,8 @@ export default function ViewNilaiDetail() {
 
       <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
         
-        {/* 1. Breadcrumb */}
-        <OsBreadCrumb 
+        {/* 1. Header */}
+        <OsHeader 
           className="fixed" 
           title="OSCE / OSCE Radiologi 01-A / Detail OSCE/Detail Stase/ Penilaian Stase/Lihat Penilaian"
           icon={<ArrowLeft className="w-5 h-5" />}

@@ -175,3 +175,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 Route::get('penguji/rekapmahasiswapage', function () {
     return Inertia::render('Penguji/RekapMahasiswaPage');
 });
+
+Route::get('penguji/viewnilaidetail', function () {
+    return Inertia::render('Penguji/ViewNilaiDetail');
+});
