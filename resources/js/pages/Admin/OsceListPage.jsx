@@ -19,7 +19,7 @@ import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
 import Os_input from "../../components/Input.jsx";
 import OsIcon from "../../components/icons.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsButton from "../../components/button.jsx";
 
 
