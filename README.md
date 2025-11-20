@@ -1,7 +1,7 @@
 <p align="center"><a href="#" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="OSCE System Logo"></a></p>
 
 <p align="center">
-<a href="#"><img src="https://img.shields.io/badge/Laravel-10.x-FF2D20?style=flat&logo=laravel" alt="Laravel Version"></a>
+<a href="#"><img src="https://img.shields.io/badge/Laravel-11.x-FF2D20?style=flat&logo=laravel" alt="Laravel Version"></a>
 <a href="#"><img src="https://img.shields.io/badge/Inertia.js-1.0-8f7ae4?style=flat&logo=inertia" alt="Inertia Version"></a>
 <a href="#"><img src="https://img.shields.io/badge/React-18-61DAFB?style=flat&logo=react" alt="React Version"></a>
 <a href="#"><img src="https://img.shields.io/badge/build-passing-brightgreen" alt="Build Status"></a>
