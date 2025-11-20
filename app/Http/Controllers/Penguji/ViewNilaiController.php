@@ -24,6 +24,7 @@ class ViewNilaiController extends Controller
 
         // --- VALIDASI AKSES (PERBAIKAN) ---
         $penguji = Auth::user(); 
+        $penguji = $user->penguji;
         
         $isAuthorized = OsceStase::where('id_osce', $enrollment->id_osce)
             ->where('id_penguji', $penguji->id_penguji) 
