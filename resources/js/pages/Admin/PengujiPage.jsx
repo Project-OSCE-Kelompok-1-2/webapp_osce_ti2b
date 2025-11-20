@@ -10,6 +10,8 @@ import OsCopyright from "../../components/Copyright.jsx";
 import Os_button from "../../components/button.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
 
+import Modals from "../../components/Modals.jsx"; // === Tambah import
+
 const pengujiColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
     {
@@ -30,14 +32,15 @@ const pengujiColumns = [
 ];
 
 export default function PengujiPage() {
-    // 2. [PERBAIKAN] Ambil props langsung dari usePage()
     const { dosen, filters, flash } = usePage().props;
 
-    // 5. State (sudah benar)
     const [search, setSearch] = useState(filters?.search || "");
 
+    // === STATE UNTUK MODAL DELETE ===
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedPenguji, setSelectedPenguji] = useState(null);
+
     const handleSearch = (e) => {
-        // [PERBAIKAN] Bungkus dalam form.preventDefault()
         e.preventDefault();
         router.get(
             "/admin/dosen",
@@ -46,10 +49,21 @@ export default function PengujiPage() {
         );
     };
 
-    const handleDelete = (id) => {
-        if (confirm("Apakah Anda yakin ingin menghapus penguji ini?")) {
-            router.delete(`/admin/dosen/${id}`, { preserveScroll: true });
-        }
+    const openDeleteModal = (penguji) => {
+        setSelectedPenguji(penguji);
+        setIsModalOpen(true);
+    };
+
+    const confirmDelete = () => {
+        if (!selectedPenguji) return;
+
+        router.delete(`/admin/dosen/${selectedPenguji.id_penguji}`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsModalOpen(false);
+                setSelectedPenguji(null);
+            },
+        });
     };
 
     return (
@@ -58,10 +72,9 @@ export default function PengujiPage() {
             <Sidebar />
 
             <main className="flex flex-col flex-1 p-os-8 transition-all duration-300 md:ml-20">
-                <OsHeader/>
+                <OsHeader />
 
                 <div className="flex-1 overflow-auto">
-                    {/* === HEADER SECTION === */}
                     <section className="mb-8">
                         <h2 className="font-semibold text-lg my-2">
                             Menu Penguji
@@ -87,7 +100,7 @@ export default function PengujiPage() {
                             </Os_button>
                         </div>
 
-                        {/* [BARU] Notifikasi Sukses/Error */}
+                        {/* Flash message */}
                         {flash.success && (
                             <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
                                 {flash.success}
@@ -99,10 +112,8 @@ export default function PengujiPage() {
                             </div>
                         )}
 
-                        {/* Search Bar */}
                         <div className="w-full">
                             <OsSearchBar
-                                // Bungkus dalam form untuk submit on Enter
                                 onSubmit={handleSearch}
                                 search={search}
                                 setSearch={setSearch}
@@ -129,12 +140,15 @@ export default function PengujiPage() {
                                     <div className="w-16 px-4 py-3 text-center">
                                         {dosen.from + index}
                                     </div>
+
                                     <div className="w-56 px-4 py-3 border-l border-gray-400">
                                         {item.nip}
                                     </div>
+
                                     <div className="flex-1 px-4 py-3 border-l border-gray-400">
                                         {item.nama}
                                     </div>
+
                                     <div className="w-56 h-[70px] flex items-center justify-center border-l border-gray-400">
                                         <div className="flex space-x-3">
                                             {/* Tombol Edit */}
@@ -148,12 +162,10 @@ export default function PengujiPage() {
                                                 />
                                             </Link>
 
-                                            {/* Tombol Delete */}
+                                            {/* Tombol Delete → pakai MODAL */}
                                             <Os_button
                                                 onClick={() =>
-                                                    handleDelete(
-                                                        item.id_penguji
-                                                    )
+                                                    openDeleteModal(item)
                                                 }
                                                 className="w-10 h-10 flex items-center justify-center bg-white p-2 border border-black text-black rounded-xl hover:bg-gray-200 transition"
                                             >
@@ -174,7 +186,6 @@ export default function PengujiPage() {
                             </div>
                         )}
 
-                        {/* Paginasi */}
                         {dosen.links && dosen.links.length > 3 && (
                             <div className="mt-8">
                                 <OsPagination links={dosen.links} />
@@ -183,11 +194,23 @@ export default function PengujiPage() {
                     </section>
                 </div>
 
-                {/* === FOOTER === */}
+                {/* FOOTER */}
                 <footer className="mt-auto pt-6 border-t border-gray-200">
                     <OsCopyright />
                 </footer>
             </main>
+
+            {/* === MODAL DELETE === */}
+            <Modals
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                variant="delete"
+                dataToDelete={[
+                    selectedPenguji?.nama,
+                    selectedPenguji?.nip,
+                ]}
+                onConfirm={confirmDelete}
+            />
         </div>
     );
 }

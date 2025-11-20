@@ -1,7 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { Head, useForm, usePage, Link } from "@inertiajs/react";
-import { Trash2, Save, X } from "lucide-react"; // X tidak lagi dipakai, tapi tidak apa-apa
+import { Trash2, Save } from "lucide-react";
 import OsCopyright from "../../components/copyright.jsx";
+
+// === IMPORT MODALS ===
+import Modals from "../../components/Modals.jsx";
 
 export default function TambahStase({
     mataKuliah,
@@ -11,16 +14,13 @@ export default function TambahStase({
     const isEditMode = !!stase;
     const { errors } = usePage().props;
 
-    // [UBAH] Kembalikan ke state awal (string tunggal, bukan array)
     const { data, setData, post, put, reset, processing } = useForm({
         nama_stase: stase?.nama_stase || "",
         id_mata_kuliah: stase?.id_mata_kuliah?.toString() || "",
-        id_tujuan_pembelajaran: stase?.id_tujuan_pembelajaran?.toString() || "", // <-- DIUBAH
+        id_tujuan_pembelajaran:
+            stase?.id_tujuan_pembelajaran?.toString() || "",
         deskripsi: stase?.deskripsi || "",
     });
-
-    // [HAPUS] Semua logika array (selectedTP, filteredTP, handleAddTP, removeTP)
-    // ...dihapus...
 
     const handleSubmit = (e) => {
         e.preventDefault();
@@ -34,12 +34,15 @@ export default function TambahStase({
         }
     };
 
+    // ==== STATE UNTUK MODAL DELETE ====
+    const [openResetModal, setOpenResetModal] = useState(false);
+
     return (
         <>
             <Head title={`Stase | ${isEditMode ? "Edit" : "Tambah"} Stase`} />
 
             <div className="flex flex-col min-h-screen bg-os-white">
-                {/* ... Header ... */}
+                {/* Header */}
                 <div className="flex items-center border-b px-4 py-3">
                     <Link
                         href="/admin/stase"
@@ -55,12 +58,12 @@ export default function TambahStase({
                     </span>
                 </div>
 
+                {/* FORM */}
                 <div className="flex flex-1 items-center justify-center py-10">
                     <form
                         onSubmit={handleSubmit}
                         className="w-full max-w-md border rounded-xl shadow-sm overflow-hidden"
                     >
-                        {/* ... Judul Form ... */}
                         <div className="bg-neutral-800 text-white text-center py-4">
                             <h2 className="text-lg font-semibold">
                                 Form {isEditMode ? "Edit" : "Tambah"} Stase
@@ -72,7 +75,7 @@ export default function TambahStase({
                         </div>
 
                         <div className="p-6 space-y-4">
-                            {/* Mata Kuliah (Tidak berubah) */}
+                            {/* Mata Kuliah */}
                             <div>
                                 <label className="text-sm text-gray-700">
                                     Mata Kuliah
@@ -101,15 +104,13 @@ export default function TambahStase({
                                 </select>
                             </div>
 
-                            {/* [UBAH] Tujuan Pembelajaran (Kembali ke <select> biasa) */}
+                            {/* Tujuan Pembelajaran */}
                             <div>
                                 <label className="text-sm text-gray-700">
                                     Tujuan Pembelajaran
                                 </label>
                                 <select
-                                    // [UBAH] Value langsung dari data form
                                     value={data.id_tujuan_pembelajaran}
-                                    // [UBAH] onChange langsung setData
                                     onChange={(e) =>
                                         setData(
                                             "id_tujuan_pembelajaran",
@@ -119,7 +120,6 @@ export default function TambahStase({
                                     className="mt-1 w-full border rounded-lg px-3 py-2 bg-white"
                                 >
                                     <option value="">Pilih tujuan...</option>
-                                    {/* [UBAH] Looping semua 'tujuanPembelajaran', bukan 'filteredTP' */}
                                     {tujuanPembelajaran.map((tp) => (
                                         <option
                                             key={tp.id_tujuan_pembelajaran}
@@ -131,9 +131,7 @@ export default function TambahStase({
                                 </select>
                             </div>
 
-                            {/* [HAPUS] Div untuk rendering chips dihapus */}
-
-                            {/* Nama Stase (Tidak berubah) */}
+                            {/* Nama Stase */}
                             <div>
                                 <label className="text-sm text-gray-700">
                                     Nama Stase
@@ -149,7 +147,7 @@ export default function TambahStase({
                                 />
                             </div>
 
-                            {/* Deskripsi (Tidak berubah) */}
+                            {/* Deskripsi */}
                             <div>
                                 <label className="text-sm text-gray-700">
                                     Deskripsi
@@ -165,9 +163,9 @@ export default function TambahStase({
                                 ></textarea>
                             </div>
 
-                            {/* Tombol (Tidak berubah) */}
-                            {/* Tombol */}
+                            {/* BUTTON */}
                             <div className="flex justify-between pt-4">
+                                {/* SUBMIT */}
                                 <button
                                     type="submit"
                                     className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg flex items-center gap-2"
@@ -176,9 +174,10 @@ export default function TambahStase({
                                     Submit
                                 </button>
 
+                                {/* RESET — PAKAI MODAL */}
                                 <button
                                     type="button"
-                                    onClick={() => reset()}
+                                    onClick={() => setOpenResetModal(true)}
                                     className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg"
                                 >
                                     <Trash2 size={16} />
@@ -192,6 +191,20 @@ export default function TambahStase({
                     <OsCopyright />
                 </footer>
             </div>
+
+            {/* =============== MODAL RESET =============== */}
+            <Modals
+                isOpen={openResetModal}
+                onClose={() => setOpenResetModal(false)}
+                variant="delete"
+                dataToDelete={[
+                    { key: "Form", value: "Semua input akan dikosongkan." },
+                ]}
+                onConfirm={() => {
+                    reset();
+                    setOpenResetModal(false);
+                }}
+            />
         </>
     );
 }
