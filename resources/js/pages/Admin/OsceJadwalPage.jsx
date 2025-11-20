@@ -1,7 +1,14 @@
 import React, { useState } from "react";
 // 1. Hapus 'usePage', kita akan gunakan props
 import { router } from "@inertiajs/react";
-import { Search, ArrowLeft, Pencil, Trash2 } from "lucide-react";
+import {
+    ClipboardList,
+    CalendarClock,
+    Plus,
+    Search,
+    Edit,
+    Trash2,
+} from "lucide-react";
 
 import Sidebar from "../../components/Sidebar";
 // Hapus OsBreadCrumb jika tidak digunakan, atau sesuaikan
@@ -9,6 +16,8 @@ import Sidebar from "../../components/Sidebar";
 import OsCopyright from "../../components/Copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
+import OsHeader from "../../components/Header";
+import OsButton from "../../components/button";
 
 const jadwalColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
@@ -76,47 +85,42 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
     };
 
     return (
-        <div className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar onToggle={setSidebarOpen} />
 
             <main
-                className={`grid w-full h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 ${
-                    sidebarOpen ? "ml-0" : "ml-20"
-                }`}
+                className={'grid w-full min-w-min p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20'}
             >
-                <div className="flex items-center gap-3 text-sm text-gray-700 px-5 py-[10px] border-b border-gray-300 bg-white">
-                    <button
-                        // Kembali ke halaman list OSCE
-                        onClick={() => router.visit("/admin/osce")}
-                        className="bg-blue-600 text-white p-[10px] rounded-full hover:bg-blue-700 flex items-center justify-center shadow-sm"
-                    >
-                        <ArrowLeft size={20} />
-                    </button>
-
-                    <div className="flex-1 border border-gray-400 rounded-lg px-4 py-[9px] text-sm font-medium bg-white leading-none">
-                        {/* Gunakan data 'osce' dari props */}
-                        OSCE / {osce.nama_osce} / Jadwal Sesi
-                    </div>
-                </div>
+                <OsHeader
+                    variant="goback"
+                    backLink="/admin/osce/"
+                />
 
                 {/* 💻 Content */}
-                <div className="flex-1 overflow-auto px-8 pb-8">
+                <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-2">Navigasi</h2>
                     <div className="flex gap-2 mb-6">
-                        <button
-                            // Link ke Halaman Stase untuk OSCE ini
-                            onClick={() =>
-                                router.visit(
-                                    `/admin/osce/${osce.id_osce}/stase`
-                                )
-                            }
-                            className="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-lg"
-                        >
-                            Halaman Stase
-                        </button>
-                        <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg">
-                            Jadwal Sesi
-                        </button>
+                            <OsButton className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
+                                onClick={() =>
+                                    router.get(
+                                        `/admin/osce/${osce.id_osce}/stase`
+                                    )
+                                }
+                            >
+                                <ClipboardList size={16} />
+                                Halaman Stase
+                            </OsButton>
+                            <OsButton
+                                onClick={() =>
+                                    router.get(
+                                        `/admin/osce/${osce.id_osce}/jadwal`
+                                    )
+                                }
+                                className="flex items-center gap-2 px-4 py-2 bg-white border text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
+                            >
+                                <CalendarClock size={16} />
+                                Jadwal Sesi
+                            </OsButton>
                     </div>
 
                     <h2 className="font-semibold text-lg mb-1">

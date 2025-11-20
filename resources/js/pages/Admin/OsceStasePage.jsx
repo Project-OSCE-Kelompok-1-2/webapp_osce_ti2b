@@ -10,6 +10,8 @@ import {
     Trash2,
 } from "lucide-react";
 import OsHeader from "../../components/Header"; // 1. Impor komponen breadcrumb
+import OsButton from "../../components/button";
+import OsCopyright from "../../components/Copyright";
 
 // 2. Pastikan nama file komponen pagination Anda benar
 import OsPagination from "../../components/pagination";
@@ -36,29 +38,37 @@ export default function OsceStasePage({ stase, osce, filters }) {
     }
 
     return (
-        <div className="min-h-screen flex">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
 
             <main
-                className={`flex-1 flex p-6 flex-col transition-all duration-300 ${
-                    isSidebarOpen ? "ml-64" : "ml-20"
-                }`}
+                className={`grid w-full min-w-min p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20`}
             >
                 {/* 5. Pastikan backend mengirim prop 'osce' */}
-                <OsHeader/>
+                <OsHeader
+                    variant="goback"
+                    backLink="/admin/osce/"
 
-                <div className="flex-1 p-2">
+                />
+
+                <div className="flex-1">
                     {/* Navigasi */}
                     <section className="mb-2">
-                        <h2 className="text-lg font-semibold mb-3">Navigasi</h2>
+                        <h2 className="text-lg font-semibold mb-2">Navigasi</h2>
 
                         <div className="flex gap-2">
-                            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
+                            <OsButton className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
+                                onClick={() =>
+                                    router.get(
+                                        `/admin/osce/${osce.id_osce}/stase`
+                                    )
+                                }
+                            >
                                 <ClipboardList size={16} />
                                 Halaman Stase
-                            </button>
+                            </OsButton>
 
-                            <button
+                            <OsButton
                                 onClick={() =>
                                     router.get(
                                         `/admin/osce/${osce.id_osce}/jadwal`
@@ -68,7 +78,7 @@ export default function OsceStasePage({ stase, osce, filters }) {
                             >
                                 <CalendarClock size={16} />
                                 Jadwal Sesi
-                            </button>
+                            </OsButton>
                         </div>
                     </section>
 
@@ -83,7 +93,7 @@ export default function OsceStasePage({ stase, osce, filters }) {
                             elit.
                         </p>
 
-                        <button
+                        <OsButton
                             onClick={() =>
                                 router.get(
                                     `/admin/osce/${osce.id_osce}/stase/create`
@@ -93,17 +103,17 @@ export default function OsceStasePage({ stase, osce, filters }) {
                         >
                             <Plus size={18} className="mr-2" />
                             Masukkan Stase
-                        </button>
+                        </OsButton>
                     </section>
 
                     {/* Search */}
-                    <section className="bg-white rounded-lg shadow-sm">
+                    <section className=" rounded-lg w-full shadow-sm">
                         <form
                             onSubmit={handleSearch}
-                            className="mb-4 flex-wrap gap-3"
+                            className="mb-4 flex-wrap gap-3 "
                         >
-                            <div className="flex items-center mb-2 gap-3">
-                                <div className="relative">
+                            <div className="flex items-center w-full mb-2 gap-3 ">
+                                <div className="relative w-full">
                                     <Search
                                         size={18}
                                         className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
@@ -218,10 +228,8 @@ export default function OsceStasePage({ stase, osce, filters }) {
                 </div>
 
                 {/* Footer */}
-                <footer className="p-4 bg-white border-t mt-auto">
-                    <div className="border rounded-lg px-4 py-3 text-center text-gray-500 text-xs">
-                        Copyright Porem ipsum
-                    </div>
+                <footer >
+                    <OsCopyright />
                 </footer>
             </main>
         </div>
