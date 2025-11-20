@@ -9,21 +9,27 @@ import OsIcon from "../../components/icons.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 import Os_button from "../../components/button.jsx";
 import OsHeader from "../../components/Header.jsx";
+import OsTableBody from "../../components/tablecontain.jsx";
+import OsSearchBar from "../../components/searchbar.jsx";
+import Os_input from "../../components/Input.jsx";
 
 // Kolom tabel (sudah benar)
 const mahasiswaColumns = [
-    { content: "No", width: "w-16", classes: "justify-center items-center" },
+    { key : "no",content: "No", width: "w-16", classes: "justify-center items-center" },
     {
-        content: "Nim Mahasiswa",
+        key : "nim_mahasiswa",
+        content: "NIM Mahasiswa",
         width: "w-56",
         classes: "justify-start items-center px-4",
     },
     {
+        key : "nama_mahasiswa",
         content: "Nama Mahasiswa",
         width: "flex-1",
         classes: "justify-start items-center px-4",
     },
     {
+        key : "action",
         content: "Action",
         width: "w-56",
         classes: "justify-center items-center px-4",
@@ -48,14 +54,11 @@ export default function MahasiswaPage() {
         { value: "2021", label: "2021" },
     ];
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        router.get(
-            "/admin/mahasiswa",
-            { search, angkatan },
-            { preserveState: true, replace: true }
-        );
+    const handleSearch = () => {
+        router.get("/admin/mahasiswa", { search, angkatan });
     };
+    
+    
 
     const handleDelete = (id) => {
         if (
@@ -87,6 +90,31 @@ export default function MahasiswaPage() {
             }
         );
     };
+
+    //7. Siapin untuk isi data tabel 
+    const tableData = mahasiswa.data.map((item, index) => ({
+        no: mahasiswa.from + index,
+        nim_mahasiswa: item.nim,
+        nama_mahasiswa: item.nama,
+        action: (
+            <div className="flex space-x-3">
+                <Link
+                    href={`/admin/mahasiswa/${item.id_mahasiswa}/edit`}
+                    className="w-10 h-10 flex items-center justify-center bg-blue-700 p-2 border border-black rounded-xl text-white hover:bg-blue-600 transition"
+                >
+                    <OsIcon name="Edit" className="h-os-20 w-os-20 os-icon-light" />
+                </Link>
+
+                <Os_button
+                    onClick={() => handleDelete(item.id_mahasiswa)}
+                    className="w-10 h-10 flex items-center justify-center bg-white p-2 border border-black text-black rounded-xl hover:bg-gray-200 transition"
+                >
+                    <OsIcon name="Trash" className="w-5 h-5 aspect-square scale-[3] os-icon-dark" />
+                </Os_button>
+            </div>
+        )
+    }));
+
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
@@ -144,44 +172,35 @@ export default function MahasiswaPage() {
                             </div>
                         )}
 
-                        {/* 7. [PERBAIKAN] Filter dibungkus <form> */}
-                        <form
-                            onSubmit={handleSearch}
-                            className="flex items-center gap-3 mb-4"
+                        {/* search + dropdown tahun*/}
+                    
+
+                        <OsSearchBar
+                            search={search}
+                            setSearch={setSearch}
+                            onSearchClick={handleSearch}
+                            placeholder="Cari data mahasiswa..."
                         >
-                            <div className="relative flex-1">
-                                <OsIcon
-                                    name="Search"
-                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-os-20"
-                                />
-                                <input
-                                    type="text"
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="Cari data mahasiswa..."
-                                    className="border border-black rounded-xl pl-10 pr-4 py-3 w-full focus:ring-2 focus:ring-blue-400 outline-none"
+                            <div className="w-60">
+                                <Os_input
+                                    type="select"
+                                    value={angkatan}
+                                    onChange={(e) => {
+                                        const val = e.target.value;
+                                        setAngkatan(val);
+                                    
+                                        router.get(
+                                            "/admin/mahasiswa",
+                                            { search, angkatan: val },
+                                            { preserveState: true, replace: true, preserveScroll: true }
+                                        );
+                                    }}
+                                    
+                                    
+                                    options={angkatanList}
                                 />
                             </div>
-
-                            <select
-                                value={angkatan}
-                                onChange={(e) => setAngkatan(e.target.value)}
-                                className="border border-black rounded-xl px-4 py-3"
-                            >
-                                {angkatanList.map((a) => (
-                                    <option key={a.value} value={a.value}>
-                                        {a.label}
-                                    </option>
-                                ))}
-                            </select>
-
-                            <Os_button
-                                type="submit"
-                                className="border border-black rounded-xl px-8 py-3"
-                            >
-                                Cari
-                            </Os_button>
-                        </form>
+                        </OsSearchBar>
                     </section>
 
                     {/* Tabel Mahasiswa */}
@@ -191,49 +210,9 @@ export default function MahasiswaPage() {
                         </h2>
                         <OsTableHeader columns={mahasiswaColumns} />
 
+
                         {mahasiswa.data.length > 0 ? (
-                            mahasiswa.data.map((item, index) => (
-                                <div
-                                    key={item.id_mahasiswa}
-                                    className="flex items-center border-t border-gray-400"
-                                >
-                                    <div className="w-16 px-4 py-3 text-center">
-                                        {mahasiswa.from + index}
-                                    </div>
-                                    <div className="w-56 px-4 py-3 border-l border-gray-400">
-                                        {item.nim}
-                                    </div>
-                                    <div className="flex-1 px-4 py-3 border-l border-gray-400">
-                                        {item.nama}
-                                    </div>
-                                    <div className="w-56 h-[70px] flex items-center justify-center border-l border-gray-400">
-                                        <div className="flex space-x-3">
-                                            <Link
-                                                href={`/admin/mahasiswa/${item.id_mahasiswa}/edit`}
-                                                className="w-10 h-10 flex items-center justify-center bg-blue-700 p-2 border border-black rounded-xl text-white hover:bg-blue-600 transition"
-                                            >
-                                                <OsIcon
-                                                    name="Edit"
-                                                    className="h-os-20 w-os-20 os-icon-light"
-                                                />
-                                            </Link>
-                                            <Os_button
-                                                onClick={() =>
-                                                    handleDelete(
-                                                        item.id_mahasiswa
-                                                    )
-                                                }
-                                                className="w-10 h-10 flex items-center justify-center bg-white p-2 border border-black text-black rounded-xl hover:bg-gray-200 transition"
-                                            >
-                                                <OsIcon
-                                                    name="Trash"
-                                                    className="w-5 h-5 aspect-square scale-[3] os-icon-dark"
-                                                />
-                                            </Os_button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
+                            <OsTableBody data={tableData} columns={mahasiswaColumns} />
                         ) : (
                             <div className="flex items-center border-t border-gray-400">
                                 <p className="w-full text-center text-sm py-4 text-gray-500">
