@@ -292,19 +292,23 @@ export default function MenuAspekPenilaian() {
                         <div className="py-6 text-center text-gray-500">
                             Belum ada aspek penilaian untuk stase ini.
                         </div>
-                        
                     )}
 
                     {/* Baris Total */}
                     <div className="bg-os-white rounded-lg overflow-hidden border-os-1 border-os-black mt-3 h-[56px]">
                         <table className="w-full h-[56px]">
-                            <tfoot >
+                            <tfoot>
                                 <tr className="w-full">
                                     <td className="pl-4 text-left w-[60%] h-full">
                                         Total Bobot
                                     </td>
                                     <td className=" px-3 text-center w-2/12">
-                                        <strong>{totalBobot}</strong>
+                                        <span className="text-sm">
+                                            Bobot:
+                                        </span>
+                                        <span className="text-black font-bold pl-1.5">
+                                            {totalBobot}
+                                        </span>
                                     </td>
                                     <td className=" px-5  text-center w-3/12">
                                         {/* --- KONDISI SEIMBANG (totalBobot = 100) --- */}

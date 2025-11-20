@@ -19,10 +19,30 @@ import OsInput from "../../components/input.jsx";
 import Modals from "../../components/Modals.jsx";
 
 const staseColumns = [
-    { key: "no", content: "No", width: "w-16", classes: "justify-center items-center" },
-    { key: "nama_stase", content: "Nama Stase", width: "w-7/12", classes: "justify-start items-center px-4" },
-    { key: "jumlah_aspek", content: "Jumlah Aspek", width: "w-2/12", classes: "justify-center items-center px-4" },
-    { key: "action", content: "Action", width: "w-3/12", classes: "justify-center items-center px-4" },
+    {
+        key: "no",
+        content: "No",
+        width: "w-16",
+        classes: "justify-center items-center",
+    },
+    {
+        key: "nama_stase",
+        content: "Nama Stase",
+        width: "w-7/12",
+        classes: "justify-start items-center px-4",
+    },
+    {
+        key: "jumlah_aspek",
+        content: "Jumlah Aspek",
+        width: "w-2/12",
+        classes: "justify-center items-center px-4",
+    },
+    {
+        key: "action",
+        content: "Action",
+        width: "w-3/12",
+        classes: "justify-center items-center px-4",
+    },
 ];
 
 export default function Stase() {
@@ -45,7 +65,11 @@ export default function Stase() {
     const [search, setSearch] = useState(filters.search || "");
 
     const handleSearch = () => {
-        router.get("/admin/stase", { search }, { preserveState: true, replace: true });
+        router.get(
+            "/admin/stase",
+            { search },
+            { preserveState: true, replace: true }
+        );
     };
 
     // 🔥 STATE DELETE MODAL
@@ -124,33 +148,31 @@ export default function Stase() {
         jumlah_aspek: item.aspek_penilaian_count,
         action: (
             <div className="flex items-center justify-center space-x-3">
-
                 {/* Edit Aspek Penilaian */}
                 <OsButton
                     name="primary"
-                    onClick={() => router.get(`/admin/stase/${item.id_stase}/aspek-penilaian`)}
+                    onClick={() =>
+                        router.get(
+                            `/admin/stase/${item.id_stase}/aspek-penilaian`
+                        )
+                    }
                     className="h-[38px] text-os-small w-full flex justify-between items-center gap-3"
                 >
-                    <OsIcon
-                        name={'add'}
-                        className="os-icon-light h-[20px]"
-
-                    />
+                    <OsIcon name={"add"} className="os-icon-light h-[20px]" />
                     Edit Aspek Penilaian
                 </OsButton>
 
                 {/* EDIT */}
-                <OsButton
-                    name="edit"
-                    onClick={() => openEditModal(item)}
-                >
+                <OsButton name="edit" onClick={() => openEditModal(item)}>
                     <Edit2 size={18} />
                 </OsButton>
 
                 {/* DELETE */}
                 <OsButton
                     name="warning"
-                    onClick={() => openDeleteModal(item.id_stase, item.nama_stase)}
+                    onClick={() =>
+                        openDeleteModal(item.id_stase, item.nama_stase)
+                    }
                 >
                     <Trash2 size={18} className="text-os-white" />
                 </OsButton>
@@ -168,7 +190,10 @@ export default function Stase() {
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">Menu Stase</h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                        Kelola konten Stase secara menyeluruh, termasuk daftar kompetensi inti yang diujikan serta aspek penilaian (kriteria checklist atau skor) yang digunakan penguji untuk mengukur pencapaian kompetensi tersebut.
+                        Kelola konten Stase secara menyeluruh, termasuk daftar
+                        kompetensi inti yang diujikan serta aspek penilaian
+                        (kriteria checklist atau skor) yang digunakan penguji
+                        untuk mengukur pencapaian kompetensi tersebut.
                     </p>
 
                     {/* 🔵 BUTTON TAMBAH */}
@@ -177,7 +202,10 @@ export default function Stase() {
                         onClick={openAddModal}
                         className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                     >
-                        <OsIcon name="add" className="h-os-20 os-icon-light mr-os-8" />
+                        <OsIcon
+                            name="add"
+                            className="h-os-20 os-icon-light mr-os-8"
+                        />
                         Tambah Stase
                     </OsButton>
 
@@ -189,7 +217,9 @@ export default function Stase() {
                         placeholder="Cari stase..."
                     />
 
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">Table Stase</h2>
+                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        Table Stase
+                    </h2>
                     <OsTableHeader columns={staseColumns} />
                     <OsTableBody data={tableData} columns={staseColumns} />
 
@@ -216,7 +246,9 @@ export default function Stase() {
                 show={showModal}
                 onClose={() => setShowModal(false)}
                 variant={modalMode}
-                title={modalMode === "edit" ? "Edit Stase" : "Tambah Stase Baru"}
+                title={
+                    modalMode === "edit" ? "Edit Stase" : "Tambah Stase Baru"
+                }
                 subtitle={
                     modalMode === "edit"
                         ? `Ubah data stase: ${form.nama_stase}`
@@ -229,7 +261,9 @@ export default function Stase() {
                         type="text"
                         name="matakuliah"
                         value={form.matakuliah}
-                        onChange={(e) => setForm({ ...form, matakuliah: e.target.value })}
+                        onChange={(e) =>
+                            setForm({ ...form, matakuliah: e.target.value })
+                        }
                         placeholder="Masukkan Mata kuliah..."
                         required
                     />
@@ -238,7 +272,9 @@ export default function Stase() {
                         type="text"
                         name="tujuan"
                         value={form.tujuan}
-                        onChange={(e) => setForm({ ...form, tujuan: e.target.value })}
+                        onChange={(e) =>
+                            setForm({ ...form, tujuan: e.target.value })
+                        }
                         placeholder="Masukkan Tujuan..."
                         required
                     />
@@ -247,7 +283,9 @@ export default function Stase() {
                         type="text"
                         name="nama_stase"
                         value={form.nama_stase}
-                        onChange={(e) => setForm({ ...form, nama_stase: e.target.value })}
+                        onChange={(e) =>
+                            setForm({ ...form, nama_stase: e.target.value })
+                        }
                         placeholder="Masukkan Nama Stase..."
                         required
                     />
@@ -256,12 +294,13 @@ export default function Stase() {
                         type="textarea"
                         name="deskripsi"
                         value={form.deskripsi}
-                        onChange={(e) => setForm({ ...form, deskripsi: e.target.value })}
+                        onChange={(e) =>
+                            setForm({ ...form, deskripsi: e.target.value })
+                        }
                         placeholder="Masukkan Deskripsi..."
                         required
                     />
                 </form>
-
             </OsModal>
 
             {/* 🔥 MODAL DELETE */}
