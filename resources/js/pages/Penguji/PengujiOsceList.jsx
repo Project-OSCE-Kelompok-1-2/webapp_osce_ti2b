@@ -1,5 +1,5 @@
 import { Head } from "@inertiajs/react";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 // Sidebar khusus Penguji
 import SidebarPenguji from "../../components/SidebarPenguji";
@@ -46,7 +46,7 @@ const osceColumns = [
     },
 ];
 
-// Mapping button style sesuai UI/UX
+// Button Style
 const getButtonStyle = (status) => {
     switch (status) {
         case "Aktif":
@@ -82,37 +82,11 @@ const getButtonStyle = (status) => {
 };
 
 export default function PengujiOsceList() {
-    // Dummy data sementara
-    const [data] = useState([
-        {
-            id: 1,
-            nama: "OSCE Blok 3",
-            tanggal_mulai: "2025-01-10",
-            tanggal_akhir: "2025-01-12",
-            jumlah_mahasiswa: 120,
-            sesi: 4,
-            status: "Aktif",
-        },
-        {
-            id: 2,
-            nama: "OSCE Blok 5",
-            tanggal_mulai: "2025-02-15",
-            tanggal_akhir: "2025-02-16",
-            jumlah_mahasiswa: 98,
-            sesi: 3,
-            status: "Tidak Aktif",
-        },
-        {
-            id: 3,
-            nama: "OSCE Radiologi",
-            tanggal_mulai: "2025-03-01",
-            tanggal_akhir: "2025-03-03",
-            jumlah_mahasiswa: 135,
-            sesi: 1,
-            status: "Selesai",
-        },
-    ]);
+    // State Data OSCE
+    const [data, setData] = useState([]);
+    const [loading, setLoading] = useState(true);
 
+    // Search & Filter Tahun
     const [search, setSearch] = useState("");
     const [tahun, setTahun] = useState("2025/2026");
 
@@ -122,7 +96,38 @@ export default function PengujiOsceList() {
         { value: "2023/2024", label: "2023/2024" },
     ];
 
-    // Mapping data untuk OsTableBody
+    // =============================
+    // FETCH LOGIC
+    // =============================
+    const fetchData = async () => {
+        try {
+            setLoading(true);
+
+            // Kirim query ke backend
+            const res = await fetch(
+                `/penguji/osce?search=${search}&tahun=${tahun}`
+            );
+            const json = await res.json();
+
+            setData(json.data || []);
+        } catch (error) {
+            console.error("Gagal fetch OSCE:", error);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    // Fetch pertama kali saat halaman dibuka
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    // Fetch ulang ketika search atau tahun berubah
+    useEffect(() => {
+        fetchData();
+    }, [search, tahun]);
+
+    // Mapping data ke tabel
     const mappedData = data.map((item, index) => {
         const btn = getButtonStyle(item.status);
 
@@ -156,11 +161,7 @@ export default function PengujiOsceList() {
             {/* Sidebar Penguji */}
             <SidebarPenguji />
 
-            {/* Konten utama */}
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 
-                grid-rows-[auto_1fr_auto] gap-os-14 
-                transition-all duration-300 md:ml-20">
-
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 <OsHeader variant="goback" backLink="/penguji/dashboard" />
 
                 <div className="flex-1 overflow-auto">
@@ -168,7 +169,8 @@ export default function PengujiOsceList() {
                         Menu Jadwal OSCE
                     </h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Pilih OSCE untuk melihat jadwal, detail sesi, dan daftar mahasiswa.
+                        Pilih OSCE untuk melihat jadwal, detail sesi, dan daftar
+                        mahasiswa.
                     </p>
 
                     {/* Filter Bar */}
@@ -209,8 +211,18 @@ export default function PengujiOsceList() {
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Daftar OSCE
                     </h2>
-                    <OsTableHeader columns={osceColumns} />
-                    <OsTableBody data={mappedData} columns={osceColumns} />
+
+                    {loading ? (
+                        <p className="text-gray-600 text-sm">Memuat data...</p>
+                    ) : (
+                        <>
+                            <OsTableHeader columns={osceColumns} />
+                            <OsTableBody
+                                data={mappedData}
+                                columns={osceColumns}
+                            />
+                        </>
+                    )}
 
                     <div className="mt-8">
                         <OsPagination />
