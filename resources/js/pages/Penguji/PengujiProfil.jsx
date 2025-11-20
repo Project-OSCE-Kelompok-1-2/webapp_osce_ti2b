@@ -12,9 +12,11 @@ import {
 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
+import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 import Os_input from "../../components/Input.jsx";
 import OsIcon from "../../components/icons.jsx";
+import OsButton from "../../components/button.jsx";
 
 export default function PengujiProfil({ user = {} }) {
     const { errors } = usePage().props;
@@ -72,28 +74,7 @@ export default function PengujiProfil({ user = {} }) {
             <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans">
                 <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 md:ml-20">
                     {/* HEADER */}
-                    <header className="relative w-full flex flex-col gap-5 bg-white p-4 rounded-xl shadow-sm border border-gray-900">
-                        <div className="flex items-center gap-4">
-                            <Link
-                                href="/penguji/dashboard"
-                                className="flex w-[54px] h-[54px] items-center justify-center bg-blue-600 text-white rounded-xl border border-black"
-                                aria-label="Back"
-                                as="button"
-                            >
-                                <ArrowLeft className="w-[30px] h-[26px]" />
-                            </Link>
-
-                            <div className="flex-1 h-[54px] bg-white rounded-xl overflow-hidden border border-black flex items-center px-5">
-                                <p className="text-xl">
-                                    <span className="text-black/70">
-                                        Pengaturan
-                                    </span>
-                                    <span className="text-black"> / Akun</span>
-                                </p>
-                            </div>
-                        </div>
-                        <hr className="border-black" />
-                    </header>
+                    <OsHeader variant="goback" backLink="/penguji/dashboard" />
 
                     {/* MAIN CONTENT */}
                     <main className="flex flex-col gap-5 w-full">
@@ -144,19 +125,25 @@ export default function PengujiProfil({ user = {} }) {
                                             onChange={handleProfileImageUpload}
                                             className="sr-only"
                                         />
-                                        <UploadCloud className="w-5 h-5" />
+                                        <OsIcon
+                                            name="Upload"
+                                            className="h-os-20 os-icon-light"
+                                        />
                                         <span className="ml-2">
                                             Upload gambar profil
                                         </span>
                                     </label>
 
-                                    <button
+                                    <OsButton
                                         type="button"
                                         onClick={handleDeleteProfileImage}
                                         className="w-12 h-12 bg-red-600 text-white rounded-xl flex items-center justify-center"
                                     >
-                                        <Trash2 className="w-5 h-5" />
-                                    </button>
+                                        <OsIcon
+                                            name="Trash"
+                                            className="h-os-20 os-icon-light"
+                                        />
+                                    </OsButton>
                                 </div>
                             </aside>
 
@@ -287,14 +274,17 @@ export default function PengujiProfil({ user = {} }) {
                                     </div>
 
                                     {/* Tombol Simpan */}
-                                    <button
-                                        type="submit"
-                                        disabled={processing}
-                                        className="flex items-center justify-center w-[223px] bg-blue-600 text-white p-3 rounded-xl border border-black gap-2"
+                                    <OsButton
+                                        name="primary"
+                                        className="flex items-center justify-center w-[223px] gap-2 border border-black"
+                                        onClick={handleSave}
                                     >
-                                        <Save className="w-5 h-5" />
+                                        <OsIcon
+                                            name="Save"
+                                            className="h-os-20 os-icon-light"
+                                        />
                                         {processing ? "Menyimpan..." : "Simpan"}
-                                    </button>
+                                    </OsButton>
 
                                     <a
                                         href="#contact-admin"
