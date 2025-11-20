@@ -1,32 +1,39 @@
 import React, { useState } from "react";
+import { Link } from "@inertiajs/react";
 // 1. Hapus 'usePage', kita akan gunakan props
 import { router } from "@inertiajs/react";
 import { Search, ArrowLeft, Pencil, Trash2 } from "lucide-react";
 
-import Sidebar from "../../components/Sidebar";
+import Sidebar from "../../components/Sidebar.jsx";
 // Hapus OsBreadCrumb jika tidak digunakan, atau sesuaikan
 // import OsBreadCrumb from "../../components/breadcrumb";
-import OsCopyright from "../../components/Copyright";
-import OsTableHeader from "../../components/tableheader";
-import OsPagination from "../../components/pagination";
+import OsCopyright from "../../components/copyright.jsx";
+import OsTableHeader from "../../components/tableheader.jsx";
+import OsPagination from "../../components/pagination.jsx";
+import OsTableBody from "../../components/tablecontain.jsx";
+import OsSearchBar from "../../components/searchbar.jsx";
+
 
 const jadwalColumns = [
-    { content: "No", width: "w-16", classes: "justify-center items-center" },
+    { key: "no",content: "No", width: "w-16", classes: "justify-center items-center" },
     {
+        key: "tanggal_sesi",
         content: "Tanggal / Sesi",
         width: "flex-1",
         classes: "justify-start items-center px-4",
     },
     {
+        key: "jumlah_mahasiswa",
         content: "Jumlah Mahasiswa",
         width: "w-80",
         classes: "justify-start items-center px-4",
     },
     {
+        key: "action",
         content: "Action",
-        width: "w-[310px]",
-        classes: "justify-center items-center px-4",
-    },
+        width: "w-60",
+        classes: "justify-center items-center",
+    }
 ];
 
 // 2. HAPUS 'mockFilters' dan 'mockSesi'
@@ -74,6 +81,44 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
             });
         }
     };
+
+
+    // siapin isi data tabel
+    const rows = sesi.data.map((item, index) => ({
+        no: sesi.from + index,
+        "tanggal_sesi": `${item.tanggal_formatted} (Pukul ${item.jam_mulai_formatted})`,
+        jumlah_mahasiswa: `${item.jumlah_mahasiswa} Mahasiswa`,
+        action: (
+            <div className="flex items-center justify-between w-full px-5">
+    
+                <button
+                    onClick={() => handleEditEnrollment(item.id_osce_stase)}
+                    className="h-[44px] px-5 bg-neutral-800 text-white text-sm rounded-xl hover:bg-neutral-700"
+                >
+                    Edit enrollment
+                </button>
+    
+                <div className="h-8 w-px bg-gray-300 mx-3" />
+    
+                <div className="flex items-center gap-2">
+                    <button
+                        onClick={() => handleEditSesi(item)}
+                        className="flex items-center justify-center w-[38px] h-[38px] rounded-xl bg-neutral-800 text-white hover:bg-neutral-700"
+                    >
+                        <Pencil size={17} />
+                    </button>
+    
+                    <button
+                        onClick={() => handleDeleteSesi(item)}
+                        className="flex items-center justify-center w-[38px] h-[38px] rounded-xl border border-gray-400 text-gray-800 hover:bg-gray-100"
+                    >
+                        <Trash2 size={17} />
+                    </button>
+                </div>
+            </div>
+        )
+    }));
+    
 
     return (
         <div className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
@@ -139,96 +184,27 @@ export default function OsceJadwalPage({ osce, sesi, filters }) {
                     >
                         Masukkan Sesi
                     </button>
+                        
+                    
+                        <OsSearchBar
+                            search={search}
+                            setSearch={setSearch}
+                            onSearchClick={handleSearch}
+                            placeholder="Cari jadwal..."
+                        />
 
-                    <form
-                        onSubmit={handleSearch}
-                        className="flex items-center gap-3 mb-6 w-full"
-                    >
-                        <div className="relative flex-grow">
-                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400 w-5 h-5" />
-                            <input
-                                type="text"
-                                placeholder="Cari berdasarkan tanggal (YYYY-MM-DD)..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="w-full pl-10 pr-4 h-[46px] border border-gray-400 rounded-md text-sm focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        </div>
-
-                        <button
-                            type="submit" // Tipe submit
-                            className="h-[46px] w-[120px] bg-blue-600 text-white font-medium rounded-md hover:bg-blue-700 text-sm transition-all"
-                        >
-                            Cari
-                        </button>
-                    </form>
+                   
 
                     {/* === 📋 TABLE === */}
                     <h2 className="font-semibold text-lg mb-3">Table Sesi</h2>
-                    <div className="mb-3 w-full overflow-hidden border-t border-gray-400">
+                    <div className="border rounded-lg overflow-hidden">
+
+                        {/* HEADER */}
                         <OsTableHeader columns={jadwalColumns} />
 
-                        {sesi.data.map((item, index) => (
-                            <div
-                                key={item.id_osce_stase}
-                                className={`flex items-center text-sm border-t border-gray-300 min-h-[70px] ${
-                                    index % 2 === 1 ? "bg-gray-50" : "bg-white"
-                                }`}
-                            >
-                                <div className="w-16 px-4 text-center">
-                                    {sesi.from + index}
-                                </div>
-                                <div className="flex-1 px-4 border-l border-gray-300">
-                                    {item.tanggal_formatted} (Pukul{" "}
-                                    {item.jam_mulai_formatted})
-                                </div>
-                                <div className="w-80 px-4 border-l border-gray-300">
-                                    {item.jumlah_mahasiswa} Mahasiswa
-                                </div>
+                        {/* BODY */}
+                        <OsTableBody data={rows} columns={jadwalColumns} />
 
-                                <div className="w-[310px] border-l border-gray-300 flex items-center justify-center">
-                                    <div className="flex items-center justify-between w-full px-5">
-                                        <button
-                                            onClick={() =>
-                                                // Panggil fungsi enrollment
-                                                handleEditEnrollment(
-                                                    item.id_osce_stase
-                                                )
-                                            }
-                                            className="h-[44px] px-5 bg-neutral-800 text-white text-sm rounded-xl hover:bg-neutral-700 transition-colors whitespace-nowrap"
-                                        >
-                                            Edit enrollment
-                                        </button>
-
-                                        {/* Separator */}
-                                        <div className="h-8 w-px bg-gray-300 mx-3" />
-
-                                        {/* Ikon kanan (YANG HILANG) */}
-                                        <div className="flex items-center gap-2">
-                                            <button
-                                                // Panggil fungsi edit sesi
-                                                onClick={() =>
-                                                    handleEditSesi(item)
-                                                }
-                                                className="flex items-center justify-center w-[38px] h-[38px] rounded-xl bg-neutral-800 text-white hover:bg-neutral-700 transition-colors"
-                                            >
-                                                <Pencil size={17} />
-                                            </button>
-
-                                            <button
-                                                // Panggil fungsi delete sesi
-                                                onClick={() =>
-                                                    handleDeleteSesi(item)
-                                                }
-                                                className="flex items-center justify-center w-[38px] h-[38px] rounded-xl border border-gray-400 text-gray-800 bg-white hover:bg-gray-100 transition-colors"
-                                            >
-                                                <Trash2 size={17} />
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
                     </div>
 
                     {/* Pesan Kosong */}
