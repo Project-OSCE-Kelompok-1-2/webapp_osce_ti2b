@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Redirect;
+use App\Models\Stase;
 use Illuminate\Http\Request;
 use App\Models\AspekPenilaian;
-use App\Models\Stase;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redirect;
 
 class AspekPenilaianController extends Controller
 {

@@ -1,34 +1,33 @@
 import React from "react";
 import { Head, useForm, usePage, Link } from "@inertiajs/react";
-import { Trash2, Save } from "lucide-react";
+import { Trash2, Save, X } from "lucide-react"; // X tidak lagi dipakai, tapi tidak apa-apa
+import OsCopyright from "../../components/copyright.jsx";
 
-// [UBAH] Komponen sekarang menerima props 'stase' yang bisa jadi null
 export default function TambahStase({
     mataKuliah,
     tujuanPembelajaran,
     stase = null,
 }) {
-    // [BARU] Cek apakah ini mode edit atau tambah
     const isEditMode = !!stase;
-
     const { errors } = usePage().props;
 
-    // [UBAH] Isi form dengan data 'stase' jika ada, jika tidak, kosongkan
+    // [UBAH] Kembalikan ke state awal (string tunggal, bukan array)
     const { data, setData, post, put, reset, processing } = useForm({
         nama_stase: stase?.nama_stase || "",
-        id_mata_kuliah: stase?.id_mata_kuliah || "",
-        id_tujuan_pembelajaran: stase?.id_tujuan_pembelajaran || "",
+        id_mata_kuliah: stase?.id_mata_kuliah?.toString() || "",
+        id_tujuan_pembelajaran: stase?.id_tujuan_pembelajaran?.toString() || "", // <-- DIUBAH
         deskripsi: stase?.deskripsi || "",
     });
 
+    // [HAPUS] Semua logika array (selectedTP, filteredTP, handleAddTP, removeTP)
+    // ...dihapus...
+
     const handleSubmit = (e) => {
         e.preventDefault();
-        // [UBAH] Logika submit sekarang dinamis
+
         if (isEditMode) {
-            // Jika mode edit, kirim request PUT ke URL update
             put(`/admin/stase/${stase.id_stase}`);
         } else {
-            // Jika mode tambah, kirim request POST ke URL store
             post("/admin/stase", {
                 onSuccess: () => reset(),
             });
@@ -37,19 +36,19 @@ export default function TambahStase({
 
     return (
         <>
-            {/* [UBAH] Judul halaman dinamis */}
             <Head title={`Stase | ${isEditMode ? "Edit" : "Tambah"} Stase`} />
 
             <div className="flex flex-col min-h-screen bg-os-white">
+                {/* ... Header ... */}
                 <div className="flex items-center border-b px-4 py-3">
                     <Link
                         href="/admin/stase"
-                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 mr-3 w-8 h-8 flex items-center justify-center leading-none"
+                        className="bg-blue-600 hover:bg-blue-700 text-white rounded-full p-2 mr-3 w-8 h-8 flex items-center justify-center"
                     >
                         ←
                     </Link>
                     <span className="text-gray-700 font-medium">
-                        Stase {/* [UBAH] Breadcrumb dinamis */}
+                        Stase{" "}
                         <span className="text-gray-500">
                             / {isEditMode ? "Edit" : "Tambah"} Stase
                         </span>
@@ -61,19 +60,19 @@ export default function TambahStase({
                         onSubmit={handleSubmit}
                         className="w-full max-w-md border rounded-xl shadow-sm overflow-hidden"
                     >
+                        {/* ... Judul Form ... */}
                         <div className="bg-neutral-800 text-white text-center py-4">
-                            {/* [UBAH] Judul form dinamis */}
                             <h2 className="text-lg font-semibold">
                                 Form {isEditMode ? "Edit" : "Tambah"} Stase
                             </h2>
                             <p className="text-gray-300 text-sm">
                                 Form ini berisi semua data yang digunakan untuk{" "}
-                                {isEditMode ? "mengubah" : "membuat"} Stase
+                                {isEditMode ? "mengubah" : "membuat"} Stase.
                             </p>
                         </div>
 
                         <div className="p-6 space-y-4">
-                            {/* Semua input di bawah ini sekarang sudah terisi otomatis jika dalam mode edit */}
+                            {/* Mata Kuliah (Tidak berubah) */}
                             <div>
                                 <label className="text-sm text-gray-700">
                                     Mata Kuliah
@@ -86,7 +85,7 @@ export default function TambahStase({
                                             e.target.value
                                         )
                                     }
-                                    className="mt-1 w-full border rounded-lg px-3 py-2 bg-white ..."
+                                    className="mt-1 w-full border rounded-lg px-3 py-2 bg-white"
                                 >
                                     <option value="">
                                         Pilih Mata Kuliah...
@@ -100,30 +99,27 @@ export default function TambahStase({
                                         </option>
                                     ))}
                                 </select>
-                                {errors.id_mata_kuliah && (
-                                    <p className="text-red-500 text-sm mt-1">
-                                        {errors.id_mata_kuliah}
-                                    </p>
-                                )}
                             </div>
 
+                            {/* [UBAH] Tujuan Pembelajaran (Kembali ke <select> biasa) */}
                             <div>
                                 <label className="text-sm text-gray-700">
                                     Tujuan Pembelajaran
                                 </label>
                                 <select
+                                    // [UBAH] Value langsung dari data form
                                     value={data.id_tujuan_pembelajaran}
+                                    // [UBAH] onChange langsung setData
                                     onChange={(e) =>
                                         setData(
                                             "id_tujuan_pembelajaran",
                                             e.target.value
                                         )
                                     }
-                                    className="mt-1 w-full border rounded-lg px-3 py-2 bg-white ..."
+                                    className="mt-1 w-full border rounded-lg px-3 py-2 bg-white"
                                 >
-                                    <option value="">
-                                        Pilih Tujuan Pembelajaran...
-                                    </option>
+                                    <option value="">Pilih tujuan...</option>
+                                    {/* [UBAH] Looping semua 'tujuanPembelajaran', bukan 'filteredTP' */}
                                     {tujuanPembelajaran.map((tp) => (
                                         <option
                                             key={tp.id_tujuan_pembelajaran}
@@ -133,13 +129,11 @@ export default function TambahStase({
                                         </option>
                                     ))}
                                 </select>
-                                {errors.id_tujuan_pembelajaran && (
-                                    <p className="text-red-500 text-sm mt-1">
-                                        {errors.id_tujuan_pembelajaran}
-                                    </p>
-                                )}
                             </div>
 
+                            {/* [HAPUS] Div untuk rendering chips dihapus */}
+
+                            {/* Nama Stase (Tidak berubah) */}
                             <div>
                                 <label className="text-sm text-gray-700">
                                     Nama Stase
@@ -150,16 +144,12 @@ export default function TambahStase({
                                     onChange={(e) =>
                                         setData("nama_stase", e.target.value)
                                     }
-                                    className="mt-1 w-full border rounded-lg px-3 py-2 ..."
+                                    className="mt-1 w-full border rounded-lg px-3 py-2"
                                     placeholder="Masukkan nama stase..."
                                 />
-                                {errors.nama_stase && (
-                                    <p className="text-red-500 text-sm mt-1">
-                                        {errors.nama_stase}
-                                    </p>
-                                )}
                             </div>
 
+                            {/* Deskripsi (Tidak berubah) */}
                             <div>
                                 <label className="text-sm text-gray-700">
                                     Deskripsi
@@ -169,32 +159,27 @@ export default function TambahStase({
                                     onChange={(e) =>
                                         setData("deskripsi", e.target.value)
                                     }
-                                    className="mt-1 w-full border rounded-lg px-3 py-2 ..."
-                                    placeholder="Masukkan deskripsi singkat stase..."
+                                    className="mt-1 w-full border rounded-lg px-3 py-2"
                                     rows="3"
+                                    placeholder="Masukkan deskripsi singkat..."
                                 ></textarea>
-                                {errors.deskripsi && (
-                                    <p className="text-red-500 text-sm mt-1">
-                                        {errors.deskripsi}
-                                    </p>
-                                )}
                             </div>
 
-                            <div className="flex justify-between items-center pt-4">
+                            {/* Tombol (Tidak berubah) */}
+                            {/* Tombol */}
+                            <div className="flex justify-between pt-4">
                                 <button
                                     type="submit"
-                                    disabled={processing}
-                                    // 👇 [UBAH] ClassName disamakan dengan contoh
-                                    className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg flex items-center gap-2 disabled:opacity-50"
+                                    className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg flex items-center gap-2"
                                 >
                                     <Save size={16} />
-                                    {processing ? "Menyimpan..." : "Submit"}
+                                    Submit
                                 </button>
+
                                 <button
                                     type="button"
                                     onClick={() => reset()}
-                                    // 👇 [UBAH] ClassName disamakan dengan contoh
-                                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg flex items-center justify-center"
+                                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-2 rounded-lg"
                                 >
                                     <Trash2 size={16} />
                                 </button>
@@ -203,8 +188,8 @@ export default function TambahStase({
                     </form>
                 </div>
 
-                <footer className="border-t mt-auto text-center text-gray-500 text-sm py-2">
-                    Copyright Porem ipsum dolor sit amet
+                <footer className="mt-6 border-t border-gray-200">
+                    <OsCopyright />
                 </footer>
             </div>
         </>

@@ -1,17 +1,17 @@
 
 import Os_button from "../components/button";
-import OsBreadCrumb from "../components/breadcrumb";
+// import OsBreadCrumb from "../components/breadcrumb";
 import OsCopyright from "../components/copyright";
 import OsIcon from "../components/icons";
 
 const Home = () => {
     return <div className="container flex flex-col w-full h-screen justify-between p-os-8 items-center bg-yellow-100" >
-        <OsBreadCrumb>
+        {/* <OsBreadCrumb>
             <span>Hello World</span>
             <span>Hello World</span>
             <span>Hello World</span>
             <span>Hello World</span>
-        </OsBreadCrumb>
+        </OsBreadCrumb> */}
         <div className="bg-yellow-200 w-5/12 m-3 h-4/6 p-os-20 text-os-title text-os-black font-bold  flex flex-col justify-between rounded-lg items-start border-os-2 border-os-black" >
         <div className="flex flex-row items-center justify-center gap-os-8" >
             <OsIcon name="home" className="w-os-24 os-icon-dark" />
