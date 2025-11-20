@@ -24,7 +24,7 @@ We strictly follow a **Service Layer Architecture** to ensure our logic is reusa
 
 This project leverages a modern stack to ensure performance and maintainability:
 
-- **Backend:** Laravel 10 (PHP 8.2+)
+- **Backend:** Laravel 11 (PHP 8.2+)
 - **Frontend:** React.js via Inertia.js
 - **Database:** MySQL
 - **Styling:** Tailwind CSS
