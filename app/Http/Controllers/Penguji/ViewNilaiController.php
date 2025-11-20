@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\EnrollmentOsce;
 use App\Models\NilaiOsce;
 use App\Models\AspekPenilaian;
+use App\Models\OsceStase;       // <-- Tambahan Import
+use Illuminate\Support\Facades\Auth; // <-- Tambahan Import
 use Inertia\Inertia;
 
 class ViewNilaiController extends Controller
@@ -20,8 +22,19 @@ class ViewNilaiController extends Controller
         $enrollment = EnrollmentOsce::with(['mahasiswa'])
             ->findOrFail($id_enrollment_osce);
 
+        // --- VALIDASI AKSES (PERBAIKAN) ---
+        $penguji = Auth::user(); 
+        
+        $isAuthorized = OsceStase::where('id_osce', $enrollment->id_osce)
+            ->where('id_penguji', $penguji->id_penguji) 
+            ->exists();
+
+        if (!$isAuthorized) {
+            abort(403, 'Anda tidak memiliki akses ke penilaian mahasiswa ini.');
+        }
+        // ----------------------------------
+
         // 2. Cari tahu ini Stase apa?
-        // Kita ambil satu sampel nilai, lalu telusuri relasinya ke atas: Nilai -> Poin -> Aspek -> Stase
         $sampleNilai = NilaiOsce::with('poinAspekPenilaian.aspekPenilaian')
             ->where('id_enrollment_osce', $id_enrollment_osce)
             ->first();
@@ -73,13 +86,15 @@ class ViewNilaiController extends Controller
             ];
         });
 
-        $feedback =  null;
+        // --- AMBIL FEEDBACK (PERBAIKAN) ---
+        // Mengambil dari kolom 'catatan' di tabel enrollment_osce
+        $feedback = $enrollment->catatan;
 
         return Inertia::render('Penguji/Nilai/View', [
             'mahasiswa' => [
                 'nama'    => $enrollment->mahasiswa->nama,
                 'nim'     => $enrollment->mahasiswa->nim,
-                'jurusan' => $enrollment->mahasiswa->prodi ?? '-', // Pakai null coalescing jika prodi kosong
+                'jurusan' => $enrollment->mahasiswa->prodi ?? '-', 
             ],
             'rubrik_terisi'     => $rubrikTerisi,
             'total_nilai_aspek' => $totalNilaiAspek,
