@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Sidebar from "../../components/Sidebar"; // Pastikan path ini benar
-import { Link, router, usePage } from "@inertiajs/react";
+import Sidebar from "../../components/Sidebar";
+import { Link, router } from "@inertiajs/react";
 import {
     ClipboardList,
     CalendarClock,
@@ -14,11 +14,21 @@ import OsButton from "../../components/button";
 import OsCopyright from "../../components/Copyright";
 
 // 2. Pastikan nama file komponen pagination Anda benar
+import OsHeader from "../../components/Header";
 import OsPagination from "../../components/pagination";
+
+// IMPORT MODALS
+import Modals from "../../components/Modals";
 
 export default function OsceStasePage({ stase, osce, filters }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
+
+    // ================================
+    // MODAL DELETE STATES
+    // ================================
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedStase, setSelectedStase] = useState(null);
 
     function handleSearch(e) {
         e.preventDefault();
@@ -29,12 +39,27 @@ export default function OsceStasePage({ stase, osce, filters }) {
         );
     }
 
-    function handleDelete(staseId) {
-        if (confirm("Yakin ingin menghapus stase ini?")) {
-            router.delete(`/admin/osce/${osce.id_osce}/stase/${staseId}`, {
+    // ============================
+    // OPEN MODAL DELETE
+    // ============================
+    function openDeleteModal(item) {
+        setSelectedStase(item);
+        setIsModalOpen(true);
+    }
+
+    // ============================
+    // CONFIRM DELETE
+    // ============================
+    function confirmDelete() {
+        if (!selectedStase) return;
+
+        router.delete(
+            `/admin/osce/${osce.id_osce}/stase/${selectedStase.id_osce_stase}`,
+            {
+                onFinish: () => setIsModalOpen(false),
                 preserveScroll: true,
-            });
-        }
+            }
+        );
     }
 
     return (
@@ -48,7 +73,6 @@ export default function OsceStasePage({ stase, osce, filters }) {
                 <OsHeader
                     variant="goback"
                     backLink="/admin/osce/"
-
                 />
 
                 <div className="flex-1">
@@ -70,9 +94,7 @@ export default function OsceStasePage({ stase, osce, filters }) {
 
                             <OsButton
                                 onClick={() =>
-                                    router.get(
-                                        `/admin/osce/${osce.id_osce}/jadwal`
-                                    )
+                                    router.get(`/admin/osce/${osce.id_osce}/jadwal`)
                                 }
                                 className="flex items-center gap-2 px-4 py-2 bg-white border text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
                             >
@@ -89,15 +111,12 @@ export default function OsceStasePage({ stase, osce, filters }) {
                         </h2>
 
                         <p className="text-sm text-gray-500 mb-4 max-w-lg">
-                            Jorem ipsum dolor sit amet, consectetur adipiscing
-                            elit.
+                            Jorem ipsum dolor sit amet, consectetur adipiscing elit.
                         </p>
 
                         <OsButton
                             onClick={() =>
-                                router.get(
-                                    `/admin/osce/${osce.id_osce}/stase/create`
-                                )
+                                router.get(`/admin/osce/${osce.id_osce}/stase/create`)
                             }
                             className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
                         >
@@ -123,9 +142,7 @@ export default function OsceStasePage({ stase, osce, filters }) {
                                         placeholder="cari data stase..."
                                         className="border rounded-lg pl-10 pr-4 py-2.5 text-sm w-full sm:w-80 outline-blue-500"
                                         value={searchTerm}
-                                        onChange={(e) =>
-                                            setSearchTerm(e.target.value)
-                                        }
+                                        onChange={(e) => setSearchTerm(e.target.value)}
                                     />
                                 </div>
 
@@ -147,19 +164,11 @@ export default function OsceStasePage({ stase, osce, filters }) {
                             <table className="w-full text-sm">
                                 <thead className="bg-gray-100 border-b">
                                     <tr>
-                                        <th className="p-3 text-left w-16">
-                                            No
-                                        </th>
-                                        <th className="p-3 text-left">
-                                            Ruangan
-                                        </th>
+                                        <th className="p-3 text-left w-16">No</th>
+                                        <th className="p-3 text-left">Ruangan</th>
                                         <th className="p-3 text-left">Stase</th>
-                                        <th className="p-3 text-left">
-                                            Penguji
-                                        </th>
-                                        <th className="p-3 text-center w-32">
-                                            Action
-                                        </th>
+                                        <th className="p-3 text-left">Penguji</th>
+                                        <th className="p-3 text-center w-32">Action</th>
                                     </tr>
                                 </thead>
 
@@ -177,17 +186,14 @@ export default function OsceStasePage({ stase, osce, filters }) {
                                                 Ruang {item.ruang.nomor_ruangan}
                                             </td>
 
-                                            {/* ✅ Kolom Stase TANPA IKON MERAH */}
                                             <td className="p-3">
                                                 {item.stase.nama_stase}
                                             </td>
 
                                             <td className="p-3">
-                                                {item.penguji?.nama ||
-                                                    "Belum diatur"}
+                                                {item.penguji?.nama || "Belum diatur"}
                                             </td>
 
-                                            {/* ✅ Action TANPA IKON BIRU */}
                                             <td className="p-3">
                                                 <div className="flex items-center justify-center gap-2">
                                                     {/* Edit */}
@@ -203,13 +209,9 @@ export default function OsceStasePage({ stase, osce, filters }) {
                                                         <Edit size={14} />
                                                     </button>
 
-                                                    {/* Delete */}
+                                                    {/* Delete → OPEN MODAL */}
                                                     <button
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                item.id_osce_stase
-                                                            )
-                                                        }
+                                                        onClick={() => openDeleteModal(item)}
                                                         className="p-2 rounded-md border text-red-600 hover:bg-red-50"
                                                         title="Delete"
                                                     >
@@ -232,6 +234,28 @@ export default function OsceStasePage({ stase, osce, filters }) {
                     <OsCopyright />
                 </footer>
             </main>
+
+            {/* ======================== */}
+            {/* MODAL DELETE */}
+            {/* ======================== */}
+            <Modals
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={confirmDelete}
+                variant="delete"
+                title="Hapus Stase?"
+                message="Apakah Anda yakin ingin menghapus stase ini secara permanen?"
+                dataToDelete={
+                    selectedStase
+                        ? [
+                              { key: "Ruangan", value: selectedStase?.ruang?.nomor_ruangan },
+                              { key: "Stase", value: selectedStase?.stase?.nama_stase },
+                              { key: "Penguji", value: selectedStase?.penguji?.nama || "-" },
+                          ]
+                        : []
+                }
+                confirmText="Hapus"
+            />
         </div>
     );
 }

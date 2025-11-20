@@ -7,16 +7,20 @@ import OsCopyright from "../../components/Copyright.jsx";
 import OsButton from "../../components/button.jsx";
 import OsInput from "../../components/input.jsx";
 import OsModal from "../../components/Modal.jsx";
+import Modals from "../../components/Modals.jsx"; // ⬅️ Tambahkan import
 
 export default function KompetensiPage() {
-    // 1. Ambil data dari props yang dikirim Controller
     const { aspek, kompetensi, filters } = usePage().props;
     const [showModal, setShowModal] = useState(false);
 
-    // 2. Siapkan state untuk input pencarian
     const [search, setSearch] = useState(filters.search || "");
 
-    // 3. Fungsi untuk menjalankan pencarian
+    // ==============================
+    // 🆕 STATE UNTUK MODAL DELETE
+    // ==============================
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedKompetensi, setSelectedKompetensi] = useState(null);
+
     const handleSearch = () => {
         router.get(
             `/admin/aspek-penilaian/${aspek.id_aspek_penilaian}/kompetensi`,
@@ -25,16 +29,29 @@ export default function KompetensiPage() {
         );
     };
 
-    // 4. Fungsi untuk menghapus data
-    const handleDelete = (kompetensiId) => {
-        if (confirm("Apakah Anda yakin ingin menghapus kompetensi ini?")) {
-            router.delete(`/admin/kompetensi/${kompetensiId}`, {
-                preserveScroll: true,
-            });
-        }
+    // ====================================
+    // 🆕 OPEN MODAL DELETE
+    // ====================================
+    const openDeleteModal = (item) => {
+        setSelectedKompetensi(item);
+        setIsModalOpen(true);
     };
 
-    // 5. Hitung total bobot dari data yang diterima dari database
+    // ====================================
+    // 🆕 KONFIRMASI DELETE DARI MODAL
+    // ====================================
+    const handleDeleteConfirm = () => {
+        if (!selectedKompetensi) return;
+
+        router.delete(
+            `/admin/kompetensi/${selectedKompetensi.id_poin_aspek_penilaian}`,
+            {
+                preserveScroll: true,
+                onFinish: () => setIsModalOpen(false),
+            }
+        );
+    };
+
     const totalBobot = kompetensi.data.reduce(
         (acc, curr) => acc + Number(curr.bobot),
         0
@@ -98,16 +115,12 @@ export default function KompetensiPage() {
                     </button>
                 </div>
 
-                {/* Tabel Kompetensi */}
                 <h3 className="font-semibold mb-2">Table Kompetensi</h3>
                 <div className="relative overflow-x-auto border border-black rounded-xl shadow-sm">
                     <table className="w-full text-sm border-collapse">
-                        {/* ======= HEADER (Tidak diubah) ======= */}
                         <thead className="bg-gray-200 text-black border-b border-black">
                             <tr>
-                                <th className="border-b border-black py-2 px-3 text-center w-12">
-                                    No
-                                </th>
+                                <th className="border-b border-black py-2 px-3 text-center w-12">No</th>
                                 <th className="border-x border-b border-black py-2 px-3 text-left">
                                     Deskripsi Kompetensi
                                 </th>
@@ -136,24 +149,24 @@ export default function KompetensiPage() {
                                         <td className="border-r border-black/30 text-center py-2">
                                             {item.bobot}
                                         </td>
+
                                         <td className="py-2 flex items-center justify-center gap-2">
                                             <button
-                                                onClick={() => {
-                                                    // [BENAR] Arahkan ke route 'edit' yang sesuai route:resource
+                                                onClick={() =>
                                                     router.get(
                                                         `/admin/kompetensi/${item.id_poin_aspek_penilaian}/edit`
-                                                    );
-                                                }}
+                                                    )
+                                                }
                                                 className="p-1.5 text-white bg-blue-700 hover:bg-blue-500 border border-black rounded-lg"
                                             >
                                                 <Pencil size={16} />
                                             </button>
+
+                                            {/* ================
+                                                🆕 BUTTON OPEN MODAL DELETE
+                                            ================= */}
                                             <button
-                                                onClick={() =>
-                                                    handleDelete(
-                                                        item.id_poin_aspek_penilaian
-                                                    )
-                                                }
+                                                onClick={() => openDeleteModal(item)}
                                                 className="p-1.5 text-black bg-white hover:bg-red-600 hover:text-white border border-black rounded-lg transition"
                                             >
                                                 <Trash2 size={16} />
@@ -184,13 +197,10 @@ export default function KompetensiPage() {
                     </p>
                     <div className="flex gap-3">
                         <div className="border border-black rounded-xl px-8 py-2">
-                            <span className="font-medium">Kompetensi:</span>{" "}
-                            {kompetensi.total}{" "}
-                            {/* [UBAH] Gunakan total dari paginator */}
+                            <span className="font-medium">Kompetensi:</span> {kompetensi.total}
                         </div>
                         <div className="border border-black rounded-xl px-8 py-2">
-                            <span className="font-medium">Total Bobot:</span>{" "}
-                            {totalBobot}
+                            <span className="font-medium">Total Bobot:</span> {totalBobot}
                         </div>
                     </div>
                 </div>
@@ -222,6 +232,25 @@ export default function KompetensiPage() {
                     />
                 </OsModal>
             </main>
+                <footer className="border border-black rounded-xl text-start px-4 py-4 text-sm text-gray-600">
+                    © Jorem ipsum dolor sit amet, consectetur adipiscing elit.
+                </footer>
+            </div>
+
+            {/* ======================================================
+                 🆕 MODAL DELETE (PAKE Modals.jsx)
+            ======================================================= */}
+            <Modals
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                variant="delete"
+                dataToDelete={
+                    selectedKompetensi
+                        ? [selectedKompetensi.kompetensi]
+                        : []
+                }
+                onConfirm={handleDeleteConfirm}
+            />
         </div>
     );
 }

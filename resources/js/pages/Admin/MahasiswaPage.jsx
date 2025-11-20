@@ -13,6 +13,8 @@ import OsInput from "../../components/input.jsx";
 import OsModal from "../../components/Modal.jsx";
 import OsButton from "../../components/button.jsx";
 
+import Modals from "../../components/Modals.jsx"; // 🔥 MODAL IMPORT
+
 // Kolom tabel (sudah benar)
 const mahasiswaColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
@@ -37,11 +39,15 @@ export default function MahasiswaPage() {
     const { mahasiswa, filters, flash } = usePage().props;
 
     const [search, setSearch] = useState(filters?.search || "");
-    const [angkatan, setAngkatan] = useState(filters?.angkatan || ""); // 'angkatan' ini adalah 'kelas' di DB
+    const [angkatan, setAngkatan] = useState(filters?.angkatan || "");
     const [importFile, setImportFile] = useState(null);
     const [importing, setImporting] = useState(false);
     const [showExcelModal, setShowExcelModal] = useState(false);
     const [showModal, setShowModal] = useState(false);
+
+    // 🔥 STATE UNTUK DELETE MODAL
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedMahasiswa, setSelectedMahasiswa] = useState(null);
 
     const angkatanList = [
         { value: "", label: "Semua Angkatan" },
@@ -61,14 +67,10 @@ export default function MahasiswaPage() {
         );
     };
 
-    const handleDelete = (id) => {
-        if (
-            confirm(
-                "Apakah Anda yakin ingin menghapus mahasiswa ini? Ini juga akan menghapus akun login mereka."
-            )
-        ) {
-            router.delete(`/admin/mahasiswa/${id}`, { preserveScroll: true });
-        }
+    // 🔥 HANDLE DELETE DENGAN MODAL
+    const handleDelete = (id, nama) => {
+        setSelectedMahasiswa({ id, nama });
+        setShowDeleteModal(true);
     };
 
     // 6. Fungsi import (sudah benar)
@@ -200,6 +202,40 @@ export default function MahasiswaPage() {
                                 </option>
                             ))}
                         </select>
+                        {/* Filter Search */}
+                        <form
+                            onSubmit={handleSearch}
+                            className="flex items-center gap-3 mb-4"
+                        >
+                            <div className="relative flex-1">
+                                <OsIcon
+                                    name="Search"
+                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-os-20"
+                                />
+                                <input
+                                    type="text"
+                                    value={search}
+                                    onChange={(e) =>
+                                        setSearch(e.target.value)
+                                    }
+                                    placeholder="Cari data mahasiswa..."
+                                    className="border border-black rounded-xl pl-10 pr-4 py-3 w-full focus:ring-2 focus:ring-blue-400 outline-none"
+                                />
+                            </div>
+
+                            <select
+                                value={angkatan}
+                                onChange={(e) =>
+                                    setAngkatan(e.target.value)
+                                }
+                                className="border border-black rounded-xl px-4 py-3"
+                            >
+                                {angkatanList.map((a) => (
+                                    <option key={a.value} value={a.value}>
+                                        {a.label}
+                                    </option>
+                                ))}
+                            </select>
 
                         <Os_button
                             type="submit"
@@ -242,10 +278,13 @@ export default function MahasiswaPage() {
                                                     className="h-os-20 w-os-20 os-icon-light"
                                                 />
                                             </Link>
+
+                                            {/* 🔥 GANTI DELETE BUTTON → MODAL */}
                                             <Os_button
                                                 onClick={() =>
                                                     handleDelete(
-                                                        item.id_mahasiswa
+                                                        item.id_mahasiswa,
+                                                        item.nama
                                                     )
                                                 }
                                                 className="w-10 h-10 flex items-center justify-center bg-white p-2 border border-black text-black rounded-xl hover:bg-gray-200 transition"
@@ -267,7 +306,6 @@ export default function MahasiswaPage() {
                             </div>
                         )}
 
-                        {/* Paginasi */}
                         {mahasiswa.links && mahasiswa.links.length > 3 && (
                             <div className="mt-2">
                                 <OsPagination links={mahasiswa.links} />
@@ -283,6 +321,34 @@ export default function MahasiswaPage() {
 
             {/* === MODAL IMPORT EXCEL === (Kode modal Anda sudah benar) */}
             {/* {showExcelModal && (
+            {/* 🔥 MODAL DELETE MAHASISWA */}
+            {showDeleteModal && (
+                <Modals
+                    isOpen={showDeleteModal}
+                    onClose={() => setShowDeleteModal(false)}
+                    variant="delete"
+                    dataToDelete={[
+                        {
+                            key: "Nama Mahasiswa",
+                            value: selectedMahasiswa?.nama,
+                        },
+                        { key: "ID", value: selectedMahasiswa?.id },
+                    ]}
+                    onConfirm={() => {
+                        router.delete(
+                            `/admin/mahasiswa/${selectedMahasiswa.id}`,
+                            {
+                                preserveScroll: true,
+                                onSuccess: () =>
+                                    setShowDeleteModal(false),
+                            }
+                        );
+                    }}
+                />
+            )}
+
+            {/* ===== MODAL IMPORT EXCEL (TIDAK DIUBAH) ===== */}
+            {showExcelModal && (
                 <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
                     <div className="bg-white rounded-lg w-[420px] shadow-xl overflow-hidden">
                         <div className="bg-gray-900 text-white text-center py-3 relative">
@@ -329,6 +395,7 @@ export default function MahasiswaPage() {
                                     }
                                     className="hidden"
                                 />
+
                                 <a
                                     href="#"
                                     className="text-xs text-blue-600 underline hover:text-blue-800"
@@ -344,8 +411,11 @@ export default function MahasiswaPage() {
                                 disabled={importing || !importFile}
                                 className="w-full mr-2 disabled:opacity-50"
                             >
-                                {importing ? "Mengunggah..." : "Submit"}
+                                {importing
+                                    ? "Mengunggah..."
+                                    : "Submit"}
                             </Os_button>
+
                             <Os_button
                                 onClick={() => setShowExcelModal(false)}
                                 className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white p-3 rounded-lg transition-colors"

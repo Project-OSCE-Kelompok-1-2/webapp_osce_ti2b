@@ -20,11 +20,19 @@ import {
     Copyright,
 } from "lucide-react";
 
+// 🔥 Import komponen Modals
+import Modals from "../../components/Modals.jsx";
+
 export default function OsceListPage({ osce, filters }) {
     const [search, setSearch] = useState(filters.search || "");
     const [tahun, setTahun] = useState(filters.tahun || "2025");
     const [showModal, setShowModal] = useState(false);
     // Asumsi default
+
+    // 🔥 STATE MODAL DELETE
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [selectedId, setSelectedId] = useState(null);
+    const [selectedOsce, setSelectedOsce] = useState(null);
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -39,14 +47,36 @@ export default function OsceListPage({ osce, filters }) {
         );
     };
 
-    const handleDelete = (id) => {
-        if (confirm("Apakah Anda yakin ingin menghapus data OSCE ini?")) {
+    // 🔥 FUNGSI BARU: Membuka modal delete
+    const openDeleteModal = (item) => {
+        setSelectedId(item.id_osce);
+        setSelectedOsce(item);
+        setIsDeleteOpen(true);
+    };
+
+    // 🔥 FUNGSI BARU: Konfirmasi hapus (menggantikan logika confirm lama)
+    const handleConfirmDelete = () => {
+        if (selectedId) {
             // [PERBAIKAN] Gunakan router.delete dengan URL string
-            router.delete(`/admin/osce/${id}`, {
+            router.delete(`/admin/osce/${selectedId}`, {
                 preserveScroll: true,
+                onFinish: () => {
+                    setIsDeleteOpen(false); // Tutup modal setelah selesai
+                    setSelectedId(null);
+                    setSelectedOsce(null);
+                },
             });
         }
     };
+
+    // Hapus fungsi handleDelete lama karena akan diganti dengan modal
+    // const handleDelete = (id) => {
+    //     if (confirm("Apakah Anda yakin ingin menghapus data OSCE ini?")) {
+    //         router.delete(`/admin/osce/${id}`, {
+    //             preserveScroll: true,
+    //         });
+    //     }
+    // };
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
@@ -193,6 +223,12 @@ export default function OsceListPage({ osce, filters }) {
                                             <td
                                                 colSpan="5"
                                                 className="p-4 text-center text-gray-500"
+                                            {/* 🔥 Tombol Delete: Panggil openDeleteModal */}
+                                            <button
+                                                onClick={() =>
+                                                    openDeleteModal(item)
+                                                }
+                                                className="border rounded-lg hover:bg-gray-100 text-red-600 hover:border-red-600 w-10 h-[38px] flex items-center justify-center"
                                             >
                                                 Data OSCE tidak ditemukan.
                                             </td>
@@ -243,6 +279,35 @@ export default function OsceListPage({ osce, filters }) {
                     />
                 </OsModal>
             </main>
+
+            {/* 🔥 Komponen MODALS DELETE */}
+            <Modals
+                isOpen={isDeleteOpen}
+                onClose={() => setIsDeleteOpen(false)}
+                onConfirm={handleConfirmDelete}
+                variant="delete"
+                title="Hapus Data OSCE?"
+                confirmText="Hapus Permanen"
+                // Kirim detail data yang akan dihapus ke modal
+                dataToDelete={
+                    selectedOsce
+                        ? [
+                              {
+                                  key: "Nama OSCE",
+                                  value: selectedOsce.nama_osce,
+                              },
+                              {
+                                  key: "Tanggal",
+                                  value: `${selectedOsce.tanggal_mulai} - ${selectedOsce.tanggal_selesai}`,
+                              },
+                              {
+                                  key: "Tahun Akademik",
+                                  value: selectedOsce.tahun_akademik_string,
+                              },
+                          ]
+                        : []
+                }
+            />
         </div>
     );
 }
