@@ -33,56 +33,61 @@ Route::prefix('v1')->group(function () {
             return $request->user();
         });
 
-        // --- OSCE ---
-        Route::apiResource('osce', OsceController::class);
+        Route::prefix('admin')->group(function () {
 
-        // --- STASE ---
-        Route::apiResource('stase', StaseController::class);
+            // --- Admin Dashboard & Profile ---
+            Route::get('/dashboard', [AdminController::class, 'dashboard']);
 
-        // --- OSCE Stase ---
-        Route::get('/osce/{id_osce}/stase', [OsceStaseController::class, 'index']);
-        Route::post('/osce/{id_osce}/stase', [OsceStaseController::class, 'store']);
-        Route::put('/osce/{id_osce}/stase/{osce_stase}', [OsceStaseController::class, 'update']);
-        Route::delete('/osce/{id_osce}/stase/{id_osce_stase}', [OsceStaseController::class, 'destroy']);
+            // URL: /api/v1/admin/pengaturan-akun
+            Route::get('/pengaturan-akun', [AdminController::class, 'show_profile']);
+            Route::post('/pengaturan-akun', [AdminController::class, 'update_account']);
 
-        // --- OSCE Enrollment ---
-        Route::get(
-            'osce/{osce_id}/jadwal/{jadwal_id}/enrollment',
-            [OsceEnrollmentController::class, 'index']
-        );
+            // --- OSCE ---
+            Route::apiResource('osce', OsceController::class);
 
-        Route::post(
-            'osce/{osce_id}/jadwal/{jadwal_id}/enrollment',
-            [OsceEnrollmentController::class, 'sync']
-        );
+            // --- STASE ---
+            Route::apiResource('stase', StaseController::class);
 
-        // --- Penguji ---
-        Route::apiResource('penguji', PengujiController::class);
+            // --- OSCE Stase ---
+            Route::get('/osce/{id_osce}/stase', [OsceStaseController::class, 'index']);
+            Route::post('/osce/{id_osce}/stase', [OsceStaseController::class, 'store']);
+            Route::put('/osce/{id_osce}/stase/{osce_stase}', [OsceStaseController::class, 'update']);
+            Route::delete('/osce/{id_osce}/stase/{id_osce_stase}', [OsceStaseController::class, 'destroy']);
 
-        // --- Aspek penilaian ---
-        Route::apiResource('stase.aspek-penilaian', AspekPenilaianController::class);
+            // --- OSCE Jadwal ---
+            Route::get('/osce/{id_osce}/jadwal', [OsceJadwalController::class, 'index']);
+            Route::post('/osce/{id_osce}/jadwal', [OsceJadwalController::class, 'store']);
+            Route::put('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'update']);
+            Route::delete('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'destroy']);
 
-        // --- Rekap Nilai ---
-        Route::get('/rekap-nilai', [RekapNilaiController::class, 'index']);
-        Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi']);
-        Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerStase']); 
+            // --- OSCE Enrollment ---
+            Route::get(
+                'osce/{osce_id}/jadwal/{jadwal_id}/enrollment',
+                [OsceEnrollmentController::class, 'index']
+            );
 
-        // --- Admin ---
-        Route::get('/admin/dashboard', [AdminController::class, 'dashboard']);
-        Route::get('/admin/pengaturan-akun', [AdminController::class, 'show_profile']);
-        Route::post('/admin/pengaturan-akun', [AdminController::class, 'update_account']);
+            Route::post(
+                'osce/{osce_id}/jadwal/{jadwal_id}/enrollment',
+                [OsceEnrollmentController::class, 'sync']
+            );
 
-        // --- Kompetensi ---
-        Route::apiResource('aspek-penilaian.kompetensi', KompetensiController::class);
+            // --- Penguji ---
+            Route::apiResource('penguji', PengujiController::class);
 
-        //  --- Mahasiswa ---
-        Route::apiResource('/mahasiswa', MahasiswaController::class);
-        Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
+            // --- Aspek penilaian (Nested: Stase -> Aspek) ---
+            Route::apiResource('stase.aspek-penilaian', AspekPenilaianController::class);
 
-        // --- OSCE Jadwal  ---
-        Route::get('/osce/{id_osce}/jadwal', [OsceJadwalController::class, 'index']);
-        Route::post('/osce/{id_osce}/jadwal', [OsceJadwalController::class, 'store']);
-        Route::put('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'update']);
-        Route::delete('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'destroy']);
+            // --- Kompetensi (Nested: Aspek -> Kompetensi) ---
+            Route::apiResource('aspek-penilaian.kompetensi', KompetensiController::class);
+
+            // --- Rekap Nilai ---
+            Route::get('/rekap-nilai', [RekapNilaiController::class, 'index']);
+            Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi']);
+            Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerStase']);
+
+            // --- Mahasiswa ---
+            Route::apiResource('mahasiswa', MahasiswaController::class);
+            Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
+        });
     });
 }); 
