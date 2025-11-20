@@ -42,11 +42,11 @@ export default function KompetensiPage() {
 
     return (
         // 🆕 Tambahkan relative dan overflow-hidden agar sidebar overlay bisa muncul di atas dashboard
-        <div className="relative bg-os-white w-full min-h-screen  flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             {/* Sidebar dipanggil langsung tanpa kontrol dari dashboard */}
             <Sidebar />
 
-            <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
+            <main className="grid w-full min-w-min p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* Breadcrumb */}
                 <OsHeader
                     variant="goback"
@@ -54,13 +54,13 @@ export default function KompetensiPage() {
                 />
 
                 {/* Header */}
-                <div className="mb-6">
-                    <h2 className="text-xl font-medium text-black mb-1">
+                <div className="flex-1 overflow-auto">
+                    <h2 className="font-semibold text-lg mb-1">
                         Menu Kompetensi
                     </h2>
-                    <p className="text-sm text-gray-500 max-w-md">
+                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
                         Halaman untuk mengelola poin-poin kompetensi dari aspek
-                        penilaian "{aspek.aspek}"
+                        penilaian "<strong>{aspek.aspek}</strong>"
                     </p>
 
                     {/* 👇 [UBAH] Tombol tambah diubah menjadi Link */}
@@ -79,7 +79,7 @@ export default function KompetensiPage() {
                 </div>
 
                 {/* Search Bar */}
-                <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center w-full gap-3 mb-4">
                     <div className="flex flex-1 items-center gap-2 border border-black rounded-xl px-3 py-3">
                         <Search size={18} className="text-gray-500" />
                         <input
@@ -178,7 +178,7 @@ export default function KompetensiPage() {
                 {/* PAGINATION (Untuk sementara dihapus agar tidak error, bisa diganti dengan komponen Paginasi nanti) */}
 
                 {/* Footer Total Kompetensi / Aspek Penilaian */}
-                <div className="relative mt-12 my-6 border border-black rounded-xl flex items-center justify-between px-4 py-2">
+                <div className="relative mt-2 my-2 border border-black rounded-xl flex items-center justify-between px-4 py-2">
                     <p className="text-sm text-black">
                         Total bobot kompetensi / aspek penilaian
                     </p>
@@ -221,7 +221,7 @@ export default function KompetensiPage() {
                         required
                     />
                 </OsModal>
-            </div>
+            </main>
         </div>
     );
 }

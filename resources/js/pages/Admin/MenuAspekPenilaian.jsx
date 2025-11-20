@@ -43,8 +43,8 @@ export default function MenuAspekPenilaian() {
                         Menu Aspek Penilaian
                     </h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Halaman ini berfungsi untuk menambahkan aspek penilaian
-                        pada stase "{stase.nama_stase}"
+                        Halaman ini berfungsi untuk menambahkan aspek penilaian <br />
+                        pada stase "<strong>{stase.nama_stase}</strong>"
                     </p>
 
                     {/* Tombol Tambah diubah menjadi Link */}

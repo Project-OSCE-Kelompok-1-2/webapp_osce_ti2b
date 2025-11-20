@@ -269,14 +269,14 @@ export default function MahasiswaPage() {
 
                         {/* Paginasi */}
                         {mahasiswa.links && mahasiswa.links.length > 3 && (
-                            <div className="mt-8">
+                            <div className="mt-2">
                                 <OsPagination links={mahasiswa.links} />
                             </div>
                         )}
                     </section>
                 </div>
 
-                <footer className="mt-auto pt-6 border-t border-gray-200">
+                <footer>
                     <OsCopyright />
                 </footer>
             </main>

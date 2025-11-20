@@ -124,7 +124,7 @@ export default function Stase() {
                     {/* Judul & Deskripsi */}
                     <h2 className="font-semibold text-lg mb-1">Menu Stase</h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Halaman stase mengatur ruangan yang nanti digunakan
+                        Halaman stase mengatur ruangan yang nanti digunakan <br />
                         untuk penguji menilai mahasiswa
                     </p>
 
@@ -169,7 +169,7 @@ export default function Stase() {
 
                     {/* Pagination */}
                     {stase.links && stase.links.length > 0 && (
-                        <div className="mt-8">
+                        <div className="">
                             <OsPagination links={stase.links} />
                         </div>
                     )}
