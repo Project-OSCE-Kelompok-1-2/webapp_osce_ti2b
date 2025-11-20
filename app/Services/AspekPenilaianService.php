@@ -9,24 +9,28 @@ use Illuminate\Http\Request;
 class AspekPenilaianService
 {
     /**
-     * Mengambil data aspek penilaian dengan filter dan transformasi yang sama persis.
+     * Mengambil data aspek penilaian dengan struktur sesuai permintaan.
      */
     public function getByStase(Request $request, Stase $stase)
     {
+        // Query dasar
         $aspek_penilaian = AspekPenilaian::where('id_stase', $stase->id_stase)
             ->when($request->input('search'), function ($query, $search) {
                 $query->where('aspek', 'like', "%{$search}%");
             })
+            // Menghitung jumlah kompetensi (relation count)
             ->withCount('poinAspekPenilaian as jumlah_kompetensi')
             ->paginate(10)
             ->withQueryString();
 
-        // Mengubah nama kolom agar konsisten (Logic asli dipertahankan)
+        // TRANSFORMASI: Mengubah setiap item agar sesuai struktur JSON yang diminta
         $aspek_penilaian->getCollection()->transform(function ($item) {
-            $item->nama = $item->aspek;
-            $item->bobot = $item->bobot_maksimum;
-            $item->id = $item->id_aspek_penilaian;
-            return $item;
+            return [
+                'id_aspek_penilaian' => $item->id_aspek_penilaian,
+                'aspek'              => $item->aspek,
+                'bobot_maksimum'     => $item->bobot_maksimum,
+                'jumlah_kompetensi'  => $item->jumlah_kompetensi, // Data dari withCount
+            ];
         });
 
         return $aspek_penilaian;

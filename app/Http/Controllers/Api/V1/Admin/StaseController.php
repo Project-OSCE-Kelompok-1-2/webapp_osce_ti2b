@@ -47,13 +47,13 @@ class StaseController extends Controller
     public function store(Request $request)
     {
         try {
-            // service akan melakukan validasi dan menyimpan
-            $this->service->store($request);
+            // Tangkap data yang dikembalikan service
+            $newData = $this->service->store($request);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Stase berhasil ditambahkan.',
-                'data' => null,
+                'data' => $newData, // Kirim data baru
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -85,6 +85,10 @@ class StaseController extends Controller
                     'id_stase' => $stase->id_stase,
                     'nama_stase' => $stase->nama_stase,
                     'jumlah_aspek' => $stase->aspekPenilaian()->count(),
+                    // Tambahkan field lain jika diperlukan untuk detail
+                    'deskripsi' => $stase->deskripsi,
+                    'id_mata_kuliah' => $stase->id_mata_kuliah,
+                    'id_tujuan_pembelajaran' => $stase->id_tujuan_pembelajaran,
                 ],
             ], 200);
         } catch (ModelNotFoundException $e) {
@@ -108,12 +112,13 @@ class StaseController extends Controller
     public function update(Request $request, $id)
     {
         try {
-            $this->service->update($request, $id);
+            // Tangkap data yang dikembalikan service
+            $updatedData = $this->service->update($request, $id);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Stase berhasil diperbarui.',
-                'data' => null,
+                'data' => $updatedData, // Kirim data yang sudah diupdate
             ], 200);
         } catch (ValidationException $e) {
             return response()->json([

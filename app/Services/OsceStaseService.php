@@ -9,6 +9,29 @@ use Illuminate\Support\Facades\DB;
 class OsceStaseService
 {
     /**
+     * Helper private untuk memformat output data agar konsisten
+     * antara getAll, store, dan update.
+     */
+    private function formatItem($item)
+    {
+        return [
+            "id_osce_stase" => $item->id_osce_stase,
+            "ruang" => [
+                "id_ruang" => $item->ruang->id_ruang ?? null, // Tambahkan ID jika butuh untuk edit
+                "nomor_ruangan" => $item->ruang->nomor_ruangan ?? null,
+            ],
+            "stase" => [
+                "id_stase" => $item->stase->id_stase ?? null,
+                "nama_stase" => $item->stase->nama_stase ?? null,
+            ],
+            "penguji" => [
+                "id_penguji" => $item->penguji->id_penguji ?? null,
+                "nama" => $item->penguji->nama ?? null,
+            ],
+        ];
+    }
+
+    /**
      * Ambil daftar osce_stase (template saja)
      */
     public function getAll($id_osce, $search = null)
@@ -25,19 +48,9 @@ class OsceStaseService
             });
         }
 
+        // Menggunakan formatItem agar konsisten
         $result = $query->paginate(10)->through(function ($item) {
-            return [
-                "id_osce_stase" => $item->id_osce_stase,
-                "ruang" => [
-                    "nomor_ruangan" => $item->ruang->nomor_ruangan ?? null,
-                ],
-                "stase" => [
-                    "nama_stase" => $item->stase->nama_stase ?? null,
-                ],
-                "penguji" => [
-                    "nama" => $item->penguji->nama ?? null,
-                ],
-            ];
+            return $this->formatItem($item);
         });
 
         return [
@@ -52,16 +65,20 @@ class OsceStaseService
      */
     public function store($id_osce, $data)
     {
-        OsceStase::create([
+        $newStase = OsceStase::create([
             "id_osce" => $id_osce,
             "id_ruang" => $data["id_ruang"],
             "id_stase" => $data["id_stase"],
             "id_penguji" => $data["id_penguji"],
         ]);
 
+        // Load relasi agar data yang dikembalikan lengkap (nama ruang, nama penguji, dll)
+        $newStase->load(["ruang", "penguji", "stase"]);
+
         return [
             "success" => true,
-            "message" => "Stase berhasil ditambahkan."
+            "message" => "Stase berhasil ditambahkan.",
+            "data" => $this->formatItem($newStase) // Kembalikan data terformat
         ];
     }
 
@@ -76,9 +93,14 @@ class OsceStaseService
             "id_penguji" => $data["id_penguji"],
         ]);
 
+        // Refresh dan load relasi terbaru
+        $osce_stase->refresh();
+        $osce_stase->load(["ruang", "penguji", "stase"]);
+
         return [
             "success" => true,
-            "message" => "Stase berhasil diperbarui."
+            "message" => "Stase berhasil diperbarui.",
+            "data" => $this->formatItem($osce_stase) // Kembalikan data terformat
         ];
     }
 
@@ -104,14 +126,16 @@ class OsceStaseService
 
             return [
                 "success" => true,
-                "message" => "Stase dan semua sesi terkait berhasil dihapus."
+                "message" => "Stase dan semua sesi terkait berhasil dihapus.",
+                "data" => null
             ];
         } catch (\Exception $e) {
             DB::rollBack();
 
             return [
                 "success" => false,
-                "message" => "Gagal menghapus stase: " . $e->getMessage()
+                "message" => "Gagal menghapus stase: " . $e->getMessage(),
+                "data" => null
             ];
         }
     }

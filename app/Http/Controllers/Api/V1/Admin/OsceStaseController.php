@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
-
 use App\Models\OsceStase;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
@@ -32,9 +31,10 @@ class OsceStaseController extends Controller
             "id_penguji" => "required|exists:penguji,id_penguji",
         ]);
 
-        return response()->json(
-            $this->service->store($id_osce, $validated)
-        );
+        $result = $this->service->store($id_osce, $validated);
+
+        // Gunakan status 201 Created
+        return response()->json($result, 201);
     }
 
     public function update(Request $request, $id_osce, OsceStase $osce_stase)
@@ -45,15 +45,18 @@ class OsceStaseController extends Controller
             "id_penguji" => "required|exists:penguji,id_penguji",
         ]);
 
-        return response()->json(
-            $this->service->update($id_osce, $osce_stase, $validated)
-        );
+        $result = $this->service->update($id_osce, $osce_stase, $validated);
+
+        return response()->json($result, 200);
     }
 
     public function destroy($id_osce, $id_osce_stase)
     {
-        return response()->json(
-            $this->service->destroy($id_osce, $id_osce_stase)
-        );
+        $result = $this->service->destroy($id_osce, $id_osce_stase);
+
+        // Cek success flag dari service untuk menentukan status code
+        $status = $result['success'] ? 200 : 500;
+
+        return response()->json($result, $status);
     }
 }

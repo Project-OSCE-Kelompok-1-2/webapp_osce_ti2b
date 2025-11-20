@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\AspekPenilaian;
 use App\Http\Controllers\Controller;
 use App\Services\AspekPenilaianService;
+use Illuminate\Database\Eloquent\ModelNotFoundException; // Tambahkan ini
 
 class AspekPenilaianController extends Controller
 {
@@ -19,75 +20,119 @@ class AspekPenilaianController extends Controller
 
     public function index(Request $request, Stase $stase)
     {
-        $data = $this->service->getByStase($request, $stase);
+        // Stase tetap pakai binding karena jarang error 404 di parent resource
+        // Tapi jika stase salah ID, tetap akan default error. 
+        // Kalau mau custom juga, ubah 'Stase $stase' jadi '$staseId' dan cari manual.
+
+        $paginator = $this->service->getByStase($request, $stase);
 
         return response()->json([
             'status' => 'success',
-            'stase' => $stase,
-            'data' => $data,
+            'data' => $paginator,
             'filters' => $request->only(['search'])
         ]);
     }
 
     public function store(Request $request, Stase $stase)
     {
-        $aspek = $this->service->create($request, $stase);
+        // Try-catch untuk menangkap error validasi atau database saat create
+        try {
+            $aspekData = $this->service->create($request, $stase);
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Aspek Penilaian berhasil ditambahkan.',
-            'data' => $aspek
-        ], 201);
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Aspek Penilaian berhasil ditambahkan.',
+                'data' => $aspekData
+            ], 201);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Gagal menambahkan data: ' . $e->getMessage()
+            ], 500);
+        }
     }
 
-    // --- BAGIAN YANG WAJIB DIUBAH ---
-
-    // 1. Tambahkan Stase $stase sebagai parameter pertama
-    public function show(Stase $stase, AspekPenilaian $aspekPenilaian)
+    // UBAH: Parameter kedua jangan 'AspekPenilaian $aspekPenilaian', tapi '$id'
+    public function show(Stase $stase, $id)
     {
-        // (Optional) Validasi parent: Pastikan aspek ini benar milik stase tersebut
-        if ($aspekPenilaian->id_stase !== $stase->id_stase) {
-            abort(404, 'Data tidak ditemukan di stase ini.');
-        }
+        try {
+            // Cari manual di sini agar bisa ditangkap try-catch
+            $aspekPenilaian = AspekPenilaian::findOrFail($id);
 
-        return response()->json([
-            'status' => 'success',
-            'data' => $aspekPenilaian
-        ]);
+            if ($aspekPenilaian->id_stase !== $stase->id_stase) {
+                return response()->json(['status' => 'error', 'message' => 'Data tidak ditemukan di stase ini.'], 404);
+            }
+
+            $aspekPenilaian->loadCount('poinAspekPenilaian as jumlah_kompetensi');
+
+            return response()->json([
+                'status' => 'success',
+                'data' => [
+                    'id_aspek_penilaian' => $aspekPenilaian->id_aspek_penilaian,
+                    'aspek' => $aspekPenilaian->aspek,
+                    'bobot_maksimum' => $aspekPenilaian->bobot_maksimum,
+                    'jumlah_kompetensi' => $aspekPenilaian->jumlah_kompetensi,
+                ]
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data Aspek Penilaian tidak ditemukan'
+            ], 404);
+        }
     }
 
-    // 2. Tambahkan Stase $stase sebelum AspekPenilaian
-    // Urutan: Request -> Parent (Stase) -> Child (AspekPenilaian)
-    public function update(Request $request, Stase $stase, AspekPenilaian $aspekPenilaian)
+    // UBAH: Parameter kedua jadi $id
+    public function update(Request $request, Stase $stase, $id)
     {
-        // Validasi parent
-        if ($aspekPenilaian->id_stase !== $stase->id_stase) {
-            abort(404);
+        try {
+            $aspekPenilaian = AspekPenilaian::findOrFail($id);
+
+            if ($aspekPenilaian->id_stase !== $stase->id_stase) {
+                return response()->json(['status' => 'error', 'message' => 'Data tidak sinkron.'], 404);
+            }
+
+            $updatedAspekData = $this->service->update($request, $aspekPenilaian);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Aspek Penilaian berhasil diperbarui.',
+                'data' => $updatedAspekData
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data tidak ditemukan, gagal update.'
+            ], 404);
+        } catch (\Exception $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Terjadi kesalahan server.'
+            ], 500);
         }
-
-        // Panggil service (Service tidak butuh $stase, jadi kirim request & aspek saja)
-        $updatedAspek = $this->service->update($request, $aspekPenilaian);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Aspek Penilaian berhasil diperbarui.',
-            'data' => $updatedAspek
-        ]);
     }
 
-    // 3. Tambahkan Stase $stase
-    public function destroy(Stase $stase, AspekPenilaian $aspekPenilaian)
+    // UBAH: Parameter kedua jadi $id
+    public function destroy(Stase $stase, $id)
     {
-        // Validasi parent
-        if ($aspekPenilaian->id_stase !== $stase->id_stase) {
-            abort(404);
+        try {
+            $aspekPenilaian = AspekPenilaian::findOrFail($id);
+
+            if ($aspekPenilaian->id_stase !== $stase->id_stase) {
+                return response()->json(['status' => 'error', 'message' => 'Data tidak sinkron.'], 404);
+            }
+
+            $this->service->delete($aspekPenilaian);
+
+            return response()->json([
+                'status' => 'success',
+                'message' => 'Aspek penilaian berhasil dihapus.'
+            ]);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Data tidak ditemukan, gagal hapus.'
+            ], 404);
         }
-
-        $this->service->delete($aspekPenilaian);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Aspek penilaian berhasil dihapus.'
-        ]);
     }
 }

@@ -38,6 +38,9 @@ class StaseService
         ];
     }
 
+    /**
+     * Menyimpan data dan mengembalikan objek yang baru dibuat
+     */
     public function store(Request $request)
     {
         $request->validate([
@@ -47,7 +50,8 @@ class StaseService
             'deskripsi' => 'nullable|string',
         ]);
 
-        Stase::create($request->all());
+        // Return hasil create
+        return Stase::create($request->all());
     }
 
     public function getEditData($id)
@@ -59,6 +63,9 @@ class StaseService
         ];
     }
 
+    /**
+     * Mengupdate data dan mengembalikan objek yang sudah diperbarui
+     */
     public function update(Request $request, $id)
     {
         $stase = Stase::findOrFail($id);
@@ -76,6 +83,9 @@ class StaseService
         ]);
 
         $stase->update($request->all());
+
+        // Return objek yang sudah di-refresh (untuk memastikan data terbaru)
+        return $stase->refresh();
     }
 
     public function delete($id)
