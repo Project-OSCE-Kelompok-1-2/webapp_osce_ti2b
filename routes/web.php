@@ -4,7 +4,7 @@ use App\Models\TahunAkademik;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\OsceController; 
+use App\Http\Controllers\Admin\OsceController;
 use App\Http\Controllers\Admin\StaseController;
 use Inertia\Inertia; // Pastikan Inertia di-import
 use App\Http\Controllers\Admin\MahasiswaController;
@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\RekapNilaiController;
 use App\Http\Controllers\Admin\AspekPenilaianController;
 use App\Http\Controllers\Admin\OsceEnrollmentController;
 use App\Http\Controllers\Penguji\ProfilController;
+use App\Http\Controllers\Penguji\HalamanPenilaianController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,11 +36,25 @@ Route::middleware('guest')->group(function () {
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
+// ==========================
+// === RUTE UNTUK PENGUJI ===
+// ==========================
 Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function () {
 
     // --- Dashboard & Akun ---
     Route::get('/pengaturan-akun', [ProfilController::class, 'show_profile'])->name('account.show');
     Route::post('/pengaturan-akun', [ProfilController::class, 'update_account'])->name('account.update');
+
+    // --- Penilaian OSCE (Live) ---
+    // URL: /penguji/osce/{id_osce}/stase/{id_osce_stase}
+    // Nama Rute: penguji.antrian
+    Route::get('/osce/{id_osce}/stase/{id_osce_stase}', [HalamanPenilaianController::class, 'showAntrian'])
+        ->name('antrian');
+
+    // URL: /penguji/penilaian/{id_enrollment_osce}
+    // Nama Rute: penguji.penilaian
+    Route::get('/penilaian/{id_enrollment_osce}', [HalamanPenilaianController::class, 'showPenilaian'])
+        ->name('penilaian');
 });
 
 // =========================
@@ -56,27 +71,27 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::resource('stase', StaseController::class);
     Route::resource('stase.aspek-penilaian', AspekPenilaianController::class)->except(['show'])->shallow();
     Route::resource('aspek-penilaian.kompetensi', KompetensiController::class)->except(['show'])->shallow();
-    
+
     Route::resource('dosen', PengujiController::class)->except(['show']);
     Route::resource('mahasiswa', MahasiswaController::class)->except(['show']);
     Route::post('/mahasiswa/import', [MahasiswaController::class, 'import'])->name('mahasiswa.import'); // <-- Diberi nama
 
-    
+
     // --- Modul OSCE ---
     Route::get('/osce', [OsceController::class, 'index'])->name('osce.index');
     Route::post('/osce', [OsceController::class, 'store'])->name('osce.store');
 
     Route::get('/osce/create', function () {
         // Ambil data dari database
-        $tahunAkademik = TahunAkademik::orderBy('tahun', 'desc')->get()->map(fn ($th) => [
+        $tahunAkademik = TahunAkademik::orderBy('tahun', 'desc')->get()->map(fn($th) => [
             'value' => $th->id_tahun_akademik,
             'label' => $th->tahun . ' - ' . $th->semester,
         ]);
-        
+
         // Kirim data 'tahunAkademikOptions' sebagai props ke component React
         return Inertia::render('Admin/TambahOsce', [
             'tahunAkademikOptions' => $tahunAkademik
-        ]); 
+        ]);
     })->name('osce.create');
 
     Route::get('/osce/{osce}/edit', [OsceController::class, 'edit'])->name('osce.edit');
@@ -101,7 +116,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::put('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'update'])->name('osce.jadwal.update');
     Route::delete('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'destroy'])->name('osce.jadwal.destroy');
 
-    
+
     // --- OSCE Enrollment (Nested di bawah Jadwal) ---
     // (Grup ini dipindahkan ke dalam grup admin utama)
     Route::prefix('osce/{osce_id}/jadwal/{jadwal_id}')->name('osce.enrollment.')->group(function () {
@@ -114,12 +129,12 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/rekap-nilai', [RekapNilaiController::class, 'index'])->name('rekap.index'); // <-- Diberi nama
     Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi'])->name('rekap.sesi'); // <-- Diberi nama
     Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerStase'])->name('rekap.mahasiswa'); // <-- Diberi nama
-    
+
     // V V V BLOK INI TIDAK DIUBAH SESUAI PERMINTAAN V V V
     Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}', function () {
         $dummyData = [
-            "mahasiswa" => [ "nama" => "Riko Aditya (Dummy)", "nim" => "123456", "id_mahasiswa" => 1 ],
-            "osce" => [ "nama_osce" => "OSCE Radiologi 01-A (Dummy)" ],
+            "mahasiswa" => ["nama" => "Riko Aditya (Dummy)", "nim" => "123456", "id_mahasiswa" => 1],
+            "osce" => ["nama_osce" => "OSCE Radiologi 01-A (Dummy)"],
             "nilai_per_stase" => [
                 [
                     "nama_stase" => "Stase Bedah Umum",
@@ -129,15 +144,15 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
                         [
                             "aspek" => "Anamnesis",
                             "kompetensi" => [
-                                [ "kompetensi" => "Menyapa pasien", "skor" => 3, "bobot" => 10, "nilai" => 30 ],
-                                [ "kompetensi" => "Keluhan utama", "skor" => 2, "bobot" => 10, "nilai" => 20 ]
+                                ["kompetensi" => "Menyapa pasien", "skor" => 3, "bobot" => 10, "nilai" => 30],
+                                ["kompetensi" => "Keluhan utama", "skor" => 2, "bobot" => 10, "nilai" => 20]
                             ]
                         ],
                         [
                             "aspek" => "Pemeriksaan Fisik",
                             "kompetensi" => [
-                                [ "kompetensi" => "Inspeksi", "skor" => 3, "bobot" => 10, "nilai" => 30 ],
-                                [ "kompetensi" => "Palpasi", "skor" => 1, "bobot" => 9, "nilai" => 9 ]
+                                ["kompetensi" => "Inspeksi", "skor" => 3, "bobot" => 10, "nilai" => 30],
+                                ["kompetensi" => "Palpasi", "skor" => 1, "bobot" => 9, "nilai" => 9]
                             ]
                         ]
                     ]
@@ -150,8 +165,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
                         [
                             "aspek" => "Komunikasi",
                             "kompetensi" => [
-                                [ "kompetensi" => "Bicara dengan ortu", "skor" => 3, "bobot" => 10, "nilai" => 30 ],
-                                [ "kompetensi" => "Bicara dengan anak", "skor" => 3, "bobot" => 10, "nilai" => 30 ]
+                                ["kompetensi" => "Bicara dengan ortu", "skor" => 3, "bobot" => 10, "nilai" => 30],
+                                ["kompetensi" => "Bicara dengan anak", "skor" => 3, "bobot" => 10, "nilai" => 30]
                             ]
                         ]
                     ]
