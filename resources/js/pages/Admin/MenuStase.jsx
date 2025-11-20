@@ -1,11 +1,6 @@
 import { Link, usePage, router } from "@inertiajs/react";
 import React, { useState } from "react";
-import {
-    ChevronLeft,
-    ChevronRight,
-    Edit2,
-    Trash2,
-} from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
@@ -17,8 +12,10 @@ import OsSearchBar from "../../components/searchbar";
 import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
+import OsModal from "../../components/Modal.jsx";
+import OsInput from "../../components/input.jsx";
 
-// 🔥 Import modal delete
+// 🔥 Modal delete
 import Modals from "../../components/Modals.jsx";
 
 const staseColumns = [
@@ -31,29 +28,39 @@ const staseColumns = [
 export default function Stase() {
     const { stase, filters } = usePage().props;
 
+    // 🔥 State Form
+    const [form, setForm] = useState({
+        id: null,
+        nama_stase: "",
+        matakuliah: "",
+        tujuan: "",
+        deskripsi: "",
+    });
+
+    // 🔥 State Modal Add/Edit
+    const [showModal, setShowModal] = useState(false);
+    const [modalMode, setModalMode] = useState("add"); // 'add' | 'edit'
+
+    // 🔥 State Search
     const [search, setSearch] = useState(filters.search || "");
 
     const handleSearch = () => {
-        router.get(
-            "/admin/stase",
-            { search },
-            { preserveState: true, replace: true }
-        );
+        router.get("/admin/stase", { search }, { preserveState: true, replace: true });
     };
 
-    // 🔥 STATE MODAL DELETE
+    // 🔥 STATE DELETE MODAL
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
     const [selectedName, setSelectedName] = useState("");
 
-    // 🔥 BUKA MODAL
+    // 🔥 BUKA MODAL DELETE
     const openDeleteModal = (id, name) => {
         setSelectedId(id);
         setSelectedName(name);
         setIsDeleteOpen(true);
     };
 
-    // 🔥 KONFIRMASI HAPUS
+    // 🔥 DELETE ACTION
     const handleConfirmDelete = () => {
         router.delete(`/admin/stase/${selectedId}`, {
             preserveScroll: true,
@@ -61,7 +68,56 @@ export default function Stase() {
         });
     };
 
-    // --- DATA TABEL ---
+    // ============================
+    // 🔵 OPEN MODAL TAMBAH
+    // ============================
+    const openAddModal = () => {
+        setModalMode("add");
+        setForm({
+            id: null,
+            nama_stase: "",
+            matakuliah: "",
+            tujuan: "",
+            deskripsi: "",
+        });
+        setShowModal(true);
+    };
+
+    // ============================
+    // 🔵 OPEN MODAL EDIT
+    // ============================
+    const openEditModal = (item) => {
+        setModalMode("edit");
+        setForm({
+            id: item.id_stase,
+            nama_stase: item.nama_stase,
+            matakuliah: item.matakuliah || "",
+            tujuan: item.tujuan || "",
+            deskripsi: item.deskripsi || "",
+        });
+        setShowModal(true);
+    };
+
+    // ============================
+    // 🔵 SUBMIT MODAL ADD/EDIT
+    // ============================
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        if (modalMode === "edit") {
+            router.put(`/admin/stase/${form.id}`, form, {
+                onSuccess: () => setShowModal(false),
+            });
+        } else {
+            router.post(`/admin/stase`, form, {
+                onSuccess: () => setShowModal(false),
+            });
+        }
+    };
+
+    // ============================
+    // 🔵 DATA TABEL
+    // ============================
     const tableData = stase.data.map((item, index) => ({
         no: stase.from + index,
         nama_stase: item.nama_stase,
@@ -77,15 +133,15 @@ export default function Stase() {
                     Edit Aspek Penilaian
                 </OsButton>
 
-                {/* Edit */}
-                <Link
-                    href={`/admin/stase/${item.id_stase}/edit`}
+                {/* EDIT */}
+                <button
+                    onClick={() => openEditModal(item)}
                     className="bg-blue-600 p-2 rounded-md text-white"
                 >
                     <Edit2 size={20} />
-                </Link>
+                </button>
 
-                {/* DELETE (PAKAI MODAL) */}
+                {/* DELETE */}
                 <button
                     onClick={() => openDeleteModal(item.id_stase, item.nama_stase)}
                     className="bg-white border border-gray-400 p-2 rounded-md"
@@ -106,18 +162,15 @@ export default function Stase() {
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">Menu Stase</h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Halaman stase mengatur ruangan yang nanti digunakan
-                        untuk penguji menilai mahasiswa
+                        Halaman stase mengatur ruangan untuk penguji menilai mahasiswa
                     </p>
 
+                    {/* 🔵 BUTTON TAMBAH */}
                     <OsButton
-                        onClick={() => router.get("/admin/stase/create")}
+                        onClick={openAddModal}
                         className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                     >
-                        <OsIcon
-                            name="add"
-                            className="h-os-20 os-icon-light mr-os-8"
-                        />
+                        <OsIcon name="add" className="h-os-20 os-icon-light mr-os-8" />
                         Tambah Stase
                     </OsButton>
 
@@ -141,15 +194,67 @@ export default function Stase() {
                         </div>
                     )}
 
-                    {stase.links && stase.links.length > 0 && (
-                        <div className="mt-8">
-                            <OsPagination links={stase.links} />
-                        </div>
+                    {stase.links?.length > 0 && (
+                        <OsPagination links={stase.links} />
                     )}
                 </div>
 
                 <OsCopyright />
             </main>
+
+            {/* ============================
+                🔵 MODAL ADD/EDIT STASE
+            ============================ */}
+            <OsModal
+                show={showModal}
+                onClose={() => setShowModal(false)}
+                title={modalMode === "edit" ? "Edit Stase" : "Tambah Stase Baru"}
+                subtitle={
+                    modalMode === "edit"
+                        ? `Ubah data stase: ${form.nama_stase}`
+                        : "Isi form di bawah untuk menambahkan stase baru."
+                }
+            >
+                <form onSubmit={handleSubmit} className="space-y-3">
+                    <OsInput
+                        label="Matakuliah"
+                        type="text"
+                        name="matakuliah"
+                        value={form.matakuliah}
+                        onChange={(e) => setForm({ ...form, matakuliah: e.target.value })}
+                        placeholder="Masukkan Matakuliah..."
+                        required
+                    />
+                    <OsInput
+                        label="Tujuan Pembelajaran"
+                        type="text"
+                        name="tujuan"
+                        value={form.tujuan}
+                        onChange={(e) => setForm({ ...form, tujuan: e.target.value })}
+                        placeholder="Masukkan Tujuan..."
+                        required
+                    />
+                    <OsInput
+                        label="Nama Stase"
+                        type="text"
+                        name="nama_stase"
+                        value={form.nama_stase}
+                        onChange={(e) => setForm({ ...form, nama_stase: e.target.value })}
+                        placeholder="Masukkan Nama Stase..."
+                        required
+                    />
+                    <OsInput
+                        label="Deskripsi"
+                        type="textarea"
+                        name="deskripsi"
+                        value={form.deskripsi}
+                        onChange={(e) => setForm({ ...form, deskripsi: e.target.value })}
+                        placeholder="Masukkan Deskripsi..."
+                        required
+                    />
+                </form>
+
+            </OsModal>
 
             {/* 🔥 MODAL DELETE */}
             <Modals
@@ -158,7 +263,7 @@ export default function Stase() {
                 onConfirm={handleConfirmDelete}
                 variant="delete"
                 title="Hapus Stase?"
-                message="Apakah Anda yakin ingin menghapus stase ini? Data tidak dapat dikembalikan."
+                message="Apakah Anda yakin ingin menghapus stase ini?"
                 confirmText="Hapus"
                 dataToDelete={[
                     { key: "Nama Stase", value: selectedName || "-" },
