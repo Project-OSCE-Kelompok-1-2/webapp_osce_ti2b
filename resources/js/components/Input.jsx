@@ -133,5 +133,31 @@ export default function Os_input({
         );
     }
 
+    /** 🔹 SELECT (DROPDOWN) */
+    if (type === "select") {
+        return (
+            <div className={`flex flex-col ${className}`}>
+                {label && (
+                    <label className="mb-1 text-os-small text-gray-600">
+                        {label}
+                    </label>
+                )}
+
+                <select
+                    name={name}
+                    value={value}
+                    onChange={(e) => onChange && onChange(e)}
+                    className={`w-full h-[48px] px-3 py-2 rounded-lg text-os-paragraph border-os-1 border-os-black outline-none focus:border-os-primary focus:ring-1 focus:ring-os-primary ${className}`}
+                >
+                    {options.map((opt, idx) => (
+                        <option key={idx} value={opt.value || opt}>
+                            {opt.label || opt}
+                        </option>
+                    ))}
+                </select>
+            </div>
+        );
+    }
+
     return null;
 }
