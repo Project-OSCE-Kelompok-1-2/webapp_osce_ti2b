@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Head, useForm, usePage, Link } from "@inertiajs/react";
 import { Trash2, Save } from "lucide-react";
+import OsCopyright from "../../components/Copyright.jsx";
 
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
