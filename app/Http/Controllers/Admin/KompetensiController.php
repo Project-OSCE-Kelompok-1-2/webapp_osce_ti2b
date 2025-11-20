@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use App\Models\AspekPenilaian;
-use App\Models\PoinAspekPenilaian;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\Request;
+use App\Models\AspekPenilaian;
 use Illuminate\Validation\Rule;
+use App\Models\PoinAspekPenilaian;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redirect;
 
 class KompetensiController extends Controller
 {

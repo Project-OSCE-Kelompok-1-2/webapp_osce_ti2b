@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Models\Osce;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Redirect;
+use Illuminate\Http\Request;
 use App\Models\TahunAkademik;
 use Illuminate\Validation\Rule;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redirect;
 
 class OsceController extends Controller
 {
@@ -49,6 +50,7 @@ class OsceController extends Controller
             'filters' => $request->only(['search', 'tahun']),
         ]);
     }
+    
 
     
     public function store(Request $request)

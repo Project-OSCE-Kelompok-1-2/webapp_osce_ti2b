@@ -1,13 +1,14 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
+use Inertia\Inertia;
 use App\Models\Stase;
 use App\Models\MataKuliah;
-use App\Models\TujuanPembelajaran;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use Inertia\Inertia;
+use App\Models\TujuanPembelajaran;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redirect;
 
 class StaseController extends Controller

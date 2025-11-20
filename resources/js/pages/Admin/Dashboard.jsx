@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { usePage, Link } from "@inertiajs/react";
+import { usePage, Link } from "@inertiajs/react"; // Pastikan Link di-import
 import {
     ClipboardList,
     Users,
@@ -12,14 +12,16 @@ import OsCopyright from "../../components/Copyright.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
 
 /**
- * props: title, value, description, icon, colorClass
+ * props: title, value, description, icon, colorClass, href
  */
-const StatCard = ({ title, value, description, icon, colorClass }) => {
+// [UBAH] Tambahkan 'href' sebagai properti
+const StatCard = ({ title, value, description, icon, colorClass, href }) => {
     return (
         <article
             className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass} shadow-sm`}
         >
             <div>
+                {/* ... (bagian judul dan deskripsi, tidak berubah) ... */}
                 <div className="flex justify-between items-start mb-2">
                     <div>
                         <h3 className="font-medium text-sm text-gray-800">
@@ -40,13 +42,16 @@ const StatCard = ({ title, value, description, icon, colorClass }) => {
                     <div className="text-4xl font-extrabold text-gray-900 leading-none">
                         {value}
                     </div>
-                    <button
-                        type="button"
-                        className="mt-2 inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border bg-white/80"
+
+                    {/* [UBAH] Mengganti <button> menjadi <Link> DAN UBAH STYLE */}
+                    <Link
+                        href={href} // Menggunakan href dari props
+                        className="mt-2 inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200 transition-colors"
                     >
                         <ClipboardList size={14} />
                         <span>Tampilkan lebih</span>
-                    </button>
+                    </Link>
+                    {/* [SELESAI UBAH] */}
                 </div>
 
                 <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-white/60 border">
@@ -61,6 +66,7 @@ const StatCard = ({ title, value, description, icon, colorClass }) => {
  * NotificationItem: layout sesuai mock
  */
 const NotificationItem = ({ stase, index }) => {
+    // Komponen ini tidak diubah
     return (
         <div className="flex items-center justify-between bg-white border rounded-lg shadow-sm overflow-hidden">
             {/* Left: number */}
@@ -149,6 +155,7 @@ export default function Dashboard() {
                         </h2>
 
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            {/* [UBAH] Tambahkan prop 'href' di sini */}
                             <StatCard
                                 title="Total OSCE"
                                 description="Jumlah total OSCE yang terdaftar"
@@ -160,7 +167,9 @@ export default function Dashboard() {
                                     />
                                 }
                                 colorClass="bg-blue-50 border-blue-200"
+                                href="/admin/osce" // <-- Tautan ke menu OSCE
                             />
+                            {/* [UBAH] Tambahkan prop 'href' di sini */}
                             <StatCard
                                 title="Total Mahasiswa"
                                 description="Jumlah total mahasiswa terdaftar"
@@ -172,7 +181,9 @@ export default function Dashboard() {
                                     />
                                 }
                                 colorClass="bg-white border-gray-200"
+                                href="/admin/mahasiswa" // <-- Tautan ke menu Mahasiswa
                             />
+                            {/* [UBAH] Tambahkan prop 'href' di sini */}
                             <StatCard
                                 title="Total Penguji"
                                 description="Jumlah total penguji terdaftar"
@@ -184,6 +195,7 @@ export default function Dashboard() {
                                     />
                                 }
                                 colorClass="bg-white border-gray-200"
+                                href="/admin/dosen" // <-- Tautan ke menu Dosen (Asumsi Penguji = Dosen)
                             />
                         </div>
                     </section>

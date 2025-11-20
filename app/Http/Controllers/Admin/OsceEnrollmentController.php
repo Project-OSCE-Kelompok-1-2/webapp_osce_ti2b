@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\Osce;
-use App\Models\OsceStase; // <-- Perlu ini untuk referensi sesi
-use App\Models\Mahasiswa;
-use App\Models\EnrollmentOsce;
 use Inertia\Inertia;
+use App\Models\Mahasiswa;
+use Illuminate\Http\Request;
+use App\Models\EnrollmentOsce;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use App\Models\OsceStase; // <-- Perlu ini untuk referensi sesi
 
 class OsceEnrollmentController extends Controller
 {

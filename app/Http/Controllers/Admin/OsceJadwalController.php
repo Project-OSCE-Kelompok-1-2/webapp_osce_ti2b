@@ -1,17 +1,18 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\DB;
 use App\Models\Osce;
-use App\Models\OsceStase;
-use App\Models\EnrollmentOsce;
 use Inertia\Inertia;
-// Model tambahan yang diperlukan
-use App\Models\Stase;
 use App\Models\Ruang;
+use App\Models\Stase;
 use App\Models\Penguji;
+use App\Models\OsceStase;
+// Model tambahan yang diperlukan
+use Illuminate\Http\Request;
+use App\Models\EnrollmentOsce;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 
 class OsceJadwalController extends Controller
 {
