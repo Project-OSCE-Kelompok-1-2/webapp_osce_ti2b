@@ -9,6 +9,7 @@ import OsIcon from "../../components/icons.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 import Os_button from "../../components/button.jsx"; // Digunakan untuk tombol delete
 import OsSearchBar from "../../components/searchbar.jsx";
+import OsTableBody from "../../components/tablecontain.jsx";
 import OsModal from "../../components/Modal.jsx"; // Modal utama
 import OsInput from "../../components/input.jsx";
 import OsButton from "../../components/button.jsx"; // Digunakan untuk tombol Tambah
@@ -18,18 +19,21 @@ import Modals from "../../components/Modals.jsx"; // Modal konfirmasi (Delete)
 // --- Definisi Kolom Tabel Penguji ---
 
 const pengujiColumns = [
-    { content: "No", width: "w-16", classes: "justify-center items-center" },
+    { key : "no", content: "No", width: "w-16", classes: "justify-center items-center" },
     {
+        key : "nip_penguji",
         content: "NIP Penguji",
         width: "w-56",
         classes: "justify-start items-center px-4",
     },
     {
+        key : "nama_penguji",
         content: "Nama Penguji",
         width: "flex-1",
         classes: "justify-start items-center px-4",
     },
     {
+        key : "action",
         content: "Action",
         width: "w-56",
         classes: "justify-center items-center px-4",
@@ -160,7 +164,30 @@ export default function PengujiPage() {
         setEditFormData({ nip: "", nama: "" });
     };
 
-
+    //6. Siapin untuk isi data tabel 
+    const tableData = dosen.data.map((item, index) => ({
+        no: dosen.from + index,
+        nip_penguji: item.nip,
+        nama_penguji: item.nama,
+        action: (
+            <div className="flex space-x-3">
+                <Link
+                    href={`/admin/dosen/${item.id_penguji}/edit`}
+                    className="w-10 h-10 flex items-center justify-center bg-blue-700 p-2 border border-black rounded-xl text-white hover:bg-blue-600 transition"
+                >
+                    <OsIcon name="Edit" className="h-os-20 w-os-20 os-icon-light" />
+                </Link>
+    
+                <Os_button
+                    onClick={() => handleDelete(item.id_penguji)}
+                    className="w-10 h-10 flex items-center justify-center bg-white p-2 border border-black text-black rounded-xl hover:bg-gray-200 transition"
+                >
+                    <OsIcon name="Trash" className="w-5 h-5 aspect-square scale-[2.5] os-icon-dark" />
+                </Os_button>
+            </div>
+        ),
+    }));
+    
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head title="Manajemen Penguji" />
@@ -220,6 +247,8 @@ export default function PengujiPage() {
 
                         <OsTableHeader columns={pengujiColumns} />
 
+                        {tableData.length > 0 ? (
+                            <OsTableBody data={tableData} columns={pengujiColumns} />
                         {dosen.data.length > 0 ? (
                             dosen.data.map((item, index) => (
                                 <div
@@ -272,6 +301,8 @@ export default function PengujiPage() {
                                 </p>
                             </div>
                         )}
+                        
+                        {/* Paginasi */}
 
                         {dosen.links && dosen.links.length > 3 && (
                             <div className="mt-8">

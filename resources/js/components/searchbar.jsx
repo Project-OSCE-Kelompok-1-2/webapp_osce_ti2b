@@ -10,14 +10,19 @@ import OsButton from "./button";
  * @param {function} onSearchClick - Fungsi yang dipanggil ketika tombol 'Cari' diklik.
  * @param {string} placeholder - Teks placeholder untuk input.
  */
-const OsSearchBar = ({ search, setSearch, onSearchClick, placeholder = "Cari data..." }) => {
+const OsSearchBar = ({ 
+    search, 
+    setSearch, 
+    onSearchClick, 
+    placeholder = "Cari data...",
+    children
+    }) => {
 
-    // Opsional: Handle submit form (tekan Enter)
-    const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-            onSearchClick();
-        }
-    };
+        const handleKeyDown = (e) => {
+            if (e.key === 'Enter') {
+                onSearchClick();
+            }
+        };
 
     return (
         <div className="flex h-[46px] items-center space-x-3 mb-5"> {/* Menambahkan margin bottom yang lebih jelas */}
@@ -43,4 +48,14 @@ const OsSearchBar = ({ search, setSearch, onSearchClick, placeholder = "Cari dat
     );
 };
 
+                <button
+                    onClick={onSearchClick}
+                    className="bg-blue-600 min-w-[120px] text-white h-full 
+                        text-os-paragraft px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-150"
+                >
+                    Cari
+                </button>
+            </div>
+        );
+    };
 export default OsSearchBar;

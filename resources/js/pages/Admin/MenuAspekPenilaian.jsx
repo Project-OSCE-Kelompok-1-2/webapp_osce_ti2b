@@ -4,11 +4,19 @@ import { Trash2, Pencil, Search } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
-import OsButton from "../../components/button.jsx";
-import OsIcon from "../../components/icons.jsx";
-import Modals from "../../components/Modals.jsx";
-import OsModal from "../../components/Modal.jsx";
-import OsInput from "../../components/input.jsx";
+import OsTableHeader from "../../components/tableheader.jsx"; 
+import OsSearchBar from "../../components/searchbar.jsx"; 
+import OsTableBody from "../../components/tablecontain.jsx";
+
+
+// Definisi kolom tabel 
+const columns = [
+    { key: "no", content: "No", width: "w-16", classes: "justify-center" },
+    { key: "aspek", content: "Deskripsi", width: "flex-1", classes: "justify-start items-start px-4" },
+    { key: "bobot_maksimum", content: "Bobot Maksimum", width: "w-[15%]", classes: "justify-center" },
+    { key: "action", content: "Action", width: "w-[30%]", classes: "justify-center" },
+];
+
 
 export default function MenuAspekPenilaian() {
     const { stase, aspek_penilaian } = usePage().props;
@@ -50,6 +58,61 @@ export default function MenuAspekPenilaian() {
         0
     );
 
+    //3.Fungsi untuk menjalankkan pencarian
+    const [search, setSearch] = useState("");
+
+    const handleSearch = () => {
+        router.get(
+            `/admin/stase/${stase.id_stase}/aspek-penilaian`,
+            { search },
+            { preserveScroll: true, preserveState: true }
+        );
+    };
+
+    //4.Fungsi untuk siapin data isi tabel
+    const tableData = aspek_penilaian.data.map((item, index) => ({
+        no: aspek_penilaian.from + index,
+    
+        aspek: (
+            <div className="flex flex-col items-start leading-tight">
+                <div className="font-semibold">{item.aspek}</div>
+                <div className="text-xs text-gray-500">{item.jumlah_kompetensi} Kompetensi</div>
+            </div>
+        ),
+    
+        bobot_maksimum: item.bobot_maksimum,
+    
+        action: (
+            <div className="flex justify-center gap-2">
+                {/* Lihat Kompetensi */}
+                <Link
+                    href={`/admin/aspek-penilaian/${item.id_aspek_penilaian}/kompetensi`}
+                    className="px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:bg-green-700"
+                >
+                    Lihat Kompetensi
+                </Link>
+    
+                {/* Edit */}
+                <Link
+                    href={`/admin/aspek-penilaian/${item.id_aspek_penilaian}/edit`}
+                    className="p-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+                    title="Edit Aspek"
+                >
+                    <Pencil size={16} />
+                </Link>
+    
+                {/* Delete */}
+                <button
+                    onClick={() => handleDeleteClick(item.id_aspek_penilaian)}
+                    className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    title="Hapus Aspek"
+                >
+                    <Trash2 size={16} />
+                </button>
+            </div>
+        ),
+    }));
+    
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar />
@@ -82,121 +145,51 @@ export default function MenuAspekPenilaian() {
                                 <Search className="text-gray-400" size={20} />
                             </div>
 
-                            <input
-                                type="text"
-                                placeholder="Cari aspek penilaian..."
-                                className="w-full border-2 border-gray-300 rounded-lg pl-12 pr-4 py-3 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm"
-                            />
+                {/* Search */}
+                <OsSearchBar
+                    search={search}
+                    setSearch={setSearch}
+                    onSearchClick={handleSearch}
+                    placeholder="Cari aspek penilaian..."
+                />
+
+                {/* Tabel Aspek Penilaian */}
+                <h3 className="px-4 py-3 border-b text-gray-700 font-semibold text-lg">
+                    Table Aspek Penilaian
+                </h3>
+                
+                {/* header */}
+                <OsTableHeader columns={columns} />
+
+                    {tableData.length > 0 ? (
+                        <OsTableBody data={tableData} columns={columns} />
+                    ) : (
+                        <div className="py-6 text-center text-gray-500">
+                            Belum ada aspek penilaian untuk stase ini.
                         </div>
-
-                        <button className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-3 rounded-lg shadow font-medium">
-                            Cari
-                        </button>
-                    </div>
-
-                    {/* ===== TABLE ===== */}
-                    <div className="bg-os-white shadow rounded-lg overflow-x-auto border border-gray-200">
-                        <h3 className="px-4 py-3 border-b text-gray-700 font-semibold text-lg">
-                            Table Aspek Penilaian
-                        </h3>
-
-                        <table className="w-full min-w-max">
-                            <thead>
-                                <tr className="bg-gray-100 text-gray-700 text-sm font-medium border-b-2 border-gray-300">
-                                    <th className="py-3 px-3 text-center w-[5%]">No</th>
-                                    <th className="py-3 px-4 text-left w-[50%] border-l border-gray-300">Deskripsi</th>
-                                    <th className="py-3 px-3 text-center w-[15%] border-l border-gray-300">Bobot Maksimum</th>
-                                    <th className="py-3 px-3 text-center w-[30%] border-l border-gray-300">Action</th>
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                {aspek_penilaian.data.length > 0 ? (
-                                    aspek_penilaian.data.map((item, index) => (
-                                        <tr key={item.id_aspek_penilaian} className="text-gray-800 text-sm">
-                                            <td className="py-3 px-3 text-center">
-                                                {aspek_penilaian.from + index}
-                                            </td>
-
-                                            <td className="py-3 px-4 border-l border-gray-300">
-                                                <div className="font-semibold">{item.aspek}</div>
-                                                <div className="text-xs text-gray-500 mt-1">
-                                                    {item.jumlah_kompetensi} Kompetensi
-                                                </div>
-                                            </td>
-
-                                            <td className="py-3 px-3 text-center border-l border-gray-300">
-                                                {item.bobot_maksimum}
-                                            </td>
-
-                                            <td className="py-3 px-3 text-center border-l border-gray-300">
-                                                <div className="flex justify-center gap-2">
-
-                                                    <Link
-                                                        href={`/admin/aspek-penilaian/${item.id_aspek_penilaian}/kompetensi`}
-                                                        className="px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:bg-green-700"
-                                                    >
-                                                        Lihat Kompetensi
-                                                    </Link>
-
-                                                    {/* EDIT → BUKA MODAL */}
-                                                    <button
-                                                        onClick={() => openEditModal(item)}
-                                                        className="p-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
-                                                    >
-                                                        <Pencil size={16} />
-                                                    </button>
-
-                                                    {/* DELETE */}
-                                                    <button
-                                                        onClick={() => openDeleteModal(item)}
-                                                        className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                                                    >
-                                                        <Trash2 size={16} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))
-                                ) : (
-                                    <tr>
-                                        <td colSpan="4" className="text-center py-6 text-gray-500">
-                                            Belum ada aspek penilaian untuk stase ini.
-                                        </td>
-                                    </tr>
-                                )}
-                            </tbody>
-                        </table>
-                    </div>
-
-                    {/* ===== TOTAL BOBOT ===== */}
-                    <div className="bg-os-white shadow rounded-lg overflow-x-auto mt-6">
-                        <table className="w-full min-w-max">
-                            <tfoot className="font-semibold">
-                                <tr>
-                                    <td className="py-3 px-4 text-left text-base w-[55%]">
-                                        Total Bobot
-                                    </td>
-
-                                    <td className="py-3 px-3 text-center text-base w-[15%]">
-                                        {totalBobot}
-                                    </td>
-
-                                    <td className="py-3 px-3 text-center w-[30%]">
-                                        {totalBobot !== 100 && totalBobot > 0 && (
-                                            <button className="bg-red-600 text-white text-sm px-3 py-2 rounded-lg shadow-md">
-                                                Point Tidak Seimbang!
-                                            </button>
-                                        )}
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-
-                    <div className="text-center text-gray-400 text-sm mt-16 border-t pt-4">
-                        Copyright Porem ipsum dolor sit amet
-                    </div>
+                    )}
+               
+                {/* Baris Total */}
+                <div className="bg-os-white shadow rounded-lg overflow-x-auto mt-6">
+                    <table className="w-full min-w-max">
+                        <tfoot className="font-semibold">
+                            <tr>
+                                <td className="py-3 px-4 text-left text-base w-[55%]">
+                                    Total Bobot
+                                </td>
+                                <td className="py-3 px-3 text-center text-base w-[15%]">
+                                    {totalBobot}
+                                </td>
+                                <td className="py-3 px-3 text-center w-[30%]">
+                                    {totalBobot !== 100 && totalBobot > 0 && (
+                                        <button className="bg-red-600 text-white text-sm px-3 py-2 rounded-lg shadow-md">
+                                            Point Tidak Seimbang!
+                                        </button>
+                                    )}
+                                </td>
+                            </tr>
+                        </tfoot>
+                    </table>
                 </div>
             </main>
 
