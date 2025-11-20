@@ -13,6 +13,22 @@ import OsHeader from "../../components/Header"; // 1. Impor komponen breadcrumb
 
 // 2. Pastikan nama file komponen pagination Anda benar
 import OsPagination from "../../components/pagination";
+import OsTableHeader from "../../components/tableheader.jsx";
+import OsTableBody from "../../components/tablecontain.jsx";
+import OsSearchBar from "../../components/searchbar.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
+import OsButton from "../../components/button.jsx";
+
+
+
+//Definisi kolom tabel
+const tableColumns = [
+    { content: "No", width: "w-16", classes: "justify-center" },
+    { content: "Ruangan", width: "flex-1", classes: "justify-start px-4" },
+    { content: "Stase", width: "flex-1", classes: "justify-start px-4" },
+    { content: "Penguji", width: "flex-1", classes: "justify-start px-4" },
+    { content: "Action", width: "w-32", classes: "justify-center" },
+];
 
 export default function OsceStasePage({ stase, osce, filters }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -35,6 +51,33 @@ export default function OsceStasePage({ stase, osce, filters }) {
         }
     }
 
+    //Siapin isi data tabel 
+    const tableData = stase.data.map((item, index) => ({
+        no: stase.from + index,
+        ruangan: `Ruang ${item.ruang.nomor_ruangan}`,
+        stase: item.stase.nama_stase,
+        penguji: item.penguji?.nama || "Belum diatur",
+        action: (
+            <div className="flex items-center justify-center gap-2">
+                <button
+                    onClick={() =>
+                        router.get(`/admin/osce/${osce.id_osce}/stase/${item.id_osce_stase}/edit`)
+                    }
+                    className="p-2 rounded-md border bg-black text-white hover:bg-gray-400"
+                >
+                    <Edit size={14} />
+                </button>
+    
+                <button
+                    onClick={() => handleDelete(item.id_osce_stase)}
+                    className="p-2 rounded-md border text-red-600 hover:bg-red-50"
+                >
+                    <Trash2 size={14} />
+                </button>
+            </div>
+        )
+    }));
+    
     return (
         <div className="min-h-screen flex">
             <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
@@ -71,6 +114,7 @@ export default function OsceStasePage({ stase, osce, filters }) {
                             </button>
                         </div>
                     </section>
+                    
 
                     {/* Tambah Stase */}
                     <section className="mb-6">
@@ -83,147 +127,53 @@ export default function OsceStasePage({ stase, osce, filters }) {
                             elit.
                         </p>
 
-                        <button
-                            onClick={() =>
-                                router.get(
-                                    `/admin/osce/${osce.id_osce}/stase/create`
-                                )
-                            }
-                            className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                        <OsButton
+                            name="primary"
+                            onClick={() => router.get(`/admin/osce/${osce.id_osce}/stase/create`)}
+                            className="flex items-center gap-2"
                         >
-                            <Plus size={18} className="mr-2" />
+                            <Plus size={18} />
                             Masukkan Stase
-                        </button>
+                        </OsButton>
+
                     </section>
 
                     {/* Search */}
-                    <section className="bg-white rounded-lg shadow-sm">
-                        <form
-                            onSubmit={handleSearch}
-                            className="mb-4 flex-wrap gap-3"
-                        >
-                            <div className="flex items-center mb-2 gap-3">
-                                <div className="relative">
-                                    <Search
-                                        size={18}
-                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="cari data stase..."
-                                        className="border rounded-lg pl-10 pr-4 py-2.5 text-sm w-full sm:w-80 outline-blue-500"
-                                        value={searchTerm}
-                                        onChange={(e) =>
-                                            setSearchTerm(e.target.value)
-                                        }
-                                    />
-                                </div>
-
-                                <button
-                                    type="submit"
-                                    className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium w-full sm:w-auto"
-                                >
-                                    Cari
-                                </button>
-                            </div>
+                        <OsSearchBar
+                            search={searchTerm}
+                            setSearch={setSearchTerm}
+                            onSearchClick={handleSearch}
+                            placeholder="Cari data stase..."
+                        />
 
                             <h2 className="text-lg font-semibold text-gray-800">
                                 Tabel Stase
                             </h2>
-                        </form>
+                       
 
                         {/* Tabel */}
-                        <div className="overflow-x-auto border rounded-lg">
-                            <table className="w-full text-sm">
-                                <thead className="bg-gray-100 border-b">
-                                    <tr>
-                                        <th className="p-3 text-left w-16">
-                                            No
-                                        </th>
-                                        <th className="p-3 text-left">
-                                            Ruangan
-                                        </th>
-                                        <th className="p-3 text-left">Stase</th>
-                                        <th className="p-3 text-left">
-                                            Penguji
-                                        </th>
-                                        <th className="p-3 text-center w-32">
-                                            Action
-                                        </th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    {stase.data.map((item, index) => (
-                                        <tr
-                                            key={item.id_osce_stase}
-                                            className="border-b hover:bg-gray-50"
-                                        >
-                                            <td className="p-3 font-medium">
-                                                {stase.from + index}
-                                            </td>
-
-                                            <td className="p-3">
-                                                Ruang {item.ruang.nomor_ruangan}
-                                            </td>
-
-                                            {/* ✅ Kolom Stase TANPA IKON MERAH */}
-                                            <td className="p-3">
-                                                {item.stase.nama_stase}
-                                            </td>
-
-                                            <td className="p-3">
-                                                {item.penguji?.nama ||
-                                                    "Belum diatur"}
-                                            </td>
-
-                                            {/* ✅ Action TANPA IKON BIRU */}
-                                            <td className="p-3">
-                                                <div className="flex items-center justify-center gap-2">
-                                                    {/* Edit */}
-                                                    <button
-                                                        onClick={() =>
-                                                            router.get(
-                                                                `/admin/osce/${osce.id_osce}/stase/${item.id_osce_stase}/edit`
-                                                            )
-                                                        }
-                                                        className="p-2 rounded-md border bg-black text-white hover:bg-gray-400"
-                                                        title="Edit"
-                                                    >
-                                                        <Edit size={14} />
-                                                    </button>
-
-                                                    {/* Delete */}
-                                                    <button
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                item.id_osce_stase
-                                                            )
-                                                        }
-                                                        className="p-2 rounded-md border text-red-600 hover:bg-red-50"
-                                                        title="Delete"
-                                                    >
-                                                        <Trash2 size={14} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
+                        <div className="mt-4">
+                            <OsTableHeader columns={tableColumns} />
+                            <OsTableBody
+                                columns={[
+                                    { key: "no", width: "w-16", classes: "justify-center" },
+                                    { key: "ruangan", classes: "justify-start px-4" },
+                                    { key: "stase", classes: "justify-start px-4" },
+                                    { key: "penguji", classes: "justify-start px-4" },
+                                    { key: "action", width: "w-32", classes: "justify-center" },
+                                ]}
+                                data={tableData}
+                            />
                         </div>
-
-                        <OsPagination links={stase?.links} />
-                    </section>
-                </div>
-
-                {/* Footer */}
-                <footer className="p-4 bg-white border-t mt-auto">
-                    <div className="border rounded-lg px-4 py-3 text-center text-gray-500 text-xs">
-                        Copyright Porem ipsum
                     </div>
-                </footer>
+                        <OsPagination links={stase?.links} />
+              
+                 {/* footer */}
+                <footer className="mt-auto pt-6 border-t border-gray-200">
+                    <OsCopyright />
+                 </footer>
             </main>
         </div>
+   
     );
 }
