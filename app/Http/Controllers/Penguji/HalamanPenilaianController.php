@@ -76,7 +76,7 @@ class HalamanPenilaianController extends Controller
             ];
         });
 
-        return Inertia::render('Penguji/Antrian', [
+        return Inertia::render('Penguji/LiveAntrian', [
             'osce_detail'       => $osceDetail,
             'antrian_mahasiswa' => $antrianMahasiswa
         ]);
@@ -164,7 +164,7 @@ class HalamanPenilaianController extends Controller
         }
         $totalNilaiAkhir = $totalAkumulasi / 4;
 
-        return Inertia::render('Penguji/Penilaian', [
+        return Inertia::render('Penguji/LivePenilaian', [
             'mahasiswa'           => $dataMahasiswa,
             'info_ujian'          => $infoUjian,
             'rubrik'              => $rubrik,

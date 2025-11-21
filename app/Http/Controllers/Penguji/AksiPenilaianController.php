@@ -2,114 +2,196 @@
 
 namespace App\Http\Controllers\Penguji;
 
-use App\Models\EnrollmentOsce;
-use App\Models\PoinAspekPenilaian;
-use App\Models\Osce;
-use App\Models\OsceStase;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Carbon\Carbon;
+use Inertia\Inertia;
+
+// Models
+use App\Models\EnrollmentOsce;
+use App\Models\NilaiOsce;
+use App\Models\Osce;
+use App\Models\OsceStase;
 
 class AksiPenilaianController extends Controller
 {
     /**
-     * Mengecek apakah OSCE sudah berakhir.
+     * Helper: Cek Batas Waktu (Gatekeeper)
+     * Menggunakan tanggal_selesai dari tabel OSCE (Per Event)
      */
-    private function cekOsceSelesai($id_osce)
+    private function cekWaktuHabis($id_osce)
     {
-        // Mengambil data OSCE berdasarkan ID
         $osce = Osce::findOrFail($id_osce);
-
-        // Mengecek apakah tanggal selesai OSCE sudah lewat
-        return now()->greaterThan($osce->tanggal_selesai);
+        // Batas waktu adalah akhir hari dari tanggal selesai
+        $batasWaktu = Carbon::parse($osce->tanggal_selesai)->endOfDay();
+        
+        return Carbon::now()->gt($batasWaktu);
     }
 
     /**
      * SIMPAN NILAI OSCE
      * POST: /penguji/penilaian/{id_enrollment_osce}
      */
-    public function simpanNilai(Request $request, $id_enrollment_osce)
+    public function store(Request $request, $id_enrollment_osce)
     {
-        // Mengambil enrollment mahasiswa OSCE
+        $user = Auth::user();
+        
+        // 1. Ambil Data Enrollment
         $enrollment = EnrollmentOsce::findOrFail($id_enrollment_osce);
 
-        // OSCE sudah selesai → nilai tidak boleh diubah
-        if ($this->cekOsceSelesai($enrollment->id_osce)) {
-            return redirect()->back()->with('error', 'OSCE telah berakhir. Tidak dapat menyimpan atau mengubah nilai.');
+        // 2. Validasi Waktu
+        if ($this->cekWaktuHabis($enrollment->id_osce)) {
+            return back()->withErrors(['error' => 'Masa penilaian OSCE ini telah berakhir.']);
         }
 
-        // Validasi input nilai yang dikirim oleh penguji
-        $request->validate([
+        // 3. Validasi Input
+        $validated = $request->validate([
             'nilai' => 'required|array',
-            'nilai.*.id_poin_aspek_penilaian' => 'required|integer|exists:poin_aspek_penilaian,id_poin_aspek_penilaian',
-            'nilai.*.skor' => 'required|numeric|min:0|max:100'
+            'nilai.*.id_poin_aspek_penilaian' => 'required|integer',
+            'nilai.*.skor' => 'required|integer|min:0|max:4',
+            'feedback' => 'nullable|string',
         ]);
 
-        // Update skor langsung di tabel poin_aspek_penilaian
-        foreach ($request->nilai as $item) {
-            // Menyimpan skor yang diinput penguji ke database
-            PoinAspekPenilaian::where('id_poin_aspek_penilaian', $item['id_poin_aspek_penilaian'])
-                ->update(['skor' => $item['skor']]);
-        }
+        // 4. Ambil Context Stase (Penting untuk Redirect nanti)
+        // Kita cari stase mana yang sedang dipegang oleh penguji ini di OSCE ini
+        $staseContext = OsceStase::where('id_osce', $enrollment->id_osce)
+            ->where('id_penguji', $user->penguji->id_penguji)
+            ->firstOrFail();
 
-        // Mengembalikan response sukses agar front-end bisa menampilkan notifikasi
+        // 5. Simpan Data (Gunakan Transaction)
+        DB::transaction(function () use ($validated, $id_enrollment_osce, $enrollment) {
+            // A. Simpan Feedback ke Enrollment
+            $enrollment->catatan = $validated['feedback'] ?? null;
+            $enrollment->save();
+
+            // B. Simpan Skor ke tabel TRANSAKSI (NilaiOsce), BUKAN Master (PoinAspek)
+            foreach ($validated['nilai'] as $item) {
+                NilaiOsce::updateOrCreate(
+                    [
+                        'id_enrollment_osce' => $id_enrollment_osce,
+                        'id_poin_aspek_penilaian' => $item['id_poin_aspek_penilaian'],
+                    ],
+                    [
+                        'nilai' => $item['skor']
+                    ]
+                );
+            }
+        });
+
+        // 6. Redirect ke Halaman Rotasi
         return redirect()->route('penguji.rotasi', [
             'id_osce' => $enrollment->id_osce,
-            'id_osce_stase' => $enrollment->id_osce_stase,
+            'id_osce_stase' => $staseContext->id_osce_stase
         ])->with('success', 'Nilai berhasil disimpan.');
     }
 
     /**
-     * ROTASI STASE
+     * HALAMAN ROTASI (GET)
+     * Mencari mahasiswa selanjutnya dan menampilkan halaman tunggu.
+     * Endpoint: /penguji/osce/{id_osce}/stase/{id_osce_stase}/rotasi
      */
-    public function rotasi($id_osce_stase)
+    public function rotasi($id_osce, $id_osce_stase)
     {
-        // Mengambil stase saat ini
-        $staseSekarang = OsceStase::findOrFail($id_osce_stase);
+        $user = Auth::user();
+        $penguji = $user->penguji;
 
-        // OSCE sudah selesai → rotasi tidak bisa dilakukan
-        if ($this->cekOsceSelesai($staseSekarang->id_osce)) {
-            return redirect()->back()->with('error', 'OSCE telah berakhir, rotasi tidak dapat dilakukan.');
+        // 1. Ambil & Validasi Stase
+        $osceStase = OsceStase::with(['osce', 'stase'])
+            ->where('id_osce', $id_osce)
+            ->where('id_osce_stase', $id_osce_stase)
+            ->where('id_penguji', $penguji->id_penguji) 
+            ->firstOrFail();
+
+        $allEnrollments = EnrollmentOsce::with('mahasiswa')
+            ->where('id_osce', $id_osce)
+            ->get();
+
+        $sudahDinilaiIds = NilaiOsce::whereIn('id_enrollment_osce', $allEnrollments->pluck('id_enrollment_osce'))
+            ->whereHas('poinAspekPenilaian.aspekPenilaian', function($q) use ($osceStase) {
+                $q->where('id_stase', $osceStase->id_stase);
+            })
+            ->pluck('id_enrollment_osce')
+            ->toArray();
+
+        $nextStudent = $allEnrollments->first(function ($enrollment) use ($sudahDinilaiIds) {
+            return !in_array($enrollment->id_enrollment_osce, $sudahDinilaiIds);
+        });
+
+
+        $mahasiswaSelanjutnya = null;
+        if ($nextStudent) {
+            $mahasiswaSelanjutnya = [
+                'id_enrollment_osce' => $nextStudent->id_enrollment_osce,
+                'nama' => $nextStudent->mahasiswa->nama,
+                'nim' => $nextStudent->mahasiswa->nim,
+                'prodi' => $nextStudent->mahasiswa->prodi,
+            ];
         }
 
-        // Ambil semua stase OSCE ini berdasarkan jadwal
-        $staseList = OsceStase::where('id_osce', $staseSekarang->id_osce)
-            ->orderBy('tanggal')
-            ->orderBy('jam_mulai')
-            ->get()
-            ->values();
-
-        // Cari index stase saat ini
-        $currentIndex = $staseList->search(fn($s) => $s->id_osce_stase == $id_osce_stase);
-
-        // Ambil stase berikutnya (jika ada)
-        $nextStase = $staseList->get($currentIndex + 1);
-
-        // Ambil semua mahasiswa yang ikut OSCE ini
-        $mahasiswa = EnrollmentOsce::where('id_osce', $staseSekarang->id_osce)->get();
-
-        // Kembalikan data agar front-end bisa menampilkan rotasi dan daftar mahasiswa
-        return redirect()->back()->with([
-            'message' => 'Rotasi berhasil.',
-            'stase_sekarang' => $staseSekarang,
-            'stase_berikutnya' => $nextStase,
-            'jumlah_mahasiswa' => $mahasiswa->count(),
+        return Inertia::render('Penguji/LiveRotasi', [
+            'osce_detail' => [
+                'id_osce' => $osceStase->id_osce,
+                'id_osce_stase' => $osceStase->id_osce_stase,
+                'nama_osce' => $osceStase->osce->nama_osce,
+                'nama_stase' => $osceStase->stase->nama_stase,
+            ],
+            'mahasiswa_selanjutnya' => $mahasiswaSelanjutnya, 
+            'sisa_waktu_rotasi_detik' => 60 
         ]);
     }
 
     /**
-     * SELESAI SESI
+     * HALAMAN KONFIRMASI SELESAI (GET)
+     * Menampilkan list mahasiswa sebelum submit final.
      */
-    public function selesaiSesi($id_osce_stase)
+    public function halamanKonfirmasi($id_osce, $id_osce_stase)
     {
-        // Ambil stase yang dimaksud
-        $stase = OsceStase::findOrFail($id_osce_stase);
+        $user = Auth::user();
 
-        // Cek apakah OSCE sudah selesai
-        if ($this->cekOsceSelesai($stase->id_osce)) {
-            return redirect()->back()->with('error', 'OSCE telah berakhir. Sesi tidak dapat diubah.');
-        }
+        $osceStase = OsceStase::with(['osce', 'stase'])
+            ->where('id_osce', $id_osce)
+            ->where('id_osce_stase', $id_osce_stase)
+            ->where('id_penguji', $user->penguji->id_penguji)
+            ->firstOrFail();
 
-        // Response sukses agar front-end menandai sesi selesai
-        return redirect()->back()->with('success', 'Sesi berhasil ditandai sebagai selesai.');
+        // Ambil rekap singkat status penilaian
+        $mahasiswaList = EnrollmentOsce::with('mahasiswa')
+            ->where('id_osce', $id_osce)
+            ->get()
+            ->map(function ($enrollment) use ($osceStase) {
+                $hasNilai = NilaiOsce::where('id_enrollment_osce', $enrollment->id_enrollment_osce)
+                    ->whereHas('poinAspekPenilaian.aspekPenilaian', function ($q) use ($osceStase) {
+                        $q->where('id_stase', $osceStase->id_stase);
+                    })->exists();
+
+                return [
+                    'nama' => $enrollment->mahasiswa->nama,
+                    'nim' => $enrollment->mahasiswa->nim,
+                    'status' => $hasNilai ? 'Sudah Dinilai' : 'Belum Dinilai',
+                ];
+            });
+
+        return Inertia::render('Penguji/SubmitRubrik', [
+            'osce_detail' => [
+                'id_osce' => $osceStase->id_osce,
+                'id_osce_stase' => $osceStase->id_osce_stase,
+                'nama_osce' => $osceStase->osce->nama_osce,
+                'nama_stase' => $osceStase->stase->nama_stase,
+            ],
+            'mahasiswa_list' => $mahasiswaList
+        ]);
+    }
+
+    /**
+     * AKSI SELESAI SESI (POST)
+     * Hanya redirect ke dashboard, karena status dikontrol waktu admin.
+     */
+    public function selesai($id_osce, $id_osce_stase)
+    {
+        // Tidak ada update DB.
+        return redirect()->route('penguji.dashboard')
+            ->with('success', 'Sesi penilaian telah diselesaikan. Anda akan diarahkan ke Dashboard.');
     }
 }

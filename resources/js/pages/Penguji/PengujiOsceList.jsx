@@ -123,7 +123,7 @@ export default function PengujiOsceList() {
         const btn = getButtonStyle(item.status);
 
         // Tentukan link berdasarkan status
-        let linkHref = "#";
+        let linkHref;
         if (item.status === "Aktif") {
             // Ke halaman antrian (Live)
             linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}`;

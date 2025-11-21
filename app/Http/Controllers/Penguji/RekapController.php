@@ -13,78 +13,82 @@ use App\Models\EnrollmentOsce;
 
 class RekapController extends Controller
 {
-    /**
-     * MODE EDIT → GET /penguji/osce/{id_osce}/stase/{id_osce_stase}/edit-nilai
-     */
     public function editNilai(Request $request, $id_osce, $id_osce_stase)
     {
         return $this->getData($id_osce, $id_osce_stase, 'edit');
     }
 
-    /**
-     * MODE REKAP → GET /penguji/osce/{id_osce}/stase/{id_osce_stase}/rekap
-     */
     public function rekap(Request $request, $id_osce, $id_osce_stase)
     {
         return $this->getData($id_osce, $id_osce_stase, 'rekap');
     }
 
-    /**
-     * Private function untuk logic reusable (DRY Pattern)
-     */
     private function getData($id_osce, $id_osce_stase, $mode)
     {
         $user = Auth::user();
         
-        // 1. Validasi Akses Penguji & Ambil Data Stase
-        // Kita butuh 'id_stase' untuk filter nilai yang benar
+        // [FIX 1] Validasi User & Relasi Penguji
+        if (!$user->penguji) {
+            abort(403, 'Akun Anda tidak memiliki profil Penguji.');
+        }
+
+        // 1. Validasi Akses & Ambil Data Stase
+        // Pastikan penguji yang login memang ditugaskan di stase ini
         $osceStase = OsceStase::with(['osce', 'stase'])
             ->where('id_osce', $id_osce)
             ->where('id_osce_stase', $id_osce_stase)
             ->where('id_penguji', $user->penguji->id_penguji)
             ->firstOrFail();
 
-        // 2. Ambil List Mahasiswa & Total Nilai PER STASE INI
-        // Logic: Ambil enrollment di OSCE ini, lalu hitung SUM nilai 
-        // TAPI hanya nilai yang poin penilaiannya milik stase ini.
-        
-        $idStase = $osceStase->id_stase;
+        // [FIX 2] Cast ID ke integer. Ini KUNCI perbaikan agar aman masuk ke string SQL
+        $idStase = (int) $osceStase->id_stase;
 
-        $mahasiswa_list = EnrollmentOsce::with('mahasiswa')
+        // 2. Query Data Mahasiswa & Hitung Nilai via Subquery
+        $mahasiswaRaw = EnrollmentOsce::with('mahasiswa')
             ->where('id_osce', $id_osce)
             ->select([
                 'enrollment_osce.*',
-                // Subquery hitung total nilai KHUSUS stase ini
+                // [FIX 3] Interpolasi variabel $idStase langsung ke string SQL
+                // Kita HAPUS tanda '?' dan setBindings() untuk menghindari bentrok parameter
                 DB::raw("(
-                    SELECT SUM(no.nilai * pap.bobot) -- Asumsi nilai dikali bobot, atau sesuaikan logic
+                    SELECT SUM(no.nilai * pap.bobot) 
                     FROM nilai_osce AS no
                     JOIN poin_aspek_penilaian AS pap ON no.id_poin_aspek_penilaian = pap.id_poin_aspek_penilaian
                     JOIN aspek_penilaian AS ap ON pap.id_aspek_penilaian = ap.id_aspek_penilaian
                     WHERE no.id_enrollment_osce = enrollment_osce.id_enrollment_osce
-                    AND ap.id_stase = {$idStase} 
+                    AND ap.id_stase = $idStase 
                 ) as nilai_total")
             ])
-            ->get()
-            // Filter di PHP (Opsional): Jika ingin hanya menampilkan mahasiswa yang sudah dinilai
-            // ->filter(fn($m) => $m->nilai_total !== null) 
-            ->values();
+            ->get();
 
-        // 3. Format Data untuk UI
-        // Kita perlu kirim osce_detail agar header di frontend muncul
+        // 3. Mapping Data untuk Frontend
+        $mahasiswaList = $mahasiswaRaw->map(function ($item) {
+            return [
+                'id_enrollment_osce' => $item->id_enrollment_osce,
+                'nama'        => $item->mahasiswa->nama ?? '-',
+                'nim'         => $item->mahasiswa->nim ?? '-',
+                // Format nilai: jika null jadi 0, jika ada dibulatkan 2 desimal
+                'nilai_total' => $item->nilai_total ? round((float)$item->nilai_total, 2) : 0,
+            ];
+        });
+
+        // 4. Format Header Data
         $osce_detail = [
-            'nama_osce' => $osceStase->osce->nama_osce,
-            'nama_stase' => $osceStase->stase->nama_stase,
+            'id_osce'          => $id_osce,
+            'id_osce_stase'    => $id_osce_stase,
+            'nama_osce'        => $osceStase->osce->nama_osce,
+            'nama_stase'       => $osceStase->stase->nama_stase,
             'waktu_per_rubrik' => $osceStase->durasi_per_mahasiswa . ' Menit',
-            'total_mahasiswa' => $mahasiswa_list->count(),
-            'nama_penguji' => $user->penguji->nama,
+            'total_mahasiswa'  => $mahasiswaList->count(),
+            'nama_penguji'     => $user->penguji->nama,
         ];
 
-        // 4. Tentukan View berdasarkan mode
+        // Tentukan View berdasarkan mode request
         $view = $mode === 'edit' ? 'Penguji/EditNilaiForm' : 'Penguji/RekapMahasiswaPage';
 
         return Inertia::render($view, [
-            'osce_detail' => $osce_detail,
-            'mahasiswa_list' => $mahasiswa_list
+            'osce_detail'    => $osce_detail,
+            'mahasiswa_list' => $mahasiswaList
         ]);
     }
 }
