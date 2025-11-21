@@ -112,7 +112,7 @@ const SidebarPenguji = () => {
             {/* Bagian Pengaturan */}
             <div className="flex-shrink-0 border-t border-gray-400 p-3 mb-4 mx-4">
                 <Link
-                    href="/penguji/pengaturan"
+                    href="/penguji/pengaturan-akun"
                     className={`flex items-center gap-3 p-2 rounded-lg w-full transition-colors duration-200 group mt-2
                         ${!isOpen ? "justify-center" : ""}
                         ${

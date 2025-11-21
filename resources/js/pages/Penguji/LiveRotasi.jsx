@@ -1,34 +1,54 @@
 import React from "react";
-import { Head, router } from "@inertiajs/react";
+import { Head, router, usePage } from "@inertiajs/react";
 
-export default function LiveRotasi({
-    osce = {
-        name: "OSCE Radiologi 01-A",
-    },
-    student = {
-        name: "Riko Aditya Zaki",
-        nim: "12345689012345",
-        jurusan: "Kedokteran",
-    },
-    remaining_time = "00:00:00",
-    backUrl = "/penguji/osce", // halaman sebelumnya (penilaian stase)
-    submitUrl = "/penguji/detail-osce", // tujuan setelah SUBMIT (Detail OSCE)
-}) {
+export default function LiveRotasi() {
+    // 1. AMBIL PROPS DARI BACKEND (Septia)
+    const {
+        osce_detail,
+        mahasiswa_selanjutnya, // Bisa null jika habis
+        sisa_waktu_rotasi_detik = 60,
+    } = usePage().props;
+
+    // Fallback
+    const safeOsce = osce_detail || { nama_osce: "-", nama_stase: "-" };
+
+    // Cek apakah ini mahasiswa terakhir (habis)
+    const isFinished = !mahasiswa_selanjutnya;
+
     const handleBack = () => {
-        // kalau mau benar-benar back history bisa pakai: window.history.back();
-        router.get(backUrl);
+        // Kembali ke dashboard
+        router.get("/penguji/dashboard");
     };
 
     const handleSubmit = () => {
-        router.get(submitUrl);
+        if (isFinished) {
+            // Jika habis, tutup sesi
+            router.post(
+                `/penguji/osce/${safeOsce.id_osce}/stase/${safeOsce.id_osce_stase}/selesai`
+            );
+        } else {
+            // Jika ada, lanjut nilai
+            router.get(
+                `/penguji/penilaian/${mahasiswa_selanjutnya.id_enrollment_osce}`
+            );
+        }
+    };
+
+    // Format Waktu (Opsional, bisa pakai timer countdown jika mau)
+    const formatWaktu = (detik) => {
+        const m = Math.floor(detik / 60)
+            .toString()
+            .padStart(2, "0");
+        const s = (detik % 60).toString().padStart(2, "0");
+        return `00:${m}:${s}`;
     };
 
     return (
         <>
-            <Head title="Next Mahasiswa" />
+            <Head title="Rotasi Mahasiswa" />
 
-            <div className="min-h-screen bg-white flex flex-col">
-                {/* HEADER – sama seperti detail OSCE */}
+            <div className="min-h-screen bg-white flex flex-col font-sans">
+                {/* HEADER */}
                 <header className="border-b">
                     <div className="mx-auto max-w-6xl flex items-center gap-3 px-4 py-3">
                         <button
@@ -42,29 +62,37 @@ export default function LiveRotasi({
 
                         <div className="flex-1 truncate text-sm text-gray-700">
                             <span className="text-gray-500">
-                                OSCE / {osce.name} /
+                                OSCE / {safeOsce.nama_osce} /
                             </span>{" "}
-                            <span className="font-medium">
-                                Detail OSCE/Detail Stase/ Next Mahasiswa
-                            </span>
+                            <span className="font-medium">Rotasi</span>
                         </div>
                     </div>
                 </header>
 
-                {/* MAIN – lebar halaman sama dengan LiveAntrian/DetailOsce */}
+                {/* MAIN */}
                 <main className="flex-1">
                     <div className="mx-auto max-w-4xl px-4 py-8">
                         <div className="flex justify-center">
-                            {/* Card rotasi */}
-                            <div className="w-full max-w-md bg-white rounded-2xl shadow-[0_4px_8px_rgba(0,0,0,0.15)] border border-black/10 py-10 px-10">
-                                {/* Icon kotak centang */}
+                            {/* Card Rotasi */}
+                            <div className="w-full max-w-md bg-white rounded-2xl shadow-[0_4px_8px_rgba(0,0,0,0.15)] border border-black/10 py-10 px-10 text-center">
+                                {/* Icon Check / Finish */}
                                 <div className="flex justify-center mb-8">
-                                    <div className="flex items-center justify-center w-[116px] h-[116px] rounded-[22px] border-[6px] border-[#1E63D9]">
+                                    <div
+                                        className={`flex items-center justify-center w-[116px] h-[116px] rounded-[22px] border-[6px] ${
+                                            isFinished
+                                                ? "border-green-500"
+                                                : "border-[#1E63D9]"
+                                        }`}
+                                    >
                                         <svg
                                             viewBox="0 0 24 24"
                                             className="w-12 h-12"
                                             fill="none"
-                                            stroke="#1E63D9"
+                                            stroke={
+                                                isFinished
+                                                    ? "#22c55e"
+                                                    : "#1E63D9"
+                                            }
                                             strokeWidth="2.4"
                                             strokeLinecap="round"
                                             strokeLinejoin="round"
@@ -74,56 +102,83 @@ export default function LiveRotasi({
                                     </div>
                                 </div>
 
-                                {/* Judul kecil */}
-                                <p className="text-sm text-black mb-3">
-                                    Rotasi mahasiswa&nbsp; selanjutnya
-                                </p>
-
-                                {/* Box info mahasiswa */}
-                                <div className="border border-black rounded-xl px-4 py-4 flex items-center gap-4 mb-4">
-                                    {/* Avatar */}
-                                    <div className="w-[70px] h-[70px] rounded-full bg-[#402525]" />
-
-                                    {/* Data */}
-                                    <div className="text-xs sm:text-sm leading-relaxed">
-                                        <p className="font-semibold">
-                                            Nama :{" "}
-                                            <span className="font-normal">
-                                                {student.name}
-                                            </span>
-                                        </p>
-                                        <p className="font-semibold mt-1">
-                                            NIM:{" "}
-                                            <span className="font-normal">
-                                                {student.nim}
-                                            </span>
-                                        </p>
-                                        <p className="font-semibold mt-1">
-                                            Jurusan :{" "}
-                                            <span className="font-normal">
-                                                {student.jurusan}
-                                            </span>
+                                {/* Konten Dinamis */}
+                                {isFinished ? (
+                                    // TAMPILAN JIKA SUDAH SELESAI SEMUA
+                                    <div>
+                                        <h3 className="text-xl font-bold text-gray-800 mb-2">
+                                            Seluruh Mahasiswa Telah Dinilai!
+                                        </h3>
+                                        <p className="text-sm text-gray-500 mb-6">
+                                            Anda dapat menyelesaikan sesi ini
+                                            sekarang.
                                         </p>
                                     </div>
-                                </div>
+                                ) : (
+                                    // TAMPILAN MAHASISWA SELANJUTNYA
+                                    <div>
+                                        <p className="text-sm text-black mb-3">
+                                            Rotasi mahasiswa selanjutnya
+                                        </p>
+                                        <div className="border border-black rounded-xl px-4 py-4 flex items-center gap-4 mb-4 text-left">
+                                            <div className="w-[70px] h-[70px] rounded-full bg-[#402525]" />
+                                            <div className="text-xs sm:text-sm leading-relaxed">
+                                                <p className="font-semibold">
+                                                    Nama :{" "}
+                                                    <span className="font-normal">
+                                                        {
+                                                            mahasiswa_selanjutnya.nama
+                                                        }
+                                                    </span>
+                                                </p>
+                                                <p className="font-semibold mt-1">
+                                                    NIM :{" "}
+                                                    <span className="font-normal">
+                                                        {
+                                                            mahasiswa_selanjutnya.nim
+                                                        }
+                                                    </span>
+                                                </p>
+                                                <p className="font-semibold mt-1">
+                                                    Jurusan :{" "}
+                                                    <span className="font-normal">
+                                                        {
+                                                            mahasiswa_selanjutnya.prodi
+                                                        }
+                                                    </span>
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
 
-                                {/* Tombol Sisa Waktu + Submit */}
+                                {/* Tombol Sisa Waktu + Action */}
                                 <div className="mt-4 flex gap-3">
-                                    <div className="flex-1 flex items-center justify-between rounded-xl border border-black bg-[#E53935] px-4 py-3">
-                                        <span className="text-sm font-medium text-white">
-                                            Sisa Waktu
-                                        </span>
-                                        <span className="text-sm font-bold text-white">
-                                            {remaining_time}
-                                        </span>
-                                    </div>
+                                    {!isFinished && (
+                                        <div className="flex-1 flex items-center justify-between rounded-xl border border-black bg-[#E53935] px-4 py-3">
+                                            <span className="text-sm font-medium text-white">
+                                                Istirahat
+                                            </span>
+                                            <span className="text-sm font-bold text-white">
+                                                {formatWaktu(
+                                                    sisa_waktu_rotasi_detik
+                                                )}
+                                            </span>
+                                        </div>
+                                    )}
 
                                     <button
                                         type="button"
                                         onClick={handleSubmit}
-                                        className="flex-1 rounded-xl border border-black bg-[#0052CC] px-4 py-3 text-sm font-bold text-white text-center"
+                                        className={`flex-1 rounded-xl border border-black px-4 py-3 text-sm font-bold text-white text-center ${
+                                            isFinished
+                                                ? "bg-green-600 hover:bg-green-700"
+                                                : "bg-[#0052CC] hover:bg-blue-700"
+                                        }`}
                                     >
-                                        SUBMIT
+                                        {isFinished
+                                            ? "SELESAI SESI"
+                                            : "LANJUT NILAI"}
                                     </button>
                                 </div>
                             </div>
@@ -131,9 +186,8 @@ export default function LiveRotasi({
                     </div>
                 </main>
 
-                {/* FOOTER */}
                 <footer className="border-t py-3 text-center text-xs text-gray-500">
-                    © 2025 All rights reserved. | Polines
+                    © 2025 OSCE System
                 </footer>
             </div>
         </>

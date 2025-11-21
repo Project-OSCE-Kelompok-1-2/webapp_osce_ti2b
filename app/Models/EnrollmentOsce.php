@@ -12,7 +12,7 @@ class EnrollmentOsce extends Model
 
     protected $table = 'enrollment_osce';
     protected $primaryKey = 'id_enrollment_osce';
-    public $timestamps = false;git
+    public $timestamps = false;
 
     protected $fillable = [
         'id_osce',
