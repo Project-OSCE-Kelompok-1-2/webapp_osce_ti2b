@@ -53,9 +53,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function () {
 
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
-
     Route::get('/osce', [PengujiOsceController::class, 'index'])->name('osce.index');
-
     Route::get('/pengaturan-akun', [ProfilController::class, 'show_profile'])->name('account.show');
     Route::post('/pengaturan-akun', [ProfilController::class, 'update_account'])->name('account.update');
 
