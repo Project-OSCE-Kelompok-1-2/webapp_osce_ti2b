@@ -16,6 +16,7 @@ use App\Http\Controllers\Admin\RekapNilaiController;
 use App\Http\Controllers\Admin\AspekPenilaianController;
 use App\Http\Controllers\Admin\OsceEnrollmentController;
 use App\Http\Controllers\Penguji\ProfilController;
+use App\Http\Controllers\Penguji\EditNilaiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -41,6 +42,24 @@ Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')
     Route::get('/pengaturan-akun', [ProfilController::class, 'show_profile'])->name('account.show');
     Route::post('/pengaturan-akun', [ProfilController::class, 'update_account'])->name('account.update');
 });
+
+// ===========================
+// === RUTE UNTUK PENGUJI ===
+// ===========================
+Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function () {
+
+    // --- Dashboard & Akun ---
+    Route::get('/pengaturan-akun', [ProfilController::class, 'show_profile'])->name('account.show');
+    Route::post('/pengaturan-akun', [ProfilController::class, 'update_account'])->name('account.update');
+
+    // --- Penilaian (Tugas Najwa) ---
+    // Tugas 1: GET Form Edit (Mengambil data rubrik & nilai)
+    Route::get('/penilaian/{id_enrollment_osce}/edit', [EditNilaiController::class, 'edit'])->name('penilaian.edit');
+    
+    // Tugas 2: PUT Simpan Edit (Menyimpan nilai)
+    Route::put('/penilaian/{id_enrollment_osce}', [EditNilaiController::class, 'update'])->name('penilaian.update');
+});
+
 
 // =========================
 // === RUTE UNTUK ADMIN ===
