@@ -34,9 +34,7 @@ class AksiPenilaianController extends Controller
 
         // OSCE sudah selesai → nilai tidak boleh diubah
         if ($this->cekOsceSelesai($enrollment->id_osce)) {
-            return response()->json([
-                'message' => 'OSCE telah berakhir. Tidak dapat menyimpan atau mengubah nilai.'
-            ], 403);
+            return redirect()->back()->with('error', 'OSCE telah berakhir. Tidak dapat menyimpan atau mengubah nilai.');
         }
 
         // Validasi input nilai yang dikirim oleh penguji
@@ -54,9 +52,10 @@ class AksiPenilaianController extends Controller
         }
 
         // Mengembalikan response sukses agar front-end bisa menampilkan notifikasi
-        return response()->json([
-            'message' => 'Nilai berhasil disimpan.'
-        ], 200);
+        return redirect()->route('penguji.rotasi', [
+            'id_osce' => $enrollment->id_osce,
+            'id_osce_stase' => $enrollment->id_osce_stase,
+        ])->with('success', 'Nilai berhasil disimpan.');
     }
 
     /**
@@ -69,7 +68,7 @@ class AksiPenilaianController extends Controller
 
         // OSCE sudah selesai → rotasi tidak bisa dilakukan
         if ($this->cekOsceSelesai($staseSekarang->id_osce)) {
-            return response()->json(['message' => 'OSCE telah berakhir, rotasi tidak dapat dilakukan.'], 403);
+            return redirect()->back()->with('error', 'OSCE telah berakhir, rotasi tidak dapat dilakukan.');
         }
 
         // Ambil semua stase OSCE ini berdasarkan jadwal
@@ -89,12 +88,11 @@ class AksiPenilaianController extends Controller
         $mahasiswa = EnrollmentOsce::where('id_osce', $staseSekarang->id_osce)->get();
 
         // Kembalikan data agar front-end bisa menampilkan rotasi dan daftar mahasiswa
-        return response()->json([
+        return redirect()->back()->with([
             'message' => 'Rotasi berhasil.',
             'stase_sekarang' => $staseSekarang,
             'stase_berikutnya' => $nextStase,
             'jumlah_mahasiswa' => $mahasiswa->count(),
-            'mahasiswa' => $mahasiswa,
         ]);
     }
 
@@ -108,10 +106,10 @@ class AksiPenilaianController extends Controller
 
         // Cek apakah OSCE sudah selesai
         if ($this->cekOsceSelesai($stase->id_osce)) {
-            return response()->json(['message' => 'OSCE telah berakhir. Sesi tidak dapat diubah.'], 403);
+            return redirect()->back()->with('error', 'OSCE telah berakhir. Sesi tidak dapat diubah.');
         }
 
         // Response sukses agar front-end menandai sesi selesai
-        return response()->json(['message' => 'Sesi berhasil ditandai sebagai selesai.']);
+        return redirect()->back()->with('success', 'Sesi berhasil ditandai sebagai selesai.');
     }
 }
