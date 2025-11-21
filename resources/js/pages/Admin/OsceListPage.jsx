@@ -269,9 +269,7 @@ export default function OsceListPage({ osce, filters }) {
                     </OsButton>
 
                     <section>
-                        <h2 className="text-lg font-semibold mb-4">
-                            Table OSCE
-                        </h2>
+
 
                         <OsSearchBar
                             search={search}
@@ -294,7 +292,9 @@ export default function OsceListPage({ osce, filters }) {
                                 className="w-[140px]"
                             />
                         </OsSearchBar>
-
+                        <h2 className="text-lg font-semibold mb-2">
+                            Table OSCE
+                        </h2>
                         {/* Table */}
                         <OsTableHeader columns={columns} />
                         <OsTableBody data={rows} columns={columns} />

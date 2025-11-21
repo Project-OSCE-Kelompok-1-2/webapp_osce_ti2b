@@ -8,6 +8,7 @@ import {
     Search,
     Edit,
     Trash2,
+    Edit2
 } from "lucide-react";
 
 import OsHeader from "../../components/Header";
@@ -17,14 +18,31 @@ import OsTableHeader from "../../components/tableheader.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
 import OsButton from "../../components/button.jsx";
+import OsIcon from "../../components/icons.jsx";
 
 // Definisi kolom tabel
 const tableColumns = [
-    { content: "No", width: "w-16", classes: "justify-center" },
-    { content: "Ruangan", width: "flex-1", classes: "justify-start px-4" },
-    { content: "Stase", width: "flex-1", classes: "justify-start px-4" },
-    { content: "Penguji", width: "flex-1", classes: "justify-start px-4" },
-    { content: "Action", width: "w-32", classes: "justify-center" },
+    { content: "No", width: "w-16", classes: "justify-center items-center" },
+    {
+        content: "Ruangan",
+        width: "flex-1",
+        classes: "justify-start items-center px-4",
+    },
+    {
+        content: "Stase",
+        width: "flex-1",
+        classes: "justify-start items-center px-4",
+    },
+    {
+        content: "Penguji",
+        width: "flex-1",
+        classes: "justify-start items-center px-4",
+    },
+    {
+        content: "Action",
+        width: "w-32",
+        classes: "justify-center items-center",
+    },
 ];
 import OsInput from "../../components/input";
 
@@ -174,7 +192,8 @@ export default function OsceStasePage({ stase, osce, filters }) {
         penguji: item.penguji?.nama || "Belum diatur",
         action: (
             <div className="flex items-center justify-center gap-2">
-                <button
+                <OsButton
+                name="edit"
                     onClick={() =>
                         // Mengganti router.get ke openEditModal(item) untuk menggunakan modal
                         openEditModal(item)
@@ -182,31 +201,31 @@ export default function OsceStasePage({ stase, osce, filters }) {
                     className="p-2 rounded-md border bg-black text-white hover:bg-gray-400"
                     title="Edit"
                 >
-                    <Edit size={14} />
-                </button>
+                    <Edit2 size={18} />
+                </OsButton>
 
-                <button
+                <OsButton
+                name="warning"
                     onClick={() => openDeleteModal(item)} // Menggunakan openDeleteModal(item)
                     className="p-2 rounded-md border text-red-600 hover:bg-red-50"
                     title="Delete"
                 >
-                    <Trash2 size={14} />
-                </button>
+                    <Trash2 size={18} />
+                </OsButton>
             </div>
-        )
+        ),
     }));
 
     // Fungsi helper untuk handle perubahan form data
     function handleFormChange(field, value) {
-        setFormData(prev => ({ ...prev, [field]: value }));
+        setFormData((prev) => ({ ...prev, [field]: value }));
     }
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+            <Sidebar />
 
-            <main className="grid w-full min-w-min p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 md:ml-20">
-
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
                 <OsHeader variant="goback" backLink="/admin/osce/" />
 
                 <div className="flex-1">
@@ -216,9 +235,12 @@ export default function OsceStasePage({ stase, osce, filters }) {
 
                         <div className="flex gap-2">
                             <OsButton
+                                name="primary"
                                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
                                 onClick={() =>
-                                    router.get(`/admin/osce/${osce.id_osce}/stase`)
+                                    router.get(
+                                        `/admin/osce/${osce.id_osce}/stase`
+                                    )
                                 }
                             >
                                 <ClipboardList size={16} />
@@ -226,13 +248,16 @@ export default function OsceStasePage({ stase, osce, filters }) {
                             </OsButton>
 
                             <OsButton
+                                name="primary"
                                 onClick={() =>
-                                    router.get(`/admin/osce/${osce.id_osce}/jadwal`)
+                                    router.get(
+                                        `/admin/osce/${osce.id_osce}/jadwal`
+                                    )
                                 }
                                 className="flex items-center gap-2 px-4 py-2 bg-white border text-gray-700 rounded-lg text-sm font-medium hover:bg-gray-50"
                             >
                                 <CalendarClock size={16} />
-                                Jadwal Stase
+                                Jadwal Sesi
                             </OsButton>
                         </div>
                     </section>
@@ -240,17 +265,26 @@ export default function OsceStasePage({ stase, osce, filters }) {
 
                     {/* Tombol Add */}
                     <section className="mb-6">
-                        <h2 className="text-lg font-semibold mb-1">Menu Halaman Stase</h2>
+                        <h2 className="text-lg font-semibold mb-1">
+                            [Nama OSCEnya]
+                        </h2>
 
                         <p className="text-sm text-gray-500 mb-4 max-w-lg">
-                            Jorem ipsum dolor sit amet.
+                            Kelola dan definisikan seluruh Stase yang digunakan
+                            dalam ujian OSCE. Di halaman ini, Anda juga dapat
+                            menetapkan Daftar Penguji yang bertugas pada setiap
+                            stase untuk siklus penilaian yang sedang berjalan.
                         </p>
 
                         <OsButton
+                            name="primary"
                             onClick={openAddModal}
                             className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
                         >
-                            <Plus size={18} />
+                            <OsIcon
+                                name="add"
+                                className="h-os-20 os-icon-light mr-os-8"
+                            />
                             Masukkan Stase
                         </OsButton>
                     </section>
@@ -265,34 +299,50 @@ export default function OsceStasePage({ stase, osce, filters }) {
                     />
                     {/* --- */}
 
-                    <h2 className="text-lg font-semibold text-gray-800">
-                        Tabel Stase
+                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        Table Stase
                     </h2>
 
                     {/* Tabel */}
-                    <div className="mt-4">
+                    <div>
                         <OsTableHeader columns={tableColumns} />
                         <OsTableBody
                             columns={[
-                                { key: "no", width: "w-16", classes: "justify-center" },
-                                { key: "ruangan", width: "flex-1", classes: "justify-start px-4" },
-                                { key: "stase", width: "flex-1", classes: "justify-start px-4" },
-                                { key: "penguji", width: "flex-1", classes: "justify-start px-4" },
-                                { key: "action", width: "w-32", classes: "justify-center" },
+                                {
+                                    key: "no",
+                                    width: "w-16",
+                                    classes: "justify-center",
+                                },
+                                {
+                                    key: "ruangan",
+                                    width: "flex-1",
+                                    classes: "justify-start px-4",
+                                },
+                                {
+                                    key: "stase",
+                                    width: "flex-1",
+                                    classes: "justify-start px-4",
+                                },
+                                {
+                                    key: "penguji",
+                                    width: "flex-1",
+                                    classes: "justify-start px-4",
+                                },
+                                {
+                                    key: "action",
+                                    width: "w-32",
+                                    classes: "justify-center",
+                                },
                             ]}
                             data={tableData}
                         />
                     </div>
 
                     <OsPagination links={stase?.links} />
-
                 </div>
 
                 {/* footer */}
-                <footer className="mt-auto pt-6 border-t border-gray-200">
-                    <OsCopyright />
-                </footer>
-
+                <OsCopyright />
             </main>
 
             {/* DELETE CONFIRM MODAL */}
@@ -306,9 +356,18 @@ export default function OsceStasePage({ stase, osce, filters }) {
                 dataToDelete={
                     selectedStase
                         ? [
-                              { key: "Ruangan", value: selectedStase?.ruang?.nomor_ruangan },
-                              { key: "Stase", value: selectedStase?.stase?.nama_stase },
-                              { key: "Penguji", value: selectedStase?.penguji?.nama || "-" },
+                              {
+                                  key: "Ruangan",
+                                  value: selectedStase?.ruang?.nomor_ruangan,
+                              },
+                              {
+                                  key: "Stase",
+                                  value: selectedStase?.stase?.nama_stase,
+                              },
+                              {
+                                  key: "Penguji",
+                                  value: selectedStase?.penguji?.nama || "-",
+                              },
                           ]
                         : []
                 }
@@ -334,8 +393,8 @@ export default function OsceStasePage({ stase, osce, filters }) {
                         label="Nomor Ruangan"
                         placeholder="Nomor Ruangan"
                         value={formData.ruangan}
-                        onChange={(e) =>
-                            handleFormChange("ruangan", e.target.value) // FIXED: Menggunakan handleFormChange
+                        onChange={
+                            (e) => handleFormChange("ruangan", e.target.value) // FIXED: Menggunakan handleFormChange
                         }
                     />
 
@@ -344,8 +403,9 @@ export default function OsceStasePage({ stase, osce, filters }) {
                         label="Stase"
                         placeholder="Nama Stase" // Diubah agar lebih sesuai
                         value={formData.nama_stase} // FIXED: Menggunakan formData.nama_stase
-                        onChange={(e) =>
-                            handleFormChange("nama_stase", e.target.value) // FIXED: Menggunakan handleFormChange
+                        onChange={
+                            (e) =>
+                                handleFormChange("nama_stase", e.target.value) // FIXED: Menggunakan handleFormChange
                         }
                     />
                     <OsInput
@@ -353,8 +413,8 @@ export default function OsceStasePage({ stase, osce, filters }) {
                         label="Penguji"
                         placeholder="Nama Penguji" // Diubah agar lebih sesuai
                         value={formData.penguji} // FIXED: Menggunakan formData.penguji
-                        onChange={(e) =>
-                            handleFormChange("penguji", e.target.value) // FIXED: Menggunakan handleFormChange
+                        onChange={
+                            (e) => handleFormChange("penguji", e.target.value) // FIXED: Menggunakan handleFormChange
                         }
                     />
                 </div>
@@ -377,8 +437,8 @@ export default function OsceStasePage({ stase, osce, filters }) {
                         label="Nomor Ruangan"
                         placeholder="Nomor Ruangan"
                         value={formData.ruangan}
-                        onChange={(e) =>
-                            handleFormChange("ruangan", e.target.value) // FIXED: Menggunakan handleFormChange
+                        onChange={
+                            (e) => handleFormChange("ruangan", e.target.value) // FIXED: Menggunakan handleFormChange
                         }
                     />
 
@@ -387,8 +447,9 @@ export default function OsceStasePage({ stase, osce, filters }) {
                         label="Stase"
                         placeholder="Nama Stase" // Diubah agar lebih sesuai
                         value={formData.nama_stase} // FIXED: Menggunakan formData.nama_stase
-                        onChange={(e) =>
-                            handleFormChange("nama_stase", e.target.value) // FIXED: Menggunakan handleFormChange
+                        onChange={
+                            (e) =>
+                                handleFormChange("nama_stase", e.target.value) // FIXED: Menggunakan handleFormChange
                         }
                     />
                     <OsInput
@@ -396,13 +457,12 @@ export default function OsceStasePage({ stase, osce, filters }) {
                         label="Penguji"
                         placeholder="Nama Penguji" // Diubah agar lebih sesuai
                         value={formData.penguji} // FIXED: Menggunakan formData.penguji
-                        onChange={(e) =>
-                            handleFormChange("penguji", e.target.value) // FIXED: Menggunakan handleFormChange
+                        onChange={
+                            (e) => handleFormChange("penguji", e.target.value) // FIXED: Menggunakan handleFormChange
                         }
                     />
                 </div>
             </OsModal>
         </div>
-
     );
 }

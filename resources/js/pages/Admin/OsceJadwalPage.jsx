@@ -9,7 +9,8 @@ import {
     ClipboardList,
     CalendarClock,
     Plus,
-    Edit, // Import 'Edit' yang hilang
+    Edit,
+    Edit2, // Import 'Edit' yang hilang
 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
@@ -18,8 +19,9 @@ import OsTableHeader from "../../components/tableheader.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
-import Modals from "../../components/Modals.jsx";// Modal delete lama
+import Modals from "../../components/Modals.jsx"; // Modal delete lama
 import OsModal from "../../components/Modal"; // Modal add + edit
+import OsIcon from "../../components/icons.jsx";
 
 // Asumsi impor untuk komponen lain yang hilang di kode asli
 import OsInput from "../../components/input.jsx";
@@ -27,25 +29,30 @@ import OsButton from "../../components/button.jsx";
 import OsHeader from "../../components/Header.jsx"; // Diperlukan untuk header goback
 
 const jadwalColumns = [
-    { key: "no", content: "No", width: "w-16", classes: "justify-center items-center" },
+    {
+        key: "no",
+        content: "No",
+        width: "w-16",
+        classes: "justify-center items-center",
+    },
     {
         key: "tanggal_sesi",
         content: "Tanggal / Sesi",
-        width: "flex-1",
+        width: "w-7/12",
         classes: "justify-start items-center px-4",
     },
     {
         key: "jumlah_mahasiswa",
         content: "Jumlah Mahasiswa",
-        width: "w-80",
+        width: "w-2/12",
         classes: "justify-start items-center px-4",
     },
     {
         key: "action",
         content: "Action",
-        width: "w-60",
+        width: "w-3/12",
         classes: "justify-center items-center",
-    }
+    },
 ];
 
 // Memperbaiki definisi komponen agar hanya ada satu 'export default'
@@ -169,75 +176,73 @@ export default function SesiOscePage({ sesi, osce, filters }) {
     }
 
     // Fungsi tambahan untuk penanganan tombol di tabel
-    const handleEditEnrollment = (id) => {
-        router.visit(`/admin/osce-stase/${id}/enrollment/edit`);
+    const handleEditEnrollment = (id_osce_stase) => {
+        // Rute yang benar di Laravel: /admin/osce/{osce_id}/jadwal/{jadwal_id}/enrollment
+        // Menggunakan osce.id_osce (dari props) dan id_osce_stase (dari item baris)
+        router.visit(
+            `/admin/osce/${osce.id_osce}/jadwal/${id_osce_stase}/enrollment`
+        );
     };
 
     // Fungsi penanganan aksi (diperbaiki agar sesuai dengan logika modal)
     const handleEditSesi = (item) => openEditModal(item);
     const handleDeleteSesi = (item) => openDeleteModal(item);
 
-
     // siapin isi data tabel
     const rows = sesi.data.map((item, index) => ({
         no: sesi.from + index,
-        "tanggal_sesi": `${item.tanggal_formatted} (Pukul ${item.jam_mulai_formatted})`,
+        tanggal_sesi: `${item.tanggal_formatted} (Pukul ${item.jam_mulai_formatted})`,
         jumlah_mahasiswa: `${item.jumlah_mahasiswa} Mahasiswa`,
         action: (
-            <div className="flex items-center justify-between w-full px-5">
-
+            <div className="flex items-center justify-between w-full gap-4 px-5">
                 {/* Tombol Edit Enrollment (Tetap menggunakan router.visit) */}
-                <button
+                <OsButton
+                    name="primary"
                     onClick={() => handleEditEnrollment(item.id_osce_stase)}
-                    className="h-[44px] px-5 bg-neutral-800 text-white text-sm rounded-xl hover:bg-neutral-700"
+                    className="h-[38px] text-os-small w-full flex justify-around items-center gap-1"
                 >
-                    Edit enrollment
-                </button>
-
-                <div className="h-8 w-px bg-gray-300 mx-3" />
+                    <OsIcon name={"add"} className="os-icon-light h-[20px]" />
+                    Edit Jumlah Mahasiswa
+                </OsButton>
 
                 <div className="flex items-center gap-2">
                     {/* Tombol Edit Sesi (Memanggil openEditModal) */}
-                    <button
-                        onClick={() => handleEditSesi(item)}
-                        className="flex items-center justify-center w-[38px] h-[38px] rounded-xl bg-neutral-800 text-white hover:bg-neutral-700"
-                    >
-                        <Pencil size={17} />
-                    </button>
+                    <OsButton name="edit" onClick={() => handleEditSesi(item)}>
+                        <Edit2 size={18} />
+                    </OsButton>
 
                     {/* Tombol Delete Sesi (Memanggil openDeleteModal) */}
-                    <button
+                    <OsButton
+                        name="warning"
                         onClick={() => handleDeleteSesi(item)}
-                        className="flex items-center justify-center w-[38px] h-[38px] rounded-xl border border-gray-400 text-gray-800 hover:bg-gray-100"
                     >
                         <Trash2 size={17} />
-                    </button>
+                    </OsButton>
                 </div>
             </div>
-        )
+        ),
     }));
-
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+            <Sidebar />
 
-            <main className="grid w-full min-w-min p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 md:ml-20">
-
-                {/* Header GoBack */}
-                {/* Asumsi osce memiliki property yang diperlukan, jika tidak, ganti dengan link statis atau hapus */}
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
                 <OsHeader variant="goback" backLink="/admin/osce/" />
 
-                <div className="flex-1 overflow-auto px-8 pb-8">
+                <div className="flex-1 overflow-auto ">
                     {/* Navigasi */}
                     <section className="mb-2">
                         <h2 className="text-lg font-semibold mb-2">Navigasi</h2>
 
                         <div className="flex gap-2">
                             <OsButton
+                                name="primary"
                                 className="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-lg"
                                 onClick={() =>
-                                    router.get(`/admin/osce/${osce.id_osce}/stase`)
+                                    router.get(
+                                        `/admin/osce/${osce.id_osce}/stase`
+                                    )
                                 }
                             >
                                 <ClipboardList size={16} />
@@ -245,8 +250,11 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                             </OsButton>
 
                             <OsButton
+                                name="primary"
                                 onClick={() =>
-                                    router.get(`/admin/osce/${osce.id_osce}/sesi`)
+                                    router.get(
+                                        `/admin/osce/${osce.id_osce}/jadwal`
+                                    )
                                 }
                                 className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg"
                             >
@@ -259,22 +267,29 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                     {/* Tombol Add dan Deskripsi */}
                     <section className="mb-6">
                         <h2 className="text-lg font-semibold mb-1">
-                            Menu Halaman Sesi
+                            [Nama OSCEnya]
                         </h2>
                         <p className="text-sm text-gray-500 mb-4 max-w-lg">
-                            Atur sesi OSCE sesuai kebutuhan.
+                            Halaman ini digunakan untuk mengelola **Jadwal
+                            Sesi** ujian OSCE secara keseluruhan. Anda dapat
+                            mendefinisikan waktu, tanggal, durasi, dan detail
+                            setiap sesi.
                         </p>
                         <OsButton
+                            name="primary"
                             onClick={openAddModal}
                             className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
                         >
-                            <Plus size={18} className="mr-2" />
+                            <OsIcon
+                                name="add"
+                                className="h-os-20 os-icon-light mr-os-8"
+                            />
                             Tambah Sesi
                         </OsButton>
                     </section>
 
                     {/* Search Bar */}
-                    <section className="rounded-lg w-full shadow-sm mb-6">
+                    <section className="rounded-lg w-full">
                         <OsSearchBar
                             search={searchTerm}
                             setSearch={setSearchTerm}
@@ -284,27 +299,27 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                     </section>
 
                     {/* === 📋 TABLE === */}
-                    <section>
-                        <h2 className="font-semibold text-lg mb-3">Tabel Sesi</h2>
-                        <div className="border rounded-lg overflow-hidden">
-                            {/* HEADER */}
-                            <OsTableHeader columns={jadwalColumns} />
+                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        Table Stase
+                    </h2>
+                    <div className="border rounded-lg overflow-hidden">
+                        {/* HEADER */}
+                        <OsTableHeader columns={jadwalColumns} />
 
-                            {/* BODY */}
-                            {rows.length > 0 ? (
-                                <OsTableBody data={rows} columns={jadwalColumns} />
-                            ) : (
-                                <div className="flex items-center justify-center border-t border-gray-200">
-                                    <p className="w-full text-center text-sm py-4 text-gray-500">
-                                        Data sesi tidak ditemukan.
-                                    </p>
-                                </div>
-                            )}
-                        </div>
+                        {/* BODY */}
+                        {rows.length > 0 ? (
+                            <OsTableBody data={rows} columns={jadwalColumns} />
+                        ) : (
+                            <div className="flex items-center justify-center border-t border-gray-200">
+                                <p className="w-full text-center text-sm py-4 text-gray-500">
+                                    Data sesi tidak ditemukan.
+                                </p>
+                            </div>
+                        )}
+                    </div>
 
-                        {/* PAGINATION */}
-                        <OsPagination links={sesi?.links} />
-                    </section>
+                    {/* PAGINATION */}
+                    <OsPagination links={sesi?.links} />
                 </div>
 
                 <footer>
@@ -323,8 +338,14 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                 dataToDelete={
                     selectedSesi
                         ? [
-                              { key: "Nama Sesi", value: selectedSesi?.nama_sesi },
-                              { key: "Durasi", value: selectedSesi?.durasi + " menit" },
+                              {
+                                  key: "Nama Sesi",
+                                  value: selectedSesi?.nama_sesi,
+                              },
+                              {
+                                  key: "Durasi",
+                                  value: selectedSesi?.durasi + " menit",
+                              },
                           ]
                         : []
                 }
@@ -350,7 +371,10 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                         placeholder="Nama Sesi..."
                         value={formData.nama_sesi}
                         onChange={(e) =>
-                            setFormData({ ...formData, nama_sesi: e.target.value })
+                            setFormData({
+                                ...formData,
+                                nama_sesi: e.target.value,
+                            })
                         }
                     />
 
@@ -370,7 +394,10 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                         placeholder="Keterangan..."
                         value={formData.keterangan}
                         onChange={(e) =>
-                            setFormData({ ...formData, keterangan: e.target.value })
+                            setFormData({
+                                ...formData,
+                                keterangan: e.target.value,
+                            })
                         }
                     />
                 </div>
@@ -392,7 +419,10 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                         label="Nama Sesi"
                         value={formData.nama_sesi}
                         onChange={(e) =>
-                            setFormData({ ...formData, nama_sesi: e.target.value })
+                            setFormData({
+                                ...formData,
+                                nama_sesi: e.target.value,
+                            })
                         }
                     />
 
@@ -410,7 +440,10 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                         label="Keterangan"
                         value={formData.keterangan}
                         onChange={(e) =>
-                            setFormData({ ...formData, keterangan: e.target.value })
+                            setFormData({
+                                ...formData,
+                                keterangan: e.target.value,
+                            })
                         }
                     />
                 </div>
