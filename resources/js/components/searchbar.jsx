@@ -37,6 +37,7 @@ const OsSearchBar = ({
                     className="w-full rounded-lg py-2 px-4 pr-4 h-full text-os-paragraft focus:outline-none border-os-1 border-os-black"
                 />
             </div>
+            {children}
             <OsButton
                 name="primary"
                 onClick={onSearchClick}
@@ -52,14 +53,6 @@ const OsSearchBar = ({
     );
 };
 
-    //             <button
-    //                 onClick={onSearchClick}
-    //                 className="bg-blue-600 min-w-[120px] text-white h-full
-    //                     text-os-paragraft px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-150"
-    //             >
-    //                 Cari
-    //             </button>
-    //         </div>
-    //     );
-    // };
+
+               
 export default OsSearchBar;
