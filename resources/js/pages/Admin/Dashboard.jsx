@@ -10,6 +10,7 @@ import {
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
+import OsIcon from "../../components/icons.jsx";
 
 /**
  * props: title, value, description, icon, colorClass, href
