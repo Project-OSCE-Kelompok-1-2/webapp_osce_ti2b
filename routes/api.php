@@ -24,7 +24,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 
     // Routes yang butuh Token (Protected)
-    Route::middleware(['auth:sanctum', 'roleApi:admin'])->group(function () {
+    Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/logout', [AuthController::class, 'logout']);
 
@@ -33,7 +33,7 @@ Route::prefix('v1')->group(function () {
             return $request->user();
         });
 
-        Route::prefix('admin')->group(function () {
+        Route::prefix('admin')->middleware('roleApi:admin')->group(function () {
 
             // --- Admin Dashboard & Profile ---
             Route::get('/dashboard', [AdminController::class, 'dashboard']);
