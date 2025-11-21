@@ -57,7 +57,7 @@ export default function TambahStase({ mataKuliah, tujuanPembelajaran, stase = nu
                     <div className="flex flex-1 items-center justify-center py-10">
                         <form
                             onSubmit={handleSubmit}
-                            className="w-full max-w-md border rounded-xl shadow-sm overflow-hidden"
+                            className="w-full max-w-md border rounded-xl  overflow-hidden"
                         >
                             <div className="bg-neutral-800 text-white text-center py-4">
                                 <h2 className="text-lg font-semibold">

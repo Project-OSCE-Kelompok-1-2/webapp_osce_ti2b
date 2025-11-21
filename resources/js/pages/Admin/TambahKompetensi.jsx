@@ -48,7 +48,7 @@ export default function TambahKompetensi() {
 
             {/* Form */}
             <main className="flex-1 flex justify-center items-center sm:items-center p-4 sm:p-10">
-                <div className="w-full sm:max-w-md bg-white border border-gray-700 rounded-xl shadow-md overflow-hidden">
+                <div className="w-full sm:max-w-md bg-white border border-gray-700 rounded-xl -md overflow-hidden">
                     {/* Header Card */}
                     <div className="bg-neutral-800 text-white text-center py-6 px-4">
                         <h2 className="text-xl font-semibold">

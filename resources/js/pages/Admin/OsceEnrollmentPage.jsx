@@ -17,6 +17,8 @@ import OsPagination from "../../components/pagination";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
 import OsInput from "../../components/input.jsx";
+import OsHeader from "../../components/Header.jsx";
+import OsButton from "../../components/button.jsx";
 
 const columns = [
     { key: "no", content: "No", width: "w-16", classes: "justify-center items-center" },
@@ -101,41 +103,28 @@ export default function OsceEnrollmentPage({
                 }`}
             >
                 {data.id_mahasiswa_array.includes(item.id_mahasiswa)
-                    ? <CheckSquare size={16}/>
-                    : <Square size={16}/>}
+                    ? <CheckSquare size={20}/>
+                    : <Square size={20}/>}
             </button>
         )
     }));
 
     return (
-        <div className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
-            <Head title={`Enrollment - ${osce.nama_osce}`} />
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            {/* <Head title={`Enrollment - ${osce.nama_osce}`} /> */}
             <Sidebar onToggle={setSidebarOpen} />
 
             <main
-                className={`grid w-full h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 ${
-                    sidebarOpen ? "ml-0" : "ml-20"
-                }`}
+                className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20"
             >
                 {/* 9. [PERBAIKAN] Header/Breadcrumb dinamis */}
-                <div className="flex items-center gap-3 text-sm text-gray-700 px-5 py-[10px] border-b border-gray-300 bg-white">
-                    <button
-                        onClick={() =>
-                            router.visit(`/admin/osce/${osce.id_osce}/jadwal`)
-                        }
-                        className="bg-blue-600 text-white p-[10px] rounded-full hover:bg-blue-700 flex items-center justify-center shadow-sm"
-                    >
-                        <ArrowLeft size={20} />
-                    </button>
-
-                    <div className="flex-1 border border-gray-400 rounded-lg px-4 py-[9px] text-sm font-medium bg-white leading-none">
-                        OSCE / {osce.nama_osce} / Jadwal Sesi ({sesi.tanggal}) /
-                        Enrollment Mahasiswa
-                    </div>
-                </div>
+                <OsHeader
+                    variant="goback"
+                    backLink=""
+                />
 
                 {/* main content */}
-                <div className="flex-1 overflow-auto px-8 pb-8">
+                <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-2 mt-4">
                         Menu Enrollment Mahasiswa
                     </h2>
@@ -163,7 +152,7 @@ export default function OsceEnrollmentPage({
                     >
                         {/* === DROPDOWN TAHUN DI TENGAH === */}
                         <div className="w-[150px]">
-                            <Os_input
+                            <OsInput
                                 type="select"
                                 value={angkatan}
                                 onChange={(e) => setAngkatan(e.target.value)}
@@ -180,7 +169,8 @@ export default function OsceEnrollmentPage({
 
                     {/* Tombol Simpan (di atas tabel) */}
                     <form onSubmit={handleSave} className="mb-4">
-                        <button
+                        <OsButton
+                            name="edit"
                             type="submit"
                             disabled={processing}
                             className="h-[46px] px-6 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 text-sm transition-all disabled:opacity-50 flex items-center gap-2"
@@ -189,7 +179,7 @@ export default function OsceEnrollmentPage({
                             {processing
                                 ? "Menyimpan..."
                                 : "Simpan Perubahan Enrollment"}
-                        </button>
+                        </OsButton>
                         {errors.id_mahasiswa_array && (
                             <div className="text-xs text-red-600 mt-1">
                                 {errors.id_mahasiswa_array}

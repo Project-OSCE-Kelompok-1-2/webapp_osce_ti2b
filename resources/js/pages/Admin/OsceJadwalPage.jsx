@@ -201,7 +201,7 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                     onClick={() => handleEditEnrollment(item.id_osce_stase)}
                     className="h-[38px] text-os-small w-full flex justify-around items-center gap-1"
                 >
-                    <OsIcon name={"add"} className="os-icon-light h-[20px]" />
+                    <OsIcon name={"student"} className="os-icon-light h-[20px]" />
                     Edit Jumlah Mahasiswa
                 </OsButton>
 

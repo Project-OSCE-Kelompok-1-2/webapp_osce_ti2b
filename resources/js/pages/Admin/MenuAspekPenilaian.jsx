@@ -313,13 +313,13 @@ export default function MenuAspekPenilaian() {
                                     <td className=" px-5  text-center w-3/12">
                                         {/* --- KONDISI SEIMBANG (totalBobot = 100) --- */}
                                         {totalBobot == 100 ? (
-                                            <div className="bg-green-600 text-white w-full text-sm px-3 py-2 rounded-lg shadow-md inline-block">
+                                            <div className="bg-green-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
                                                 Point Seimbang (100%)
                                             </div>
                                         ) : (
                                             /* --- KONDISI TIDAK SEIMBANG (totalBobot != 100) --- */
                                             totalBobot > 0 && (
-                                                <div className="bg-red-600 text-white w-full text-sm px-3 py-2 rounded-lg shadow-md inline-block">
+                                                <div className="bg-red-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
                                                     Point Tidak Seimbang! (00%)
                                                 </div>
                                             )

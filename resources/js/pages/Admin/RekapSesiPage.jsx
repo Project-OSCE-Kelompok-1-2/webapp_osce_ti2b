@@ -60,7 +60,7 @@ export default function RekapSesiPage() {
                 <div className="flex items-center gap-3 text-sm text-gray-700">
                     <button
                         onClick={() => router.visit("/admin/rekap-nilai")}
-                        className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 flex items-center justify-center shadow-sm"
+                        className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 flex items-center justify-center"
                     >
                         <ArrowLeft size={16} />
                     </button>

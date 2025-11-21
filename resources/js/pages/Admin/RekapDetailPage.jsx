@@ -6,7 +6,7 @@ import { ArrowLeft, Download } from "lucide-react";
 import Sidebar from "../../components/Sidebar";
 import OsCopyright from "../../components/Copyright";
 // 👇 Import komponen detail nilai yang sudah kamu buat
-import StaseAssessmentView from "../../components/NilaiDetail"; 
+import StaseAssessmentView from "../../components/NilaiDetail";
 
 export default function RekapDetailPage() {
     // Ambil data dari props controller
@@ -28,7 +28,7 @@ export default function RekapDetailPage() {
                 <div className="flex items-center gap-3 text-sm text-gray-700">
                     <button
                         onClick={handleBack}
-                        className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 flex items-center justify-center shadow-sm"
+                        className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 flex items-center justify-center "
                     >
                         <ArrowLeft size={16} />
                     </button>
@@ -39,7 +39,7 @@ export default function RekapDetailPage() {
 
                 <div className="flex-1 overflow-auto">
                     {/* --- Info Mahasiswa (Account Card) --- */}
-                    <div className="bg-white p-6 border border-black rounded-2xl shadow mb-6 mt-6">
+                    <div className="bg-white p-6 border border-black rounded-2xl  mb-6 mt-6">
                         <h2 className="font-semibold text-lg mb-4 border-b pb-2 border-black">
                             Account
                         </h2>
@@ -72,14 +72,14 @@ export default function RekapDetailPage() {
                         <h2 className="font-semibold text-xl text-gray-900">
                             Nilai OSCE: {osce.nama_osce}
                         </h2>
-                        <button className="flex items-center bg-blue-600 text-white text-sm py-2.5 px-5 rounded-lg hover:bg-blue-700 shadow-sm transition-all">
+                        <button className="flex items-center bg-blue-600 text-white text-sm py-2.5 px-5 rounded-lg hover:bg-blue-700  transition-all">
                             <Download className="w-4 h-4 mr-2" />
                             Download Hasil
                         </button>
                     </div>
 
                     {/* --- Total Nilai Keseluruhan --- */}
-                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 mb-10 flex justify-between items-center shadow-sm">
+                    <div className="bg-blue-50 border border-blue-200 rounded-xl p-5 mb-10 flex justify-between items-center ">
                         <span className="font-semibold text-blue-800 text-lg">
                             Nilai Total OSCE
                         </span>
@@ -108,11 +108,11 @@ export default function RekapDetailPage() {
                                 const bobotAman = komp.bobot || 0;
                                 const skorAman = komp.skor || 0;
 
-                                // Format string ini PENTING karena di komponen kamu ada logic: 
+                                // Format string ini PENTING karena di komponen kamu ada logic:
                                 // row.value.split(" ")[0]
                                 // Jadi angka nilai harus ditaruh paling depan.
                                 assessmentData.push({
-                                    item: komp.kompetensi, 
+                                    item: komp.kompetensi,
                                     value: `${nilaiAman} (Bobot: ${bobotAman} x Skor: ${skorAman})`,
                                 });
                             });

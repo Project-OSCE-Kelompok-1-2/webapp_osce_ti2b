@@ -118,7 +118,7 @@ export default function AdminSettingAkun({ user }) {
             <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans">
                 <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                     {/* HEADER */}
-                    <header className="relative row-[1_/_2] col-[1_/_2] w-full flex flex-col items-start gap-5 bg-white p-4 rounded-xl shadow-sm border border-gray-900">
+                    <header className="relative row-[1_/_2] col-[1_/_2] w-full flex flex-col items-start gap-5 bg-white p-4 rounded-xl border border-gray-900">
                         <div className="flex items-center justify-between relative self-stretch w-full">
                             <button
                                 type="button"
@@ -143,7 +143,7 @@ export default function AdminSettingAkun({ user }) {
                     {/* MAIN */}
                     <main className="relative row-[2_/_3] col-[1_/_2] flex flex-col gap-3">
                         {/* NAV */}
-                        <nav className="flex items-start gap-[15px] bg-white p-4 rounded-xl shadow-sm border border-gray-900">
+                        <nav className="flex items-start gap-[15px] bg-white p-4 rounded-xl border border-gray-900">
                             <div className="flex flex-wrap gap-[15px] flex-1">
                                 {navigationButtons.map((button) => (
                                     <button
@@ -172,7 +172,7 @@ export default function AdminSettingAkun({ user }) {
                         {/* CONTENT */}
                         <div className="flex flex-col lg:flex-row gap-5 w-full">
                             {/* ASIDE */}
-                            <aside className="flex flex-col w-full lg:w-[403px] gap-[17px] p-5 bg-white rounded-xl border border-black shadow-sm">
+                            <aside className="flex flex-col w-full lg:w-[403px] gap-[17px] p-5 bg-white rounded-xl border border-black">
                                 <div>
                                     <h2 className="text-xl">Gambar Profil</h2>
                                     <hr className="mt-1 border-black" />
@@ -227,7 +227,7 @@ export default function AdminSettingAkun({ user }) {
                             </aside>
 
                             {/* FORM */}
-                            <section className="flex-1 flex flex-col gap-[15px] p-5 bg-white rounded-xl border border-black shadow-sm">
+                            <section className="flex-1 flex flex-col gap-[15px] p-5 bg-white rounded-xl border border-black">
                                 <div>
                                     <h2 className="text-xl">Akun</h2>
                                     <hr className="mt-1 border-black" />
@@ -343,7 +343,7 @@ export default function AdminSettingAkun({ user }) {
                     </main>
 
                     {/* FOOTER */}
-                    <footer className="bg-white p-4 rounded-xl shadow-sm border border-black">
+                    <footer className="bg-white p-4 rounded-xl border border-black">
                         <p className="text-gray-500">
                             Copyright Porem ipsum dolor sit
                         </p>

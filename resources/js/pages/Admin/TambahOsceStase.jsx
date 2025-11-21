@@ -80,7 +80,7 @@ export default function TambahStase({
             {/* FORM */}
             <main className="flex-1 flex items-center justify-center p-6">
                 <form onSubmit={handleSubmit} className="w-full max-w-md">
-                    <div className="border w-full max-w-[400px] mx-auto border-gray-300 rounded-lg overflow-hidden shadow-lg">
+                    <div className="border w-full max-w-[400px] mx-auto border-gray-300 rounded-lg overflow-hidden ">
 
                         <div className="bg-gray-800 text-white p-6 text-center">
                             <h2 className="text-xl font-semibold mb-1">

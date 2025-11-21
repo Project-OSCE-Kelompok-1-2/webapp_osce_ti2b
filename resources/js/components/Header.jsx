@@ -57,7 +57,7 @@ export default function OsHeader({
 
         {/* 🔹 Kotak judul utama */}
         <div className="relative flex-1 h-[46px] ml-4">
-          <div className="w-full h-full flex items-center bg-white rounded-xl overflow-hidden border border-solid border-gray-300 shadow-inner">
+          <div className="w-full h-full flex items-center bg-white rounded-xl overflow-hidden border border-solid border-gray-300 ">
             <h1 className="ml-5 text-os-regular text-black tracking-[0] leading-normal whitespace-nowrap">
               {title}
             </h1>

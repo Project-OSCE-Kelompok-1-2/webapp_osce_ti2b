@@ -18,7 +18,7 @@ import Sidebar from "../../components/Sidebar.jsx";
 const StatCard = ({ title, value, description, icon, colorClass, href }) => {
     return (
         <article
-            className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass} shadow-sm`}
+            className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass}`}
         >
             <div>
                 {/* ... (bagian judul dan deskripsi, tidak berubah) ... */}
@@ -68,7 +68,7 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
 const NotificationItem = ({ stase, index }) => {
     // Komponen ini tidak diubah
     return (
-        <div className="flex items-center justify-between bg-white border rounded-lg shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between bg-white border rounded-lg  overflow-hidden">
             {/* Left: number */}
             <div className="flex items-center px-4 py-4 border-r">
                 <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-700">

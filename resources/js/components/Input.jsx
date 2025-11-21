@@ -129,7 +129,7 @@ export default function OsInput({
                     className="w-full min-h-[48px] px-3 py-2 border-os-1 border-os-black rounded-lg bg-white outline-none focus:border-os-primary focus:ring-1 focus:ring-os-primary"
                 />
                 {focused && filtered.length > 0 && (
-                    <ul className="absolute z-10 mt-20 w-full bg-white border rounded-lg shadow-lg max-h-48 overflow-auto">
+                    <ul className="absolute z-10 mt-20 w-full bg-white border rounded-lg max-h-48 overflow-auto">
                         {filtered.map((s, i) => (
                             <li
                                 key={i}

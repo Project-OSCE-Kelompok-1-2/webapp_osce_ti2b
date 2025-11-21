@@ -50,7 +50,7 @@ export default function Modals({
 
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
-            <div className="bg-white w-[90%] max-w-md rounded-xl shadow-lg overflow-hidden animate-fade-in border border-gray-300">
+            <div className="bg-white w-[90%] max-w-md rounded-xl overflow-hidden animate-fade-in border border-gray-300">
 
                 {/* ======================= */}
                 {/* HEADER ABU-ABU GELAP   */}

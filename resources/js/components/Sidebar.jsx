@@ -59,7 +59,7 @@ const Sidebar = () => {
 
     return (
         <aside
-            className={`fixed top-0 left-0 h-full bg-white text-gray-900 border-r border-gray-300 shadow-lg transition-all duration-300 z-50 flex flex-col
+            className={`fixed top-0 left-0 h-full bg-white text-gray-900 border-r border-gray-300 transition-all duration-300 z-50 flex flex-col
       ${isOpen ? "w-64" : "w-20"}`}
         >
             {/* Tombol toggle sidebar */}

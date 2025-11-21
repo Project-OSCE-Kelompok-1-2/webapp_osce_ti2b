@@ -75,7 +75,7 @@ export default function RekapMahasiswaPage() {
                                 `/admin/rekap-nilai/${osce.id_osce}/sesi`
                             )
                         }
-                        className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 flex items-center justify-center shadow-sm"
+                        className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 flex items-center justify-center "
                     >
                         <ArrowLeft size={16} />
                     </button>

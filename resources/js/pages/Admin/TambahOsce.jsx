@@ -73,7 +73,7 @@ export default function TambahOsce({ tahunAkademikOptions = [], osce = null }) {
             <main className="flex flex-1 items-center justify-center py-[5rem]">
                 <form
                     onSubmit={handleSubmit}
-                    className="w-full max-w-[400px] border rounded-xl overflow-hidden shadow-sm"
+                    className="w-full max-w-[400px] border rounded-xl overflow-hidden "
                 >
                     {/* CARD HEADER */}
                     <div className="bg-gray-800 text-white p-5 text-center">
