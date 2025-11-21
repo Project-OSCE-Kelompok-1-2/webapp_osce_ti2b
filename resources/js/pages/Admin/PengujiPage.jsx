@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link, router, usePage, Head } from "@inertiajs/react";
+import { Trash2, X, Edit2 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
@@ -19,22 +20,27 @@ import Modals from "../../components/Modals.jsx"; // Modal konfirmasi (Delete)
 // --- Definisi Kolom Tabel Penguji ---
 
 const pengujiColumns = [
-    { key : "no", content: "No", width: "w-16", classes: "justify-center items-center" },
     {
-        key : "nip_penguji",
+        key: "no",
+        content: "No",
+        width: "w-16",
+        classes: "justify-center items-center",
+    },
+    {
+        key: "nip_penguji",
         content: "NIP Penguji",
         width: "w-56",
         classes: "justify-start items-center px-4",
     },
     {
-        key : "nama_penguji",
+        key: "nama_penguji",
         content: "Nama Penguji",
         width: "flex-1",
         classes: "justify-start items-center px-4",
     },
     {
-        key : "action",
-        content: "Action",
+        key: "action",
+        content: "Aksi",
         width: "w-56",
         classes: "justify-center items-center px-4",
     },
@@ -171,42 +177,40 @@ export default function PengujiPage() {
         nama_penguji: item.nama,
         action: (
             <div className="flex space-x-3">
-                <Link
-                    href={`/admin/dosen/${item.id_penguji}/edit`}
-                    className="w-10 h-10 flex items-center justify-center bg-blue-700 p-2 border border-black rounded-xl text-white hover:bg-blue-600 transition"
-                >
-                    <OsIcon name="Edit" className="h-os-20 w-os-20 os-icon-light" />
-                </Link>
+                <OsButton name="edit" onClick={() => setShowEditModal(item)}>
+                    <Edit2 size={18} />
+                </OsButton>
 
-                <Os_button
-                    onClick={() => handleDelete(item.id_penguji)}
-                    className="w-10 h-10 flex items-center justify-center bg-white p-2 border border-black text-black rounded-xl hover:bg-gray-200 transition"
+                <OsButton
+                    name="warning"
+                    onClick={() => andleDelete(item.id_penguji)}
                 >
-                    <OsIcon name="Trash" className="w-5 h-5 aspect-square scale-[2.5] os-icon-dark" />
-                </Os_button>
+                    <Trash2 size={18} className="text-os-white" />
+                </OsButton>
             </div>
         ),
     }));
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Head title="Manajemen Penguji" />
             <Sidebar />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                <OsHeader />
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+                {/* HEADER */}
+                <OsHeader/>
 
                 <div className="flex-1 overflow-auto">
                     {/* === HEADER SECTION === */}
                     <h2 className="font-semibold text-lg mb-1">Menu Penguji</h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Menu Penguji (Dosen) digunakan untuk mengelola proses penilaian,
-                        pemantauan, dan evaluasi mahasiswa selama kegiatan atau
-                        stase berlangsung.
+                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                        Menu Penguji (Dosen) digunakan untuk mengelola proses
+                        penilaian, pemantauan, dan evaluasi mahasiswa selama
+                        kegiatan atau stase berlangsung.
                     </p>
 
                     {/* Tombol Tambah Penguji */}
                     <OsButton
+                        name="primary"
                         onClick={() => setShowAddModal(true)}
                         className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                     >
@@ -248,7 +252,10 @@ export default function PengujiPage() {
                         <OsTableHeader columns={pengujiColumns} />
 
                         {tableData.length > 0 ? (
-                            <OsTableBody data={tableData} columns={pengujiColumns} />
+                            <OsTableBody
+                                data={tableData}
+                                columns={pengujiColumns}
+                            />
                         ) : dosen.data.length > 0 ? (
                             dosen.data.map((item, index) => (
                                 <div
@@ -271,7 +278,9 @@ export default function PengujiPage() {
                                         <div className="flex space-x-3">
                                             {/* Tombol Edit → pakai MODAL */}
                                             <OsButton
-                                                onClick={() => openEditModal(item)}
+                                                onClick={() =>
+                                                    openEditModal(item)
+                                                }
                                                 className="w-10 h-10 flex items-center justify-center bg-blue-700 p-2 border border-black rounded-xl text-white hover:bg-blue-600 transition"
                                             >
                                                 <OsIcon
@@ -282,7 +291,9 @@ export default function PengujiPage() {
 
                                             {/* Tombol Delete → pakai MODAL DELETE */}
                                             <Os_button
-                                                onClick={() => openDeleteModal(item)}
+                                                onClick={() =>
+                                                    openDeleteModal(item)
+                                                }
                                                 className="w-10 h-10 flex items-center justify-center bg-white p-2 border border-black text-black rounded-xl hover:bg-gray-200 transition"
                                             >
                                                 <OsIcon
@@ -313,9 +324,7 @@ export default function PengujiPage() {
                 </div>
 
                 {/* FOOTER */}
-                <footer className="mt-auto pt-6 border-t border-gray-200">
-                    <OsCopyright />
-                </footer>
+                <OsCopyright />
 
                 {/* --- MODAL TAMBAH PENGUJI --- */}
                 <OsModal
@@ -350,8 +359,11 @@ export default function PengujiPage() {
                 <OsModal
                     show={showEditModal}
                     onClose={closeEditModal}
+                    variant="edit"
                     title="Edit Data Penguji"
-                    subtitle={`Ubah informasi untuk penguji: ${editingPenguji?.nama || ''}`}
+                    subtitle={`Ubah informasi untuk penguji: ${
+                        editingPenguji?.nama || ""
+                    }`}
                 >
                     <form onSubmit={handleSubmitEdit} className="space-y-4">
                         <OsInput
@@ -380,10 +392,7 @@ export default function PengujiPage() {
                     isOpen={isModalOpen}
                     onClose={() => setIsModalOpen(false)}
                     variant="delete"
-                    dataToDelete={[
-                        selectedPenguji?.nama,
-                        selectedPenguji?.nip,
-                    ]}
+                    dataToDelete={[selectedPenguji?.nama, selectedPenguji?.nip]}
                     onConfirm={confirmDelete}
                 />
             </main>

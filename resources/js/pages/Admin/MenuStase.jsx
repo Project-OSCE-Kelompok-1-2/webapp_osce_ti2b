@@ -39,7 +39,7 @@ const staseColumns = [
     },
     {
         key: "action",
-        content: "Action",
+        content: "Aksi",
         width: "w-3/12",
         classes: "justify-center items-center px-4",
     },

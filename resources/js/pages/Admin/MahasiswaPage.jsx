@@ -33,7 +33,7 @@ const mahasiswaColumns = [
     },
     {
         key : "action",
-        content: "Action",
+        content: "Aksi",
         width: "w-56",
         classes: "justify-center items-center px-4",
     },
@@ -146,7 +146,7 @@ export default function MahasiswaPage() {
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
                 {/* HEADER */}
-                <OsHeader variant="goback" backLink="/admin/stase" />
+                <OsHeader/>
 
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">
@@ -208,7 +208,7 @@ export default function MahasiswaPage() {
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Cari data mahasiswa..."
-                                className="border border-black rounded-xl pl-4 pr-4 w-full h-[46px] focus:ring-2 focus:ring-blue-400 outline-none"
+                                className="border border-black rounded-lg pl-4 pr-4 w-full h-[46px] focus:ring-2 focus:ring-blue-400 outline-none"
                             />
                         </div>
 

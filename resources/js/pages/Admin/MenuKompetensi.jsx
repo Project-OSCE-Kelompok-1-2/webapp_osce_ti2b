@@ -39,7 +39,7 @@ const columns = [
         key: "bobot",
     },
     {
-        content: "Action",
+        content: "Aksi",
         width: "w-2/12",
         classes: "justify-center items-center",
         key: "action",
