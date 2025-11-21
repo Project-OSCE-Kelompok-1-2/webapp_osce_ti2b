@@ -24,7 +24,7 @@ Route::prefix('v1')->group(function () {
     Route::post('/login', [AuthController::class, 'login']);
 
     // Routes yang butuh Token (Protected)
-    Route::middleware('auth:sanctum')->group(function () {
+    Route::middleware(['auth:sanctum', 'roleApi:admin'])->group(function () {
 
         Route::post('/logout', [AuthController::class, 'logout']);
 
