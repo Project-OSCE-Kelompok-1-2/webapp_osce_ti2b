@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { Link, router, usePage, Head } from "@inertiajs/react";
-import { Trash2, X } from "lucide-react";
+import { Trash2, X, Edit2 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
@@ -123,20 +123,18 @@ export default function MahasiswaPage() {
         nim_mahasiswa: item.nim,
         nama_mahasiswa: item.nama,
         action: (
-            <div className="flex space-x-3">
-                <Link
-                    href={`/admin/mahasiswa/${item.id_mahasiswa}/edit`}
-                    className="w-10 h-10 flex items-center justify-center bg-blue-700 p-2 border border-black rounded-xl text-white hover:bg-blue-600 transition"
-                >
-                    <OsIcon name="Edit" className="h-os-20 w-os-20 os-icon-light" />
-                </Link>
+            <div className="flex items-center justify-center space-x-3">
+                <OsButton name="edit" onClick={() => setShowEditModal(item)}>
+                    <Edit2 size={18} />
+                </OsButton>
 
-                <Os_button
+                <OsButton
+                    name="warning"
                     onClick={() => handleDelete(item.id_mahasiswa)}
-                    className="w-10 h-10 flex items-center justify-center bg-white p-2 border border-black text-black rounded-xl hover:bg-gray-200 transition"
+
                 >
-                    <OsIcon name="Trash" className="w-5 h-5 aspect-square scale-[3] os-icon-dark" />
-                </Os_button>
+                    <Trash2 size={18} className="text-os-white" />
+                </OsButton>
             </div>
         )
     }));
@@ -144,17 +142,17 @@ export default function MahasiswaPage() {
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Head title="Manajemen Mahasiswa" />
             <Sidebar />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                <OsHeader />
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+                {/* HEADER */}
+                <OsHeader variant="goback" backLink="/admin/stase" />
 
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">
                         Menu Mahasiswa
                     </h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
                         Menu Mahasiswa berisi berbagai fitur yang digunakan
                         untuk mengelola data, aktivitas, dan kebutuhan mahasiswa
                         dalam sistem.
@@ -163,6 +161,7 @@ export default function MahasiswaPage() {
                     {/* Tombol Tambah & Import */}
                     <div className="flex items-center gap-3">
                         <OsButton
+                            name="primary"
                             onClick={() => setShowModal(true)}
                             className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                         >
@@ -173,6 +172,7 @@ export default function MahasiswaPage() {
                             Tambah Mahasiswa Via Form
                         </OsButton>
                         <OsButton
+                        name="primary"
                             onClick={() => setShowExcelModal(true)}
                             className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                         >
@@ -200,19 +200,15 @@ export default function MahasiswaPage() {
                     {/* HANYA PERLU SATU FORM UNTUK FILTER, MENGHAPUS DUPLIKASI */}
                     <form
                         onSubmit={handleSearch}
-                        className="flex items-center gap-3 mb-4"
+                        className="flex items-start gap-3"
                     >
                         <div className="relative flex-1">
-                            <OsIcon
-                                name="Search"
-                                className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-os-20"
-                            />
                             <input
                                 type="text"
                                 value={search}
                                 onChange={(e) => setSearch(e.target.value)}
                                 placeholder="Cari data mahasiswa..."
-                                className="border border-black rounded-xl pl-10 pr-4 py-3 w-full focus:ring-2 focus:ring-blue-400 outline-none"
+                                className="border border-black rounded-xl pl-4 pr-4 w-full h-[46px] focus:ring-2 focus:ring-blue-400 outline-none"
                             />
                         </div>
 
@@ -223,10 +219,10 @@ export default function MahasiswaPage() {
                             search={search}
                             setSearch={setSearch}
                             onSearchClick={handleSearch}
-                            placeholder="Cari data mahasiswa..."
+                            placeholder="Cari Angkatan mahasiswa..."
                         >
                             <div className="w-60">
-                                <Os_input
+                                <OsInput
                                     type="select"
                                     value={angkatan}
                                     onChange={(e) => {
@@ -273,9 +269,7 @@ export default function MahasiswaPage() {
                     </section>
                 </div>
 
-                <footer>
-                    <OsCopyright />
-                </footer>
+                <OsCopyright />
             </main>
 
             {/* 🔥 MODAL DELETE MAHASISWA (Tidak diubah) */}
@@ -414,9 +408,9 @@ export default function MahasiswaPage() {
                 subtitle="Download file excel dan isi data mahasiswa"
             >
                 {/* Body content */}
-                <Os_button className="w-full">
+                <OsButton className="w-full">
                     Download Template Excel
-                </Os_button>
+                </OsButton>
 
                 <div className="bg-red-50 border border-red-300 text-red-700 text-xs rounded-md p-3 leading-relaxed">
                     <strong>⚠️ Perhatian!</strong>
