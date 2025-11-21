@@ -4,133 +4,87 @@ namespace App\Http\Controllers\Penguji;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Models\Osce;
-use App\Models\EnrollmentOsce;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
+
+use App\Models\OsceStase;
+use App\Models\EnrollmentOsce;
 
 class RekapController extends Controller
 {
     /**
-     * MODE EDIT → GET /.../edit-nilai
+     * MODE EDIT → GET /penguji/osce/{id_osce}/stase/{id_osce_stase}/edit-nilai
      */
-    public function editNilai(Request $request, $osce_id)
+    public function editNilai(Request $request, $id_osce, $id_osce_stase)
     {
-        // Ambil detail OSCE
-        $osce = Osce::with(['stase', 'sesi'])->findOrFail($osce_id);
-
-        // Ambil list mahasiswa + total nilai
-        $mahasiswa_list = EnrollmentOsce::query()
-            ->where('osce_id', $osce_id)
-            ->with('mahasiswa')
-            ->select([
-                'enrollment_osce.*',
-                DB::raw("(SELECT SUM(no.nilai) 
-                          FROM nilai_osce AS no 
-                          WHERE no.enrollment_id = enrollment_osce.id) AS nilai_total")
-            ])
-            ->get();
-
-        return inertia('Penguji/EditNilaiPage', [
-            'osce' => $osce,
-            'mahasiswa_list' => $mahasiswa_list,
-            'mode' => 'edit'
-        ]);
+        return $this->getData($id_osce, $id_osce_stase, 'edit');
     }
 
-
     /**
-     * MODE REKAP → GET /.../rekap
-     * (logic sama, hanya beda mode output)
+     * MODE REKAP → GET /penguji/osce/{id_osce}/stase/{id_osce_stase}/rekap
      */
-    public function rekap(Request $request, $osce_id)
+    public function rekap(Request $request, $id_osce, $id_osce_stase)
     {
-        // Ambil detail OSCE
-        $osce = Osce::with(['stase', 'sesi'])->fi<?php
-
-namespace App\Http\Controllers\Penguji;
-
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use App\Models\Osce;
-use App\Models\EnrollmentOsce;
-use Illuminate\Support\Facades\DB;
-
-class RekapController extends Controller
-{
-    /**
-     * MODE EDIT → GET /.../edit-nilai
-     */
-    public function editNilai(Request $request, $osce_id)
-    {
-        // Ambil detail OSCE
-        $osce = Osce::with(['stase', 'sesi'])->findOrFail($osce_id);
-
-        // Ambil list mahasiswa + total nilai
-        $mahasiswa_list = EnrollmentOsce::query()
-            ->where('osce_id', $osce_id)
-            ->with('mahasiswa')
-            ->select([
-                'enrollment_osce.*',
-                DB::raw("(SELECT SUM(no.nilai) 
-                          FROM nilai_osce AS no 
-                          WHERE no.enrollment_id = enrollment_osce.id) AS nilai_total")
-            ])
-            ->get();
-
-        return inertia('Penguji/EditNilaiPage', [
-            'osce' => $osce,
-            'mahasiswa_list' => $mahasiswa_list,
-            'mode' => 'edit'
-        ]);
+        return $this->getData($id_osce, $id_osce_stase, 'rekap');
     }
 
-
     /**
-     * MODE REKAP → GET /.../rekap
-     * (logic sama, hanya beda mode output)
+     * Private function untuk logic reusable (DRY Pattern)
      */
-    public function rekap(Request $request, $osce_id)
+    private function getData($id_osce, $id_osce_stase, $mode)
     {
-        // Ambil detail OSCE
-        $osce = Osce::with(['stase', 'sesi'])->findOrFail($osce_id);
+        $user = Auth::user();
+        
+        // 1. Validasi Akses Penguji & Ambil Data Stase
+        // Kita butuh 'id_stase' untuk filter nilai yang benar
+        $osceStase = OsceStase::with(['osce', 'stase'])
+            ->where('id_osce', $id_osce)
+            ->where('id_osce_stase', $id_osce_stase)
+            ->where('id_penguji', $user->penguji->id_penguji)
+            ->firstOrFail();
 
-        // Ambil list mahasiswa + total nilai
-        $mahasiswa_list = EnrollmentOsce::query()
-            ->where('osce_id', $osce_id)
-            ->with('mahasiswa')
+        // 2. Ambil List Mahasiswa & Total Nilai PER STASE INI
+        // Logic: Ambil enrollment di OSCE ini, lalu hitung SUM nilai 
+        // TAPI hanya nilai yang poin penilaiannya milik stase ini.
+        
+        $idStase = $osceStase->id_stase;
+
+        $mahasiswa_list = EnrollmentOsce::with('mahasiswa')
+            ->where('id_osce', $id_osce)
             ->select([
                 'enrollment_osce.*',
-                DB::raw("(SELECT SUM(no.nilai) 
-                          FROM nilai_osce AS no 
-                          WHERE no.enrollment_id = enrollment_osce.id) AS nilai_total")
+                // Subquery hitung total nilai KHUSUS stase ini
+                DB::raw("(
+                    SELECT SUM(no.nilai * pap.bobot) -- Asumsi nilai dikali bobot, atau sesuaikan logic
+                    FROM nilai_osce AS no
+                    JOIN poin_aspek_penilaian AS pap ON no.id_poin_aspek_penilaian = pap.id_poin_aspek_penilaian
+                    JOIN aspek_penilaian AS ap ON pap.id_aspek_penilaian = ap.id_aspek_penilaian
+                    WHERE no.id_enrollment_osce = enrollment_osce.id_enrollment_osce
+                    AND ap.id_stase = {$idStase} 
+                ) as nilai_total")
             ])
-            ->get();
+            ->get()
+            // Filter di PHP (Opsional): Jika ingin hanya menampilkan mahasiswa yang sudah dinilai
+            // ->filter(fn($m) => $m->nilai_total !== null) 
+            ->values();
 
-        return inertia('Penguji/RekapPage', [
-            'osce' => $osce,
-            'mahasiswa_list' => $mahasiswa_list,
-            'mode' => 'rekap'
-        ]);
-    }
-}
-ndOrFail($osce_id);
+        // 3. Format Data untuk UI
+        // Kita perlu kirim osce_detail agar header di frontend muncul
+        $osce_detail = [
+            'nama_osce' => $osceStase->osce->nama_osce,
+            'nama_stase' => $osceStase->stase->nama_stase,
+            'waktu_per_rubrik' => $osceStase->durasi_per_mahasiswa . ' Menit',
+            'total_mahasiswa' => $mahasiswa_list->count(),
+            'nama_penguji' => $user->penguji->nama,
+        ];
 
-        // Ambil list mahasiswa + total nilai
-        $mahasiswa_list = EnrollmentOsce::query()
-            ->where('osce_id', $osce_id)
-            ->with('mahasiswa')
-            ->select([
-                'enrollment_osce.*',
-                DB::raw("(SELECT SUM(no.nilai) 
-                          FROM nilai_osce AS no 
-                          WHERE no.enrollment_id = enrollment_osce.id) AS nilai_total")
-            ])
-            ->get();
+        // 4. Tentukan View berdasarkan mode
+        $view = $mode === 'edit' ? 'Penguji/EditNilaiForm' : 'Penguji/RekapMahasiswaPage';
 
-        return inertia('Penguji/RekapPage', [
-            'osce' => $osce,
-            'mahasiswa_list' => $mahasiswa_list,
-            'mode' => 'rekap'
+        return Inertia::render($view, [
+            'osce_detail' => $osce_detail,
+            'mahasiswa_list' => $mahasiswa_list
         ]);
     }
 }
