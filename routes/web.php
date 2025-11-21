@@ -18,10 +18,15 @@ use App\Http\Controllers\Admin\RekapNilaiController;
 use App\Http\Controllers\Admin\AspekPenilaianController;
 use App\Http\Controllers\Admin\OsceEnrollmentController;
 
-// --- PENGUJI CONTROLLERS (MODUL ANDA) ---
+// --- PENGUJI CONTROLLERS (LENGKAP) ---
 use App\Http\Controllers\Penguji\ProfilController;
-use App\Http\Controllers\Penguji\DashboardController; // <-- Tambahan Ilham
-use App\Http\Controllers\Penguji\OsceController as PengujiOsceController; // <-- Tambahan Ilham (Pakai Alias agar tidak bentrok dengan Admin)
+use App\Http\Controllers\Penguji\DashboardController;
+use App\Http\Controllers\Penguji\OsceController as PengujiOsceController;
+use App\Http\Controllers\Penguji\HalamanPenilaianController; 
+use App\Http\Controllers\Penguji\AksiPenilaianController;    
+use App\Http\Controllers\Penguji\RekapController;            
+use App\Http\Controllers\Penguji\EditNilaiController;        
+use App\Http\Controllers\Penguji\ViewNilaiController;        
 
 /*
 |--------------------------------------------------------------------------
@@ -47,18 +52,49 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 // ===========================
 Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function () {
 
-    // --- Dashboard (Tugas Ilham) ---
-    // Menggunakan Single Action Controller (__invoke)
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
 
-    // --- List OSCE (Tugas Ilham) ---
     Route::get('/osce', [PengujiOsceController::class, 'index'])->name('osce.index');
 
-    // --- Akun / Profil (Tugas Asdif) ---
     Route::get('/pengaturan-akun', [ProfilController::class, 'show_profile'])->name('account.show');
     Route::post('/pengaturan-akun', [ProfilController::class, 'update_account'])->name('account.update');
+
+
+    // --- ALUR PENILAIAN LIVE (Pandu & Septia) ---
     
-    // Nanti tim lain (Zian, Sendy, dll) akan menambahkan route Live Assessment disini...
+    Route::get('/osce/{id_osce}/stase/{id_osce_stase}', [HalamanPenilaianController::class, 'showAntrian'])
+        ->name('antrian');
+
+    Route::get('/penilaian/{id_enrollment_osce}', [HalamanPenilaianController::class, 'showPenilaian'])
+        ->name('penilaian.show');
+
+    Route::post('/penilaian/{id_enrollment_osce}', [AksiPenilaianController::class, 'store'])
+        ->name('penilaian.store');
+
+
+    Route::get('/osce/{id_osce}/stase/{id_osce_stase}/rotasi', [AksiPenilaianController::class, 'rotasi'])
+        ->name('rotasi');
+
+    Route::post('/osce/{id_osce}/stase/{id_osce_stase}/selesai', [AksiPenilaianController::class, 'selesai'])
+        ->name('selesai');
+
+
+    // --- ALUR PASCA UJIAN / REKAP (Bintang, Najwa, Afkar) ---
+
+    Route::get('/osce/{id_osce}/stase/{id_osce_stase}/rekap', [RekapController::class, 'rekap'])
+        ->name('rekap.list');
+
+    Route::get('/osce/{id_osce}/stase/{id_osce_stase}/edit-nilai', [RekapController::class, 'editNilai'])
+        ->name('edit.list');
+
+    Route::get('/penilaian/{id_enrollment_osce}/edit', [EditNilaiController::class, 'edit'])
+        ->name('penilaian.edit');
+
+    Route::put('/penilaian/{id_enrollment_osce}', [EditNilaiController::class, 'update'])
+        ->name('penilaian.update');
+
+    Route::get('/penilaian/{id_enrollment_osce}/view', ViewNilaiController::class)
+        ->name('penilaian.view');
 });
 
 
@@ -155,20 +191,6 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
                             "kompetensi" => [
                                 [ "kompetensi" => "Inspeksi", "skor" => 3, "bobot" => 10, "nilai" => 30 ],
                                 [ "kompetensi" => "Palpasi", "skor" => 1, "bobot" => 9, "nilai" => 9 ]
-                            ]
-                        ]
-                    ]
-                ],
-                [
-                    "nama_stase" => "Stase Anak",
-                    "nama_penguji" => "Dr. Pedri",
-                    "nilai_akhir_stase" => 23.00,
-                    "aspek_penilaian" => [
-                        [
-                            "aspek" => "Komunikasi",
-                            "kompetensi" => [
-                                [ "kompetensi" => "Bicara dengan ortu", "skor" => 3, "bobot" => 10, "nilai" => 30 ],
-                                [ "kompetensi" => "Bicara dengan anak", "skor" => 3, "bobot" => 10, "nilai" => 30 ]
                             ]
                         ]
                     ]
