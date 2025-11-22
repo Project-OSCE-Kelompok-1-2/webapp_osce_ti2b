@@ -18,6 +18,8 @@ import {
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
 import Modals from "../../components/Modals.jsx"; // 🆕 Tambahkan ini
+import OsButton from "../../components/button.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
 
 const Component1 = ({ className }) => <Eye className={className} />;
 const Icon1 = ({ className }) => <Save className={className} />;
@@ -99,7 +101,9 @@ export default function AdminSettingAkun({ user }) {
         {
             id: "login-page",
             label: "Halaman Login",
-            icon: <LogIn className="relative w-[19px] h-[21px]" color="white" />,
+            icon: (
+                <LogIn className="relative w-[19px] h-[21px]" color="white" />
+            ),
             bgColor: "bg-blue-600",
             opacity: "opacity-75",
         },
@@ -115,62 +119,39 @@ export default function AdminSettingAkun({ user }) {
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar />
 
-            <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans">
-                <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                    {/* HEADER */}
-                    <header className="relative row-[1_/_2] col-[1_/_2] w-full flex flex-col items-start gap-5 bg-white p-4 rounded-xl border border-gray-900">
-                        <div className="flex items-center justify-between relative self-stretch w-full">
-                            <button
-                                type="button"
-                                className="flex w-[54px] h-[54px] items-center justify-center p-3 relative bg-blue-600 text-white rounded-xl border border-solid border-black"
-                            >
-                                <ArrowLeft className="relative w-[30px] h-[26px]" />
-                            </button>
-                            <nav className="relative flex-1 h-[54px] ml-4">
-                                <div className="h-full items-center bg-white flex rounded-xl border border-black">
-                                    <p className="ml-5 text-xl">
-                                        <span className="text-black/70">
-                                            Pengaturan
-                                        </span>{" "}
-                                        / Akun
-                                    </p>
-                                </div>
-                            </nav>
-                        </div>
-                        <hr className="w-full border-black border-t" />
-                    </header>
-
+            <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
+                <OsHeader />
+                <div className="flex-1 overflow-auto">
                     {/* MAIN */}
                     <main className="relative row-[2_/_3] col-[1_/_2] flex flex-col gap-3">
                         {/* NAV */}
-                        <nav className="flex items-start gap-[15px] bg-white p-4 rounded-xl border border-gray-900">
-                            <div className="flex flex-wrap gap-[15px] flex-1">
-                                {navigationButtons.map((button) => (
-                                    <button
-                                        key={button.id}
-                                        type="button"
-                                        className={`${button.bgColor} inline-flex items-center gap-[13px] p-3 rounded-xl text-white ${button.opacity}`}
-                                    >
-                                        {button.icon}
-                                        <span>{button.label}</span>
-                                    </button>
-                                ))}
-                                <div className="flex flex-1 justify-end">
-                                    <Link
-                                        as="button"
-                                        method="post"
-                                        href="/logout"
-                                        className="bg-red-600 inline-flex items-center gap-[13px] p-3 rounded-xl text-white opacity-75"
-                                    >
-                                        <LogOut className="w-[23px] h-[21px]" />
-                                        Log Out
-                                    </Link>
-                                </div>
+                        <div className="flex flex-wrap gap-[15px] flex-1">
+                            {navigationButtons.map((button) => (
+                                <OsButton
+                                    name="primary"
+                                    key={button.id}
+                                    type="button"
+                                    className={`${button.bgColor} inline-flex items-center gap-[13px] p-3 rounded-xl text-white ${button.opacity} text-sm`}
+                                >
+                                    {button.icon}
+                                    <span>{button.label}</span>
+                                </OsButton>
+                            ))}
+                            <div className="flex flex-1 justify-end">
+                                <Link
+                                    as="button"
+                                    method="post"
+                                    href="/logout"
+                                    className="bg-red-600 inline-flex items-center gap-[13px] p-3 rounded-xl text-white opacity-75 text-sm"
+                                >
+                                    <LogOut className="w-[23px] h-[21px]" />
+                                    Log Out
+                                </Link>
                             </div>
-                        </nav>
+                        </div>
 
                         {/* CONTENT */}
-                        <div className="flex flex-col lg:flex-row gap-5 w-full">
+                        <div className="flex flex-col lg:flex-row gap-4 w-full">
                             {/* ASIDE */}
                             <aside className="flex flex-col w-full lg:w-[403px] gap-[17px] p-5 bg-white rounded-xl border border-black">
                                 <div>
@@ -185,7 +166,7 @@ export default function AdminSettingAkun({ user }) {
                                     }}
                                 />
 
-                                <div className="flex flex-col gap-[5px] bg-red-100 p-3.5 rounded-xl border border-red-400">
+                                <div className="flex flex-col gap-[5px] bg-red-100 p-3 rounded-xl border border-red-400">
                                     <div className="flex items-center gap-[5px]">
                                         <AlertCircle className="w-[15px] text-red-500" />
                                         <p className="text-red-800 font-medium">
@@ -216,13 +197,14 @@ export default function AdminSettingAkun({ user }) {
                                         Upload
                                     </label>
 
-                                    <button
+                                    <OsButton
+                                        name="warning"
                                         type="button"
                                         onClick={openDeletePhotoModal}
                                         className="w-12 h-12 bg-red-600 text-white rounded-xl flex items-center justify-center"
                                     >
-                                        <Trash2 className="w-[17px]" />
-                                    </button>
+                                        <Trash2 className="w-[20px]" />
+                                    </OsButton>
                                 </div>
                             </aside>
 
@@ -322,14 +304,15 @@ export default function AdminSettingAkun({ user }) {
                                     </div>
 
                                     {/* SAVE */}
-                                    <button
+                                    <OsButton
+                                        name="primary"
                                         type="submit"
                                         disabled={processing}
                                         className="w-[223px] bg-blue-600 text-white flex items-center gap-[13px] p-3 rounded-xl border border-black"
                                     >
                                         <Save className="w-[17px]" />
                                         {processing ? "Menyimpan..." : "Simpan"}
-                                    </button>
+                                    </OsButton>
 
                                     <a
                                         href="#contact-admin"
@@ -343,12 +326,8 @@ export default function AdminSettingAkun({ user }) {
                     </main>
 
                     {/* FOOTER */}
-                    <footer className="bg-white p-4 rounded-xl border border-black">
-                        <p className="text-gray-500">
-                            Copyright Porem ipsum dolor sit
-                        </p>
-                    </footer>
                 </div>
+                <OsCopyright />
             </div>
 
             {/* ============================
