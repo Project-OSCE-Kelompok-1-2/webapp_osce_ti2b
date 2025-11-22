@@ -8,21 +8,26 @@ import Sidebar from "../../components/Sidebar";
 import OsCopyright from "../../components/Copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
+import OsSearchBar from "../../components/searchbar";
+import OsTableBody from "../../components/tablecontain";
 
 // --- Definisi Kolom Tabel (Sudah Benar) ---
 const sesiColumns = [
-    { content: "No", width: "w-16", classes: "justify-center items-center" },
+    { key: "no",content: "No", width: "w-16", classes: "justify-center items-center" },
     {
+        key: "tanggal_sesi",
         content: "Tanggal / Sesi",
         width: "flex-1",
         classes: "justify-start items-center px-4",
     },
     {
+        key: "jumlah_mahasiswa",
         content: "Jumlah Mahasiswa",
         width: "w-80",
         classes: "justify-start items-center px-4",
     },
     {
+        key:"action",
         content: "Action",
         width: "w-48",
         classes: "justify-center items-center px-4",
@@ -50,6 +55,25 @@ export default function RekapSesiPage() {
         );
     };
 
+    // 6. Siapkan untuk isi data tabel
+    const sesiRows = sesi.data.map((item, index) => ({
+        no: sesi.from + index,
+        tanggal_sesi: item.tanggal_sesi,
+        jumlah_mahasiswa: item.jumlah_mahasiswa + " Mahasiswa",
+        action: (
+            <button
+                onClick={() =>
+                    router.visit(
+                        `/admin/rekap-nilai/${osce.id_osce}/sesi/${item.id_sesi}/mahasiswa`
+                    )
+                }
+                className="bg-gray-800 h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md hover:bg-gray-700"
+            >
+                Detail
+            </button>
+        ),
+    }));
+    
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head title={`Rekap Sesi - ${osce.nama_osce}`} />
@@ -90,74 +114,22 @@ export default function RekapSesiPage() {
                         melihat daftar mahasiswa.
                     </p>
 
-                    {/* 7. [PERBAIKAN] Filter bar dibungkus <form> */}
-                    <form
-                        onSubmit={handleSearch}
-                        className="flex flex-col md:flex-row justify-between items-center gap-4 mb-5"
-                    >
-                        <div className="relative w-full md:flex-1">
-                            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                                <Search className="h-5 w-5 text-gray-400" />
-                            </div>
-                            <input
-                                type="text"
-                                placeholder="Cari berdasarkan tanggal (YYYY-MM-DD)..."
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                className="block w-full pl-10 pr-4 py-2 h-[46px] border border-gray-700 rounded-lg focus:ring-blue-500 focus:border-blue-500"
-                            />
-                        </div>
+                    {/* searchbar*/}
+                    <OsSearchBar
+                        search={search}
+                        setSearch={setSearch}
+                        onSearchClick={handleSearch}
+                        placeholder="Cari berdasarkan tanggal (YYYY-MM-DD)..."
+                    />
 
-                        <div className="flex items-center gap-3 w-full md:w-auto">
-                            <button
-                                type="submit"
-                                className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700 w-full md:w-auto justify-center"
-                            >
-                                Cari
-                            </button>
-                        </div>
-                    </form>
 
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Sesi
                     </h2>
                     <OsTableHeader columns={sesiColumns} />
 
-                    {/* 8. [PERBAIKAN] Data Rows Dinamis */}
-                    {sesi.data.map((item, index) => (
-                        <div
-                            key={item.id_sesi} // Gunakan id_sesi
-                            className="flex items-center border-t border-gray-400"
-                        >
-                            <div className="w-16 px-4 py-3 text-center text-os-paragraft">
-                                {sesi.from + index}
-                            </div>
+                    <OsTableBody data={sesiRows} columns={sesiColumns} />
 
-                            <div className="flex-1 px-4 py-3 border-l border-gray-400 text-os-paragraft">
-                                {item.tanggal_sesi}
-                            </div>
-
-                            <div className="w-80 px-4 py-3 border-l border-gray-400 text-os-paragraft">
-                                {item.jumlah_mahasiswa} Mahasiswa
-                            </div>
-
-                            <div className="w-48 h-[70px] flex items-center justify-center">
-                                <div className="border-l px-4 h-[50px] border-gray-400 flex w-full items-center justify-center">
-                                    {/* 9. [PERBAIKAN] Tombol Detail Dinamis */}
-                                    <button
-                                        onClick={() =>
-                                            router.visit(
-                                                `/admin/rekap-nilai/${osce.id_osce}/sesi/${item.id_sesi}/mahasiswa`
-                                            )
-                                        }
-                                        className="bg-gray-800 h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md text-center flex items-center justify-center hover:bg-gray-700"
-                                    >
-                                        Detail
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    ))}
 
                     {/* Pesan jika tidak ada data */}
                     {sesi.data.length === 0 && (
