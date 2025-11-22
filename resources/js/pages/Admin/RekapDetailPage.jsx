@@ -7,6 +7,7 @@ import Sidebar from "../../components/Sidebar";
 import OsCopyright from "../../components/Copyright";
 // 👇 Import komponen detail nilai yang sudah kamu buat
 import StaseAssessmentView from "../../components/NilaiDetail";
+import OsHeader from "../../components/Header";
 
 export default function RekapDetailPage() {
     // Ambil data dari props controller
@@ -25,17 +26,10 @@ export default function RekapDetailPage() {
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* --- Breadcrumb --- */}
-                <div className="flex items-center gap-3 text-sm text-gray-700">
-                    <button
-                        onClick={handleBack}
-                        className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 flex items-center justify-center "
-                    >
-                        <ArrowLeft size={16} />
-                    </button>
-                    <div className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium bg-white">
-                        Rekap Nilai / {osce.nama_osce} / {mahasiswa.nama}
-                    </div>
-                </div>
+                <OsHeader
+                    variant="goback"
+                    backLink=""
+                />
 
                 <div className="flex-1 overflow-auto">
                     {/* --- Info Mahasiswa (Account Card) --- */}
