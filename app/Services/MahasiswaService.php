@@ -45,25 +45,8 @@ class MahasiswaService
     /**
      * Logika validasi dan penyimpanan mahasiswa baru (Transaction).
      */
-    public function store(Request $request)
+    public function store($validated)
     {
-        $validated = $request->validate([
-            'nim'   => [
-                'required',
-                'string',
-                'max:20',
-                'unique:mahasiswa,nim',
-                function ($attribute, $value, $fail) {
-                    if (Pengguna::where('username', $value)->exists()) {
-                        $fail('NIM ini sudah digunakan sebagai username di tabel pengguna.');
-                    }
-                },
-            ],
-            'nama'  => 'required|string|max:255',
-            'kelas' => 'required|string|max:50',
-            'prodi' => 'required|string|max:100',
-        ]);
-
         return DB::transaction(function () use ($validated) {
             $pengguna = Pengguna::create([
                 'username' => $validated['nim'],
@@ -99,25 +82,8 @@ class MahasiswaService
     /**
      * Logika validasi dan update mahasiswa (Transaction).
      */
-    public function update(Request $request, Mahasiswa $mahasiswa)
+    public function update($validated, Mahasiswa $mahasiswa)
     {
-        $validated = $request->validate([
-            'nim'   => [
-                'required',
-                'string',
-                'max:20',
-                'unique:mahasiswa,nim,' . $mahasiswa->id_mahasiswa . ',id_mahasiswa', // Abaikan diri sendiri
-                function ($attribute, $value, $fail) use ($mahasiswa) {
-                    if (Pengguna::where('username', $value)->where('id_pengguna', '!=', $mahasiswa->id_pengguna)->exists()) {
-                        $fail('NIM ini sudah digunakan sebagai username oleh pengguna lain.');
-                    }
-                },
-            ],
-            'nama'  => 'required|string|max:255',
-            'kelas' => 'required|string|max:50',
-            'prodi' => 'required|string|max:100',
-        ]);
-
         DB::transaction(function () use ($validated, $mahasiswa) {
             $mahasiswa->update([
                 'nim'   => $validated['nim'],
@@ -156,10 +122,6 @@ class MahasiswaService
      */
     public function importExcel(Request $request)
     {
-        $request->validate([
-            'file' => 'required|file|mimes:xlsx,xls',
-        ]);
-
         // Excel::import tidak mengembalikan data, jadi kita return true jika sukses
         Excel::import(new MahasiswaImport, $request->file('file'));
 

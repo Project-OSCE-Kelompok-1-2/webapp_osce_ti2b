@@ -50,23 +50,8 @@ class OsceService
     /**
      * Store OSCE
      */
-    public function store($request)
+    public function store($validator)
     {
-        $validator = Validator::make($request->all(), [
-            'id_tahun_akademik' => 'required|exists:tahun_akademik,id_tahun_akademik',
-            'nama_osce' => 'required|string|max:255',
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-        ]);
-
-        if ($validator->fails()) {
-            return [
-                "success" => false,
-                "message" => $validator->errors()->first(),
-                "data" => null
-            ];
-        }
-
         $osce = Osce::create($validator->validated());
 
         return [
@@ -79,28 +64,9 @@ class OsceService
     /**
      * Update OSCE
      */
-    public function update($request, Osce $osce)
+    public function update(Osce $osce, $validator)
     {
-        $validator = Validator::make($request->all(), [
-            'id_tahun_akademik' => 'required|exists:tahun_akademik,id_tahun_akademik',
-            'nama_osce' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('osce')->ignore($osce->id_osce, 'id_osce')
-            ],
-            'tanggal_mulai' => 'required|date',
-            'tanggal_selesai' => 'required|date|after_or_equal:tanggal_mulai',
-        ]);
-
-        if ($validator->fails()) {
-            return [
-                "success" => false,
-                "message" => $validator->errors()->first(),
-                "data" => null
-            ];
-        }
-
+        
         $osce->update($validator->validated());
 
         return [

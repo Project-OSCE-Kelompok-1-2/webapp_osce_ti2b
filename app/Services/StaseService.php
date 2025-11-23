@@ -41,17 +41,10 @@ class StaseService
     /**
      * Menyimpan data dan mengembalikan objek yang baru dibuat
      */
-    public function store(Request $request)
+    public function store($validated)
     {
-        $request->validate([
-            'nama_stase' => 'required|string|max:255|unique:stase,nama_stase',
-            'id_mata_kuliah' => 'required|exists:mata_kuliah,id_mata_kuliah',
-            'id_tujuan_pembelajaran' => 'required|exists:tujuan_pembelajaran,id_tujuan_pembelajaran',
-            'deskripsi' => 'nullable|string',
-        ]);
-
         // Return hasil create
-        return Stase::create($request->all());
+        return Stase::create($validated);
     }
 
     public function getEditData($id)
@@ -66,23 +59,11 @@ class StaseService
     /**
      * Mengupdate data dan mengembalikan objek yang sudah diperbarui
      */
-    public function update(Request $request, $id)
+    public function update($validated, $id)
     {
         $stase = Stase::findOrFail($id);
 
-        $request->validate([
-            'nama_stase' => [
-                'required',
-                'string',
-                'max:255',
-                Rule::unique('stase', 'nama_stase')->ignore($id, 'id_stase'),
-            ],
-            'id_mata_kuliah' => 'required|exists:mata_kuliah,id_mata_kuliah',
-            'id_tujuan_pembelajaran' => 'required|exists:tujuan_pembelajaran,id_tujuan_pembelajaran',
-            'deskripsi' => 'nullable|string',
-        ]);
-
-        $stase->update($request->all());
+        $stase->update($validated);
 
         // Return objek yang sudah di-refresh (untuk memastikan data terbaru)
         return $stase->refresh();

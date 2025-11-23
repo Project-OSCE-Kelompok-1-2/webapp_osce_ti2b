@@ -47,9 +47,15 @@ class KompetensiController extends Controller
     public function store(Request $request, $id_aspek)
     {
         try {
+            $validated = $request->validate([
+                'kompetensi' => 'required|string',
+                'skor' => 'required|integer|min:0', // Ditambahkan agar sesuai output
+                'bobot' => 'required|integer|min:1',
+            ]);
+
             $aspekPenilaian = AspekPenilaian::findOrFail($id_aspek);
 
-            $kompetensi = $this->service->create($request, $aspekPenilaian);
+            $kompetensi = $this->service->create($aspekPenilaian, $validated);
 
             return response()->json([
                 'status' => 'success',

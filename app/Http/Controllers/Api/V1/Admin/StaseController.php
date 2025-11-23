@@ -4,10 +4,11 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 
 use Illuminate\Http\Request;
-use App\Http\Controllers\Controller;
 use App\Services\StaseService;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Validation\Rule;
+use App\Http\Controllers\Controller;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class StaseController extends Controller
 {
@@ -46,8 +47,15 @@ class StaseController extends Controller
     public function store(Request $request)
     {
         try {
+            $validated = $request->validate([
+                'nama_stase' => 'required|string|max:255|unique:stase,nama_stase',
+                'id_mata_kuliah' => 'required|exists:mata_kuliah,id_mata_kuliah',
+                'id_tujuan_pembelajaran' => 'required|exists:tujuan_pembelajaran,id_tujuan_pembelajaran',
+                'deskripsi' => 'nullable|string',
+            ]);
+
             // Tangkap data yang dikembalikan service
-            $newData = $this->service->store($request);
+            $newData = $this->service->store($validated);
 
             return response()->json([
                 'success' => true,
@@ -111,8 +119,20 @@ class StaseController extends Controller
     public function update(Request $request, $id)
     {
         try {
+            $validated = $request->validate([
+                'nama_stase' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    Rule::unique('stase', 'nama_stase')->ignore($id, 'id_stase'),
+                ],
+                'id_mata_kuliah' => 'required|exists:mata_kuliah,id_mata_kuliah',
+                'id_tujuan_pembelajaran' => 'required|exists:tujuan_pembelajaran,id_tujuan_pembelajaran',
+                'deskripsi' => 'nullable|string',
+            ]);
+            
             // Tangkap data yang dikembalikan service
-            $updatedData = $this->service->update($request, $id);
+            $updatedData = $this->service->update($validated, $id);
 
             return response()->json([
                 'success' => true,

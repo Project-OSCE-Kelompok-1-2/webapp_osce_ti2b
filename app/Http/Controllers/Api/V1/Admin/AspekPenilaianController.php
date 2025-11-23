@@ -43,7 +43,12 @@ class AspekPenilaianController extends Controller
     {
         // Try-catch untuk menangkap error validasi atau database saat create
         try {
-            $aspekData = $this->service->create($request, $stase);
+            $validated = $request->validate([
+                'aspek' => 'required|string',
+                'bobot_maksimum' => 'required|integer|min:0',
+            ]);
+
+            $aspekData = $this->service->create($stase, $validated);
 
             return response()->json([
                 'status' => 'success',
@@ -96,13 +101,18 @@ class AspekPenilaianController extends Controller
     public function update(Request $request, Stase $stase, $id)
     {
         try {
+            $validated = $request->validate([
+                'aspek' => 'required|string',
+                'bobot_maksimum' => 'required|integer|min:0',
+            ]);
+
             $aspekPenilaian = AspekPenilaian::findOrFail($id);
 
             if ($aspekPenilaian->id_stase !== $stase->id_stase) {
                 return response()->json(['status' => 'error', 'message' => 'Data tidak sinkron.'], 404);
             }
 
-            $updatedAspekData = $this->service->update($request, $aspekPenilaian);
+            $updatedAspekData = $this->service->update($aspekPenilaian, $validated);
 
             return response()->json([
                 'status' => 'success',

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 
+use App\Models\Pengguna;
 use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
 use App\Services\MahasiswaService;
@@ -37,7 +38,24 @@ class MahasiswaController extends Controller
      */
     public function store(Request $request)
     {
-        $mahasiswa = $this->service->store($request);
+        $validated = $request->validate([
+            'nim'   => [
+                'required',
+                'string',
+                'max:20',
+                'unique:mahasiswa,nim',
+                function ($attribute, $value, $fail) {
+                    if (Pengguna::where('username', $value)->exists()) {
+                        $fail('NIM ini sudah digunakan sebagai username di tabel pengguna.');
+                    }
+                },
+            ],
+            'nama'  => 'required|string|max:255',
+            'kelas' => 'required|string|max:50',
+            'prodi' => 'required|string|max:100',
+        ]);
+        
+        $mahasiswa = $this->service->store($validated);
 
         return response()->json([
             'status' => 'success',
@@ -64,7 +82,24 @@ class MahasiswaController extends Controller
      */
     public function update(Request $request, Mahasiswa $mahasiswa)
     {
-        $updatedMahasiswa = $this->service->update($request, $mahasiswa);
+        $validated = $request->validate([
+            'nim'   => [
+                'required',
+                'string',
+                'max:20',
+                'unique:mahasiswa,nim,' . $mahasiswa->id_mahasiswa . ',id_mahasiswa', // Abaikan diri sendiri
+                function ($attribute, $value, $fail) use ($mahasiswa) {
+                    if (Pengguna::where('username', $value)->where('id_pengguna', '!=', $mahasiswa->id_pengguna)->exists()) {
+                        $fail('NIM ini sudah digunakan sebagai username oleh pengguna lain.');
+                    }
+                },
+            ],
+            'nama'  => 'required|string|max:255',
+            'kelas' => 'required|string|max:50',
+            'prodi' => 'required|string|max:100',
+        ]);
+
+        $updatedMahasiswa = $this->service->update($validated, $mahasiswa);
 
         return response()->json([
             'status' => 'success',
@@ -92,6 +127,10 @@ class MahasiswaController extends Controller
     public function import(Request $request)
     {
         try {
+            $request->validate([
+                'file' => 'required|file|mimes:xlsx,xls',
+            ]);
+
             $this->service->importExcel($request);
 
             return response()->json([

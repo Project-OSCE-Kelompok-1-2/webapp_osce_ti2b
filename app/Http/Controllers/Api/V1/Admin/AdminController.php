@@ -51,6 +51,14 @@ class AdminController extends Controller
      */
     public function update_account(Request $request)
     {
+        // Validasi
+        $request->validate([
+            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:1024'],
+            'new_password' => ['nullable', 'string', 'min:6', 'confirmed'],
+            'old_password' => ['nullable', 'string'],
+            'delete_foto' => ['nullable', 'boolean'],
+        ]);
+
         $user = Auth::user();
         Log::info("data_user". $user);
 

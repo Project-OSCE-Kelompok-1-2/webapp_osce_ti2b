@@ -38,14 +38,8 @@ class KompetensiService
     /**
      * Logika penyimpanan kompetensi baru.
      */
-    public function create(Request $request, AspekPenilaian $aspekPenilaian)
+    public function create(AspekPenilaian $aspekPenilaian, $validated)
     {
-        $validated = $request->validate([
-            'kompetensi' => 'required|string',
-            'skor' => 'required|integer|min:0', // Ditambahkan agar sesuai output
-            'bobot' => 'required|integer|min:1',
-        ]);
-
         return $aspekPenilaian->poinAspekPenilaian()->create($validated);
     }
 

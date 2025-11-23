@@ -67,15 +67,7 @@ class AdminService
      */
     public function updateAccount(Request $request, $admin)
     {
-        // 1. Validasi
-        $request->validate([
-            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:1024'],
-            'new_password' => ['nullable', 'string', 'min:6', 'confirmed'],
-            'old_password' => ['nullable', 'string'],
-            'delete_foto' => ['nullable', 'boolean'],
-        ]);
-
-        // 2. Logika Foto
+        // Logika Foto
         if ($request->boolean('delete_foto')) {
             // Hapus foto lama
             if ($admin->path_gambar) {
@@ -94,7 +86,7 @@ class AdminService
             $admin->path_gambar = 'storage/' . $fotoPath;
         }
 
-        // 3. Logika Password
+        // Logika Password
         if ($request->filled('new_password')) {
             // Cek password lama
             if (!Hash::check($request->old_password, $admin->password)) {

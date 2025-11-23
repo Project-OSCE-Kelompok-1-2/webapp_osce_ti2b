@@ -39,26 +39,16 @@ class AspekPenilaianService
     /**
      * Logic validasi dan penyimpanan data baru.
      */
-    public function create(Request $request, Stase $stase)
+    public function create(Stase $stase, $validated)
     {
-        $validated = $request->validate([
-            'aspek' => 'required|string',
-            'bobot_maksimum' => 'required|integer|min:0',
-        ]);
-
         return $stase->aspekPenilaian()->create($validated);
     }
 
     /**
      * Logic validasi dan update data.
      */
-    public function update(Request $request, AspekPenilaian $aspekPenilaian)
+    public function update(AspekPenilaian $aspekPenilaian, $validated)
     {
-        $validated = $request->validate([
-            'aspek' => 'required|string',
-            'bobot_maksimum' => 'required|integer|min:0',
-        ]);
-
         $aspekPenilaian->update($validated);
 
         return $aspekPenilaian;
