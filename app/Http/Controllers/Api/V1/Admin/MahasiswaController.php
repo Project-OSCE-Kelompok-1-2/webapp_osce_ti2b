@@ -19,7 +19,7 @@ class MahasiswaController extends Controller
     }
 
     /**
-     * GET /mahasiswa
+     * Mengambil seluruh data mahasiswa
      */
     public function index(Request $request)
     {
@@ -33,7 +33,7 @@ class MahasiswaController extends Controller
     }
 
     /**
-     * POST /mahasiswa
+     * Membuat data mahasiswa
      */
     public function store(Request $request)
     {
@@ -47,8 +47,7 @@ class MahasiswaController extends Controller
     }
 
     /**
-     * GET /mahasiswa/{mahasiswa}
-     * (Setara dengan data yang dikirim ke form edit)
+     * Mengambil data mahasiswa
      */
     public function show(Mahasiswa $mahasiswa)
     {
@@ -61,7 +60,7 @@ class MahasiswaController extends Controller
     }
 
     /**
-     * PUT /mahasiswa/{mahasiswa}
+     * Memperbarui data mahasiswa
      */
     public function update(Request $request, Mahasiswa $mahasiswa)
     {
@@ -75,7 +74,7 @@ class MahasiswaController extends Controller
     }
 
     /**
-     * DELETE /mahasiswa/{mahasiswa}
+     * Menghapus data mahasiswa
      */
     public function destroy(Mahasiswa $mahasiswa)
     {
@@ -88,7 +87,7 @@ class MahasiswaController extends Controller
     }
 
     /**
-     * POST /mahasiswa/import
+     * Mengimport data mahasiswa lewat excel
      */
     public function import(Request $request)
     {

@@ -19,14 +19,13 @@ class StaseController extends Controller
     }
 
     /**
-     * GET /api/v1/stase
+     * Mengambil seluruh data stase
      */
     public function index(Request $request)
     {
         try {
-            $result = $this->service->getAll($request);
-
-            // $result['data'] berisi paginator yang sudah dimapping oleh service
+            $search = $request->query("search"); # untuk dokumentasi api
+            $result = $this->service->getAll($request, );
             return response()->json([
                 'success' => true,
                 'message' => 'Data stase berhasil diambil.',
@@ -42,7 +41,7 @@ class StaseController extends Controller
     }
 
     /**
-     * POST /api/v1/stase
+     * Membuat data stase
      */
     public function store(Request $request)
     {
@@ -71,7 +70,7 @@ class StaseController extends Controller
     }
 
     /**
-     * GET /api/v1/stase/{id}
+     * Mengambil data stase
      */
     public function show($id)
     {
@@ -107,7 +106,7 @@ class StaseController extends Controller
     }
 
     /**
-     * PUT/PATCH /api/v1/stase/{id}
+     * Memperbarui data stase
      */
     public function update(Request $request, $id)
     {
@@ -142,7 +141,7 @@ class StaseController extends Controller
     }
 
     /**
-     * DELETE /api/v1/stase/{id}
+     * Menghapus data stase
      */
     public function destroy($id)
     {

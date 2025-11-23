@@ -16,9 +16,9 @@ use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
 
 Route::prefix('v1')->group(function () {
-    Route::get('/login', function () {
-        return redirect()->route('login');
-    });
+    // Route::get('/login', function () {
+    //     return redirect()->route('login');
+    // });
 
     // 2. Route API Asli (POST)
     Route::post('/login', [AuthController::class, 'login']);
@@ -29,9 +29,9 @@ Route::prefix('v1')->group(function () {
         Route::post('/logout', [AuthController::class, 'logout']);
 
         // Cek user saat ini
-        Route::get('/me', function (Request $request) {
-            return $request->user();
-        });
+        // Route::get('/me', function (Request $request) {
+        //     return $request->user();
+        // });
 
         Route::prefix('admin')->middleware('roleApi:admin')->group(function () {
 

@@ -19,7 +19,7 @@ class KompetensiController extends Controller
     }
 
     /**
-     * GET /aspek-penilaian/{id_aspek}/kompetensi
+     * Mengambil seluruh data kompetensi
      */
     public function index(Request $request, $id_aspek)
     {
@@ -42,7 +42,7 @@ class KompetensiController extends Controller
     }
 
     /**
-     * POST /aspek-penilaian/{id_aspek}/kompetensi
+     * Membuat data kompetensi
      */
     public function store(Request $request, $id_aspek)
     {
@@ -75,7 +75,7 @@ class KompetensiController extends Controller
     }
 
     /**
-     * GET /kompetensi/{id}
+     * Mengambil data kompetensi
      */
     public function show($id)
     {
@@ -100,7 +100,7 @@ class KompetensiController extends Controller
     }
 
     /**
-     * PUT /kompetensi/{id}
+     * Memperbarui data kompetensi
      */
     public function update(Request $request, $id)
     {
@@ -133,7 +133,7 @@ class KompetensiController extends Controller
     }
 
     /**
-     * DELETE /kompetensi/{id}
+     * Menghapus data kompetensi
      */
     public function destroy($id)
     {

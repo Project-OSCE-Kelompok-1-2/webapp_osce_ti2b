@@ -19,7 +19,7 @@ class AdminController extends Controller
     }
 
     /**
-     * GET /admin/dashboard
+     * Mengambil data dashboard admin
      */
     public function dashboard()
     {
@@ -33,7 +33,7 @@ class AdminController extends Controller
     }
 
     /**
-     * GET /admin/profile
+     * Mengambil data admin
      */
     public function show_profile()
     {
@@ -47,7 +47,7 @@ class AdminController extends Controller
     }
 
     /**
-     * POST /admin/profile/update
+     * Memperbarui data admin
      */
     public function update_account(Request $request)
     {

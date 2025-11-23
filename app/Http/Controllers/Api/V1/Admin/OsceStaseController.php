@@ -16,6 +16,9 @@ class OsceStaseController extends Controller
         $this->service = $service;
     }
 
+    /**
+     * Mengambil seluruh data osce stase
+     */
     public function index(Request $request, $id_osce)
     {
         return response()->json(
@@ -23,6 +26,9 @@ class OsceStaseController extends Controller
         );
     }
 
+    /**
+     * Membaut data osce stase
+     */
     public function store(Request $request, $id_osce)
     {
         $validated = $request->validate([
@@ -37,6 +43,9 @@ class OsceStaseController extends Controller
         return response()->json($result, 201);
     }
 
+    /**
+     * Memperbarui data osce stase
+     */
     public function update(Request $request, $id_osce, OsceStase $osce_stase)
     {
         $validated = $request->validate([
@@ -50,6 +59,9 @@ class OsceStaseController extends Controller
         return response()->json($result, 200);
     }
 
+    /**
+     * Menghapus data osce stase
+     */
     public function destroy($id_osce, $id_osce_stase)
     {
         $result = $this->service->destroy($id_osce, $id_osce_stase);

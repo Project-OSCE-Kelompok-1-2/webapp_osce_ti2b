@@ -17,6 +17,9 @@ class OsceController extends Controller
         $this->service = $service;
     }
 
+    /**
+     * Mengambil seluruh data OSCE
+     */
     public function index(Request $request)
     {
         return response()->json(
@@ -24,6 +27,9 @@ class OsceController extends Controller
         );
     }
 
+    /**
+     * Membuat data OSCE
+     */
     public function store(Request $request)
     {
         return response()->json(
@@ -31,6 +37,9 @@ class OsceController extends Controller
         );
     }
 
+    /**
+     * Memperbarui data OSCE
+     */
     public function update(Request $request, Osce $osce)
     {
         return response()->json(
@@ -38,6 +47,9 @@ class OsceController extends Controller
         );
     }
 
+    /**
+     * Menghapus data OSCE 
+     */
     public function destroy(Osce $osce)
     {
         return response()->json(

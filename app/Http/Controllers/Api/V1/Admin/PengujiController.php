@@ -18,7 +18,9 @@ class PengujiController extends Controller
         $this->service = $service;
     }
 
-    /** GET /api/v1/penguji */
+    /**
+     * Mengambil seluruh data penguji
+     */
     public function index(Request $request)
     {
         $search = $request->query('search');
@@ -31,7 +33,9 @@ class PengujiController extends Controller
         ]);
     }
 
-    /** POST /api/v1/penguji */
+    /**
+     * Membuat data penguji
+     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -54,7 +58,9 @@ class PengujiController extends Controller
         ], 201);
     }
 
-    /** PUT /api/v1/penguji/{penguji} */
+    /**
+     * Memperbarui data penguji
+     */
     public function update(Request $request, Penguji $penguji)
     {
         $validated = $request->validate([
@@ -77,7 +83,9 @@ class PengujiController extends Controller
         ]);
     }
 
-    /** DELETE /api/v1/penguji/{penguji} */
+    /**
+     * Menghapus data penguji
+     */
     public function destroy(Penguji $penguji)
     {
         $this->service->delete($penguji);

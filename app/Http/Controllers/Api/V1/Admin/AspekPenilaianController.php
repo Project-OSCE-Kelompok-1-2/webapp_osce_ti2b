@@ -18,6 +18,9 @@ class AspekPenilaianController extends Controller
         $this->service = $service;
     }
 
+    /**
+     * Mengambil seluruh data aspek penilaian
+     */
     public function index(Request $request, Stase $stase)
     {
         // Stase tetap pakai binding karena jarang error 404 di parent resource
@@ -33,6 +36,9 @@ class AspekPenilaianController extends Controller
         ]);
     }
 
+    /**
+     * Membuat data aspek penilaian
+     */
     public function store(Request $request, Stase $stase)
     {
         // Try-catch untuk menangkap error validasi atau database saat create
@@ -52,7 +58,9 @@ class AspekPenilaianController extends Controller
         }
     }
 
-    // UBAH: Parameter kedua jangan 'AspekPenilaian $aspekPenilaian', tapi '$id'
+    /**
+     * Mengambil data aspek penilaian
+     */
     public function show(Stase $stase, $id)
     {
         try {
@@ -82,7 +90,9 @@ class AspekPenilaianController extends Controller
         }
     }
 
-    // UBAH: Parameter kedua jadi $id
+    /**
+     * Mempebarui data aspek penilaian
+     */
     public function update(Request $request, Stase $stase, $id)
     {
         try {
@@ -112,7 +122,9 @@ class AspekPenilaianController extends Controller
         }
     }
 
-    // UBAH: Parameter kedua jadi $id
+    /**
+     * Menghapus data aspek penilaian
+     */
     public function destroy(Stase $stase, $id)
     {
         try {
