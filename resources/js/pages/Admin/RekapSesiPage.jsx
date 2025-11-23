@@ -10,6 +10,7 @@ import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
 import OsSearchBar from "../../components/searchbar";
 import OsTableBody from "../../components/tablecontain";
+import OsHeader from "../../components/Header";
 
 // --- Definisi Kolom Tabel (Sudah Benar) ---
 const sesiColumns = [
@@ -81,17 +82,10 @@ export default function RekapSesiPage() {
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* 6. [PERBAIKAN] Breadcrumb dinamis */}
-                <div className="flex items-center gap-3 text-sm text-gray-700">
-                    <button
-                        onClick={() => router.visit("/admin/rekap-nilai")}
-                        className="bg-blue-600 text-white p-2 rounded-full hover:bg-blue-700 flex items-center justify-center"
-                    >
-                        <ArrowLeft size={16} />
-                    </button>
-                    <div className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium bg-white">
-                        Rekap Nilai / {osce.nama_osce} / Sesi
-                    </div>
-                </div>
+                    <OsHeader
+                        variant="goback"
+                        backLink=""
+                    />
 
                 <div className="flex-1 overflow-auto">
                     {/* Notifikasi Sukses/Error */}

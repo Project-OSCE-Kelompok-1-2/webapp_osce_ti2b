@@ -99,16 +99,11 @@ export default function RekapOscePage() {
     
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Head title="Rekap Nilai OSCE" />
             <Sidebar />
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* Breadcrumb Statis */}
-                <div className="flex items-center gap-3 text-sm text-gray-700">
-                    <div className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium bg-white">
-                        Rekap Nilai
-                    </div>
-                </div>
+                <OsHeader/>
 
                 <div className="flex-1 overflow-auto">
                     {/* Notifikasi Sukses/Error */}
