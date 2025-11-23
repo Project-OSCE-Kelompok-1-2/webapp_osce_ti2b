@@ -231,9 +231,7 @@ export default function KompetensiPage() {
                         <div className="flex w-[30%] justify-end gap-4 text-sm">
                             {/* Total Bobot (2.5/12) */}
                             <div className="flex w-full items-center justify-center gap-1.5 px-2 py-1 rounded-md">
-                                <span className="text-sm">
-                                    Total Bobot:
-                                </span>
+                                <span className="text-sm">Total Bobot:</span>
                                 <span className="text-black font-bold">
                                     {totalBobot}
                                 </span>
@@ -241,9 +239,7 @@ export default function KompetensiPage() {
 
                             {/* Total Kompetensi (2.5/12) */}
                             <div className="flex w-full items-center justify-center gap-1.5 px-2 py-1 rounded-md">
-                                <span className="text-sm">
-                                    Kompetensi:
-                                </span>
+                                <span className="text-sm">Kompetensi:</span>
                                 <span className="text-black font-bold">
                                     {kompetensi.total}
                                 </span>
@@ -286,7 +282,7 @@ export default function KompetensiPage() {
 
                 <OsInput
                     label="Bobot Kompetensi"
-                    type="number"
+                    type="suggest"
                     name="bobot"
                     value={form.bobot}
                     placeholder="Masukkan bobot kompetensi..."

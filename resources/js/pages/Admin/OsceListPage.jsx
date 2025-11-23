@@ -269,8 +269,6 @@ export default function OsceListPage({ osce, filters }) {
                     </OsButton>
 
                     <section>
-
-
                         <OsSearchBar
                             search={search}
                             setSearch={setSearch}
@@ -316,7 +314,6 @@ export default function OsceListPage({ osce, filters }) {
                         )}
                     </section>
                     {/* footer */}
-
                 </div>
 
                 <OsCopyright />
@@ -387,20 +384,24 @@ export default function OsceListPage({ osce, filters }) {
                         value={formData.tahun_akademik}
                         onChange={handleFormChange}
                     />
-                    <OsInput
-                        type="date"
-                        name="tanggal_mulai"
-                        label="Tanggal Mulai"
-                        value={formData.tanggal_mulai}
-                        onChange={handleFormChange}
-                    />
-                    <OsInput
-                        type="date"
-                        name="tanggal_selesai"
-                        label="Tanggal Selesai"
-                        value={formData.tanggal_selesai}
-                        onChange={handleFormChange}
-                    />
+                    <div className="flex gap-3">
+                        <OsInput
+                            type="date"
+                            name="tanggal_mulai"
+                            label="Tanggal Mulai"
+                            value={formData.tanggal_mulai}
+                            onChange={handleFormChange}
+                            className="w-full"
+                        />
+                        <OsInput
+                            type="date"
+                            name="tanggal_selesai"
+                            label="Tanggal Selesai"
+                            value={formData.tanggal_selesai}
+                            onChange={handleFormChange}
+                            className="w-full"
+                        />
+                    </div>
                 </div>
             </OsModal>
 
@@ -439,20 +440,24 @@ export default function OsceListPage({ osce, filters }) {
                         value={formData.tahun_akademik}
                         onChange={handleFormChange}
                     />
-                    <OsInput
-                        type="date"
-                        name="tanggal_mulai"
-                        label="Tanggal Mulai"
-                        value={formData.tanggal_mulai}
-                        onChange={handleFormChange}
-                    />
-                    <OsInput
-                        type="date"
-                        name="tanggal_selesai"
-                        label="Tanggal Selesai"
-                        value={formData.tanggal_selesai}
-                        onChange={handleFormChange}
-                    />
+                    <div className="flex gap-3">
+                        <OsInput
+                            type="date"
+                            name="tanggal_mulai"
+                            label="Tanggal Mulai"
+                            value={formData.tanggal_mulai}
+                            onChange={handleFormChange}
+                            className="w-full"
+                        />
+                        <OsInput
+                            type="date"
+                            name="tanggal_selesai"
+                            label="Tanggal Selesai"
+                            value={formData.tanggal_selesai}
+                            onChange={handleFormChange}
+                            className="w-full"
+                        />
+                    </div>
                 </div>
             </OsModal>
         </div>

@@ -201,7 +201,10 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                     onClick={() => handleEditEnrollment(item.id_osce_stase)}
                     className="h-[38px] text-os-small w-full flex justify-around items-center gap-1"
                 >
-                    <OsIcon name={"student"} className="os-icon-light h-[20px]" />
+                    <OsIcon
+                        name={"student"}
+                        className="os-icon-light h-[20px]"
+                    />
                     Edit Jumlah Mahasiswa
                 </OsButton>
 
@@ -366,9 +369,9 @@ export default function SesiOscePage({ sesi, osce, filters }) {
             >
                 <div className="flex flex-col gap-3">
                     <OsInput
-                        type="text"
-                        label="Nama Sesi"
-                        placeholder="Nama Sesi..."
+                        type="date"
+                        label="Tanggal sesi"
+                        placeholder="Masukkan tanggal sesi..."
                         value={formData.nama_sesi}
                         onChange={(e) =>
                             setFormData({
@@ -378,19 +381,39 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                         }
                     />
 
-                    <OsInput
-                        type="number"
-                        label="Durasi (menit)"
-                        placeholder="Durasi..."
-                        value={formData.durasi}
-                        onChange={(e) =>
-                            setFormData({ ...formData, durasi: e.target.value })
-                        }
-                    />
+                    <div className="flex gap-3">
+                        <OsInput
+                            type="clock"
+                            label="Jam Mulai"
+                            placeholder="Durasi..."
+                            value={formData.durasi}
+                            className="w-full"
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    durasi: e.target.value,
+                                })
+                            }
+                        />
+
+                        <OsInput
+                            type="clock"
+                            label="Jam Selesai"
+                            placeholder="Durasi..."
+                            value={formData.durasi}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    durasi: e.target.value,
+                                })
+                            }
+                            className="w-full"
+                        />
+                    </div>
 
                     <OsInput
-                        type="textarea" // Diubah menjadi textarea jika memungkinkan untuk keterangan
-                        label="Keterangan"
+                        type="multi-select" // Diubah menjadi textarea jika memungkinkan untuk keterangan
+                        label="Pilih Stase untuk Sesi Ini"
                         placeholder="Keterangan..."
                         value={formData.keterangan}
                         onChange={(e) =>
@@ -415,8 +438,9 @@ export default function SesiOscePage({ sesi, osce, filters }) {
             >
                 <div className="flex flex-col gap-3">
                     <OsInput
-                        type="text"
-                        label="Nama Sesi"
+                        type="date"
+                        label="Tanggal sesi"
+                        placeholder="Masukkan tanggal sesi..."
                         value={formData.nama_sesi}
                         onChange={(e) =>
                             setFormData({
@@ -426,18 +450,40 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                         }
                     />
 
-                    <OsInput
-                        type="number"
-                        label="Durasi (menit)"
-                        value={formData.durasi}
-                        onChange={(e) =>
-                            setFormData({ ...formData, durasi: e.target.value })
-                        }
-                    />
+                    <div className="flex gap-3">
+                        <OsInput
+                            type="clock"
+                            label="Jam Mulai"
+                            placeholder="Durasi..."
+                            value={formData.durasi}
+                            className="w-full"
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    durasi: e.target.value,
+                                })
+                            }
+                        />
+
+                        <OsInput
+                            type="clock"
+                            label="Jam Selesai"
+                            placeholder="Durasi..."
+                            value={formData.durasi}
+                            onChange={(e) =>
+                                setFormData({
+                                    ...formData,
+                                    durasi: e.target.value,
+                                })
+                            }
+                            className="w-full"
+                        />
+                    </div>
 
                     <OsInput
-                        type="textarea" // Diubah menjadi textarea jika memungkinkan untuk keterangan
-                        label="Keterangan"
+                        type="multi-select" // Diubah menjadi textarea jika memungkinkan untuk keterangan
+                        label="Pilih Stase untuk Sesi Ini"
+                        placeholder="Keterangan..."
                         value={formData.keterangan}
                         onChange={(e) =>
                             setFormData({

@@ -258,7 +258,7 @@ export default function Stase() {
                 <form onSubmit={handleSubmit} className="space-y-3">
                     <OsInput
                         label="Mata kuliah"
-                        type="text"
+                        type="suggest"
                         name="matakuliah"
                         value={form.matakuliah}
                         onChange={(e) =>
@@ -269,7 +269,7 @@ export default function Stase() {
                     />
                     <OsInput
                         label="Tujuan Pembelajaran"
-                        type="text"
+                        type="suggest"
                         name="tujuan"
                         value={form.tujuan}
                         onChange={(e) =>

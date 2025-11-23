@@ -336,7 +336,7 @@ export default function PengujiPage() {
                     <form onSubmit={handleSubmitAdd} className="space-y-4">
                         <OsInput
                             label="NIP Penguji"
-                            type="text"
+                            type="number"
                             name="nip"
                             value={addFormData.nip}
                             onChange={handleAddFormChange}
@@ -368,7 +368,7 @@ export default function PengujiPage() {
                     <form onSubmit={handleSubmitEdit} className="space-y-4">
                         <OsInput
                             label="NIP Penguji"
-                            type="text"
+                            type="number"
                             name="nip"
                             value={editFormData.nip}
                             onChange={handleEditFormChange}
