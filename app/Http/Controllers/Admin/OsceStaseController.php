@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
 use App\Models\Osce;
 use Inertia\Inertia;
@@ -9,8 +9,9 @@ use App\Models\Stase;
 use App\Models\Penguji;
 use App\Models\OsceStase;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redirect;
 
 class OsceStaseController extends Controller
 {

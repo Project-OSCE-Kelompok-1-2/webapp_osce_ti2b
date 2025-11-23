@@ -1,15 +1,16 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Admin;
 
-use App\Models\Mahasiswa;
-use App\Models\Pengguna;
-use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Illuminate\Support\Facades\Redirect;
-use Illuminate\Support\Facades\DB;
+use App\Models\Pengguna;
+use App\Models\Mahasiswa;
+use Illuminate\Http\Request;
 use App\Imports\MahasiswaImport;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
+use Illuminate\Support\Facades\Redirect;
 
 class MahasiswaController extends Controller
 {

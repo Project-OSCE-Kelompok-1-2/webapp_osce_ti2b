@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
+use Laravel\Sanctum\HasApiTokens; 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 
 class Pengguna extends Authenticatable
 {
-    use HasFactory;
+    // 2. Gunakan trait tersebut di dalam class
+    use HasApiTokens, HasFactory; 
 
     protected $table = 'pengguna';
     protected $primaryKey = 'id_pengguna';

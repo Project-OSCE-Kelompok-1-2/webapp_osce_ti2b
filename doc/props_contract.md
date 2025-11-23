@@ -576,3 +576,382 @@ Bagian ini mengelola data master untuk Stase (template rubrik penilaian).
   "bobot": "integer"
 }
 ```
+
+
+
+## Penguji (Dosen)
+
+Endpoint ini memiliki *prefix* (contoh: `/penguji`) dan hanya bisa diakses oleh pengguna dengan *role* 'penguji'.
+
+### 1\. Dasbor Penguji
+
+  - **Endpoint**: `/penguji/dashboard`
+  - **Method**: `GET`
+  - **Deskripsi**: Halaman utama Penguji setelah login.
+
+**Response Body (Props):**
+
+```json
+{
+  "nama_penguji": "string",
+  "statistik": {
+    "osce_mendatang": "integer",
+    "osce_edit_nilai": "integer",
+    "osce_selesai": "integer"
+  },
+  "jadwal_penting": [
+    {
+      "id_osce": "integer",
+      "id_osce_stase": "integer",
+      "nama_osce": "string",
+      "status": "string"
+    }
+  ],
+  "jadwal_7_hari": [
+    {
+      "id_osce": "integer",
+      "tanggal": "date",
+      "nama_osce": "string",
+      "status": "string"
+    }
+  ]
+}
+```
+
+-----
+
+### 2\. Pengaturan Akun Penguji
+
+  - **Endpoint**: `/penguji/profil`
+  - **Method**: `GET`
+  - **Deskripsi**: Menampilkan halaman pengaturan akun untuk Penguji.
+
+**Response Body (Props):**
+
+```json
+{
+  "profil": {
+    "nama": "string",
+    "nip": "string",
+    "username": "string",
+    "path_gambar": "string | null"
+  }
+}
+```
+
+-----
+
+  - **Endpoint**: `/penguji/profil/password`
+  - **Method**: `PUT`
+  - **Deskripsi**: Memperbarui password penguji.
+
+**Request Body:**
+
+```json
+{
+  "password_lama": "string",
+  "password_baru": "string",
+  "konfirmasi_password_baru": "string"
+}
+```
+
+-----
+
+  - **Endpoint**: `/penguji/profil/gambar`
+  - **Method**: `POST`
+  - **Deskripsi**: Memperbarui gambar profil.
+  - **Request Body**: `multipart/form-data`
+
+-----
+
+### 3\. Daftar OSCE Penguji
+
+  - **Endpoint**: `/penguji/osce`
+  - **Method**: `GET`
+  - **Deskripsi**: Menampilkan daftar semua OSCE yang ditugaskan kepada penguji.
+  - **Query Parameters**:
+      - `search`: `string`
+      - `tahun`: `string`
+
+**Response Body (Props):**
+
+```json
+{
+  "osce_list": [
+    {
+      "id_osce": "integer",
+      "id_osce_stase": "integer",
+      "nama_osce": "string",
+      "tanggal_mulai": "datetime",
+      "tanggal_akhir": "datetime",
+      "status": "string"
+    }
+  ],
+  "filters": {
+    "search": "string | null",
+    "tahun": "string | null"
+  }
+}
+```
+
+-----
+
+### 4\. Alur Penilaian OSCE (Live)
+
+#### a. Detail Stase & Antrian Mahasiswa
+
+  - **Endpoint**: `/penguji/osce/{id_osce}/stase/{id_osce_stase}`
+  - **Method**: `GET`
+  - **Deskripsi**: Menampilkan detail stase dan daftar (antrian) mahasiswa yang akan dinilai.
+
+**Response Body (Props):**
+
+```json
+{
+  "osce_detail": {
+    "nama_osce": "string",
+    "nama_stase": "string",
+    "durasi_per_mahasiswa": "integer",
+    "total_mahasiswa": "integer"
+  },
+  "antrian_mahasiswa": [
+    {
+      "id_mahasiswa": "integer",
+      "id_enrollment_osce": "integer",
+      "nim": "string",
+      "nama": "string",
+      "status_penilaian": "string"
+    }
+  ]
+}
+```
+
+#### b. Memulai Penilaian (Menampilkan Rubrik)
+
+  - **Endpoint**: `/penguji/penilaian/{id_enrollment_osce}`
+  - **Method**: `GET`
+  - **Deskripsi**: Menampilkan form rubrik penilaian untuk 1 mahasiswa.
+
+**Response Body (Props):**
+
+```json
+{
+  "mahasiswa": {
+    "nama": "string",
+    "nim": "string",
+    "prodi": "string"
+  },
+  "rubrik": [
+    {
+      "aspek": "string",
+      "kompetensi": [
+        {
+          "id_poin_aspek_penilaian": "integer",
+          "deskripsi": "string",
+          "bobot": "integer"
+        }
+      ]
+    }
+  ],
+  "sisa_waktu_detik": "integer"
+}
+```
+
+#### c. Menyimpan Nilai (Submit Penilaian)
+
+  - **Endpoint**: `/penguji/penilaian/{id_enrollment_osce}`
+  - **Method**: `POST`
+  - **Deskripsi**: Menerima data dari form rubrik.
+
+**Request Body:**
+
+```json
+{
+  "feedback": "string | null",
+  "nilai": [
+    { 
+      "id_poin_aspek_penilaian": "integer", 
+      "skor": "integer" 
+    }
+  ]
+}
+```
+
+#### d. Halaman Rotasi (Mahasiswa Selanjutnya)
+
+  - **Endpoint**: `/penguji/osce/{id_osce}/stase/{id_osce_stase}/rotasi`
+  - **Method**: `GET`
+  - **Deskripsi**: Halaman "tunggu" yang menampilkan siapa mahasiswa selanjutnya.
+
+**Response Body (Props):**
+
+```json
+{
+  "mahasiswa_selanjutnya": {
+    "id_enrollment_osce": "integer",
+    "nama": "string",
+    "nim": "string",
+    "prodi": "string"
+  } | null,
+  "sisa_waktu_rotasi_detik": "integer"
+}
+```
+
+#### e. Menyelesaikan Sesi Penilaian
+
+  - **Endpoint**: `/penguji/osce/{id_osce}/stase/{id_osce_stase}/selesai`
+  - **Method**: `POST`
+  - **Deskripsi**: Mengunci sesi penilaian stase ini.
+
+-----
+
+### 5\. Alur Edit Nilai
+
+#### a. Menampilkan Form Edit Nilai
+
+  - **Endpoint**: `/penguji/penilaian/{id_enrollment_osce}/edit`
+  - **Method**: `GET`
+  - **Deskripsi**: Menampilkan rubrik yang sudah terisi untuk diedit (tanpa *timer*).
+
+**Response Body (Props):**
+
+```json
+{
+  "mahasiswa": {
+    "nama": "string",
+    "nim": "string"
+  },
+  "rubrik_terisi": [
+    {
+      "aspek": "string",
+      "kompetensi": [
+        {
+          "id_poin_aspek_penilaian": "integer",
+          "deskripsi": "string",
+          "bobot": "integer",
+          "skor": "integer"
+        }
+      ]
+    }
+  ],
+  "feedback_tersimpan": "string | null"
+}
+```
+
+#### b. Menyimpan Perubahan Nilai
+
+  - **Endpoint**: `/penguji/penilaian/{id_enrollment_osce}`
+  - **Method**: `PUT`
+  - **Deskripsi**: Menerima data dari form *edit* dan memperbarui nilai.
+
+**Request Body:**
+
+```json
+{
+  "feedback": "string | null",
+  "nilai": [
+    {
+      "id_poin_aspek_penilaian": "integer",
+      "skor": "integer"
+    }
+  ]
+}
+```
+
+-----
+
+### 6\. Alur Rekap & Edit Nilai (Pasca-Ujian)
+
+#### a. Daftar Mahasiswa (Mode Edit Nilai)
+
+  - **Endpoint**: `/penguji/osce/{id_osce}/stase/{id_osce_stase}/edit-nilai`
+  - **Method**: `GET`
+  - **Deskripsi**: Menampilkan daftar mahasiswa dalam satu sesi untuk *edit* nilai massal.
+  - **Query Parameters**:
+      - `search`: `string`
+
+**Response Body (Props):**
+
+```json
+{
+  "osce_detail": {
+    "nama_osce": "string",
+    "nama_stase": "string",
+    "waktu_per_rubrik": "string",
+    "total_mahasiswa": "integer",
+    "nama_penguji": "string"
+  },
+  "mahasiswa_list": [
+    {
+      "id_enrollment_osce": "integer",
+      "nim": "string",
+      "nama": "string",
+      "nilai_total": "integer | null"
+    }
+  ]
+}
+```
+
+#### b. Daftar Mahasiswa (Mode Rekap Nilai)
+
+  - **Endpoint**: `/penguji/osce/{id_osce}/stase/{id_osce_stase}/rekap`
+  - **Method**: `GET`
+  - **Deskripsi**: Menampilkan daftar nilai akhir mahasiswa dalam satu sesi (mode *read-only*).
+  - **Query Parameters**:
+      - `search`: `string`
+
+**Response Body (Props):**
+
+```json
+{
+  "osce_detail": {
+    "nama_osce": "string",
+    "nama_stase": "string",
+    "waktu_per_rubrik": "string",
+    "total_mahasiswa": "integer",
+    "nama_penguji": "string"
+  },
+  "mahasiswa_list": [
+    {
+      "id_enrollment_osce": "integer",
+      "nim": "string",
+      "nama": "string",
+      "nilai_total": "integer | null"
+    }
+  ]
+}
+```
+
+#### c. Melihat Detail Penilaian (Read-Only)
+
+  - **Endpoint**: `/penguji/penilaian/{id_enrollment_osce}/view`
+  - **Method**: `GET`
+  - **Deskripsi**: Menampilkan rubrik *read-only* dari nilai yang sudah di-submit (sama dengan yang dilihat mahasiswa).
+
+**Response Body (Props):**
+
+```json
+{
+  "mahasiswa": {
+    "nama": "string",
+    "nim": "string",
+    "jurusan": "string"
+  },
+  "rubrik_terisi": [
+    {
+      "aspek": "string",
+      "kompetensi": [
+        {
+          "id_poin_aspek_penilaian": "integer",
+          "deskripsi": "string",
+          "skor": "integer",
+          "bobot": "integer",
+          "nilai_kompetensi": "integer"
+        }
+      ]
+    }
+  ],
+  "total_nilai_aspek": "integer",
+  "feedback": "string | null"
+}
+```
