@@ -10,7 +10,7 @@ import OsCopyright from "../../components/Copyright.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import OsModal from "../../components/Modal.jsx";
 import OsButton from "../../components/button.jsx";
 

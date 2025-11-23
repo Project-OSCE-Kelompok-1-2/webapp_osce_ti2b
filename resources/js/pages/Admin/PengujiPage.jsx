@@ -12,7 +12,7 @@ import Os_button from "../../components/button.jsx"; // Digunakan untuk tombol d
 import OsSearchBar from "../../components/searchbar.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsModal from "../../components/Modal.jsx"; // Modal utama
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import OsButton from "../../components/button.jsx"; // Digunakan untuk tombol Tambah
 
 import Modals from "../../components/Modals.jsx"; // Modal konfirmasi (Delete)

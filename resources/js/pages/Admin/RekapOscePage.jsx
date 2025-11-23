@@ -96,7 +96,7 @@ export default function RekapOscePage() {
             </button>
         ),
     }));
-    
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar />
@@ -127,7 +127,7 @@ export default function RekapOscePage() {
                     </p>
 
                     {/* 6. searchbar+dropdown */}
-                    
+
                     <OsSearchBar
                         search={search}
                         setSearch={setSearch}
@@ -144,7 +144,7 @@ export default function RekapOscePage() {
                         />
                     </OsSearchBar>
 
-                
+
 
 
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">

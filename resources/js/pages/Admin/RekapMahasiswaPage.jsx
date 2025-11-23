@@ -83,7 +83,7 @@ export default function RekapMahasiswaPage() {
             </button>
         )
     }));
-    
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head

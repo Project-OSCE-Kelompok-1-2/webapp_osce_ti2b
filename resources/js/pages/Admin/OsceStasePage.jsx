@@ -44,7 +44,7 @@ const tableColumns = [
         classes: "justify-center items-center",
     },
 ];
-import OsInput from "../../components/input";
+import OsInput from "../../components/Input";
 
 // 🔥 Modal Delete Konfirmasi (versi lama)
 import Modals from "../../components/Modals";

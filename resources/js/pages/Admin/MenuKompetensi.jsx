@@ -14,7 +14,7 @@ import OsButton from "../../components/button.jsx";
 
 // Tambahan impor untuk komponen yang tidak ada
 import OsModal from "../../components/Modal.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import Modals from "../../components/Modals.jsx";
 import OsCopyright from "../../components/Copyright.jsx"; // Asumsi nama file
 

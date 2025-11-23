@@ -10,7 +10,7 @@ import OsSearchBar from "../../components/searchbar.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
 import OsModal from "../../components/Modal.jsx"; // Modal Tambah/Edit
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import Modals from "../../components/Modals.jsx"; // Modal Konfirmasi Hapus
 import OsIcon from "../../components/icons.jsx";
 import OsCopyright from "../../components/Copyright.jsx"; // Asumsi ada

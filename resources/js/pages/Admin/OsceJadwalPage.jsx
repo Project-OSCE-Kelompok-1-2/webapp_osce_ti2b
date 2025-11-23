@@ -24,7 +24,7 @@ import OsModal from "../../components/Modal"; // Modal add + edit
 import OsIcon from "../../components/icons.jsx";
 
 // Asumsi impor untuk komponen lain yang hilang di kode asli
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import OsButton from "../../components/button.jsx";
 import OsHeader from "../../components/Header.jsx"; // Diperlukan untuk header goback
 

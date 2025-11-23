@@ -5,7 +5,7 @@ import { Trash2, Save } from "lucide-react";
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 import Modals from "../../components/Modals.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 
 export default function TambahStase({ mataKuliah, tujuanPembelajaran, stase = null }) {
     const isEditMode = !!stase;
