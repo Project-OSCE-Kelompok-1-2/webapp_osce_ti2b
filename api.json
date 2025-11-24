@@ -102,6 +102,52 @@
                 "tags": [
                     "Admin"
                 ],
+                "requestBody": {
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "foto": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "format": "binary",
+                                        "contentMediaType": "application/octet-stream",
+                                        "maxLength": 1024
+                                    },
+                                    "new_password": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "minLength": 6
+                                    },
+                                    "old_password": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    },
+                                    "delete_foto": {
+                                        "type": [
+                                            "boolean",
+                                            "null"
+                                        ]
+                                    },
+                                    "new_password_confirmation": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ],
+                                        "minLength": 6
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "",
@@ -135,6 +181,9 @@
                             }
                         }
                     },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
                     }
@@ -156,6 +205,14 @@
                         "description": "The stase id stase",
                         "schema": {
                             "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Stase tetap pakai binding karena jarang error 404 di parent resource\n Tapi jika stase salah ID, tetap akan default error. \n Kalau mau custom juga, ubah 'Stase $stase' jadi '$staseId' dan cari manual.",
+                        "schema": {
+                            "type": "string"
                         }
                     }
                 ],
@@ -215,6 +272,29 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "aspek": {
+                                        "type": "string"
+                                    },
+                                    "bobot_maksimum": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                },
+                                "required": [
+                                    "aspek",
+                                    "bobot_maksimum"
+                                ]
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "500": {
                         "description": "",
@@ -273,6 +353,9 @@
                             }
                         }
                     },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
                     },
@@ -282,7 +365,7 @@
                 }
             }
         },
-        "/admin/stase/{stase}/aspek-penilaian/{id}": {
+        "/admin/stase/{stase}/aspek-penilaian/{id_aspek_penilaian}": {
             "get": {
                 "operationId": "stase.aspek-penilaian.show",
                 "summary": "Mengambil data aspek penilaian",
@@ -300,11 +383,11 @@
                         }
                     },
                     {
-                        "name": "id",
+                        "name": "id_aspek_penilaian",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -379,14 +462,37 @@
                         }
                     },
                     {
-                        "name": "id",
+                        "name": "id_aspek_penilaian",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "aspek": {
+                                        "type": "string"
+                                    },
+                                    "bobot_maksimum": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    }
+                                },
+                                "required": [
+                                    "aspek",
+                                    "bobot_maksimum"
+                                ]
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "500": {
                         "description": "",
@@ -451,6 +557,9 @@
                             }
                         }
                     },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
                     }
@@ -473,11 +582,11 @@
                         }
                     },
                     {
-                        "name": "id",
+                        "name": "id_aspek_penilaian",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -654,6 +763,13 @@
                         "in": "path",
                         "required": true,
                         "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
                             "type": "string"
                         }
                     }
@@ -735,10 +851,39 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "kompetensi": {
+                                        "type": "string"
+                                    },
+                                    "skor": {
+                                        "type": "integer",
+                                        "minimum": 0
+                                    },
+                                    "bobot": {
+                                        "type": "integer",
+                                        "description": "Ditambahkan agar sesuai output",
+                                        "minimum": 1
+                                    }
+                                },
+                                "required": [
+                                    "kompetensi",
+                                    "skor",
+                                    "bobot"
+                                ]
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "500": {
                         "description": "",
@@ -844,6 +989,9 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
@@ -954,7 +1102,9 @@
                         "$ref": "#/components/responses/AuthenticationException"
                     }
                 }
-            },
+            }
+        },
+        "/admin/aspek-penilaian/{id_kompetensi}/kompetensi/{kompetensi}": {
             "put": {
                 "operationId": "aspek-penilaian.kompetensi.update",
                 "summary": "Memperbarui data kompetensi",
@@ -963,11 +1113,11 @@
                 ],
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "id_kompetensi",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -1098,11 +1248,11 @@
                 ],
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "id_kompetensi",
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -1184,6 +1334,22 @@
                 "tags": [
                     "Mahasiswa"
                 ],
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "angkatan",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -1226,6 +1392,40 @@
                 "tags": [
                     "Mahasiswa"
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nim": {
+                                        "type": "string",
+                                        "maxLength": 20
+                                    },
+                                    "nama": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "kelas": {
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "prodi": {
+                                        "type": "string",
+                                        "maxLength": 100
+                                    }
+                                },
+                                "required": [
+                                    "nim",
+                                    "nama",
+                                    "kelas",
+                                    "prodi"
+                                ]
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "201": {
                         "description": "",
@@ -1258,6 +1458,9 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
@@ -1334,6 +1537,40 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nim": {
+                                        "type": "string",
+                                        "maxLength": 20
+                                    },
+                                    "nama": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "kelas": {
+                                        "type": "string",
+                                        "maxLength": 50
+                                    },
+                                    "prodi": {
+                                        "type": "string",
+                                        "maxLength": 100
+                                    }
+                                },
+                                "required": [
+                                    "nim",
+                                    "nama",
+                                    "kelas",
+                                    "prodi"
+                                ]
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "",
@@ -1366,6 +1603,9 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     },
                     "404": {
                         "$ref": "#/components/responses/ModelNotFoundException"
@@ -1437,6 +1677,26 @@
                 "tags": [
                     "Mahasiswa"
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "multipart/form-data": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "file": {
+                                        "type": "string",
+                                        "format": "binary",
+                                        "contentMediaType": "application/octet-stream"
+                                    }
+                                },
+                                "required": [
+                                    "file"
+                                ]
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "500": {
                         "description": "",
@@ -1491,6 +1751,9 @@
                             }
                         }
                     },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
                     "401": {
                         "$ref": "#/components/responses/AuthenticationException"
                     }
@@ -1503,6 +1766,22 @@
                 "summary": "Mengambil seluruh data OSCE",
                 "tags": [
                     "Osce"
+                ],
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "tahun",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
                 ],
                 "responses": {
                     "200": {
@@ -1526,13 +1805,69 @@
                 "tags": [
                     "Osce"
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id_tahun_akademik": {
+                                        "type": "string"
+                                    },
+                                    "nama_osce": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "tanggal_mulai": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "tanggal_selesai": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    }
+                                },
+                                "required": [
+                                    "id_tahun_akademik",
+                                    "nama_osce",
+                                    "tanggal_mulai",
+                                    "tanggal_selesai"
+                                ]
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean"
+                                                },
+                                                "message": {
+                                                    "type": "string"
+                                                },
+                                                "data": {
+                                                    "type": "null"
+                                                }
+                                            },
+                                            "required": [
+                                                "success",
+                                                "message",
+                                                "data"
+                                            ]
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -1561,13 +1896,69 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "id_tahun_akademik": {
+                                        "type": "string"
+                                    },
+                                    "nama_osce": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "tanggal_mulai": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "tanggal_selesai": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    }
+                                },
+                                "required": [
+                                    "id_tahun_akademik",
+                                    "nama_osce",
+                                    "tanggal_mulai",
+                                    "tanggal_selesai"
+                                ]
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "200": {
                         "description": "",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "anyOf": [
+                                        {
+                                            "type": "string"
+                                        },
+                                        {
+                                            "type": "object",
+                                            "properties": {
+                                                "success": {
+                                                    "type": "boolean"
+                                                },
+                                                "message": {
+                                                    "type": "string"
+                                                },
+                                                "data": {
+                                                    "type": "null"
+                                                }
+                                            },
+                                            "required": [
+                                                "success",
+                                                "message",
+                                                "data"
+                                            ]
+                                        }
+                                    ]
                                 }
                             }
                         }
@@ -1620,7 +2011,7 @@
         "/admin/osce/{osce_id}/jadwal/{jadwal_id}/enrollment": {
             "get": {
                 "operationId": "osceEnrollment.index",
-                "summary": "GET /api/v1/osce/{osce_id}/jadwal/{jadwal_id}/enrollment",
+                "summary": "Menampilkan daftar mahasiswa dan status enrollment",
                 "tags": [
                     "OsceEnrollment"
                 ],
@@ -1648,7 +2039,10 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "string"
+                                    "type": "integer",
+                                    "enum": [
+                                        200
+                                    ]
                                 }
                             }
                         }
@@ -1660,7 +2054,7 @@
             },
             "post": {
                 "operationId": "osceEnrollment.sync",
-                "summary": "POST /api/v1/osce/{osce_id}/jadwal/{jadwal_id}/enrollment",
+                "summary": "Menyimpan perubahan enrollment osce",
                 "tags": [
                     "OsceEnrollment"
                 ],
@@ -1726,7 +2120,7 @@
         "/admin/osce/{id_osce}/jadwal": {
             "get": {
                 "operationId": "osceJadwal.index",
-                "summary": "GET /osce/{id_osce}/jadwal",
+                "summary": "Menampilkan data sesi jadwal per hari",
                 "tags": [
                     "OsceJadwal"
                 ],
@@ -1735,6 +2129,14 @@
                         "name": "id_osce",
                         "in": "path",
                         "required": true,
+                        "description": "\ud83d\udc48 Ini yang Scramble baca!",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
                         "schema": {
                             "type": "string"
                         }
@@ -1831,7 +2233,7 @@
             },
             "post": {
                 "operationId": "osceJadwal.store",
-                "summary": "POST /osce/{id_osce}/jadwal",
+                "summary": "Membuat data sesi jadwal ujian",
                 "tags": [
                     "OsceJadwal"
                 ],
@@ -1841,7 +2243,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -1944,7 +2346,7 @@
         "/admin/osce/{id_osce}/jadwal/{sesi_id}": {
             "put": {
                 "operationId": "osceJadwal.update",
-                "summary": "PUT /osce/{id_osce}/jadwal/{sesi_id}",
+                "summary": "Mengupdate sesi jadwal ujian",
                 "tags": [
                     "OsceJadwal"
                 ],
@@ -1954,7 +2356,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -1962,7 +2364,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -2063,7 +2465,7 @@
             },
             "delete": {
                 "operationId": "osceJadwal.destroy",
-                "summary": "DELETE /osce/{id_osce}/jadwal/{sesi_id}",
+                "summary": "Menghapus sesi jadwal ujian",
                 "tags": [
                     "OsceJadwal"
                 ],
@@ -2073,7 +2475,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -2081,7 +2483,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -2183,7 +2585,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -2212,7 +2614,7 @@
             },
             "post": {
                 "operationId": "osceStase.store",
-                "summary": "Membaut data osce stase",
+                "summary": "Membuat data osce stase",
                 "tags": [
                     "OsceStase"
                 ],
@@ -2222,7 +2624,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -2285,7 +2687,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -2360,7 +2762,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -2368,7 +2770,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -2644,6 +3046,23 @@
                 "tags": [
                     "RekapNilai"
                 ],
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "description": "Method ini aman karena biasanya hanya query list (paginate), \n kalau kosong dia return array kosong, bukan error 404.",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "tahun",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "",
@@ -2693,6 +3112,13 @@
                         "name": "id_osce",
                         "in": "path",
                         "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
                         "schema": {
                             "type": "string"
                         }
@@ -2788,6 +3214,20 @@
                         "schema": {
                             "type": "string"
                         }
+                    },
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "name": "angkatan",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
+                        }
                     }
                 ],
                 "responses": {
@@ -2870,27 +3310,14 @@
                 "tags": [
                     "Stase"
                 ],
-                "responses": {
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object"
-                                }
-                            }
+                "parameters": [
+                    {
+                        "name": "search",
+                        "in": "query",
+                        "schema": {
+                            "type": "string"
                         }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
                     }
-                }
-            },
-            "post": {
-                "operationId": "stase.store",
-                "summary": "Membuat data stase",
-                "tags": [
-                    "Stase"
                 ],
                 "responses": {
                     "500": {
@@ -2919,7 +3346,81 @@
                             }
                         }
                     },
-                    "422": {
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Data stase berhasil diambil."
+                                            ]
+                                        },
+                                        "data": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            },
+            "post": {
+                "operationId": "stase.store",
+                "summary": "Membuat data stase",
+                "tags": [
+                    "Stase"
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nama_stase": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "id_mata_kuliah": {
+                                        "type": "string"
+                                    },
+                                    "id_tujuan_pembelajaran": {
+                                        "type": "string"
+                                    },
+                                    "deskripsi": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "nama_stase",
+                                    "id_mata_kuliah",
+                                    "id_tujuan_pembelajaran"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "500": {
                         "description": "",
                         "content": {
                             "application/json": {
@@ -2944,6 +3445,9 @@
                                 }
                             }
                         }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
                     },
                     "201": {
                         "description": "",
@@ -2980,7 +3484,7 @@
                 }
             }
         },
-        "/admin/stase/{id}": {
+        "/admin/stase/{id_stase}": {
             "get": {
                 "operationId": "stase.show",
                 "summary": "Mengambil data stase",
@@ -2989,7 +3493,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "id_stase",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -3116,138 +3620,6 @@
                     }
                 }
             },
-            "put": {
-                "operationId": "stase.update",
-                "summary": "Memperbarui data stase",
-                "tags": [
-                    "Stase"
-                ],
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "required": true,
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                ],
-                "responses": {
-                    "500": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "required": [
-                                        "success",
-                                        "message",
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "404": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "enum": [
-                                                "Stase tidak ditemukan."
-                                            ]
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "required": [
-                                        "success",
-                                        "message",
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "422": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string"
-                                        },
-                                        "data": {
-                                            "type": "null"
-                                        }
-                                    },
-                                    "required": [
-                                        "success",
-                                        "message",
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "200": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean"
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "enum": [
-                                                "Stase berhasil diperbarui."
-                                            ]
-                                        },
-                                        "data": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "success",
-                                        "message",
-                                        "data"
-                                    ]
-                                }
-                            }
-                        }
-                    },
-                    "401": {
-                        "$ref": "#/components/responses/AuthenticationException"
-                    }
-                }
-            },
             "delete": {
                 "operationId": "stase.destroy",
                 "summary": "Menghapus data stase",
@@ -3256,7 +3628,7 @@
                 ],
                 "parameters": [
                     {
-                        "name": "id",
+                        "name": "id_stase",
                         "in": "path",
                         "required": true,
                         "schema": {
@@ -3338,6 +3710,150 @@
                                         },
                                         "data": {
                                             "type": "null"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "401": {
+                        "$ref": "#/components/responses/AuthenticationException"
+                    }
+                }
+            }
+        },
+        "/admin/stase/{id}": {
+            "put": {
+                "operationId": "stase.update",
+                "summary": "Memperbarui data stase",
+                "tags": [
+                    "Stase"
+                ],
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "nama_stase": {
+                                        "type": "string",
+                                        "maxLength": 255
+                                    },
+                                    "id_mata_kuliah": {
+                                        "type": "string"
+                                    },
+                                    "id_tujuan_pembelajaran": {
+                                        "type": "string"
+                                    },
+                                    "deskripsi": {
+                                        "type": [
+                                            "string",
+                                            "null"
+                                        ]
+                                    }
+                                },
+                                "required": [
+                                    "nama_stase",
+                                    "id_mata_kuliah",
+                                    "id_tujuan_pembelajaran"
+                                ]
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "500": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "null"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Stase tidak ditemukan."
+                                            ]
+                                        },
+                                        "data": {
+                                            "type": "null"
+                                        }
+                                    },
+                                    "required": [
+                                        "success",
+                                        "message",
+                                        "data"
+                                    ]
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "$ref": "#/components/responses/ValidationException"
+                    },
+                    "200": {
+                        "description": "",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean"
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "enum": [
+                                                "Stase berhasil diperbarui."
+                                            ]
+                                        },
+                                        "data": {
+                                            "type": "string"
                                         }
                                     },
                                     "required": [

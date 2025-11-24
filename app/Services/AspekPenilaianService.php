@@ -11,11 +11,11 @@ class AspekPenilaianService
     /**
      * Mengambil data aspek penilaian dengan struktur sesuai permintaan.
      */
-    public function getByStase(Request $request, Stase $stase)
+    public function getByStase( Stase $stase, $search)
     {
         // Query dasar
         $aspek_penilaian = AspekPenilaian::where('id_stase', $stase->id_stase)
-            ->when($request->input('search'), function ($query, $search) {
+            ->when($search, function ($query, $search) {
                 $query->where('aspek', 'like', "%{$search}%");
             })
             // Menghitung jumlah kompetensi (relation count)

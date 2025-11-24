@@ -24,7 +24,10 @@ class MahasiswaController extends Controller
      */
     public function index(Request $request)
     {
-        $mahasiswa = $this->service->getAll($request);
+        $search = $request->query('search');
+        $angkatan = $request->query('angkatan');
+
+        $mahasiswa = $this->service->getAll($search, $angkatan);
 
         return response()->json([
             'status' => 'success',

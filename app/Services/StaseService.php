@@ -10,10 +10,10 @@ use Illuminate\Http\Request;
 
 class StaseService
 {
-    public function getAll(Request $request)
+    public function getAll($search)
     {
         $data = Stase::query()
-            ->when($request->input('search'), function ($q, $search) {
+            ->when($search, function ($q, $search) {
                 $q->where('nama_stase', 'like', "%{$search}%");
             })
             ->withCount('aspekPenilaian')

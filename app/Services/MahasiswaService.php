@@ -15,11 +15,8 @@ class MahasiswaService
     /**
      * Mengambil daftar mahasiswa dengan filter dan paginasi.
      */
-    public function getAll(Request $request)
+    public function getAll($search, $angkatan)
     {
-        $search = $request->input('search');
-        $angkatan = $request->input('angkatan'); // Ini memfilter kolom 'kelas'
-
         $mahasiswa = Mahasiswa::query()
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {

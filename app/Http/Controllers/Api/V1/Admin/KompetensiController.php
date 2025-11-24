@@ -20,13 +20,14 @@ class KompetensiController extends Controller
 
     /**
      * Mengambil seluruh data kompetensi
+     * @param int $id_aspek
      */
     public function index(Request $request, $id_aspek)
     {
         try {
             $aspekPenilaian = AspekPenilaian::findOrFail($id_aspek);
-
-            $paginator = $this->service->getByAspek($request, $aspekPenilaian);
+            $search = $request->query("search");
+            $paginator = $this->service->getByAspek( $aspekPenilaian, $search);
 
             return response()->json([
                 'status' => 'success',
@@ -43,6 +44,7 @@ class KompetensiController extends Controller
 
     /**
      * Membuat data kompetensi
+     * @param int $id_aspek
      */
     public function store(Request $request, $id_aspek)
     {
@@ -107,11 +109,12 @@ class KompetensiController extends Controller
 
     /**
      * Memperbarui data kompetensi
+     * @param int $id_kompetensi
      */
-    public function update(Request $request, $id)
+    public function update(Request $request, $id_kompetensi)
     {
         try {
-            $kompetensi = PoinAspekPenilaian::findOrFail($id);
+            $kompetensi = PoinAspekPenilaian::findOrFail($id_kompetensi);
 
             $updatedData = $this->service->update($request, $kompetensi);
 
@@ -140,11 +143,12 @@ class KompetensiController extends Controller
 
     /**
      * Menghapus data kompetensi
+     * @param int $id_kompetensi
      */
-    public function destroy($id)
+    public function destroy($id_kompetensi)
     {
         try {
-            $kompetensi = PoinAspekPenilaian::findOrFail($id);
+            $kompetensi = PoinAspekPenilaian::findOrFail($id_kompetensi);
 
             $this->service->delete($kompetensi);
 

@@ -26,8 +26,8 @@ class AspekPenilaianController extends Controller
         // Stase tetap pakai binding karena jarang error 404 di parent resource
         // Tapi jika stase salah ID, tetap akan default error. 
         // Kalau mau custom juga, ubah 'Stase $stase' jadi '$staseId' dan cari manual.
-
-        $paginator = $this->service->getByStase($request, $stase);
+        $search = $request->query("search");
+        $paginator = $this->service->getByStase($stase, $search);
 
         return response()->json([
             'status' => 'success',
@@ -65,12 +65,13 @@ class AspekPenilaianController extends Controller
 
     /**
      * Mengambil data aspek penilaian
+     * @param int $id_aspek_penilaian
      */
-    public function show(Stase $stase, $id)
+    public function show(Stase $stase, $id_aspek_penilaian)
     {
         try {
             // Cari manual di sini agar bisa ditangkap try-catch
-            $aspekPenilaian = AspekPenilaian::findOrFail($id);
+            $aspekPenilaian = AspekPenilaian::findOrFail($id_aspek_penilaian);
 
             if ($aspekPenilaian->id_stase !== $stase->id_stase) {
                 return response()->json(['status' => 'error', 'message' => 'Data tidak ditemukan di stase ini.'], 404);
@@ -97,8 +98,9 @@ class AspekPenilaianController extends Controller
 
     /**
      * Mempebarui data aspek penilaian
+     * @param int $id_aspek_penilaian
      */
-    public function update(Request $request, Stase $stase, $id)
+    public function update(Request $request, Stase $stase, $id_aspek_penilaian)
     {
         try {
             $validated = $request->validate([
@@ -106,7 +108,7 @@ class AspekPenilaianController extends Controller
                 'bobot_maksimum' => 'required|integer|min:0',
             ]);
 
-            $aspekPenilaian = AspekPenilaian::findOrFail($id);
+            $aspekPenilaian = AspekPenilaian::findOrFail($id_aspek_penilaian);
 
             if ($aspekPenilaian->id_stase !== $stase->id_stase) {
                 return response()->json(['status' => 'error', 'message' => 'Data tidak sinkron.'], 404);
@@ -134,11 +136,13 @@ class AspekPenilaianController extends Controller
 
     /**
      * Menghapus data aspek penilaian
+     * @param int $id_aspek_penilaian
+     * 
      */
-    public function destroy(Stase $stase, $id)
+    public function destroy(Stase $stase, $id_aspek_penilaian)
     {
         try {
-            $aspekPenilaian = AspekPenilaian::findOrFail($id);
+            $aspekPenilaian = AspekPenilaian::findOrFail($id_aspek_penilaian);
 
             if ($aspekPenilaian->id_stase !== $stase->id_stase) {
                 return response()->json(['status' => 'error', 'message' => 'Data tidak sinkron.'], 404);

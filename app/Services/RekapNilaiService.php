@@ -15,15 +15,15 @@ class RekapNilaiService
     /**
      * List OSCE untuk rekap nilai
      */
-    public function getRekapList(Request $request)
+    public function getRekapList(Request $request, $search, $tahun)
     {
         $query = Osce::with('tahunAkademik');
 
-        if ($search = $request->input('search')) {
+        if ($search) {
             $query->where('nama_osce', 'like', "%{$search}%");
         }
 
-        if ($tahun = $request->input('tahun')) {
+        if ($tahun) {
             $query->whereHas('tahunAkademik', function ($q) use ($tahun) {
                 $q->where('tahun', $tahun);
             });
@@ -44,10 +44,9 @@ class RekapNilaiService
      * List sesi berdasarkan tanggal untuk OSCE tertentu
      * Mengembalikan array berisi data osce dan data sesi (paginated)
      */
-    public function getSesiList(Request $request, $id_osce)
+    public function getSesiList($id_osce, $search)
     {
         $osce = Osce::findOrFail($id_osce);
-        $search = $request->input('search');
 
         $query = DB::table('osce_stase')
             ->where('id_osce', $id_osce)
@@ -86,13 +85,10 @@ class RekapNilaiService
     /**
      * Menampilkan daftar mahasiswa yang terdaftar pada sesi tertentu
      */
-    public function getMahasiswaPerSesi(Request $request, $id_osce, $id_sesi)
+    public function getMahasiswaPerSesi(Request $id_osce, $id_sesi, $search, $angkatan)
     {
         $sesi_tanggal = $id_sesi;
         $osce = Osce::findOrFail($id_osce);
-
-        $search = $request->input('search');
-        $angkatan = $request->input('angkatan');
 
         // Ambil ID mahasiswa yang ter-enroll di SESI INI
         $enrolled_ids = EnrollmentOsce::where('id_osce', $id_osce)

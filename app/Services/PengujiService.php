@@ -9,9 +9,10 @@ use Illuminate\Support\Facades\DB;
 class PengujiService
 {
     /** GET LIST + FILTER */
-    public function getAll($search = null, $perPage = 10)
+    public function getAll($search = null, )
     {
         $query = Penguji::query();
+        $perPage = 10;
 
         if ($search) {
             $query->where(function ($q) use ($search) {

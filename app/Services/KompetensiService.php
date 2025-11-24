@@ -12,11 +12,11 @@ class KompetensiService
     /**
      * Mengambil daftar kompetensi dengan transformasi struktur data.
      */
-    public function getByAspek(Request $request, AspekPenilaian $aspekPenilaian)
+    public function getByAspek(AspekPenilaian $aspekPenilaian, $search)
     {
         // Ambil data kompetensi dengan paginasi
         $kompetensi = $aspekPenilaian->poinAspekPenilaian()
-            ->when($request->input('search'), function ($query, $search) {
+            ->when($search, function ($query, $search) {
                 $query->where('kompetensi', 'like', "%{$search}%");
             })
             ->paginate(10)

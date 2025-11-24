@@ -14,10 +14,9 @@ class OsceJadwalService
     /**
      * Mendapatkan daftar jadwal sesi (dikelompokkan per tanggal & jam).
      */
-    public function getJadwalList(Request $request, $id_osce)
+    public function getJadwalList( $id_osce, $search)
     {
         $osce = Osce::findOrFail($id_osce);
-        $search = $request->query('search');
 
         // Query grouping
         $sesi_virtual_query = DB::table('osce_stase')

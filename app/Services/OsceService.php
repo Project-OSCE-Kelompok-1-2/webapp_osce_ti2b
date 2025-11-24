@@ -11,17 +11,17 @@ class OsceService
     /**
      * Ambil list OSCE (JSON Format)
      */
-    public function getAll($request)
+    public function getAll($search, $tahun)
     {
         $query = Osce::query()->with('tahunAkademik');
 
-        if ($request->search) {
-            $query->where('nama_osce', 'like', '%' . $request->search . '%');
+        if ($search) {
+            $query->where('nama_osce', 'like', '%' . $search . '%');
         }
 
-        if ($request->tahun) {
-            $query->whereHas('tahunAkademik', function ($q) use ($request) {
-                $q->where('tahun', $request->tahun);
+        if ($tahun) {
+            $query->whereHas('tahunAkademik', function ($q) use ($tahun) {
+                $q->where('tahun', $tahun);
             });
         }
 

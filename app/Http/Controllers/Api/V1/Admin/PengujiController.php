@@ -20,7 +20,7 @@ class PengujiController extends Controller
 
     /**
      * Mengambil seluruh data penguji
-     */
+     * */
     public function index(Request $request)
     {
         $search = $request->query('search');

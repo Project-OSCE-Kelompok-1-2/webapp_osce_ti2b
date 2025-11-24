@@ -19,12 +19,15 @@ class OsceJadwalController extends Controller
     }
 
     /**
-     * GET /osce/{id_osce}/jadwal
+     * Menampilkan data sesi jadwal per hari 
+     * @param int $id_osce 👈 Ini yang Scramble baca!
      */
+
     public function index(Request $request, $id_osce)
     {
         try {
-            $data = $this->service->getJadwalList($request, $id_osce);
+            $search = $request->query('search');
+            $data = $this->service->getJadwalList($id_osce, $search);
 
             return response()->json([
                 'status' => 'success',
@@ -40,6 +43,7 @@ class OsceJadwalController extends Controller
 
     /**
      * GET /osce/{id_osce}/jadwal/templates
+     * @param int $id_osce 
      */
     public function getTemplates($id_osce)
     {
@@ -59,7 +63,8 @@ class OsceJadwalController extends Controller
     }
 
     /**
-     * POST /osce/{id_osce}/jadwal
+     * Membuat data sesi jadwal ujian 
+     * @param int $id_osce 
      */
     public function store(Request $request, $id_osce)
     {
@@ -81,8 +86,10 @@ class OsceJadwalController extends Controller
 
     /**
      * GET /osce/{id_osce}/jadwal/{sesi_id}
+     * @param int $id_osce 
+     * @param int $sesi_id 
      */
-    
+
     public function show($id_osce, $sesi_id)
     {
         try {
@@ -106,7 +113,9 @@ class OsceJadwalController extends Controller
     }
 
     /**
-     * PUT /osce/{id_osce}/jadwal/{sesi_id}
+     * Mengupdate sesi jadwal ujian 
+     * @param int $id_osce 
+     * @param int $sesi_id 
      */
     public function update(Request $request, $id_osce, $sesi_id)
     {
@@ -127,7 +136,9 @@ class OsceJadwalController extends Controller
     }
 
     /**
-     * DELETE /osce/{id_osce}/jadwal/{sesi_id}
+     * Menghapus sesi jadwal ujian 
+     * @param int $id_osce 
+     * @param int $sesi_id 
      */
     public function destroy($id_osce, $sesi_id)
     {

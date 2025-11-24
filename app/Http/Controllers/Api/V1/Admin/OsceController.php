@@ -10,7 +10,6 @@ use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;
 
-
 class OsceController extends Controller
 {
     protected $service;
@@ -25,8 +24,11 @@ class OsceController extends Controller
      */
     public function index(Request $request)
     {
+        $search = $request->query("search");
+        $tahun = $request->query("tahun");
+
         return response()->json(
-            $this->service->getAll($request)
+            $this->service->getAll($search, $tahun)
         );
     }
 
@@ -81,7 +83,7 @@ class OsceController extends Controller
         }
 
         return response()->json(
-            $this->service->update( $osce, $validator)
+            $this->service->update($osce, $validator)
         );
     }
 

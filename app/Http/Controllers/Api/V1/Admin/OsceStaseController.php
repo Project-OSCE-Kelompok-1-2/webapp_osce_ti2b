@@ -18,16 +18,20 @@ class OsceStaseController extends Controller
 
     /**
      * Mengambil seluruh data osce stase
+     * @param int $id_osce
      */
     public function index(Request $request, $id_osce)
     {
+        $search = $request->query("search");
+
         return response()->json(
-            $this->service->getAll($id_osce, $request->query('search'))
+            $this->service->getAll($id_osce, $search)
         );
     }
 
     /**
-     * Membaut data osce stase
+     * Membuat data osce stase
+     * @param int $id_osce 
      */
     public function store(Request $request, $id_osce)
     {
@@ -45,6 +49,7 @@ class OsceStaseController extends Controller
 
     /**
      * Memperbarui data osce stase
+     * @param int $id_osce 
      */
     public function update(Request $request, $id_osce, OsceStase $osce_stase)
     {
@@ -61,6 +66,8 @@ class OsceStaseController extends Controller
 
     /**
      * Menghapus data osce stase
+     * @param int $id_osce 
+     * @param int $id_osce_stase
      */
     public function destroy($id_osce, $id_osce_stase)
     {

@@ -23,7 +23,9 @@ class RekapNilaiController extends Controller
     {
         // Method ini aman karena biasanya hanya query list (paginate), 
         // kalau kosong dia return array kosong, bukan error 404.
-        $osces = $this->service->getRekapList($request);
+        $search = $request->query("search");
+        $tahun = $request->query("tahun");
+        $osces = $this->service->getRekapList($request, $search, $tahun);
 
         return response()->json([
             'status' => 'success',
@@ -38,7 +40,8 @@ class RekapNilaiController extends Controller
     public function listSesi(Request $request, $id_osce)
     {
         try {
-            $data = $this->service->getSesiList($request, $id_osce);
+            $search = $request->input('search');
+            $data = $this->service->getSesiList( $id_osce, $search);
 
             return response()->json([
                 'status' => 'success',
@@ -59,7 +62,9 @@ class RekapNilaiController extends Controller
     public function listMahasiswaPerStase(Request $request, $id_osce, $id_sesi)
     {
         try {
-            $data = $this->service->getMahasiswaPerSesi($request, $id_osce, $id_sesi);
+            $search = $request->query(key: 'search');
+            $angkatan = $request->query('angkatan');
+            $data = $this->service->getMahasiswaPerSesi($id_osce, $id_sesi, $search, $angkatan);
 
             return response()->json([
                 'status' => 'success',

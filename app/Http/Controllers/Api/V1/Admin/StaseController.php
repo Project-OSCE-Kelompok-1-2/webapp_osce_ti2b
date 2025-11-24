@@ -25,8 +25,9 @@ class StaseController extends Controller
     public function index(Request $request)
     {
         try {
-            $search = $request->query("search"); # untuk dokumentasi api
-            $result = $this->service->getAll($request, );
+            $search = $request->query("search");
+            $result = $this->service->getAll($search);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Data stase berhasil diambil.',
@@ -79,11 +80,12 @@ class StaseController extends Controller
 
     /**
      * Mengambil data stase
+     * @param int $id_oscec
      */
-    public function show($id)
+    public function show($id_stase)
     {
         try {
-            $stase = $this->service->getEditData($id)['stase'] ?? null;
+            $stase = $this->service->getEditData($id_stase)['stase'] ?? null;
 
             return response()->json([
                 'success' => true,
@@ -130,7 +132,7 @@ class StaseController extends Controller
                 'id_tujuan_pembelajaran' => 'required|exists:tujuan_pembelajaran,id_tujuan_pembelajaran',
                 'deskripsi' => 'nullable|string',
             ]);
-            
+
             // Tangkap data yang dikembalikan service
             $updatedData = $this->service->update($validated, $id);
 
@@ -162,11 +164,12 @@ class StaseController extends Controller
 
     /**
      * Menghapus data stase
+     * @param int $id_oscec
      */
-    public function destroy($id)
+    public function destroy($id_stase)
     {
         try {
-            $this->service->delete($id);
+            $this->service->delete($id_stase);
 
             return response()->json([
                 'success' => true,

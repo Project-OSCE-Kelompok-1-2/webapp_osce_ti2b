@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use Illuminate\Http\JsonResponse;
+
 
 use App\Http\Controllers\Controller;
 use App\Services\OsceEnrollmentService;
@@ -17,7 +19,8 @@ class OsceEnrollmentController extends Controller
     }
 
     /**
-     * GET /api/v1/osce/{osce_id}/jadwal/{jadwal_id}/enrollment
+     * Menampilkan daftar mahasiswa dan status enrollment
+
      */
     public function index(Request $request, $osce_id, $jadwal_id)
     {
@@ -31,7 +34,7 @@ class OsceEnrollmentController extends Controller
     }
 
     /**
-     * POST /api/v1/osce/{osce_id}/jadwal/{jadwal_id}/enrollment
+     * Menyimpan perubahan enrollment osce
      */
     public function sync(Request $request, $osce_id, $jadwal_id)
     {
