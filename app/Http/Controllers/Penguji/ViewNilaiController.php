@@ -6,14 +6,13 @@ use App\Http\Controllers\Controller;
 use App\Models\EnrollmentOsce;
 use App\Models\NilaiOsce;
 use App\Models\AspekPenilaian;
-use App\Models\OsceStase;       // <-- Tambahan Import
-use Illuminate\Support\Facades\Auth; // <-- Tambahan Import
+use App\Models\OsceStase;       
+use Illuminate\Support\Facades\Auth; 
 use Inertia\Inertia;
 
 class ViewNilaiController extends Controller
 {
     /**
-     * Tugas Afkar: Menampilkan Detail Nilai (Read-Only)
      * Endpoint: GET /.../penilaian/{id_enrollment_osce}/view
      */
     public function __invoke($id_enrollment_osce)
@@ -22,7 +21,7 @@ class ViewNilaiController extends Controller
         $enrollment = EnrollmentOsce::with(['mahasiswa'])
             ->findOrFail($id_enrollment_osce);
 
-        // --- VALIDASI AKSES (PERBAIKAN) ---
+        // --- VALIDASI AKSES  ---
         $penguji = Auth::user(); 
         $penguji = $user->penguji;
         
