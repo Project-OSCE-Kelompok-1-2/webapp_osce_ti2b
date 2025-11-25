@@ -49,13 +49,13 @@ class ProfilController extends Controller
             //     // Pastikan username unik, KECUALI untuk diri sendiri
             //     Rule::unique('pengguna', 'username')->ignore($penguji->id_pengguna, 'id_pengguna')
             // ],
-            'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:1024'], // 1MB Sesuai UI
+            'foto' => 'nullable|image|mimes:jpg,jpeg,png,gif|max:1024', // 1MB Sesuai UI
 
             // Data Password (HANYA JIKA diisi)
             // 'confirmed' akan cek 'new_password_confirmation'
-            'new_password' => ['nullable', 'string', 'min:6', 'confirmed'],
-            'old_password' => ['nullable', 'string'],
-            'delete_foto' => ['nullable', 'boolean'],
+            'new_password' => 'nullable|string|min:6|confirmed',
+            'old_password' => 'nullable|string',
+            'delete_foto' => 'nullable|boolean',
         ]);
 
         // --- Logika Update Profil ---

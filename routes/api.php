@@ -14,11 +14,15 @@ use App\Http\Controllers\Api\V1\Admin\OsceJadwalController;
 use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
 use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
+use App\Http\Controllers\Api\V1\FotoController;
+use App\Models\Foto;
 
 Route::prefix('v1')->group(function () {
     // Route::get('/login', function () {
     //     return redirect()->route('login');
     // });
+    Route::post("/testgambar", [FotoController::class, "create_foto"]);
+
 
     // 2. Route API Asli (POST)
     Route::post('/login', [AuthController::class, 'login']);
@@ -90,4 +94,5 @@ Route::prefix('v1')->group(function () {
             Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
         });
     });
-}); 
+});
+
