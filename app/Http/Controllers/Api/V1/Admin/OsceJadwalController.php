@@ -20,7 +20,7 @@ class OsceJadwalController extends Controller
 
     /**
      * Menampilkan data sesi jadwal per hari 
-     * @param int $id_osce 👈 Ini yang Scramble baca!
+     * @param int $id_osce 👈 
      */
 
     public function index(Request $request, $id_osce)
@@ -69,8 +69,15 @@ class OsceJadwalController extends Controller
     public function store(Request $request, $id_osce)
     {
         try {
-            // Tangkap data sesi baru dari service
-            $newSessionData = $this->service->createSession($request, $id_osce);
+            $validated = $request->validate([
+                'tanggal' => 'required|date',
+                'jam_mulai' => 'required|date_format:H:i',
+                'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
+                'stase_ids' => 'required|array|min:1',
+                'stase_ids.*' => 'required|exists:osce_stase,id_osce_stase',
+            ]);
+
+            $newSessionData = $this->service->createSession($validated, $id_osce);
 
             return response()->json([
                 'status' => 'success',
@@ -120,8 +127,16 @@ class OsceJadwalController extends Controller
     public function update(Request $request, $id_osce, $sesi_id)
     {
         try {
+            $validated = $request->validate([
+                'tanggal' => 'required|date',
+                'jam_mulai' => 'required|date_format:H:i',
+                'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
+                'stase_ids' => 'required|array|min:1',
+                'stase_ids.*' => 'required|exists:osce_stase,id_osce_stase',
+            ]);
+
             // Tangkap data sesi terupdate dari service
-            $updatedSessionData = $this->service->updateSession($request, $id_osce, $sesi_id);
+            $updatedSessionData = $this->service->updateSession($validated,  $id_osce, $sesi_id);
 
             return response()->json([
                 'status' => 'success',

@@ -8,6 +8,7 @@ use App\Models\PoinAspekPenilaian;
 use App\Http\Controllers\Controller;
 use App\Services\KompetensiService;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Dedoc\Scramble\Attributes\Response;
 
 class KompetensiController extends Controller
 {
@@ -18,10 +19,6 @@ class KompetensiController extends Controller
         $this->service = $service;
     }
 
-    /**
-     * Mengambil seluruh data kompetensi
-     * @param int $id_aspek
-     */
     public function index(Request $request, $id_aspek)
     {
         try {

@@ -82,15 +82,9 @@ class OsceJadwalService
      * Membuat jadwal baru berdasarkan template.
      * MENGEMBALIKAN DATA SESI BARU.
      */
-    public function createSession(Request $request, $id_osce)
+    public function createSession($validated, $id_osce)
     {
-        $validated = $request->validate([
-            'tanggal' => 'required|date',
-            'jam_mulai' => 'required|date_format:H:i',
-            'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-            'stase_ids' => 'required|array|min:1',
-            'stase_ids.*' => 'required|exists:osce_stase,id_osce_stase',
-        ]);
+        
 
         return DB::transaction(function () use ($validated, $id_osce) {
             $firstCreatedId = null;
@@ -223,22 +217,14 @@ class OsceJadwalService
      * Update sesi (Hapus lama -> Buat baru).
      * MENGEMBALIKAN DATA SESI TERBARU.
      */
-    public function updateSession(Request $request, $id_osce, $sesi_id)
+    public function updateSession($validated, $id_osce, $sesi_id)
     {
         $target = $this->resolveSessionTarget($id_osce, $sesi_id);
 
         if (!$target) {
             throw ValidationException::withMessages(['id' => 'Sesi tidak ditemukan atau ID tidak valid.']);
         }
-
-        $validated = $request->validate([
-            'tanggal' => 'required|date',
-            'jam_mulai' => 'required|date_format:H:i',
-            'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-            'stase_ids' => 'required|array|min:1',
-            'stase_ids.*' => 'required|exists:osce_stase,id_osce_stase',
-        ]);
-
+      
         $old_tanggal = $target['tanggal'];
         $old_jam_mulai = $target['jam_mulai'];
 
