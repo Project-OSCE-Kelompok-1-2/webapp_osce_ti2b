@@ -65,7 +65,6 @@ export default function SesiOscePage({ sesi, osce, filters }) {
     const [isStepOpen, setIsStepOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
 
-
     // --- DATA DUMMY ---
     const dummyStase = [
         { value: "bedah", label: "Bedah" },
@@ -99,6 +98,10 @@ export default function SesiOscePage({ sesi, osce, filters }) {
         sesi: [],
         ruangan: "",
         penguji: [],
+        keterangan: "",
+        jamMulai: "", // Tambahkan state untuk jam mulai
+        jamSelesai: "", // Tambahkan state untuk jam selesai
+        jadwal: [],
         keterangan: "",
     });
 
@@ -530,9 +533,78 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                         title: "Sesi",
                         content: (
                             <div className="flex flex-col gap-2">
+                                {/* 🗓️ Input Tanggal Mulai */}
                                 <OsInput
-                                    type="date" // Diubah menjadi textarea jika memungkinkan untuk keterangan
-                                    label="tanggal mulai"
+                                    type="date"
+                                    label="Tanggal Mulai"
+                                    // Menggunakan state terpisah untuk tanggalMulai
+                                    value={formData.tanggalMulai}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            tanggalMulai: e.target.value,
+                                        })
+                                    }
+                                />
+
+                                {/* ⌚ Input Jam Muncul jika Tanggal Mulai terisi */}
+                                {/* Logika: Hanya tampilkan jika formData.tanggalMulai bernilai truthy */}
+                                {!!formData.tanggalMulai && (
+                                    <div className="flex gap-3">
+                                        <OsInput
+                                            type="clock"
+                                            label="Jam Mulai"
+                                            // Menggunakan state terpisah untuk jamMulai
+                                            value={formData.jamMulai}
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    jamMulai: e.target.value,
+                                                })
+                                            }
+                                            className="w-full"
+                                        />{" "}
+                                        <OsInput
+                                            type="clock"
+                                            label="Jam Selesai"
+                                            // Menggunakan state terpisah untuk jamSelesai
+                                            value={formData.jamSelesai}
+                                            onChange={(e) =>
+                                                setFormData({
+                                                    ...formData,
+                                                    jamSelesai: e.target.value,
+                                                })
+                                            }
+                                            className="w-full"
+                                        />
+                                    </div>
+                                )}
+
+                                {/* Jadwal pada stase ini */}
+                                <OsInput
+                                    type="multi-input"
+                                    label="Jadwal pada stase ini"
+                                    value={formData.jadwal} // Gunakan state yang sesuai untuk jadwal
+                                    options={dummyStase}
+                                    name="jadwal"
+                                    // onChange di sini harusnya memanipulasi state jadwal, bukan keterangan
+                                    // Perlu disesuaikan dengan cara OsInput multi-input mengembalikan nilai
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            // Asumsi: nilai yang dikembalikan disimpan di 'jadwal'
+                                            jadwal: e.target.value,
+                                        })
+                                    }
+                                    inputType="date"
+                                    inputName="tanggal"
+                                    inputPlaceholder="Pilih tanggal"
+                                />
+
+                                {/* Input Keterangan yang tersisa */}
+                                <OsInput
+                                    type="textarea" // Diubah menjadi textarea untuk keterangan
+                                    label="Keterangan Tambahan"
                                     placeholder="Keterangan..."
                                     value={formData.keterangan}
                                     onChange={(e) =>
@@ -541,50 +613,6 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                                             keterangan: e.target.value,
                                         })
                                     }
-                                />
-                                <div className="flex gap-3">
-                                    <OsInput
-                                        type="clock" // Diubah menjadi textarea jika memungkinkan untuk keterangan
-                                        label="tanggal mulai"
-                                        placeholder="Keterangan..."
-                                        value={formData.keterangan}
-                                        onChange={(e) =>
-                                            setFormData({
-                                                ...formData,
-                                                keterangan: e.target.value,
-                                            })
-                                        }
-                                        className="w-full"
-                                    />{" "}
-                                    <OsInput
-                                        type="clock" // Diubah menjadi textarea jika memungkinkan untuk keterangan
-                                        label="tanggal mulai"
-                                        placeholder="Keterangan..."
-                                        value={formData.keterangan}
-                                        onChange={(e) =>
-                                            setFormData({
-                                                ...formData,
-                                                keterangan: e.target.value,
-                                            })
-                                        }
-                                        className="w-full"
-                                    />
-                                </div>
-                                <OsInput
-                                    type="multi-input"
-                                    label="Jadwal pada stase ini"
-                                    value={formData.jadwal}
-                                    options={dummyStase}
-                                    name="jadwal"
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            keterangan: e.target.value,
-                                        })
-                                    }
-                                    inputType="date"
-                                    inputName="tanggal"
-                                    inputPlaceholder="Pilih tanggal"
                                 />
                             </div>
                         ),
@@ -620,7 +648,12 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                                     label="Input penguji kedalam stase"
                                     value={formData.jadwal}
                                     options={dummyStase} // untuk list stase
-                                    suggestOptions={["Budi", "Sinta", "Andi", "Joko"]} // untuk input suggest dosen
+                                    suggestOptions={[
+                                        "Budi",
+                                        "Sinta",
+                                        "Andi",
+                                        "Joko",
+                                    ]} // untuk input suggest dosen
                                     name="jadwal"
                                     inputName="dosen" // name untuk suggest
                                     onChange={(e) =>
