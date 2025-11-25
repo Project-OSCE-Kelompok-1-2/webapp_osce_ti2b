@@ -3,9 +3,6 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
-<<<<<<< HEAD
-use App\Http\Controllers\Api\Penguji\ProfilController;
-=======
 use App\Http\Controllers\Api\V1\Admin\OsceController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
 use App\Http\Controllers\Api\V1\Admin\StaseController;
@@ -17,7 +14,8 @@ use App\Http\Controllers\Api\V1\Admin\OsceJadwalController;
 use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
 use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
->>>>>>> 2eafd652acba097e6efe71b6eb95ecdb11259202
+
+use App\Http\Controllers\Api\Penguji\OsceController as PengujiOsceListController;
 
 Route::prefix('v1')->group(function () {
     // Route::get('/login', function () {
@@ -93,6 +91,8 @@ Route::prefix('v1')->group(function () {
             Route::apiResource('mahasiswa', MahasiswaController::class);
             Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
         });
+        // List OSCE/Jadwal Penguji
+        Route::get('/penguji/osce', [PengujiOsceListController::class, 'index']);
 
         // Profil Penguji
         Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
