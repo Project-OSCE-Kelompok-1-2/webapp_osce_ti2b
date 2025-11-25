@@ -27,25 +27,25 @@ const menuItems = [
         label: "Mahasiswa",
         icon: <Users size={24} />,
         href: "/admin/mahasiswa",
-        opacity: "50",
+        opacity: "100",
     },
     {
         label: "Dosen",
         icon: <UserCheck size={24} />,
         href: "/admin/dosen",
-        opacity: "50",
+        opacity: "100",
     },
     {
         label: "OSCE",
         icon: <FileText size={24} />,
         href: "/admin/osce",
-        opacity: "50",
+        opacity: "100",
     },
     {
         label: "Rekap Nilai Mahasiswa",
         icon: <Bookmark size={24} />,
         href: "/admin/rekap-nilai",
-        opacity: "50",
+        opacity: "100",
     },
 ];
 

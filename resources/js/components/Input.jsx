@@ -5,6 +5,7 @@ export default function OsInput({
     placeholder = "",
     suggestions = [],
     options = [],
+    suggestOptions = [],
     value,
     onChange,
     name = "",
@@ -29,13 +30,12 @@ export default function OsInput({
     useEffect(() => {
         if (type === "multi-select") {
             const lowerCaseQuery = searchQuery.toLowerCase();
-            const filtered = options.filter(opt =>
+            const filtered = options.filter((opt) =>
                 (opt.label || opt).toLowerCase().includes(lowerCaseQuery)
             );
             setFilteredOptions(filtered);
         }
     }, [searchQuery, options, type]);
-
 
     /** #########################################################
      * 🔹 CUSTOM NUMBER INPUT (ADA PANAH ATAS & BAWAH)
@@ -78,11 +78,7 @@ export default function OsInput({
     }
 
     /** 🔹 TEXT INPUT */
-    if (
-        type === "text" ||
-        type === "email" ||
-        type === "password"
-    ) {
+    if (type === "text" || type === "email" || type === "password") {
         return (
             <div className={`flex flex-col ${className}`}>
                 {label && (
@@ -299,7 +295,7 @@ export default function OsInput({
         return (
             <div className={`flex flex-col ${className}`}>
                 {label && (
-                    <label className="mb-1 text-os-small text-gray-600">
+                    <label className=" text-os-small text-gray-600">
                         {label}
                     </label>
                 )}
@@ -311,7 +307,7 @@ export default function OsInput({
                         placeholder="Cari..."
                         value={searchQuery}
                         onChange={(e) => setSearchQuery(e.target.value)}
-                        className="w-full mb-2 p-2 border-b outline-none text-os-paragraph focus:border-os-primary"
+                        className="w-full p-2 border rounded-lg outline-none border-os-black"
                     />
 
                     {/* Daftar Pilihan (dengan overflow) */}
@@ -323,7 +319,8 @@ export default function OsInput({
                                 const optLabel = opt.label || opt;
 
                                 // Cek apakah opsi saat ini terpilih
-                                const isChecked = selectedValues.includes(optValue);
+                                const isChecked =
+                                    selectedValues.includes(optValue);
 
                                 return (
                                     <label
@@ -335,7 +332,9 @@ export default function OsInput({
                                             name={name}
                                             value={optValue}
                                             checked={isChecked}
-                                            onChange={() => handleCheckboxChange(optValue)}
+                                            onChange={() =>
+                                                handleCheckboxChange(optValue)
+                                            }
                                             className="mr-3 w-4 h-4 text-os-primary focus:ring-os-primary border-gray-300 rounded"
                                         />
                                         <span className="text-os-paragraph text-gray-800">
@@ -345,7 +344,9 @@ export default function OsInput({
                                 );
                             })
                         ) : (
-                            <p className="text-center text-gray-500 py-4">Tidak ada pilihan yang cocok.</p>
+                            <p className="text-center text-gray-500 py-4">
+                                Tidak ada pilihan yang cocok.
+                            </p>
                         )}
                     </div>
                 </div>
@@ -353,6 +354,327 @@ export default function OsInput({
         );
     }
 
+    /** 🔹 SINGLE SELECT (DROPDOWN WITH SEARCH) */
+    /** 🔹 SINGLE SELECT (SEARCH + SINGLE CHOICE) */
+    /** 🔹 SINGLE SELECT — UI seperti multi-select checkbox tapi hanya 1 bisa dipilih */
+    /** 🔹 SINGLE SELECT — Checkbox UI + Search + Only One Selected */
+    if (type === "single-select") {
+        const selectedValue = value || "";
+        const [query, setQuery] = useState("");
+
+        const filteredOptions = options.filter((opt) => {
+            const label = opt.label || opt;
+            return label.toLowerCase().includes(query.toLowerCase());
+        });
+
+        const selectOption = (val) => {
+            onChange?.({ target: { name, value: val } });
+        };
+
+        return (
+            <div className={`flex flex-col ${className}`}>
+                {label && (
+                    <label className="text-os-small text-gray-600">
+                        {label}
+                    </label>
+                )}
+
+                <div className="p-2 border border-os-black rounded-lg" >
+                    {/* 🔍 Search box */}
+                    <input
+                        type="text"
+                        placeholder="Search..."
+                        className="border border-os-black rounded-lg p-2 mb-2 text-os-base w-full"
+                        value={query}
+                        onChange={(e) => setQuery(e.target.value)}
+
+                    />
+
+                    {/* List Checkbox */}
+                    <div className=" rounded-lg bg-white">
+                        {filteredOptions.length === 0 && (
+                            <p className="text-gray-400 text-sm p-2">
+                                No result...
+                            </p>
+                        )}
+
+                        {filteredOptions.map((opt, idx) => {
+                            const val = opt.value || opt;
+                            const label = opt.label || opt;
+                            const active = selectedValue === val;
+
+                            return (
+                                <label
+                                    key={idx}
+                                    className="flex items-center gap-3 p-2 cursor-pointer hover:bg-gray-100 rounded-lg"
+                                >
+                                    <input
+                                        type="checkbox"
+                                        checked={active}
+                                        onChange={() => selectOption(val)}
+                                        className="w-4 h-4"
+                                    />
+                                    <span>{label}</span>
+                                </label>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    /** 🔹 MULTI INPUT (SEARCH + MULTI SELECT + CHIPS) */
+    if (type === "multi-input") {
+        const selected = Array.isArray(value) ? value : [];
+        const [search, setSearch] = useState("");
+
+        // Simpan waktu per item
+        const [timeMap, setTimeMap] = useState({});
+
+        const filtered = options.filter((opt) =>
+            (opt.label || opt).toLowerCase().includes(search.toLowerCase())
+        );
+
+        const toggleOption = (optValue) => {
+            const isSelected = selected.includes(optValue);
+
+            const newValue = isSelected
+                ? selected.filter((v) => v !== optValue)
+                : [...selected, optValue];
+
+            // Update selected item
+            onChange && onChange({ target: { value: newValue, name } });
+
+            // Jika unselect, hapus waktu juga
+            if (!isSelected) return;
+        };
+
+        const updateTime = (optValue, time) => {
+            setTimeMap((prev) => ({
+                ...prev,
+                [optValue]: time,
+            }));
+        };
+
+        return (
+            <div className={`flex flex-col ${className} `}>
+                {label && (
+                    <label className="text-os-small text-gray-600">
+                        {label}
+                    </label>
+                )}
+
+                {/* SEARCH BOX */}
+                <div className="p-2 border border-os-black rounded-lg">
+                    <input
+                        type="text"
+                        placeholder="Cari item..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className="w-full p-2 border rounded-lg outline-none border-os-black"
+                    />
+
+                    {/* LIST OPTIONS */}
+                    <div className=" mt-2">
+                        {filtered.map((opt, idx) => {
+                            const val = opt.value || opt;
+                            const label = opt.label || opt;
+                            const active = selected.includes(val);
+
+                            return (
+                                <div
+                                    key={idx}
+                                    className={`
+                                    p-2 flex items-center justify-between cursor-pointer
+                                    hover:bg-gray-100 border-b
+                                    ${active ? "bg-gray-200 font-semibold" : ""}
+                                `}
+                                    onClick={() => toggleOption(val)}
+                                >
+                                    {/* LABEL ITEM */}
+                                    <span>{label}</span>
+
+                                    {/* CLOCK INPUT */}
+                                    <input
+                                        type="time"
+                                        value={timeMap[val] || ""}
+                                        onChange={(e) =>
+                                            updateTime(val, e.target.value)
+                                        }
+                                        className="border border-os-black px-2 py-1 rounded-lg ml-3"
+                                        onClick={(e) => e.stopPropagation()} // biar tidak toggle saat klik time
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        );
+    }
+
+    if (type === "multi-input-drop") {
+        // ... (Inisialisasi schedules, search, suggestSearch, focusedIndex TETAP SAMA) ...
+
+        const initialSchedules = Array.isArray(value)
+            ? value
+            : options.map((opt) => ({
+                  stase: opt.value || opt,
+                  dosen: "",
+              }));
+
+        const [schedules, setSchedules] = useState(initialSchedules);
+        const [search, setSearch] = useState("");
+        const [suggestSearch, setSuggestSearch] = useState("");
+        // Gunakan stase ID/value untuk fokus, BUKAN index array, untuk mengatasi masalah filtering
+        const [focusedStaseId, setFocusedStaseId] = useState(null);
+
+        // Menerapkan pencarian pada list stase yang ditampilkan
+        const filteredSchedules = schedules.filter((schedule) => {
+            const staseData = options.find(
+                (opt) => (opt.value || opt) === schedule.stase
+            ) || { label: schedule.stase };
+            return staseData.label.toLowerCase().includes(search.toLowerCase());
+        });
+
+        // ⚠️ PERUBAHAN UTAMA: Gunakan ID Stase untuk menemukan index yang benar
+        const findIndexByStaseId = (staseId) =>
+            schedules.findIndex((s) => s.stase === staseId);
+
+        const handleSelectDosen = (staseId, dosenName) => {
+            const index = findIndexByStaseId(staseId);
+            if (index === -1) return;
+
+            const newSchedules = [...schedules];
+            newSchedules[index].dosen = dosenName;
+
+            setSchedules(newSchedules);
+            setSuggestSearch(dosenName);
+            onChange?.({ target: { name, value: newSchedules } });
+            setFocusedStaseId(null); // Tutup list setelah seleksi
+        };
+
+        const handleDosenChange = (staseId, typedValue) => {
+            const index = findIndexByStaseId(staseId);
+            if (index === -1) return;
+
+            const newSchedules = [...schedules];
+            newSchedules[index].dosen = typedValue;
+
+            setSchedules(newSchedules);
+            setSuggestSearch(typedValue);
+            onChange?.({ target: { name, value: newSchedules } });
+        };
+
+        const filteredSuggest = suggestOptions.filter((d) =>
+            d.toLowerCase().includes(suggestSearch.toLowerCase())
+        );
+
+        return (
+            <div className={`flex flex-col ${className} `}>
+                {label && (
+                    <label className="text-os-small text-gray-600">
+                        {label}
+                    </label>
+                )}
+                <div className="border border-os-black p-2 rounded-lg">
+                    {/* SEARCH STASE */}
+                    <input
+                        type="text"
+                        placeholder="Cari stase..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        className=" mb-2 border border-os-black p-2 rounded-lg w-full"
+                    />
+
+                    {/* CONTAINER LIST STASE DENGAN SCROLL */}
+                    <div className=" rounded-lg ">
+                        {filteredSchedules.map((schedule, idx) => {
+                            const staseId = schedule.stase; // ID Unik Stase
+                            const staseData = options.find(
+                                (opt) => (opt.value || opt) === staseId
+                            ) || { label: staseId };
+                            const staseLabel = staseData.label;
+                            const isFocused = focusedStaseId === staseId; // Cek fokus berdasarkan ID
+
+                            return (
+                                <div
+                                    key={staseId}
+                                    // UI: Tambah z-index saat fokus
+                                    className={`m-1 p-1 px-0 '} ${
+                                        isFocused ? "relative z-40" : ""
+                                    } flex items-center justify-center`}
+                                >
+                                    {/* NAMA STASE */}
+                                    <div className="font-medium pb-2 text-os-paragraph w-full">
+                                        {staseLabel}
+                                    </div>
+
+                                    {/* INPUT DOSEN */}
+                                    <div className="relative w-full">
+                                        <input
+                                            type="text"
+                                            placeholder="Cari dosen..."
+                                            className="os-input w-full border border-os-black p-2 rounded-lg "
+                                            value={schedule.dosen}
+                                            onChange={(e) =>
+                                                handleDosenChange(
+                                                    staseId,
+                                                    e.target.value
+                                                )
+                                            }
+                                            onFocus={() => {
+                                                setFocusedStaseId(staseId); // Set fokus berdasarkan ID
+                                                setSuggestSearch(
+                                                    schedule.dosen
+                                                );
+                                            }}
+                                            onBlur={() =>
+                                                setTimeout(
+                                                    // Tutup fokus BUKAN index, tapi ID
+                                                    () =>
+                                                        setFocusedStaseId(null),
+                                                    150
+                                                )
+                                            }
+                                        />
+
+                                        {/* LIST SUGGEST Dosen */}
+                                        {isFocused &&
+                                            filteredSuggest.length > 0 && (
+                                                <ul
+                                                    // UI: z-50 dan top-full mt-1. Ini harusnya mengatasi masalah potong jika tidak ada ancestor lain yang memotong.
+                                                    className="absolute z-50 w-full bg-white border rounded-lg max-h-48 overflow-auto shadow-lg top-full mt-1"
+                                                >
+                                                    {filteredSuggest.map(
+                                                        (s, i) => (
+                                                            <li
+                                                                key={i}
+                                                                className="px-3 py-2 hover:bg-gray-100 cursor-pointer"
+                                                                // Panggil handler dengan ID Stase
+                                                                onClick={() =>
+                                                                    handleSelectDosen(
+                                                                        staseId,
+                                                                        s
+                                                                    )
+                                                                }
+                                                            >
+                                                                {s}
+                                                            </li>
+                                                        )
+                                                    )}
+                                                </ul>
+                                            )}
+                                    </div>
+                                </div>
+                            );
+                        })}
+                    </div>
+                </div>
+            </div>
+        );
+    }
 
     return null;
 }

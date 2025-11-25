@@ -163,7 +163,7 @@ export default function OsceListPage({ osce, filters }) {
                 <OsButton
                     name="primary"
                     onClick={() =>
-                        router.get(`/admin/osce/${item.id_osce}/stase`)
+                        router.get(`/admin/osce/${item.id_osce}/jadwal`)
                     }
                     className="h-[38px] text-os-small w-full flex justify-between items-center gap-3"
                 >

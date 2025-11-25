@@ -22,6 +22,7 @@ import OsSearchBar from "../../components/searchbar.jsx";
 import Modals from "../../components/Modals.jsx"; // Modal delete lama
 import OsModal from "../../components/Modal"; // Modal add + edit
 import OsIcon from "../../components/icons.jsx";
+import OsStepModal from "../../components/StepModal.jsx";
 
 // Asumsi impor untuk komponen lain yang hilang di kode asli
 import OsInput from "../../components/Input.jsx";
@@ -61,6 +62,46 @@ export default function SesiOscePage({ sesi, osce, filters }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
 
+    const [isStepOpen, setIsStepOpen] = useState(false);
+    const [currentStep, setCurrentStep] = useState(0);
+
+
+    // --- DATA DUMMY ---
+    const dummyStase = [
+        { value: "bedah", label: "Bedah" },
+        { value: "anak", label: "Ilmu Kesehatan Anak" },
+        { value: "internis", label: "Penyakit Dalam" },
+        { value: "neurologi", label: "Neurologi" },
+        { value: "obsgyn", label: "Obstetri & Ginekologi" },
+        { value: "paru", label: "Pulmonologi" },
+    ];
+
+    const dummyRuangan = [
+        { value: "r1", label: "Ruangan 1" },
+        { value: "r2", label: "Ruangan 2" },
+        { value: "r3", label: "Ruangan 3" },
+        { value: "lab1", label: "Laboratorium 1" },
+        { value: "lab2", label: "Laboratorium 2" },
+    ];
+
+    const dummyPenguji = [
+        { value: "dr-farhan", label: "dr. Farhan" },
+        { value: "dr-silvia", label: "dr. Silvia" },
+        { value: "dr-bagus", label: "dr. Bagus" },
+        { value: "dr-nadira", label: "dr. Nadira" },
+    ];
+
+    // formData hanya untuk tampilan (tidak dijalankan)
+    const [formData, setFormData] = useState({
+        stase: [],
+        tanggalMulai: "",
+        tanggalSelesai: "",
+        sesi: [],
+        ruangan: "",
+        penguji: [],
+        keterangan: "",
+    });
+
     // Modal Delete
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSesi, setSelectedSesi] = useState(null);
@@ -68,12 +109,6 @@ export default function SesiOscePage({ sesi, osce, filters }) {
     // Modal Add / Edit
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
-
-    const [formData, setFormData] = useState({
-        nama_sesi: "",
-        durasi: "",
-        keterangan: "",
-    });
 
     // SEARCH
     function handleSearch(e) {
@@ -234,39 +269,6 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                 <OsHeader variant="goback" backLink="/admin/osce/" />
 
                 <div className="flex-1 overflow-auto ">
-                    {/* Navigasi */}
-                    <section className="mb-2">
-                        <h2 className="text-lg font-semibold mb-2">Navigasi</h2>
-
-                        <div className="flex gap-2">
-                            <OsButton
-                                name="primary"
-                                className="flex items-center gap-2 px-4 py-2 bg-gray-200 hover:bg-gray-300 text-sm font-medium rounded-lg"
-                                onClick={() =>
-                                    router.get(
-                                        `/admin/osce/${osce.id_osce}/stase`
-                                    )
-                                }
-                            >
-                                <ClipboardList size={16} />
-                                Halaman Stase
-                            </OsButton>
-
-                            <OsButton
-                                name="primary"
-                                onClick={() =>
-                                    router.get(
-                                        `/admin/osce/${osce.id_osce}/jadwal`
-                                    )
-                                }
-                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg"
-                            >
-                                <CalendarClock size={16} />
-                                Jadwal Sesi
-                            </OsButton>
-                        </div>
-                    </section>
-
                     {/* Tombol Add dan Deskripsi */}
                     <section className="mb-6">
                         <h2 className="text-lg font-semibold mb-1">
@@ -280,7 +282,10 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                         </p>
                         <OsButton
                             name="primary"
-                            onClick={openAddModal}
+                            onClick={() => {
+                                setCurrentStep(0);
+                                setIsStepOpen(true);
+                            }}
                             className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
                         >
                             <OsIcon
@@ -494,6 +499,146 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                     />
                 </div>
             </OsModal>
+
+            <OsStepModal
+                show={isStepOpen}
+                onClose={() => setIsStepOpen(false)}
+                currentStep={currentStep}
+                setCurrentStep={setCurrentStep}
+                steps={[
+                    {
+                        title: "Stase",
+                        content: (
+                            <div>
+                                <OsInput
+                                    type="multi-select" // Diubah menjadi textarea jika memungkinkan untuk keterangan
+                                    label="Pilih Stase untuk Sesi Ini"
+                                    options={dummyStase}
+                                    placeholder="Keterangan..."
+                                    value={formData.keterangan}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            keterangan: e.target.value,
+                                        })
+                                    }
+                                />
+                            </div>
+                        ),
+                    },
+                    {
+                        title: "Sesi",
+                        content: (
+                            <div className="flex flex-col gap-2">
+                                <OsInput
+                                    type="date" // Diubah menjadi textarea jika memungkinkan untuk keterangan
+                                    label="tanggal mulai"
+                                    placeholder="Keterangan..."
+                                    value={formData.keterangan}
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            keterangan: e.target.value,
+                                        })
+                                    }
+                                />
+                                <div className="flex gap-3">
+                                    <OsInput
+                                        type="clock" // Diubah menjadi textarea jika memungkinkan untuk keterangan
+                                        label="tanggal mulai"
+                                        placeholder="Keterangan..."
+                                        value={formData.keterangan}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                keterangan: e.target.value,
+                                            })
+                                        }
+                                        className="w-full"
+                                    />{" "}
+                                    <OsInput
+                                        type="clock" // Diubah menjadi textarea jika memungkinkan untuk keterangan
+                                        label="tanggal mulai"
+                                        placeholder="Keterangan..."
+                                        value={formData.keterangan}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                keterangan: e.target.value,
+                                            })
+                                        }
+                                        className="w-full"
+                                    />
+                                </div>
+                                <OsInput
+                                    type="multi-input"
+                                    label="Jadwal pada stase ini"
+                                    value={formData.jadwal}
+                                    options={dummyStase}
+                                    name="jadwal"
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            keterangan: e.target.value,
+                                        })
+                                    }
+                                    inputType="date"
+                                    inputName="tanggal"
+                                    inputPlaceholder="Pilih tanggal"
+                                />
+                            </div>
+                        ),
+                    },
+                    {
+                        title: "Ruangan",
+                        content: (
+                            <div>
+                                <div>
+                                    <OsInput
+                                        type="single-select"
+                                        label="Pilih ruangan untuk Sesi Ini"
+                                        placeholder="Keterangan..."
+                                        options={dummyRuangan}
+                                        value={formData.keterangan}
+                                        onChange={(e) =>
+                                            setFormData({
+                                                ...formData,
+                                                keterangan: e.target.value,
+                                            })
+                                        }
+                                    />
+                                </div>
+                            </div>
+                        ),
+                    },
+                    {
+                        title: "Penguji",
+                        content: (
+                            <div>
+                                <OsInput
+                                    type="multi-input-drop"
+                                    label="Input penguji kedalam stase"
+                                    value={formData.jadwal}
+                                    options={dummyStase} // untuk list stase
+                                    suggestOptions={["Budi", "Sinta", "Andi", "Joko"]} // untuk input suggest dosen
+                                    name="jadwal"
+                                    inputName="dosen" // name untuk suggest
+                                    onChange={(e) =>
+                                        setFormData({
+                                            ...formData,
+                                            [e.target.name]: e.target.value,
+                                        })
+                                    }
+                                />
+                            </div>
+                        ),
+                    },
+                ]}
+                onSubmit={() => {
+                    console.log("Step modal selesai");
+                    setIsStepOpen(false);
+                }}
+            />
         </div>
     );
 }
