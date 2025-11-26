@@ -1,9 +1,14 @@
 import React, { useState } from "react";
 import { X, FilePlus } from "lucide-react";
 
-export default function OsStepModal({ show, onClose, onSubmit, steps }) {
-    const [currentStep, setCurrentStep] = useState(0);
-
+export default function OsStepModal({
+    show,
+    onClose,
+    onSubmit,
+    steps,
+    currentStep,
+    setCurrentStep,
+}) {
     if (!show) return null;
     const isLastStep = currentStep === steps.length - 1;
 
@@ -40,7 +45,11 @@ export default function OsStepModal({ show, onClose, onSubmit, steps }) {
                                     disabled
                                     className={`
                                         w-4 h-4 rounded-full border-2 border-white cursor-default
-                                        ${idx === currentStep ? "bg-blue-500" : "bg-gray-700"}
+                                        ${
+                                            idx === currentStep
+                                                ? "bg-blue-500"
+                                                : "bg-gray-700"
+                                        }
                                     `}
                                 />
 

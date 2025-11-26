@@ -1,6 +1,7 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Link } from "@inertiajs/react";
 import { router } from "@inertiajs/react";
+import axios from "axios";
 import {
     Search,
     ArrowLeft,
@@ -10,7 +11,7 @@ import {
     CalendarClock,
     Plus,
     Edit,
-    Edit2, // Import 'Edit' yang hilang
+    Edit2,
 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
@@ -19,15 +20,14 @@ import OsTableHeader from "../../components/tableheader.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
-import Modals from "../../components/Modals.jsx"; // Modal delete lama
-import OsModal from "../../components/Modal"; // Modal add + edit
+import Modals from "../../components/Modals.jsx";
+import OsModal from "../../components/Modal";
 import OsIcon from "../../components/icons.jsx";
 import OsStepModal from "../../components/StepModal.jsx";
 
-// Asumsi impor untuk komponen lain yang hilang di kode asli
 import OsInput from "../../components/Input.jsx";
 import OsButton from "../../components/button.jsx";
-import OsHeader from "../../components/Header.jsx"; // Diperlukan untuk header goback
+import OsHeader from "../../components/Header.jsx";
 
 const jadwalColumns = [
     {
@@ -56,64 +56,85 @@ const jadwalColumns = [
     },
 ];
 
-// Memperbaiki definisi komponen agar hanya ada satu 'export default'
-export default function SesiOscePage({ sesi, osce, filters }) {
-    // State
+export default function SesiOscePage({
+    sesi,
+    osce,
+    filters,
+    master_stase = [],
+}) {
+    // State UI Standar
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedSesi, setSelectedSesi] = useState(null);
+    const [isEditOpen, setIsEditOpen] = useState(false);
 
+    // --- STATE KHUSUS WIZARD (STEP MODAL) ---
     const [isStepOpen, setIsStepOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
 
-    // --- DATA DUMMY ---
-    const dummyStase = [
-        { value: "bedah", label: "Bedah" },
-        { value: "anak", label: "Ilmu Kesehatan Anak" },
-        { value: "internis", label: "Penyakit Dalam" },
-        { value: "neurologi", label: "Neurologi" },
-        { value: "obsgyn", label: "Obstetri & Ginekologi" },
-        { value: "paru", label: "Pulmonologi" },
-    ];
-
-    const dummyRuangan = [
-        { value: "r1", label: "Ruangan 1" },
-        { value: "r2", label: "Ruangan 2" },
-        { value: "r3", label: "Ruangan 3" },
-        { value: "lab1", label: "Laboratorium 1" },
-        { value: "lab2", label: "Laboratorium 2" },
-    ];
-
-    const dummyPenguji = [
-        { value: "dr-farhan", label: "dr. Farhan" },
-        { value: "dr-silvia", label: "dr. Silvia" },
-        { value: "dr-bagus", label: "dr. Bagus" },
-        { value: "dr-nadira", label: "dr. Nadira" },
-    ];
-
-    // formData hanya untuk tampilan (tidak dijalankan)
-    const [formData, setFormData] = useState({
-        stase: [],
-        tanggalMulai: "",
-        tanggalSelesai: "",
-        sesi: [],
-        ruangan: "",
-        penguji: [],
-        keterangan: "",
-        jamMulai: "", // Tambahkan state untuk jam mulai
-        jamSelesai: "", // Tambahkan state untuk jam selesai
-        jadwal: [],
-        keterangan: "",
+    // Menyimpan data input wizard
+    const [wizardData, setWizardData] = useState({
+        stase_objs: [],
+        stase_ids: [],
+        tanggal: "",
+        jam_mulai: "",
+        durasi: "60",
+        id_ruang: "",
+        penguji_map: {},
     });
 
-    // Modal Delete
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedSesi, setSelectedSesi] = useState(null);
+    // Menyimpan data dinamis (hasil filter API)
+    const [isLoadingCheck, setIsLoadingCheck] = useState(false);
+    const [availRooms, setAvailRooms] = useState([]);
+    const [availPenguji, setAvailPenguji] = useState([]);
 
-    // Modal Add / Edit
-    const [isAddOpen, setIsAddOpen] = useState(false);
-    const [isEditOpen, setIsEditOpen] = useState(false);
+    // --- LOGIC FILTER DINAMIS ---
+    useEffect(() => {
+        if (currentStep === 2 && wizardData.tanggal && wizardData.jam_mulai) {
+            checkAvailability();
+        }
+    }, [currentStep]); // useEffect sekarang sudah dikenali
 
-    // SEARCH
+    const checkAvailability = async () => {
+        setIsLoadingCheck(true);
+        try {
+            // Menggunakan axios yang sudah di-import
+            const res = await axios.post("/admin/osce/check-availability", {
+                tanggal: wizardData.tanggal,
+                jam_mulai: wizardData.jam_mulai,
+                durasi: wizardData.durasi,
+            });
+            setAvailRooms(res.data.rooms);
+            setAvailPenguji(res.data.penguji);
+        } catch (err) {
+            console.error(err);
+            alert("Gagal mengecek ketersediaan jadwal.");
+        } finally {
+            setIsLoadingCheck(false);
+        }
+    };
+
+    // --- SUBMIT FINAL WIZARD ---
+    const handleWizardSubmit = () => {
+        router.post(`/admin/osce/${osce.id_osce}/jadwal`, wizardData, {
+            onSuccess: () => {
+                setIsStepOpen(false);
+                setCurrentStep(0);
+                setWizardData({
+                    stase_objs: [],
+                    stase_ids: [],
+                    tanggal: "",
+                    jam_mulai: "",
+                    durasi: "60",
+                    id_ruang: "",
+                    penguji_map: {},
+                });
+            },
+            preserveScroll: true,
+        });
+    };
+
     function handleSearch(e) {
         e.preventDefault();
         router.get(
@@ -123,17 +144,19 @@ export default function SesiOscePage({ sesi, osce, filters }) {
         );
     }
 
-    // ============================
-    // OPEN ADD
-    // ============================
+    // Modal Add Setup
+    const [formData, setFormData] = useState({
+        nama_sesi: "",
+        durasi: "",
+        keterangan: "",
+    });
+    const [isAddOpen, setIsAddOpen] = useState(false);
+
     function openAddModal() {
         setFormData({ nama_sesi: "", durasi: "", keterangan: "" });
         setIsAddOpen(true);
     }
 
-    // ============================
-    // OPEN EDIT
-    // ============================
     function openEditModal(item) {
         setSelectedSesi(item);
         setFormData({
@@ -144,12 +167,8 @@ export default function SesiOscePage({ sesi, osce, filters }) {
         setIsEditOpen(true);
     }
 
-    // ============================
-    // SUBMIT ADD
-    // ============================
     function handleSubmitAdd(e) {
         e.preventDefault();
-
         router.post(
             `/admin/osce/${osce.id_osce}/sesi`,
             { ...formData },
@@ -160,14 +179,9 @@ export default function SesiOscePage({ sesi, osce, filters }) {
         );
     }
 
-    // ============================
-    // SUBMIT EDIT
-    // ============================
     function handleSubmitEdit(e) {
         e.preventDefault();
-
         if (!selectedSesi) return;
-
         router.put(
             `/admin/osce/${osce.id_osce}/sesi/${selectedSesi.id_sesi}`,
             { ...formData },
@@ -178,12 +192,8 @@ export default function SesiOscePage({ sesi, osce, filters }) {
         );
     }
 
-    // ============================
-    // DELETE FROM EDIT MODAL
-    // ============================
     function handleDeleteInsideEdit() {
         if (!selectedSesi) return;
-
         router.delete(
             `/admin/osce/${osce.id_osce}/sesi/${selectedSesi.id_sesi}`,
             {
@@ -193,9 +203,7 @@ export default function SesiOscePage({ sesi, osce, filters }) {
         );
     }
 
-    // ============================
-    // DELETE CONFIRM
-    // ============================
+    // --- DELETE LOGIC ---
     function openDeleteModal(item) {
         setSelectedSesi(item);
         setIsModalOpen(true);
@@ -204,36 +212,32 @@ export default function SesiOscePage({ sesi, osce, filters }) {
     function confirmDelete() {
         if (!selectedSesi) return;
 
-        router.delete(
-            `/admin/osce/${osce.id_osce}/sesi/${selectedSesi.id_sesi}`,
-            {
-                onFinish: () => setIsModalOpen(false),
-                preserveScroll: true,
-            }
-        );
+        const jamMulaiClean = selectedSesi.jam_mulai.substring(0, 5);
+        const uniqueSesiId = `${selectedSesi.tanggal}_${jamMulaiClean}`;
+
+        router.delete(`/admin/osce/${osce.id_osce}/jadwal/${uniqueSesiId}`, {
+            onSuccess: () => {
+                setIsModalOpen(false);
+                setSelectedSesi(null);
+            },
+            preserveScroll: true,
+        });
     }
 
-    // Fungsi tambahan untuk penanganan tombol di tabel
     const handleEditEnrollment = (id_osce_stase) => {
-        // Rute yang benar di Laravel: /admin/osce/{osce_id}/jadwal/{jadwal_id}/enrollment
-        // Menggunakan osce.id_osce (dari props) dan id_osce_stase (dari item baris)
         router.visit(
             `/admin/osce/${osce.id_osce}/jadwal/${id_osce_stase}/enrollment`
         );
     };
 
-    // Fungsi penanganan aksi (diperbaiki agar sesuai dengan logika modal)
-    const handleEditSesi = (item) => openEditModal(item);
     const handleDeleteSesi = (item) => openDeleteModal(item);
 
-    // siapin isi data tabel
     const rows = sesi.data.map((item, index) => ({
         no: sesi.from + index,
         tanggal_sesi: `${item.tanggal_formatted} (Pukul ${item.jam_mulai_formatted})`,
         jumlah_mahasiswa: `${item.jumlah_mahasiswa} Mahasiswa`,
         action: (
             <div className="flex items-center justify-between w-full gap-4 px-5">
-                {/* Tombol Edit Enrollment (Tetap menggunakan router.visit) */}
                 <OsButton
                     name="primary"
                     onClick={() => handleEditEnrollment(item.id_osce_stase)}
@@ -247,12 +251,6 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                 </OsButton>
 
                 <div className="flex items-center gap-2">
-                    {/* Tombol Edit Sesi (Memanggil openEditModal) */}
-                    <OsButton name="edit" onClick={() => handleEditSesi(item)}>
-                        <Edit2 size={18} />
-                    </OsButton>
-
-                    {/* Tombol Delete Sesi (Memanggil openDeleteModal) */}
                     <OsButton
                         name="warning"
                         onClick={() => handleDeleteSesi(item)}
@@ -264,6 +262,30 @@ export default function SesiOscePage({ sesi, osce, filters }) {
         ),
     }));
 
+    const calculateEndTime = () => {
+        if (!wizardData.jam_mulai || !wizardData.durasi) return "";
+
+        const staseCount = wizardData.stase_ids.length;
+        if (staseCount === 0) return ""; // Jika belum pilih stase
+
+        const [hours, minutes] = wizardData.jam_mulai.split(":").map(Number);
+
+        // Rumus: Durasi * Jumlah Stase
+        const totalDurationMinutes = parseInt(wizardData.durasi) * staseCount;
+
+        const date = new Date();
+        date.setHours(hours);
+        date.setMinutes(minutes + totalDurationMinutes);
+
+        // Format kembali ke HH:mm
+        const endHours = String(date.getHours()).padStart(2, "0");
+        const endMinutes = String(date.getMinutes()).padStart(2, "0");
+
+        return `${endHours}:${endMinutes}`;
+    };
+
+    const jamSelesaiOtomatis = calculateEndTime();
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar />
@@ -272,17 +294,27 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                 <OsHeader variant="goback" backLink="/admin/osce/" />
 
                 <div className="flex-1 overflow-auto ">
-                    {/* Tombol Add dan Deskripsi */}
                     <section className="mb-6">
                         <h2 className="text-lg font-semibold mb-1">
-                            [Nama OSCEnya]
+                            {/* Ganti nama_ujian menjadi nama_osce sesuai database */}
+                            {osce.nama_osce || "Detail Jadwal OSCE"}
                         </h2>
-                        <p className="text-sm text-gray-500 mb-4 max-w-lg">
-                            Halaman ini digunakan untuk mengelola **Jadwal
-                            Sesi** ujian OSCE secara keseluruhan. Anda dapat
-                            mendefinisikan waktu, tanggal, durasi, dan detail
-                            setiap sesi.
-                        </p>
+
+                        <div className="text-sm text-gray-500 mb-4 max-w-lg">
+                            <p>
+                                Halaman ini digunakan untuk mengelola{" "}
+                                <strong>Jadwal Sesi</strong> pada ujian{" "}
+                                <strong>{osce.nama_osce}</strong>.
+                            </p>
+
+                            {/* Menambahkan Tanggal Pelaksanaan jika datanya ada */}
+                            {osce.tanggal_mulai && (
+                                <p className="mt-1 text-xs text-gray-400">
+                                    Pelaksanaan: {osce.tanggal_mulai} s/d{" "}
+                                    {osce.tanggal_selesai}
+                                </p>
+                            )}
+                        </div>
                         <OsButton
                             name="primary"
                             onClick={() => {
@@ -299,7 +331,6 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                         </OsButton>
                     </section>
 
-                    {/* Search Bar */}
                     <section className="rounded-lg w-full">
                         <OsSearchBar
                             search={searchTerm}
@@ -309,15 +340,11 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                         />
                     </section>
 
-                    {/* === 📋 TABLE === */}
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table Stase
+                        Table Sesi
                     </h2>
                     <div className="border rounded-lg overflow-hidden">
-                        {/* HEADER */}
                         <OsTableHeader columns={jadwalColumns} />
-
-                        {/* BODY */}
                         {rows.length > 0 ? (
                             <OsTableBody data={rows} columns={jadwalColumns} />
                         ) : (
@@ -328,8 +355,6 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                             </div>
                         )}
                     </div>
-
-                    {/* PAGINATION */}
                     <OsPagination links={sesi?.links} />
                 </div>
 
@@ -338,24 +363,24 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                 </footer>
             </main>
 
-            {/* DELETE CONFIRM MODAL */}
+            {/* DELETE MODAL */}
             <Modals
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
                 onConfirm={confirmDelete}
                 variant="delete"
                 title="Hapus Sesi?"
-                message="Apakah Anda yakin ingin menghapus sesi ini?"
+                message="Apakah Anda yakin ingin menghapus seluruh jadwal sesi ini? Semua stase pada jam ini akan terhapus."
                 dataToDelete={
                     selectedSesi
                         ? [
                               {
-                                  key: "Nama Sesi",
-                                  value: selectedSesi?.nama_sesi,
+                                  key: "Tanggal",
+                                  value: selectedSesi.tanggal_formatted,
                               },
                               {
-                                  key: "Durasi",
-                                  value: selectedSesi?.durasi + " menit",
+                                  key: "Jam Mulai",
+                                  value: selectedSesi.jam_mulai_formatted,
                               },
                           ]
                         : []
@@ -363,314 +388,296 @@ export default function SesiOscePage({ sesi, osce, filters }) {
                 confirmText="Hapus"
             />
 
-            {/* ADD MODAL */}
-            <OsModal
-                show={isAddOpen}
-                onClose={() => setIsAddOpen(false)}
-                title="Tambah Sesi"
-                subtitle="Masukkan data sesi"
-                variant="add"
-                onSubmit={handleSubmitAdd}
-                onClear={() =>
-                    setFormData({ nama_sesi: "", durasi: "", keterangan: "" })
-                }
-            >
-                <div className="flex flex-col gap-3">
-                    <OsInput
-                        type="date"
-                        label="Tanggal sesi"
-                        placeholder="Masukkan tanggal sesi..."
-                        value={formData.nama_sesi}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                nama_sesi: e.target.value,
-                            })
-                        }
-                    />
-
-                    <div className="flex gap-3">
-                        <OsInput
-                            type="clock"
-                            label="Jam Mulai"
-                            placeholder="Durasi..."
-                            value={formData.durasi}
-                            className="w-full"
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    durasi: e.target.value,
-                                })
-                            }
-                        />
-
-                        <OsInput
-                            type="clock"
-                            label="Jam Selesai"
-                            placeholder="Durasi..."
-                            value={formData.durasi}
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    durasi: e.target.value,
-                                })
-                            }
-                            className="w-full"
-                        />
-                    </div>
-
-                    <OsInput
-                        type="multi-select" // Diubah menjadi textarea jika memungkinkan untuk keterangan
-                        label="Pilih Stase untuk Sesi Ini"
-                        placeholder="Keterangan..."
-                        value={formData.keterangan}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                keterangan: e.target.value,
-                            })
-                        }
-                    />
-                </div>
-            </OsModal>
-
-            {/* EDIT MODAL */}
-            <OsModal
-                show={isEditOpen}
-                onClose={() => setIsEditOpen(false)}
-                title="Edit Sesi"
-                subtitle={selectedSesi?.nama_sesi}
-                variant="edit"
-                onSubmit={handleSubmitEdit}
-                onDelete={handleDeleteInsideEdit}
-            >
-                <div className="flex flex-col gap-3">
-                    <OsInput
-                        type="date"
-                        label="Tanggal sesi"
-                        placeholder="Masukkan tanggal sesi..."
-                        value={formData.nama_sesi}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                nama_sesi: e.target.value,
-                            })
-                        }
-                    />
-
-                    <div className="flex gap-3">
-                        <OsInput
-                            type="clock"
-                            label="Jam Mulai"
-                            placeholder="Durasi..."
-                            value={formData.durasi}
-                            className="w-full"
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    durasi: e.target.value,
-                                })
-                            }
-                        />
-
-                        <OsInput
-                            type="clock"
-                            label="Jam Selesai"
-                            placeholder="Durasi..."
-                            value={formData.durasi}
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    durasi: e.target.value,
-                                })
-                            }
-                            className="w-full"
-                        />
-                    </div>
-
-                    <OsInput
-                        type="multi-select" // Diubah menjadi textarea jika memungkinkan untuk keterangan
-                        label="Pilih Stase untuk Sesi Ini"
-                        placeholder="Keterangan..."
-                        value={formData.keterangan}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                keterangan: e.target.value,
-                            })
-                        }
-                    />
-                </div>
-            </OsModal>
-
+            {/* === STEP MODAL DINAMIS === */}
             <OsStepModal
                 show={isStepOpen}
                 onClose={() => setIsStepOpen(false)}
                 currentStep={currentStep}
                 setCurrentStep={setCurrentStep}
+                onSubmit={handleWizardSubmit}
                 steps={[
                     {
-                        title: "Stase",
+                        title: "Pilih Stase",
                         content: (
                             <div>
+                                <label className="mb-2 block text-sm font-bold">
+                                    Stase Soal
+                                </label>
                                 <OsInput
-                                    type="multi-select" // Diubah menjadi textarea jika memungkinkan untuk keterangan
-                                    label="Pilih Stase untuk Sesi Ini"
-                                    options={dummyStase}
-                                    placeholder="Keterangan..."
-                                    value={formData.keterangan}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            keterangan: e.target.value,
-                                        })
-                                    }
+                                    type="multi-select"
+                                    label="Cari stase..."
+                                    options={master_stase}
+                                    value={wizardData.stase_ids} // Kirim ID agar checkbox menyala
+                                    // --- BAGIAN PERBAIKAN DI SINI ---
+                                    onChange={(e) => {
+                                        // 1. Ambil array dari event.target.value (Sesuai format OsInput Anda)
+                                        const selected = e.target.value;
+
+                                        // 2. Validasi agar selalu menjadi array
+                                        const rawValues = Array.isArray(
+                                            selected
+                                        )
+                                            ? selected
+                                            : [];
+
+                                        // 3. Logika pemisahan ID dan Object
+                                        let newIds = [];
+                                        let newObjs = [];
+
+                                        if (
+                                            rawValues.length > 0 &&
+                                            typeof rawValues[0] === "object"
+                                        ) {
+                                            // Jika OsInput mengirim Array Object
+                                            newObjs = rawValues;
+                                            newIds = rawValues.map(
+                                                (item) => item.value
+                                            );
+                                        } else {
+                                            // Jika OsInput mengirim Array ID (Default logic OsInput Anda)
+                                            newIds = rawValues;
+                                            // Cari object aslinya di master_stase agar Step 4 (Penguji) punya Label
+                                            newObjs = master_stase.filter(
+                                                (ms) =>
+                                                    rawValues.includes(ms.value)
+                                            );
+                                        }
+
+                                        // 4. Simpan ke state
+                                        setWizardData({
+                                            ...wizardData,
+                                            stase_ids: newIds, // Disimpan sebagai [1, 2, 3]
+                                            stase_objs: newObjs, // Disimpan sebagai [{value:1, label:'A'}, ...]
+                                        });
+                                    }}
                                 />
+                                <p className="text-xs text-gray-400 mt-2">
+                                    {wizardData.stase_ids.length} stase dipilih.
+                                </p>
                             </div>
                         ),
                     },
                     {
-                        title: "Sesi",
+                        title: "Jadwal & Durasi",
                         content: (
-                            <div className="flex flex-col gap-2">
-                                {/* 🗓️ Input Tanggal Mulai */}
+                            <div className="flex flex-col gap-4">
+                                {/* 1. Input Tanggal */}
                                 <OsInput
                                     type="date"
                                     label="Tanggal Mulai"
-                                    // Menggunakan state terpisah untuk tanggalMulai
-                                    value={formData.tanggalMulai}
+                                    value={wizardData.tanggal}
                                     onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            tanggalMulai: e.target.value,
+                                        setWizardData({
+                                            ...wizardData,
+                                            tanggal: e.target.value,
                                         })
                                     }
                                 />
 
-                                {/* ⌚ Input Jam Muncul jika Tanggal Mulai terisi */}
-                                {/* Logika: Hanya tampilkan jika formData.tanggalMulai bernilai truthy */}
-                                {!!formData.tanggalMulai && (
-                                    <div className="flex gap-3">
-                                        <OsInput
-                                            type="clock"
-                                            label="Jam Mulai"
-                                            // Menggunakan state terpisah untuk jamMulai
-                                            value={formData.jamMulai}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    jamMulai: e.target.value,
-                                                })
-                                            }
-                                            className="w-full"
-                                        />{" "}
-                                        <OsInput
-                                            type="clock"
-                                            label="Jam Selesai"
-                                            // Menggunakan state terpisah untuk jamSelesai
-                                            value={formData.jamSelesai}
-                                            onChange={(e) =>
-                                                setFormData({
-                                                    ...formData,
-                                                    jamSelesai: e.target.value,
-                                                })
-                                            }
-                                            className="w-full"
-                                        />
-                                    </div>
-                                )}
-
-                                {/* Jadwal pada stase ini */}
-                                <OsInput
-                                    type="multi-input"
-                                    label="Jadwal pada stase ini"
-                                    value={formData.jadwal} // Gunakan state yang sesuai untuk jadwal
-                                    options={dummyStase}
-                                    name="jadwal"
-                                    // onChange di sini harusnya memanipulasi state jadwal, bukan keterangan
-                                    // Perlu disesuaikan dengan cara OsInput multi-input mengembalikan nilai
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            // Asumsi: nilai yang dikembalikan disimpan di 'jadwal'
-                                            jadwal: e.target.value,
-                                        })
-                                    }
-                                    inputType="date"
-                                    inputName="tanggal"
-                                    inputPlaceholder="Pilih tanggal"
-                                />
-
-                                {/* Input Keterangan yang tersisa */}
-                                <OsInput
-                                    type="textarea" // Diubah menjadi textarea untuk keterangan
-                                    label="Keterangan Tambahan"
-                                    placeholder="Keterangan..."
-                                    value={formData.keterangan}
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            keterangan: e.target.value,
-                                        })
-                                    }
-                                />
-                            </div>
-                        ),
-                    },
-                    {
-                        title: "Ruangan",
-                        content: (
-                            <div>
+                                {/* 2. Input Durasi (Berlaku untuk semua stase) */}
                                 <div>
                                     <OsInput
-                                        type="single-select"
-                                        label="Pilih ruangan untuk Sesi Ini"
-                                        placeholder="Keterangan..."
-                                        options={dummyRuangan}
-                                        value={formData.keterangan}
+                                        type="number"
+                                        label={`Durasi per Stase (Menit)`}
+                                        placeholder="Contoh: 15"
+                                        value={wizardData.durasi}
                                         onChange={(e) =>
-                                            setFormData({
-                                                ...formData,
-                                                keterangan: e.target.value,
+                                            setWizardData({
+                                                ...wizardData,
+                                                durasi: e.target.value,
                                             })
                                         }
                                     />
+                                    <p className="text-xs text-gray-500 mt-1">
+                                        *Total ada {wizardData.stase_ids.length}{" "}
+                                        stase terpilih.
+                                    </p>
+                                </div>
+
+                                <div className="flex gap-3">
+                                    {/* 3. Input Jam Mulai */}
+                                    <div className="w-1/2">
+                                        <OsInput
+                                            type="clock"
+                                            label="Jam Mulai"
+                                            value={wizardData.jam_mulai}
+                                            onChange={(e) =>
+                                                setWizardData({
+                                                    ...wizardData,
+                                                    jam_mulai: e.target.value,
+                                                })
+                                            }
+                                        />
+                                    </div>
+
+                                    {/* 4. Input Jam Selesai (Otomatis & Readonly) */}
+                                    <div className="w-1/2 flex flex-col">
+                                        <label className="text-os-small text-gray-600 mb-1">
+                                            Jam Selesai (Estimasi)
+                                        </label>
+                                        <div className="relative w-full">
+                                            <input
+                                                type="time"
+                                                disabled
+                                                value={jamSelesaiOtomatis} // Nilai hasil hitungan
+                                                className="w-full min-h-[48px] px-3 py-2 rounded-lg 
+                                                border border-gray-300 bg-gray-200 text-gray-500 
+                                                cursor-not-allowed outline-none font-medium"
+                                            />
+                                            {/* Icon Gembok (Optional) */}
+                                            <div className="absolute right-3 top-3 text-gray-400">
+                                                <CalendarClock size={18} />
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
                         ),
                     },
                     {
-                        title: "Penguji",
+                        title: "Pilih Ruangan",
                         content: (
                             <div>
-                                <OsInput
-                                    type="multi-input-drop"
-                                    label="Input penguji kedalam stase"
-                                    value={formData.jadwal}
-                                    options={dummyStase} // untuk list stase
-                                    suggestOptions={[
-                                        "Budi",
-                                        "Sinta",
-                                        "Andi",
-                                        "Joko",
-                                    ]} // untuk input suggest dosen
-                                    name="jadwal"
-                                    inputName="dosen" // name untuk suggest
-                                    onChange={(e) =>
-                                        setFormData({
-                                            ...formData,
-                                            [e.target.name]: e.target.value,
-                                        })
-                                    }
-                                />
+                                {isLoadingCheck ? (
+                                    <div className="py-4 text-center text-gray-500">
+                                        Sedang mengecek ruangan tersedia...
+                                    </div>
+                                ) : (
+                                    <>
+                                        <div className="bg-blue-50 p-2 rounded text-xs text-blue-700 mb-2">
+                                            Hanya menampilkan ruangan kosong
+                                            pada jam tersebut.
+                                        </div>
+                                        <OsInput
+                                            type="single-select"
+                                            label="Ruangan Ujian"
+                                            placeholder="Pilih Ruangan"
+                                            options={availRooms}
+                                            // Pastikan value dibandingkan dengan tipe yang sama di OsInput
+                                            value={wizardData.id_ruang}
+                                            onChange={(e) => {
+                                                // OsInput single-select mengirim event { target: { name, value } }
+                                                // Value yang dikirim adalah ID Ruangan (misal: 101)
+                                                const selectedId =
+                                                    e.target.value;
+
+                                                setWizardData({
+                                                    ...wizardData,
+                                                    id_ruang: selectedId, // Simpan ID langsung
+                                                });
+                                            }}
+                                        />
+                                        {availRooms.length === 0 && (
+                                            <p className="text-red-500 text-xs mt-1">
+                                                Tidak ada ruangan tersedia.
+                                            </p>
+                                        )}
+                                    </>
+                                )}
+                            </div>
+                        ),
+                    },
+                    {
+                        title: "Pilih Penguji",
+                        content: (
+                            <div>
+                                {isLoadingCheck ? (
+                                    <div className="py-4 text-center">
+                                        Loading...
+                                    </div>
+                                ) : (
+                                    <div className="max-h-[300px] overflow-y-auto pr-2 flex flex-col gap-4">
+                                        <div className="bg-blue-50 p-2 rounded text-xs text-blue-700">
+                                            Pilih penguji untuk setiap stase.
+                                            (Penguji tidak boleh rangkap)
+                                        </div>
+
+                                        {wizardData.stase_objs.map((stase) => {
+                                            // --- LOGIKA FILTER AGAR UNIK ---
+                                            // 1. Ambil semua ID penguji yang SUDAH dipilih di stase manapun
+                                            const allSelectedIds =
+                                                Object.values(
+                                                    wizardData.penguji_map
+                                                );
+
+                                            // 2. Ambil ID penguji yang dipilih di stase INI (jika ada)
+                                            const currentSelectedId =
+                                                wizardData.penguji_map[
+                                                    stase.value
+                                                ];
+
+                                            // 3. Filter list opsi:
+                                            // Tampilkan jika: (Belum dipilih siapapun) ATAU (Sedang dipilih di stase ini)
+                                            const filteredOptions =
+                                                availPenguji.filter((p) => {
+                                                    const isSelectedElsewhere =
+                                                        allSelectedIds.includes(
+                                                            p.value
+                                                        );
+                                                    const isSelectedHere =
+                                                        p.value ===
+                                                        currentSelectedId;
+
+                                                    // Tampilkan jika tidak dipilih orang lain, ATAU jika dia yang dipilih disini
+                                                    return (
+                                                        !isSelectedElsewhere ||
+                                                        isSelectedHere
+                                                    );
+                                                });
+                                            // -------------------------------
+
+                                            return (
+                                                <div
+                                                    key={stase.value}
+                                                    className="border p-3 rounded bg-white"
+                                                >
+                                                    <label className="block text-sm font-bold mb-1">
+                                                        Stase: {stase.label}
+                                                    </label>
+                                                    <OsInput
+                                                        type="single-select"
+                                                        placeholder={`Penguji untuk ${stase.label}`}
+                                                        // GUNAKAN OPSI YANG SUDAH DIFILTER
+                                                        options={
+                                                            filteredOptions
+                                                        }
+                                                        value={
+                                                            wizardData
+                                                                .penguji_map[
+                                                                stase.value
+                                                            ]
+                                                        }
+                                                        onChange={(e) => {
+                                                            setWizardData(
+                                                                (prev) => ({
+                                                                    ...prev,
+                                                                    penguji_map:
+                                                                        {
+                                                                            ...prev.penguji_map,
+                                                                            [stase.value]:
+                                                                                e
+                                                                                    .target
+                                                                                    .value,
+                                                                        },
+                                                                })
+                                                            );
+                                                        }}
+                                                    />
+                                                </div>
+                                            );
+                                        })}
+
+                                        {wizardData.stase_objs.length === 0 && (
+                                            <p className="text-center text-gray-400">
+                                                Pilih stase dulu pada step 1.
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
                             </div>
                         ),
                     },
                 ]}
-                onSubmit={() => {
-                    console.log("Step modal selesai");
-                    setIsStepOpen(false);
-                }}
             />
         </div>
     );
