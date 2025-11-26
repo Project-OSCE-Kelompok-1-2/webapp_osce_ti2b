@@ -13,6 +13,8 @@ use Illuminate\Http\Request;
 use App\Models\EnrollmentOsce;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class OsceJadwalController extends Controller
 {
@@ -64,13 +66,94 @@ class OsceJadwalController extends Controller
 
             return $sesi;
         });
+
+        $master_stase = Stase::select('id_stase', 'nama_stase')->get()->map(fn($item) => [
+            'value' => $item->id_stase,
+            'label' => $item->nama_stase
+        ]);
         
         // Kirim data paginasi ('sesi_data') dan 'filters'
         return Inertia::render('Admin/OsceJadwalPage', [
             'osce' => $osce,
             'sesi' => $sesi_data, // Prop 'sesi' sekarang berisi objek paginasi
-            'filters' => ['search' => $search] // Kirim 'filters' ke React
+            'filters' => ['search' => $search], // Kirim 'filters' ke React
+            'master_stase' => $master_stase,
         ]);
+    }
+
+    public function checkAvailability(Request $request)
+    {
+        try {
+            // 1. Validasi Input
+            $request->validate([
+                'tanggal' => 'required|date',
+                'jam_mulai' => 'required', // Pastikan format jam (H:i)
+                'durasi' => 'required|numeric',
+            ]);
+
+            // 2. Debugging: Cek data yang masuk di storage/logs/laravel.log
+            Log::info('Cek Jadwal:', $request->all());
+
+            // 3. Hitung Waktu Selesai
+            // Pastikan jam_mulai valid. Carbon::parse bisa error jika input kosong
+            $start = Carbon::parse($request->jam_mulai);
+            $end = $start->copy()->addMinutes((int)$request->durasi);
+            
+            $startStr = $start->format('H:i:s');
+            $endStr = $end->format('H:i:s');
+
+            // 4. Query Ruangan Sibuk (Overlap Logic)
+            $busyRuangIds = OsceStase::where('tanggal', $request->tanggal)
+                ->where(function($q) use ($startStr, $endStr) {
+                    $q->where('jam_mulai', '<', $endStr)
+                      ->where('jam_selesai', '>', $startStr);
+                })
+                ->pluck('id_ruang')
+                ->toArray();
+
+            // 5. Query Penguji Sibuk
+            $busyPengujiIds = OsceStase::where('tanggal', $request->tanggal)
+                ->where(function($q) use ($startStr, $endStr) {
+                    $q->where('jam_mulai', '<', $endStr)
+                      ->where('jam_selesai', '>', $startStr);
+                })
+                ->pluck('id_penguji')
+                ->toArray();
+
+            // 6. Ambil Data Available
+            $availableRooms = Ruang::whereNotIn('id_ruang', $busyRuangIds)
+                ->select('id_ruang', 'nomor_ruangan', 'lokasi') 
+                ->get()
+                ->map(fn($r) => [
+                    'value' => $r->id_ruang, 
+                    // Label diganti jadi: "R.101 - Gedung A"
+                    'label' => $r->nomor_ruangan . ' - ' . $r->lokasi 
+                ]);
+
+            $availablePenguji = Penguji::whereNotIn('id_penguji', $busyPengujiIds)
+                ->select('id_penguji', 'nama', 'nip') 
+                ->get()
+                ->map(fn($p) => [
+                    'value' => $p->id_penguji, 
+                    // Label jadi: "Nama Dosen (NIP: 12345...)"
+                    'label' => $p->nama . ($p->nip ? ' (NIP: ' . $p->nip . ')' : '')
+                ]);
+
+            return response()->json([
+                'status' => 'success',
+                'rooms' => $availableRooms,
+                'penguji' => $availablePenguji,
+            ]);
+
+        } catch (\Exception $e) {
+            // Jika error, kirim pesan error spesifik ke browser (bukan 500 polosan)
+            return response()->json([
+                'status' => 'error',
+                'message' => $e->getMessage(),
+                'line' => $e->getLine(),
+                'file' => $e->getFile()
+            ], 500);
+        }
     }
 
     /**
@@ -81,41 +164,43 @@ class OsceJadwalController extends Controller
     {
         $validated = $request->validate([
             'tanggal' => 'required|date',
-            'jam_mulai' => 'required|date_format:H:i',
-            'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-            'stase_ids' => 'required|array|min:1',
-            'stase_ids.*' => 'required|exists:osce_stase,id_osce_stase',
+            'jam_mulai' => 'required',
+            'durasi' => 'required|numeric',
+            'stase_ids' => 'required|array',      // ID Stase yang dipilih (Step 1)
+            'id_ruang' => 'required',             // ID Ruang (Step 3)
+            'penguji_map' => 'required|array',    // Mapping {stase_id: penguji_id} (Step 4)
         ]);
 
-        DB::beginTransaction();
-        try {
-            // Loop melalui ID stase (template) yang dipilih
-            foreach ($validated['stase_ids'] as $template_stase_id) {
-                
-                // Cari template stase. (Bisa stase null atau stase dari sesi lain)
-                $template = OsceStase::find($template_stase_id);
+        $start = Carbon::parse($validated['jam_mulai']);
+        $end = $start->copy()->addMinutes((int) $validated['durasi']);
 
-                if ($template) {
-                    // Duplikasi/Copy template
-                    $new_sesi_stase = $template->replicate(); 
-                    
-                    // Terapkan jadwal BARU pada salinan
-                    $new_sesi_stase->tanggal = $validated['tanggal'];
-                    $new_sesi_stase->jam_mulai = $validated['jam_mulai'];
-                    $new_sesi_stase->jam_selesai = $validated['jam_selesai'];
-                    
-                    // Simpan salinan sebagai baris BARU
-                    $new_sesi_stase->save();
+       DB::beginTransaction();
+        try {
+            // Loop setiap stase yang dipilih user
+            foreach ($validated['stase_ids'] as $staseId) {
+                // Ambil penguji untuk stase ini dari mapping
+                $pengujiId = $validated['penguji_map'][$staseId] ?? null;
+
+                if ($pengujiId) {
+                    $new = new OsceStase();
+                    $new->id_osce = $id_osce;
+                    $new->id_stase = $staseId;
+                    $new->id_ruang = $validated['id_ruang']; // Asumsi 1 sesi 1 lokasi ujian (atau looping jika beda)
+                    $new->id_penguji = $pengujiId;
+                    $new->tanggal = $validated['tanggal'];
+                    $new->jam_mulai = $start->format('H:i');
+                    $new->jam_selesai = $end->format('H:i');
+                    $new->save();
                 }
             }
             
             DB::commit();
-            return redirect()->route('admin.osce.jadwal.index', $id_osce)
-                ->with('success', 'Jadwal sesi berhasil dibuat!');
-                
+            // Redirect Inertia standar
+            return redirect()->back()->with('success', 'Jadwal Sesi Berhasil Dibuat!');
+
         } catch (\Exception $e) {
             DB::rollBack();
-            return redirect()->back()->with('error', 'Gagal menyimpan jadwal: ' . $e->getMessage());
+            return redirect()->back()->with('error', 'Gagal: ' . $e->getMessage());
         }
     }
 

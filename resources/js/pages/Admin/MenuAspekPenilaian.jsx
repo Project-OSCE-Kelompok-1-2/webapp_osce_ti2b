@@ -1,195 +1,397 @@
-import React from "react";
+import React, { useState } from "react";
 import { usePage, Link, router } from "@inertiajs/react";
-import { Trash2, Home, Pencil, Search } from "lucide-react";
+import { Trash2, Pencil } from "lucide-react";
+
+// --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
+import OsTableHeader from "../../components/tableheader.jsx";
+import OsSearchBar from "../../components/searchbar.jsx";
+import OsTableBody from "../../components/tablecontain.jsx";
+import OsButton from "../../components/button.jsx";
+import OsModal from "../../components/Modal.jsx"; // Modal Tambah/Edit
+import OsInput from "../../components/Input.jsx";
+import Modals from "../../components/Modals.jsx"; // Modal Konfirmasi Hapus
+import OsIcon from "../../components/icons.jsx";
+import OsCopyright from "../../components/Copyright.jsx"; // Asumsi ada
+
+// Definisi kolom tabel
+const columns = [
+    {
+        key: "no",
+        content: "No",
+        width: "w-16",
+        classes: "justify-center items-center",
+    },
+    {
+        key: "aspek",
+        content: "Deskripsi",
+        width: "w-7/12",
+        classes: "justify-start items-center px-4",
+    },
+    {
+        key: "bobot_maksimum",
+        content: "Bobot Maksimum",
+        width: "w-2/12",
+        classes: "justify-center items-center",
+    },
+    {
+        key: "action",
+        content: "Aksi",
+        width: "w-3/12",
+        classes: "justify-center items-center",
+    },
+];
 
 export default function MenuAspekPenilaian() {
-    // 1. Ambil data 'stase' dan 'aspek_penilaian' dari props
-    const { stase, aspek_penilaian } = usePage().props;
+    const { stase, aspek_penilaian, filters } = usePage().props;
 
-    // 2. Fungsi untuk menghapus data
-    const handleDeleteClick = (aspekId) => {
-        if (confirm("Apakah kamu yakin ingin menghapus aspek ini?")) {
-            // URL untuk hapus data, sesuai dengan shallow resource route
-            router.delete(`/admin/aspek-penilaian/${aspekId}`, {
-                preserveScroll: true,
+    // ========= STATE FORM (Untuk Tambah dan Edit) ========
+    const [form, setForm] = useState({
+        id: null,
+        aspek: "",
+        bobot_maksimum: "",
+        id_stase: stase.id_stase, // ID stase di-pass ke backend
+    });
+
+    // ========= STATE MODAL TAMBAH/EDIT ========
+    const [modalMode, setModalMode] = useState("add"); // 'add' | 'edit'
+    const [showModal, setShowModal] = useState(false); // Modal OsModal tunggal
+
+    // ======== STATE MODAL DELETE ========
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedAspek, setSelectedAspek] = useState(null);
+
+    // ======== STATE SEARCH ========
+    const [search, setSearch] = useState(filters?.search || "");
+
+    // ======== HANDLER PERUBAHAN FORM ========
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+        setForm((prev) => ({
+            ...prev,
+            [name]:
+                name === "bobot_maksimum"
+                    ? value
+                        ? parseInt(value)
+                        : ""
+                    : value,
+        }));
+    };
+
+    // ======== HANDLER SEARCH ========
+    const handleSearch = () => {
+        router.get(
+            `/admin/stase/${stase.id_stase}/aspek-penilaian`,
+            { search },
+            { preserveScroll: true, preserveState: true }
+        );
+    };
+
+    // ======== OPEN MODAL TAMBAH ========
+    const openAddModal = () => {
+        setModalMode("add");
+        setForm({
+            id: null,
+            aspek: "",
+            bobot_maksimum: "",
+            id_stase: stase.id_stase,
+        });
+        setShowModal(true);
+    };
+
+    // ======== OPEN MODAL EDIT ========
+    const openEditModal = (item) => {
+        setModalMode("edit");
+        setForm({
+            id: item.id_aspek_penilaian,
+            aspek: item.aspek,
+            bobot_maksimum: item.bobot_maksimum,
+            id_stase: stase.id_stase,
+        });
+        setShowModal(true);
+    };
+
+    // ======== HANDLE SUBMIT (TAMBAH/EDIT) ========
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        if (modalMode === "edit") {
+            router.put(`/admin/aspek-penilaian/${form.id}`, form, {
+                onSuccess: () => setShowModal(false),
+            });
+        } else {
+            router.post(`/admin/aspek-penilaian`, form, {
+                onSuccess: () => setShowModal(false),
             });
         }
     };
 
-    // [BARU] Hitung total bobot dari data yang diterima
+    // ======== HANDLE CLEAR (Modal Tambah) ========
+    const handleClear = () => {
+        setForm((prev) => ({
+            ...prev,
+            aspek: "",
+            bobot_maksimum: "",
+        }));
+    };
+
+    // ======== OPEN MODAL DELETE (Trigger dari tabel) ========
+    const openDeleteModal = (aspek) => {
+        setSelectedAspek(aspek);
+        setIsModalOpen(true);
+    };
+
+    // ======== HANDLE DELETE DARI MODAL EDIT (Trigger dari tombol Hapus di OsModal) ========
+    const handleDeleteFromEdit = () => {
+        // Tutup modal edit, lalu buka modal konfirmasi delete
+        setShowModal(false);
+        openDeleteModal({
+            id_aspek_penilaian: form.id,
+            aspek: form.aspek,
+            bobot_maksimum: form.bobot_maksimum,
+        });
+    };
+
+    // ======== CONFIRM DELETE ACTION ========
+    const confirmDelete = () => {
+        if (!selectedAspek) return;
+
+        router.delete(
+            `/admin/aspek-penilaian/${selectedAspek.id_aspek_penilaian}`,
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setIsModalOpen(false);
+                    setSelectedAspek(null);
+                },
+            }
+        );
+    };
+
+    // ======== DATA TABEL ========
     const totalBobot = aspek_penilaian.data.reduce(
         (sum, item) => sum + item.bobot_maksimum,
         0
     );
 
-    return (
-        <div className="relative bg-os-white w-full min-h-screen  flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar />
+    const tableData = aspek_penilaian.data.map((item, index) => ({
+        id_aspek_penilaian: item.id_aspek_penilaian,
+        no: aspek_penilaian.from + index,
 
-            <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                {/* Header Breadcrumb (dibuat dinamis) */}
-                <OsHeader variant="goback" backLink="/admin/stase"/>
-
-                {/* Header Menu */}
-                <div className="mb-4">
-                    <h2 className="text-xl font-semibold text-gray-800">
-                        Menu Aspek Penilaian
-                    </h2>
-                    <p className="text-gray-500 text-sm mt-1">
-                        Halaman ini berfungsi untuk menambahkan aspek penilaian
-                        pada stase "{stase.nama_stase}"
-                    </p>
-                </div>
-
-                {/* Tombol Tambah diubah menjadi Link */}
-                <div className="mb-4">
-                    <Link
-                        href={`/admin/stase/${stase.id_stase}/aspek-penilaian/create`}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg shadow font-medium"
-                    >
-                        ＋ Tambah Aspek Penilaian
-                    </Link>
-                </div>
-
-                {/* Search Bar (untuk sementara statis, bisa diimplementasikan nanti) */}
-                <div className="flex items-center w-full gap-3 mb-4">
-                    <div className="relative flex-1">
-                        <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                            <Search className="text-gray-400" size={20} />
-                        </div>
-                        <input
-                            type="text"
-                            placeholder="Cari aspek penilaian..."
-                            className="w-full border-2 border-gray-300 rounded-lg pl-12 pr-4 py-3 focus:ring-blue-500 focus:border-blue-500 outline-none shadow-sm"
-                        />
-                    </div>
-                    <button className="bg-blue-600 hover:bg-blue-700 text-white px-12 py-3 rounded-lg shadow font-medium">
-                        Cari
-                    </button>
-                </div>
-
-                {/* Tabel Aspek Penilaian */}
-                <div className="bg-os-white shadow rounded-lg overflow-x-auto border border-gray-200">
-                    <h3 className="px-4 py-3 border-b text-gray-700 font-semibold text-lg">
-                        Table Aspek Penilaian
-                    </h3>
-                    <table className="w-full min-w-max">
-                        {/* Header Tabel */}
-                        <thead>
-                            <tr className="bg-gray-100 text-gray-700 text-sm font-medium border-b-2 border-gray-300">
-                                <th className="py-3 px-3 text-center w-[5%]">
-                                    No
-                                </th>
-                                <th className="py-3 px-4 text-left w-[50%] border-l border-gray-300">
-                                    Deskripsi
-                                </th>
-                                <th className="py-3 px-3 text-center w-[15%] border-l border-gray-300">
-                                    Bobot Maksimum
-                                </th>
-                                <th className="py-3 px-3 text-center w-[30%] border-l border-gray-300">
-                                    Action
-                                </th>
-                            </tr>
-                        </thead>
-                        {/* Body Tabel dinamis */}
-                        <tbody>
-                            {aspek_penilaian.data.length > 0 ? (
-                                aspek_penilaian.data.map((item, index) => (
-                                    <tr
-                                        key={item.id_aspek_penilaian}
-                                        className="text-gray-800 text-sm"
-                                    >
-                                        <td className="py-3 px-3 text-center">
-                                            {aspek_penilaian.from + index}
-                                        </td>
-                                        <td className="py-3 px-4 border-l border-gray-300">
-                                            <div className="font-semibold">
-                                                {item.aspek}
-                                            </div>
-                                            <div className="text-xs text-gray-500 mt-1">
-                                                {item.jumlah_kompetensi}{" "}
-                                                Kompetensi
-                                            </div>
-                                        </td>
-                                        <td className="py-3 px-3 text-center border-l border-gray-300">
-                                            {item.bobot_maksimum}
-                                        </td>
-                                        <td className="py-3 px-3 text-center border-l border-gray-300">
-                                            <div className="flex justify-center gap-2">
-                                                <Link
-                                                    href={`/admin/aspek-penilaian/${item.id_aspek_penilaian}/kompetensi`}
-                                                    className="px-3 py-1 bg-green-600 text-white rounded-md text-sm hover:bg-green-700"
-                                                >
-                                                    Lihat Kompetensi
-                                                </Link>
-                                                <Link
-                                                    href={`/admin/aspek-penilaian/${item.id_aspek_penilaian}/edit`}
-                                                    className="p-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
-                                                    title="Edit Aspek"
-                                                >
-                                                    <Pencil size={16} />
-                                                </Link>
-                                                <button
-                                                    onClick={() =>
-                                                        handleDeleteClick(
-                                                            item.id_aspek_penilaian
-                                                        )
-                                                    }
-                                                    className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
-                                                    title="Hapus"
-                                                >
-                                                    <Trash2 size={16} />
-                                                </button>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td
-                                        colSpan="4"
-                                        className="text-center py-6 text-gray-500"
-                                    >
-                                        Belum ada aspek penilaian untuk stase
-                                        ini.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* Baris Total */}
-                <div className="bg-os-white shadow rounded-lg overflow-x-auto mt-6">
-                    <table className="w-full min-w-max">
-                        <tfoot className="font-semibold">
-                            <tr>
-                                <td className="py-3 px-4 text-left text-base w-[55%]">
-                                    Total Bobot
-                                </td>
-                                <td className="py-3 px-3 text-center text-base w-[15%]">
-                                    {totalBobot}
-                                </td>
-                                <td className="py-3 px-3 text-center w-[30%]">
-                                    {totalBobot !== 100 && totalBobot > 0 && (
-                                        <button className="bg-red-600 text-white text-sm px-3 py-2 rounded-lg shadow-md">
-                                            Point Tidak Seimbang!
-                                        </button>
-                                    )}
-                                </td>
-                            </tr>
-                        </tfoot>
-                    </table>
-                </div>
-
-                {/* Footer Copyright */}
-                <div className="text-center text-gray-400 text-sm mt-16 border-t pt-4">
-                    Copyright Porem ipsum dolor sit ametPorem ipsum dolor sit
-                    amet
+        aspek: (
+            <div className="flex flex-col items-start leading-tight">
+                <div className="font-semibold">{item.aspek}</div>
+                <div className="text-xs text-gray-500">
+                    {item.jumlah_kompetensi} Kompetensi
                 </div>
             </div>
+        ),
+
+        bobot_maksimum: item.bobot_maksimum,
+
+        action: (
+            <div className="flex justify-center gap-2">
+                {/* Lihat Kompetensi */}
+                <OsButton
+                    name="primary"
+                    onClick={() =>
+                        router.get(
+                            `/admin/aspek-penilaian/${item.id_aspek_penilaian}/kompetensi`
+                        )
+                    }
+                    className="h-[38px] text-os-small w-full flex justify-between items-center gap-3"
+                >
+                    <OsIcon name={"add"} className="os-icon-light h-[20px]" />
+                    Edit Kompetensi
+                </OsButton>
+
+                {/* Edit */}
+                <OsButton
+                    name="edit"
+                    onClick={() => openEditModal(item)}
+                    className="p-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600"
+                    title="Edit Aspek"
+                >
+                    <Pencil size={18} />
+                </OsButton>
+
+                {/* Delete */}
+                <OsButton
+                    name="warning"
+                    onClick={() => openDeleteModal(item)}
+                    className="p-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+                    title="Hapus Aspek"
+                >
+                    <Trash2 size={18} className="text-os-white" />
+                </OsButton>
+            </div>
+        ),
+    }));
+
+    return (
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            <Sidebar />
+
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+                {/* HEADER */}
+                <OsHeader variant="goback" backLink="/admin/stase" />
+
+                <div className="flex-1 overflow-auto">
+                    {/* <h2 className="font-semibold text-lg mb-1">Menu Aspek Penilaian</h2>
+
+                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                        Halaman ini berfungsi untuk menambahkan aspek penilaian <br />
+                        pada stase "<strong>{stase.nama_stase}</strong>"
+                    </p> */}
+
+                    <h2 className="font-semibold text-lg mb-1">
+                        {/* Menu Aspek Penilaian <br /> */}
+                        {stase.nama_stase}
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                        Halaman ini didedikasikan untuk mengatur seluruh Aspek
+                        Penilaian yang terikat pada Stase. Anda dapat menambah,
+                        mengubah, dan menghapus setiap aspek, serta menetapkan
+                        bobot maksimumnya.
+                    </p>
+
+                    {/* BUTTON TAMBAH */}
+                    <OsButton
+                        name="primary"
+                        onClick={openAddModal}
+                        className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
+                    >
+                        <OsIcon
+                            name="add"
+                            className="h-os-20 os-icon-light mr-os-8"
+                        />
+                        Tambah Aspek Penilaian
+                    </OsButton>
+
+                    {/* SEARCH BAR */}
+                    <OsSearchBar
+                        search={search}
+                        setSearch={setSearch}
+                        onSearchClick={handleSearch}
+                        placeholder="Cari aspek penilaian..."
+                    />
+
+                    {/* Tabel Aspek Penilaian */}
+
+                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        Table Aspek Penilaian
+                    </h2>
+
+                    {/* header */}
+                    <OsTableHeader columns={columns} />
+
+                    {tableData.length > 0 ? (
+                        <OsTableBody data={tableData} columns={columns} />
+                    ) : (
+                        <div className="py-6 text-center text-gray-500">
+                            Belum ada aspek penilaian untuk stase ini.
+                        </div>
+                    )}
+
+                    {/* Baris Total */}
+                    <div className="bg-os-white rounded-lg overflow-hidden border-os-1 border-os-black mt-3 h-[56px]">
+                        <table className="w-full h-[56px]">
+                            <tfoot>
+                                <tr className="w-full">
+                                    <td className="pl-4 text-left w-[60%] h-full">
+                                        Total Bobot
+                                    </td>
+                                    <td className=" px-3 text-center w-2/12">
+                                        <span className="text-sm">
+                                            Bobot:
+                                        </span>
+                                        <span className="text-black font-bold pl-1.5">
+                                            {totalBobot}
+                                        </span>
+                                    </td>
+                                    <td className=" px-5  text-center w-3/12">
+                                        {/* --- KONDISI SEIMBANG (totalBobot = 100) --- */}
+                                        {totalBobot == 100 ? (
+                                            <div className="bg-green-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
+                                                Point Seimbang (100%)
+                                            </div>
+                                        ) : (
+                                            /* --- KONDISI TIDAK SEIMBANG (totalBobot != 100) --- */
+                                            totalBobot > 0 && (
+                                                <div className="bg-red-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
+                                                    Point Tidak Seimbang! (00%)
+                                                </div>
+                                            )
+                                        )}
+                                    </td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <OsCopyright />
+            </main>
+
+            {/* ================= MODAL ADD/EDIT TUNGGAL ================= */}
+            <OsModal
+                show={showModal}
+                onClose={() => setShowModal(false)}
+                variant={modalMode} // <-- Mengatur mode (add/edit)
+                onSubmit={handleSubmit} // <-- Handler submit
+                onClear={handleClear} // <-- Handler clear (hanya berlaku mode 'add')
+                onDelete={handleDeleteFromEdit} // <-- Handler delete (hanya berlaku mode 'edit')
+                title={
+                    modalMode === "edit"
+                        ? "Edit Aspek Penilaian"
+                        : "Tambah Aspek Penilaian"
+                }
+                subtitle={
+                    modalMode === "edit"
+                        ? `Ubah data aspek: ${form.aspek}`
+                        : "Isi form di bawah untuk menambahkan aspek baru."
+                }
+            >
+                <div className="space-y-3">
+                    <OsInput
+                        label="Nama Aspek Penilaian"
+                        type="text"
+                        name="aspek"
+                        value={form.aspek}
+                        onChange={handleChange}
+                        placeholder="Masukkan nama aspek penilaian..."
+                        required
+                    />
+                    <OsInput
+                        label="Bobot Maksimum"
+                        type="number"
+                        name="bobot_maksimum"
+                        value={form.bobot_maksimum}
+                        onChange={handleChange}
+                        placeholder="Masukkan bobot..."
+                        required
+                    />
+                </div>
+            </OsModal>
+
+            {/* ================= MODAL DELETE ================= */}
+            <Modals
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                variant="delete"
+                title="Hapus Aspek Penilaian?"
+                message="Apakah Anda yakin ingin menghapus aspek penilaian ini?"
+                confirmText="Hapus"
+                dataToDelete={[
+                    { key: "Aspek", value: selectedAspek?.aspek || "-" },
+                    {
+                        key: "Bobot",
+                        value: `${selectedAspek?.bobot_maksimum || 0} poin`,
+                    },
+                ]}
+                onConfirm={confirmDelete}
+            />
         </div>
     );
 }
