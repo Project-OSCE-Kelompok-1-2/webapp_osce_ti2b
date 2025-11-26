@@ -14,8 +14,7 @@ use App\Http\Controllers\Api\V1\Admin\OsceJadwalController;
 use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
 use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
-
-use App\Http\Controllers\Api\Penguji\OsceController as PengujiOsceListController;
+use App\Http\Controllers\Api\Penguji\OscePengujiController as PengujiOsceListController;
 
 Route::prefix('v1')->group(function () {
     // Route::get('/login', function () {

@@ -7,7 +7,8 @@ use App\Services\OscePengujiService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class OsceController extends Controller
+// PENTING: Nama Class harus sama dengan Nama File (OscePengujiController)
+class OscePengujiController extends Controller
 {
     protected $oscePengujiService;
 
@@ -39,12 +40,10 @@ class OsceController extends Controller
         $tahun  = $request->input('tahun');
         $user   = Auth::user();
 
-        // Panggil Service
-        $osceList = $this->osceService->getAssignmentsForPenguji($user, $search, $tahun);
+        $osceList = $this->oscePengujiService->getAssignmentsForPenguji($user, $search, $tahun);
 
-        // Return JSON dengan struktur yang sama persis dengan Inertia props
         return response()->json([
-            'osce_list' => $osceList, // Ini berisi objek Paginator (data, links, meta)
+            'osce_list' => $osceList,
             'filters'   => [
                 'search' => $search,
                 'tahun'  => $tahun
