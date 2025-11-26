@@ -33,7 +33,7 @@ export default function TambahAspekPenilaian() {
 
     return (
         <div className="p-4 space-y-6 bg-os-white">
-            <div className="flex items-center gap-3 text-sm text-gray-700 mb-6 border rounded-lg p-2 bg-os-white shadow-sm">
+            <div className="flex items-center gap-3 text-sm text-gray-700 mb-6 border rounded-lg p-2 bg-os-white ">
                 {/* 👇 [UBAH] Tombol 'kembali' diubah menjadi Link agar lebih efisien */}
                 <Link
                     href={`/admin/stase/${stase.id_stase}/aspek-penilaian`}
@@ -62,7 +62,7 @@ export default function TambahAspekPenilaian() {
                 </span>
             </div>
 
-            <div className="max-w-xl mx-auto border-2 rounded-lg shadow-xl overflow-hidden">
+            <div className="max-w-xl mx-auto border-2 rounded-lg overflow-hidden">
                 <div className="bg-gray-800 text-white px-6 py-5 text-center">
                     {/* Judul form dinamis */}
                     <h2 className="font-semibold text-xl">{formTitle}</h2>
@@ -130,7 +130,7 @@ export default function TambahAspekPenilaian() {
                                 disabled={processing}
                                 className={` ${
                                     isEditMode ? "flex-1" : "w-full"
-                                } bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-semibold flex justify-center items-center gap-2 hover:bg-blue-700 shadow-lg transition disabled:opacity-50`}
+                                } bg-blue-600 text-white px-6 py-3 rounded-lg text-sm font-semibold flex justify-center items-center gap-2 hover:bg-blue-700  transition disabled:opacity-50`}
                             >
                                 <svg
                                     xmlns="http://www.w3.org/2000/svg"
@@ -152,7 +152,7 @@ export default function TambahAspekPenilaian() {
                             {isEditMode && (
                                 <button
                                     type="button"
-                                    className="bg-red-600 text-white p-3 rounded-lg shadow-lg hover:bg-red-700 transition"
+                                    className="bg-red-600 text-white p-3 rounded-lg  hover:bg-red-700 transition"
                                     title="Hapus"
                                 >
                                     <svg
