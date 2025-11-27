@@ -13,26 +13,30 @@ import OsSearchBar from "../../components/searchbar.jsx";
 import OsInput from "../../components/Input.jsx";
 import OsModal from "../../components/Modal.jsx";
 import OsButton from "../../components/button.jsx";
-
-import Modals from "../../components/Modals.jsx"; // 🔥 MODAL IMPORT
+import Modals from "../../components/Modals.jsx";
 
 // Kolom tabel (sudah benar)
 const mahasiswaColumns = [
-    { key : "no",content: "No", width: "w-16", classes: "justify-center items-center" },
     {
-        key : "nim_mahasiswa",
+        key: "no",
+        content: "No",
+        width: "w-16",
+        classes: "justify-center items-center",
+    },
+    {
+        key: "nim_mahasiswa",
         content: "NIM Mahasiswa",
         width: "w-56",
         classes: "justify-start items-center px-4",
     },
     {
-        key : "nama_mahasiswa",
+        key: "nama_mahasiswa",
         content: "Nama Mahasiswa",
         width: "flex-1",
         classes: "justify-start items-center px-4",
     },
     {
-        key : "action",
+        key: "action",
         content: "Aksi",
         width: "w-56",
         classes: "justify-center items-center px-4",
@@ -72,8 +76,6 @@ export default function MahasiswaPage() {
         router.get("/admin/mahasiswa", { search, angkatan });
     };
 
-
-
     // 🔥 HANDLE EDIT DENGAN MODAL
     const handleEdit = (item) => {
         setMahasiswaToEdit(item);
@@ -88,7 +90,6 @@ export default function MahasiswaPage() {
         // router.put(`/admin/mahasiswa/${mahasiswaToEdit.id_mahasiswa}`, formData, { ... })
         setShowEditModal(false);
     };
-
 
     // 🔥 HANDLE DELETE DENGAN MODAL (Kode asli tidak diubah)
     const handleDelete = (id, nama) => {
@@ -125,20 +126,18 @@ export default function MahasiswaPage() {
         action: (
             <div className="flex items-center justify-center space-x-3">
                 <OsButton name="edit" onClick={() => setShowEditModal(item)}>
-                    <Edit2 size={18} />
+                    <OsIcon name="Edit" className="h-os-20 os-icon-light" />
                 </OsButton>
 
                 <OsButton
                     name="warning"
                     onClick={() => handleDelete(item.id_mahasiswa)}
-
                 >
-                    <Trash2 size={18} className="text-os-white" />
+                    <OsIcon name="Trash" className="h-os-20 os-icon-light" />
                 </OsButton>
             </div>
-        )
+        ),
     }));
-
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
@@ -146,7 +145,7 @@ export default function MahasiswaPage() {
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
                 {/* HEADER */}
-                <OsHeader/>
+                <OsHeader />
 
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">
@@ -172,7 +171,7 @@ export default function MahasiswaPage() {
                             Tambah Mahasiswa Via Form
                         </OsButton>
                         <OsButton
-                        name="primary"
+                            name="primary"
                             onClick={() => setShowExcelModal(true)}
                             className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                         >
@@ -198,28 +197,12 @@ export default function MahasiswaPage() {
 
                     {/* 7. [PERBAIKAN] Filter dibungkus <form> */}
                     {/* HANYA PERLU SATU FORM UNTUK FILTER, MENGHAPUS DUPLIKASI */}
-                    <form
-                        onSubmit={handleSearch}
-                        className="flex items-start gap-3"
-                    >
-                        <div className="relative flex-1">
-                            <input
-                                type="text"
-                                value={search}
-                                onChange={(e) => setSearch(e.target.value)}
-                                placeholder="Cari data mahasiswa..."
-                                className="border border-black rounded-lg pl-4 pr-4 w-full h-[46px] focus:ring-2 focus:ring-blue-400 outline-none"
-                            />
-                        </div>
-
-                        {/* search + dropdown tahun*/}
-
-
+                    <div className="flex items-start gap-3 w-full">
                         <OsSearchBar
                             search={search}
                             setSearch={setSearch}
-                            onSearchClick={handleSearch}
-                            placeholder="Cari Angkatan mahasiswa..."
+                            onSearchClick={handleSearch} // tetap pakai handleSearch
+                            placeholder="Cari nama mahasiswa..."
                         >
                             <div className="w-60">
                                 <OsInput
@@ -232,16 +215,18 @@ export default function MahasiswaPage() {
                                         router.get(
                                             "/admin/mahasiswa",
                                             { search, angkatan: val },
-                                            { preserveState: true, replace: true, preserveScroll: true }
+                                            {
+                                                preserveState: true,
+                                                replace: true,
+                                                preserveScroll: true,
+                                            }
                                         );
                                     }}
-
-
                                     options={angkatanList}
                                 />
                             </div>
                         </OsSearchBar>
-                    </form>
+                    </div>
 
                     {/* Tabel Mahasiswa */}
                     <section>
@@ -250,9 +235,11 @@ export default function MahasiswaPage() {
                         </h2>
                         <OsTableHeader columns={mahasiswaColumns} />
 
-
                         {mahasiswa.data.length > 0 ? (
-                            <OsTableBody data={tableData} columns={mahasiswaColumns} />
+                            <OsTableBody
+                                data={tableData}
+                                columns={mahasiswaColumns}
+                            />
                         ) : (
                             <div className="flex items-center border-t border-gray-400">
                                 <p className="w-full text-center text-sm py-4 text-gray-500">
@@ -272,7 +259,7 @@ export default function MahasiswaPage() {
                 <OsCopyright />
             </main>
 
-            {/* 🔥 MODAL DELETE MAHASISWA (Tidak diubah) */}
+            {/* MODAL DELETE MAHASISWA (Tidak diubah) */}
             {showDeleteModal && (
                 <Modals
                     isOpen={showDeleteModal}
@@ -290,8 +277,7 @@ export default function MahasiswaPage() {
                             `/admin/mahasiswa/${selectedMahasiswa.id}`,
                             {
                                 preserveScroll: true,
-                                onSuccess: () =>
-                                    setShowDeleteModal(false),
+                                onSuccess: () => setShowDeleteModal(false),
                             }
                         );
                     }}
@@ -320,11 +306,13 @@ export default function MahasiswaPage() {
                         required
                     />
 
-                                        <OsInput
+                    <OsInput
                         label="Angkatan Mahasiswa"
-                        type="suggest"
-                        name="nim_mahasiswa"
-                        placeholder="Masukkan Angkatan Mahasiswa..."
+                        type="select"
+                        value={angkatan}
+                        onChange={(e) => setAngkatan(e.target.value)}
+                        options={angkatanList}
+                        name="angkatan"
                         required
                     />
                 </div>
@@ -344,7 +332,7 @@ export default function MahasiswaPage() {
                 />
             </OsModal>
 
-            {/* 🔥 ===== MODAL EDIT - Menggunakan OsModal dengan variant="edit" ===== */}
+            {/* ===== MODAL EDIT - Menggunakan OsModal dengan variant="edit" ===== */}
             <OsModal
                 show={showEditModal}
                 onClose={() => setShowEditModal(false)}
@@ -354,7 +342,10 @@ export default function MahasiswaPage() {
                 onSubmit={handleSubmitEdit}
                 onDelete={() => {
                     // Panggil modal delete, pastikan data terisi
-                    handleDelete(mahasiswaToEdit?.id_mahasiswa, mahasiswaToEdit?.nama);
+                    handleDelete(
+                        mahasiswaToEdit?.id_mahasiswa,
+                        mahasiswaToEdit?.nama
+                    );
                     setShowEditModal(false); // Tutup modal edit
                 }}
             >
@@ -399,31 +390,37 @@ export default function MahasiswaPage() {
                 />
             </OsModal>
 
-
-            {/* ===== MODAL IMPORT EXCEL (OsModal) - Dihapus duplikasi manual */}
+            {/* ===== MODAL IMPORT EXCEL (OsModal)  ===== */}
             <OsModal
                 show={showExcelModal}
                 onClose={() => setShowExcelModal(false)}
                 title="Template Excel Mahasiswa"
                 subtitle="Download file excel dan isi data mahasiswa"
             >
-                {/* Body content */}
-                <OsButton className="w-full">
+                {/* Tombol download template */}
+                <OsButton
+                    name="primary"
+                    className="w-full mb-3"
+                    onClick={() => router.get("/admin/mahasiswa/template")}
+                >
                     Download Template Excel
                 </OsButton>
 
-                <div className="bg-red-50 border border-red-300 text-red-700 text-xs rounded-md p-3 leading-relaxed">
+                {/* Peringatan */}
+                <div className="bg-red-50 border border-red-300 text-red-700 text-xs rounded-md p-3 leading-relaxed mb-3">
                     <strong>⚠️ Perhatian!</strong>
                     <br />
-                    Jangan ubah heading untuk patokan program.
+                    Jangan ubah heading pada file template agar proses import
+                    tidak gagal.
                 </div>
 
-                <div className="flex flex-col items-center gap-2">
+                {/* Upload Excel */}
+                <div className="flex flex-col items-center gap-2 mb-4">
                     <label
                         htmlFor="mahasiswa-import-file"
                         className="border border-blue-600 text-blue-600 hover:bg-blue-50 py-2 px-4 rounded-md cursor-pointer text-sm font-medium w-full text-center transition-colors"
                     >
-                        {importFile ? importFile.name : "Upload file excel"}
+                        {importFile ? importFile.name : "Upload file Excel"}
                     </label>
 
                     <input
@@ -440,14 +437,17 @@ export default function MahasiswaPage() {
                         Ada masalah? Hubungi admin
                     </a>
                 </div>
-                {/* Menggunakan OsModal, tidak ada footer default,
-                    jadi tombol Submit dan Cancel harus dimasukkan di sini
-                    atau di handle oleh OsModal jika memiliki slot/logic footer
-                    yang lebih kompleks. Karena OsModal yang Anda berikan
-                    sudah memiliki footer, kita abaikan yang manual.
-                */}
-            </OsModal>
 
+                {/* Tombol Submit Import */}
+                <OsButton
+                    name="primary"
+                    className="w-full"
+                    disabled={importing}
+                    onClick={handleImport}
+                >
+                    {importing ? "Mengunggah..." : "Import Data Mahasiswa"}
+                </OsButton>
+            </OsModal>
         </div>
     );
 }
