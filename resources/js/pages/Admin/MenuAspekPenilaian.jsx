@@ -303,9 +303,7 @@ export default function MenuAspekPenilaian() {
                                         Total Bobot
                                     </td>
                                     <td className=" px-3 text-center w-2/12">
-                                        <span className="text-sm">
-                                            Bobot:
-                                        </span>
+                                        <span className="text-sm">Bobot:</span>
                                         <span className="text-black font-bold pl-1.5">
                                             {totalBobot}
                                         </span>
@@ -320,7 +318,8 @@ export default function MenuAspekPenilaian() {
                                             /* --- KONDISI TIDAK SEIMBANG (totalBobot != 100) --- */
                                             totalBobot > 0 && (
                                                 <div className="bg-red-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
-                                                    Point Tidak Seimbang! (00%)
+                                                    Point Tidak Seimbang! (
+                                                    {totalBobot}%)
                                                 </div>
                                             )
                                         )}
