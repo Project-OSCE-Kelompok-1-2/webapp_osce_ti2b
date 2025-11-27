@@ -10,7 +10,7 @@ import OsSearchBar from "../../components/searchbar.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
 import OsModal from "../../components/Modal.jsx"; // Modal Tambah/Edit
-import OsInput from "../../components/Input.jsx";
+import OsInput from "../../components/input.jsx";
 import Modals from "../../components/Modals.jsx"; // Modal Konfirmasi Hapus
 import OsIcon from "../../components/icons.jsx";
 import OsCopyright from "../../components/Copyright.jsx"; // Asumsi ada
@@ -257,17 +257,27 @@ export default function MenuAspekPenilaian() {
                     </p>
 
                     {/* BUTTON TAMBAH */}
-                    <OsButton
-                        name="primary"
-                        onClick={openAddModal}
-                        className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
-                    >
-                        <OsIcon
-                            name="add"
-                            className="h-os-20 os-icon-light mr-os-8"
-                        />
-                        Tambah Aspek Penilaian
-                    </OsButton>
+                    {totalBobot == 100 ? (
+                        <OsButton
+                            name="secondary"
+                            className="flex h-[46px] items-center bg-gray-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-gray-700 !scale-100 !pointer-events-none"
+                        >
+                            Bobot sudah penuh
+
+                        </OsButton>
+                    ) : (
+                        <OsButton
+                            name="primary"
+                            onClick={openAddModal}
+                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
+                        >
+                            <OsIcon
+                                name="add"
+                                className="h-os-20 os-icon-light mr-os-8"
+                            />
+                            Tambah Aspek Penilaian
+                        </OsButton>
+                    )}
 
                     {/* SEARCH BAR */}
                     <OsSearchBar

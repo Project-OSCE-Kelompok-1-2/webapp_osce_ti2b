@@ -25,7 +25,7 @@ import OsModal from "../../components/Modal";
 import OsIcon from "../../components/icons.jsx";
 import OsStepModal from "../../components/StepModal.jsx";
 
-import OsInput from "../../components/Input.jsx";
+import OsInput from "../../components/input.jsx";
 import OsButton from "../../components/button.jsx";
 import OsHeader from "../../components/Header.jsx";
 
@@ -520,8 +520,8 @@ export default function SesiOscePage({
                                                 type="time"
                                                 disabled
                                                 value={jamSelesaiOtomatis} // Nilai hasil hitungan
-                                                className="w-full min-h-[48px] px-3 py-2 rounded-lg 
-                                                border border-gray-300 bg-gray-200 text-gray-500 
+                                                className="w-full min-h-[48px] px-3 py-2 rounded-lg
+                                                border border-gray-300 bg-gray-200 text-gray-500
                                                 cursor-not-allowed outline-none font-medium"
                                             />
                                             {/* Icon Gembok (Optional) */}
