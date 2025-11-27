@@ -46,7 +46,9 @@ const rekapColumns = [
 
 export default function RekapOscePage() {
     // 3. [PERBAIKAN] Ambil props dinamis langsung dari usePage
-    const { osce, filters, flash } = usePage().props;
+    const { osce, filters, flash,  } = usePage().props;
+    console.log("Props OSCE:", osce);
+    console.log("Props Filters:", filters);
 
     // 4. [PERBAIKAN] State filter disesuaikan dengan 'tahun' (dari contract)
     const [search, setSearch] = useState(filters.search || "");

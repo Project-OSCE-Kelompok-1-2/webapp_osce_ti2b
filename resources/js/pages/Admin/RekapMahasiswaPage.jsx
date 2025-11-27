@@ -95,7 +95,7 @@ export default function RekapMahasiswaPage() {
                 {/* 6. [PERBAIKAN] Breadcrumb dinamis */}
                 <OsHeader
                     variant="goback"
-                    backLink=""
+                    backLink={`/admin/rekap-nilai/${osce.id_osce}/sesi`}
                 />
 
                 <div className="flex-1 overflow-auto">
