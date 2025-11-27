@@ -21,7 +21,12 @@ import OsHeader from "../../components/Header.jsx";
 import OsButton from "../../components/button.jsx";
 
 const columns = [
-    { key: "no", content: "No", width: "w-16", classes: "justify-center items-center" },
+    {
+        key: "no",
+        content: "No",
+        width: "w-16",
+        classes: "justify-center items-center",
+    },
     {
         key: "nim_mahasiswa",
         content: "Nim Mahasiswa",
@@ -102,11 +107,13 @@ export default function OsceEnrollmentPage({
                         : "bg-white text-gray-700 hover:bg-gray-100"
                 }`}
             >
-                {data.id_mahasiswa_array.includes(item.id_mahasiswa)
-                    ? <CheckSquare size={20}/>
-                    : <Square size={20}/>}
+                {data.id_mahasiswa_array.includes(item.id_mahasiswa) ? (
+                    <CheckSquare size={20} />
+                ) : (
+                    <Square size={20} />
+                )}
             </button>
-        )
+        ),
     }));
 
     return (
@@ -114,13 +121,11 @@ export default function OsceEnrollmentPage({
             {/* <Head title={`Enrollment - ${osce.nama_osce}`} /> */}
             <Sidebar onToggle={setSidebarOpen} />
 
-            <main
-                className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20"
-            >
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
                 {/* 9. [PERBAIKAN] Header/Breadcrumb dinamis */}
                 <OsHeader
                     variant="goback"
-                    backLink=""
+                    backLink={`/admin/osce/${osce.id_osce}/jadwal/`}
                 />
 
                 {/* main content */}
@@ -165,7 +170,6 @@ export default function OsceEnrollmentPage({
                             />
                         </div>
                     </OsSearchBar>
-
 
                     {/* Tombol Simpan (di atas tabel) */}
                     <form onSubmit={handleSave} className="mb-4">
