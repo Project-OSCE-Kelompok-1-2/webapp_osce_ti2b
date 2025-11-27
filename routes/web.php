@@ -152,6 +152,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/osce/{id_osce}/jadwal/{sesi_id}/edit', [OsceJadwalController::class, 'edit'])->name('osce.jadwal.edit');
     Route::put('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'update'])->name('osce.jadwal.update');
     Route::delete('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'destroy'])->name('osce.jadwal.destroy');
+    Route::post('/osce/check-availability', [OsceJadwalController::class, 'checkAvailability'])
+    ->name('admin.osce.check-availability');
 
 
     // --- OSCE Enrollment (Nested di bawah Jadwal) ---

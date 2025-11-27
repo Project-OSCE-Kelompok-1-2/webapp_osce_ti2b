@@ -9,7 +9,7 @@ import React from 'react';
 
 const OsTableHeader = ({ columns = [] }) => {
   return (
-    <div className="flex text-sm h-[48px] text-os-regular border-os-1 border-os-black mb-4 rounded-lg py-os-8">
+    <div className="flex text-sm h-[48px] text-os-regular border-os-1 border-os-black rounded-lg py-os-8">
       {columns.map((column, index) => (
         <div
           key={index}
