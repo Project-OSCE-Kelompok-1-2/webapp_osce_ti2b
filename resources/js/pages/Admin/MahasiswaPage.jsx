@@ -10,7 +10,7 @@ import OsCopyright from "../../components/Copyright.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
-import OsInput from "../../components/Input.jsx";
+import OsInput from "../../components/input.jsx";
 import OsModal from "../../components/Modal.jsx";
 import OsButton from "../../components/button.jsx";
 
@@ -408,7 +408,10 @@ export default function MahasiswaPage() {
                 subtitle="Download file excel dan isi data mahasiswa"
             >
                 {/* Body content */}
-                <OsButton className="w-full">
+                <OsButton
+                    name="primary"
+                className="w-full">
+
                     Download Template Excel
                 </OsButton>
 
@@ -426,7 +429,7 @@ export default function MahasiswaPage() {
                         {importFile ? importFile.name : "Upload file excel"}
                     </label>
 
-                    <input
+                    <OsButton
                         id="mahasiswa-import-file"
                         type="file"
                         accept=".xlsx,.xls,.csv"

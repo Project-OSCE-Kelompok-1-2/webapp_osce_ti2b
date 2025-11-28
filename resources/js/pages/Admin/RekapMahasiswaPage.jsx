@@ -11,7 +11,7 @@ import OsPagination from "../../components/pagination";
 import OsHeader from "../../components/Header";
 import OsSearchBar from "../../components/searchbar.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
-import OsInput from "../../components/Input.jsx";
+import OsInput from "../../components/input.jsx";
 
 // --- Definisi Kolom Tabel (Sudah Benar) ---
 const mahasiswaColumns = [
