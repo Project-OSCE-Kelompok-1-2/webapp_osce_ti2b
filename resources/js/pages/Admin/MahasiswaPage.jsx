@@ -43,7 +43,7 @@ const mahasiswaColumns = [
 ];
 
 export default function MahasiswaPage() {
-    const { mahasiswa, filters, flash } = usePage().props;
+    const { mahasiswa, filters, flash, list_tahun } = usePage().props;
 
     // --- STATE UI & FILTER ---
     const [search, setSearch] = useState(filters?.search || "");
@@ -72,19 +72,19 @@ export default function MahasiswaPage() {
         prodi: "",
     });
 
+    // UBAH LIST JADI DINAMIS DARI DATABASE
+    // Jika list_tahun ada isinya, kita pakai. Jika tidak, pakai array kosong.
     const angkatanList = [
-        { value: "", label: "Semua Angkatan" },
-        { value: "2025", label: "2025" },
-        { value: "2024", label: "2024" },
-        { value: "2023", label: "2023" },
-        { value: "2022", label: "2022" },
-        { value: "2021", label: "2021" },
+        { value: "SEMUA", label: "Semua Angkatan" },
+        // Mapping data ['2025/2026', '2024/2025'] menjadi format dropdown
+        ...(list_tahun || []).map((tahun) => ({
+            value: tahun,
+            label: tahun,
+        })),
     ];
 
     // --- LOGIKA FILTER & SEARCH ---
     const handleSearch = () => {
-        // Pastikan angkatanFilter juga diproses logic-nya di sini jika perlu,
-        // tapi logic utama ada di onChange dropdown bawah.
         router.get(
             "/admin/mahasiswa",
             { search, angkatan: angkatanFilter || undefined },
@@ -118,8 +118,9 @@ export default function MahasiswaPage() {
         setData({
             nim: item.nim,
             nama: item.nama,
-            kelas: item.kelas || item.angkatan || "2024", // Handle jika controller kirim 'kelas'
-            prodi: item.prodi || item.jurusan || "", // Handle jika controller kirim 'prodi'
+            // Jika data lama tidak cocok dengan list baru, tetap tampilkan apa adanya
+            kelas: item.kelas || (list_tahun && list_tahun[0]) || "", // Handle jika controller kirim 'kelas'
+            prodi: item.prodi || "", // Handle jika controller kirim 'prodi'
         });
 
         setShowEditModal(true);
@@ -262,6 +263,7 @@ export default function MahasiswaPage() {
                             onChange={(e) => {
                                 // A. Ambil nilai (handle jika object)
                                 let val = e?.target?.value ?? e;
+                                // Jaga-jaga jika library UI mengembalikan object {value: "...", label: "..."}
                                 if (
                                     typeof val === "object" &&
                                     val !== null &&
@@ -273,20 +275,18 @@ export default function MahasiswaPage() {
                                 // B. Update State UI
                                 setAngkatanFilter(val);
 
-                                // C. Update URL (Kirim undefined jika kosong agar param hilang)
+                                // 4. Update URL
+                                // Kirim "SEMUA" jika user memilih opsi pertama.
+                                const valueToSend =
+                                    !val || val === "" ? "SEMUA" : val;
+
                                 router.get(
                                     "/admin/mahasiswa",
                                     {
                                         search,
-                                        angkatan:
-                                            val === "" || val === null
-                                                ? undefined
-                                                : val,
+                                        angkatan: valueToSend,
                                     },
-                                    {
-                                        preserveState: true,
-                                        replace: true,
-                                    }
+                                    { preserveState: true, replace: true }
                                 );
                             }}
                             options={angkatanList}
@@ -408,7 +408,9 @@ export default function MahasiswaPage() {
                         name="kelas"
                         value={data.kelas}
                         onChange={(e) => setData("kelas", e.target.value)}
-                        options={angkatanList}
+                        options={angkatanList.filter(
+                            (o) => o.value !== "SEMUA"
+                        )}
                         required
                     />
                 </div>
