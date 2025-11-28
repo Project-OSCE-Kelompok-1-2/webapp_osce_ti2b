@@ -26,7 +26,7 @@ class ProfilController extends Controller
 
         $user->path_gambar = $user->path_gambar ? $user->path_gambar : null;
 
-        return Inertia::render('Penguji/PengaturanAkun', [
+        return Inertia::render('Penguji/PengujiProfil', [
             'user' => $user, 
         ]);
     }

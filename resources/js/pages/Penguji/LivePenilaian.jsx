@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { usePage, router } from "@inertiajs/react";
 import { ArrowLeft } from "lucide-react";
 
-import Sidebar from "../../components/Sidebar";
+import Sidebar from "../../components/SidebarPenguji";
 import OsTableHeader from "../../components/tableheader";
 
 const rubrikColumns = [
@@ -30,44 +30,25 @@ const rubrikColumns = [
 ];
 
 export default function LivePenilaian() {
-    const { enrollment, rubrik = [], sisa_waktu_detik = 420 } = usePage().props;
+    // 1. AMBIL PROPS DARI BACKEND (Pandu)
+    const {
+        mahasiswa,
+        rubrik = [],
+        sisa_waktu_detik = 420,
+        info_ujian,
+        id_enrollment_osce,
+        existing_feedback = "",
+    } = usePage().props;
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [feedback, setFeedback] = useState("");
-    const [waktu, setWaktu] = useState(sisa_waktu_detik || 420); // 7 menit
+    const [feedback, setFeedback] = useState(existing_feedback);
+    const [waktu, setWaktu] = useState(sisa_waktu_detik);
     const [nilaiMap, setNilaiMap] = useState({});
 
-    // Fallback rubrik kalau dari server belum ada
-    const fallbackRubrik = [
-        {
-            nama_grup: "A. Persiapan",
-            poin: [
-                { id: 1, label: "Verifikasi", bobot: 3, highlight: false },
-                { id: 2, label: "Menyiapkan Alat", bobot: 3, highlight: true },
-                { id: 3, label: "Cuci Tangan 6 Langkah", bobot: 3, highlight: false },
-            ],
-        },
-        {
-            nama_grup: "B. Orientasi",
-            poin: [{ id: 4, label: "Verifikasi", bobot: 3, highlight: false }],
-        },
-        {
-            nama_grup: "C. Pelaksanaan",
-            poin: [{ id: 5, label: "Cuci Tangan 6 Langkah", bobot: 3, highlight: false }],
-        },
-        {
-            nama_grup: "D. Terminasi",
-            poin: [{ id: 6, label: "Cuci Tangan 6 Langkah", bobot: 3, highlight: false }],
-        },
-        {
-            nama_grup: "E. Dokumentasi",
-            poin: [{ id: 7, label: "Cuci Tangan 6 Langkah", bobot: 3, highlight: false }],
-        },
-    ];
+    // Fallback agar tidak crash jika data kosong
+    const dataRubrik = rubrik.length > 0 ? rubrik : [];
 
-    const dataRubrik = rubrik.length ? rubrik : fallbackRubrik;
-
-    // TIMER 7 MENIT
+    // TIMER
     useEffect(() => {
         if (waktu <= 0) return;
         const timer = setInterval(() => {
@@ -98,27 +79,33 @@ export default function LivePenilaian() {
         return skor * bobot;
     };
 
-    // Total semua nilai, dibagi 5 (A–E)
+    // Total semua nilai (Server Side Calculation sebenarnya lebih aman, ini hanya preview)
     const totalNilaiMentah = dataRubrik.reduce((total, group) => {
         return (
             total +
-            group.poin.reduce((sum, p) => {
-                return sum + hitungNilai(nilaiMap[p.id], p.bobot);
+            group.kompetensi.reduce((sum, p) => {
+                return (
+                    sum +
+                    hitungNilai(nilaiMap[p.id_poin_aspek_penilaian], p.bobot)
+                );
             }, 0)
         );
     }, 0);
 
-    const totalNilai = totalNilaiMentah / 5;
+    // Hitung rata-rata dinamis (bukan hardcoded bagi 5)
+    const jumlahAspek = dataRubrik.length > 0 ? dataRubrik.length : 1;
+    const totalNilai = totalNilaiMentah / jumlahAspek;
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        // Format payload sesuai Backend Septia
         const nilai = Object.entries(nilaiMap).map(([id_poin, skor]) => ({
             id_poin_aspek_penilaian: Number(id_poin),
             skor,
         }));
 
-        router.post(`/penguji/penilaian/${enrollment?.id ?? 0}`, {
+        router.post(`/penguji/penilaian/${id_enrollment_osce}`, {
             nilai,
             feedback,
         });
@@ -142,28 +129,41 @@ export default function LivePenilaian() {
                         <ArrowLeft size={20} />
                     </button>
                     <div className="flex-1 border rounded-lg px-4 py-2 text-sm">
-                        OSCE / {enrollment?.nama_osce ?? "Radiologi 01-A"} / Penilaian Stase
+                        OSCE / {info_ujian?.nama_osce} /{" "}
+                        {info_ujian?.nama_stase}
                     </div>
                 </div>
 
                 <div className="flex-1 overflow-auto px-8 pb-8">
                     {/* INFO MAHASISWA */}
                     <div className="flex items-center gap-4 border border-gray-300 rounded-xl px-6 py-5 bg-gray-50 mt-4 mb-6">
-                        <div className="w-16 h-16 rounded-full bg-gray-400" />
+                        <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-400 bg-gray-200">
+                            {mahasiswa?.foto_url ? (
+                                <img
+                                    src={mahasiswa.foto_url}
+                                    alt="Mhs"
+                                    className="w-full h-full object-cover"
+                                />
+                            ) : (
+                                <div className="w-full h-full bg-gray-400" />
+                            )}
+                        </div>
                         <div>
                             <p className="font-semibold text-lg">
-                                Nama : {enrollment?.nama ?? "Sendi Prasetyo"}
+                                Nama : {mahasiswa?.nama}
                             </p>
                             <p className="text-sm text-gray-700">
-                                NIM : {enrollment?.nim ?? "4.33.24.1.24"}
+                                NIM : {mahasiswa?.nim}
                             </p>
                             <p className="text-sm text-gray-700">
-                                Jurusan : {enrollment?.jurusan ?? "Informatika Medis"}
+                                Prodi : {mahasiswa?.prodi}
                             </p>
                         </div>
                     </div>
 
-                    <h2 className="font-semibold text-lg mb-3">Rubrik Penilaian</h2>
+                    <h2 className="font-semibold text-lg mb-3">
+                        Rubrik Penilaian
+                    </h2>
 
                     <div className="border rounded-xl">
                         <OsTableHeader columns={rubrikColumns} />
@@ -171,15 +171,21 @@ export default function LivePenilaian() {
                         <div className="max-h-[450px] overflow-y-auto">
                             {dataRubrik.map((group, gIndex) => (
                                 <React.Fragment key={gIndex}>
+                                    {/* HEADER ASPEK */}
                                     <div className="bg-gray-100 px-4 py-2 font-semibold border-t">
-                                        {group.nama_grup}
+                                        {group.aspek}
                                     </div>
 
-                                    {group.poin.map((poin, index) => (
+                                    {/* LOOP KOMPETENSI */}
+                                    {group.kompetensi.map((poin, index) => (
                                         <div
-                                            key={poin.id}
+                                            key={poin.id_poin_aspek_penilaian}
                                             className={`flex items-center min-h-[70px] border-t ${
-                                                poin.highlight ? "bg-gray-50" : "bg-white"
+                                                nilaiMap[
+                                                    poin.id_poin_aspek_penilaian
+                                                ] !== undefined
+                                                    ? "bg-blue-50/50"
+                                                    : "bg-white"
                                             }`}
                                         >
                                             <div className="w-16 text-center">
@@ -187,39 +193,56 @@ export default function LivePenilaian() {
                                             </div>
 
                                             <div className="flex-1 px-4 border-l">
-                                                {poin.label}
+                                                {poin.deskripsi}
                                             </div>
 
                                             {/* KOLOM SKOR */}
-                                            <div className="w-[260px] border-l border-gray-300 flex flex-col items-center justify-center">
-                                                {/* Angka 0–4, sejajar */}
+                                            <div className="w-[260px] border-l border-gray-300 flex flex-col items-center justify-center py-2">
+                                                {/* Angka 0–4 */}
                                                 <div className="flex justify-between w-full px-6 mb-1 text-[12px]">
-                                                    {[0, 1, 2, 3, 4].map((v) => (
-                                                        <span
-                                                            key={`label-${v}`}
-                                                            className="w-5 text-center"
-                                                        >
-                                                            {v}
-                                                        </span>
-                                                    ))}
+                                                    {[0, 1, 2, 3, 4].map(
+                                                        (v) => (
+                                                            <span
+                                                                key={`label-${v}`}
+                                                                className="w-5 text-center"
+                                                            >
+                                                                {v}
+                                                            </span>
+                                                        )
+                                                    )}
                                                 </div>
 
-                                                {/* Bulatan, sejajar dengan angka */}
+                                                {/* Bulatan Radio Button */}
                                                 <div className="flex justify-between w-full px-6">
-                                                    {[0, 1, 2, 3, 4].map((v) => (
-                                                        <button
-                                                            key={`btn-${v}`}
-                                                            type="button"
-                                                            onClick={() =>
-                                                                handleSkorChange(poin.id, v)
-                                                            }
-                                                            className="w-5 h-5 rounded-full border border-black flex items-center justify-center"
-                                                        >
-                                                            {nilaiMap[poin.id] === v && (
-                                                                <span className="w-3 h-3 rounded-full bg-black" />
-                                                            )}
-                                                        </button>
-                                                    ))}
+                                                    {[0, 1, 2, 3, 4].map(
+                                                        (v) => (
+                                                            <button
+                                                                key={`btn-${v}`}
+                                                                type="button"
+                                                                onClick={() =>
+                                                                    handleSkorChange(
+                                                                        poin.id_poin_aspek_penilaian,
+                                                                        v
+                                                                    )
+                                                                }
+                                                                className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
+                                                                    nilaiMap[
+                                                                        poin
+                                                                            .id_poin_aspek_penilaian
+                                                                    ] === v
+                                                                        ? "border-black bg-white"
+                                                                        : "border-gray-400 hover:border-blue-500"
+                                                                }`}
+                                                            >
+                                                                {nilaiMap[
+                                                                    poin
+                                                                        .id_poin_aspek_penilaian
+                                                                ] === v && (
+                                                                    <span className="w-3 h-3 rounded-full bg-black" />
+                                                                )}
+                                                            </button>
+                                                        )
+                                                    )}
                                                 </div>
                                             </div>
 
@@ -231,9 +254,12 @@ export default function LivePenilaian() {
                                             {/* KOLOM NILAI */}
                                             <div className="w-20 text-center border-l font-bold">
                                                 {hitungNilai(
-                                                    nilaiMap[poin.id],
+                                                    nilaiMap[
+                                                        poin
+                                                            .id_poin_aspek_penilaian
+                                                    ],
                                                     poin.bobot
-                                                ).toFixed(2)}
+                                                ).toFixed(0)}
                                             </div>
                                         </div>
                                     ))}
@@ -241,28 +267,30 @@ export default function LivePenilaian() {
                             ))}
                         </div>
 
-                        <div className="flex justify-between px-4 py-3 border-t font-semibold">
-                            <span>Total nilai aspek penilaian</span>
+                        <div className="flex justify-between px-4 py-3 border-t font-semibold bg-gray-50 rounded-b-xl">
+                            <span>Total Nilai Sementara (Preview)</span>
                             <span>{totalNilai.toFixed(2)}</span>
                         </div>
                     </div>
 
-                    <h2 className="font-semibold text-lg mt-6 mb-2">Feedback</h2>
+                    <h2 className="font-semibold text-lg mt-6 mb-2">
+                        Feedback
+                    </h2>
                     <textarea
-                        className="w-full border rounded-xl p-3 min-h-[120px]"
+                        className="w-full border rounded-xl p-3 min-h-[120px] focus:ring-2 focus:ring-blue-500 outline-none"
                         value={feedback}
                         onChange={(e) => setFeedback(e.target.value)}
+                        placeholder="Tuliskan catatan untuk mahasiswa..."
                     />
 
                     {/* BAGIAN SISA WAKTU + SUBMIT */}
                     <form onSubmit={handleSubmit} className="mt-6">
-                        {/* Container putih dengan border yang mengelilingi dua button */}
-                        <div className="w-full rounded-2xl border border-black shadow-sm p-3">
+                        <div className="w-full rounded-2xl border border-black shadow-sm p-3 bg-white">
                             <div className="grid grid-cols-3 gap-4">
-                                {/* Button Sisa Waktu (merah) */}
+                                {/* Button Sisa Waktu */}
                                 <button
                                     type="button"
-                                    className="col-span-1 w-full h-[70px] rounded-xl bg-red-600 text-white font-semibold flex items-center justify-between px-6"
+                                    className="col-span-1 w-full h-[70px] rounded-xl bg-red-600 text-white font-semibold flex items-center justify-between px-6 cursor-default"
                                 >
                                     <span>Sisa Waktu</span>
                                     <span className="text-lg font-bold">
@@ -270,20 +298,20 @@ export default function LivePenilaian() {
                                     </span>
                                 </button>
 
-                                {/* Button Submit (biru) */}
+                                {/* Button Submit */}
                                 <button
                                     type="submit"
-                                    className="col-span-2 w-full h-[70px] rounded-xl bg-blue-600 text-white font-semibold flex items-center justify-center text-lg"
+                                    className="col-span-2 w-full h-[70px] rounded-xl bg-blue-600 hover:bg-blue-700 transition text-white font-semibold flex items-center justify-center text-lg"
                                 >
-                                    SUBMIT
+                                    SIMPAN PENILAIAN
                                 </button>
                             </div>
                         </div>
                     </form>
 
-                    {/* FOOTER COPYRIGHT */}
-                    <div className="w-full border rounded-xl px-4 py-3 text-gray-700 bg-white mt-4">
-                        © {new Date().getFullYear()} All rights reserved. | Polines
+                    <div className="w-full border rounded-xl px-4 py-3 text-gray-700 bg-white mt-4 text-sm">
+                        © {new Date().getFullYear()} All rights reserved. |
+                        Polines
                     </div>
                 </div>
             </main>

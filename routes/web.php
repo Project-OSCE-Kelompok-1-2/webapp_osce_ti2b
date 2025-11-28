@@ -2,12 +2,12 @@
 
 use App\Models\TahunAkademik;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia; 
+use Inertia\Inertia;
 
 // --- Auth & Admin Controllers ---
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Admin\AdminController;
-use App\Http\Controllers\Admin\OsceController; 
+use App\Http\Controllers\Admin\OsceController;
 use App\Http\Controllers\Admin\StaseController;
 use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Admin\OsceStaseController;
@@ -18,10 +18,15 @@ use App\Http\Controllers\Admin\RekapNilaiController;
 use App\Http\Controllers\Admin\AspekPenilaianController;
 use App\Http\Controllers\Admin\OsceEnrollmentController;
 
-// --- PENGUJI CONTROLLERS (MODUL ANDA) ---
+// --- PENGUJI CONTROLLERS (LENGKAP) ---
 use App\Http\Controllers\Penguji\ProfilController;
-use App\Http\Controllers\Penguji\DashboardController; // <-- Tambahan Ilham
-use App\Http\Controllers\Penguji\OsceController as PengujiOsceController; // <-- Tambahan Ilham (Pakai Alias agar tidak bentrok dengan Admin)
+use App\Http\Controllers\Penguji\DashboardController;
+use App\Http\Controllers\Penguji\OsceController as PengujiOsceController;
+use App\Http\Controllers\Penguji\HalamanPenilaianController;
+use App\Http\Controllers\Penguji\AksiPenilaianController;
+use App\Http\Controllers\Penguji\RekapController;
+use App\Http\Controllers\Penguji\EditNilaiController;
+use App\Http\Controllers\Penguji\ViewNilaiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,18 +52,47 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 // ===========================
 Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function () {
 
-    // --- Dashboard (Tugas Ilham) ---
-    // Menggunakan Single Action Controller (__invoke)
     Route::get('/dashboard', DashboardController::class)->name('dashboard');
-
-    // --- List OSCE (Tugas Ilham) ---
     Route::get('/osce', [PengujiOsceController::class, 'index'])->name('osce.index');
-
-    // --- Akun / Profil (Tugas Asdif) ---
     Route::get('/pengaturan-akun', [ProfilController::class, 'show_profile'])->name('account.show');
     Route::post('/pengaturan-akun', [ProfilController::class, 'update_account'])->name('account.update');
-    
-    // Nanti tim lain (Zian, Sendy, dll) akan menambahkan route Live Assessment disini...
+
+
+    // --- ALUR PENILAIAN LIVE (Pandu & Septia) ---
+
+    Route::get('/osce/{id_osce}/stase/{id_osce_stase}', [HalamanPenilaianController::class, 'showAntrian'])
+        ->name('antrian');
+
+    Route::get('/penilaian/{id_enrollment_osce}', [HalamanPenilaianController::class, 'showPenilaian'])
+        ->name('penilaian.show');
+
+    Route::post('/penilaian/{id_enrollment_osce}', [AksiPenilaianController::class, 'store'])
+        ->name('penilaian.store');
+
+
+    Route::get('/osce/{id_osce}/stase/{id_osce_stase}/rotasi', [AksiPenilaianController::class, 'rotasi'])
+        ->name('rotasi');
+
+    Route::post('/osce/{id_osce}/stase/{id_osce_stase}/selesai', [AksiPenilaianController::class, 'selesai'])
+        ->name('selesai');
+
+
+    // --- ALUR PASCA UJIAN / REKAP (Bintang, Najwa, Afkar) ---
+
+    Route::get('/osce/{id_osce}/stase/{id_osce_stase}/rekap', [RekapController::class, 'rekap'])
+        ->name('rekap.list');
+
+    Route::get('/osce/{id_osce}/stase/{id_osce_stase}/edit-nilai', [RekapController::class, 'editNilai'])
+        ->name('edit.list');
+
+    Route::get('/penilaian/{id_enrollment_osce}/edit', [EditNilaiController::class, 'edit'])
+        ->name('penilaian.edit');
+
+    Route::put('/penilaian/{id_enrollment_osce}', [EditNilaiController::class, 'update'])
+        ->name('penilaian.update');
+
+    Route::get('/penilaian/{id_enrollment_osce}/view', ViewNilaiController::class)
+        ->name('penilaian.view');
 });
 
 
@@ -76,25 +110,25 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::resource('stase', StaseController::class);
     Route::resource('stase.aspek-penilaian', AspekPenilaianController::class)->except(['show'])->shallow();
     Route::resource('aspek-penilaian.kompetensi', KompetensiController::class)->except(['show'])->shallow();
-    
+
     Route::resource('dosen', PengujiController::class)->except(['show']);
     Route::resource('mahasiswa', MahasiswaController::class)->except(['show']);
     Route::post('/mahasiswa/import', [MahasiswaController::class, 'import'])->name('mahasiswa.import');
 
-    
+
     // --- Modul OSCE ---
     Route::get('/osce', [OsceController::class, 'index'])->name('osce.index');
     Route::post('/osce', [OsceController::class, 'store'])->name('osce.store');
 
     Route::get('/osce/create', function () {
-        $tahunAkademik = TahunAkademik::orderBy('tahun', 'desc')->get()->map(fn ($th) => [
+        $tahunAkademik = TahunAkademik::orderBy('tahun', 'desc')->get()->map(fn($th) => [
             'value' => $th->id_tahun_akademik,
             'label' => $th->tahun . ' - ' . $th->semester,
         ]);
-        
+
         return Inertia::render('Admin/TambahOsce', [
             'tahunAkademikOptions' => $tahunAkademik
-        ]); 
+        ]);
     })->name('osce.create');
 
     Route::get('/osce/{osce}/edit', [OsceController::class, 'edit'])->name('osce.edit');
@@ -118,8 +152,10 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/osce/{id_osce}/jadwal/{sesi_id}/edit', [OsceJadwalController::class, 'edit'])->name('osce.jadwal.edit');
     Route::put('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'update'])->name('osce.jadwal.update');
     Route::delete('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'destroy'])->name('osce.jadwal.destroy');
+    Route::post('/osce/check-availability', [OsceJadwalController::class, 'checkAvailability'])
+    ->name('admin.osce.check-availability');
 
-    
+
     // --- OSCE Enrollment (Nested di bawah Jadwal) ---
     Route::prefix('osce/{osce_id}/jadwal/{jadwal_id}')->name('osce.enrollment.')->group(function () {
         Route::get('/enrollment', [OsceEnrollmentController::class, 'index'])->name('index');
@@ -131,12 +167,12 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/rekap-nilai', [RekapNilaiController::class, 'index'])->name('rekap.index');
     Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi'])->name('rekap.sesi');
     Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerStase'])->name('rekap.mahasiswa');
-    
+
     // --- Dummy Detail Rekap ---
     Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}', function () {
         $dummyData = [
-            "mahasiswa" => [ "nama" => "Riko Aditya (Dummy)", "nim" => "123456", "id_mahasiswa" => 1 ],
-            "osce" => [ "nama_osce" => "OSCE Radiologi 01-A (Dummy)" ],
+            "mahasiswa" => ["nama" => "Riko Aditya (Dummy)", "nim" => "123456", "id_mahasiswa" => 1],
+            "osce" => ["nama_osce" => "OSCE Radiologi 01-A (Dummy)"],
             "nilai_per_stase" => [
                 [
                     "nama_stase" => "Stase Bedah Umum",
@@ -146,29 +182,15 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
                         [
                             "aspek" => "Anamnesis",
                             "kompetensi" => [
-                                [ "kompetensi" => "Menyapa pasien", "skor" => 3, "bobot" => 10, "nilai" => 30 ],
-                                [ "kompetensi" => "Keluhan utama", "skor" => 2, "bobot" => 10, "nilai" => 20 ]
+                                ["kompetensi" => "Menyapa pasien", "skor" => 3, "bobot" => 10, "nilai" => 30],
+                                ["kompetensi" => "Keluhan utama", "skor" => 2, "bobot" => 10, "nilai" => 20]
                             ]
                         ],
                         [
                             "aspek" => "Pemeriksaan Fisik",
                             "kompetensi" => [
-                                [ "kompetensi" => "Inspeksi", "skor" => 3, "bobot" => 10, "nilai" => 30 ],
-                                [ "kompetensi" => "Palpasi", "skor" => 1, "bobot" => 9, "nilai" => 9 ]
-                            ]
-                        ]
-                    ]
-                ],
-                [
-                    "nama_stase" => "Stase Anak",
-                    "nama_penguji" => "Dr. Pedri",
-                    "nilai_akhir_stase" => 23.00,
-                    "aspek_penilaian" => [
-                        [
-                            "aspek" => "Komunikasi",
-                            "kompetensi" => [
-                                [ "kompetensi" => "Bicara dengan ortu", "skor" => 3, "bobot" => 10, "nilai" => 30 ],
-                                [ "kompetensi" => "Bicara dengan anak", "skor" => 3, "bobot" => 10, "nilai" => 30 ]
+                                ["kompetensi" => "Inspeksi", "skor" => 3, "bobot" => 10, "nilai" => 30],
+                                ["kompetensi" => "Palpasi", "skor" => 1, "bobot" => 9, "nilai" => 9]
                             ]
                         ]
                     ]

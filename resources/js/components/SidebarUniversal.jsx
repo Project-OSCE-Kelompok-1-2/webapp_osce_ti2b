@@ -9,7 +9,7 @@ import {
     Settings,
     ChevronsLeft,
     ChevronsRight,
-    BookOpen
+    BookOpen,
 } from "lucide-react";
 
 // --- 1. DEFINISI MENU UNTUK SETIAP ROLE ---
@@ -34,15 +34,17 @@ const pengujiMenus = [
 
 const SidebarUniversal = () => {
     const [isOpen, setIsOpen] = useState(true);
-    const { url, props } = usePage(); 
+    const { url, props } = usePage();
 
     // --- 2. LOGIKA DETEKSI ROLE OTOMATIS ---
     const isAdmin = url.startsWith("/admin");
-    
+
     // Pilih menu & link pengaturan
     const menuItems = isAdmin ? adminMenus : pengujiMenus;
-    const settingsLink = isAdmin ? "/admin/pengaturan" : "/penguji/pengaturan";
-    
+    const settingsLink = isAdmin
+        ? "/admin/pengaturan-akun"
+        : "/penguji/pengaturan-akun";
+
     // Data User Dummy
     const userName = isAdmin ? "Admin1234" : "Penguji1234";
     const userEmail = isAdmin ? "admin@polines.ac.id" : "Penguji1234@gmail.com";
@@ -56,17 +58,21 @@ const SidebarUniversal = () => {
             // --- ADMIN: HITAM ---
             return {
                 icon: "text-gray-900", // Ikon Hitam
-                text: active ? "text-gray-900 font-bold" : "text-gray-900 font-medium", // Teks Hitam
+                text: active
+                    ? "text-gray-900 font-bold"
+                    : "text-gray-900 font-medium", // Teks Hitam
                 bg: active ? "bg-gray-100" : "hover:bg-gray-100", // Hover Abu-abu
-                border: active ? "border-l-4 border-gray-600" : "" // Indikator aktif hitam
+                border: active ? "border-l-4 border-gray-600" : "", // Indikator aktif hitam
             };
         } else {
             // --- PENGUJI: BIRU ---
             return {
                 icon: "text-blue-600", // Ikon Biru
-                text: active ? "text-blue-700 font-bold" : "text-blue-600 font-medium", // Teks Biru
+                text: active
+                    ? "text-blue-700 font-bold"
+                    : "text-blue-600 font-medium", // Teks Biru
                 bg: active ? "bg-blue-50" : "hover:bg-blue-50", // Hover Biru Muda
-                border: active ? "border-l-4 border-blue-600" : "" // Indikator aktif biru
+                border: active ? "border-l-4 border-blue-600" : "", // Indikator aktif biru
             };
         }
     };
@@ -82,24 +88,46 @@ const SidebarUniversal = () => {
                 // Warna tombol toggle juga bisa disesuaikan, tapi default biru biasanya bagus untuk aksen
                 className="absolute -right-3 top-9 z-50 bg-blue-600 text-white p-1 rounded-full hover:bg-blue-500 transition focus:outline-none shadow-md border border-white"
             >
-                {isOpen ? <ChevronsLeft size={16} /> : <ChevronsRight size={16} />}
+                {isOpen ? (
+                    <ChevronsLeft size={16} />
+                ) : (
+                    <ChevronsRight size={16} />
+                )}
             </button>
 
             {/* Profil User */}
             <div className="flex-shrink-0">
-                <div className={`flex items-center gap-3 p-4 border-b border-gray-200 h-[100px] transition-all duration-300 ${!isOpen ? "justify-center" : ""}`}>
+                <div
+                    className={`flex items-center gap-3 p-4 border-b border-gray-200 h-[100px] transition-all duration-300 ${
+                        !isOpen ? "justify-center" : ""
+                    }`}
+                >
                     {/* Avatar */}
-                    <div className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-xl overflow-hidden
-                        ${isAdmin ? "bg-gray-200 text-gray-700" : "bg-blue-100 text-blue-600"}
-                    `}>
-                        <div className={`w-full h-full ${isAdmin ? "bg-gray-300" : "bg-blue-200/50"}`}></div> 
+                    <div
+                        className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-xl overflow-hidden
+                        ${
+                            isAdmin
+                                ? "bg-gray-200 text-gray-700"
+                                : "bg-blue-100 text-blue-600"
+                        }
+                    `}
+                    >
+                        <div
+                            className={`w-full h-full ${
+                                isAdmin ? "bg-gray-300" : "bg-blue-200/50"
+                            }`}
+                        ></div>
                     </div>
-                    
+
                     {/* Info Teks */}
                     {isOpen && (
                         <div className="overflow-hidden">
-                            <p className="font-bold text-gray-900 truncate text-sm">{userName}</p>
-                            <p className="text-xs text-gray-500 truncate">{userEmail}</p>
+                            <p className="font-bold text-gray-900 truncate text-sm">
+                                {userName}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">
+                                {userEmail}
+                            </p>
                         </div>
                     )}
                 </div>
@@ -111,7 +139,7 @@ const SidebarUniversal = () => {
                     {menuItems.map((item, index) => {
                         const active = isActive(item.href);
                         const styles = getRoleStyles(active); // Ambil style sesuai role
-                        
+
                         return (
                             <Link
                                 key={index}
@@ -123,14 +151,16 @@ const SidebarUniversal = () => {
                                 `}
                             >
                                 <div className="flex-shrink-0">
-                                    {React.cloneElement(item.icon, { 
+                                    {React.cloneElement(item.icon, {
                                         size: 26,
                                         className: styles.icon, // Terapkan warna ikon (Hitam/Biru)
                                     })}
                                 </div>
-                                
+
                                 {isOpen && (
-                                    <span className={`text-sm whitespace-nowrap ${styles.text}`}>
+                                    <span
+                                        className={`text-sm whitespace-nowrap ${styles.text}`}
+                                    >
                                         {item.label}
                                     </span>
                                 )}
@@ -155,13 +185,12 @@ const SidebarUniversal = () => {
                             `}
                         >
                             <div className="flex-shrink-0">
-                                <Settings 
-                                    size={28} 
-                                    className={styles.icon}  
-                                />
+                                <Settings size={28} className={styles.icon} />
                             </div>
                             {isOpen && (
-                                <span className={`whitespace-nowrap text-sm ml-1 ${styles.text}`}>
+                                <span
+                                    className={`whitespace-nowrap text-sm ml-1 ${styles.text}`}
+                                >
                                     Pengaturan
                                 </span>
                             )}

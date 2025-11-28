@@ -1,6 +1,6 @@
 import React, { useState } from "react";
-import Sidebar from "../../components/Sidebar"; // Pastikan path ini benar
-import { Link, router, usePage } from "@inertiajs/react";
+import Sidebar from "../../components/Sidebar";
+import { Link, router } from "@inertiajs/react";
 import {
     ClipboardList,
     CalendarClock,
@@ -8,15 +8,72 @@ import {
     Search,
     Edit,
     Trash2,
+    Edit2
 } from "lucide-react";
-import OsHeader from "../../components/Header"; // 1. Impor komponen breadcrumb
 
-// 2. Pastikan nama file komponen pagination Anda benar
+import OsHeader from "../../components/Header";
+import OsCopyright from "../../components/Copyright";
 import OsPagination from "../../components/pagination";
+import OsTableHeader from "../../components/tableheader.jsx";
+import OsTableBody from "../../components/tablecontain.jsx";
+import OsSearchBar from "../../components/searchbar.jsx";
+import OsButton from "../../components/button.jsx";
+import OsIcon from "../../components/icons.jsx";
+
+// Definisi kolom tabel
+const tableColumns = [
+    { content: "No", width: "w-16", classes: "justify-center items-center" },
+    {
+        content: "Ruangan",
+        width: "flex-1",
+        classes: "justify-start items-center px-4",
+    },
+    {
+        content: "Stase",
+        width: "flex-1",
+        classes: "justify-start items-center px-4",
+    },
+    {
+        content: "Penguji",
+        width: "flex-1",
+        classes: "justify-start items-center px-4",
+    },
+    {
+        content: "Action",
+        width: "w-32",
+        classes: "justify-center items-center",
+    },
+];
+import OsInput from "../../components/input";
+
+// 🔥 Modal Delete Konfirmasi (versi lama)
+import Modals from "../../components/Modals";
+
+// 🔥 Modal ADD + EDIT
+import OsModal from "../../components/Modal";
 
 export default function OsceStasePage({ stase, osce, filters }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
+
+    // ================================
+    //  DELETE MODAL STATES
+    // ================================
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedStase, setSelectedStase] = useState(null);
+
+    // ================================
+    //  ADD / EDIT MODAL STATES
+    // ================================
+    const [isAddOpen, setIsAddOpen] = useState(false);
+    const [isEditOpen, setIsEditOpen] = useState(false);
+
+    // Form fields (sederhana saja)
+    const [formData, setFormData] = useState({
+        ruangan: "",
+        nama_stase: "",
+        penguji: "",
+    });
 
     function handleSearch(e) {
         e.preventDefault();
@@ -27,38 +84,171 @@ export default function OsceStasePage({ stase, osce, filters }) {
         );
     }
 
-    function handleDelete(staseId) {
-        if (confirm("Yakin ingin menghapus stase ini?")) {
-            router.delete(`/admin/osce/${osce.id_osce}/stase/${staseId}`, {
+    // ============================
+    //  OPEN MODAL ADD
+    // ============================
+    function openAddModal() {
+        setFormData({
+            ruangan: "",
+            nama_stase: "",
+            penguji: "",
+        });
+        setIsAddOpen(true);
+    }
+
+    // ============================
+    //  OPEN MODAL EDIT
+    // ============================
+    function openEditModal(item) {
+        setSelectedStase(item);
+        setFormData({
+            ruangan: item?.ruang?.nomor_ruangan || "",
+            nama_stase: item?.stase?.nama_stase || "",
+            penguji: item?.penguji?.nama || "",
+        });
+        setIsEditOpen(true);
+    }
+
+    // ============================
+    //  ADD SUBMIT
+    // ============================
+    function handleSubmitAdd(e) {
+        e.preventDefault();
+
+        router.post(
+            `/admin/osce/${osce.id_osce}/stase`,
+            { ...formData },
+            {
+                onFinish: () => {
+                    setIsAddOpen(false);
+                    setFormData({ ruangan: "", nama_stase: "", penguji: "" }); // Reset form
+                },
+            }
+        );
+    }
+
+    // ============================
+    //  EDIT SUBMIT
+    // ============================
+    function handleSubmitEdit(e) {
+        e.preventDefault();
+
+        if (!selectedStase) return;
+
+        router.put(
+            `/admin/osce/${osce.id_osce}/stase/${selectedStase.id_osce_stase}`,
+            { ...formData },
+            {
+                onFinish: () => setIsEditOpen(false),
+            }
+        );
+    }
+
+    // ============================
+    //  DELETE FROM EDIT MODAL
+    // ============================
+    function handleDeleteInsideEdit() {
+        if (!selectedStase) return;
+
+        router.delete(
+            `/admin/osce/${osce.id_osce}/stase/${selectedStase.id_osce_stase}`,
+            {
+                onFinish: () => {
+                    setIsEditOpen(false);
+                    setSelectedStase(null);
+                },
+            }
+        );
+    }
+
+    // ============================
+    //  DELETE CONFIRM MODAL
+    // ============================
+    function openDeleteModal(item) {
+        setSelectedStase(item);
+        setIsModalOpen(true);
+    }
+
+    function confirmDelete() {
+        if (!selectedStase) return;
+
+        router.delete(
+            `/admin/osce/${osce.id_osce}/stase/${selectedStase.id_osce_stase}`,
+            {
+                onFinish: () => {
+                    setIsModalOpen(false);
+                    setSelectedStase(null);
+                },
                 preserveScroll: true,
-            });
-        }
+            }
+        );
+    }
+
+    // Siapin isi data tabel
+    const tableData = stase.data.map((item, index) => ({
+        no: stase.from + index,
+        ruangan: `Ruang ${item.ruang.nomor_ruangan}`,
+        stase: item.stase.nama_stase,
+        penguji: item.penguji?.nama || "Belum diatur",
+        action: (
+            <div className="flex items-center justify-center gap-2">
+                <OsButton
+                name="edit"
+                    onClick={() =>
+                        // Mengganti router.get ke openEditModal(item) untuk menggunakan modal
+                        openEditModal(item)
+                    }
+                    className="p-2 rounded-md border bg-black text-white hover:bg-gray-400"
+                    title="Edit"
+                >
+                    <Edit2 size={18} />
+                </OsButton>
+
+                <OsButton
+                name="warning"
+                    onClick={() => openDeleteModal(item)} // Menggunakan openDeleteModal(item)
+                    className="p-2 rounded-md border text-red-600 hover:bg-red-50"
+                    title="Delete"
+                >
+                    <Trash2 size={18} />
+                </OsButton>
+            </div>
+        ),
+    }));
+
+    // Fungsi helper untuk handle perubahan form data
+    function handleFormChange(field, value) {
+        setFormData((prev) => ({ ...prev, [field]: value }));
     }
 
     return (
-        <div className="min-h-screen flex">
-            <Sidebar isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            <Sidebar />
 
-            <main
-                className={`flex-1 flex p-6 flex-col transition-all duration-300 ${
-                    isSidebarOpen ? "ml-64" : "ml-20"
-                }`}
-            >
-                {/* 5. Pastikan backend mengirim prop 'osce' */}
-                <OsHeader/>
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+                <OsHeader variant="goback" backLink="/admin/osce/" />
 
-                <div className="flex-1 p-2">
+                <div className="flex-1">
                     {/* Navigasi */}
                     <section className="mb-2">
-                        <h2 className="text-lg font-semibold mb-3">Navigasi</h2>
+                        <h2 className="text-lg font-semibold mb-2">Navigasi</h2>
 
                         <div className="flex gap-2">
-                            <button className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium">
+                            <OsButton
+                                name="primary"
+                                className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium"
+                                onClick={() =>
+                                    router.get(
+                                        `/admin/osce/${osce.id_osce}/stase`
+                                    )
+                                }
+                            >
                                 <ClipboardList size={16} />
                                 Halaman Stase
-                            </button>
+                            </OsButton>
 
-                            <button
+                            <OsButton
+                                name="primary"
                                 onClick={() =>
                                     router.get(
                                         `/admin/osce/${osce.id_osce}/jadwal`
@@ -68,162 +258,211 @@ export default function OsceStasePage({ stase, osce, filters }) {
                             >
                                 <CalendarClock size={16} />
                                 Jadwal Sesi
-                            </button>
+                            </OsButton>
                         </div>
                     </section>
+                    {/* --- */}
 
-                    {/* Tambah Stase */}
+                    {/* Tombol Add */}
                     <section className="mb-6">
                         <h2 className="text-lg font-semibold mb-1">
-                            Menu Halaman Stase
+                            [Nama OSCEnya]
                         </h2>
 
                         <p className="text-sm text-gray-500 mb-4 max-w-lg">
-                            Jorem ipsum dolor sit amet, consectetur adipiscing
-                            elit.
+                            Kelola dan definisikan seluruh Stase yang digunakan
+                            dalam ujian OSCE. Di halaman ini, Anda juga dapat
+                            menetapkan Daftar Penguji yang bertugas pada setiap
+                            stase untuk siklus penilaian yang sedang berjalan.
                         </p>
 
-                        <button
-                            onClick={() =>
-                                router.get(
-                                    `/admin/osce/${osce.id_osce}/stase/create`
-                                )
-                            }
+                        <OsButton
+                            name="primary"
+                            onClick={openAddModal}
                             className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
                         >
-                            <Plus size={18} className="mr-2" />
+                            <OsIcon
+                                name="add"
+                                className="h-os-20 os-icon-light mr-os-8"
+                            />
                             Masukkan Stase
-                        </button>
+                        </OsButton>
                     </section>
+                    {/* --- */}
 
                     {/* Search */}
-                    <section className="bg-white rounded-lg shadow-sm">
-                        <form
-                            onSubmit={handleSearch}
-                            className="mb-4 flex-wrap gap-3"
-                        >
-                            <div className="flex items-center mb-2 gap-3">
-                                <div className="relative">
-                                    <Search
-                                        size={18}
-                                        className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"
-                                    />
-                                    <input
-                                        type="text"
-                                        placeholder="cari data stase..."
-                                        className="border rounded-lg pl-10 pr-4 py-2.5 text-sm w-full sm:w-80 outline-blue-500"
-                                        value={searchTerm}
-                                        onChange={(e) =>
-                                            setSearchTerm(e.target.value)
-                                        }
-                                    />
-                                </div>
+                    <OsSearchBar
+                        search={searchTerm}
+                        setSearch={setSearchTerm}
+                        onSearchClick={handleSearch}
+                        placeholder="Cari data stase..."
+                    />
+                    {/* --- */}
 
-                                <button
-                                    type="submit"
-                                    className="bg-blue-600 text-white px-6 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium w-full sm:w-auto"
-                                >
-                                    Cari
-                                </button>
-                            </div>
+                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        Table Stase
+                    </h2>
 
-                            <h2 className="text-lg font-semibold text-gray-800">
-                                Tabel Stase
-                            </h2>
-                        </form>
+                    {/* Tabel */}
+                    <div>
+                        <OsTableHeader columns={tableColumns} />
+                        <OsTableBody
+                            columns={[
+                                {
+                                    key: "no",
+                                    width: "w-16",
+                                    classes: "justify-center",
+                                },
+                                {
+                                    key: "ruangan",
+                                    width: "flex-1",
+                                    classes: "justify-start px-4",
+                                },
+                                {
+                                    key: "stase",
+                                    width: "flex-1",
+                                    classes: "justify-start px-4",
+                                },
+                                {
+                                    key: "penguji",
+                                    width: "flex-1",
+                                    classes: "justify-start px-4",
+                                },
+                                {
+                                    key: "action",
+                                    width: "w-32",
+                                    classes: "justify-center",
+                                },
+                            ]}
+                            data={tableData}
+                        />
+                    </div>
 
-                        {/* Tabel */}
-                        <div className="overflow-x-auto border rounded-lg">
-                            <table className="w-full text-sm">
-                                <thead className="bg-gray-100 border-b">
-                                    <tr>
-                                        <th className="p-3 text-left w-16">
-                                            No
-                                        </th>
-                                        <th className="p-3 text-left">
-                                            Ruangan
-                                        </th>
-                                        <th className="p-3 text-left">Stase</th>
-                                        <th className="p-3 text-left">
-                                            Penguji
-                                        </th>
-                                        <th className="p-3 text-center w-32">
-                                            Action
-                                        </th>
-                                    </tr>
-                                </thead>
-
-                                <tbody>
-                                    {stase.data.map((item, index) => (
-                                        <tr
-                                            key={item.id_osce_stase}
-                                            className="border-b hover:bg-gray-50"
-                                        >
-                                            <td className="p-3 font-medium">
-                                                {stase.from + index}
-                                            </td>
-
-                                            <td className="p-3">
-                                                Ruang {item.ruang.nomor_ruangan}
-                                            </td>
-
-                                            {/* ✅ Kolom Stase TANPA IKON MERAH */}
-                                            <td className="p-3">
-                                                {item.stase.nama_stase}
-                                            </td>
-
-                                            <td className="p-3">
-                                                {item.penguji?.nama ||
-                                                    "Belum diatur"}
-                                            </td>
-
-                                            {/* ✅ Action TANPA IKON BIRU */}
-                                            <td className="p-3">
-                                                <div className="flex items-center justify-center gap-2">
-                                                    {/* Edit */}
-                                                    <button
-                                                        onClick={() =>
-                                                            router.get(
-                                                                `/admin/osce/${osce.id_osce}/stase/${item.id_osce_stase}/edit`
-                                                            )
-                                                        }
-                                                        className="p-2 rounded-md border bg-black text-white hover:bg-gray-400"
-                                                        title="Edit"
-                                                    >
-                                                        <Edit size={14} />
-                                                    </button>
-
-                                                    {/* Delete */}
-                                                    <button
-                                                        onClick={() =>
-                                                            handleDelete(
-                                                                item.id_osce_stase
-                                                            )
-                                                        }
-                                                        className="p-2 rounded-md border text-red-600 hover:bg-red-50"
-                                                        title="Delete"
-                                                    >
-                                                        <Trash2 size={14} />
-                                                    </button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <OsPagination links={stase?.links} />
-                    </section>
+                    <OsPagination links={stase?.links} />
                 </div>
 
-                {/* Footer */}
-                <footer className="p-4 bg-white border-t mt-auto">
-                    <div className="border rounded-lg px-4 py-3 text-center text-gray-500 text-xs">
-                        Copyright Porem ipsum
-                    </div>
-                </footer>
+                {/* footer */}
+                <OsCopyright />
             </main>
+
+            {/* DELETE CONFIRM MODAL */}
+            <Modals
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={confirmDelete}
+                variant="delete"
+                title="Hapus Stase?"
+                message="Apakah Anda yakin ingin menghapus stase ini secara permanen?"
+                dataToDelete={
+                    selectedStase
+                        ? [
+                              {
+                                  key: "Ruangan",
+                                  value: selectedStase?.ruang?.nomor_ruangan,
+                              },
+                              {
+                                  key: "Stase",
+                                  value: selectedStase?.stase?.nama_stase,
+                              },
+                              {
+                                  key: "Penguji",
+                                  value: selectedStase?.penguji?.nama || "-",
+                              },
+                          ]
+                        : []
+                }
+                confirmText="Hapus"
+            />
+
+            {/* ADD MODAL */}
+            <OsModal
+                show={isAddOpen}
+                onClose={() => setIsAddOpen(false)}
+                title="Tambah Stase"
+                subtitle="Masukkan data stase baru"
+                variant="add"
+                onSubmit={handleSubmitAdd}
+                onClear={() =>
+                    setFormData({ ruangan: "", nama_stase: "", penguji: "" })
+                }
+            >
+                {/* Form ADD */}
+                <div className="flex flex-col gap-3">
+                    <OsInput
+                        type="suggest"
+                        label="Nomor Ruangan"
+                        placeholder="Nomor Ruangan"
+                        value={formData.ruangan}
+                        onChange={
+                            (e) => handleFormChange("ruangan", e.target.value) // FIXED: Menggunakan handleFormChange
+                        }
+                    />
+
+                    <OsInput
+                        type="suggest"
+                        label="Stase"
+                        placeholder="Nama Stase" // Diubah agar lebih sesuai
+                        value={formData.nama_stase} // FIXED: Menggunakan formData.nama_stase
+                        onChange={
+                            (e) =>
+                                handleFormChange("nama_stase", e.target.value) // FIXED: Menggunakan handleFormChange
+                        }
+                    />
+                    <OsInput
+                        type="suggest"
+                        label="Penguji"
+                        placeholder="Nama Penguji" // Diubah agar lebih sesuai
+                        value={formData.penguji} // FIXED: Menggunakan formData.penguji
+                        onChange={
+                            (e) => handleFormChange("penguji", e.target.value) // FIXED: Menggunakan handleFormChange
+                        }
+                    />
+                </div>
+            </OsModal>
+
+            {/* EDIT MODAL */}
+            <OsModal
+                show={isEditOpen}
+                onClose={() => setIsEditOpen(false)}
+                title="Edit Stase"
+                subtitle={selectedStase?.stase?.nama_stase}
+                variant="edit"
+                onSubmit={handleSubmitEdit}
+                onDelete={handleDeleteInsideEdit}
+            >
+                {/* Form EDIT */}
+                <div className="flex flex-col gap-3">
+                    <OsInput
+                        type="suggest"
+                        label="Nomor Ruangan"
+                        placeholder="Nomor Ruangan"
+                        value={formData.ruangan}
+                        onChange={
+                            (e) => handleFormChange("ruangan", e.target.value) // FIXED: Menggunakan handleFormChange
+                        }
+                    />
+
+                    <OsInput
+                        type="suggest"
+                        label="Stase"
+                        placeholder="Nama Stase" // Diubah agar lebih sesuai
+                        value={formData.nama_stase} // FIXED: Menggunakan formData.nama_stase
+                        onChange={
+                            (e) =>
+                                handleFormChange("nama_stase", e.target.value) // FIXED: Menggunakan handleFormChange
+                        }
+                    />
+                    <OsInput
+                        type="suggest"
+                        label="Penguji"
+                        placeholder="Nama Penguji" // Diubah agar lebih sesuai
+                        value={formData.penguji} // FIXED: Menggunakan formData.penguji
+                        onChange={
+                            (e) => handleFormChange("penguji", e.target.value) // FIXED: Menggunakan handleFormChange
+                        }
+                    />
+                </div>
+            </OsModal>
         </div>
     );
 }

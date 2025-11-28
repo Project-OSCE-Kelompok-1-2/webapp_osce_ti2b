@@ -15,59 +15,64 @@ class OsceController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        $penguji = Penguji::where('id_pengguna', $user->id)->firstOrFail();
+        $penguji = Penguji::where('id_pengguna', $user->id_pengguna)->firstOrFail();
 
         $search = $request->input('search');
         $tahun  = $request->input('tahun');
 
-        // Query Dasar: Ambil OsceStase milik penguji
-        $query = OsceStase::with(['osce', 'osce.tahunAkademik'])
+        // Query Dasar
+        $query = OsceStase::with(['osce.enrollmentOsce', 'osce.tahunAkademik'])
             ->where('id_penguji', $penguji->id_penguji);
 
-        // Filter Search (Berdasarkan Nama OSCE)
+        // Filter Search
         if ($search) {
             $query->whereHas('osce', function ($q) use ($search) {
                 $q->where('nama_osce', 'like', "%{$search}%");
             });
         }
 
-        // Filter Tahun Akademik
+        // Filter Tahun
         if ($tahun) {
             $query->whereHas('osce.tahunAkademik', function ($q) use ($tahun) {
                 $q->where('tahun', 'like', "%{$tahun}%");
             });
         }
 
-        // Eksekusi Query
-        $assignments = $query->get();
+        // Pagination & Sorting
+        $assignments = $query->orderBy('tanggal', 'desc')->paginate(10)->withQueryString();
 
-        // Grouping & Mapping
-        // Kita ambil Unique OSCE saja. Jika penguji punya 2 stase di 1 OSCE,
-        // kita ambil yang pertama sebagai perwakilan link.
-        $osceList = $assignments->unique('id_osce')->map(function ($stase) {
+        // Transformasi Data untuk Frontend
+        // Kita gunakan through() untuk memodifikasi item dalam paginator tanpa merusak struktur pagination
+        $osceList = $assignments->through(function ($stase) {
             $osce = $stase->osce;
             $now = Carbon::now();
 
             // Logika Status
             $status = 'Selesai';
             if ($now->lt($osce->tanggal_mulai)) {
-                $status = 'Mendatang';
+                $status = 'Belum Dimulai';
             } elseif ($now->between($osce->tanggal_mulai, $osce->tanggal_selesai)) {
-                $status = 'Sedang Berlangsung'; // atau 'Penilaian Aktif'
+                $status = 'Aktif'; // Sesuai case di switch case frontend
+            } else {
+                // Jika lewat tanggal selesai, bisa jadi 'Tidak Aktif' atau 'Selesai'
+                // Asumsi sederhana:
+                $status = 'Selesai'; 
             }
 
             return [
-                'id_osce'       => $osce->id_osce,
-                'id_osce_stase' => $stase->id_osce_stase, // ID ini dipakai untuk link ke detail
-                'nama_osce'     => $osce->nama_osce,
-                'tanggal_mulai' => $osce->tanggal_mulai, // Sudah dicasting datetime di model
-                'tanggal_akhir' => $osce->tanggal_selesai,
-                'status'        => $status,
+                'id_osce'          => $osce->id_osce,
+                'id_osce_stase'    => $stase->id_osce_stase,
+                'nama'             => $osce->nama_osce, // Key sesuai Frontend
+                'tanggal_mulai'    => $osce->tanggal_mulai->format('d F Y'),
+                'tanggal_akhir'    => $osce->tanggal_selesai->format('d F Y'),
+                'status'           => $status,
+                'jumlah_mahasiswa' => $osce->enrollmentOsce->count(),
+                'sesi'             => substr($stase->jam_mulai, 0, 5) . ' - ' . substr($stase->jam_selesai, 0, 5),
             ];
-        })->values(); // Reset array keys
+        });
 
         return Inertia::render('Penguji/PengujiOsceList', [
-            'osce_list' => $osceList,
+            'osce_list' => $osceList, // Ini objek Paginator (data, links, meta)
             'filters'   => [
                 'search' => $search,
                 'tahun'  => $tahun
