@@ -2,7 +2,8 @@ import React, { useState, useEffect } from "react";
 import { usePage, router } from "@inertiajs/react";
 import { ArrowLeft } from "lucide-react";
 
-import Sidebar from "../../components/SidebarPenguji";
+// import Sidebar from "../../components/SidebarPenguji";
+import Sidebar from "../../components/Sidebar";
 import OsTableHeader from "../../components/tableheader";
 
 const rubrikColumns = [
@@ -113,7 +114,9 @@ export default function LivePenilaian() {
 
     return (
         <div className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
-            <Sidebar onToggle={setSidebarOpen} />
+            {/* <Sidebar onToggle={setSidebarOpen} /> */}
+            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
+
 
             <main
                 className={`grid w-full grid-cols-1 grid-rows-[auto_1fr_auto] transition-all duration-300 ${
