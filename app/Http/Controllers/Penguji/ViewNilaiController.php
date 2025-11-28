@@ -18,9 +18,8 @@ class ViewNilaiController extends Controller
         $enrollment = EnrollmentOsce::with(['mahasiswa', 'osce']) // Load OSCE juga untuk judul jika perlu
             ->findOrFail($id_enrollment_osce);
 
-        // --- VALIDASI AKSES  ---
-        $penguji = Auth::user(); 
-        $penguji = $user->penguji;
+        // 2. Validasi Akses: Apakah Penguji ini ditugaskan di OSCE ini?
+        $user = Auth::user();
         
         // Pastikan user punya profil penguji
         if (!$user->penguji) {
