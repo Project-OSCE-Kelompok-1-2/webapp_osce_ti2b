@@ -1,7 +1,7 @@
 <?php
 
 namespace App\Http\Controllers\Admin;
-
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\Osce;
 use Inertia\Inertia;
 use App\Models\Mahasiswa;
@@ -11,6 +11,7 @@ use Illuminate\Http\Request;
 use App\Models\EnrollmentOsce;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use App\Models\TahunAkademik; // <-- TAMBAHAN: untuk dropdown tahun akademik
 
 class RekapNilaiController extends Controller
 {
@@ -39,16 +40,28 @@ class RekapNilaiController extends Controller
                 'nama_rubrik'      => $osce->nama_osce,
                 'rentang_tanggal'  => $osce->tanggal_mulai . ' - ' . $osce->tanggal_selesai,
                 'tahun_akademik'   => optional($osce->tahunAkademik)->tahun,
-                // menyesuaiakan dengan test
+                // menyesuakan dengan test
                 // 'detail_mahasiswa' => $osce->enrollmentOsce()->count() . ' mahasiswa',
                 // 'detail_sesi'      => $osce->osceStase()->count() . ' sesi',
             ];
         });
 
+        // === TAMBAHAN: Ambil list tahun akademik untuk dropdown (dinamis) ===
+        $tahunAkademikOptions = TahunAkademik::orderBy('tahun', 'desc')
+            ->get()
+            ->map(function ($t) {
+                return [
+                    // gunakan string tahun sebagai value supaya sesuai filter di query ->where('tahun', $tahun)
+                    'value' => $t->tahun,
+                    'label' => $t->tahun,
+                ];
+            });
+
         // Sesuai test: key = 'osce', bukan 'osces'
         return Inertia::render('Admin/RekapOscePage', [
             'osce' => $osces,
             'filters' => $request->only(['search', 'tahun']),
+            'tahunAkademikOptions' => $tahunAkademikOptions, // <-- kirim ke frontend
         ]);
     }
 
@@ -281,5 +294,100 @@ class RekapNilaiController extends Controller
             'detailNilai' => $detailNilai,
         ]);
     }
-    
+
+    /**
+     * TUGAS 3: DOWNLOAD PDF
+     * GET /admin/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}/download
+     */
+    public function downloadPdf($id_mahasiswa, $id_osce)
+    {
+        // 1. Ambil Data (Copy logic dari detailNilaiMahasiswa agar konsisten)
+        $enrollment = EnrollmentOsce::with(['mahasiswa', 'osce'])
+            ->where('id_mahasiswa', $id_mahasiswa)
+            ->where('id_osce', $id_osce)
+            ->firstOrFail();
+
+        $nilaiOsce = NilaiOsce::with([
+                'poinAspekPenilaian.aspekPenilaian.stase',
+                'enrollmentOsce.mahasiswa',
+            ])
+            ->where('id_enrollment_osce', $enrollment->id_enrollment_osce)
+            ->get();
+
+        // 2. Formatting Data (Sama persis dengan sebelumnya)
+        $nilaiPerStase = [];
+
+        foreach ($nilaiOsce as $nilai) {
+            $poin   = $nilai->poinAspekPenilaian;
+            if (!$poin) continue;
+            $aspek  = $poin?->aspekPenilaian;
+            $stase  = $aspek?->stase;
+            if (!$stase) continue;
+
+            $osceStase = OsceStase::where('id_osce', $enrollment->id_osce)
+                ->where('id_stase', $stase->id_stase)
+                ->with('penguji')
+                ->first();
+
+            $staseKey = $stase?->nama_stase ?? 'Stase Tidak Dikenal';
+            if (!isset($nilaiPerStase[$staseKey])) {
+                $nilaiPerStase[$staseKey] = [
+                    'nama_stase' => $staseKey,
+                    'nama_penguji' => $osceStase?->penguji?->nama ?? '-',
+                    'total_skor_bobot' => 0,
+                    'aspek_penilaian' => [],
+                ];
+            }
+
+            $aspekKey = $aspek?->aspek ?? 'Aspek Tidak Dikenal';
+            if (!isset($nilaiPerStase[$staseKey]['aspek_penilaian'][$aspekKey])) {
+                $nilaiPerStase[$staseKey]['aspek_penilaian'][$aspekKey] = [
+                    'aspek' => $aspekKey,
+                    'kompetensi' => [],
+                ];
+            }
+
+            $skor = $poin?->skor ?? 0;
+            $bobot = $poin?->bobot ?? 0;
+            $nilaiKali = $skor * $bobot;
+
+            $nilaiPerStase[$staseKey]['total_skor_bobot'] += $nilaiKali;
+
+            $nilaiPerStase[$staseKey]['aspek_penilaian'][$aspekKey]['kompetensi'][] = [
+                'kompetensi' => $poin?->kompetensi ?? 'Kompetensi Tidak Dikenal',
+                'skor' => $skor,
+                'bobot' => $bobot,
+                'nilai' => $nilaiKali, // Nilai hasil kali
+            ];
+        }
+
+        foreach ($nilaiPerStase as $key => $stase) {
+            $totalSkorBobot = $stase['total_skor_bobot'] ?? 0;
+            $nilaiPerStase[$key]['nilai_akhir_stase'] = $totalSkorBobot / 4;
+        }
+
+        // 3. Persiapkan Data untuk View PDF
+        $data = [
+            'mahasiswa' => [
+                'nim' => $enrollment->mahasiswa->nim,
+                'nama' => $enrollment->mahasiswa->nama,
+            ],
+            'osce' => [
+                'nama_osce' => $enrollment->osce->nama_osce ?? '-',
+            ],
+            // Flatten array stase
+            'nilai_per_stase' => array_values(array_map(function ($stase) {
+                // Flatten array aspek juga agar mudah di loop di blade
+                $stase['aspek_penilaian'] = array_values($stase['aspek_penilaian']);
+                return $stase;
+            }, $nilaiPerStase)),
+            'tahun' => date('Y'),
+        ];
+
+        // 4. Generate PDF
+        $pdf = Pdf::loadView('pdf.rekap_nilai', $data);
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->download('Hasil_OSCE_'.$enrollment->mahasiswa->nim.'.pdf');
+    }
 }
