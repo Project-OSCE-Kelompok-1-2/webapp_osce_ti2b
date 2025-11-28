@@ -19,12 +19,16 @@ export default function OsInput({
     const [searchQuery, setSearchQuery] = useState("");
     const [filteredOptions, setFilteredOptions] = useState(options);
 
-    // Sinkronisasi state lokal dengan prop value untuk input tunggal
+// Sinkronisasi dan filter untuk multi-select (TETAP SAMA)
     useEffect(() => {
-        if (type !== "multi-select") {
-            setInputValue(value || "");
+        if (type === "multi-select") {
+            const lowerCaseQuery = searchQuery.toLowerCase();
+            const filtered = options.filter((opt) =>
+                (opt.label || opt).toLowerCase().includes(lowerCaseQuery)
+            );
+            setFilteredOptions(filtered);
         }
-    }, [value, type]);
+    }, [searchQuery, options, type]);
 
     // Sinkronisasi dan filter untuk multi-select
     useEffect(() => {
@@ -123,9 +127,12 @@ export default function OsInput({
     }
 
     /** 🔹 SUGGEST INPUT */
-    if (type === "suggest") {
+if (type === "suggest") {
+        // Gunakan prop 'value' untuk filtering
+        const currentValue = value || "";
+
         const filtered = suggestions.filter((s) =>
-            s.toLowerCase().includes(inputValue.toLowerCase())
+            s.toLowerCase().includes(currentValue.toLowerCase())
         );
 
         return (
@@ -137,24 +144,29 @@ export default function OsInput({
                 )}
                 <input
                     type="text"
-                    value={inputValue}
+                    // Gunakan prop 'value' langsung
+                    value={currentValue}
                     onChange={(e) => {
-                        setInputValue(e.target.value);
+                        // Tidak perlu setInputValue lokal, karena komponen induk akan mengurusnya
+                        // dan mengirim kembali via prop 'value'.
                         onChange && onChange(e);
                     }}
                     placeholder={placeholder}
                     onFocus={() => setFocused(true)}
+                    // Perlu timeout agar onClick pada <li> sempat tereksekusi
                     onBlur={() => setTimeout(() => setFocused(false), 150)}
                     className="w-full min-h-[48px] px-3 py-2 border-os-1 border-os-black rounded-lg bg-white outline-none focus:border-os-primary focus:ring-1 focus:ring-os-primary"
                 />
                 {focused && filtered.length > 0 && (
-                    <ul className="absolute z-10 mt-20 w-full bg-white border rounded-lg max-h-48 overflow-auto">
+                    // Naikkan mt-20 menjadi mt-[52px] atau sejenisnya
+                    // agar list tepat di bawah input (48px tinggi + sedikit margin)
+                    <ul className="absolute z-10 mt-[52px] w-full bg-white border rounded-lg max-h-48 overflow-auto shadow-lg">
                         {filtered.map((s, i) => (
                             <li
                                 key={i}
                                 onClick={() => {
-                                    setInputValue(s);
-                                    // Untuk type suggest, onChange menerima string, bukan event object
+                                    // Panggil onChange, mengirimkan string saran (s)
+                                    // Komponen induk harus mengupdate state-nya dengan 's'
                                     onChange && onChange(s);
                                     setFocused(false);
                                 }}
