@@ -14,7 +14,13 @@ class AuthController extends Controller
     {
         $this->authService = $authService;
     }
-
+    /**
+     * @unauthenticated
+     */
+    public function index(Request $request)
+    {
+        return response()->json(/* some data */);
+    }
     public function login(Request $request)
     {
         $request->validate([
