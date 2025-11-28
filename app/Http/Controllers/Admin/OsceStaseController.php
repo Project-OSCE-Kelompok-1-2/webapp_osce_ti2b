@@ -99,28 +99,40 @@ public function create($id_osce)
     ]);
 }
 
+public function store(Request $request, $id_osce)
+    {
+        $validated = $request->validate([
+            'id_ruang' => 'required|exists:ruang,id_ruang',
+            'id_stase' => 'required|exists:stase,id_stase',
+            'id_penguji' => 'required|exists:penguji,id_penguji',
+        ]);
 
-    public function store(Request $request, $id_osce)
-{
-    // Validasi input dulu
-    $validated = $request->validate([
-        'id_ruang' => 'required|exists:ruang,id_ruang',
-        'id_stase' => 'required|exists:stase,id_stase',
-        'id_penguji' => 'required|exists:penguji,id_penguji',
-    ]);
+        // 1. VALIDASI DUPLIKASI TEMPLATE
+        // Cek apakah kombinasi ini SUDAH ADA sebagai template (tanggal = NULL)
+        $isDuplicate = OsceStase::where('id_osce', $id_osce)
+            ->where('id_stase', $validated['id_stase'])
+            // Jika 1 stase boleh dipakai di banyak ruang, hapus baris id_ruang di bawah
+            ->where('id_ruang', $validated['id_ruang']) 
+            ->where('id_penguji', $validated['id_penguji'])
+            ->whereNull('tanggal') // Hanya cek template
+            ->exists();
 
-    // Simpan data ke database
-    OsceStase::create([
-        'id_ruang' => $validated['id_ruang'],
-        'id_stase' => $validated['id_stase'],
-        'id_penguji' => $validated['id_penguji'],
-        'id_osce' => $id_osce,
-    ]);
+        if ($isDuplicate) {
+            // Return error agar tidak disimpan
+            return Redirect::back()->withErrors(['id_stase' => 'Kombinasi Stase, Ruang, dan Penguji ini sudah terdaftar.']);
+        }
 
-    // [PERBAIKAN] Redirect ke halaman index (daftar stase)
-    return Redirect::route('admin.osce.stase.index', ['id_osce' => $id_osce])
-        ->with('success', 'Stase berhasil ditambahkan ke OSCE!');
-}
+        OsceStase::create([
+            'id_ruang' => $validated['id_ruang'],
+            'id_stase' => $validated['id_stase'],
+            'id_penguji' => $validated['id_penguji'],
+            'id_osce' => $id_osce,
+            'tanggal' => null, // Pastikan ini NULL sebagai penanda template
+        ]);
+
+        return Redirect::route('admin.osce.stase.index', ['id_osce' => $id_osce])
+            ->with('success', 'Stase berhasil ditambahkan ke OSCE!');
+    }
 
     public function edit($id_osce, OsceStase $osce_stase)
     {
@@ -156,10 +168,23 @@ public function create($id_osce)
             'id_penguji' => 'required|exists:penguji,id_penguji',
         ]);
 
-        // 2. Update data stase template
+        // 2. Cegah update yang menghasilkan duplikat template
+        $duplicate = OsceStase::where('id_osce', $id_osce)
+            ->where('id_stase', $validated['id_stase'])
+            ->where('id_ruang', $validated['id_ruang'])
+            ->where('id_penguji', $validated['id_penguji'])
+            ->whereNull('tanggal')
+            ->where('id_osce_stase', '!=', $osce_stase->id_osce_stase)
+            ->exists();
+
+        if ($duplicate) {
+            return Redirect::back()->with('error', 'Perubahan akan menyebabkan duplikasi template yang sudah ada.');
+        }
+
+        // 3. Update data stase template
         $osce_stase->update($validated);
 
-        // 3. Redirect kembali ke halaman index stase
+        // 4. Redirect kembali ke halaman index stase
         return Redirect::route('admin.osce.stase.index', ['id_osce' => $id_osce])
             ->with('success', 'Stase berhasil diperbarui.');
     }
