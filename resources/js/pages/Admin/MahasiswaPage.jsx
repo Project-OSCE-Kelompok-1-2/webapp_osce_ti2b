@@ -250,52 +250,48 @@ export default function MahasiswaPage() {
                     )}
 
                     {/* 5. PERBAIKAN FILTER LOGIC */}
-                    <div className="flex items-start gap-3 w-full">
-                        <OsSearchBar
-                            search={search}
-                            setSearch={setSearch}
-                            onSearchClick={handleSearch}
-                            placeholder="Cari nama atau NIM..."
-                        >
-                            <div className="w-60">
-                                <OsInput
-                                    type="select"
-                                    value={angkatanFilter}
-                                    onChange={(e) => {
-                                        // A. Ambil nilai (handle jika object)
-                                        let val = e?.target?.value ?? e;
-                                        if (
-                                            typeof val === "object" &&
-                                            val !== null &&
-                                            val?.value !== undefined
-                                        ) {
-                                            val = val.value;
-                                        }
+                    <OsSearchBar
+                        search={search}
+                        setSearch={setSearch}
+                        onSearchClick={handleSearch}
+                        placeholder="Cari nama mahasiswa..."
+                    >
+                        <OsInput
+                            type="select"
+                            value={angkatanFilter}
+                            onChange={(e) => {
+                                // A. Ambil nilai (handle jika object)
+                                let val = e?.target?.value ?? e;
+                                if (
+                                    typeof val === "object" &&
+                                    val !== null &&
+                                    val?.value !== undefined
+                                ) {
+                                    val = val.value;
+                                }
 
-                                        // B. Update State UI
-                                        setAngkatanFilter(val);
+                                // B. Update State UI
+                                setAngkatanFilter(val);
 
-                                        // C. Update URL (Kirim undefined jika kosong agar param hilang)
-                                        router.get(
-                                            "/admin/mahasiswa",
-                                            {
-                                                search,
-                                                angkatan:
-                                                    val === "" || val === null
-                                                        ? undefined
-                                                        : val,
-                                            },
-                                            {
-                                                preserveState: true,
-                                                replace: true,
-                                            }
-                                        );
-                                    }}
-                                    options={angkatanList}
-                                />
-                            </div>
-                        </OsSearchBar>
-                    </div>
+                                // C. Update URL (Kirim undefined jika kosong agar param hilang)
+                                router.get(
+                                    "/admin/mahasiswa",
+                                    {
+                                        search,
+                                        angkatan:
+                                            val === "" || val === null
+                                                ? undefined
+                                                : val,
+                                    },
+                                    {
+                                        preserveState: true,
+                                        replace: true,
+                                    }
+                                );
+                            }}
+                            options={angkatanList}
+                        />
+                    </OsSearchBar>
 
                     {/* Tabel */}
                     <section>
