@@ -84,7 +84,7 @@ export default function TambahJadwalSesi({
             <main className="flex-1 flex items-center justify-center p-6">
                 <form
                     onSubmit={handleSubmit}
-                    className="w-full max-w-2xl border rounded-lg shadow-sm bg-white overflow-hidden"
+                    className="w-full max-w-2xl border rounded-lg -sm bg-white overflow-hidden"
                 >
                     {/* 8. Judul Form Dinamis */}
                     <div className="bg-gray-900 text-white p-5 text-center">

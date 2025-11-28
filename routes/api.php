@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ViewNilaiController;
 use App\Http\Controllers\Api\V1\InputNilaiController; // <--- Pastikan import controller baru
+use App\Http\Controllers\Api\Penguji\ProfilController;
 
 Route::prefix('v1')->group(function () {
     Route::get('/login', function () {
@@ -26,6 +27,12 @@ Route::prefix('v1')->group(function () {
         // INPUT NILAI (Tambahkan ini)
         // Kita gunakan POST. Sesuaikan nama controllernya nanti.
         Route::post('/penilaian', InputNilaiController::class); 
+        // Profil Penguji
+        Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
+            ->name('api.penguji.account.show');
+        
+        Route::post('/penguji/profil/update', [ProfilController::class, 'update_account'])
+            ->name('api.penguji.account.update');
     });
 
 });
