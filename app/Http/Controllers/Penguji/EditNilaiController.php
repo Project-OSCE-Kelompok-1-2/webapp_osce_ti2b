@@ -19,66 +19,84 @@ class EditNilaiController extends Controller
     public function edit($id_enrollment_osce)
     {
         try {
-            // 1. Ambil Data Enrollment & Mahasiswa
-            $enrollment = EnrollmentOsce::with(['mahasiswa', 'osce'])
+            // 1. Ambil Data Enrollment & Mahasiswa (pastikan ada)
+            $enrollment = EnrollmentOsce::with(['mahasiswa'])
                 ->findOrFail($id_enrollment_osce);
 
-            // ---------------------------------------------------------
-            // LOGIKA MENGAMBIL STASE PENGUJI
-            // ---------------------------------------------------------
-            // Mengambil data OsceStase berdasarkan OSCE ini dan Penguji yang login.
-            // Asumsi: User yang login adalah penguji yg terdaftar di tabel osce_stase.
-            $userId = Auth::id(); 
-
-            $osceStase = OsceStase::with('stase')
-                ->where('id_osce', $enrollment->id_osce)
-                // ->where('id_penguji', $userId) // UNCOMMENT baris ini jika sudah ada sistem login penguji
-                ->first();
-
-            if (!$osceStase) {
-                // Fallback jika data osce_stase tidak ditemukan (misal testing admin)
-                // Ambil stase pertama yg ada di osce tsb
+            // 2. Ambil OsceStase yang terkait 
+            $osceStase = null;
+            if (!empty($enrollment->id_osce_stase)) {
                 $osceStase = OsceStase::with('stase')
-                    ->where('id_osce', $enrollment->id_osce)
-                    ->firstOrFail();
+                    ->where('id_osce_stase', $enrollment->id_osce_stase)
+                    ->first();
             }
 
-            // ---------------------------------------------------------
-            // QUERY RUBRIK + NILAI (MENGGUNAKAN RELASI BARU)
-            // ---------------------------------------------------------
-            // memuat struktur: Stase -> Aspek -> Poin
-            // Serta langsung memuat 'nilai_osce' TAPI difilter khusus enrollment ini.
-            
+            // Fallback: cari berdasarkan id_osce (jika id_osce_stase tidak ada)
+            if (!$osceStase && !empty($enrollment->id_osce)) {
+                $osceStase = OsceStase::with('stase')
+                    ->where('id_osce', $enrollment->id_osce)
+                    ->first();
+            }
+
+            // Jika tetap tidak ditemukan, coba ambil satu atau throw
+            if (!$osceStase) {
+
+                $osceStatus = 'Tidak Aktif';
+                return response()->json([
+                    'success' => true,
+                    'data' => [
+                        'id_enrollment_osce' => $enrollment->id_enrollment_osce,
+                        'mahasiswa' => [
+                            'id' => $enrollment->mahasiswa->id_mahasiswa,
+                            'nim' => $enrollment->mahasiswa->nim ?? null,
+                            'nama' => $enrollment->mahasiswa->nama ?? null,
+                        ],
+                        'info_stase' => null,
+                        'penilaian' => [],
+                        'osce_status' => $osceStatus
+                    ]
+                ], 200);
+            }
+
+            // LOAD RUBRIK + NILAI EXISTING (filter nilai berdasarkan enrollment ini)
             $rubrikStruktur = $osceStase->stase->load([
                 'aspekPenilaian.poinAspekPenilaian.nilai_osce' => function ($query) use ($id_enrollment_osce) {
-                    // Constraint: Hanya ambil nilai milik enrollment siswa ini
                     $query->where('id_enrollment_osce', $id_enrollment_osce);
                 }
             ]);
 
-            // ---------------------------------------------------------
-            // FORMAT RESPONSE
-            // ---------------------------------------------------------
+            // Tentukan status OSCE sebagai variabel (tanpa bergantung kolom DB)
+            $osceStatus = 'Aktif'; // default
+
+            if (!empty($osceStase->tanggal)) {
+                try {
+                    $today = date('Y-m-d');
+                    if ($osceStase->tanggal < $today) {
+                        $osceStatus = 'Selesai';
+                    }
+                } catch (\Throwable $t) {
+                    // ignore parsing errors, tetap 'Aktif'
+                }
+            }
+
+            // FORMAT RESPONSE (
             $rubrikTerisi = [
                 'id_enrollment_osce' => $enrollment->id_enrollment_osce,
                 'mahasiswa' => [
                     'id'   => $enrollment->mahasiswa->id_mahasiswa,
-                    'nim'  => $enrollment->mahasiswa->nim,
-                    'nama' => $enrollment->mahasiswa->nama,
+                    'nim'  => $enrollment->mahasiswa->nim ?? null,
+                    'nama' => $enrollment->mahasiswa->nama ?? null,
                 ],
                 'info_stase' => [
-                    'nama_stase' => $rubrikStruktur->nama_stase,
-                    'deskripsi'  => $rubrikStruktur->deskripsi,
+                    'nama_stase' => $rubrikStruktur->nama_stase ?? null,
+                    'deskripsi'  => $rubrikStruktur->deskripsi ?? null,
                 ],
-                // Mapping data Aspek
                 'penilaian' => $rubrikStruktur->aspekPenilaian->map(function ($aspek) {
                     return [
                         'id_aspek' => $aspek->id_aspek_penilaian,
                         'nama_aspek' => $aspek->aspek,
                         'bobot_maksimum' => $aspek->bobot_maksimum,
-                        // Mapping data Poin Kompetensi
                         'kompetensi_list' => $aspek->poinAspekPenilaian->map(function ($poin) {
-                            // Cek apakah relasi nilai_osce ada isinya
                             $nilaiInput = $poin->nilai_osce ? $poin->nilai_osce->nilai : 0;
 
                             return [
@@ -86,7 +104,7 @@ class EditNilaiController extends Controller
                                 'kompetensi'    => $poin->kompetensi,
                                 'skor_maksimal' => $poin->skor,
                                 'bobot'         => $poin->bobot,
-                                'nilai_input'   => $nilaiInput // Nilai diambil langsung dari relasi
+                                'nilai_input'   => $nilaiInput
                             ];
                         })
                     ];
@@ -95,11 +113,15 @@ class EditNilaiController extends Controller
 
             return response()->json([
                 'success' => true,
-                'data' => $rubrikTerisi
+                'data' => $rubrikTerisi,
+                'osce_status' => $osceStatus
             ], 200);
 
         } catch (\Exception $e) {
-            return response()->json(['success' => false, 'message' => 'Terjadi kesalahan: ' . $e->getMessage()], 500);
+            return response()->json([
+                'success' => false,
+                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+            ], 500);
         }
     }
 
@@ -109,20 +131,42 @@ class EditNilaiController extends Controller
      */
     public function update(Request $request, $id_enrollment_osce)
     {
-        // Validasi
+        // Validasi input
         $request->validate([
             'items' => 'required|array',
             'items.*.id_poin_aspek_penilaian' => 'required|integer|exists:poin_aspek_penilaian,id_poin_aspek_penilaian',
             'items.*.nilai' => 'required|numeric|min:0',
+
+            'osce_status' => 'sometimes|string'
         ]);
 
         DB::beginTransaction();
         try {
-            $inputItems = $request->input('items');
+            // Ambil enrollment lengkap termasuk relasi osceStase (jika ada)
+            $enrollment = EnrollmentOsce::with('osceStase')->findOrFail($id_enrollment_osce);
+
+            // Tentukan status OSCE tanpa membaca kolom DB:
+            // preferensi: jika front-end mengirim osce_status gunakan itu,
+            // kalau tidak, tentukan berdasarkan ada/tidaknya osceStase (atau logika lain)
+            $statusOsce = $request->input('osce_status');
+            if (is_null($statusOsce)) {
+                $statusOsce = $enrollment->osceStase ? 'Aktif' : 'Tidak Aktif';
+            }
+
+            // Jika OSCE tidak aktif (berdasarkan variabel)
+            if (strtolower($statusOsce) !== 'aktif') {
+                DB::rollBack();
+                return response()->json([
+                    'success' => false,
+                    'message' => 'OSCE tidak aktif. Nilai tidak dapat disimpan.'
+                ], 403);
+            }
+
+            // Simpan / update setiap poin menggunakan updateOrCreate
+            $inputItems = $request->input('items', []);
             $savedCount = 0;
 
             foreach ($inputItems as $item) {
-                // Menggunakan updateOrCreate untuk menyimpan nilai
                 NilaiOsce::updateOrCreate(
                     [
                         'id_enrollment_osce'      => $id_enrollment_osce,
