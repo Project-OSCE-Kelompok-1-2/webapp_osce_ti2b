@@ -29,6 +29,19 @@ Route::prefix('v1')->group(function () {
         
         Route::post('/penguji/profil/update', [ProfilController::class, 'update_account'])
             ->name('api.penguji.account.update');
+        
+        
+        Route::get('/penguji/nilai/{id_enrollment_osce}', 
+            [AksiPenilaianApiController::class, 'showNilai']);
+
+        Route::post('/penguji/penilaian/{id_enrollment_osce}', 
+            [AksiPenilaianApiController::class, 'storePenilaian']);
+
+        Route::get('/penguji/rotasi/{id_osce_stase}', 
+            [AksiPenilaianApiController::class, 'rotasi']);
+
+        Route::post('/penguji/selesai/{id_osce_stase}', 
+            [AksiPenilaianApiController::class, 'selesai']);
     });
 
 });
