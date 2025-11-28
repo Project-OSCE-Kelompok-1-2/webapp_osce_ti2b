@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Services\AuthService; // <-- Import Service yang SAMA
 use Illuminate\Http\Request;
 
+
+
 class AuthController extends Controller
 {
     protected $authService;
@@ -14,13 +16,11 @@ class AuthController extends Controller
     {
         $this->authService = $authService;
     }
+
     /**
+     * Login pengguna
      * @unauthenticated
-     */
-    public function index(Request $request)
-    {
-        return response()->json(/* some data */);
-    }
+    */
     public function login(Request $request)
     {
         $request->validate([
@@ -38,13 +38,11 @@ class AuthController extends Controller
             // 2. LOGIKA API (Pakai Token)
             $token = $this->authService->generateApiToken($pengguna, 'mobile-app');
 
-            // Kembalikan JSON
             return response()->json([
                 'message' => 'Login berhasil',
-                'user' => $pengguna, // Atau gunakan Resource class jika ingin rapi
-                'token' => $token,   // <-- INI KUNCINYA
+                'user' => $pengguna, 
+                'token' => $token,   
             ], 200);
-
         } else {
             return response()->json([
                 'message' => 'Username atau password salah'
@@ -52,6 +50,9 @@ class AuthController extends Controller
         }
     }
 
+    /**
+     * Logout pengguna
+     */
     public function logout(Request $request)
     {
         // Hapus token via service

@@ -24,11 +24,15 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-    Scramble::configure()
-        ->withDocumentTransformers(function (OpenApi $openApi) {
-            $openApi->secure(
-                SecurityScheme::http('bearer')
-            );
-        });
+        Scramble::configure()
+            ->expose(
+                ui: '/docs/v1/api',
+                document: '/docs/v1/openapi.json',
+            )
+            ->withDocumentTransformers(function (OpenApi $openApi) {
+                $openApi->secure(
+                    SecurityScheme::http('bearer')
+                );
+            });
     }
 }
