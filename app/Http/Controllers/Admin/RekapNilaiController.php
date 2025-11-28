@@ -280,6 +280,7 @@ class RekapNilaiController extends Controller
                 'id_mahasiswa' => $enrollment->mahasiswa->id_mahasiswa,
             ],
             'osce' => [
+                'id_osce' => $enrollment->osce->id_osce,
                 'nama_osce' => $enrollment->osce->nama_osce ?? '-',
             ],
             'nilai_per_stase' => array_values(array_map(function ($stase) {
