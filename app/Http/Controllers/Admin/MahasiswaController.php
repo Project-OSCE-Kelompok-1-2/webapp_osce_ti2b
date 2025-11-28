@@ -40,6 +40,9 @@ class MahasiswaController extends Controller
                 'id_mahasiswa' => $mhs->id_mahasiswa,
                 'nim' => $mhs->nim,
                 'nama' => $mhs->nama,
+                // Tambahan agar Form Edit otomatis terisi saat tombol edit ditekan (tidak kosong).
+                'kelas' => $mhs->kelas,
+                'prodi' => $mhs->prodi,
             ]);
 
         // [PERBAIKAN] Render ke 'Admin/MahasiswaPage'
