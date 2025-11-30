@@ -1,5 +1,4 @@
 <?php
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
@@ -16,6 +15,9 @@ use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
 use App\Http\Controllers\Api\V1\FotoController;
 use App\Models\Foto;
+use App\Http\Controllers\Api\V1\ViewNilaiController;
+use App\Http\Controllers\Api\V1\InputNilaiController; // <--- Pastikan import controller baru
+use App\Http\Controllers\Api\Penguji\ProfilController;
 
 Route::prefix('v1')->group(function () {
     // Route::get('/login', function () {
@@ -24,10 +26,8 @@ Route::prefix('v1')->group(function () {
     Route::post("/testgambar", [FotoController::class, "create_foto"]);
 
 
-    // 2. Route API Asli (POST)
     Route::post('/login', [AuthController::class, 'login']);
 
-    // Routes yang butuh Token (Protected)
     Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -92,7 +92,20 @@ Route::prefix('v1')->group(function () {
             // --- Mahasiswa ---
             Route::apiResource('mahasiswa', MahasiswaController::class);
             Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
+        
+        Route::get('/me', function (Request $request) {
+            return $request->user();
         });
-    });
-});
 
+        // VIEW NILAI (Sudah ada)
+        Route::get('/penilaian/{id_enrollment_osce}/view', ViewNilaiController::class);
+
+
+        // Profil Penguji
+        Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
+            ->name('api.penguji.account.show');
+        
+        Route::post('/penguji/profil/update', [ProfilController::class, 'update_account'])
+            ->name('api.penguji.account.update');
+        }); // <-- Menutup group auth:sanctum
+    }); // <-- Menutup group prefix('v1')

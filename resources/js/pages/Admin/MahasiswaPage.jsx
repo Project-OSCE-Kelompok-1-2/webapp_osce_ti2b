@@ -1,73 +1,156 @@
 import React, { useState } from "react";
-import { Link, router, usePage, Head } from "@inertiajs/react";
-import { Trash2, X } from "lucide-react";
+import { router, usePage, useForm } from "@inertiajs/react"; // 1. Tambah useForm
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
-import Os_button from "../../components/button.jsx";
 import OsHeader from "../../components/Header.jsx";
+import OsTableBody from "../../components/tablecontain.jsx";
+import OsSearchBar from "../../components/searchbar.jsx";
+import OsInput from "../../components/input.jsx";
+import OsModal from "../../components/Modal.jsx";
+import OsButton from "../../components/button.jsx";
+import Modals from "../../components/Modals.jsx";
 
-// Kolom tabel (sudah benar)
+// 2. Sesuaikan key dengan data dari Controller
 const mahasiswaColumns = [
-    { content: "No", width: "w-16", classes: "justify-center items-center" },
     {
-        content: "Nim Mahasiswa",
+        key: "no",
+        content: "No",
+        width: "w-16",
+        classes: "justify-center items-center",
+    },
+    {
+        key: "nim",
+        content: "NIM Mahasiswa",
         width: "w-56",
         classes: "justify-start items-center px-4",
     },
     {
+        key: "nama",
         content: "Nama Mahasiswa",
         width: "flex-1",
         classes: "justify-start items-center px-4",
     },
     {
-        content: "Action",
+        key: "action",
+        content: "Aksi",
         width: "w-56",
         classes: "justify-center items-center px-4",
     },
 ];
 
 export default function MahasiswaPage() {
-    const { mahasiswa, filters, flash } = usePage().props;
+    const { mahasiswa, filters, flash, list_tahun } = usePage().props;
 
+    // --- STATE UI & FILTER ---
     const [search, setSearch] = useState(filters?.search || "");
-    const [angkatan, setAngkatan] = useState(filters?.angkatan || ""); // 'angkatan' ini adalah 'kelas' di DB
-    const [importFile, setImportFile] = useState(null);
-    const [importing, setImporting] = useState(false);
+    const [angkatanFilter, setAngkatanFilter] = useState(
+        filters?.angkatan || ""
+    );
+
+    // --- STATE MODAL ---
+    const [showModal, setShowModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showExcelModal, setShowExcelModal] = useState(false);
 
+    // --- STATE PENDUKUNG ---
+    const [importFile, setImportFile] = useState(null);
+    const [importing, setImporting] = useState(false);
+    const [mahasiswaToEdit, setMahasiswaToEdit] = useState(null); // Untuk Judul Modal Edit
+    const [selectedMahasiswa, setSelectedMahasiswa] = useState(null); // Untuk Hapus
+
+    // 3. GUNAKAN USEFORM (Pengganti state manual & defaultValue)
+    // Nama field disesuaikan dengan Controller: nim, nama, kelas, prodi
+    const { data, setData, post, put, reset, errors, clearErrors } = useForm({
+        nim: "",
+        nama: "",
+        kelas: "",
+        prodi: "",
+    });
+
+    // UBAH LIST JADI DINAMIS DARI DATABASE
+    // Jika list_tahun ada isinya, kita pakai. Jika tidak, pakai array kosong.
     const angkatanList = [
-        { value: "", label: "Semua Angkatan" },
-        { value: "2025", label: "2025" },
-        { value: "2024", label: "2024" },
-        { value: "2023", label: "2023" },
-        { value: "2022", label: "2022" },
-        { value: "2021", label: "2021" },
+        { value: "SEMUA", label: "Semua Angkatan" },
+        // Mapping data ['2025/2026', '2024/2025'] menjadi format dropdown
+        ...(list_tahun || []).map((tahun) => ({
+            value: tahun,
+            label: tahun,
+        })),
     ];
 
-    const handleSearch = (e) => {
-        e.preventDefault();
+    // --- LOGIKA FILTER & SEARCH ---
+    const handleSearch = () => {
         router.get(
             "/admin/mahasiswa",
-            { search, angkatan },
+            { search, angkatan: angkatanFilter || undefined },
             { preserveState: true, replace: true }
         );
     };
 
-    const handleDelete = (id) => {
-        if (
-            confirm(
-                "Apakah Anda yakin ingin menghapus mahasiswa ini? Ini juga akan menghapus akun login mereka."
-            )
-        ) {
-            router.delete(`/admin/mahasiswa/${id}`, { preserveScroll: true });
-        }
+    // --- HANDLE ADD ---
+    const openAddModal = () => {
+        reset(); // Kosongkan form
+        clearErrors();
+        setShowModal(true);
     };
 
-    // 6. Fungsi import (sudah benar)
+    const submitAdd = (e) => {
+        e.preventDefault();
+        post("/admin/mahasiswa", {
+            onSuccess: () => {
+                setShowModal(false);
+                reset();
+            },
+        });
+    };
+
+    // --- HANDLE EDIT ---
+    const openEditModal = (item) => {
+        setMahasiswaToEdit(item); // Simpan item asli untuk judul modal
+        clearErrors();
+
+        // 4. Isi Form dengan Data (Mapping field Controller -> Form)
+        setData({
+            nim: item.nim,
+            nama: item.nama,
+            // Jika data lama tidak cocok dengan list baru, tetap tampilkan apa adanya
+            kelas: item.kelas || (list_tahun && list_tahun[0]) || "", // Handle jika controller kirim 'kelas'
+            prodi: item.prodi || "", // Handle jika controller kirim 'prodi'
+        });
+
+        setShowEditModal(true);
+    };
+
+    const submitEdit = (e) => {
+        e.preventDefault();
+        // Pastikan ID dikirim di URL
+        put(`/admin/mahasiswa/${mahasiswaToEdit.id_mahasiswa}`, {
+            onSuccess: () => {
+                setShowEditModal(false);
+                reset();
+            },
+        });
+    };
+
+    // --- HANDLE DELETE ---
+    const openDeleteModal = (id, nama) => {
+        setSelectedMahasiswa({ id, nama });
+        setShowDeleteModal(true);
+    };
+
+    const confirmDelete = () => {
+        router.delete(`/admin/mahasiswa/${selectedMahasiswa.id}`, {
+            preserveScroll: true,
+            onSuccess: () => setShowDeleteModal(false),
+        });
+    };
+
+    // --- HANDLE IMPORT ---
     const handleImport = async (e) => {
         e.preventDefault();
         if (!importFile) return alert("Pilih file Excel terlebih dahulu.");
@@ -88,152 +171,139 @@ export default function MahasiswaPage() {
         );
     };
 
+    // --- DATA TABEL ---
+    const tableData = mahasiswa.data.map((item, index) => ({
+        no: mahasiswa.from + index,
+        nim: item.nim,
+        nama: item.nama,
+        action: (
+            <div className="flex items-center justify-center space-x-3">
+                <OsButton name="edit" onClick={() => openEditModal(item)}>
+                    <OsIcon name="Edit" className="h-os-20 os-icon-light" />
+                </OsButton>
+                <OsButton
+                    name="warning"
+                    onClick={() =>
+                        openDeleteModal(item.id_mahasiswa, item.nama)
+                    }
+                >
+                    <OsIcon name="Trash" className="h-os-20 os-icon-light" />
+                </OsButton>
+            </div>
+        ),
+    }));
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Head title="Manajemen Mahasiswa" />
             <Sidebar />
 
-            <main className="flex flex-col flex-1 p-os-8 transition-all duration-300 md:ml-20">
-                <OsHeader/>
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+                <OsHeader />
 
                 <div className="flex-1 overflow-auto">
-                    <section className="mb-8">
-                        <h2 className="font-semibold text-lg my-2">
-                            Menu Mahasiswa
-                        </h2>
-                        <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                            Halaman ini berisi daftar akun mahasiswa yang dapat
-                            di-enroll ke dalam OSCE.
-                        </p>
+                    <h2 className="font-semibold text-lg mb-1">
+                        Menu Mahasiswa
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                        Menu Mahasiswa berisi berbagai fitur yang digunakan
+                        untuk mengelola data.
+                    </p>
 
-                        {/* Tombol Tambah & Import */}
-                        <div className="flex items-center gap-3 mb-5">
-                            <Os_button
-                                onClick={() =>
-                                    router.visit("/admin/mahasiswa/create")
-                                }
-                                className="flex items-center h-[46px] rounded-xl"
-                            >
-                                <OsIcon
-                                    name="add"
-                                    className="h-os-20 os-icon-light mr-os-8"
-                                />
-                                Tambah Mahasiswa
-                            </Os_button>
-                            <Os_button
-                                onClick={() => setShowExcelModal(true)}
-                                className="flex items-center h-[46px] rounded-xl"
-                            >
-                                <OsIcon
-                                    name="Upload"
-                                    className="h-os-20 os-icon-light mr-os-8"
-                                />
-                                Import dari Excel
-                            </Os_button>
-                        </div>
-
-                        {/* Notifikasi Sukses/Error */}
-                        {flash.success && (
-                            <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
-                                {flash.success}
-                            </div>
-                        )}
-                        {flash.error && (
-                            <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
-                                {flash.error}
-                            </div>
-                        )}
-
-                        {/* 7. [PERBAIKAN] Filter dibungkus <form> */}
-                        <form
-                            onSubmit={handleSearch}
-                            className="flex items-center gap-3 mb-4"
+                    <div className="flex items-center gap-3">
+                        <OsButton
+                            name="primary"
+                            onClick={openAddModal}
+                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                         >
-                            <div className="relative flex-1">
-                                <OsIcon
-                                    name="Search"
-                                    className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-500 h-os-20"
-                                />
-                                <input
-                                    type="text"
-                                    value={search}
-                                    onChange={(e) => setSearch(e.target.value)}
-                                    placeholder="Cari data mahasiswa..."
-                                    className="border border-black rounded-xl pl-10 pr-4 py-3 w-full focus:ring-2 focus:ring-blue-400 outline-none"
-                                />
-                            </div>
+                            <OsIcon
+                                name="add"
+                                className="h-os-20 os-icon-light mr-os-8"
+                            />
+                            Tambah Mahasiswa Via Form
+                        </OsButton>
+                        <OsButton
+                            name="primary"
+                            onClick={() => setShowExcelModal(true)}
+                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
+                        >
+                            <OsIcon
+                                name="Download (2)"
+                                className="h-os-20 os-icon-light mr-os-8"
+                            />
+                            Tambah Mahasiswa Via Excel
+                        </OsButton>
+                    </div>
 
-                            <select
-                                value={angkatan}
-                                onChange={(e) => setAngkatan(e.target.value)}
-                                className="border border-black rounded-xl px-4 py-3"
-                            >
-                                {angkatanList.map((a) => (
-                                    <option key={a.value} value={a.value}>
-                                        {a.label}
-                                    </option>
+                    {/* Notifikasi */}
+                    {flash.success && (
+                        <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
+                            {flash.success}
+                        </div>
+                    )}
+                    {Object.keys(errors).length > 0 && (
+                        <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
+                            <ul className="list-disc pl-4 text-sm">
+                                {Object.values(errors).map((error, index) => (
+                                    <li key={index}>{error}</li>
                                 ))}
-                            </select>
+                            </ul>
+                        </div>
+                    )}
 
-                            <Os_button
-                                type="submit"
-                                className="border border-black rounded-xl px-8 py-3"
-                            >
-                                Cari
-                            </Os_button>
-                        </form>
-                    </section>
+                    {/* 5. PERBAIKAN FILTER LOGIC */}
+                    <OsSearchBar
+                        search={search}
+                        setSearch={setSearch}
+                        onSearchClick={handleSearch}
+                        placeholder="Cari nama mahasiswa..."
+                    >
+                        <OsInput
+                            type="select"
+                            value={angkatanFilter}
+                            onChange={(e) => {
+                                // A. Ambil nilai (handle jika object)
+                                let val = e?.target?.value ?? e;
+                                // Jaga-jaga jika library UI mengembalikan object {value: "...", label: "..."}
+                                if (
+                                    typeof val === "object" &&
+                                    val !== null &&
+                                    val?.value !== undefined
+                                ) {
+                                    val = val.value;
+                                }
 
-                    {/* Tabel Mahasiswa */}
+                                // B. Update State UI
+                                setAngkatanFilter(val);
+
+                                // 4. Update URL
+                                // Kirim "SEMUA" jika user memilih opsi pertama.
+                                const valueToSend =
+                                    !val || val === "" ? "SEMUA" : val;
+
+                                router.get(
+                                    "/admin/mahasiswa",
+                                    {
+                                        search,
+                                        angkatan: valueToSend,
+                                    },
+                                    { preserveState: true, replace: true }
+                                );
+                            }}
+                            options={angkatanList}
+                        />
+                    </OsSearchBar>
+
+                    {/* Tabel */}
                     <section>
                         <h2 className="font-semibold text-lg mb-2">
                             Tabel Mahasiswa
                         </h2>
                         <OsTableHeader columns={mahasiswaColumns} />
-
                         {mahasiswa.data.length > 0 ? (
-                            mahasiswa.data.map((item, index) => (
-                                <div
-                                    key={item.id_mahasiswa}
-                                    className="flex items-center border-t border-gray-400"
-                                >
-                                    <div className="w-16 px-4 py-3 text-center">
-                                        {mahasiswa.from + index}
-                                    </div>
-                                    <div className="w-56 px-4 py-3 border-l border-gray-400">
-                                        {item.nim}
-                                    </div>
-                                    <div className="flex-1 px-4 py-3 border-l border-gray-400">
-                                        {item.nama}
-                                    </div>
-                                    <div className="w-56 h-[70px] flex items-center justify-center border-l border-gray-400">
-                                        <div className="flex space-x-3">
-                                            <Link
-                                                href={`/admin/mahasiswa/${item.id_mahasiswa}/edit`}
-                                                className="w-10 h-10 flex items-center justify-center bg-blue-700 p-2 border border-black rounded-xl text-white hover:bg-blue-600 transition"
-                                            >
-                                                <OsIcon
-                                                    name="Edit"
-                                                    className="h-os-20 w-os-20 os-icon-light"
-                                                />
-                                            </Link>
-                                            <Os_button
-                                                onClick={() =>
-                                                    handleDelete(
-                                                        item.id_mahasiswa
-                                                    )
-                                                }
-                                                className="w-10 h-10 flex items-center justify-center bg-white p-2 border border-black text-black rounded-xl hover:bg-gray-200 transition"
-                                            >
-                                                <OsIcon
-                                                    name="Trash"
-                                                    className="w-5 h-5 aspect-square scale-[3] os-icon-dark"
-                                                />
-                                            </Os_button>
-                                        </div>
-                                    </div>
-                                </div>
-                            ))
+                            <OsTableBody
+                                data={tableData}
+                                columns={mahasiswaColumns}
+                            />
                         ) : (
                             <div className="flex items-center border-t border-gray-400">
                                 <p className="w-full text-center text-sm py-4 text-gray-500">
@@ -241,99 +311,192 @@ export default function MahasiswaPage() {
                                 </p>
                             </div>
                         )}
-
-                        {/* Paginasi */}
                         {mahasiswa.links && mahasiswa.links.length > 3 && (
-                            <div className="mt-8">
+                            <div className="mt-2">
                                 <OsPagination links={mahasiswa.links} />
                             </div>
                         )}
                     </section>
                 </div>
-
-                <footer className="mt-auto pt-6 border-t border-gray-200">
-                    <OsCopyright />
-                </footer>
+                <OsCopyright />
             </main>
 
-            {/* === MODAL IMPORT EXCEL === (Kode modal Anda sudah benar) */}
-            {showExcelModal && (
-                <div className="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50">
-                    <div className="bg-white rounded-lg w-[420px] shadow-xl overflow-hidden">
-                        {/* Header */}
-                        <div className="bg-gray-900 text-white text-center py-3 relative">
-                            <h2 className="text-base font-semibold">
-                                Template Excel Mahasiswa
-                            </h2>
-                            <p className="text-xs text-gray-300">
-                                Download file excel dan isi data mahasiswa
-                            </p>
-                            <button
-                                onClick={() => setShowExcelModal(false)}
-                                className="absolute right-3 top-3 text-gray-400 hover:text-white"
-                            >
-                                <X size={18} />
-                            </button>
-                        </div>
-
-                        {/* Body */}
-                        <div className="p-5 flex flex-col gap-4">
-                            <Os_button className="w-full">
-                                Download Template Excel
-                            </Os_button>
-                            <div className="bg-red-50 border border-red-300 text-red-700 text-xs rounded-md p-3 leading-relaxed">
-                                <strong>⚠️ Perhatian!</strong>
-                                <br />
-                                Jangan ubah heading untuk patokan program.
-                            </div>
-                            <div className="flex flex-col items-center gap-2">
-                                <label
-                                    htmlFor="mahasiswa-import-file"
-                                    className="border border-blue-600 text-blue-600 hover:bg-blue-50 py-2 px-4 rounded-md cursor-pointer text-sm font-medium w-full text-center transition-colors"
-                                >
-                                    {importFile
-                                        ? importFile.name
-                                        : "Upload file excel"}
-                                </label>
-                                <input
-                                    id="mahasiswa-import-file"
-                                    type="file"
-                                    accept=".xlsx,.xls,.csv"
-                                    onChange={(e) =>
-                                        setImportFile(
-                                            e.target.files?.[0] ?? null
-                                        )
-                                    }
-                                    className="hidden"
-                                />
-                                <a
-                                    href="#"
-                                    className="text-xs text-blue-600 underline hover:text-blue-800"
-                                >
-                                    Ada masalah? Hubungi admin
-                                </a>
-                            </div>
-                        </div>
-
-                        {/* Footer Modal */}
-                        <div className="flex justify-between items-center px-5 py-3 bg-gray-50 border-t">
-                            <Os_button
-                                onClick={handleImport}
-                                disabled={importing || !importFile}
-                                className="w-full mr-2 disabled:opacity-50"
-                            >
-                                {importing ? "Mengunggah..." : "Submit"}
-                            </Os_button>
-                            <Os_button
-                                onClick={() => setShowExcelModal(false)}
-                                className="flex items-center justify-center bg-red-500 hover:bg-red-600 text-white p-3 rounded-lg transition-colors"
-                            >
-                                <Trash2 size={18} />
-                            </Os_button>
-                        </div>
-                    </div>
+            {/* ===== MODAL TAMBAH (ADD) ===== */}
+            <OsModal
+                show={showModal}
+                onClose={() => setShowModal(false)}
+                title="Tambah Mahasiwa Baru"
+                subtitle="Isi form di bawah untuk menambahkan mahasiswa baru."
+                variant="add"
+                onSubmit={submitAdd}
+            >
+                {/* Gunakan Controlled Component (value & onChange) */}
+                <div className="flex gap-4">
+                    <OsInput
+                        label="NIM Mahasiswa"
+                        type="text"
+                        name="nim" // Harus 'nim'
+                        value={data.nim}
+                        onChange={(e) => setData("nim", e.target.value)}
+                        placeholder="Masukkan NIM..."
+                        required
+                    />
+                    <OsInput
+                        label="Angkatan Mahasiswa"
+                        type="select"
+                        name="kelas" // Harus 'kelas'
+                        value={data.kelas}
+                        onChange={(e) => setData("kelas", e.target.value)}
+                        options={angkatanList}
+                        required
+                    />
                 </div>
+                <OsInput
+                    label="Nama Mahasiswa"
+                    type="text"
+                    name="nama" // Harus 'nama'
+                    value={data.nama}
+                    onChange={(e) => setData("nama", e.target.value)}
+                    placeholder="Masukkan Nama..."
+                    required
+                />
+                <OsInput
+                    label="Jurusan Mahasiswa"
+                    type="text" // Suggest sementara diganti text dulu biar aman
+                    name="prodi" // Harus 'prodi'
+                    value={data.prodi}
+                    onChange={(e) => setData("prodi", e.target.value)}
+                    placeholder="Masukkan Jurusan..."
+                    required
+                />
+            </OsModal>
+
+            {/* ===== MODAL EDIT ===== */}
+            <OsModal
+                show={showEditModal}
+                onClose={() => setShowEditModal(false)}
+                title="Edit Mahasiswa"
+                subtitle={
+                    mahasiswaToEdit
+                        ? mahasiswaToEdit.nama
+                        : "Data tidak ditemukan"
+                }
+                variant="edit"
+                onSubmit={submitEdit}
+                onDelete={() => {
+                    setShowEditModal(false);
+                    openDeleteModal(
+                        mahasiswaToEdit.id_mahasiswa,
+                        mahasiswaToEdit.nama
+                    );
+                }}
+            >
+                {/* Form Edit menggunakan state yang sama (data) yang sudah di-set saat openEditModal */}
+                <div className="flex gap-4">
+                    <OsInput
+                        label="NIM Mahasiswa"
+                        type="text"
+                        name="nim"
+                        value={data.nim}
+                        onChange={(e) => setData("nim", e.target.value)}
+                        placeholder="Masukkan NIM..."
+                        required
+                    />
+                    <OsInput
+                        label="Angkatan Mahasiswa"
+                        type="select"
+                        name="kelas"
+                        value={data.kelas}
+                        onChange={(e) => setData("kelas", e.target.value)}
+                        options={angkatanList.filter(
+                            (o) => o.value !== "SEMUA"
+                        )}
+                        required
+                    />
+                </div>
+                <OsInput
+                    label="Nama Mahasiswa"
+                    type="text"
+                    name="nama"
+                    value={data.nama}
+                    onChange={(e) => setData("nama", e.target.value)}
+                    placeholder="Masukkan Nama..."
+                    required
+                />
+                <OsInput
+                    label="Jurusan Mahasiswa"
+                    type="text"
+                    name="prodi"
+                    value={data.prodi}
+                    onChange={(e) => setData("prodi", e.target.value)}
+                    placeholder="Masukkan Jurusan..."
+                    required
+                />
+            </OsModal>
+
+            {/* ===== MODAL DELETE ===== */}
+            {showDeleteModal && (
+                <Modals
+                    isOpen={showDeleteModal}
+                    onClose={() => setShowDeleteModal(false)}
+                    variant="delete"
+                    dataToDelete={[
+                        {
+                            key: "Nama Mahasiswa",
+                            value: selectedMahasiswa?.nama,
+                        },
+                        { key: "ID", value: selectedMahasiswa?.id },
+                    ]}
+                    onConfirm={confirmDelete}
+                />
             )}
+
+            {/* ===== MODAL IMPORT EXCEL ===== */}
+            <OsModal
+                show={showExcelModal}
+                onClose={() => setShowExcelModal(false)}
+                title="Template Excel Mahasiswa"
+                subtitle="Download file excel dan isi data mahasiswa"
+            >
+                <OsButton
+                    name="primary"
+                    className="w-full mb-3"
+                    onClick={() => router.get("/admin/mahasiswa/template")}
+                >
+                    Download Template Excel
+                </OsButton>
+                <div className="bg-red-50 border border-red-300 text-red-700 text-xs rounded-md p-3 leading-relaxed mb-3">
+                    <strong>⚠️ Perhatian!</strong>
+                    <br />
+                    Jangan ubah heading pada file template agar proses import
+                    tidak gagal.
+                </div>
+                <div className="flex flex-col items-center gap-2 mb-4">
+                    <label
+                        htmlFor="mahasiswa-import-file"
+                        className="border border-blue-600 text-blue-600 hover:bg-blue-50 py-2 px-4 rounded-md cursor-pointer text-sm font-medium w-full text-center transition-colors"
+                    >
+                        {importFile ? importFile.name : "Upload file Excel"}
+                    </label>
+                    <input
+                        id="mahasiswa-import-file"
+                        type="file"
+                        accept=".xlsx,.xls,.csv"
+                        onChange={(e) =>
+                            setImportFile(e.target.files?.[0] ?? null)
+                        }
+                        className="hidden"
+                    />
+                </div>
+                <OsButton
+                    name="primary"
+                    className="w-full"
+                    disabled={importing}
+                    onClick={handleImport}
+                >
+                    {importing ? "Mengunggah..." : "Import Data Mahasiswa"}
+                </OsButton>
+            </OsModal>
         </div>
     );
 }
