@@ -42,27 +42,28 @@ class OsceController extends Controller
         $assignments = $query->orderBy('tanggal', 'desc')->paginate(10)->withQueryString();
 
         // Transformasi Data untuk Frontend
-        // Kita gunakan through() untuk memodifikasi item dalam paginator tanpa merusak struktur pagination
         $osceList = $assignments->through(function ($stase) {
             $osce = $stase->osce;
             $now = Carbon::now();
 
+            $startEvent = Carbon::parse($osce->tanggal_mulai)->startOfDay();
+            $endEvent   = Carbon::parse($osce->tanggal_selesai)->endOfDay();
+
             // Logika Status
             $status = 'Selesai';
-            if ($now->lt($osce->tanggal_mulai)) {
+            
+            if ($now->lt($startEvent)) {
                 $status = 'Belum Dimulai';
-            } elseif ($now->between($osce->tanggal_mulai, $osce->tanggal_selesai)) {
-                $status = 'Aktif'; // Sesuai case di switch case frontend
+            } elseif ($now->between($startEvent, $endEvent)) {
+                $status = 'Aktif'; 
             } else {
-                // Jika lewat tanggal selesai, bisa jadi 'Tidak Aktif' atau 'Selesai'
-                // Asumsi sederhana:
                 $status = 'Selesai'; 
             }
 
             return [
                 'id_osce'          => $osce->id_osce,
                 'id_osce_stase'    => $stase->id_osce_stase,
-                'nama'             => $osce->nama_osce, // Key sesuai Frontend
+                'nama'             => $osce->nama_osce, 
                 'tanggal_mulai'    => $osce->tanggal_mulai->format('d F Y'),
                 'tanggal_akhir'    => $osce->tanggal_selesai->format('d F Y'),
                 'status'           => $status,
@@ -72,7 +73,7 @@ class OsceController extends Controller
         });
 
         return Inertia::render('Penguji/PengujiOsceList', [
-            'osce_list' => $osceList, // Ini objek Paginator (data, links, meta)
+            'osce_list' => $osceList,
             'filters'   => [
                 'search' => $search,
                 'tahun'  => $tahun
