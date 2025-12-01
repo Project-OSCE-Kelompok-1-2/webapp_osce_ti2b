@@ -7,6 +7,8 @@ use App\Http\Controllers\Api\V1\ViewNilaiController;
 use App\Http\Controllers\Api\V1\InputNilaiController;
 use App\Http\Controllers\Api\Penguji\ProfilController;
 use App\Http\Controllers\Api\V1\ApiHalamanPenilaian;
+use App\Http\Controllers\Api\V1\MahasiswaController;
+
 
 Route::prefix('v1')->group(function () {
     Route::get('/login', function () {
@@ -23,9 +25,11 @@ Route::prefix('v1')->group(function () {
             return $request->user();
         });
 
+        // IMPORT MAHASISWA VIA EXCEL
+        Route::post('/admin/mahasiswa/import', [MahasiswaController::class, 'import']);
+
         // VIEW NILAI (Sudah ada)
         Route::get('/penilaian/{id_enrollment_osce}/view', ViewNilaiController::class);
-
 
         // Profil Penguji
         Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
