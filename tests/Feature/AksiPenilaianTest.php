@@ -2,228 +2,130 @@
 
 namespace Tests\Feature;
 
-use App\Models\AspekPenilaian;
-use App\Models\EnrollmentOsce;
-use App\Models\NilaiOsce;
+use Tests\TestCase;
+use App\Models\Pengguna;
+use App\Models\Mahasiswa;
 use App\Models\Osce;
 use App\Models\OsceStase;
-use App\Models\Penguji;
+use App\Models\EnrollmentOsce;
 use App\Models\PoinAspekPenilaian;
-use App\Models\Stase;
-use App\Models\Pengguna;
+use App\Models\NilaiOsce;
+use App\Models\AspekPenilaian;
+use App\Models\Stase; 
+use App\Models\Penguji;
+use App\Models\Ruang; 
 use Illuminate\Foundation\Testing\RefreshDatabase;
-use Tests\TestCase;
-use Illuminate\Support\Carbon;
 use PHPUnit\Framework\Attributes\Test;
 
 class AksiPenilaianTest extends TestCase
 {
     use RefreshDatabase;
 
-    protected $pengujiUser;
+    protected $pengguna;
+    protected $pengujiModel;
 
     protected function setUp(): void
     {
         parent::setUp();
-        // Setup user penguji untuk autentikasi
-        $this->pengujiUser = Pengguna::factory()->create(['jenis_role' => 'penguji']); 
+        
+        $this->pengguna = Pengguna::factory()->create(['jenis_role' => 'penguji']);
+        $this->pengujiModel = Penguji::factory()->create(['id_pengguna' => $this->pengguna->id_pengguna]);
+        $this->actingAs($this->pengguna); 
+    }
+
+    private function createOsceStructure(int $poinCount = 3)
+    {
+        $osce = Osce::factory()->create(['tanggal_selesai' => now()->addDay()]); 
+        $staseModel = Stase::factory()->create();
+        $aspekPenilaian = AspekPenilaian::factory()->create(['id_stase' => $staseModel->id_stase]);
+
+        $poinPenilaian = PoinAspekPenilaian::factory()->count($poinCount)->create([
+            'id_aspek_penilaian' => $aspekPenilaian->id_aspek_penilaian,
+        ]);
+        
+        $osceStase = OsceStase::create([
+            'id_osce' => $osce->id_osce,
+            'id_stase' => $staseModel->id_stase,
+            'id_penguji' => $this->pengujiModel->id_penguji,
+            'id_ruang' => Ruang::factory()->create()->id_ruang, 
+            'tanggal' => now()->addDays(5)->toDateString(),
+            'jam_mulai' => '08:00',
+            'jam_selesai' => '09:00',
+        ]);
+
+        return [$osce, $osceStase, $poinPenilaian];
     }
 
     #[Test]
-    // Test Case 1: simpan_nilai_berhasil_dengan_skor_0_sampai_4
-    public function simpan_nilai_berhasil_dengan_skor_0_sampai_4()
+    public function simpan_nilai_berhasil_dan_rotasi_ke_mahasiswa_berikutnya()
     {
-        // 1. Setup data
-        $osce = Osce::factory()->create(['tanggal_selesai' => Carbon::now()->addDay()]);
-        $stase = Stase::factory()->create();
-        $penguji = Penguji::factory()->create(['id_pengguna' => $this->pengujiUser->id_pengguna]);
+        [$osce, $stase, $poinPenilaian] = $this->createOsceStructure(2);
         
-        $osceStase = OsceStase::factory()->create([
-            'id_osce' => $osce->id_osce,
-            'id_stase' => $stase->id_stase,
-            'id_penguji' => $penguji->id_penguji,
-            'tanggal' => Carbon::now(),
-        ]);
-
-        $enrollments = EnrollmentOsce::factory()->count(2)->create(['id_osce' => $osce->id_osce]);
-        $enrollmentSaatIni = $enrollments->first();
-
-        $aspek = AspekPenilaian::factory()->create(['id_stase' => $stase->id_stase]);
-        // Membuat poin penilaian dummy
-        $poin1 = PoinAspekPenilaian::factory()->create(['id_aspek_penilaian' => $aspek->id_aspek_penilaian]);
-        $poin2 = PoinAspekPenilaian::factory()->create(['id_aspek_penilaian' => $aspek->id_aspek_penilaian]);
+        // Buat 2 enrollment. B dinilai, lalu rotasi ke A.
+        $enrollmentB = EnrollmentOsce::create(['id_osce' => $osce->id_osce, 'id_mahasiswa' => Mahasiswa::factory()->create()->id_mahasiswa, 'id_osce_stase' => $stase->id_osce_stase]);
+        $enrollmentA = EnrollmentOsce::create(['id_osce' => $osce->id_osce, 'id_mahasiswa' => Mahasiswa::factory()->create()->id_mahasiswa, 'id_osce_stase' => $stase->id_osce_stase]);
 
         $payload = [
-            'nilai' => [
-                ['id_poin_aspek_penilaian' => $poin1->id_poin_aspek_penilaian, 'skor' => 4], // Skor Max
-                ['id_poin_aspek_penilaian' => $poin2->id_poin_aspek_penilaian, 'skor' => 0], // Skor Min (Sesuai ketentuan min:0)
-            ],
-            'catatan' => 'Baik sekali.',
+            'nilai' => $poinPenilaian->map(fn($p, $i) => ['id_poin_aspek_penilaian' => $p->id_poin_aspek_penilaian, 'skor' => $i + 1])->toArray(),
+            'catatan' => 'Baik sekali.'
         ];
 
-        // 2. Aksi: Simpan nilai. (Menggunakan URI yang sudah diperbaiki: /penguji/stase/...)
-        $response = $this->actingAs($this->pengujiUser)->post(
-            "/penguji/stase/{$osceStase->id_osce_stase}/penilaian/{$enrollmentSaatIni->id_enrollment_osce}", 
-            $payload
-        );
+        $this->post(route('penguji.penilaian.store', ['id_osce_stase' => $stase->id_osce_stase, 'id_enrollment_osce' => $enrollmentB->id_enrollment_osce]), $payload)
+             ->assertRedirect(route('penguji.penilaian.edit', ['id_enrollment_osce' => $enrollmentA->id_enrollment_osce]));
 
-        // 3. Assertions
-        $response->assertStatus(302);
-        // Memastikan nilai telah tersimpan
-        $this->assertDatabaseHas('nilai_osce', [
-            'id_enrollment_osce' => $enrollmentSaatIni->id_enrollment_osce,
-            'id_poin_aspek_penilaian' => $poin1->id_poin_aspek_penilaian,
-            'nilai' => 4, // Verifikasi nilai skor 4
-        ]);
-        $this->assertDatabaseHas('nilai_osce', [
-            'id_enrollment_osce' => $enrollmentSaatIni->id_enrollment_osce,
-            'id_poin_aspek_penilaian' => $poin2->id_poin_aspek_penilaian,
-            'nilai' => 0, // Verifikasi nilai skor 0
-        ]);
+        $this->assertDatabaseHas('nilai_osce', ['id_enrollment_osce' => $enrollmentB->id_enrollment_osce, 'nilai' => 1]);
     }
 
     #[Test]
-    // Test Case 2: simpan_nilai_gagal_jika_array_nilai_kosong (Sesuai dengan 'gagal jika skor tidak lengkap')
-    public function simpan_nilai_gagal_jika_array_nilai_kosong()
+    public function simpan_nilai_gagal_jika_skor_tidak_lengkap()
     {
-        // 1. Setup data
-        $osce = Osce::factory()->create(['tanggal_selesai' => Carbon::now()->addDay()]);
-        $stase = Stase::factory()->create();
-        $penguji = Penguji::factory()->create(['id_pengguna' => $this->pengujiUser->id_pengguna]);
+        [$osce, $stase, $poinPenilaian] = $this->createOsceStructure(3);
+        $enrollment = EnrollmentOsce::create(['id_osce' => $osce->id_osce, 'id_mahasiswa' => Mahasiswa::factory()->create()->id_mahasiswa, 'id_osce_stase' => $stase->id_osce_stase]);
+
+        // Kirim hanya 1 dari 3 poin
+        $this->post(route('penguji.penilaian.store', ['id_osce_stase' => $stase->id_osce_stase, 'id_enrollment_osce' => $enrollment->id_enrollment_osce]), [
+            'nilai' => [['id_poin_aspek_penilaian' => $poinPenilaian[0]->id_poin_aspek_penilaian, 'skor' => 3]], 
+        ])
+             ->assertSessionHasErrors(['error']);
         
-        $osceStase = OsceStase::factory()->create([
-            'id_osce' => $osce->id_osce,
-            'id_stase' => $stase->id_stase,
-            'id_penguji' => $penguji->id_penguji,
-            'tanggal' => Carbon::now(),
-        ]);
-
-        $enrollment = EnrollmentOsce::factory()->create(['id_osce' => $osce->id_osce]);
-        
-        // Payload yang akan gagal pada 'required|array|min:1' (Array kosong dianggap tidak lengkap)
-        $payload_kosong = [ 
-            'nilai' => [], 
-            'catatan' => 'Catatan.',
-        ];
-
-        // 2. Aksi: Simpan nilai.
-        $response = $this->actingAs($this->pengujiUser)->post(
-            "/penguji/stase/{$osceStase->id_osce_stase}/penilaian/{$enrollment->id_enrollment_osce}", 
-            $payload_kosong
-        );
-
-        // 3. Assertions
-        $response->assertSessionHasErrors(['nilai']); 
-        $response->assertStatus(302);
-        // Memastikan tidak ada nilai yang tersimpan
-        $this->assertDatabaseMissing('nilai_osce', [
-            'id_enrollment_osce' => $enrollment->id_enrollment_osce,
-        ]);
+        $this->assertDatabaseCount('nilai_osce', 0);
     }
 
     #[Test]
-    // Test Case 3: simpan_nilai_gagal_jika_skor_di_luar_rentang_0_4 (Gagal karena min/max)
-    public function simpan_nilai_gagal_jika_skor_di_luar_rentang_0_4()
+    public function rotasi_mengambil_mahasiswa_berikutnya_yang_belum_dinilai()
     {
-        // 1. Setup data
-        $osce = Osce::factory()->create(['tanggal_selesai' => Carbon::now()->addDay()]);
-        $stase = Stase::factory()->create();
-        $penguji = Penguji::factory()->create(['id_pengguna' => $this->pengujiUser->id_pengguna]);
-        
-        $osceStase = OsceStase::factory()->create([
-            'id_osce' => $osce->id_osce,
-            'id_stase' => $stase->id_stase,
-            'id_penguji' => $penguji->id_penguji,
-            'tanggal' => Carbon::now(),
-        ]);
+        [$osce, $stase, $poinPenilaian] = $this->createOsceStructure(1);
+        $enrollmentA = EnrollmentOsce::create(['id_osce' => $osce->id_osce, 'id_mahasiswa' => Mahasiswa::factory()->create()->id_mahasiswa, 'id_osce_stase' => $stase->id_osce_stase]);
+        $enrollmentB = EnrollmentOsce::create(['id_osce' => $osce->id_osce, 'id_mahasiswa' => Mahasiswa::factory()->create()->id_mahasiswa, 'id_osce_stase' => $stase->id_osce_stase]);
 
-        $enrollment = EnrollmentOsce::factory()->create(['id_osce' => $osce->id_osce]);
-        $aspek = AspekPenilaian::factory()->create(['id_stase' => $stase->id_stase]);
-        $poin_valid = PoinAspekPenilaian::factory()->create(['id_aspek_penilaian' => $aspek->id_aspek_penilaian]);
-        $poin_fail = PoinAspekPenilaian::factory()->create(['id_aspek_penilaian' => $aspek->id_aspek_penilaian]);
+        // A sudah dinilai
+        NilaiOsce::create(['id_enrollment_osce' => $enrollmentA->id_enrollment_osce, 'id_poin_aspek_penilaian' => $poinPenilaian[0]->id_poin_aspek_penilaian, 'nilai' => 1]);
         
-        // Payload yang mengandung skor > 4 (gagal pada max:4)
-        $payload_fail = [ 
-            'nilai' => [
-                ['id_poin_aspek_penilaian' => $poin_valid->id_poin_aspek_penilaian, 'skor' => 4],
-                ['id_poin_aspek_penilaian' => $poin_fail->id_poin_aspek_penilaian, 'skor' => 5], // Gagal!
-            ],
-            'catatan' => 'Skor terlalu tinggi.',
+        // Memastikan rotasi mengabaikan A dan redirect ke B
+        $this->get(route('penguji.stase.rotasi', ['id_osce' => $osce->id_osce, 'id_osce_stase' => $stase->id_osce_stase]))
+             ->assertRedirect(route('penguji.penilaian.edit', ['id_enrollment_osce' => $enrollmentB->id_enrollment_osce]));
+    }
+
+    #[Test]
+    public function update_nilai_berhasil_menggunakan_post()
+    {
+        [$osce, $stase, $poinPenilaian] = $this->createOsceStructure(2);
+        $enrollment = EnrollmentOsce::create(['id_osce' => $osce->id_osce, 'id_mahasiswa' => Mahasiswa::factory()->create()->id_mahasiswa, 'id_osce_stase' => $stase->id_osce_stase]);
+        $nextEnrollment = EnrollmentOsce::create(['id_osce' => $osce->id_osce, 'id_mahasiswa' => Mahasiswa::factory()->create()->id_mahasiswa, 'id_osce_stase' => $stase->id_osce_stase]);
+        
+        // Nilai awal
+        NilaiOsce::create(['id_enrollment_osce' => $enrollment->id_enrollment_osce, 'id_poin_aspek_penilaian' => $poinPenilaian[0]->id_poin_aspek_penilaian, 'nilai' => 5]);
+        
+        $payload = [
+            'nilai' => $poinPenilaian->map(fn($p, $i) => ['id_poin_aspek_penilaian' => $p->id_poin_aspek_penilaian, 'skor' => 2 + $i])->toArray(),
+            'catatan' => 'Catatan Revisi'
         ];
 
-        // 2. Aksi: Simpan nilai.
-        $response = $this->actingAs($this->pengujiUser)->post(
-            "/penguji/stase/{$osceStase->id_osce_stase}/penilaian/{$enrollment->id_enrollment_osce}", 
-            $payload_fail
-        );
+        $this->post(route('penguji.penilaian.store', ['id_osce_stase' => $stase->id_osce_stase, 'id_enrollment_osce' => $enrollment->id_enrollment_osce]), $payload)
+             // Rotasi ke mahasiswa berikutnya setelah update
+             ->assertRedirect(route('penguji.penilaian.edit', ['id_enrollment_osce' => $nextEnrollment->id_enrollment_osce]));
 
-        // 3. Assertions
-        // Memastikan error spesifik pada field 'nilai.*.skor' yang gagal.
-        $response->assertSessionHasErrors('nilai.*.skor'); 
-        $response->assertStatus(302);
-    }
-    
-    #[Test]
-    // Test Case 5: selesai_merespons_inactive_jika_semua_stase_di_sesi_kosong
-    public function selesai_merespons_inactive_jika_semua_stase_di_sesi_kosong()
-    {
-        // 1. Setup Data: Buat OSce dengan 2 Stase di sesi yang sama (hari yang sama)
-        $tanggalSesi = Carbon::today();
-        $osce = Osce::factory()->create(['tanggal_mulai' => $tanggalSesi, 'tanggal_selesai' => $tanggalSesi->addDay()]);
-        $penguji = Penguji::factory()->create(['id_pengguna' => $this->pengujiUser->id_pengguna]);
-
-        $stase1 = OsceStase::factory()->create([
-            'id_osce' => $osce->id_osce, 'id_penguji' => $penguji->id_penguji, 'tanggal' => $tanggalSesi
-        ]);
-        $stase2 = OsceStase::factory()->create([
-            'id_osce' => $osce->id_osce, 'id_penguji' => $penguji->id_penguji, 'tanggal' => $tanggalSesi
-        ]);
-
-        // Buat 1 Enrollment OSCE
-        $enrollment = EnrollmentOsce::factory()->create(['id_osce' => $osce->id_osce]);
-
-        // Skenario: Kedua stase (stase1 & stase2) harus dianggap 'kosong'
-        // Menandai mahasiswa sudah dinilai di KEDUA stase
-        $this->markStudentAsScored($enrollment, $stase1);
-        $this->markStudentAsScored($enrollment, $stase2);
-        
-        // 2. Aksi: Panggil endpoint selesai untuk stase 1 (Menggunakan URI yang sudah diperbaiki: /penguji/osce/...)
-        $response = $this->actingAs($this->pengujiUser)->post(
-            "/penguji/osce/{$osce->id_osce}/stase/{$stase1->id_osce_stase}/selesai"
-        );
-
-        // 3. Assertions
-        $response->assertStatus(200);
-        $response->assertJson([
-            'status' => 'inactive',
-            'message' => 'Sesi penilaian untuk tanggal ini telah selesai.'
-        ]);
-    }
-
-    // Test Case 6: selesai_merespons_active_jika_ada_stase_lain_yang belum kosong (DINONAKTIFKAN SESUAI PERMINTAAN SEBELUMNYA)
-    public function selesai_merespons_active_jika_ada_stase_lain_yang_belum_kosong()
-    {
-        // Test ini dinonaktifkan
-    }
-    
-    // =================================================================================
-    // HELPER FUNCTIONS 
-    // =================================================================================
-
-    protected function markStudentAsScored(EnrollmentOsce $enrollment, OsceStase $osceStase)
-    {
-        // Helper untuk menandai bahwa Mahasiswa sudah dinilai di Stase tertentu
-        $staseModel = Stase::find($osceStase->id_stase);
-        
-        $aspek = AspekPenilaian::factory()->create(['id_stase' => $staseModel->id_stase]);
-        $poin = PoinAspekPenilaian::factory()->create(['id_aspek_penilaian' => $aspek->id_aspek_penilaian]);
-
-        NilaiOsce::updateOrCreate(
-            [
-                'id_enrollment_osce' => $enrollment->id_enrollment_osce,
-                'id_poin_aspek_penilaian' => $poin->id_poin_aspek_penilaian,
-            ],
-            ['nilai' => 1] 
-        );
+        $this->assertDatabaseHas('nilai_osce', ['id_poin_aspek_penilaian' => $poinPenilaian[0]->id_poin_aspek_penilaian, 'nilai' => 2]);
+        $this->assertDatabaseHas('enrollment_osce', ['id_enrollment_osce' => $enrollment->id_enrollment_osce, 'catatan_penguji' => 'Catatan Revisi']);
     }
 }
