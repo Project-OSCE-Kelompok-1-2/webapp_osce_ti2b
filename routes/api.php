@@ -4,6 +4,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\Penguji\ProfilController;
+use App\Http\Controllers\Api\Penguji\AksiPenilaianApiController;
 
 Route::prefix('v1')->group(function () {
     Route::get('/login', function () {
@@ -31,8 +32,8 @@ Route::prefix('v1')->group(function () {
             ->name('api.penguji.account.update');
         
         
-        Route::get('/penguji/nilai/{id_enrollment_osce}', 
-            [AksiPenilaianApiController::class, 'showNilai']);
+        // Route::get('/penguji/nilai/{id_enrollment_osce}', 
+        //     [AksiPenilaianApiController::class, 'showNilai']);
 
         Route::post('/penguji/penilaian/{id_enrollment_osce}', 
             [AksiPenilaianApiController::class, 'storePenilaian']);
