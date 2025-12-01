@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Admin;
 use Inertia\Inertia;
 use App\Models\Pengguna;
 use App\Models\Mahasiswa;
+use App\Models\TahunAkademik;
 use Illuminate\Http\Request;
 use App\Imports\MahasiswaImport;
 use Illuminate\Support\Facades\DB;
@@ -22,24 +23,43 @@ class MahasiswaController extends Controller
         $search = $request->input('search');
         $angkatan = $request->input('angkatan'); // Ini memfilter kolom 'kelas'
 
+        // Jika 'SEMUA', atau kosong, atau null -> jadikan null agar tidak difilter
+        if ($angkatan === "SEMUA" || $angkatan === "" || empty($angkatan) || $angkatan === "null") {
+            $angkatan = null;
+        }
+        
+        // Ambil List Tahun dari Database untuk Dropdown
+        $listTahun = TahunAkademik::select('tahun')
+            ->distinct()
+            ->orderBy('tahun', 'desc')
+            ->pluck('tahun');
+
+        // Query Mahasiswa dengan Relasi
         $mahasiswa = Mahasiswa::query()
+            // Logic Search (Tetap sama)
             ->when($search, function ($query, $search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('nama', 'like', "%{$search}%")
                       ->orWhere('nim', 'like', "%{$search}%");
                 });
             })
+
+
             ->when($angkatan, function ($query, $angkatan) {
                 // 'angkatan' dari frontend adalah 'kelas' di DB
                 $query->where('kelas', $angkatan); 
             })
-            ->orderBy('nama')
+
+            ->orderBy('id_mahasiswa', 'desc')
             ->paginate(10) // Sesuaikan jumlah paginasi jika perlu
             ->withQueryString()
             ->through(fn ($mhs) => [ // Kirim data minimal ke frontend
                 'id_mahasiswa' => $mhs->id_mahasiswa,
                 'nim' => $mhs->nim,
                 'nama' => $mhs->nama,
+                // KEMBALIKAN KE KOLOM KELAS (BUKAN ENROLLMENT)
+                'kelas' => $mhs->kelas, 
+                'prodi' => $mhs->prodi,
             ]);
 
         // [PERBAIKAN] Render ke 'Admin/MahasiswaPage'
@@ -49,6 +69,7 @@ class MahasiswaController extends Controller
                 'search' => $search,
                 'angkatan' => $angkatan,
             ],
+            'list_tahun' => $listTahun, // Kirim list tahun ke frontend
         ]);
     }
 
