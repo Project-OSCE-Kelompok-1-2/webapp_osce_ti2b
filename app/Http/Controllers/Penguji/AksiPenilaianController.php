@@ -10,22 +10,25 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Redirect;
 use Illuminate\Support\Carbon;
+use Inertia\Inertia; // *** WAJIB: IMPORT UNTUK Inertia::render() ***
 
 class AksiPenilaianController extends Controller
 {
     /**
      * TUGAS 1: POST /penguji/penilaian/{id_enrollment_osce} (Simpan Nilai)
-     * Logika: Wajib isi semua skor, menyimpan skor (0-4) di poin_aspek_penilaian,
-     * dan membuat record di nilai_osce sebagai flag penyelesaian.
+     * Catatan: Setelah POST, kita HARUS menggunakan Redirect (PRG Pattern) agar
+     * browser tidak meminta pengiriman ulang form.
      */
     public function store(Request $request, $id_enrollment_osce)
     {
         $user = Auth::user();
 
         // 1. Ambil Data & Validasi Akses
-        $enrollment = EnrollmentOsce::with('osce')->findOrFail($id_enrollment_osce);
+        $enrollment = EnrollmentOsce::with('osce', 'osceStase')->findOrFail($id_enrollment_osce);
         
+        // Asumsi: EnrollmentOsce memiliki kolom id_osce_stase untuk mengidentifikasi stase mana yang menilai.
         $osceStase = OsceStase::where('id_osce_stase', $enrollment->id_osce_stase)
             ->where('id_penguji', $user->penguji->id_penguji)
             ->firstOrFail();
@@ -40,7 +43,7 @@ class AksiPenilaianController extends Controller
 
         // Cek Batas Waktu
         if (Carbon::now()->gt($enrollment->osce->tanggal_selesai)) {
-            return back()->withErrors(['error' => 'Masa pengeditan/penilaian sudah berakhir.']);
+            return Redirect::back()->withErrors(['error' => 'Masa pengeditan/penilaian sudah berakhir.']);
         }
         
         // --- LOGIKA KRITIS: Validasi Kelengkapan Skor ---
@@ -49,7 +52,7 @@ class AksiPenilaianController extends Controller
         })->count();
 
         if (count($validated['nilai']) !== $totalPoinRubrik) {
-            return back()->withErrors(['error' => 'Semua poin penilaian (' . $totalPoinRubrik . ' poin) harus diisi sebelum disimpan.']);
+            return Redirect::back()->withErrors(['error' => 'Semua poin penilaian (' . $totalPoinRubrik . ' poin) harus diisi sebelum disimpan.']);
         }
         // --------------------------------------------------
 
@@ -61,32 +64,32 @@ class AksiPenilaianController extends Controller
             $enrollment->save();
 
             foreach ($validated['nilai'] as $item) {
-                // PART A: UPDATE MASTER DATA (POIN_ASPEK_PENILAIAN) dengan SKOR BARU (0-4)
+                // PART A: UPDATE MASTER DATA (POIN_ASPEK_PENILAIAN)
                 PoinAspekPenilaian::where('id_poin_aspek_penilaian', $item['id_poin_aspek_penilaian'])
                     ->update(['skor' => $item['skor']]);
                 
-                // PART B: INSERT/UPDATE FLAG (NILAI_OSCE)
-                // Ini penting untuk validasi ROTASI dan perhitungan total skor.
+                // PART B: INSERT/UPDATE NILAI MENTAH (NILAI_OSCE)
                 NilaiOsce::updateOrCreate(
                     [
                         'id_enrollment_osce' => $id_enrollment_osce,
                         'id_poin_aspek_penilaian' => $item['id_poin_aspek_penilaian'],
                     ],
                     [
-                         // Diisi 1 atau nilai dummy lain sebagai penanda bahwa record sudah dibuat
-                         // dan siap untuk perhitungan (skor x bobot / 4) di logika lain.
-                        'nilai' => 1, 
+                        // KOREKSI: Menyimpan skor mentah (0-4) dari input
+                        'nilai' => $item['skor'], 
                     ]
                 );
             }
         });
 
         // 4. Redirect ke mahasiswa berikutnya di antrian stase ini
+        // Kita tetap menggunakan Redirect::route di sini (PRG Pattern)
         return $this->redirectToNextRotation($osceStase);
     }
 
     /**
      * TUGAS 2: GET /.../rotasi (mencari mahasiswa selanjutnya di antrian stase ini)
+     * Mengarahkan ke halaman LivePenilaian jika ada mahasiswa, atau ke LiveRotasi jika habis.
      */
     public function rotasi($id_osce_stase)
     {
@@ -94,6 +97,8 @@ class AksiPenilaianController extends Controller
         
         $nextEnrollment = $this->findNextStudentInRotation($osceStase);
 
+        // Jika ada mahasiswa berikutnya, kita tetap menggunakan Redirect::route
+        // karena rute 'penguji.penilaian.edit' merender LivePenilaian
         return $this->redirectToNextRotation($osceStase, $nextEnrollment);
     }
     
@@ -133,14 +138,43 @@ class AksiPenilaianController extends Controller
             ], 200);
         }
     }
-    
+
+    /**
+     * TUGAS 4: GET /penilaian/{id_enrollment_osce}/nilai (Mengambil Nilai yang Sudah Ada)
+     */
+    public function getNilai($id_enrollment_osce)
+    {
+        $enrollment = EnrollmentOsce::findOrFail($id_enrollment_osce);
+        
+        $osceStase = OsceStase::where('id_osce_stase', $enrollment->id_osce_stase)
+            ->firstOrFail();
+            
+        // Ambil semua nilai mentah (skor 0-4) yang sudah tersimpan untuk enrollment ini
+        $nilaiOsce = NilaiOsce::where('id_enrollment_osce', $id_enrollment_osce)
+            ->get()
+            ->map(function ($item) {
+                return [
+                    'id_poin_aspek_penilaian' => $item->id_poin_aspek_penilaian,
+                    'skor' => $item->nilai, 
+                ];
+            });
+
+        // Ambil catatan/feedback
+        $catatan = $enrollment->catatan;
+
+        return response()->json([
+            'nilai' => $nilaiOsce,
+            'catatan' => $catatan
+        ]);
+    }
+
+
     // =========================================================================
     // HELPER FUNCTIONS
     // =========================================================================
 
     /**
      * Mencari mahasiswa berikutnya di antrian (untuk stase tertentu).
-     * Rotasi berdasarkan keberadaan record di NilaiOsce.
      */
     private function findNextStudentInRotation(OsceStase $osceStase)
     {
@@ -151,8 +185,7 @@ class AksiPenilaianController extends Controller
             
         $targetStaseId = $osceStase->id_stase;
 
-        // 2. Dapatkan semua ID Enrollment yang sudah dinilai di stase INI (menggunakan NilaiOsce sebagai FLAG)
-        // Mahasiswa dianggap "sudah dinilai" jika ada record NilaiOsce yang terikat ke poin aspek penilaian dari stase ini.
+        // 2. Dapatkan semua ID Enrollment yang sudah dinilai di stase INI
         $submittedEnrollmentIds = NilaiOsce::whereHas('poinAspekPenilaian.aspekPenilaian', function ($q) use ($targetStaseId) {
             $q->where('id_stase', $targetStaseId); 
         })
@@ -169,7 +202,7 @@ class AksiPenilaianController extends Controller
     }
 
     /**
-     * Mengarahkan ke rute penilaian mahasiswa berikutnya atau ke rekap jika antrian habis.
+     * Mengarahkan ke rute penilaian mahasiswa berikutnya atau merender halaman rotasi selesai.
      */
     private function redirectToNextRotation(OsceStase $osceStase, $nextEnrollment = null)
     {
@@ -178,15 +211,24 @@ class AksiPenilaianController extends Controller
         }
 
         if ($nextEnrollment) {
-            return redirect()->route('penguji.penilaian.edit', [
+            // Rotasi ADA mahasiswa berikutnya: Gunakan Redirect (PRG Pattern)
+            // Redirect ini akan memicu 'penguji.penilaian.edit' yang merender LivePenilaian.jsx
+            return Redirect::route('penguji.penilaian.edit', [
                 'id_enrollment_osce' => $nextEnrollment->id_enrollment_osce 
             ])->with('success', 'Nilai berhasil disimpan. Silakan lanjutkan ke mahasiswa berikutnya.');
 
         } else {
-            return redirect()->route('penguji.rekap.list', [
+            // Rotasi SELESAI: Gunakan Inertia::render() eksplisit seperti permintaan Anda
+            // Asumsi: Halaman rekap/rotasi selesai ada di 'Penguji/LiveRotasi'
+            $osce = $osceStase->osce; // Ambil data OSCE dari relasi
+            
+            return Inertia::render('Penguji/LiveRotasi', [
                 'id_osce' => $osceStase->id_osce,
-                'id_osce_stase' => $osceStase->id_osce_stase
-            ])->with('success', 'Semua mahasiswa di stase ini telah dinilai.');
+                'id_osce_stase' => $osceStase->id_osce_stase,
+                'osce' => $osce,
+                'stase' => $osceStase,
+                'message' => 'Semua mahasiswa di stase ini telah dinilai.'
+            ]);
         }
     }
 }
