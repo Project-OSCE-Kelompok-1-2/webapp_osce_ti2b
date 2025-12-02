@@ -44,7 +44,7 @@ const OsPagination = ({ links = [] }) => {
 
                 if (link.active) {
                     // Gaya untuk halaman AKTIF (Angka Aktif): Hitam Solid
-                    combinedClasses = "bg-black text-white font-semibold";
+                    combinedClasses = "bg-os-primary text-white font-semibold";
                 } else if (link.url === null) {
                     // Gaya untuk tombol NON-AKTIF (Disabled Prev/Next): Berongga, kursor non-aktif
                     combinedClasses = "bg-white border border-gray-400 text-gray-400 cursor-not-allowed";
