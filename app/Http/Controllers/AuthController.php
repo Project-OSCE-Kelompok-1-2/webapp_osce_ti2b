@@ -22,6 +22,9 @@ class AuthController extends Controller
         return Inertia::render("Auth/Login");
     }
 
+    /**
+ * @unauthenticated
+ */
     public function login(Request $request)
     {
         $request->validate([

@@ -3,8 +3,10 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\ViewNilaiController;
-use App\Http\Controllers\Api\V1\InputNilaiController; // <--- Pastikan import controller baru
+use App\Http\Controllers\Api\V1\InputNilaiController; 
 use App\Http\Controllers\Api\Penguji\ProfilController;
+use App\Http\Controllers\Api\V1\DashboardController;
+use App\Http\Controllers\Api\V1\OsceController;
 
 Route::prefix('v1')->group(function () {
     Route::get('/login', function () {
@@ -31,6 +33,10 @@ Route::prefix('v1')->group(function () {
         
         Route::post('/penguji/profil/update', [ProfilController::class, 'update_account'])
             ->name('api.penguji.account.update');
+
+        // Penguji dashboard
+        Route::get('/dashboard', DashboardController::class)->name('dashboard');
+        Route::get('/osce', [OsceController::class, 'index'])->name('osce.index');
     });
 
 });
