@@ -18,9 +18,8 @@ class AuthController extends Controller
     }
 
     /**
-     * Login pengguna
      * @unauthenticated
-    */
+     */
     public function login(Request $request)
     {
         $request->validate([
