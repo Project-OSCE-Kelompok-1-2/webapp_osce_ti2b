@@ -18,7 +18,6 @@ use App\Http\Controllers\Api\V1\ViewNilaiController;
 use App\Http\Controllers\Api\V1\InputNilaiController;
 use App\Http\Controllers\Api\Penguji\ProfilController;
 use App\Http\Controllers\Api\V1\ApiHalamanPenilaian;
-use App\Http\Controllers\Api\V1\MahasiswaController;
 
 
 Route::prefix('v1')->group(function () {
@@ -95,26 +94,24 @@ Route::prefix('v1')->group(function () {
 
             // --- Mahasiswa ---
             Route::apiResource('mahasiswa', MahasiswaController::class);
-            Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
-        
-        Route::get('/me', function (Request $request) {
-            return $request->user();
-        });
 
-        // IMPORT MAHASISWA VIA EXCEL
-        Route::post('/admin/mahasiswa/import', [MahasiswaController::class, 'import']);
+            Route::get('/me', function (Request $request) {
+                return $request->user();
+            });
 
-        // VIEW NILAI (Sudah ada)
-        Route::get('/penilaian/{id_enrollment_osce}/view', ViewNilaiController::class);
+            // IMPORT MAHASISWA VIA EXCEL
+            Route::post('/admin/mahasiswa/import', [MahasiswaController::class, 'import']);
 
-        // Profil Penguji
-        Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
-            ->name('api.penguji.account.show');
+            // VIEW NILAI (Sudah ada)
+            Route::get('/penilaian/{id_enrollment_osce}/view', ViewNilaiController::class);
 
-        Route::post('/penguji/profil/update', [ProfilController::class, 'update_account'])
-            ->name('api.penguji.account.update');
+            // Profil Penguji
+            Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
+                ->name('api.penguji.account.show');
+
+            Route::post('/penguji/profil/update', [ProfilController::class, 'update_account'])
+                ->name('api.penguji.account.update');
         }); // <-- Menutup group auth:sanctum
-    }); // <-- Menutup group prefix('v1')
 
         // Halaman Penilaian [Penguji]
         Route::get('/osce/{id_osce}/stase/{id_osce_stase}', [ApiHalamanPenilaian::class, 'getAntrian'])

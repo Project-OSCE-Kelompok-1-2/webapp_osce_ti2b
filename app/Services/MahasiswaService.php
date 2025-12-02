@@ -114,16 +114,7 @@ class MahasiswaService
             return $mahasiswa->delete();
         });
     }
-
-    /**
-     * Logika import Excel.
-     */
-    public function importExcel(Request $request)
-    {
-        // Excel::import tidak mengembalikan data, jadi kita return true jika sukses
-        Excel::import(new MahasiswaImport, $request->file('file'));
-
-        return true;
+    /** 
      * Menangani proses import data mahasiswa dari file Excel.
      * Logika ini dipindahkan dari Controller untuk menjaga Controller tetap bersih.
      *
