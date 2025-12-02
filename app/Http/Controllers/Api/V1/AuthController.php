@@ -15,6 +15,9 @@ class AuthController extends Controller
         $this->authService = $authService;
     }
 
+    /**
+     * @unauthenticated
+     */
     public function login(Request $request)
     {
         $request->validate([
@@ -38,7 +41,6 @@ class AuthController extends Controller
                 'user' => $pengguna, // Atau gunakan Resource class jika ingin rapi
                 'token' => $token,   // <-- INI KUNCINYA
             ], 200);
-
         } else {
             return response()->json([
                 'message' => 'Username atau password salah'
