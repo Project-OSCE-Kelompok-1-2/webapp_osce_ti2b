@@ -10,6 +10,7 @@ import {
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
+import OsIcon from "../../components/icons.jsx";
 
 /**
  * props: title, value, description, icon, colorClass, href
@@ -18,7 +19,7 @@ import Sidebar from "../../components/Sidebar.jsx";
 const StatCard = ({ title, value, description, icon, colorClass, href }) => {
     return (
         <article
-            className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass} shadow-sm`}
+            className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass}`}
         >
             <div>
                 {/* ... (bagian judul dan deskripsi, tidak berubah) ... */}
@@ -68,7 +69,7 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
 const NotificationItem = ({ stase, index }) => {
     // Komponen ini tidak diubah
     return (
-        <div className="flex items-center justify-between bg-white border rounded-lg shadow-sm overflow-hidden">
+        <div className="flex items-center justify-between bg-white border rounded-lg  overflow-hidden">
             {/* Left: number */}
             <div className="flex items-center px-4 py-4 border-r">
                 <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-700">
@@ -123,28 +124,10 @@ export default function Dashboard() {
             <main
                 className={`flex flex-col flex-1 transition-all duration-300 ${
                     sidebarOpen ? "md:ml-64" : "md:ml-20"
-                } p-6`}
+                } p-os-20 gap-os-12`}
             >
                 {/* Header / Breadcrumb */}
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="p-2 bg-blue-600 text-white rounded-md">
-                        <svg
-                            width="20"
-                            height="20"
-                            viewBox="0 0 24 24"
-                            fill="none"
-                            xmlns="http://www.w3.org/2000/svg"
-                        >
-                            <path
-                                d="M10 20V14H14V20H19V12H22L12 3L2 12H5V20H10Z"
-                                fill="white"
-                            />
-                        </svg>
-                    </div>
-                    <div className="flex-1 border border-gray-300 rounded-lg px-4 py-2 text-sm font-medium bg-white">
-                        Beranda
-                    </div>
-                </div>
+                <OsHeader/>
 
                 {/* MAIN */}
                 <div className="flex-1 overflow-auto">

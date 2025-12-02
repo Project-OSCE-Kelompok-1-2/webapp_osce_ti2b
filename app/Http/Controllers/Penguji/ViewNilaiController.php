@@ -6,99 +6,98 @@ use App\Http\Controllers\Controller;
 use App\Models\EnrollmentOsce;
 use App\Models\NilaiOsce;
 use App\Models\AspekPenilaian;
-use App\Models\OsceStase;       
-use Illuminate\Support\Facades\Auth; 
+use App\Models\OsceStase;
+use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
 
 class ViewNilaiController extends Controller
 {
-    /**
-     * Endpoint: GET /.../penilaian/{id_enrollment_osce}/view
-     */
     public function __invoke($id_enrollment_osce)
     {
         // 1. Ambil Data Enrollment & Mahasiswa
-        $enrollment = EnrollmentOsce::with(['mahasiswa'])
+        $enrollment = EnrollmentOsce::with(['mahasiswa', 'osce']) // Load OSCE juga untuk judul jika perlu
             ->findOrFail($id_enrollment_osce);
 
         // --- VALIDASI AKSES  ---
         $penguji = Auth::user(); 
         $penguji = $user->penguji;
         
+        // Pastikan user punya profil penguji
+        if (!$user->penguji) {
+            abort(403, 'Akun tidak valid.');
+        }
+
         $isAuthorized = OsceStase::where('id_osce', $enrollment->id_osce)
-            ->where('id_penguji', $penguji->id_penguji) 
+            ->where('id_penguji', $user->penguji->id_penguji)
             ->exists();
 
         if (!$isAuthorized) {
-            abort(403, 'Anda tidak memiliki akses ke penilaian mahasiswa ini.');
+            abort(403, 'Anda tidak memiliki akses ke penilaian ini.');
         }
-        // ----------------------------------
 
-        // 2. Cari tahu ini Stase apa?
+        // 3. Cari satu sampel nilai untuk menentukan Stase mana yang dinilai
+        // Kita load nested relation sampai ke aspek penilaian untuk dapat ID Stase
         $sampleNilai = NilaiOsce::with('poinAspekPenilaian.aspekPenilaian')
             ->where('id_enrollment_osce', $id_enrollment_osce)
             ->first();
 
-        // Validasi: Jika belum ada nilai sama sekali, tidak bisa di-view
         if (!$sampleNilai) {
-            abort(404, 'Data nilai belum ditemukan untuk mahasiswa ini.');
+            abort(404, 'Data nilai belum ditemukan (Mahasiswa belum dinilai).');
         }
 
         $idStase = $sampleNilai->poinAspekPenilaian->aspekPenilaian->id_stase;
 
-        // 3. Ambil Struktur Rubrik (Aspek & Kompetensi) berdasarkan Stase yang ditemukan
+        // 4. Ambil Struktur Rubrik (Aspek & Kompetensi)
         $aspekList = AspekPenilaian::with('poinAspekPenilaian')
             ->where('id_stase', $idStase)
             ->get();
 
-        // 4. Ambil SEMUA Nilai/Skor yang tersimpan
+        // 5. Ambil SEMUA Nilai untuk enrollment ini
         $nilaiTersimpan = NilaiOsce::where('id_enrollment_osce', $id_enrollment_osce)
             ->get()
-            ->keyBy('id_poin_aspek_penilaian');
+            ->keyBy('id_poin_aspek_penilaian'); // Key array pakai ID agar akses cepat
 
         $totalNilaiAspek = 0;
 
-        // 5. Logic Mapping & Perhitungan
+        // 6. Mapping Data (Gabungkan Struktur Rubrik + Nilai)
         $rubrikTerisi = $aspekList->map(function ($aspek) use ($nilaiTersimpan, &$totalNilaiAspek) {
             
             $kompetensiTerisi = $aspek->poinAspekPenilaian->map(function ($poin) use ($nilaiTersimpan, &$totalNilaiAspek) {
                 
                 $nilaiEntry = $nilaiTersimpan->get($poin->id_poin_aspek_penilaian);
                 
-                $skor = $nilaiEntry ? $nilaiEntry->nilai : 0;
-                $bobot = $poin->bobot;
+                // Pastikan skor angka (int/float)
+                $skor = $nilaiEntry ? (float) $nilaiEntry->nilai : 0;
+                $bobot = (float) $poin->bobot;
                 $nilaiKompetensi = $skor * $bobot;
 
                 $totalNilaiAspek += $nilaiKompetensi;
 
                 return [
                     'id_poin_aspek_penilaian' => $poin->id_poin_aspek_penilaian,
-                    'deskripsi'         => $poin->kompetensi,
-                    'skor'              => $skor,
-                    'bobot'             => $bobot,
-                    'nilai_kompetensi'  => $nilaiKompetensi,
+                    'deskripsi'        => $poin->kompetensi,
+                    'skor'             => $skor,             // Raw score (skala penguji)
+                    'bobot'            => $bobot,
+                    'nilai_kompetensi' => $nilaiKompetensi,  // Score * Bobot
                 ];
             });
 
             return [
-                'aspek' => $aspek->aspek,
+                'aspek' => $aspek->aspek, // Nama Aspek (Judul Kategori)
                 'kompetensi' => $kompetensiTerisi,
             ];
         });
 
-        // --- AMBIL FEEDBACK (PERBAIKAN) ---
-        // Mengambil dari kolom 'catatan' di tabel enrollment_osce
-        $feedback = $enrollment->catatan;
-
-        return Inertia::render('Penguji/Nilai/View', [
+        return Inertia::render('Penguji/ViewNilaiDetail', [
             'mahasiswa' => [
                 'nama'    => $enrollment->mahasiswa->nama,
                 'nim'     => $enrollment->mahasiswa->nim,
+                // Gunakan null coalescing operator (??) jika relasi prodi belum tentu ada
                 'jurusan' => $enrollment->mahasiswa->prodi ?? '-', 
             ],
             'rubrik_terisi'     => $rubrikTerisi,
             'total_nilai_aspek' => $totalNilaiAspek,
-            'feedback'          => $feedback,
+            'feedback'          => $enrollment->catatan ?? '',
         ]);
     }
 }

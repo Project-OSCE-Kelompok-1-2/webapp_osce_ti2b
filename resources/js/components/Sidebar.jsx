@@ -27,25 +27,25 @@ const menuItems = [
         label: "Mahasiswa",
         icon: <Users size={24} />,
         href: "/admin/mahasiswa",
-        opacity: "50",
+        opacity: "100",
     },
     {
         label: "Dosen",
         icon: <UserCheck size={24} />,
         href: "/admin/dosen",
-        opacity: "50",
+        opacity: "100",
     },
     {
         label: "OSCE",
         icon: <FileText size={24} />,
         href: "/admin/osce",
-        opacity: "50",
+        opacity: "100",
     },
     {
         label: "Rekap Nilai Mahasiswa",
         icon: <Bookmark size={24} />,
         href: "/admin/rekap-nilai",
-        opacity: "50",
+        opacity: "100",
     },
 ];
 
@@ -59,7 +59,7 @@ const Sidebar = () => {
 
     return (
         <aside
-            className={`fixed top-0 left-0 h-full bg-white text-gray-900 border-r border-gray-300 shadow-lg transition-all duration-300 z-50 flex flex-col
+            className={`fixed top-0 left-0 h-full bg-white text-gray-900 border-r border-gray-300 transition-all duration-300 z-50 flex flex-col
       ${isOpen ? "w-64" : "w-20"}`}
         >
             {/* Tombol toggle sidebar */}
