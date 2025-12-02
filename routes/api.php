@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\Admin\OsceJadwalController;
 use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
 use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
+use App\Http\Controllers\Api\V1\Penguji\ProfilController;
 
 Route::prefix('v1')->group(function () {
     // Route::get('/login', function () {
@@ -32,6 +33,12 @@ Route::prefix('v1')->group(function () {
         // Route::get('/me', function (Request $request) {
         //     return $request->user();
         // });
+        // Profil Penguji
+        Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
+            ->name('api.penguji.account.show');
+        
+        Route::post('/penguji/profil/update', [ProfilController::class, 'update_account'])
+            ->name('api.penguji.account.update');
 
         Route::prefix('admin')->middleware('roleApi:admin')->group(function () {
 
@@ -90,4 +97,4 @@ Route::prefix('v1')->group(function () {
             Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
         });
     });
-}); 
+});
