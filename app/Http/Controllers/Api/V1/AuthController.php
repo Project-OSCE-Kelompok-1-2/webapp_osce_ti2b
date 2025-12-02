@@ -14,7 +14,9 @@ class AuthController extends Controller
     {
         $this->authService = $authService;
     }
-
+    /**
+     * @unauthenticated
+     */
     public function login(Request $request)
     {
         $request->validate([
