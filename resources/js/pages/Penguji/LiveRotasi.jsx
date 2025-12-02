@@ -23,8 +23,8 @@ export default function LiveRotasi() {
     const handleSubmit = () => {
         if (isFinished) {
             // Jika habis, tutup sesi
-            router.post(
-                `/penguji/osce/${safeOsce.id_osce}/stase/${safeOsce.id_osce_stase}/selesai`
+            router.get(
+                `/penguji/osce/${safeOsce.id_osce}/stase/${safeOsce.id_osce_stase}/rekap`
             );
         } else {
             // Jika ada, lanjut nilai

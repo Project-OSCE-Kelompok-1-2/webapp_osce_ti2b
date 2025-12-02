@@ -24,9 +24,7 @@ Route::prefix('v1')->group(function () {
         // VIEW NILAI (Sudah ada)
         Route::get('/penilaian/{id_enrollment_osce}/view', ViewNilaiController::class);
 
-        // INPUT NILAI (Tambahkan ini)
-        // Kita gunakan POST. Sesuaikan nama controllernya nanti.
-        Route::post('/penilaian', InputNilaiController::class); 
+
         // Profil Penguji
         Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
             ->name('api.penguji.account.show');

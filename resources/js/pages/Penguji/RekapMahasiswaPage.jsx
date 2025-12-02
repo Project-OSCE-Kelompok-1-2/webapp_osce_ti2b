@@ -6,11 +6,13 @@ import { ArrowLeft, Download, Search, ExternalLink } from "lucide-react";
 import SidebarUniversal from "../../components/SidebarUniversal";
 import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/Copyright";
+import Sidebar from "../../components/Sidebar";
 
 export default function RekapMahasiswaPage() {
     // 1. AMBIL PROPS DARI BACKEND (Bintang)
     // Backend mengirim: 'osce_detail' dan 'mahasiswa_list'
     const { osce_detail, mahasiswa_list } = usePage().props;
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // Fallback agar tidak crash jika data kosong
     const safeOsceInfo = osce_detail || {
@@ -34,7 +36,9 @@ export default function RekapMahasiswaPage() {
 
     return (
         <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <SidebarUniversal />
+            {/* <SidebarUniversal /> */}
+            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
+
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* 1. Header */}
