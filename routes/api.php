@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\penguji\EditNilaiController;
 
 Route::prefix('v1')->group(function () {
     Route::get('/login', function () {
@@ -21,6 +22,13 @@ Route::prefix('v1')->group(function () {
         Route::get('/me', function (Request $request) {
             return $request->user();
         });
-    });
+        
+            // --- Penilaian (Tugas Najwa) ---
+        // Tugas 1: GET Form Edit (Mengambil data rubrik & nilai)
+        Route::get('/penilaian/{id_enrollment_osce}/edit', [EditNilaiController::class, 'edit'])->name('penilaian.edit');
+    
+        // Tugas 2: PUT Simpan Edit (Menyimpan nilai)
+        Route::put('/penilaian/{id_enrollment_osce}', [EditNilaiController::class, 'update'])->name('penilaian.update');
+        });
 
 });

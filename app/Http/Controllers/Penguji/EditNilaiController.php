@@ -88,7 +88,7 @@ class EditNilaiController extends Controller
                     'nama' => $enrollment->mahasiswa->nama ?? null,
                 ],
                 'info_stase' => [
-                    'nama_stase' => $rubrikStruktur->nama_stase ?? null,
+                    'nama_stase' => $rubrikStruktur->nama_stase ?? notnull,
                     'deskripsi'  => $rubrikStruktur->deskripsi ?? null,
                 ],
                 'penilaian' => $rubrikStruktur->aspekPenilaian->map(function ($aspek) {
@@ -136,7 +136,7 @@ class EditNilaiController extends Controller
             'items' => 'required|array',
             'items.*.id_poin_aspek_penilaian' => 'required|integer|exists:poin_aspek_penilaian,id_poin_aspek_penilaian',
             'items.*.nilai' => 'required|numeric|min:0',
-
+            // optional: if front-end may pass status variable:
             'osce_status' => 'sometimes|string'
         ]);
 
@@ -153,7 +153,7 @@ class EditNilaiController extends Controller
                 $statusOsce = $enrollment->osceStase ? 'Aktif' : 'Tidak Aktif';
             }
 
-            // Jika OSCE tidak aktif (berdasarkan variabel)
+            // Jika OSCE tidak aktif (berdasarkan variabel saja), tolak simpan
             if (strtolower($statusOsce) !== 'aktif') {
                 DB::rollBack();
                 return response()->json([
