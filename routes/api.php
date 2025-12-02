@@ -43,7 +43,7 @@ Route::prefix('v1')->group(function () {
         Route::get('/penguji/rotasi/{id_osce_stase}', 
             [AksiPenilaianApiController::class, 'rotasi']);
 
-        Route::post('/penguji/selesai/{id_osce_stase}', 
+        Route::get('/penguji/selesai/{id_osce_stase}',
             [AksiPenilaianApiController::class, 'selesai']);
     });
 
