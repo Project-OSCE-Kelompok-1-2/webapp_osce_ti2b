@@ -10,7 +10,7 @@ class TujuanPembelajaran extends Model
     use HasFactory;
 
     protected $table = 'tujuan_pembelajaran';
-    protected $primarykey = 'id_tujuan_pembelajaran';
+    protected $primaryKey = 'id_tujuan_pembelajaran';
     protected $fillable = ['tujuan'];
 
     public function stase()
