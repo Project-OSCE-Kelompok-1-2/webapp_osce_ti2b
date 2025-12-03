@@ -213,8 +213,9 @@ class HalamanPenilaianService
                 $totalAkumulasi += ($skor * $bobot);
             }
         }
-        $jumlahAspek = $aspekPenilaianList->count() > 0 ? $aspekPenilaianList->count() : 1;
-        $totalNilaiAkhir = $totalAkumulasi / $jumlahAspek;
+
+        $skalaMaksimal = 4;
+        $totalNilaiAkhir = $totalAkumulasi / $skalaMaksimal;
 
         $existingFeedback = $enrollment->catatan;
 
