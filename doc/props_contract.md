@@ -955,3 +955,189 @@ Endpoint ini memiliki *prefix* (contoh: `/penguji`) dan hanya bisa diakses oleh 
   "feedback": "string | null"
 }
 ```
+
+
+## Mahasiswa (Portal)
+
+Endpoint ini memiliki *prefix* (contoh: `/mahasiswa`) dan hanya bisa diakses oleh pengguna dengan *role* 'mahasiswa'.
+
+### 1\. Dashboard Mahasiswa
+
+  - **Endpoint**: `/mahasiswa/dashboard`
+  - **Method**: `GET`
+  - **Deskripsi**: Halaman utama (Beranda) untuk mahasiswa, menampilkan statistik ringkas dan jadwal terdekat.
+
+**Response Body (Props):**
+
+```json
+{
+  "auth": {
+    "user": {
+      "nama": "string",
+      "foto_url": "string | null"
+    }
+  },
+  "statistik": {
+    "ujian_terdaftar": "integer", // Jumlah ujian yang akan datang
+    "ujian_selesai": "integer",   // Jumlah ujian yang sudah dinilai
+    "nilai_akhir": "integer"      // Rata-rata atau nilai terakhir (sesuai logika bisnis)
+  },
+  "jadwal_penting": [
+    // List jadwal ujian terdekat (Highlight merah di UI)
+    {
+      "id_osce": "integer",
+      "nama_osce": "string",
+      "tanggal": "date",       // Format Y-m-d
+      "waktu_mulai": "string", // Format H:i
+      "hari_sisa": "integer",  // Selisih hari (misal: 1)
+      "is_urgent": "boolean"   // True jika H-1 atau H-0
+    }
+  ],
+  "agenda_mendatang": [
+    // List 7 hari mendatang (Baris biru di UI)
+    {
+      "id_osce": "integer",
+      "nama_kegiatan": "string", // Nama Stase atau Nama Ujian
+      "tanggal": "date",
+      "hari_sisa": "integer",
+      "tipe": "string" // 'Stase' | 'Ujian'
+    }
+  ],
+  "kalender_event": [
+    // Array tanggal yang memiliki event untuk highlight di kalender kecil
+    "2025-10-12",
+    "2025-10-31"
+  ]
+}
+```
+
+-----
+
+### 2\. Daftar Hasil Penilaian (List)
+
+  - **Endpoint**: `/mahasiswa/nilai`
+  - **Method**: `GET`
+  - **Deskripsi**: Menampilkan riwayat ujian OSCE yang pernah diikuti beserta status kelulusannya.
+  - **Query Parameters**:
+      - `tahun`: `string` (Filter Tahun Ujian)
+      - `semester`: `string` (Filter Semester)
+
+**Response Body (Props):**
+
+```json
+{
+  "filters": {
+    "tahun_options": [
+      { "value": "string", "label": "string" }
+    ],
+    "semester_options": [
+      { "value": "string", "label": "string" }
+    ],
+    "current_tahun": "string",
+    "current_semester": "string"
+  },
+  "biodata": {
+    "nama": "string",
+    "nim": "string",
+    "prodi": "string",
+    "status_mahasiswa": "string" // Aktif/Cuti
+  },
+  "riwayat_ujian": {
+    // Pagination Object (Laravel Standard)
+    "data": [
+      {
+        "id_enrollment_osce": "integer",
+        "nama_osce": "string",
+        "dosen_penguji": "string",
+        "tanggal_ujian": "string", // Format display (e.g., 31 / 10 / 2025)
+        "nilai_total": "float",
+        "status_lulus": "boolean", // Menentukan warna tombol (Hijau/Merah)
+        "label_status": "string"   // "LULUS" | "TIDAK LULUS"
+      }
+    ],
+    "links": "array" // Link pagination
+  }
+}
+```
+
+-----
+
+### 3\. Detail Hasil Penilaian (Transkrip)
+
+  - **Endpoint**: `/mahasiswa/nilai/{id_enrollment_osce}`
+  - **Method**: `GET`
+  - **Deskripsi**: Menampilkan rincian nilai per kompetensi/aspek untuk satu sesi ujian tertentu.
+
+**Response Body (Props):**
+
+```json
+{
+  "detail_header": {
+    "nama_ujian": "string",     // "Hasil Penilaian OSCE"
+    "nama_mahasiswa": "string",
+    "nim": "string",
+    "prodi": "string",
+    "stase_label": "string",    // "OSCE Radiologi 01-A"
+    "semester": "integer",
+    "tahun_ujian": "string",
+    "dosen_penguji": "string"
+  },
+  "daftar_nilai": [
+    {
+      "nama_aspek": "string", // Nama Kompetensi atau Stase
+      "nilai": "float",       // Nilai angka (misal: 93.75)
+      "keterangan": "string"  // Predikat (misal: "Sangat Baik", "Baik")
+    }
+  ],
+  "rekap_akhir": {
+    "rata_rata": "float",      // Total / Rata-rata
+    "status_kelulusan": "string" // "LULUS" | "TIDAK LULUS"
+  }
+}
+```
+
+-----
+
+### 4\. Pengaturan Akun Mahasiswa
+
+#### a. Tampilkan Form Profil
+
+  - **Endpoint**: `/mahasiswa/pengaturan-akun`
+  - **Method**: `GET`
+  - **Deskripsi**: Menampilkan data diri dan form ganti password.
+
+**Response Body (Props):**
+
+```json
+{
+  "profil": {
+    "nama": "string",
+    "email": "string", // Email dari tabel pengguna (jika ada kolom email)
+    "username": "string",
+    "path_gambar": "string | null"
+  }
+}
+```
+
+#### b. Update Password
+
+  - **Endpoint**: `/mahasiswa/profil/password`
+  - **Method**: `PUT`
+  - **Deskripsi**: Mengubah password login.
+
+**Request Body:**
+
+```json
+{
+  "password_lama": "string",
+  "password_baru": "string",
+  "konfirmasi_password_baru": "string"
+}
+```
+
+#### c. Update Foto Profil
+
+  - **Endpoint**: `/mahasiswa/profil/gambar`
+  - **Method**: `POST`
+  - **Deskripsi**: Mengunggah foto profil baru.
+  - **Request Body**: `multipart/form-data` (`gambar`: file)
