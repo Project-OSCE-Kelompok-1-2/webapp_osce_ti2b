@@ -204,3 +204,60 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
         ]);
     })->name('rekap.detail');
 });
+
+
+// ROUTE SEMENTARA UNTUK PREVIEW FRONTEND (Hapus nanti jika Controller Ilham sudah siap)
+Route::get('/mahasiswa/dashboard', function () {
+    return Inertia::render('Mahasiswa/Dashboard', [
+        // 1. Mockup Data Auth User
+        'auth' => [
+            'user' => [
+                'name' => 'Khansa Mahasiswa',
+                'email' => 'khansa@student.univ.ac.id',
+                'foto' => null // Atau url foto jika ada
+            ]
+        ],
+
+        // 2. Mockup Data Statistik
+        'statistik' => [
+            'terdaftar' => 4,
+            'selesai' => 2,
+            'nilai_akhir' => 85.5,
+        ],
+
+        // 3. Mockup Data Jadwal (Sesuai format yang diminta komponen React)
+        'jadwal_penting' => [
+            [
+                'nama_ujian' => 'OSCE Blok 3.1 - Kardiovaskuler',
+                'tanggal_full' => 'Jumat, 6 Desember 2025',
+                'tanggal_pendek' => '6 Des',
+                'jam' => '08:00',
+                'sisa_hari' => 1, // Ini akan memicu kartu merah (Urgent)
+                'tipe' => 'Ujian Utama'
+            ],
+            [
+                'nama_ujian' => 'Responsi Farmakologi',
+                'tanggal_full' => 'Senin, 15 Desember 2025',
+                'tanggal_pendek' => '15 Des',
+                'jam' => '10:00',
+                'sisa_hari' => 10, // Ini akan jadi list biasa
+                'tipe' => 'Responsi'
+            ],
+            [
+                'nama_ujian' => 'Skill Lab: Anamnesis',
+                'tanggal_full' => 'Rabu, 20 Desember 2025',
+                'tanggal_pendek' => '20 Des',
+                'jam' => '13:00',
+                'sisa_hari' => 15,
+                'tipe' => 'Latihan'
+            ]
+        ],
+
+        // 4. Mockup Data Kalender (Format sederhana untuk penanda tanggal)
+        'kalender_event' => [
+            '2025-12-06',
+            '2025-12-15',
+            '2025-12-20'
+        ]
+    ]);
+})->name('mahasiswa.dashboard');
