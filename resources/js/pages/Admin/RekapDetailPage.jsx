@@ -17,6 +17,19 @@ export default function RekapDetailPage() {
 
     const handleBack = () => {
         window.history.back();
+    
+    };
+    const handleDownload = () => {
+        // Pastikan osce.id_osce ada isinya (dari perbaikan controller no 1 di atas)
+        if (!osce.id_osce) {
+        alert("ID OSCE tidak ditemukan, tidak bisa download.");
+        return;     
+        }
+        // Construct URL sesuai route web.php yang baru dibuat
+        const url = `/admin/rekap-nilai/mahasiswa/${mahasiswa.id_mahasiswa}/osce/${osce.id_osce || 1}/download`; // Note: pastikan ID Osce ada di props, jika tidak ada fallback ke logic lain
+        
+        // Buka di tab baru
+        window.open(url, '_blank');
     };
 
     return (
@@ -66,7 +79,11 @@ export default function RekapDetailPage() {
                         <h2 className="font-semibold text-xl text-gray-900">
                             Nilai OSCE: {osce.nama_osce}
                         </h2>
-                        <button className="flex items-center bg-blue-600 text-white text-sm py-2.5 px-5 rounded-lg hover:bg-blue-700  transition-all">
+
+                        {/* Tombol Download dengan onClick */}
+                        <button 
+                            onClick={handleDownload}
+                            className="flex items-center bg-blue-600 text-white text-sm py-2.5 px-5 rounded-lg hover:bg-blue-700  transition-all">
                             <Download className="w-4 h-4 mr-2" />
                             Download Hasil
                         </button>
