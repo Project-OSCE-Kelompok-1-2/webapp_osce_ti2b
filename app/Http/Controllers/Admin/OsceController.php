@@ -33,9 +33,10 @@ class OsceController extends Controller
             ->get()
             ->map(fn($t) => [
                 'label' => $t->tahun . ' - ' . $t->semester,
-                'value' => $t->id_tahun_akademik 
+                'value' => $t->id_tahun_akademik
             ]);
-            
+
+        // dd($tahunAkademikOptions);
 
         return Inertia::render('Admin/OsceListPage', [
             'osce' => $osceList['data'],
@@ -43,8 +44,6 @@ class OsceController extends Controller
             'tahunAkademikOptions' => $tahunAkademikOptions, // Kirim ke Frontend
         ]);
     }
-
-
 
     public function store(Request $request)
     {
@@ -69,7 +68,7 @@ class OsceController extends Controller
             'label' => $th->tahun . ' - ' . $th->semester,
         ]);
 
-        return Inertia::render('Admin/TambahOsce', [ 
+        return Inertia::render('Admin/TambahOsce', [
             'tahunAkademikOptions' => $tahunAkademik,
             'osce' => $osce,
         ]);
