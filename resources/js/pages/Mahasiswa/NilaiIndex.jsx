@@ -3,9 +3,10 @@ import { Head, Link } from "@inertiajs/react";
 import { ChevronRight, FileText, User } from "lucide-react";
 
 // --- IMPORT KOMPONEN ---
-// Pastikan path ini sesuai dengan struktur folder Anda
 import SidebarUniversal from "@/Components/SidebarUniversal";
 import Pagination from "@/Components/Pagination";
+// Asumsikan OsSearchBar disimpan di path ini
+import OsSearchBar from "@/Components/searchbar";
 
 // --- MOCK DATA (Simulasi Database) ---
 const MOCK_MAHASISWA = {
@@ -76,20 +77,41 @@ export default function NilaiIndex() {
     // State Sidebar (Default True = Terbuka)
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-    // State Filter
+    // State Filter & Search
     const [filterSemester, setFilterSemester] = useState("");
     const [filterTahun, setFilterTahun] = useState("");
+    const [search, setSearch] = useState(""); // State baru untuk search
     const [filteredData, setFilteredData] = useState(MOCK_UJIAN_LIST);
 
-    // Logic Filter Sederhana
+    // Logic Filter & Search
     useEffect(() => {
         let result = MOCK_UJIAN_LIST;
+
+        // 1. Filter berdasarkan Semester
         if (filterSemester)
             result = result.filter((item) => item.semester === filterSemester);
+
+        // 2. Filter berdasarkan Tahun
         if (filterTahun)
             result = result.filter((item) => item.tahun_ujian === filterTahun);
+
+        // 3. Filter berdasarkan Search (Nama Ujian atau Dosen)
+        if (search) {
+            const lowerSearch = search.toLowerCase();
+            result = result.filter(
+                (item) =>
+                    item.nama_ujian.toLowerCase().includes(lowerSearch) ||
+                    item.dosen_penguji.toLowerCase().includes(lowerSearch)
+            );
+        }
+
         setFilteredData(result);
-    }, [filterSemester, filterTahun]);
+    }, [filterSemester, filterTahun, search]);
+
+    // Handler opsional jika tombol Cari diklik manual (biasanya untuk API call, tapi disini reaktif)
+    const handleSearchClick = () => {
+        console.log("Searching for:", search);
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-slate-800">
@@ -102,11 +124,6 @@ export default function NilaiIndex() {
             />
 
             {/* --- MAIN CONTENT --- */}
-            {/* NOTE PENTING: Class 'ml-20' dibuat statis.
-                Ini membuat konten selalu memberi ruang untuk sidebar mode mini (closed).
-                Saat sidebar dibuka (width membesar), ia akan menutupi (overlay) konten ini 
-                karena sidebar memiliki z-index yang lebih tinggi.
-            */}
             <main className="transition-all duration-300 ease-in-out p-6 pt-8 ml-20">
                 {/* Breadcrumb */}
                 <div className="mb-6 flex items-center text-sm text-gray-500">
@@ -258,6 +275,17 @@ export default function NilaiIndex() {
                     </div>
                 </div>
 
+                {/* --- SEARCH BAR --- */}
+                {/* Ditempatkan di sini agar memisahkan Info Mahasiswa dan Data Tabel */}
+                <div className="mb-2">
+                    <OsSearchBar
+                        search={search}
+                        setSearch={setSearch}
+                        onSearchClick={handleSearchClick}
+                        placeholder="Cari nama ujian atau dosen..."
+                    />
+                </div>
+
                 {/* Tabel Penilaian */}
                 <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow duration-300">
                     <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
@@ -344,7 +372,7 @@ export default function NilaiIndex() {
                                             </div>
                                             <p>
                                                 Data ujian tidak ditemukan untuk
-                                                filter ini.
+                                                filter atau kata kunci ini.
                                             </p>
                                         </div>
                                     </td>
