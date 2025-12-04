@@ -122,7 +122,7 @@ export default function AdminSettingAkun({ user }) {
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar isOpen={isSidebarOpen} type="penguji" onToggle={handleSidebarToggle} />
+            <Sidebar isOpen={isSidebarOpen} type="admin" onToggle={handleSidebarToggle} />
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
                 <OsHeader variant="goback" backLink="#" onMenuClick={handleSidebarToggle} />
