@@ -67,6 +67,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info("--- SKENARIO ACTIVE ---");
         $this->command->info("SESI 1 (Active): " . $sesi1Mulai->format('H:i') . " - " . $sesi1Selesai->format('H:i'));
         $this->command->info("SESI 2 (Next)  : " . $sesi2Mulai->format('H:i') . " - " . $sesi2Selesai->format('H:i'));
+        $this->command->info("SESI 3 (Last)  : " . $sesi3Mulai->format('H:i') . " - " . $sesi3Selesai->format('H:i'));
         $this->command->info("--- SKENARIO SELESAI ---");
         $this->command->info("EVENT HISTORY  : " . $pastEventMulai->format('d M Y'));
         $this->command->info("--------------------------------------------------");
