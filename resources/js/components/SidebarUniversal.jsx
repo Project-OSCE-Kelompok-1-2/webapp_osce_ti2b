@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { usePage, Link } from "@inertiajs/react";
 import {
     Home,
@@ -10,11 +10,10 @@ import {
     ChevronsLeft,
     ChevronsRight,
     BookOpen,
+    GraduationCap,
 } from "lucide-react";
 
-// --- 1. DEFINISI MENU UNTUK SETIAP ROLE ---
-
-// Menu untuk Admin
+// --- MENU DEFINITIONS ---
 const adminMenus = [
     { label: "Beranda", icon: <Home />, href: "/admin/dashboard" },
     { label: "Stase", icon: <BookOpen />, href: "/admin/stase" },
@@ -24,69 +23,55 @@ const adminMenus = [
     { label: "Rekap Nilai", icon: <Bookmark />, href: "/admin/rekap-nilai" },
 ];
 
-// Menu untuk Penguji
-const pengujiMenus = [
-    { label: "Beranda", icon: <Home />, href: "/penguji/dashboard" },
-    { label: "OSCE", icon: <FileText />, href: "/penguji/osce" },
+const userMenus = [
+    { label: "Beranda", icon: <Home />, href: "/dashboard" },
+    { label: "Ujian OSCE", icon: <FileText />, href: "/osce" },
+    {
+        label: "Hasil Penilaian",
+        icon: <GraduationCap />,
+        href: "/mahasiswa/nilai",
+    },
 ];
 
-// ---------------------------------------------------
+const SidebarUniversal = ({ isOpen, setIsOpen }) => {
+    const { url } = usePage();
+    const currentUrl = url || "/mahasiswa/nilai";
+    const isAdmin = currentUrl.startsWith("/admin");
 
-const SidebarUniversal = () => {
-    const [isOpen, setIsOpen] = useState(true);
-    const { url, props } = usePage();
+    const menuItems = isAdmin ? adminMenus : userMenus;
+    const settingsLink = isAdmin ? "/admin/pengaturan" : "/pengaturan";
+    const userName = isAdmin ? "Admin Fakultas" : "Mahasiswa";
+    const userEmail = isAdmin
+        ? "admin.fakultas@kampus.ac.id"
+        : "mahasiswa@polines.ac.id";
 
-    // --- 2. LOGIKA DETEKSI ROLE OTOMATIS ---
-    const isAdmin = url.startsWith("/admin");
+    // --- STYLE LOGIC ---
+    const getLinkClass = (active) => {
+        let base =
+            "flex items-center gap-3 p-3 rounded-r-lg mb-1 transition-all duration-300 group relative overflow-hidden ";
 
-    // Pilih menu & link pengaturan
-    const menuItems = isAdmin ? adminMenus : pengujiMenus;
-    const settingsLink = isAdmin
-        ? "/admin/pengaturan-akun"
-        : "/penguji/pengaturan-akun";
+        // Alignment: Center icon when closed, Start when open
+        base += isOpen ? "justify-start px-4" : "justify-center px-0";
 
-    // Data User Dummy
-    const userName = isAdmin ? "Admin1234" : "Penguji1234";
-    const userEmail = isAdmin ? "admin@polines.ac.id" : "Penguji1234@gmail.com";
-
-    // Helper untuk cek link aktif
-    const isActive = (href) => url.startsWith(href);
-
-    // --- 3. LOGIKA WARNA (STYLE) BERDASARKAN ROLE ---
-    const getRoleStyles = (active) => {
-        if (isAdmin) {
-            // --- ADMIN: HITAM ---
-            return {
-                icon: "text-gray-900", // Ikon Hitam
-                text: active
-                    ? "text-gray-900 font-bold"
-                    : "text-gray-900 font-medium", // Teks Hitam
-                bg: active ? "bg-gray-100" : "hover:bg-gray-100", // Hover Abu-abu
-                border: active ? "border-l-4 border-gray-600" : "", // Indikator aktif hitam
-            };
+        if (active) {
+            return (
+                base + " bg-blue-50 text-blue-600 border-l-4 border-blue-600"
+            );
         } else {
-            // --- PENGUJI: BIRU ---
-            return {
-                icon: "text-blue-600", // Ikon Biru
-                text: active
-                    ? "text-blue-700 font-bold"
-                    : "text-blue-600 font-medium", // Teks Biru
-                bg: active ? "bg-blue-50" : "hover:bg-blue-50", // Hover Biru Muda
-                border: active ? "border-l-4 border-blue-600" : "", // Indikator aktif biru
-            };
+            return base + " text-gray-500 hover:bg-gray-50 hover:text-blue-600";
         }
     };
 
     return (
         <aside
-            className={`fixed top-0 left-0 h-full bg-white text-gray-900 border-r border-gray-300 shadow-lg transition-all duration-300 z-50 flex flex-col
-            ${isOpen ? "w-64" : "w-20"}`}
+            // FIXED & Z-50: Agar sidebar mengambang di atas konten saat melebar
+            className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 shadow-2xl z-50 transition-all duration-300 ease-in-out flex flex-col
+            ${isOpen ? "w-72" : "w-20"}`}
         >
-            {/* Tombol Toggle */}
+            {/* --- TOGGLE BUTTON --- */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                // Warna tombol toggle juga bisa disesuaikan, tapi default biru biasanya bagus untuk aksen
-                className="absolute -right-3 top-9 z-50 bg-blue-600 text-white p-1 rounded-full hover:bg-blue-500 transition focus:outline-none shadow-md border border-white"
+                className="absolute -right-3 top-10 bg-blue-600 text-white p-1.5 rounded-full shadow-md hover:bg-blue-700 transition-colors border-2 border-white focus:outline-none z-50"
             >
                 {isOpen ? (
                     <ChevronsLeft size={16} />
@@ -95,108 +80,96 @@ const SidebarUniversal = () => {
                 )}
             </button>
 
-            {/* Profil User */}
-            <div className="flex-shrink-0">
+            {/* --- PROFILE HEADER --- */}
+            <div
+                className={`flex items-center gap-3 p-6 h-24 border-b border-gray-100 transition-all duration-300 ${
+                    !isOpen && "justify-center p-0"
+                }`}
+            >
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg flex-shrink-0">
+                    {userName.charAt(0)}
+                </div>
+
                 <div
-                    className={`flex items-center gap-3 p-4 border-b border-gray-200 h-[100px] transition-all duration-300 ${
-                        !isOpen ? "justify-center" : ""
+                    className={`flex flex-col overflow-hidden transition-all duration-300 ${
+                        isOpen ? "opacity-100 w-auto" : "opacity-0 w-0"
                     }`}
                 >
-                    {/* Avatar */}
-                    <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-xl overflow-hidden
-                        ${
-                            isAdmin
-                                ? "bg-gray-200 text-gray-700"
-                                : "bg-blue-100 text-blue-600"
-                        }
-                    `}
-                    >
-                        <div
-                            className={`w-full h-full ${
-                                isAdmin ? "bg-gray-300" : "bg-blue-200/50"
-                            }`}
-                        ></div>
-                    </div>
-
-                    {/* Info Teks */}
-                    {isOpen && (
-                        <div className="overflow-hidden">
-                            <p className="font-bold text-gray-900 truncate text-sm">
-                                {userName}
-                            </p>
-                            <p className="text-xs text-gray-500 truncate">
-                                {userEmail}
-                            </p>
-                        </div>
-                    )}
+                    <span className="font-bold text-gray-800 text-sm whitespace-nowrap">
+                        {userName}
+                    </span>
+                    <span className="text-xs text-gray-500 whitespace-nowrap">
+                        {userEmail}
+                    </span>
                 </div>
             </div>
 
-            {/* Menu Navigasi */}
-            <nav className="flex-grow flex flex-col justify-center overflow-y-auto mt-2">
-                <div className="flex flex-col gap-3 p-3">
+            {/* --- MENU LIST --- */}
+            <nav className="flex-1 overflow-y-auto py-6 pr-3">
+                <div className="flex flex-col">
                     {menuItems.map((item, index) => {
-                        const active = isActive(item.href);
-                        const styles = getRoleStyles(active); // Ambil style sesuai role
-
+                        const active = currentUrl.startsWith(item.href);
                         return (
                             <Link
                                 key={index}
                                 href={item.href}
-                                className={`flex items-center gap-3 p-3 rounded-lg transition-colors duration-200 group
-                                    ${!isOpen ? "justify-center" : "px-4"}
-                                    ${styles.bg} 
-                                    ${styles.border}
-                                `}
+                                className={getLinkClass(active)}
+                                title={!isOpen ? item.label : ""}
                             >
-                                <div className="flex-shrink-0">
+                                <div
+                                    className={`flex-shrink-0 transition-colors ${
+                                        active
+                                            ? "text-blue-600"
+                                            : "text-gray-400 group-hover:text-blue-600"
+                                    }`}
+                                >
                                     {React.cloneElement(item.icon, {
-                                        size: 26,
-                                        className: styles.icon, // Terapkan warna ikon (Hitam/Biru)
+                                        size: 22,
                                     })}
                                 </div>
 
-                                {isOpen && (
-                                    <span
-                                        className={`text-sm whitespace-nowrap ${styles.text}`}
-                                    >
-                                        {item.label}
-                                    </span>
-                                )}
+                                <span
+                                    className={`whitespace-nowrap font-medium text-sm transition-all duration-300 origin-left 
+                                    ${
+                                        isOpen
+                                            ? "opacity-100 ml-0 scale-100"
+                                            : "opacity-0 ml-[-10px] scale-0 w-0 overflow-hidden"
+                                    }`}
+                                >
+                                    {item.label}
+                                </span>
                             </Link>
                         );
                     })}
                 </div>
             </nav>
 
-            {/* Menu Pengaturan */}
-            <div className="flex-shrink-0 border-t border-gray-400 p-3 mb-4 mx-4">
-                {(() => {
-                    const active = isActive(settingsLink);
-                    const styles = getRoleStyles(active);
-
-                    return (
-                        <Link
-                            href={settingsLink}
-                            className={`flex items-center gap-3 p-2 rounded-lg w-full transition-colors duration-200 group mt-2
-                                ${!isOpen ? "justify-center" : ""}
-                                ${styles.bg}
-                            `}
-                        >
-                            <div className="flex-shrink-0">
-                                <Settings size={28} className={styles.icon} />
-                            </div>
-                            {isOpen && (
-                                <span
-                                    className={`whitespace-nowrap text-sm ml-1 ${styles.text}`}
-                                >
-                                    Pengaturan
-                                </span>
-                            )}
-                        </Link>
-                    );
-                })()}
+            {/* --- FOOTER --- */}
+            <div className="p-4 border-t border-gray-100">
+                <Link
+                    href={settingsLink}
+                    className={`flex items-center gap-3 p-3 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-blue-600 transition-all duration-300 group
+                    ${isOpen ? "justify-start" : "justify-center"}`}
+                >
+                    <Settings
+                        size={22}
+                        className="flex-shrink-0 text-gray-400 group-hover:text-blue-600"
+                    />
+                    <span
+                        className={`whitespace-nowrap font-medium text-sm transition-all duration-300 ${
+                            isOpen
+                                ? "opacity-100 w-auto"
+                                : "opacity-0 w-0 overflow-hidden"
+                        }`}
+                    >
+                        Pengaturan
+                    </span>
+                </Link>
+                {isOpen && (
+                    <div className="mt-2 text-xs text-center text-gray-300 py-2">
+                        v1.0.0 © Polines
+                    </div>
+                )}
             </div>
         </aside>
     );

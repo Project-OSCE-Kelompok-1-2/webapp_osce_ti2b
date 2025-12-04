@@ -1,128 +1,160 @@
-import React, { useState, useEffect } from "react";
-import { Link } from "@inertiajs/react";
-import {
-    Home,
-    Star,       // Icon Bintang untuk Hasil Penilaian
-    Book,       // Icon Buku untuk Jadwal
-    Settings,
-    ChevronsLeft,
-    ChevronsRight,
-    User
-} from "lucide-react";
+import React, { useState } from "react";
+import { Head, Link } from "@inertiajs/react";
+import { FileText, ArrowLeft, ChevronRight } from "lucide-react";
 
-const SidebarMahasiswa = () => {
-    // Default terbuka (true) agar terlihat lebar seperti desain
-    const [isOpen, setIsOpen] = useState(true);
-    const [activePath, setActivePath] = useState("");
+// --- IMPORT KOMPONEN CUSTOM ---
+import SidebarUniversal from "../../components/SidebarUniversal.jsx"; 
+import OsHeader from "../../components/Header.jsx";
+import OsTableHeader from "../../components/tableheader.jsx";
+import OsTableBody from "../../components/tablecontain.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
 
-    useEffect(() => {
-        setActivePath(window.location.pathname);
-    }, []);
+export default function NilaiShow() {
+    // State untuk mengontrol Sidebar (Agar interaktif Buka/Tutup)
+    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-    // Menu sesuai gambar design
-    const menuItems = [
-        {
-            label: "Beranda",
-            icon: <Home size={28} />,
-            href: "/dashboard",
+    // --- DATA DUMMY ---
+    const data = {
+        mahasiswa: {
+            nama: "MI. AULIA KURNIA WIDYARANI",
+            nim: "4.33.24.1.13",
+            prodi: "Kedokteran Gigi",
+            semester: "1",
         },
-        {
-            label: "Hasil Penilaian",
-            icon: <Star size={28} />, // Menggunakan icon Bintang/Star sesuai gambar
-            href: "/mahasiswa/nilaishow",
+        ujian: {
+            stase: "OSCE Radiologi 01-A",
+            tahun: "2025",
+            dosen: "Prof. Dr. dr. Mahalul Azam, M.Kes",
         },
-        {
-            label: "Jadwal OSCE",
-            icon: <Book size={28} />,
-            href: "/mahasiswa/jadwal",
-        },
+        daftarNilai: [
+            { id: 1, kompetensi: "Manajemen Halusinasi", nilai: 93.75, keterangan: "Sangat Baik" },
+            { id: 2, kompetensi: "Restrain", nilai: 82.50, keterangan: "Baik" },
+            { id: 3, kompetensi: "Pemasangan Infus", nilai: 86.35, keterangan: "Baik" },
+            { id: 4, kompetensi: "Guided Imagery", nilai: 85.75, keterangan: "Baik" },
+        ],
+        totalNilai: "87.00",
+        statusKelulusan: "LULUS"
+    };
+
+    // --- CONFIG TABLE (Untuk Header & Body) ---
+    const tableColumns = [
+        { key: "id", content: "No", width: "w-[80px]", classes: "justify-center font-bold" },
+        { key: "kompetensi", content: "Stase / Keterampilan Klinik", width: "flex-1", classes: "justify-start px-6 font-bold text-left" },
+        { key: "nilai", content: "Nilai", width: "w-[150px]", classes: "justify-center" },
+        { key: "keterangan", content: "Keterangan", width: "w-[200px]", classes: "justify-start px-6" },
     ];
 
-    return (
-        <aside
-            // Warna Background Biru Gelap (#111827 / rgb(17 24 39)) sesuai gambar design
-            className={`fixed top-0 left-0 h-full bg-[#111827] text-white transition-all duration-300 z-50 flex flex-col shadow-xl
-            ${isOpen ? "w-72" : "w-24"}`} // Lebar sedikit diperbesar agar proporsional
-        >
-            {/* --- 1. HEADER PROFIL (Lingkaran) --- */}
-            <div className="relative flex flex-col items-center pt-8 pb-4">
-                {/* Tombol Toggle Bulat Kecil di pojok kanan header */}
-                <button
-                    onClick={() => setIsOpen(!isOpen)}
-                    className="absolute top-8 -right-3 bg-white text-[#111827] rounded-full p-1 shadow-md border border-gray-200 hover:bg-gray-100 transition z-50"
-                >
-                    {isOpen ? <ChevronsLeft size={16} /> : <ChevronsRight size={16} />}
-                </button>
-
-                {/* Avatar Lingkaran Besar */}
-                <div className={`transition-all duration-300 bg-blue-100 rounded-full flex items-center justify-center text-[#111827]
-                    ${isOpen ? "w-20 h-20 mb-3" : "w-12 h-12 mb-2"}
-                `}>
-                    <User size={isOpen ? 40 : 24} />
-                </div>
-
-                {/* Teks Nama & Email (Hanya muncul jika sidebar terbuka) */}
-                <div className={`text-center overflow-hidden transition-all duration-300 ${isOpen ? "opacity-100 h-auto" : "opacity-0 h-0"}`}>
-                    <h3 className="font-bold text-lg text-white whitespace-nowrap">Porem ipsum dolor</h3>
-                    <p className="text-xs text-gray-400 whitespace-nowrap">Poremipsumdolor@Lorem.ipsum</p>
-                </div>
-
-                {/* Garis Pemisah Putih Tipis */}
-                <div className="w-10/12 h-px bg-gray-600 mt-6 mb-2"></div>
-            </div>
-
-            {/* --- 2. MENU NAVIGASI --- */}
-            <nav className="flex-grow flex flex-col px-4 gap-2 overflow-y-auto mt-2">
-                {menuItems.map((item, index) => {
-                    const isActive = activePath === item.href;
-                    
-                    return (
-                        <Link
-                            key={index}
-                            href={item.href}
-                            className={`flex items-center gap-4 p-4 rounded-lg transition-all duration-200 group
-                            ${!isOpen ? "justify-center" : ""}
-                            ${isActive 
-                                ? "bg-white/10 text-white font-semibold" // Style Aktif (background transparan putih)
-                                : "text-gray-400 hover:text-white hover:bg-white/5" // Style Tidak Aktif
-                            }
-                            `}
-                        >
-                            {/* Icon */}
-                            <div className={`${isActive ? "text-white" : "text-gray-400 group-hover:text-white"}`}>
-                                {item.icon}
-                            </div>
-
-                            {/* Label Text */}
-                            {isOpen && (
-                                <span className="text-base whitespace-nowrap">
-                                    {item.label}
-                                </span>
-                            )}
-                        </Link>
-                    );
-                })}
-            </nav>
-
-            {/* --- 3. SETTINGS (Footer) --- */}
-            <div className="px-4 pb-8 pt-2">
-                {/* Garis Pemisah Footer */}
-                <div className="w-full h-px bg-gray-600 mb-4"></div>
-                
-                <Link
-                    href="/settings"
-                    className={`flex items-center gap-4 p-4 rounded-lg transition-all duration-200 text-gray-400 hover:text-white hover:bg-white/5
-                    ${!isOpen ? "justify-center" : ""}
-                    `}
-                >
-                    <Settings size={28} />
-                    {isOpen && (
-                        <span className="text-base font-medium">Setting</span>
-                    )}
-                </Link>
-            </div>
-        </aside>
+    // Komponen Baris Info (Card Oranye)
+    const InfoRow = ({ label, value }) => (
+        <div className="flex flex-col sm:flex-row sm:items-start mb-1">
+            <span className="font-semibold w-40 shrink-0 text-white/90 text-sm">{label}</span>
+            <span className="font-medium text-white text-sm">: {value}</span>
+        </div>
     );
-};
 
-export default SidebarMahasiswa;
+    return (
+        // WRAPPER UTAMA (Flex Row)
+        <div className="min-h-screen bg-gray-100 font-sans text-slate-800 flex">
+            
+            {/* 1. SIDEBAR UNIVERSAL */}
+            {/* Mengirim props isOpen dan setIsOpen agar tombol di sidebar berfungsi */}
+            <SidebarUniversal isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+
+            {/* 2. MAIN CONTENT WRAPPER */}
+            {/* Margin kiri (ml) berubah dinamis sesuai status sidebar */}
+            <div 
+                className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out
+                ${isSidebarOpen ? "ml-72" : "ml-20"}`}
+            >
+                
+                {/* A. HEADER (Sticky Top) */}
+                <div className="bg-white border-b border-black px-8 py-4 sticky top-0 z-40 shadow-sm w-full">
+                     <OsHeader />
+                </div>
+
+                {/* B. KONTEN UTAMA */}
+                <main className="w-full px-8 mt-8 flex flex-col gap-6 flex-1 pb-10">
+                    <Head title="Hasil Penilaian OSCE" />
+
+                    {/* 1. JUDUL HALAMAN (BOX PUTIH LURUS) */}
+                    <div className="w-full bg-white p-4 rounded-xl border border-black shadow-sm flex items-center h-[70px]">
+                        <div className="flex items-center gap-3 ml-2">
+                            <FileText className="text-blue-600" size={32} />
+                            <h1 className="font-sans font-bold text-2xl text-black mt-1">
+                                Hasil Penilaian OSCE
+                            </h1>
+                        </div>
+                    </div>
+
+                    {/* 2. CARD INFO ORANYE */}
+                    <div className="w-full bg-[#FA5E1B] rounded-xl border border-black p-6 shadow-sm">
+                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-4">
+                            <div>
+                                <InfoRow label="Nama" value={data.mahasiswa.nama} />
+                                <InfoRow label="NIM" value={data.mahasiswa.nim} />
+                                <InfoRow label="Program Studi" value={data.mahasiswa.prodi} />
+                                <InfoRow label="Stase" value={data.ujian.stase} />
+                            </div>
+                            <div>
+                                <InfoRow label="Semester" value={data.mahasiswa.semester} />
+                                <InfoRow label="Tahun Ujian" value={data.ujian.tahun} />
+                                <InfoRow label="Dosen Penguji" value={data.ujian.dosen} />
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 3. TABEL NILAI */}
+                    <div className="w-full bg-white rounded-xl shadow-sm border border-black overflow-hidden flex flex-col">
+                        <div className="bg-white">
+                            <OsTableHeader columns={tableColumns} />
+                        </div>
+                        <div className="w-full">
+                            <OsTableBody 
+                                data={data.daftarNilai} 
+                                columns={tableColumns} 
+                            />
+                        </div>
+                    </div>
+
+                    {/* 4. FOOTER AREA */}
+                    <div className="w-full flex flex-col gap-4">
+                        
+                        {/* Pagination */}
+                        <div className="flex items-center gap-3 text-sm ml-1">
+                            <button className="w-8 h-8 flex items-center justify-center bg-black text-white rounded-full hover:bg-gray-800 transition">
+                                <ArrowLeft size={16} />
+                            </button>
+                            <span className="font-bold text-black px-1">1</span>
+                            <span className="text-gray-400 px-1">2</span>
+                            <span className="text-gray-400 px-1">3</span>
+                            <span className="text-gray-400 px-1">4</span>
+                            <span className="text-gray-400 px-1">5</span>
+                            <button className="w-8 h-8 flex items-center justify-center bg-black text-white rounded-full hover:bg-gray-800 transition">
+                                <ChevronRight size={16} />
+                            </button>
+                        </div>
+
+                        {/* Total Score Box */}
+                        <div className="w-full flex bg-white rounded-xl border border-black h-[60px] overflow-hidden items-center shadow-sm">
+                            <div className="flex-1 h-full flex items-center justify-center font-bold text-black border-r border-black">
+                                Total / Rata - rata
+                            </div>
+                            <div className="w-[150px] h-full flex items-center justify-center font-extrabold text-xl text-black border-r border-black">
+                                {data.totalNilai}
+                            </div>
+                            <div className="w-[200px] h-full flex items-center justify-center font-extrabold text-black text-lg uppercase tracking-wide bg-gray-50">
+                                {data.statusKelulusan}
+                            </div>
+                        </div>
+                    </div>
+
+                    {/* 5. COPYRIGHT */}
+                    <div className="w-full mt-2">
+                        <OsCopyright />
+                    </div>
+
+                </main>
+            </div>
+        </div>
+    );
+}
