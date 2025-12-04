@@ -10,8 +10,8 @@ use App\Http\Controllers\Admin\OsceController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\StaseController;
 use App\Http\Controllers\Admin\PengujiController;
-use App\Http\Controllers\Admin\AspekPenilaianController;
-use App\Http\Controllers\Admin\OsceEnrollmentController;
+use App\Http\Controllers\Penguji\RekapController;
+use App\Http\Controllers\Penguji\ProfilController;
 use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Admin\OsceStaseController;
 use App\Http\Controllers\Admin\KompetensiController;
@@ -22,14 +22,15 @@ use App\Http\Controllers\Admin\RekapNilaiController;
 use App\Http\Controllers\Penguji\DashboardController;
 use App\Http\Controllers\Penguji\EditNilaiController;
 use App\Http\Controllers\Penguji\ViewNilaiController;
-use App\Http\Controllers\Penguji\RekapController;
-use App\Http\Controllers\Penguji\ProfilController;
+use App\Http\Controllers\Admin\AspekPenilaianController;
+use App\Http\Controllers\Admin\OsceEnrollmentController;
 use App\Http\Controllers\Penguji\AksiPenilaianController;
 use App\Http\Controllers\Penguji\HalamanPenilaianController;
 use App\Http\Controllers\Penguji\OsceController as PengujiOsceController;
 
-// --- PENGUJI CONTROLLERS ---
+// --- MAHASISWA CONTROLLERS ---
 use App\Http\Controllers\Mahasiswa\ProfilMahasiswaController;
+use App\Http\Controllers\Mahasiswa\JadwalMahasiswaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -56,6 +57,7 @@ Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasi
 
     Route::get('/pengaturan-akun', [ProfilMahasiswaController::class, 'show_profile'])->name('account.show');
     Route::post('/pengaturan-akun', [ProfilMahasiswaController::class, 'update_account'])->name('account.update');
+    Route::get('/jadwal', [JadwalMahasiswaController::class, 'index'])->name('mahasiswa.show.jadwal');
 });
 // ===========================
 // === RUTE UNTUK PENGUJI ===
