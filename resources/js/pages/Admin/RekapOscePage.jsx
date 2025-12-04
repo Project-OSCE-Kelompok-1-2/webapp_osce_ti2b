@@ -13,35 +13,68 @@ import OsSearchBar from "../../components/searchbar.jsx";
 import OsInput from "../../components/input.jsx";
 
 // --- Definisi Kolom Tabel ---
+// const rekapColumns = [
+//     {
+//         key: "no",
+//         content: "No",
+//         width: "w-16",
+//         classes: "justify-center items-center",
+//     },
+//     {
+//         key: "nama_osce",
+//         content: "Nama OSCE",
+//         width: "flex-1",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "rentang_tanggal",
+//         content: "Rentang Tanggal",
+//         width: "w-80",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "tahun_akademik",
+//         content: "Tahun Akademik",
+//         width: "w-48",
+//         classes: "justify-center items-center px-4",
+//     },
+//     {
+//         key: "action",
+//         content: "Action",
+//         width: "w-48",
+//         classes: "justify-center items-center px-4",
+//     },
+// ];
+
 const rekapColumns = [
     {
         key: "no",
         content: "No",
-        width: "w-16",
+        width: "w-16 shrink-0",
         classes: "justify-center items-center",
     },
     {
         key: "nama_osce",
         content: "Nama OSCE",
-        width: "flex-1",
+        width: "w-[350px] shrink-0", // Ganti flex-1 jadi fix
         classes: "justify-start items-center px-4",
     },
     {
         key: "rentang_tanggal",
         content: "Rentang Tanggal",
-        width: "w-80",
+        width: "w-80 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
         key: "tahun_akademik",
         content: "Tahun Akademik",
-        width: "w-48",
+        width: "w-48 shrink-0",
         classes: "justify-center items-center px-4",
     },
     {
         key: "action",
         content: "Action",
-        width: "w-48",
+        width: "w-48 shrink-0",
         classes: "justify-center items-center px-4",
     },
 ];
@@ -186,18 +219,23 @@ export default function RekapOscePage() {
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table OSCE
                     </h2>
-                    <OsTableHeader columns={rekapColumns} />
+                    
+                    {/* WRAPPER HORIZONTAL SCROLL */}
+                    <div className="w-full overflow-x-auto pb-4">
+                        <div className="min-w-max">
+                            <OsTableHeader columns={rekapColumns} />
+                            <OsTableBody data={tableData} columns={rekapColumns} />
 
-                    <OsTableBody data={tableData} columns={rekapColumns} />
-
-                    {/* Pesan jika tidak ada data */}
-                    {osce.data.length === 0 && (
-                        <div className="flex items-center border-t border-gray-400">
-                            <p className="w-full text-center text-sm py-4 text-gray-500">
-                                Data rekap nilai tidak ditemukan.
-                            </p>
+                            {/* Pesan jika tidak ada data */}
+                            {osce.data.length === 0 && (
+                                <div className="flex items-center border-t border-gray-400">
+                                    <p className="w-full text-center text-sm py-4 text-gray-500">
+                                        Data rekap nilai tidak ditemukan.
+                                    </p>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
 
                     {/* Paginasi Dinamis */}
                     {osce.links && osce.links.length > 3 && (
