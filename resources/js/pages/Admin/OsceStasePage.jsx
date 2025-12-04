@@ -21,29 +21,53 @@ import OsButton from "../../components/button.jsx";
 import OsIcon from "../../components/icons.jsx";
 
 // Definisi kolom tabel
+// const tableColumns = [
+//     { content: "No", width: "w-16", classes: "justify-center items-center" },
+//     {
+//         content: "Ruangan",
+//         width: "flex-1",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         content: "Stase",
+//         width: "flex-1",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         content: "Penguji",
+//         width: "flex-1",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         content: "Action",
+//         width: "w-32",
+//         classes: "justify-center items-center",
+//     },
+// ];
 const tableColumns = [
-    { content: "No", width: "w-16", classes: "justify-center items-center" },
+    { content: "No", width: "w-16 shrink-0", classes: "justify-center items-center" },
     {
         content: "Ruangan",
-        width: "flex-1",
+        width: "w-[150px] shrink-0", // Ganti flex-1
         classes: "justify-start items-center px-4",
     },
     {
         content: "Stase",
-        width: "flex-1",
+        width: "w-[300px] shrink-0", // Ganti flex-1 biar lebar
         classes: "justify-start items-center px-4",
     },
     {
         content: "Penguji",
-        width: "flex-1",
+        width: "w-[250px] shrink-0", // Ganti flex-1
         classes: "justify-start items-center px-4",
     },
     {
         content: "Action",
-        width: "w-32",
+        width: "w-32 shrink-0",
         classes: "justify-center items-center",
     },
 ];
+
 import OsInput from "../../components/input";
 
 // 🔥 Modal Delete Konfirmasi (versi lama)
@@ -308,38 +332,40 @@ export default function OsceStasePage({ stase, osce, filters }) {
                     </h2>
 
                     {/* Tabel */}
-                    <div>
-                        <OsTableHeader columns={tableColumns} />
-                        <OsTableBody
-                            columns={[
-                                {
-                                    key: "no",
-                                    width: "w-16",
-                                    classes: "justify-center",
-                                },
-                                {
-                                    key: "ruangan",
-                                    width: "flex-1",
-                                    classes: "justify-start px-4",
-                                },
-                                {
-                                    key: "stase",
-                                    width: "flex-1",
-                                    classes: "justify-start px-4",
-                                },
-                                {
-                                    key: "penguji",
-                                    width: "flex-1",
-                                    classes: "justify-start px-4",
-                                },
-                                {
-                                    key: "action",
-                                    width: "w-32",
-                                    classes: "justify-center",
-                                },
-                            ]}
-                            data={tableData}
-                        />
+                    <div className="w-full overflow-x-auto pb-4">
+                        <div className="min-w-max">
+                            <OsTableHeader columns={tableColumns} />
+                            <OsTableBody
+                                columns={[
+                                    {
+                                        key: "no",
+                                        width: "w-16 shrink-0",
+                                        classes: "justify-center",
+                                    },
+                                    {
+                                        key: "ruangan",
+                                        width: "w-[150px] shrink-0",
+                                        classes: "justify-start px-4",
+                                    },
+                                    {
+                                        key: "stase",
+                                        width: "w-[300px] shrink-0",
+                                        classes: "justify-start px-4",
+                                    },
+                                    {
+                                        key: "penguji",
+                                        width: "w-[250px] shrink-0",
+                                        classes: "justify-start px-4",
+                                    },
+                                    {
+                                        key: "action",
+                                        width: "w-32 shrink-0",
+                                        classes: "justify-center",
+                                    },
+                                ]}
+                                data={tableData}
+                            />
+                        </div>
                     </div>
 
                     <OsPagination links={stase?.links} />
