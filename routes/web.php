@@ -177,3 +177,27 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
         ->name('rekap.download');
 
 });
+
+// Testing
+
+
+
+
+// Testing
+Route::get('mahasiswa/pengaturan-akun', function () {
+    return Inertia::render('Mahasiswa/PengaturanAkun', [
+        // KITA KIRIM DATA DUMMY AGAR TIDAK ERROR
+        'user' => [
+            'username' => 'rikozaki',
+            'nama' => 'Hafizh',
+            'email' => 'rikozaki@gmail.com',
+            'path_gambar' => null,
+            // Tambahkan object 'penguji' karena komponen Anda membacanya (user.penguji.nama)
+            'penguji' => [
+                'nama' => 'Hafizh (Mahasiswa)',
+                'nip' => '3.34.22.0.12'
+            ]
+        ],
+        'errors' => [] // Array kosong untuk error
+    ]);
+});

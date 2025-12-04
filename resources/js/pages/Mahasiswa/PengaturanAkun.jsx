@@ -28,7 +28,8 @@ const CustomInput = ({
         </label>
         <div
             className={`flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full ${
-                disabled ? "bg-gray-100" : "bg-white"
+                // [UBAH WARNA] Disabled jadi abu-abu gelap (#BFBFBF) sesuai gambar
+                disabled ? "bg-[#BFBFBF]" : "bg-white"
             } rounded-xl border border-solid border-black`}
         >
             {icon && (
@@ -56,7 +57,7 @@ const CustomInput = ({
     </div>
 );
 
-export default function PengujiProfil() {
+export default function MahasiswaAccountSettings() {
     // 1. AMBIL DATA DARI PROPS (Backend Asdif)
     const { user, errors } = usePage().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -131,7 +132,7 @@ export default function PengujiProfil() {
 
 
             {/* MAIN CONTENT WRAPPER */}
-            <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans md:ml-20 transition-all duration-300">
+            <div className="bg-white w-full min-h-screen flex justify-center p-6 font-sans md:ml-20 transition-all duration-300">
                 <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14">
                     {/* HEADER */}
                     <header className="relative w-full flex flex-col items-start gap-5 bg-white p-4 rounded-xl shadow-sm border border-gray-900">
@@ -139,6 +140,7 @@ export default function PengujiProfil() {
                             {/* Tombol Back */}
                             <Link
                                 href="/penguji/dashboard"
+                                // [UBAH WARNA] Back button tetap biru standar atau disesuaikan navy jika mau
                                 className="flex w-[54px] h-[54px] items-center justify-center gap-[13px] p-3 relative bg-blue-600 text-white rounded-xl border border-solid border-black aspect-[1] hover:bg-blue-700 transition"
                             >
                                 <OsIcon
@@ -169,7 +171,8 @@ export default function PengujiProfil() {
                     <main className="flex flex-col gap-5 w-full">
                         <div className="flex flex-col lg:flex-row items-start gap-5 relative w-full">
                             {/* --- KOLOM KIRI: FOTO PROFIL --- */}
-                            <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5 bg-white rounded-xl border border-black shadow-sm">
+                            {/* [UBAH WARNA] Background Card jadi bg-blue-50 */}
+                            <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5 bg-blue-50 rounded-xl border border-black shadow-sm">
                                 <div className="relative self-stretch w-full h-[29px]">
                                     <h2 className="absolute top-[calc(50%_-_14px)] left-0 font-sans font-normal text-black text-xl">
                                         Gambar Profil
@@ -179,14 +182,15 @@ export default function PengujiProfil() {
 
                                 {/* Lingkaran Foto */}
                                 <div
-                                    className="relative w-[177px] h-[177px] bg-gray-200 rounded-full border border-solid border-black bg-cover bg-center"
+                                    className="relative w-[177px] h-[177px] bg-white rounded-full border border-solid border-black bg-cover bg-center"
                                     style={{
                                         backgroundImage: `url(${profileImage})`,
                                     }}
                                 />
 
                                 {/* Alert Box */}
-                                <div className="flex-col items-start gap-[5px] p-3.5 relative self-stretch flex w-full bg-red-100 rounded-xl overflow-hidden border border-solid border-red-400">
+                                {/* [UBAH WARNA] Background Box jadi #B0B0B0 (Abu-abu), Text tetap merah sesuai style */}
+                                <div className="flex-col items-start gap-[5px] p-3.5 relative self-stretch flex w-full bg-[#B0B0B0] rounded-xl overflow-hidden border border-solid border-[#B0B0B0]">
                                     <div className="inline-flex items-center gap-[5px]">
                                         <OsIcon
                                             name="Warning"
@@ -196,10 +200,9 @@ export default function PengujiProfil() {
                                             Perhatian!
                                         </div>
                                     </div>
-                                    <p className="font-sans font-normal text-red-700 text-[13px]">
-                                        Gambar harus berukuran kurang dari 1 MB,
-                                        resolusi max 500x500 px. Format: .png,
-                                        .jpeg, .jpg, .gif
+                                    {/* Text warna hitam/gelap agar terbaca di background abu */}
+                                    <p className="font-sans font-normal text-black text-[13px]">
+                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum.
                                     </p>
                                 </div>
                                 {errors.foto && (
@@ -210,7 +213,8 @@ export default function PengujiProfil() {
 
                                 {/* Tombol Upload & Delete */}
                                 <div className="flex items-center gap-[15px] relative self-stretch w-full">
-                                    <label className="flex items-center justify-center gap-2.5 px-3 py-3 relative flex-1 bg-blue-600 text-white rounded-xl cursor-pointer hover:bg-blue-700 transition">
+                                    {/* [UBAH WARNA] Tombol Upload jadi Navy (#0B0931) */}
+                                    <label className="flex items-center justify-center gap-2.5 px-3 py-3 relative flex-1 bg-[#0B0931] text-blue-100 rounded-xl cursor-pointer hover:bg-slate-900 transition">
                                         <input
                                             type="file"
                                             accept=".png,.jpg,.jpeg,.gif"
@@ -219,7 +223,7 @@ export default function PengujiProfil() {
                                         />
                                         <OsIcon
                                             name="Upload"
-                                            className="w-[18px] h-[17px] fill-white"
+                                            className="w-[18px] h-[17px] fill-blue-100"
                                         />
                                         <span className="font-sans font-normal text-[15px]">
                                             Upload gambar profil
@@ -240,7 +244,8 @@ export default function PengujiProfil() {
                             </aside>
 
                             {/* --- KOLOM KANAN: FORM DATA --- */}
-                            <section className="flex flex-col items-start gap-[15px] p-5 relative flex-1 grow bg-white rounded-xl border border-black shadow-sm">
+                            {/* [UBAH WARNA] Background Card jadi bg-blue-50 */}
+                            <section className="flex flex-col items-start gap-[15px] p-5 relative flex-1 grow bg-blue-50 rounded-xl border border-black shadow-sm">
                                 <div className="relative self-stretch w-full h-[29px]">
                                     <h2 className="absolute top-[calc(50%_-_14px)] left-0 font-sans font-normal text-black text-xl">
                                         Akun
@@ -369,21 +374,33 @@ export default function PengujiProfil() {
                                                         className="w-5 h-5"
                                                     />
                                                 }
+                                                iconRight={
+                                                    <div
+                                                        onClick={() =>
+                                                            setShowNewPass(
+                                                                !showNewPass
+                                                            )
+                                                        }
+                                                    >
+                                                         {/* Logic toggle new pass */}
+                                                    </div>
+                                                }
                                             />
                                         </div>
                                     </div>
 
                                     {/* BUTTONS */}
                                     <div className="flex gap-3 mt-2">
+                                        {/* [UBAH WARNA] Tombol Simpan jadi Navy (#0B0931) */}
                                         <OsButton
                                             name="primary"
-                                            className="w-[223px] flex items-center justify-center gap-[13px] border border-black"
+                                            className="w-[223px] flex items-center justify-center gap-[13px] border border-black bg-[#0B0931] text-blue-100"
                                             onClick={handleSaveChanges}
                                             disabled={processing}
                                         >
                                             <OsIcon
                                                 name="Save"
-                                                className="w-[17px] h-[17px] fill-white"
+                                                className="w-[17px] h-[17px] fill-blue-100"
                                             />
                                             <span>
                                                 {processing
