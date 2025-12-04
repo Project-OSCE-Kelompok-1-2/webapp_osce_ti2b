@@ -229,13 +229,20 @@ export default function MenuAspekPenilaian() {
         ),
     }));
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar />
+              <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
+
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
                 {/* HEADER */}
-                <OsHeader variant="goback" backLink="/admin/stase" />
+                <OsHeader variant="goback" backLink="/admin/stase" onMenuClick={handleSidebarToggle}/>
 
                 <div className="flex-1 overflow-auto">
                     {/* <h2 className="font-semibold text-lg mb-1">Menu Aspek Penilaian</h2>
@@ -263,7 +270,6 @@ export default function MenuAspekPenilaian() {
                             className="flex h-[46px] items-center bg-gray-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-gray-700 !scale-100 !pointer-events-none"
                         >
                             Bobot sudah penuh
-
                         </OsButton>
                     ) : (
                         <OsButton

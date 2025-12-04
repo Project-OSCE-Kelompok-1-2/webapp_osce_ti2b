@@ -76,6 +76,12 @@ export default function OsceListPage({ osce, filters }) {
     const [selectedId, setSelectedId] = useState(null);
     const [selectedOsce, setSelectedOsce] = useState(null);
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
+
     // 🔥 STATE DATA FORM (untuk Add dan Edit)
     const initialFormState = {
         nama_osce: "",
@@ -237,11 +243,10 @@ export default function OsceListPage({ osce, filters }) {
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar />
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
-                {/* HEADER */}
-                <OsHeader />
+                <OsHeader onMenuClick={handleSidebarToggle} />
 
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">Menu OSCE</h2>

@@ -63,7 +63,6 @@ export default function SesiOscePage({
     master_stase = [],
 }) {
     // State UI Standar
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSesi, setSelectedSesi] = useState(null);
@@ -72,6 +71,12 @@ export default function SesiOscePage({
     // --- STATE KHUSUS WIZARD (STEP MODAL) ---
     const [isStepOpen, setIsStepOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
 
     // Menyimpan data input wizard
     const [wizardData, setWizardData] = useState({
@@ -288,7 +293,7 @@ export default function SesiOscePage({
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar />
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
                 <OsHeader variant="goback" backLink="/admin/osce/" />

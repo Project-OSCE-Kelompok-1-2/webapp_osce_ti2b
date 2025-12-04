@@ -15,21 +15,26 @@ import OsInput from "../../components/input.jsx";
 
 // --- Definisi Kolom Tabel (Sudah Benar) ---
 const mahasiswaColumns = [
-    { key : "no",content: "No", width: "w-16", classes: "justify-center items-center" },
     {
-        key : "nim_mahasiswa",
+        key: "no",
+        content: "No",
+        width: "w-16",
+        classes: "justify-center items-center",
+    },
+    {
+        key: "nim_mahasiswa",
         content: "Nim Mahasiswa",
         width: "w-80",
         classes: "justify-start items-center px-4",
     },
     {
-        key : "nama_mahasiswa",
+        key: "nama_mahasiswa",
         content: "Nama Mahasiswa",
         width: "flex-1",
         classes: "justify-start items-center px-4",
     },
     {
-        key : "action",
+        key: "action",
         content: "Action",
         width: "w-48",
         classes: "justify-center items-center px-4",
@@ -81,22 +86,25 @@ export default function RekapMahasiswaPage() {
             >
                 Lihat Nilai
             </button>
-        )
+        ),
     }));
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head
                 title={`Mahasiswa Sesi ${sesi.tanggal_formatted} - ${osce.nama_osce}`}
             />
-            <Sidebar />
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* 6. [PERBAIKAN] Breadcrumb dinamis */}
-                <OsHeader
-                    variant="goback"
-                    backLink=""
-                />
+                <OsHeader variant="goback" backLink="" />
 
                 <div className="flex-1 overflow-auto">
                     {/* Notifikasi Sukses/Error */}

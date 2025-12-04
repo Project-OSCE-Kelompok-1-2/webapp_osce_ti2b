@@ -15,27 +15,32 @@ import OsInput from "../../components/input.jsx";
 
 // --- Definisi Kolom Tabel (Sudah Benar) ---
 const rekapColumns = [
-    { key:"no",content: "No", width: "w-16", classes: "justify-center items-center" },
     {
-        key:"nama_osce",
+        key: "no",
+        content: "No",
+        width: "w-16",
+        classes: "justify-center items-center",
+    },
+    {
+        key: "nama_osce",
         content: "Nama OSCE",
         width: "flex-1",
         classes: "justify-start items-center px-4",
     },
     {
-        key:"rentang_tanggal",
+        key: "rentang_tanggal",
         content: "Rentang Tanggal",
         width: "w-80",
         classes: "justify-start items-center px-4",
     },
     {
-        key:"tahun_akademik",
+        key: "tahun_akademik",
         content: "Tahun Akademik",
         width: "w-48",
         classes: "justify-center items-center px-4",
     },
     {
-        key:"action",
+        key: "action",
         content: "Action",
         width: "w-48",
         classes: "justify-center items-center px-4",
@@ -50,7 +55,13 @@ export default function RekapOscePage() {
 
     // 4. [PERBAIKAN] State filter disesuaikan dengan 'tahun' (dari contract)
     const [search, setSearch] = useState(filters.search || "");
-    const [tahun, setTahun] = useState(filters.tahun || ""); // Ganti 'year' menjadi 'tahun'
+    const [tahun, setTahun] = useState(filters.tahun || "");
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    }; // Ganti 'year' menjadi 'tahun'
 
     // 5. [PERBAIKAN] Fungsi untuk menjalankan pencarian
     const handleSearch = (e) => {
@@ -89,7 +100,9 @@ export default function RekapOscePage() {
         tahun_akademik: item.tahun_akademik,
         action: (
             <button
-                onClick={() => router.visit(`/admin/rekap-nilai/${item.id_osce}/sesi`)}
+                onClick={() =>
+                    router.visit(`/admin/rekap-nilai/${item.id_osce}/sesi`)
+                }
                 className="bg-blue-800 text-white px-3 py-2 rounded-md hover:bg-gray-700"
             >
                 Detail
@@ -98,12 +111,11 @@ export default function RekapOscePage() {
     }));
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar />
+        <div className="relative  bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                {/* Breadcrumb Statis */}
-                <OsHeader/>
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+                <OsHeader onMenuClick={handleSidebarToggle} />
 
                 <div className="flex-1 overflow-auto">
                     {/* Notifikasi Sukses/Error */}
@@ -143,9 +155,6 @@ export default function RekapOscePage() {
                             className="w-[180px]"
                         />
                     </OsSearchBar>
-
-
-
 
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table OSCE

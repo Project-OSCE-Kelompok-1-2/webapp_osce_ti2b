@@ -109,17 +109,19 @@ export default function Dashboard() {
         stats = { total_osce: 0, total_mahasiswa: 0, total_penguji: 0 },
         notifikasi = [],
     } = usePage().props || {};
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    const handleSidebarToggle = () => {
-        setIsSidebarOpen((prev) => !prev);
-    };
     // format angka (2 digit seperti mock)
     const totalOsce = (stats.total_osce ?? 0).toString().padStart(2, "0");
     const totalMahasiswa = (stats.total_mahasiswa ?? 0)
         .toString()
         .padStart(2, "0");
     const totalPenguji = (stats.total_penguji ?? 0).toString().padStart(2, "0");
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">

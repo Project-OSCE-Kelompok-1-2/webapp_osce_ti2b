@@ -8,7 +8,7 @@ import {
     Search,
     Edit,
     Trash2,
-    Edit2
+    Edit2,
 } from "lucide-react";
 
 import OsHeader from "../../components/Header";
@@ -193,7 +193,7 @@ export default function OsceStasePage({ stase, osce, filters }) {
         action: (
             <div className="flex items-center justify-center gap-2">
                 <OsButton
-                name="edit"
+                    name="edit"
                     onClick={() =>
                         // Mengganti router.get ke openEditModal(item) untuk menggunakan modal
                         openEditModal(item)
@@ -205,7 +205,7 @@ export default function OsceStasePage({ stase, osce, filters }) {
                 </OsButton>
 
                 <OsButton
-                name="warning"
+                    name="warning"
                     onClick={() => openDeleteModal(item)} // Menggunakan openDeleteModal(item)
                     className="p-2 rounded-md border text-red-600 hover:bg-red-50"
                     title="Delete"
@@ -221,9 +221,13 @@ export default function OsceStasePage({ stase, osce, filters }) {
         setFormData((prev) => ({ ...prev, [field]: value }));
     }
 
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar />
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
                 <OsHeader variant="goback" backLink="/admin/osce/" />
