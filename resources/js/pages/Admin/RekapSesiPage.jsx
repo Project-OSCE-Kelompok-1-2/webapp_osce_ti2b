@@ -84,7 +84,7 @@ export default function RekapSesiPage() {
                 {/* 6. [PERBAIKAN] Breadcrumb dinamis */}
                     <OsHeader
                         variant="goback"
-                        backLink=""
+                        backLink="/admin/rekap-nilai"
                     />
 
                 <div className="flex-1 overflow-auto">
