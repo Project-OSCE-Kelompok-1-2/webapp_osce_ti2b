@@ -18,6 +18,14 @@ class EnrollmentOsce extends Model
         'id_osce',
         'id_mahasiswa',
         'catatan',
+        'tanggal_sesi',
+        'jam_sesi',
+    ];
+
+    // Casting agar format tanggal aman
+    protected $casts = [
+        'tanggal_sesi' => 'date:Y-m-d',
+        'catatan' => 'string',
     ];
 
     // relasi ke osce M:1
