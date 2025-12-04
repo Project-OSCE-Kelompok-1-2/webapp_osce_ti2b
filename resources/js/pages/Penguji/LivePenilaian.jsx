@@ -138,8 +138,11 @@ export default function LivePenilaian() {
     return (
         <div className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
             {/* <Sidebar onToggle={setSidebarOpen} /> */}
-            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
-
+            <Sidebar
+                isOpen={sidebarOpen}
+                setIsOpen={setSidebarOpen}
+                type={"penguji"}
+            />
 
             <main
                 className={`grid w-full grid-cols-1 grid-rows-[auto_1fr_auto] transition-all duration-300 ${
