@@ -16,7 +16,6 @@ class AuthController extends Controller
     {
         $this->authService = $authService;
     }
-
     /**
      * @unauthenticated
      */

@@ -28,6 +28,9 @@ use App\Http\Controllers\Penguji\RekapController;
 use App\Http\Controllers\Penguji\EditNilaiController;
 use App\Http\Controllers\Penguji\ViewNilaiController;
 
+// --- Mahasiswa ---
+use App\Http\Controllers\Mahasiswa\DashboardMahasiswaController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -204,3 +207,15 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
         ]);
     })->name('rekap.detail');
 });
+
+// ===========================
+// == RUTE UNTUK Mahasiswa ===
+// ===========================
+
+Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function () {
+    
+        // Dashboard Mahasiswa
+        Route::get('/dashboard', [DashboardMahasiswaController::class, 'index'])->name('dashboard');
+
+        // Tambahkan route mahasiswa lainnya di sini nanti
+    });
