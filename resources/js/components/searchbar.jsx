@@ -41,18 +41,18 @@ const OsSearchBar = ({
             <OsButton
                 name="primary"
                 onClick={onSearchClick}
-                className="bg-blue-600 min-w-[120px] text-white h-full text-os-paragraft px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-150 flex items-center justify-around"
+                className="bg-blue-600  md:min-w-[120px] text-white h-full text-os-paragraft px-4 md:px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-150 flex items-center justify-around"
             >
                 <OsIcon
                     name={'search'}
-                    className="os-icon-light w-[18px]"
+                    className="os-icon-light w-[18px] min-w-[18px]"
                 />
-                Cari
+                <span className="hidden md:block" >Cari</span>
             </OsButton>
         </div>
     );
 };
 
 
-               
+
 export default OsSearchBar;

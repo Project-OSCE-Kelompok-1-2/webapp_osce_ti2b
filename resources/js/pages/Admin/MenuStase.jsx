@@ -44,14 +44,17 @@ const staseColumns = [
 ];
 
 export default function Stase() {
-    const { stase, filters } = usePage().props;
-        const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const { stase, filters, mataKuliah, tujuanPembelajaran } = usePage().props;
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-        const handleSidebarToggle = () => {
-            setIsSidebarOpen((prev) => !prev);
-        };
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
 
     // 🔥 PERBAIKAN DI SINI: Ganti 'deskripsi_tujuan' menjadi 'tujuan' sesuai Model
+    const suggestMataKuliah =
+        tujuanPembelajaran?.map((t) => t.tujuan).filter(Boolean) || [];
+
     const suggestTujuan =
         tujuanPembelajaran?.map((t) => t.tujuan).filter(Boolean) || [];
 

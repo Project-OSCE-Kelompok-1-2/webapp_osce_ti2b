@@ -125,7 +125,7 @@ export default function AdminSettingAkun({ user }) {
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                <OsHeader />
+                <OsHeader onMenuClick={handleSidebarToggle} />
                 <div className="flex-1 overflow-auto">
                     {/* MAIN */}
                     <main className="relative row-[2_/_3] col-[1_/_2] flex flex-col gap-3">

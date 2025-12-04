@@ -70,7 +70,7 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
 const NotificationItem = ({ stase, index }) => {
     // Komponen ini tidak diubah
     return (
-        <div className="flex items-center justify-between bg-white border rounded-lg  overflow-hidden">
+        <div className="flex items-startjustify-between bg-white border rounded-lg  overflow-hidden">
             {/* Left: number */}
             <div className="flex items-center px-4 py-4 border-r">
                 <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-700">
@@ -78,26 +78,30 @@ const NotificationItem = ({ stase, index }) => {
                 </div>
             </div>
 
-            {/* Middle: title + subtitle */}
-            <div className="flex-1 px-4 py-4">
-                <h4 className="font-semibold text-gray-800">
-                    {stase.nama_stase}
-                </h4>
-                <p className="text-sm text-gray-500 mt-1">{stase.sub_judul}</p>
-            </div>
-
-            {/* Right: pill + external link */}
-            <div className="flex items-center gap-3 px-4 py-4">
-                <div className="px-4 py-2 rounded-full bg-red-100 border border-red-300 text-red-700 text-xs font-semibold">
-                    Nilai tidak seimbang ({stase.total_bobot}%)
+            <div className="md:flex md:justify-between w-full gap-5 p-4" >
+                {/* Middle: title + subtitle */}
+                <div className="flex-1">
+                    <h4 className="font-semibold text-gray-800">
+                        {stase.nama_stase}
+                    </h4>
+                    <p className="text-sm text-gray-500 mt-1">
+                        {stase.sub_judul}
+                    </p>
                 </div>
-                <Link
-                    href={`/admin/stase/${stase.id_stase}/edit`}
-                    className="p-2 rounded-md border text-gray-600 hover:bg-gray-50"
-                    title="Edit stase"
-                >
-                    <ExternalLink size={16} />
-                </Link>
+
+                {/* Right: pill + external link */}
+                <div className="flex items-center max-w-[300px] gap-3 pt-1 md:pt-0">
+                    <div className="px-4 py-2 rounded-full bg-red-100 border border-red-300 text-red-700 text-xs font-semibold">
+                        Nilai tidak seimbang ({stase.total_bobot}%)
+                    </div>
+                    <Link
+                        href={`/admin/stase/${stase.id_stase}/edit`}
+                        className="p-2 rounded-md border text-gray-600 hover:bg-gray-50"
+                        title="Edit stase"
+                    >
+                        <ExternalLink size={16} />
+                    </Link>
+                </div>
             </div>
         </div>
     );
