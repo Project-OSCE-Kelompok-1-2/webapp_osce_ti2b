@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { Head, Link } from "@inertiajs/react";
+import { Head, Link, usePage } from "@inertiajs/react";
 import { ChevronRight, FileText, User } from "lucide-react";
 
 // --- IMPORT KOMPONEN ---
-// Pastikan path ini sesuai dengan struktur folder Anda
 import SidebarUniversal from "@/Components/SidebarUniversal";
 import Pagination from "@/Components/Pagination";
+import searchbar from "@/Components/searchbar"; // ← TAMBAHKAN INI
 
 // --- MOCK DATA (Simulasi Database) ---
+
 const MOCK_MAHASISWA = {
     nama: "MI. AULIA KURNIA WIDYARANI",
     nim: "4.33.24.1.13",
@@ -16,28 +17,25 @@ const MOCK_MAHASISWA = {
 };
 
 const MOCK_UJIAN_LIST = [
-  {
-    id: 1,
-    nama_ujian: "OSCE Radiologi 01-A",
-    dosen_penguji: "Prof. Dr. dr. Mahalul Azam, M.Kes",
-    tanggal_ujian: "31 / 10 / 2025",
-    semester: "5",
-    tahun_ujian: "2025",
-    status_lulus: true,
-  },
-  {
-    id: 2,
-    nama_ujian: "OSCE Konservasi Gigi 02-B",
-    dosen_penguji: "Dr. drg. Siti Aminah, Sp.KG",
-    tanggal_ujian: "01 / 11 / 2025",
-    semester: "5",
-    tahun_ujian: "2025",
-    status_lulus: true,
-  },
+    {
+        id: 1,
+        nama_ujian: "OSCE Radiologi 01-A",
+        dosen_penguji: "Prof. Dr. dr. Mahalul Azam, M.Kes",
+        tanggal_ujian: "31 / 10 / 2025",
+        semester: "5",
+        tahun_ujian: "2025",
+        status_lulus: true,
+    },
+    {
+        id: 2,
+        nama_ujian: "OSCE Konservasi Gigi 02-B",
+        dosen_penguji: "Dr. drg. Siti Aminah, Sp.KG",
+        tanggal_ujian: "01 / 11 / 2025",
+        semester: "5",
+        tahun_ujian: "2025",
+        status_lulus: true,
+    },
 ];
-
-
-const { ujian, filters } = usePage().props;
 
 // --- MOCK LINKS (Simulasi Pagination Laravel) ---
 const MOCK_LINKS = [
@@ -49,23 +47,57 @@ const MOCK_LINKS = [
 ];
 
 export default function NilaiIndex() {
+    const { ujian, filters } = usePage().props;
+
     // State Sidebar (Default True = Terbuka)
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-    // State Filter
+    // --- STATE FILTER ---
     const [filterSemester, setFilterSemester] = useState("");
     const [filterTahun, setFilterTahun] = useState("");
+
+    // --- STATE SEARCH (untuk searchbar) ---
+    const [search, setSearch] = useState("");
+
     const [filteredData, setFilteredData] = useState(MOCK_UJIAN_LIST);
 
-    // Logic Filter Sederhana
+    // Logic Filter + Search
     useEffect(() => {
         let result = MOCK_UJIAN_LIST;
-        if (filterSemester)
-            result = result.filter((item) => item.semester === filterSemester);
-        if (filterTahun)
-            result = result.filter((item) => item.tahun_ujian === filterTahun);
+
+        // Filter Semester
+        if (filterSemester) {
+            result = result.filter(
+                (item) => item.semester === filterSemester
+            );
+        }
+
+        // Filter Tahun
+        if (filterTahun) {
+            result = result.filter(
+                (item) => item.tahun_ujian === filterTahun
+            );
+        }
+
+        // Filter Search (nama ujian & dosen)
+        if (search) {
+            const lower = search.toLowerCase();
+            result = result.filter(
+                (item) =>
+                    item.nama_ujian.toLowerCase().includes(lower) ||
+                    item.dosen_penguji.toLowerCase().includes(lower)
+            );
+        }
+
         setFilteredData(result);
-    }, [filterSemester, filterTahun]);
+    }, [filterSemester, filterTahun, search]);
+
+    // Kalau nanti mau pakai Inertia router.get, fungsi ini bisa diubah
+    const handleSearchClick = () => {
+        // Untuk sekarang, search sudah jalan secara realtime lewat state `search`,
+        // jadi tombol "Cari" tidak perlu melakukan apapun.
+        // console.log("Searching for:", search);
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 font-sans text-slate-800">
@@ -78,11 +110,6 @@ export default function NilaiIndex() {
             />
 
             {/* --- MAIN CONTENT --- */}
-            {/* NOTE PENTING: Class 'ml-20' dibuat statis.
-                Ini membuat konten selalu memberi ruang untuk sidebar mode mini (closed).
-                Saat sidebar dibuka (width membesar), ia akan menutupi (overlay) konten ini 
-                karena sidebar memiliki z-index yang lebih tinggi.
-            */}
             <main className="transition-all duration-300 ease-in-out p-6 pt-8 ml-20">
                 {/* Breadcrumb */}
                 <div className="mb-6 flex items-center text-sm text-gray-500">
@@ -234,17 +261,28 @@ export default function NilaiIndex() {
                     </div>
                 </div>
 
-{/* Tabel Penilaian */}
+                {/* --- SEARCH BAR + TABEL PENILAIAN --- */}
                 <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-                        <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                            <span className="h-2 w-2 rounded-full bg-blue-600"></span>
-                            Daftar Nilai Ujian
-                        </h3>
-                        <span className="rounded-md bg-white px-3 py-1 text-xs font-medium text-gray-500 border border-gray-200 shadow-sm">
-                            Total: {filteredData.length} Data
-                        </span>
+                    <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+                        <div className="flex items-center justify-between mb-4">
+                            <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                                <span className="h-2 w-2 rounded-full bg-blue-600"></span>
+                                Daftar Nilai Ujian
+                            </h3>
+                            <span className="rounded-md bg-white px-3 py-1 text-xs font-medium text-gray-500 border border-gray-200 shadow-sm">
+                                Total: {filteredData.length} Data
+                            </span>
+                        </div>
+
+                        {/* searchbar di sini */}
+                        <searchbar
+                            search={search}
+                            setSearch={setSearch}
+                            onSearchClick={handleSearchClick}
+                            placeholder="Cari nama ujian atau dosen..."
+                        />
                     </div>
+
                     <table className="w-full text-left text-sm text-gray-600">
                         <thead className="bg-gray-50 font-semibold uppercase text-gray-500 tracking-wider text-xs">
                             <tr>
@@ -331,11 +369,8 @@ export default function NilaiIndex() {
                 </div>
 
                 {/* --- PAGINATION --- */}
-                {/* Menggunakan Mock Links untuk simulasi tampilan */}
                 <Pagination links={MOCK_LINKS} />
             </main>
         </div>
     );
 }
-
-                
