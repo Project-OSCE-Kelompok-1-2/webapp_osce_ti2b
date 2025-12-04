@@ -16,11 +16,8 @@ use App\Http\Controllers\Api\V1\Admin\OsceStaseController;
 use App\Http\Controllers\Api\V1\Admin\KompetensiController;
 use App\Http\Controllers\Api\V1\Admin\OsceJadwalController;
 use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
-use App\Http\Controllers\Mahasiswa\ProfilMahasiswaController;
 use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
-use App\Http\Controllers\Api\V1\Mahasiswa\JadwalMahasiswaController;
-
 
 Route::prefix('v1')->group(function () {
     // Route::get('/login', function () {
@@ -43,7 +40,6 @@ Route::prefix('v1')->group(function () {
         // });
 
         Route::prefix('admin')->middleware('roleApi:admin')->group(function () {
-
             // --- Admin Dashboard & Profile ---
             Route::get('/dashboard', [AdminController::class, 'dashboard']);
 
@@ -106,14 +102,6 @@ Route::prefix('v1')->group(function () {
 
             // VIEW NILAI (Sudah ada)
             Route::get('/penilaian/{id_enrollment_osce}/view', ViewNilaiController::class);
-
-            // Profil Mahasiswa
-            Route::get('/mahasiswa/profil', [ProfilMahasiswaController::class, 'show_profile'])
-            ->name('api.mahasiswa.account.show');
-           Route::post('/mahasiswa/profil/update', [ProfilMahasiswaController::class, 'update_account'])
-            ->name('api.mahasiswa.account.update');
-
-            Route::get('/mahasiswa/jadwal-mahasiswa', [JadwalMahasiswaController::class, 'show_jadwal']) ->name('api.mahasiswa.show.jadwal');
 
             // Profil Penguji
             Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
