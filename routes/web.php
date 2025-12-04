@@ -28,6 +28,9 @@ use App\Http\Controllers\Penguji\RekapController;
 use App\Http\Controllers\Penguji\EditNilaiController;
 use App\Http\Controllers\Penguji\ViewNilaiController;
 
+// --- MAHASISWA CONTROLERS ---
+use App\Http\Controllers\Mahasiswa\NilaiMahasiswaController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -46,13 +49,13 @@ Route::middleware('guest')->group(function () {
 });
 Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middleware('auth');
 
+Route::
 
 // ===========================
 // === RUTE UNTUK PENGUJI ===
 // ===========================
 Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')->group(function () {
-
-    Route::get('/dashboard', DashboardController::class)->name('dashboard');
+    Route::get('/dashboard', DashboardController::class);
     Route::get('/osce', [PengujiOsceController::class, 'index'])->name('osce.index');
     Route::get('/pengaturan-akun', [ProfilController::class, 'show_profile'])->name('account.show');
     Route::post('/pengaturan-akun', [ProfilController::class, 'update_account'])->name('account.update');
@@ -203,4 +206,9 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
             'detailNilai' => $dummyData
         ]);
     })->name('rekap.detail');
+});
+
+    // --- MAHASISWA ROUTES SENDY ---
+    Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function () {
+    Route::get('/nilaishow', [NilaiMahasiswaController::class, 'showNilai'])->name('nilai.show');
 });

@@ -1,4 +1,4 @@
-export default function OsButton({ name = "os-primary", children, onClick, className = "" }) {
+export default function OsButton({ name = "os-primary", children, onClick, className = "", type="button" }) {
   // name = "warning" akan menghasilkan baseColor: var(--os-warning)
   const baseColor = `var(--os-${name})`;
 
@@ -17,6 +17,7 @@ export default function OsButton({ name = "os-primary", children, onClick, class
         transition: "all 0.25s ease-in-out",
         fontWeight: "var(--os-font-regular)",
       }}
+      type={type}
       className={`px-4 py-2 min-h-[45px] rounded-md font-os-weight-semibold transform hover:scale-[102%] active:scale-95 ${className}`}
       onMouseEnter={(e) => {
 
