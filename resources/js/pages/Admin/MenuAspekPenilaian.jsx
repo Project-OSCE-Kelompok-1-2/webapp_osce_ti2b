@@ -10,7 +10,7 @@ import OsSearchBar from "../../components/searchbar.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
 import OsModal from "../../components/Modal.jsx"; // Modal Tambah/Edit
-import OsInput from "../../components/Input.jsx";
+import OsInput from "../../components/input.jsx";
 import Modals from "../../components/Modals.jsx"; // Modal Konfirmasi Hapus
 import OsIcon from "../../components/icons.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
@@ -309,7 +309,8 @@ export default function MenuAspekPenilaian() {
                                         ) : (
                                             totalBobot > 0 && (
                                                 <div className="bg-red-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
-                                                    Point Tidak Seimbang! (00%)
+                                                    Point Tidak Seimbang! (
+                                                    {totalBobot}%)
                                                 </div>
                                             )
                                         )}

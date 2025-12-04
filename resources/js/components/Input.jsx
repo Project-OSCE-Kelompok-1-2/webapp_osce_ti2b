@@ -19,7 +19,7 @@ export default function OsInput({
     const [searchQuery, setSearchQuery] = useState("");
     const [filteredOptions, setFilteredOptions] = useState(options);
 
-    // Sinkronisasi dan filter untuk multi-select (TETAP SAMA)
+// Sinkronisasi dan filter untuk multi-select (TETAP SAMA)
     useEffect(() => {
         if (type === "multi-select") {
             const lowerCaseQuery = searchQuery.toLowerCase();

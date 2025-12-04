@@ -4,7 +4,7 @@ import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/Copyright.jsx";
 import OsButton from "../../components/button.jsx";
 import OsIcon from "../../components/icons";
-import OsInput from "../../components/Input.jsx";
+import OsInput from "../../components/input.jsx";
 // [PERBAIKAN] Import OsModal dan Modals
 import OsModal from "../../components/Modal.jsx";
 // [PERBAIKAN] Import usePage untuk mengambil props

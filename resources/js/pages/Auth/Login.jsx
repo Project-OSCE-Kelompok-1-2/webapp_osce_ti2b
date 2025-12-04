@@ -3,7 +3,7 @@ import { Eye, EyeOff, User, KeyRound } from "lucide-react";
 // 👇 [UBAH] Impor hook yang diperlukan dari Inertia
 import { useForm, usePage } from "@inertiajs/react";
 import Os_button from "../../components/button.jsx";
-import OsInput from "../../components/Input.jsx";
+import OsInput from "../../components/input.jsx";
 import OsIcon from "../../components/icons.jsx";
 
 export default function LoginMosaicPage() {
