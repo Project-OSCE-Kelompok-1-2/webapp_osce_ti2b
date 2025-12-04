@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Middleware\AuthenticateApiDocs;
 use Illuminate\Http\Request;
 use Illuminate\Foundation\Application;
 use App\Http\Middleware\RoleMiddleware;
@@ -27,6 +28,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'role' => RoleMiddleware::class,
             'guest' => GuestMiddleware::class,
             'roleApi' => RoleApiMiddleware::class,
+            'authenticateApiDocs' => AuthenticateApiDocs::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {

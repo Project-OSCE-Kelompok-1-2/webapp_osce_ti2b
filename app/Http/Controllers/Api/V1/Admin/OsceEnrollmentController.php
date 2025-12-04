@@ -20,6 +20,8 @@ class OsceEnrollmentController extends Controller
 
     /**
      * Menampilkan daftar mahasiswa dan status enrollment
+     * @param int $osce_id
+     * @param int $jadwal_id
 
      */
     public function index(Request $request, $osce_id, $jadwal_id)
@@ -35,6 +37,8 @@ class OsceEnrollmentController extends Controller
 
     /**
      * Menyimpan perubahan enrollment osce
+     * @param int $osce_id
+     * @param int $jadwal_id
      */
     public function sync(Request $request, $osce_id, $jadwal_id)
     {

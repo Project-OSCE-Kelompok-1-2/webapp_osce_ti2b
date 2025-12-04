@@ -7,6 +7,7 @@ import SidebarUniversal from "../../components/SidebarUniversal";
 import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/Copyright";
 import SubmitConfirmationModal from "../../components/SubmitConfirmationModal";
+import Sidebar from "../../components/Sidebar";
 
 export default function EditNilaiForm() {
     // 1. AMBIL DATA DARI PROPS (Backend Bintang)
@@ -48,7 +49,8 @@ export default function EditNilaiForm() {
 
     return (
         <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <SidebarUniversal />
+            {/* <SidebarUniversal /> */}
+            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* Header */}

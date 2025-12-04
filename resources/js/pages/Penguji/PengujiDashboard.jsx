@@ -1,25 +1,81 @@
 import React, { useState } from "react";
 import { usePage, Link } from "@inertiajs/react";
-import { ArrowRight } from "lucide-react";
+import {
+    ArrowRight,
+    UserCheck,
+    Users,
+    ClipboardList,
+    Bookmark,
+    CalendarRange,
+    CalendarDays
+} from "lucide-react";
 
 import SidebarPenguji from "../../components/SidebarPenguji.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright";
 import OsIcon from "../../components/icons";
 import Calendar from "../../components/Calendar";
+import Sidebar from "../../components/Sidebar.jsx";
 
 /* -------------------------------------------------
    CARD STATISTIK
 ---------------------------------------------------*/
-const StatCard = ({ title, value, icon }) => (
-    <div className="w-full bg-blue-100 border rounded-xl p-5 flex flex-col justify-between">
-        <div className="flex justify-between mb-4">
-            <h3 className="font-bold text-lg text-gray-700">{title}</h3>
-            <div>{icon}</div>
-        </div>
-        <div className="text-6xl font-extrabold text-gray-900">{value}</div>
-    </div>
-);
+// const StatCard = ({ title, value, icon }) => (
+//     <div className="w-full bg-blue-100 border rounded-xl p-5 flex flex-col justify-between">
+//         <div className="flex justify-between mb-4">
+//             <h3 className="font-bold text-lg text-gray-700">{title}</h3>
+//             <div>{icon}</div>
+//         </div>
+//         <div className="text-6xl font-extrabold text-gray-900">{value}</div>
+//     </div>
+// );
+
+const StatCard = ({ title, value, description, icon, colorClass, href }) => {
+    return (
+        <article
+            className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass}`}
+        >
+            <div>
+                {/* ... (bagian judul dan deskripsi, tidak berubah) ... */}
+                <div className="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 className="font-medium text-sm text-gray-800">
+                            {title}
+                        </h3>
+                        <p className="text-xs text-gray-500 mt-1">
+                            {description}
+                        </p>
+                    </div>
+                    <div className="p-1 rounded bg-white/60 border">
+                        <Bookmark size={16} className="text-gray-600" />
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex items-center justify-between mt-4">
+                <div>
+                    <div className="text-4xl font-extrabold text-gray-900 leading-none">
+                        {value}
+                    </div>
+
+                    {/* [UBAH] Mengganti <button> menjadi <Link> DAN UBAH STYLE */}
+                    <Link
+                        href={href} // Menggunakan href dari props
+                        className="mt-2 inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200 transition-colors"
+                    >
+                        <ClipboardList size={14} />
+                        <span>Tampilkan lebih</span>
+                    </Link>
+                    {/* [SELESAI UBAH] */}
+                </div>
+
+                <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-white/60 border">
+                    {icon}
+                </div>
+            </div>
+        </article>
+    );
+};
 
 /* -------------------------------------------------
    ITEM JADWAL PENTING
@@ -78,20 +134,22 @@ export default function PengujiDashboard() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     return (
-        <div className="relative bg-gray-50 w-full min-h-screen flex font-sans">
-            <SidebarPenguji isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            <Sidebar
+                isOpen={sidebarOpen}
+                setIsOpen={setSidebarOpen}
+                type={"penguji"}
+            />
 
-            <main
-                className={`flex-1 p-6 transition-all duration-300 ${
-                    sidebarOpen ? "md:ml-64" : "md:ml-20"
-                }`}
-            >
-                <OsHeader className="mb-6" />
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+                <OsHeader />
 
                 {/* WELCOME SECTION */}
-                <div className="mb-8">
-                    <p className="text-lg text-gray-600">Selamat Datang,</p>
-                    <h1 className="font-bold text-3xl text-gray-900 my-1">
+                <div className="">
+                    <p className=" text-gray-600 text-os-regular">
+                        Selamat Datang,
+                    </p>
+                    <h1 className="font-bold text-os-title text-gray-900">
                         {nama_penguji}
                     </h1>
                     <p className="text-gray-500 text-sm">
@@ -99,50 +157,72 @@ export default function PengujiDashboard() {
                     </p>
                 </div>
 
+                <hr className="border-1 border-os-black opacity-os-alpha-25" />
+
                 {/* STATISTIK GRID */}
-                <section className="mb-8">
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <section className="mb-2">
+                    <div className="flex gap-os-8 items-center justify-start mb-2">
+                        <OsIcon name={"stat"} className="h-[15px]" />
+                        <h2 className="font-bold text-os-regular text-gray-900">
+                            Statistika
+                        </h2>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* [UBAH] Tambahkan prop 'href' di sini */}
                         <StatCard
                             title="OSCE Mendatang"
+                            description="lorem ipsum dolor "
                             value={statistik?.osce_mendatang ?? 0}
                             icon={
-                                <OsIcon
-                                    name="book"
-                                    className="h-8 w-8 text-blue-600"
+                                <ClipboardList
+                                    size={22}
+                                    className="text-blue-700"
                                 />
                             }
+                            colorClass="bg-blue-50 border-blue-200"
+                            href="/admin/osce" // <-- Tautan ke menu OSCE
                         />
+                        {/* [UBAH] Tambahkan prop 'href' di sini */}
                         <StatCard
                             title="Masa Penilaian"
+                            description="lorem ipsum dolor "
                             value={statistik?.osce_edit_nilai ?? 0}
-                            icon={
-                                <OsIcon
-                                    name="Edit"
-                                    className="h-8 w-8 text-blue-600"
-                                />
-                            }
+                            icon={<Users size={22} className="text-gray-700" />}
+                            colorClass="bg-white border-gray-200"
+                            href="/admin/mahasiswa" // <-- Tautan ke menu Mahasiswa
                         />
+                        {/* [UBAH] Tambahkan prop 'href' di sini */}
                         <StatCard
                             title="OSCE Selesai"
+                            description="lorem ipsum dolor"
                             value={statistik?.osce_selesai ?? 0}
                             icon={
-                                <OsIcon
-                                    name="Mark (Yes)"
-                                    className="h-8 w-8 text-blue-600"
+                                <UserCheck
+                                    size={22}
+                                    className="text-gray-700"
                                 />
                             }
+                            colorClass="bg-white border-gray-200"
+                            href="/admin/dosen" // <-- Tautan ke menu Dosen (Asumsi Penguji = Dosen)
                         />
                     </div>
                 </section>
 
+                <hr className="border-1 border-os-black opacity-os-alpha-25" />
+
                 {/* JADWAL + CALENDAR GRID */}
-                <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* <section className="grid grid-cols-1 lg:grid-cols-3 gap-8"> */}
+                <section className="flex">
                     {/* LEFT SIDE: Jadwal Penting */}
-                    <div className="lg:col-span-2 flex flex-col">
-                        <div className="flex justify-between items-center mb-4 px-1">
-                            <h2 className="font-bold text-xl text-gray-800">
-                                Jadwal Ujian
-                            </h2>
+                    {/* <div className="lg:col-span-2 flex flex-col"> */}
+                    <div className="w-8/12 mr-5">
+                        <div className="flex justify-between items-center">
+                            <div className="flex gap-os-8 items-center justify-start mb-2">
+                                <CalendarRange size={18} />
+                                <h2 className="font-bold text-os-regular text-gray-900">
+                                    Jadwal Penilaian
+                                </h2>
+                            </div>
                             <Link
                                 href="/penguji/osce"
                                 className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1"
@@ -170,11 +250,15 @@ export default function PengujiDashboard() {
                     </div>
 
                     {/* RIGHT SIDE: Calendar */}
-                    <div className="lg:col-span-1">
+                    {/* <div className="lg:col-span-1"> */}
+                    <div className="w-4/12">
                         <div className="bg-white p-4 rounded-xl border shadow-sm">
-                            <h3 className="font-bold text-gray-700 mb-4 px-2">
-                                Kalender
-                            </h3>
+                            <div className="flex gap-os-8 items-center justify-start mb-2">
+                                <CalendarDays size={18} />
+                                <h2 className="font-bold text-os-regular text-gray-900">
+                                    Kalender
+                                </h2>
+                            </div>
                             <Calendar />
                         </div>
                     </div>

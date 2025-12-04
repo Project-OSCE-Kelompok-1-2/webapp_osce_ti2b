@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
+use Dedoc\Scramble\Scramble;
 use Illuminate\Http\Request;
 use App\Services\AuthService; 
 use Illuminate\Support\Facades\Auth;

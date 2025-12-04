@@ -753,7 +753,6 @@
         "/admin/aspek-penilaian/{id_aspek}/kompetensi": {
             "get": {
                 "operationId": "aspek-penilaian.kompetensi.index",
-                "summary": "Mengambil seluruh data kompetensi",
                 "tags": [
                     "Kompetensi"
                 ],
@@ -763,7 +762,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "integer"
+                            "type": "string"
                         }
                     },
                     {
@@ -2021,7 +2020,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -2029,7 +2028,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -2039,10 +2038,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "type": "integer",
-                                    "enum": [
-                                        200
-                                    ]
+                                    "type": "string"
                                 }
                             }
                         }
@@ -2064,7 +2060,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     },
                     {
@@ -2072,7 +2068,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -2129,7 +2125,7 @@
                         "name": "id_osce",
                         "in": "path",
                         "required": true,
-                        "description": "\ud83d\udc48 Ini yang Scramble baca!",
+                        "description": "\ud83d\udc48",
                         "schema": {
                             "type": "integer"
                         }
@@ -2247,6 +2243,41 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tanggal": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "jam_mulai": {
+                                        "type": "string"
+                                    },
+                                    "jam_selesai": {
+                                        "type": "string"
+                                    },
+                                    "stase_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "minItems": 1
+                                    }
+                                },
+                                "required": [
+                                    "tanggal",
+                                    "jam_mulai",
+                                    "jam_selesai",
+                                    "stase_ids"
+                                ]
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "500": {
                         "description": "",
@@ -2274,36 +2305,7 @@
                         }
                     },
                     "422": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "enum": [
-                                                "error"
-                                            ]
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "enum": [
-                                                "Validasi gagal."
-                                            ]
-                                        },
-                                        "errors": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "status",
-                                        "message",
-                                        "errors"
-                                    ]
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/ValidationException"
                     },
                     "201": {
                         "description": "",
@@ -2368,6 +2370,41 @@
                         }
                     }
                 ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "tanggal": {
+                                        "type": "string",
+                                        "format": "date-time"
+                                    },
+                                    "jam_mulai": {
+                                        "type": "string"
+                                    },
+                                    "jam_selesai": {
+                                        "type": "string"
+                                    },
+                                    "stase_ids": {
+                                        "type": "array",
+                                        "items": {
+                                            "type": "string"
+                                        },
+                                        "minItems": 1
+                                    }
+                                },
+                                "required": [
+                                    "tanggal",
+                                    "jam_mulai",
+                                    "jam_selesai",
+                                    "stase_ids"
+                                ]
+                            }
+                        }
+                    }
+                },
                 "responses": {
                     "500": {
                         "description": "",
@@ -2395,36 +2432,7 @@
                         }
                     },
                     "422": {
-                        "description": "",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "status": {
-                                            "type": "string",
-                                            "enum": [
-                                                "error"
-                                            ]
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "enum": [
-                                                "Validasi gagal."
-                                            ]
-                                        },
-                                        "errors": {
-                                            "type": "string"
-                                        }
-                                    },
-                                    "required": [
-                                        "status",
-                                        "message",
-                                        "errors"
-                                    ]
-                                }
-                            }
-                        }
+                        "$ref": "#/components/responses/ValidationException"
                     },
                     "200": {
                         "description": "",
@@ -3497,7 +3505,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],
@@ -3632,7 +3640,7 @@
                         "in": "path",
                         "required": true,
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
                     }
                 ],

@@ -20,13 +20,9 @@ class AppServiceProvider extends ServiceProvider
     /**
      * Bootstrap any application services.
      */
-    public function boot(): void
+    public function boot()
     {
         Scramble::configure()
-            ->expose(
-                ui: '/docs/v1/api',
-                document: '/docs/v1/openapi.json',
-            )
             ->withDocumentTransformers(function (OpenApi $openApi) {
                 $openApi->secure(
                     SecurityScheme::http('bearer')

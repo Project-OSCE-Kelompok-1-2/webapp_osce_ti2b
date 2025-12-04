@@ -12,8 +12,6 @@ class OsceEnrollmentService
 {
     /**
      * Ambil daftar mahasiswa + status enrollment untuk satu sesi OSCE.
-     * 
-     
      */
     public function getEnrollmentList($osce_id, $jadwal_id, $filters)
     {
@@ -69,7 +67,7 @@ class OsceEnrollmentService
     }
 
     /**
-     * Sinkronisasi enrollment mahasiswa untuk satu sesi OSCE
+     * Sinkronisasi enrollment mahasiswa untuk satu sesi OSC
      */
     public function syncEnrollment($osce_id, $jadwal_id, array $mahasiswa_ids)
     {
