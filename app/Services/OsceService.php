@@ -25,20 +25,21 @@ class OsceService
             });
         }
 
-        $data = $query->orderBy('tanggal_mulai', 'desc')
-            ->get()
-            ->map(function ($osce) {
-                return [
-                    "id_osce" => $osce->id_osce,
-                    "nama_osce" => $osce->nama_osce,
-                    "detail_stase" => $osce->detail_stase ?? "0 Stase",
-                    "detail_mahasiswa" => $osce->detail_mahasiswa ?? "0 Mahasiswa",
-                    "detail_sesi" => $osce->detail_sesi ?? "0 Sesi",
-                    "tanggal_mulai" => $osce->tanggal_mulai,
-                    "tanggal_selesai" => $osce->tanggal_selesai,
-                    "tahun_akademik" => $osce->tahunAkademik->tahun ?? "N/A",
-                ];
-            });
+        $paginator = $query->orderBy('tanggal_mulai', 'desc')->paginate(10);
+
+        // Gunakan through() untuk memetakan (map) data di dalam objek paginator
+        $data = $paginator->through(function ($osce) {
+            return [
+                "id_osce" => $osce->id_osce,
+                "nama_osce" => $osce->nama_osce,
+                "detail_stase" => $osce->detail_stase ?? "0 Stase",
+                "detail_mahasiswa" => $osce->detail_mahasiswa ?? "0 Mahasiswa",
+                "detail_sesi" => $osce->detail_sesi ?? "0 Sesi",
+                "tanggal_mulai" => $osce->tanggal_mulai->format('d-m-Y'),
+                "tanggal_selesai" => $osce->tanggal_selesai->format('d-m-Y'),
+                "tahun_akademik_string" => $osce->tahunAkademik->tahun ?? "N/A",
+            ];
+        });
 
         return [
             "success" => true,
@@ -66,7 +67,7 @@ class OsceService
      */
     public function update(Osce $osce, $validator)
     {
-        
+
         $osce->update($validator->validated());
 
         return [
