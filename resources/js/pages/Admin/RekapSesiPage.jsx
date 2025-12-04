@@ -1,10 +1,9 @@
 import React, { useState } from "react";
-import { Link, usePage, router, Head } from "@inertiajs/react"; // 1. Tambahkan Head
+import { Link, usePage, router, Head } from "@inertiajs/react";
 import { Search, ArrowLeft } from "lucide-react";
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
-// OsBreadCrumb dihapus, kita buat statis
 import OsCopyright from "../../components/Copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
@@ -12,12 +11,17 @@ import OsSearchBar from "../../components/searchbar";
 import OsTableBody from "../../components/tablecontain";
 import OsHeader from "../../components/Header";
 
-// --- Definisi Kolom Tabel (Sudah Benar) ---
+// --- Definisi Kolom Tabel ---
 const sesiColumns = [
-    { key: "no",content: "No", width: "w-16", classes: "justify-center items-center" },
+    {
+        key: "no",
+        content: "No",
+        width: "w-16",
+        classes: "justify-center items-center",
+    },
     {
         key: "tanggal_sesi",
-        content: "Tanggal / Sesi",
+        content: "Tanggal & Waktu", // Ubah judul kolom
         width: "flex-1",
         classes: "justify-start items-center px-4",
     },
@@ -28,29 +32,21 @@ const sesiColumns = [
         classes: "justify-start items-center px-4",
     },
     {
-        key:"action",
+        key: "action",
         content: "Action",
         width: "w-48",
         classes: "justify-center items-center px-4",
     },
 ];
 
-// 2. [HAPUS] mockFilters dan mockSesi tidak diperlukan lagi
-
-// --- Komponen Utama ---
 export default function RekapSesiPage() {
-    // 3. [PERBAIKAN] Ambil props dinamis dari controller
-    //    'id_osce' tidak diperlukan lagi karena kita punya 'osce' object
     const { osce, sesi, filters, flash } = usePage().props;
-
-    // 4. [PERBAIKAN] State filter (sudah benar)
     const [search, setSearch] = useState(filters.search || "");
 
-    // 5. [PERBAIKAN] Fungsi search dinamis
     const handleSearch = (e) => {
         e.preventDefault();
         router.get(
-            `/admin/rekap-nilai/${osce.id_osce}/sesi`, // URL dinamis
+            `/admin/rekap-nilai/${osce.id_osce}/sesi`,
             { search },
             { preserveState: true, replace: true }
         );
@@ -59,7 +55,17 @@ export default function RekapSesiPage() {
     // 6. Siapkan untuk isi data tabel
     const sesiRows = sesi.data.map((item, index) => ({
         no: sesi.from + index,
-        tanggal_sesi: item.tanggal_sesi,
+        // PERBAIKAN: Gunakan 'tampilan_sesi' yang sudah ada jamnya
+        tanggal_sesi: (
+            <div className="flex flex-col">
+                <span className="font-medium text-gray-900">
+                    {item.tampilan_sesi.split(" — ")[0]} {/* Tanggal */}
+                </span>
+                <span className="text-sm text-gray-500">
+                    {item.tampilan_sesi.split(" — ")[1]} {/* Jam */}
+                </span>
+            </div>
+        ),
         jumlah_mahasiswa: item.jumlah_mahasiswa + " Mahasiswa",
         action: (
             <button
@@ -86,11 +92,7 @@ export default function RekapSesiPage() {
 
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                {/* 6. [PERBAIKAN] Breadcrumb dinamis */}
-                    <OsHeader
-                        variant="goback"
-                        backLink=""
-                    />
+                <OsHeader variant="goback" backLink="/admin/rekap-nilai" />
 
                 <div className="flex-1 overflow-auto">
                     {/* Notifikasi Sukses/Error */}
@@ -109,18 +111,16 @@ export default function RekapSesiPage() {
                         Menu Rekap Nilai
                     </h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Pilih salah satu sesi (berdasarkan tanggal) untuk
-                        melihat daftar mahasiswa.
+                        Pilih salah satu sesi (berdasarkan tanggal dan waktu)
+                        untuk melihat daftar mahasiswa.
                     </p>
 
-                    {/* searchbar*/}
                     <OsSearchBar
                         search={search}
                         setSearch={setSearch}
                         onSearchClick={handleSearch}
-                        placeholder="Cari berdasarkan tanggal (YYYY-MM-DD)..."
+                        placeholder="Cari tanggal..."
                     />
-
 
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Sesi
@@ -129,8 +129,6 @@ export default function RekapSesiPage() {
 
                     <OsTableBody data={sesiRows} columns={sesiColumns} />
 
-
-                    {/* Pesan jika tidak ada data */}
                     {sesi.data.length === 0 && (
                         <div className="flex items-center border-t border-gray-400">
                             <p className="w-full text-center text-sm py-4 text-gray-500">
@@ -139,7 +137,6 @@ export default function RekapSesiPage() {
                         </div>
                     )}
 
-                    {/* 10. [PERBAIKAN] Paginasi Dinamis */}
                     {sesi.links && sesi.links.length > 3 && (
                         <div className="mt-8">
                             <OsPagination links={sesi.links} />

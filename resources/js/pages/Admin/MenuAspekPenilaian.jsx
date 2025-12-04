@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { usePage, Link, router } from "@inertiajs/react";
+import { usePage, Link, router, useForm } from "@inertiajs/react";
 import { Trash2, Pencil } from "lucide-react";
 
 // --- Import Komponen ---
@@ -13,7 +13,7 @@ import OsModal from "../../components/Modal.jsx"; // Modal Tambah/Edit
 import OsInput from "../../components/input.jsx";
 import Modals from "../../components/Modals.jsx"; // Modal Konfirmasi Hapus
 import OsIcon from "../../components/icons.jsx";
-import OsCopyright from "../../components/Copyright.jsx"; // Asumsi ada
+import OsCopyright from "../../components/Copyright.jsx";
 
 // Definisi kolom tabel
 const columns = [
@@ -46,38 +46,34 @@ const columns = [
 export default function MenuAspekPenilaian() {
     const { stase, aspek_penilaian, filters } = usePage().props;
 
-    // ========= STATE FORM (Untuk Tambah dan Edit) ========
-    const [form, setForm] = useState({
+    // ========= STATE UTAMA (Inertia useForm) ========
+    const {
+        data,
+        setData,
+        post,
+        put,
+        reset,
+        delete: destroy,
+        processing,
+        errors,
+    } = useForm({
         id: null,
         aspek: "",
         bobot_maksimum: "",
-        id_stase: stase.id_stase, // ID stase di-pass ke backend
+        id_stase: stase.id_stase,
     });
 
-    // ========= STATE MODAL TAMBAH/EDIT ========
+    // ========= STATE UI (Modal & Search) ========
     const [modalMode, setModalMode] = useState("add"); // 'add' | 'edit'
-    const [showModal, setShowModal] = useState(false); // Modal OsModal tunggal
+    const [showModal, setShowModal] = useState(false);
 
     // ======== STATE MODAL DELETE ========
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedAspek, setSelectedAspek] = useState(null);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    // Kita simpan data sementara yang mau dihapus di sini
+    const [dataToDelete, setDataToDelete] = useState(null);
 
     // ======== STATE SEARCH ========
     const [search, setSearch] = useState(filters?.search || "");
-
-    // ======== HANDLER PERUBAHAN FORM ========
-    const handleChange = (e) => {
-        const { name, value } = e.target;
-        setForm((prev) => ({
-            ...prev,
-            [name]:
-                name === "bobot_maksimum"
-                    ? value
-                        ? parseInt(value)
-                        : ""
-                    : value,
-        }));
-    };
 
     // ======== HANDLER SEARCH ========
     const handleSearch = () => {
@@ -91,7 +87,8 @@ export default function MenuAspekPenilaian() {
     // ======== OPEN MODAL TAMBAH ========
     const openAddModal = () => {
         setModalMode("add");
-        setForm({
+        // Reset form saat membuka modal tambah
+        setData({
             id: null,
             aspek: "",
             bobot_maksimum: "",
@@ -103,7 +100,7 @@ export default function MenuAspekPenilaian() {
     // ======== OPEN MODAL EDIT ========
     const openEditModal = (item) => {
         setModalMode("edit");
-        setForm({
+        setData({
             id: item.id_aspek_penilaian,
             aspek: item.aspek,
             bobot_maksimum: item.bobot_maksimum,
@@ -117,56 +114,70 @@ export default function MenuAspekPenilaian() {
         e.preventDefault();
 
         if (modalMode === "edit") {
-            router.put(`/admin/aspek-penilaian/${form.id}`, form, {
-                onSuccess: () => setShowModal(false),
+            put(`/admin/aspek-penilaian/${data.id}`, {
+                onSuccess: () => {
+                    setShowModal(false);
+                    reset();
+                },
             });
         } else {
-            router.post(`/admin/aspek-penilaian`, form, {
-                onSuccess: () => setShowModal(false),
+            post(`/admin/stase/${stase.id_stase}/aspek-penilaian`, {
+                onSuccess: () => {
+                    setShowModal(false);
+                    reset();
+                },
             });
         }
     };
 
-    // ======== HANDLE CLEAR (Modal Tambah) ========
+    // ======== HANDLE CLEAR (RESET FORM) ========
     const handleClear = () => {
-        setForm((prev) => ({
-            ...prev,
-            aspek: "",
-            bobot_maksimum: "",
-        }));
-    };
-
-    // ======== OPEN MODAL DELETE (Trigger dari tabel) ========
-    const openDeleteModal = (aspek) => {
-        setSelectedAspek(aspek);
-        setIsModalOpen(true);
-    };
-
-    // ======== HANDLE DELETE DARI MODAL EDIT (Trigger dari tombol Hapus di OsModal) ========
-    const handleDeleteFromEdit = () => {
-        // Tutup modal edit, lalu buka modal konfirmasi delete
-        setShowModal(false);
-        openDeleteModal({
-            id_aspek_penilaian: form.id,
-            aspek: form.aspek,
-            bobot_maksimum: form.bobot_maksimum,
+        // Kita harus mereset input manual menggunakan setData
+        setData({
+            ...data, // Pertahankan data lain (seperti id_stase)
+            aspek: "", // Kosongkan input Aspek
+            bobot_maksimum: "", // Kosongkan input Bobot
         });
+    };
+
+    // ======== OPEN MODAL DELETE (Trigger dari tabel utama) ========
+    const openDeleteModal = (aspekItem) => {
+        setDataToDelete({
+            id: aspekItem.id_aspek_penilaian,
+            aspek: aspekItem.aspek,
+            bobot: aspekItem.bobot_maksimum,
+        });
+        setIsDeleteModalOpen(true);
+    };
+
+    // ======== HANDLE DELETE DARI DALAM MODAL EDIT ========
+    // Fungsi ini dipanggil saat tombol sampah di dalam modal edit ditekan
+    const handleDeleteFromEdit = () => {
+        // 1. Tutup modal edit dulu
+        setShowModal(false);
+
+        // 2. Siapkan data yang mau dihapus (ambil dari form state saat ini)
+        setDataToDelete({
+            id: data.id,
+            aspek: data.aspek,
+            bobot: data.bobot_maksimum,
+        });
+
+        // 3. Buka modal konfirmasi hapus
+        setIsDeleteModalOpen(true);
     };
 
     // ======== CONFIRM DELETE ACTION ========
     const confirmDelete = () => {
-        if (!selectedAspek) return;
+        if (!dataToDelete) return;
 
-        router.delete(
-            `/admin/aspek-penilaian/${selectedAspek.id_aspek_penilaian}`,
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setIsModalOpen(false);
-                    setSelectedAspek(null);
-                },
-            }
-        );
+        router.delete(`/admin/aspek-penilaian/${dataToDelete.id}`, {
+            preserveScroll: true,
+            onSuccess: () => {
+                setIsDeleteModalOpen(false);
+                setDataToDelete(null);
+            },
+        });
     };
 
     // ======== DATA TABEL ========
@@ -192,7 +203,6 @@ export default function MenuAspekPenilaian() {
 
         action: (
             <div className="flex justify-center gap-2">
-                {/* Lihat Kompetensi */}
                 <OsButton
                     name="primary"
                     onClick={() =>
@@ -206,7 +216,6 @@ export default function MenuAspekPenilaian() {
                     Edit Kompetensi
                 </OsButton>
 
-                {/* Edit */}
                 <OsButton
                     name="edit"
                     onClick={() => openEditModal(item)}
@@ -216,7 +225,6 @@ export default function MenuAspekPenilaian() {
                     <Pencil size={18} />
                 </OsButton>
 
-                {/* Delete */}
                 <OsButton
                     name="warning"
                     onClick={() => openDeleteModal(item)}
@@ -245,15 +253,7 @@ export default function MenuAspekPenilaian() {
                 <OsHeader variant="goback" backLink="/admin/stase" onMenuClick={handleSidebarToggle}/>
 
                 <div className="flex-1 overflow-auto">
-                    {/* <h2 className="font-semibold text-lg mb-1">Menu Aspek Penilaian</h2>
-
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Halaman ini berfungsi untuk menambahkan aspek penilaian <br />
-                        pada stase "<strong>{stase.nama_stase}</strong>"
-                    </p> */}
-
                     <h2 className="font-semibold text-lg mb-1">
-                        {/* Menu Aspek Penilaian <br /> */}
                         {stase.nama_stase}
                     </h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
@@ -293,13 +293,10 @@ export default function MenuAspekPenilaian() {
                         placeholder="Cari aspek penilaian..."
                     />
 
-                    {/* Tabel Aspek Penilaian */}
-
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Aspek Penilaian
                     </h2>
 
-                    {/* header */}
                     <OsTableHeader columns={columns} />
 
                     {tableData.length > 0 ? (
@@ -310,7 +307,6 @@ export default function MenuAspekPenilaian() {
                         </div>
                     )}
 
-                    {/* Baris Total */}
                     <div className="bg-os-white rounded-lg overflow-hidden border-os-1 border-os-black mt-3 h-[56px]">
                         <table className="w-full h-[56px]">
                             <tfoot>
@@ -325,13 +321,11 @@ export default function MenuAspekPenilaian() {
                                         </span>
                                     </td>
                                     <td className=" px-5  text-center w-3/12">
-                                        {/* --- KONDISI SEIMBANG (totalBobot = 100) --- */}
                                         {totalBobot == 100 ? (
                                             <div className="bg-green-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
                                                 Point Seimbang (100%)
                                             </div>
                                         ) : (
-                                            /* --- KONDISI TIDAK SEIMBANG (totalBobot != 100) --- */
                                             totalBobot > 0 && (
                                                 <div className="bg-red-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
                                                     Point Tidak Seimbang! (
@@ -353,10 +347,12 @@ export default function MenuAspekPenilaian() {
             <OsModal
                 show={showModal}
                 onClose={() => setShowModal(false)}
-                variant={modalMode} // <-- Mengatur mode (add/edit)
-                onSubmit={handleSubmit} // <-- Handler submit
-                onClear={handleClear} // <-- Handler clear (hanya berlaku mode 'add')
-                onDelete={handleDeleteFromEdit} // <-- Handler delete (hanya berlaku mode 'edit')
+                variant={modalMode}
+                onSubmit={handleSubmit}
+                // 🔥 Sini kuncinya: Menghubungkan handleClear ke tombol merah di mode Add
+                onClear={handleClear}
+                // 🔥 Menghubungkan handleDeleteFromEdit ke tombol merah di mode Edit
+                onDelete={handleDeleteFromEdit}
                 title={
                     modalMode === "edit"
                         ? "Edit Aspek Penilaian"
@@ -364,7 +360,7 @@ export default function MenuAspekPenilaian() {
                 }
                 subtitle={
                     modalMode === "edit"
-                        ? `Ubah data aspek: ${form.aspek}`
+                        ? `Ubah data aspek: ${data.aspek}`
                         : "Isi form di bawah untuk menambahkan aspek baru."
                 }
             >
@@ -373,8 +369,8 @@ export default function MenuAspekPenilaian() {
                         label="Nama Aspek Penilaian"
                         type="text"
                         name="aspek"
-                        value={form.aspek}
-                        onChange={handleChange}
+                        value={data.aspek}
+                        onChange={(evt) => setData("aspek", evt.target.value)}
                         placeholder="Masukkan nama aspek penilaian..."
                         required
                     />
@@ -382,8 +378,10 @@ export default function MenuAspekPenilaian() {
                         label="Bobot Maksimum"
                         type="number"
                         name="bobot_maksimum"
-                        value={form.bobot_maksimum}
-                        onChange={handleChange}
+                        value={data.bobot_maksimum}
+                        onChange={(evt) =>
+                            setData("bobot_maksimum", evt.target.value)
+                        }
                         placeholder="Masukkan bobot..."
                         required
                     />
@@ -392,17 +390,17 @@ export default function MenuAspekPenilaian() {
 
             {/* ================= MODAL DELETE ================= */}
             <Modals
-                isOpen={isModalOpen}
-                onClose={() => setIsModalOpen(false)}
+                isOpen={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
                 variant="delete"
                 title="Hapus Aspek Penilaian?"
                 message="Apakah Anda yakin ingin menghapus aspek penilaian ini?"
                 confirmText="Hapus"
                 dataToDelete={[
-                    { key: "Aspek", value: selectedAspek?.aspek || "-" },
+                    { key: "Aspek", value: dataToDelete?.aspek || "-" },
                     {
                         key: "Bobot",
-                        value: `${selectedAspek?.bobot_maksimum || 0} poin`,
+                        value: `${dataToDelete?.bobot || 0} poin`,
                     },
                 ]}
                 onConfirm={confirmDelete}

@@ -104,7 +104,10 @@ export default function RekapMahasiswaPage() {
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* 6. [PERBAIKAN] Breadcrumb dinamis */}
-                <OsHeader variant="goback" backLink="" />
+                <OsHeader
+                    variant="goback"
+                    backLink={`/admin/rekap-nilai/${osce.id_osce}/sesi`}
+                />
 
                 <div className="flex-1 overflow-auto">
                     {/* Notifikasi Sukses/Error */}

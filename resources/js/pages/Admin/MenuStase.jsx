@@ -1,6 +1,6 @@
-import { Link, usePage, router } from "@inertiajs/react";
 import React, { useState } from "react";
-import { Edit2, Trash2 } from "lucide-react";
+import { usePage, router, useForm } from "@inertiajs/react";
+import { Edit2, Trash2, Plus } from "lucide-react"; // Pastikan import Plus ada
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
@@ -13,9 +13,7 @@ import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
 import OsModal from "../../components/Modal.jsx";
-import OsInput from "../../components/input.jsx";
-
-// 🔥 Modal delete
+import OsInput from "components/inputs/OsInput.jsx";
 import Modals from "../../components/Modals.jsx";
 
 const staseColumns = [
@@ -53,21 +51,36 @@ export default function Stase() {
             setIsSidebarOpen((prev) => !prev);
         };
 
-    // 🔥 State Form
-    const [form, setForm] = useState({
+    // 🔥 PERBAIKAN DI SINI: Ganti 'deskripsi_tujuan' menjadi 'tujuan' sesuai Model
+    const suggestTujuan =
+        tujuanPembelajaran?.map((t) => t.tujuan).filter(Boolean) || [];
+
+    const {
+        data,
+        setData,
+        post,
+        put,
+        delete: destroy,
+        processing,
+        errors,
+        reset,
+        clearErrors, // Tambahkan clearErrors
+    } = useForm({
         id: null,
         nama_stase: "",
-        matakuliah: "",
-        tujuan: "",
         deskripsi: "",
+        id_mata_kuliah: "",
+        id_tujuan_pembelajaran: "",
+        display_mata_kuliah: "",
+        display_tujuan: "",
     });
 
-    // 🔥 State Modal Add/Edit
     const [showModal, setShowModal] = useState(false);
-    const [modalMode, setModalMode] = useState("add"); // 'add' | 'edit'
-
-    // 🔥 State Search
+    const [modalMode, setModalMode] = useState("add");
     const [search, setSearch] = useState(filters.search || "");
+    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
+    const [selectedId, setSelectedId] = useState(null);
+    const [selectedName, setSelectedName] = useState("");
 
     const handleSearch = () => {
         router.get(
@@ -77,83 +90,119 @@ export default function Stase() {
         );
     };
 
-    // 🔥 STATE DELETE MODAL
-    const [isDeleteOpen, setIsDeleteOpen] = useState(false);
-    const [selectedId, setSelectedId] = useState(null);
-    const [selectedName, setSelectedName] = useState("");
-
-    // 🔥 BUKA MODAL DELETE
     const openDeleteModal = (id, name) => {
         setSelectedId(id);
         setSelectedName(name);
         setIsDeleteOpen(true);
     };
 
-    // 🔥 DELETE ACTION
     const handleConfirmDelete = () => {
-        router.delete(`/admin/stase/${selectedId}`, {
+        if (!selectedId) return;
+        destroy(`/admin/stase/${selectedId}`, {
             preserveScroll: true,
-            onFinish: () => setIsDeleteOpen(false),
+            onSuccess: () => {
+                setIsDeleteOpen(false);
+                // Tidak perlu reload manual
+            },
         });
     };
 
-    // ============================
-    // 🔵 OPEN MODAL TAMBAH
-    // ============================
+    // --- HANDLE PERUBAHAN INPUT SUGGEST ---
+
+    const handleMataKuliahChange = (e) => {
+        const val = e?.target ? e.target.value : e;
+        const selectedObj = mataKuliah.find((m) => m.nama_mata_kuliah === val);
+
+        setData((prev) => ({
+            ...prev,
+            display_mata_kuliah: val,
+            id_mata_kuliah: selectedObj ? selectedObj.id_mata_kuliah : "",
+        }));
+    };
+
+    const handleTujuanChange = (e) => {
+        const val = e?.target ? e.target.value : e;
+
+        // 🔥 PERBAIKAN DI SINI: Cari berdasarkan 'tujuan'
+        const selectedObj = tujuanPembelajaran.find((t) => t.tujuan === val);
+
+        setData((prev) => ({
+            ...prev,
+            display_tujuan: val,
+            id_tujuan_pembelajaran: selectedObj
+                ? selectedObj.id_tujuan_pembelajaran
+                : "",
+        }));
+    };
+
+    // --- MODAL CONTROLS ---
+
     const openAddModal = () => {
         setModalMode("add");
-        setForm({
-            id: null,
-            nama_stase: "",
-            matakuliah: "",
-            tujuan: "",
-            deskripsi: "",
-        });
+        clearErrors();
+        reset(); // Reset semua field termasuk display
         setShowModal(true);
     };
 
-    // ============================
-    // 🔵 OPEN MODAL EDIT
-    // ============================
     const openEditModal = (item) => {
         setModalMode("edit");
-        setForm({
+        clearErrors();
+
+        const currentMK = mataKuliah.find(
+            (m) => m.id_mata_kuliah === item.id_mata_kuliah
+        );
+        const currentTP = tujuanPembelajaran.find(
+            (t) => t.id_tujuan_pembelajaran === item.id_tujuan_pembelajaran
+        );
+
+        setData({
             id: item.id_stase,
-            nama_stase: item.nama_stase,
-            matakuliah: item.matakuliah || "",
-            tujuan: item.tujuan || "",
+            nama_stase: item.nama_stase || "",
             deskripsi: item.deskripsi || "",
+            id_mata_kuliah: item.id_mata_kuliah,
+            id_tujuan_pembelajaran: item.id_tujuan_pembelajaran,
+            display_mata_kuliah: currentMK ? currentMK.nama_mata_kuliah : "",
+            // 🔥 PERBAIKAN DI SINI: Tampilkan 'tujuan' saat edit
+            display_tujuan: currentTP ? currentTP.tujuan : "",
         });
         setShowModal(true);
     };
 
-    // ============================
-    // 🔵 SUBMIT MODAL ADD/EDIT
-    // ============================
+    const handleClear = () => {
+        reset();
+    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        if (!data.id_mata_kuliah || !data.id_tujuan_pembelajaran) {
+            alert(
+                "Mohon pilih Mata Kuliah dan Tujuan Pembelajaran dari daftar saran yang tersedia."
+            );
+            return;
+        }
+
+        const options = {
+            onSuccess: () => {
+                setShowModal(false);
+                reset();
+            },
+            preserveScroll: true,
+        };
+
         if (modalMode === "edit") {
-            router.put(`/admin/stase/${form.id}`, form, {
-                onSuccess: () => setShowModal(false),
-            });
+            put(`/admin/stase/${data.id}`, options);
         } else {
-            router.post(`/admin/stase`, form, {
-                onSuccess: () => setShowModal(false),
-            });
+            post("/admin/stase", options);
         }
     };
 
-    // ============================
-    // 🔵 DATA TABEL
-    // ============================
     const tableData = stase.data.map((item, index) => ({
         no: stase.from + index,
         nama_stase: item.nama_stase,
         jumlah_aspek: item.aspek_penilaian_count,
         action: (
             <div className="flex items-center justify-center space-x-3">
-                {/* Edit Aspek Penilaian */}
                 <OsButton
                     name="primary"
                     onClick={() =>
@@ -163,16 +212,12 @@ export default function Stase() {
                     }
                     className="h-[38px] text-os-small w-full flex justify-between items-center gap-3"
                 >
-                    <OsIcon name={"add"} className="os-icon-light h-[20px]" />
+                    <OsIcon name={"add"} className="os-icon-light h-[20px]" />{" "}
                     Edit Aspek Penilaian
                 </OsButton>
-
-                {/* EDIT */}
                 <OsButton name="edit" onClick={() => openEditModal(item)}>
                     <Edit2 size={18} />
                 </OsButton>
-
-                {/* DELETE */}
                 <OsButton
                     name="warning"
                     onClick={() =>
@@ -196,12 +241,9 @@ export default function Stase() {
                     <h2 className="font-semibold text-lg mb-1">Menu Stase</h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
                         Kelola konten Stase secara menyeluruh, termasuk daftar
-                        kompetensi inti yang diujikan serta aspek penilaian
-                        (kriteria checklist atau skor) yang digunakan penguji
-                        untuk mengukur pencapaian kompetensi tersebut.
+                        kompetensi inti yang diujikan serta aspek penilaian.
                     </p>
 
-                    {/* 🔵 BUTTON TAMBAH */}
                     <OsButton
                         name="primary"
                         onClick={openAddModal}
@@ -210,18 +252,16 @@ export default function Stase() {
                         <OsIcon
                             name="add"
                             className="h-os-20 os-icon-light mr-os-8"
-                        />
+                        />{" "}
                         Tambah Stase
                     </OsButton>
 
-                    {/* Search */}
                     <OsSearchBar
                         search={search}
                         setSearch={setSearch}
                         onSearchClick={handleSearch}
                         placeholder="Cari stase..."
                     />
-
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Stase
                     </h2>
@@ -235,80 +275,107 @@ export default function Stase() {
                             </p>
                         </div>
                     )}
-
                     {stase.links?.length > 0 && (
                         <OsPagination links={stase.links} />
                     )}
                 </div>
-
                 <OsCopyright />
             </main>
 
-            {/* ============================
-                🔵 MODAL ADD/EDIT STASE
-            ============================ */}
+            {/* MODAL ADD/EDIT STASE */}
             <OsModal
                 show={showModal}
                 onClose={() => setShowModal(false)}
                 variant={modalMode}
+                onClear={handleClear}
+                onSubmit={handleSubmit}
                 title={
                     modalMode === "edit" ? "Edit Stase" : "Tambah Stase Baru"
                 }
                 subtitle={
                     modalMode === "edit"
-                        ? `Ubah data stase: ${form.nama_stase}`
+                        ? `Ubah data stase: ${data.nama_stase}`
                         : "Isi form di bawah untuk menambahkan stase baru."
                 }
             >
-                <form onSubmit={handleSubmit} className="space-y-3">
-                    <OsInput
-                        label="Mata kuliah"
-                        type="suggest"
-                        name="matakuliah"
-                        value={form.matakuliah}
-                        onChange={(e) =>
-                            setForm({ ...form, matakuliah: e.target.value })
-                        }
-                        placeholder="Masukkan Mata kuliah..."
-                        required
-                    />
-                    <OsInput
-                        label="Tujuan Pembelajaran"
-                        type="suggest"
-                        name="tujuan"
-                        value={form.tujuan}
-                        onChange={(e) =>
-                            setForm({ ...form, tujuan: e.target.value })
-                        }
-                        placeholder="Masukkan Tujuan..."
-                        required
-                    />
+                <div className="space-y-4">
+                    {/* INPUT SUGGEST: MATA KULIAH */}
+                    <div>
+                        <OsInput
+                            label="Mata Kuliah"
+                            type="suggest"
+                            name="display_mata_kuliah"
+                            value={data.display_mata_kuliah}
+                            onChange={handleMataKuliahChange}
+                            suggestions={suggestMataKuliah}
+                            placeholder="Ketik atau pilih Mata Kuliah..."
+                            required
+                        />
+                        {data.display_mata_kuliah && !data.id_mata_kuliah && (
+                            <p className="text-red-500 text-xs mt-1">
+                                Mata kuliah tidak ditemukan di database.
+                            </p>
+                        )}
+                        {errors.id_mata_kuliah && (
+                            <p className="text-red-500 text-xs">
+                                {errors.id_mata_kuliah}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* INPUT SUGGEST: TUJUAN PEMBELAJARAN */}
+                    <div>
+                        <OsInput
+                            label="Tujuan Pembelajaran"
+                            type="suggest"
+                            name="display_tujuan"
+                            value={data.display_tujuan}
+                            onChange={handleTujuanChange}
+                            suggestions={suggestTujuan}
+                            placeholder="Ketik atau pilih Tujuan..."
+                            required
+                        />
+                        {data.display_tujuan &&
+                            !data.id_tujuan_pembelajaran && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    Tujuan pembelajaran tidak ditemukan.
+                                </p>
+                            )}
+                        {errors.id_tujuan_pembelajaran && (
+                            <p className="text-red-500 text-xs">
+                                {errors.id_tujuan_pembelajaran}
+                            </p>
+                        )}
+                    </div>
+
                     <OsInput
                         label="Nama Stase"
                         type="text"
                         name="nama_stase"
-                        value={form.nama_stase}
-                        onChange={(e) =>
-                            setForm({ ...form, nama_stase: e.target.value })
-                        }
+                        value={data.nama_stase}
+                        onChange={(e) => setData("nama_stase", e.target.value)}
                         placeholder="Masukkan Nama Stase..."
                         required
                     />
+
                     <OsInput
                         label="Deskripsi"
                         type="textarea"
                         name="deskripsi"
-                        value={form.deskripsi}
-                        onChange={(e) =>
-                            setForm({ ...form, deskripsi: e.target.value })
-                        }
+                        value={data.deskripsi}
+                        onChange={(e) => setData("deskripsi", e.target.value)}
                         placeholder="Masukkan Deskripsi..."
-                        required
                     />
-                </form>
+
+                    {(errors.nama_stase || errors.deskripsi) && (
+                        <div className="text-red-600 text-xs space-y-1">
+                            {errors.nama_stase && <p>{errors.nama_stase}</p>}
+                            {errors.deskripsi && <p>{errors.deskripsi}</p>}
+                        </div>
+                    )}
+                </div>
             </OsModal>
 
-            {/* 🔥 MODAL DELETE */}
             <Modals
                 isOpen={isDeleteOpen}
                 onClose={() => setIsDeleteOpen(false)}
