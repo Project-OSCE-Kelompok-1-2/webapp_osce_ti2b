@@ -9,6 +9,7 @@ use App\Imports\MahasiswaImport;
 use Illuminate\Support\Facades\DB;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Http\UploadedFile;
 
 class MahasiswaService
 {
@@ -113,15 +114,19 @@ class MahasiswaService
             return $mahasiswa->delete();
         });
     }
-
-    /**
-     * Logika import Excel.
+    /** 
+     * Menangani proses import data mahasiswa dari file Excel.
+     * Logika ini dipindahkan dari Controller untuk menjaga Controller tetap bersih.
+     *
+     * @param UploadedFile $file
+     * @return void
+     * @throws \Exception
      */
-    public function importExcel(Request $request)
+    public function importMahasiswa(UploadedFile $file)
     {
-        // Excel::import tidak mengembalikan data, jadi kita return true jika sukses
-        Excel::import(new MahasiswaImport, $request->file('file'));
-
-        return true;
+        // Menjalankan import menggunakan class MahasiswaImport yang sudah ada.
+        // Jika terjadi error pada Excel::import, exception akan dilempar
+        // dan ditangkap oleh controller.
+        Excel::import(new MahasiswaImport, $file);
     }
 }

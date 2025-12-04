@@ -56,7 +56,7 @@ class KompetensiController extends Controller
     {
         $validated = $request->validate([
             'kompetensi' => 'required|string',
-            'bobot' => 'required|integer|min:1|max:5',
+            'bobot' => 'required|integer|min:1|max:100',
         ]);
 
         $aspekPenilaian->poinAspekPenilaian()->create($validated);
@@ -90,7 +90,7 @@ public function edit(PoinAspekPenilaian $kompetensi)
                     ->ignore($kompetensi->id_poin_aspek_penilaian, 'id_poin_aspek_penilaian')
                     ->where('id_aspek_penilaian', $kompetensi->id_aspek_penilaian)
             ],
-            'bobot' => 'required|integer|min:1|max:5',
+            'bobot' => 'required|integer|min:1|max:100',
         ]);
 
         $kompetensi->update($validated);

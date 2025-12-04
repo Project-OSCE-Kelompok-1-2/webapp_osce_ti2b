@@ -57,7 +57,7 @@ class MahasiswaController extends Controller
             'kelas' => 'required|string|max:50',
             'prodi' => 'required|string|max:100',
         ]);
-        
+
         $mahasiswa = $this->service->store($validated);
 
         return response()->json([
@@ -125,25 +125,33 @@ class MahasiswaController extends Controller
     }
 
     /**
-     * Mengimport data mahasiswa lewat excel
+     * Endpoint API untuk import data mahasiswa.
+     * POST /api/admin/mahasiswa/import
+     *
+     * @param Request $request
+     * @return \Illuminate\Http\JsonResponse
      */
     public function import(Request $request)
     {
+        // 1. Validasi Input (Sama persis dengan logika sebelumnya)
+        $request->validate([
+            'file' => 'required|file|mimes:xlsx,xls',
+        ]);
+
         try {
-            $request->validate([
-                'file' => 'required|file|mimes:xlsx,xls',
-            ]);
+            // 2. Panggil Service untuk eksekusi logika import
+            $this->service->importMahasiswa($request->file('file'));
 
-            $this->service->importExcel($request);
-
+            // 3. Return Success JSON
             return response()->json([
-                'status' => 'success',
-                'message' => 'Data mahasiswa berhasil diimpor.'
-            ]);
+                'status'  => 'success',
+                'message' => 'Data mahasiswa berhasil diimpor.',
+            ], 200);
         } catch (\Exception $e) {
+            // 4. Return Error JSON jika import gagal
             return response()->json([
-                'status' => 'error',
-                'message' => 'Gagal mengimpor data: ' . $e->getMessage()
+                'status'  => 'error',
+                'message' => 'Gagal mengimpor data: ' . $e->getMessage(),
             ], 500);
         }
     }

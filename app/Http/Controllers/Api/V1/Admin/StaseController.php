@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
-
 use Illuminate\Http\Request;
 use App\Services\StaseService;
 use Illuminate\Validation\Rule;
@@ -80,7 +79,7 @@ class StaseController extends Controller
 
     /**
      * Mengambil data stase
-     * @param int $id_oscec
+     * @param int $id_stase
      */
     public function show($id_stase)
     {
@@ -164,7 +163,7 @@ class StaseController extends Controller
 
     /**
      * Menghapus data stase
-     * @param int $id_oscec
+     * @param int $id_stase
      */
     public function destroy($id_stase)
     {

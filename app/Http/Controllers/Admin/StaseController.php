@@ -26,6 +26,8 @@ class StaseController extends Controller
         return Inertia::render('Admin/MenuStase', [
             'stase' => $stase,
             'filters' => $request->only(['search']),
+            'mataKuliah' => MataKuliah::all(),
+            'tujuanPembelajaran' => TujuanPembelajaran::all()
         ]);
     }
 
