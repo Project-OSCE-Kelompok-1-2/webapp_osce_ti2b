@@ -10,7 +10,6 @@ use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\OsceController;
 use App\Http\Controllers\Admin\StaseController;
 use App\Http\Controllers\Admin\MahasiswaController;
-use App\Http\Controllers\Admin\OsceStaseController;
 use App\Http\Controllers\Admin\PengujiController;
 use App\Http\Controllers\Admin\KompetensiController;
 use App\Http\Controllers\Admin\OsceJadwalController;
