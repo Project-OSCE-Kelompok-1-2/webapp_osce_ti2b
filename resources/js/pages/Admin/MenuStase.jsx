@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { usePage, router, useForm } from "@inertiajs/react";
-import { Edit2, Trash2 } from "lucide-react";
+import { Edit2, Trash2, Plus } from "lucide-react"; // Pastikan import Plus ada
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
@@ -47,15 +47,13 @@ export default function Stase() {
     // 1. AMBIL DATA DARI PROPS
     const { stase, filters, mataKuliah, tujuanPembelajaran } = usePage().props;
 
-    // 2. SIAPKAN LIST UNTUK SUGGESTIONS (Hanya ambil Namanya saja)
-    // Gunakan '|| []' untuk mencegah error jika data undefined
-    const suggestMataKuliah = mataKuliah?.map((m) => m.nama_mata_kuliah) || [];
+    // 2. SIAPKAN LIST UNTUK SUGGESTIONS
+    const suggestMataKuliah =
+        mataKuliah?.map((m) => m.nama_mata_kuliah).filter(Boolean) || [];
 
-    // 🔥 PERBAIKAN: Pastikan mapping ke kolom yang benar (misal: deskripsi_tujuan)
-    // Cek database Anda, apakah kolomnya 'deskripsi_tujuan', 'tujuan', atau 'nama_tujuan'?
-    // Di sini saya asumsikan 'deskripsi_tujuan' berdasarkan kode sebelumnya.
+    // 🔥 PERBAIKAN DI SINI: Ganti 'deskripsi_tujuan' menjadi 'tujuan' sesuai Model
     const suggestTujuan =
-        tujuanPembelajaran?.map((t) => t.deskripsi_tujuan) || [];
+        tujuanPembelajaran?.map((t) => t.tujuan).filter(Boolean) || [];
 
     const {
         data,
@@ -66,16 +64,13 @@ export default function Stase() {
         processing,
         errors,
         reset,
+        clearErrors, // Tambahkan clearErrors
     } = useForm({
         id: null,
         nama_stase: "",
         deskripsi: "",
-
-        // DATA INTI (Yg dikirim ke DB)
         id_mata_kuliah: "",
         id_tujuan_pembelajaran: "",
-
-        // DATA TAMPILAN (Yg muncul di Input Suggest)
         display_mata_kuliah: "",
         display_tujuan: "",
     });
@@ -107,42 +102,36 @@ export default function Stase() {
             preserveScroll: true,
             onSuccess: () => {
                 setIsDeleteOpen(false);
-                router.reload({ only: ["stase"] });
+                // Tidak perlu reload manual
             },
         });
     };
 
     // --- HANDLE PERUBAHAN INPUT SUGGEST ---
 
-    // Fungsi Khusus: Saat Mata Kuliah diketik/dipilih
     const handleMataKuliahChange = (e) => {
-        const val = e.target.value; // Nilai teks (nama)
-
-        // 1. Cari Object Mata Kuliah yang namanya cocok dengan inputan
+        const val = e?.target ? e.target.value : e;
         const selectedObj = mataKuliah.find((m) => m.nama_mata_kuliah === val);
 
         setData((prev) => ({
             ...prev,
-            display_mata_kuliah: val, // Update Teks di Input
-            id_mata_kuliah: selectedObj ? selectedObj.id_mata_kuliah : "", // Update ID (Hidden)
+            display_mata_kuliah: val,
+            id_mata_kuliah: selectedObj ? selectedObj.id_mata_kuliah : "",
         }));
     };
 
-    // Fungsi Khusus: Saat Tujuan Pembelajaran diketik/dipilih
     const handleTujuanChange = (e) => {
-        const val = e.target.value; // Nilai teks (deskripsi)
+        const val = e?.target ? e.target.value : e;
 
-        // Cari berdasarkan kolom yang sesuai (deskripsi_tujuan)
-        const selectedObj = tujuanPembelajaran.find(
-            (t) => t.deskripsi_tujuan === val
-        );
+        // 🔥 PERBAIKAN DI SINI: Cari berdasarkan 'tujuan'
+        const selectedObj = tujuanPembelajaran.find((t) => t.tujuan === val);
 
         setData((prev) => ({
             ...prev,
-            display_tujuan: val, // Update Teks di Input
+            display_tujuan: val,
             id_tujuan_pembelajaran: selectedObj
                 ? selectedObj.id_tujuan_pembelajaran
-                : "", // Update ID (Hidden)
+                : "",
         }));
     };
 
@@ -150,22 +139,15 @@ export default function Stase() {
 
     const openAddModal = () => {
         setModalMode("add");
-        setData({
-            id: null,
-            nama_stase: "",
-            deskripsi: "",
-            id_mata_kuliah: "",
-            id_tujuan_pembelajaran: "",
-            display_mata_kuliah: "", // Reset tampilan kosong
-            display_tujuan: "", // Reset tampilan kosong
-        });
+        clearErrors();
+        reset(); // Reset semua field termasuk display
         setShowModal(true);
     };
 
     const openEditModal = (item) => {
         setModalMode("edit");
+        clearErrors();
 
-        // Cari Nama berdasarkan ID untuk ditampilkan di input suggest
         const currentMK = mataKuliah.find(
             (m) => m.id_mata_kuliah === item.id_mata_kuliah
         );
@@ -179,29 +161,20 @@ export default function Stase() {
             deskripsi: item.deskripsi || "",
             id_mata_kuliah: item.id_mata_kuliah,
             id_tujuan_pembelajaran: item.id_tujuan_pembelajaran,
-            // Isi tampilan input dengan Nama yang ditemukan
             display_mata_kuliah: currentMK ? currentMK.nama_mata_kuliah : "",
-            display_tujuan: currentTP ? currentTP.deskripsi_tujuan : "",
+            // 🔥 PERBAIKAN DI SINI: Tampilkan 'tujuan' saat edit
+            display_tujuan: currentTP ? currentTP.tujuan : "",
         });
         setShowModal(true);
     };
 
     const handleClear = () => {
-        setData({
-            id: null,
-            nama_stase: "",
-            deskripsi: "",
-            id_mata_kuliah: "",
-            id_tujuan_pembelajaran: "",
-            display_mata_kuliah: "",
-            display_tujuan: "",
-        });
+        reset();
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // Validasi Manual: Pastikan User memilih item yang valid (ID terisi)
         if (!data.id_mata_kuliah || !data.id_tujuan_pembelajaran) {
             alert(
                 "Mohon pilih Mata Kuliah dan Tujuan Pembelajaran dari daftar saran yang tersedia."
@@ -209,22 +182,18 @@ export default function Stase() {
             return;
         }
 
+        const options = {
+            onSuccess: () => {
+                setShowModal(false);
+                reset();
+            },
+            preserveScroll: true,
+        };
+
         if (modalMode === "edit") {
-            put(`/admin/stase/${data.id}`, {
-                onSuccess: () => {
-                    setShowModal(false);
-                    reset();
-                    router.reload({ only: ["stase"] });
-                },
-            });
+            put(`/admin/stase/${data.id}`, options);
         } else {
-            post("/admin/stase", {
-                onSuccess: () => {
-                    setShowModal(false);
-                    reset();
-                    router.reload({ only: ["stase"] });
-                },
-            });
+            post("/admin/stase", options);
         }
     };
 
@@ -328,19 +297,18 @@ export default function Stase() {
                 }
             >
                 <div className="space-y-4">
-                    {/* 🔥 INPUT SUGGEST: MATA KULIAH */}
+                    {/* INPUT SUGGEST: MATA KULIAH */}
                     <div>
                         <OsInput
                             label="Mata Kuliah"
                             type="suggest"
-                            name="display_mata_kuliah" // Gunakan field Display
+                            name="display_mata_kuliah"
                             value={data.display_mata_kuliah}
-                            onChange={handleMataKuliahChange} // Gunakan handler khusus
-                            suggestions={suggestMataKuliah} // List Nama Mata Kuliah
+                            onChange={handleMataKuliahChange}
+                            suggestions={suggestMataKuliah}
                             placeholder="Ketik atau pilih Mata Kuliah..."
                             required
                         />
-                        {/* Debugging (Optional): Tampilkan error jika ID tidak ditemukan */}
                         {data.display_mata_kuliah && !data.id_mata_kuliah && (
                             <p className="text-red-500 text-xs mt-1">
                                 Mata kuliah tidak ditemukan di database.
@@ -353,15 +321,15 @@ export default function Stase() {
                         )}
                     </div>
 
-                    {/* 🔥 INPUT SUGGEST: TUJUAN PEMBELAJARAN */}
+                    {/* INPUT SUGGEST: TUJUAN PEMBELAJARAN */}
                     <div>
                         <OsInput
                             label="Tujuan Pembelajaran"
                             type="suggest"
-                            name="display_tujuan" // Gunakan field Display
+                            name="display_tujuan"
                             value={data.display_tujuan}
-                            onChange={handleTujuanChange} // Gunakan handler khusus
-                            suggestions={suggestTujuan} // List Nama Tujuan
+                            onChange={handleTujuanChange}
+                            suggestions={suggestTujuan}
                             placeholder="Ketik atau pilih Tujuan..."
                             required
                         />
