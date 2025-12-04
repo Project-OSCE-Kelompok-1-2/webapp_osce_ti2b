@@ -199,7 +199,12 @@ class DatabaseSeeder extends Seeder
                 'nama' => 'Resusitasi Jantung Paru (RJP)',
                 'ruang' => 'Ruang IGD',
                 'skenario' => 'Saudara bertugas sebagai tim PSC 119 di wilayah Kota, sedang berpatroli di jalan dan menemukan Seorang laki laki, tergeletak di pinggir jalan, kira-kira usianya diatas 50an tahun. Tampaknya orang tersebut sedang dalam kegiatan jogging. Saat disapa tidak ada respon sama sekali, badan dan ekstremitas teraba dingin.',
-                'tujuan' => 'Mahasiswa mampu mendemonstrasikan tindakan RJP dengan menggunakan alat peraga berupa manikin dan mampu menggunakan AED.',
+                'tujuan' => [
+                    'Mahasiswa mampu mendemonstrasikan tindakan RJP dengan menggunakan alat peraga berupa manikin dan mampu menggunakan AED.',
+                    'Mahasiswa mampu melakukan kompresi dada berkualitas tinggi (High Quality CPR) sesuai standar.',
+                    'Mahasiswa mampu memberikan ventilasi yang efektif menggunakan Bag Valve Mask (BVM).',
+                    'Mahasiswa mampu melakukan evaluasi pasca resusitasi.'
+                ],
                 'aspek' => [
                     [
                         'nama' => 'A. Tahap Pre Interaksi',
@@ -263,7 +268,12 @@ class DatabaseSeeder extends Seeder
                 'nama' => 'Perawatan Traksi (Tulang)',
                 'ruang' => 'Ruang Rawat Inap A',
                 'skenario' => 'Tn. B (42 tahun) mengalami kecelakaan lalu lintas yang mengakibatkan fraktur pada tibia dextra. Di ruang gawat darurat, dokter memasang traksi tulang dengan beban traksi 8kg. saat ini Tn.B dirawat di bangsal ortopedi untuk pemulihan kondisi dan perawatan traksi. Tiap hari Ns. Arika melakukan perawatan traksi dengan mengecek kondisi neurovascular bagian distal kaki kanan yang terpasang traksi.',
-                'tujuan' => 'Mahasiswa mampu melaksanakan perawatan traksi dengan menerapkan prinsip aseptik.',
+                'tujuan' => [
+                    'Mahasiswa mampu menjelaskan prinsip kerja traksi tulang dan kulit.',
+                    'Mahasiswa mampu melakukan pengkajian neurovaskuler distal (5P: Pain, Pallor, Pulselessness, Paresthesia, Paralysis).',
+                    'Mahasiswa mampu melakukan perawatan luka tusukan pin (pin site care) dengan teknik aseptik.',
+                    'Mahasiswa mampu memastikan posisi dan beban traksi berfungsi dengan benar.'
+                ],
                 'aspek' => [
                     [
                         'nama' => 'A. Tahap Pre Interaksi',
@@ -330,7 +340,12 @@ class DatabaseSeeder extends Seeder
                 'nama' => 'Perekaman EKG 12 Lead',
                 'ruang' => 'Ruang Komunitas',
                 'skenario' => 'Ny. Ana, 40 th, datang ke poli jatung dengan keluhan dada terasa berdebar-debar, mudah lelah saat beraktifitas. Setelah dilakukan anamnesa singkat dokter meminta perawat untuk melakukan perekaman EKG 12 lead.',
-                'tujuan' => 'Mahasiswa mampu mendemontrasikan ketrampilan perekaman EKG 12 lead dengan mode manual.',
+                'tujuan' => [
+                    'Mahasiswa mampu mempersiapkan pasien dan alat untuk perekaman EKG.',
+                    'Mahasiswa mampu menentukan lokasi pemasangan elektroda ekstremitas dan prekordial (V1-V6) dengan tepat.',
+                    'Mahasiswa mampu mengoperasikan mesin EKG untuk mendapatkan hasil rekaman yang bebas artefak.',
+                    'Mahasiswa mampu mengidentifikasi kelainan irama jantung dasar dari hasil rekaman.',
+                ],
                 'aspek' => [
                     [
                         'nama' => 'A. Pra-Interaksi',
@@ -388,7 +403,13 @@ class DatabaseSeeder extends Seeder
                 'nama' => 'Hecting (Menjahit Luka Sederhana)',
                 'ruang' => 'Ruang Bedah',
                 'skenario' => 'Seorang laki-laki (35 tahun) masuk di Instalasi Gawat Darurat (IGD) RS Z karena kecelakaan lalu lintas. Setelah perawat melakukan pemeriksaan head to toe, didapatkan luka laserasi dengan kedalaman 0,5 cm, dan diameter luka 5 cm di tibia kiri. Kondisi luka agak kotor, terdapat serpihan pasir dan rembesan darah. Perawat jaga segera melakukan penjahitan luka sederhana dan perawatan luka untuk mencegah infeksi.',
-                'tujuan' => 'Mampu menjelaskan indikasi dan mendemonstrasikan prosedur penjahitan luka.',
+                'tujuan' => [
+                    'Mahasiswa mampu melakukan persiapan alat bedah minor dan persiapan pasien secara steril.',
+                    'Mahasiswa mampu melakukan tindakan anestesi lokal (infiltrasi) dengan teknik yang benar.',
+                    'Mahasiswa mampu melakukan pencucian dan desinfeksi luka dengan prinsip aseptik.',
+                    'Mahasiswa mampu mendemonstrasikan teknik penjahitan luka sederhana (Simple Interrupted Suture).',
+                    'Mahasiswa mampu melakukan penutupan luka (dressing) pasca penjahitan.',
+                ],
                 'aspek' => [
                     [
                         'nama' => 'A. Tahap Pre Interaksi',
@@ -448,7 +469,12 @@ class DatabaseSeeder extends Seeder
                 'nama' => 'Balut Bidai (Pembidaian)',
                 'ruang' => 'Ruang Bedah Minor',
                 'skenario' => 'Ny. Eka, usia 47 tahun, mengalami kecelakaan lalu lintas dengan keluhan nyeri hebat di bagian cruris (tibia fibula) dextra. Saat dikaji, pasien mengatakan tidak mampu menggerakkan kaki kanan dan setelah dibandingan dengan kaki kiri terlihat perbedaan panjang kedua kaki. Dicurigai ada fraktur os. tibia dan os. fibula dekstra. Ns. Adi yang saat itu berada di lokasi kejadian mempersiapkan untuk melakukan tindakan pembidaian pada Ny. Eka.',
-                'tujuan' => 'Mendemonstrasikan tindakan pembebatan dan pembidaian.',
+                'tujuan' => [
+                    'Mahasiswa mampu mengidentifikasi indikasi pembidaian pada kasus trauma.',
+                    'Mahasiswa mampu melakukan pemeriksaan neurovaskuler (PMS) sebelum dan sesudah tindakan.',
+                    'Mahasiswa mampu memilih dan memasang bidai yang melewati dua sendi.',
+                    'Mahasiswa mampu melakukan teknik fiksasi bidai yang kuat namun tidak mengganggu sirkulasi.',
+                ],
                 'aspek' => [
                     [
                         'nama' => 'A. Pra-Interaksi',
@@ -501,7 +527,13 @@ class DatabaseSeeder extends Seeder
                 'nama' => 'Terapi Oksigen & Nebulisasi',
                 'ruang' => 'Ruang ICU',
                 'skenario' => 'Tn. Budi, 35 tahun, dirawat karena asma akut. la datang dengan sesak napas dan napas cepat. Saturasi oksigen 85%. Pasien diberi oksigen 12 L/menit dengan Non-Rebreathing Mask, saturasi meningkat menjadi 96%. Terapi dilanjutkan dengan nebulisasi ventolin 5 mg',
-                'tujuan' => 'Mahasiswa mampu mendemonstrasikan keterampilan pemberian terapi oksigen dan nebulisasi.',
+                'tujuan' => [
+                    'Mahasiswa mampu mengkaji status oksigenasi pasien dan indikasi terapi oksigen.',
+                    'Mahasiswa mampu memilih alat terapi oksigen yang tepat (Nasal Kanul, Masker, NRM) sesuai kondisi.',
+                    'Mahasiswa mampu mempersiapkan dan memberikan terapi oksigen dengan flow rate yang sesuai.',
+                    'Mahasiswa mampu melakukan prosedur nebulisasi dengan benar.',
+                    'Mahasiswa mampu mengevaluasi respon pasien terhadap terapi (SpO2, suara napas).',
+                ],
                 'aspek' => [
                     [
                         'nama' => 'A. Persiapan',
@@ -556,7 +588,12 @@ class DatabaseSeeder extends Seeder
                 'nama' => 'Perawatan Trakeostomi & Suctioning',
                 'ruang' => 'Ruang Rawat Inap B',
                 'skenario' => 'Ny. D (40 tahun) dengan diagnose medis Stroke hemoragik, baru saja menjalani tindakan trakeostomi. Keadaan pasien stabil dengan kesadaran GCS 2:3:2. Saat ini terpasang trakeostomi tube dengan balon masih dikembangkan, sekitar luka kering, tidak ada rembesan darah. Program post trakeostomi meliputi: rawat trakeostomi secara aseptic, balon dikembangkan sampai dengan produksi sekret stabil, suctioning dilakukan jika pasien tidak adekuat mengeluarkan sekret.',
-                'tujuan' => 'Mahasiswa mampu melakukan tindakan perawatan TT dan penghisapan lendir dengan prinsip aseptic.',
+                'tujuan' => [
+                    'Mahasiswa mampu mengkaji kebutuhan suctioning pada pasien dengan trakeostomi.',
+                    'Mahasiswa mampu melakukan prosedur suctioning melalui trakeostomi dengan prinsip steril.',
+                    'Mahasiswa mampu melakukan perawatan stoma trakeostomi (pembersihan luka, ganti balutan).',
+                    'Mahasiswa mampu melakukan penggantian tali pengikat trakeostomi dengan aman.',
+                ],
                 'aspek' => [
                     [
                         'nama' => 'A. Tahap Pra Interaksi',
@@ -637,24 +674,39 @@ class DatabaseSeeder extends Seeder
 
         // Create Stase, Aspek, Poin, Ruang
         foreach ($daftarStase as $index => $dataStase) {
-            $ruang = Ruang::factory()->create(['nomor_ruangan' => 'R-' . ($index + 1), 'lokasi' => $dataStase['ruang']]);
+            // 1. Buat RUANG dulu
+            $ruang = Ruang::factory()->create([
+                'nomor_ruangan' => 'R-' . ($index + 1),
+                'lokasi' => $dataStase['ruang']
+            ]);
             $ruangs->push($ruang);
 
-            $tujuan = TujuanPembelajaran::factory()->create(['tujuan' => $dataStase['tujuan']]);
+            // 2. Buat STASE (Parent)
+            // Ini WAJIB dibuat sebelum Tujuan Pembelajaran agar kita punya id_stase
             $stase = Stase::factory()->create([
                 'id_mata_kuliah' => $dataStase['mk_id'],
-                'id_tujuan_pembelajaran' => $tujuan->id_tujuan_pembelajaran,
                 'nama_stase' => $dataStase['nama'],
-                'deskripsi' => $dataStase['tujuan']
+                'deskripsi' => implode("\n", $dataStase['tujuan'])
             ]);
             $staseObjects->push($stase);
 
+            // 3. Buat TUJUAN PEMBELAJARAN (Child)
+            // Loop setiap poin tujuan yang ada di array, dan masukkan id_stase yang baru dibuat
+            foreach ($dataStase['tujuan'] as $poinTujuan) {
+                TujuanPembelajaran::factory()->create([
+                    'id_stase' => $stase->id_stase,
+                    'tujuan' => $poinTujuan
+                ]);
+            }
+
+            // 4. Buat ASPEK & POIN PENILAIAN
             foreach ($dataStase['aspek'] as $dataAspek) {
                 $aspek = AspekPenilaian::factory()->create([
                     'id_stase' => $stase->id_stase,
                     'aspek' => $dataAspek['nama'],
                     'bobot_maksimum' => $dataAspek['bobot']
                 ]);
+
                 foreach ($dataAspek['poin'] as $dataPoin) {
                     PoinAspekPenilaian::factory()->create([
                         'id_aspek_penilaian' => $aspek->id_aspek_penilaian,

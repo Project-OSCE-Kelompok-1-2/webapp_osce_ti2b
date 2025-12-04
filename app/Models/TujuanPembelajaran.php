@@ -11,10 +11,10 @@ class TujuanPembelajaran extends Model
 
     protected $table = 'tujuan_pembelajaran';
     protected $primaryKey = 'id_tujuan_pembelajaran';
-    protected $fillable = ['tujuan'];
+    protected $fillable = ['id_stase', 'tujuan'];
 
     public function stase()
     {
-        return $this->hasMany(Stase::class, 'id_tujuan_pembelajaran');
+        return $this->belongsTo(Stase::class, 'id_stase');
     }
 }

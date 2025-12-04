@@ -3,7 +3,6 @@
 namespace Database\Factories;
 
 use App\Models\MataKuliah;
-use App\Models\TujuanPembelajaran;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class StaseFactory extends Factory
@@ -12,7 +11,6 @@ class StaseFactory extends Factory
     {
         return [
             'id_mata_kuliah' => MataKuliah::inRandomOrder()->first()->id_mata_kuliah ?? MataKuliah::factory(),
-            'id_tujuan_pembelajaran' => TujuanPembelajaran::inRandomOrder()->first()->id_tujuan_pembelajaran ?? TujuanPembelajaran::factory(),
             'nama_stase' => 'Stase ' . $this->faker->word(),
             'deskripsi' => $this->faker->sentence(),
         ];
