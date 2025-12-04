@@ -70,50 +70,68 @@ class RekapNilaiController extends Controller
      * GET /admin/rekap-nilai/{id_osce}/sesi
      * List sesi berdasarkan tanggal untuk OSCE tertentu
      */
-    public function listSesi(Request $request, $id_osce) // <-- 2. Tambahkan Request
+public function listSesi(Request $request, $id_osce)
     {
-        // 3. [FIX] Ambil data OSCE untuk breadcrumb dan ID
         $osce = Osce::findOrFail($id_osce);
-
         $search = $request->input('search');
 
-        // 4. [FIX] Query diubah untuk paginasi
         $query = DB::table('osce_stase')
             ->where('id_osce', $id_osce)
-            ->whereNotNull('tanggal'); // Hanya sesi yang sudah di-set
+            ->whereNotNull('tanggal');
 
         if ($search) {
             $query->where('tanggal', 'like', "%{$search}%");
         }
 
-        // Grup berdasarkan tanggal saja (sesuai logika Anda sebelumnya)
-        $sesi_paginated = $query->select('tanggal', DB::raw('COUNT(*) as stase_count'))
-            ->groupBy('tanggal')
+        // PERBAIKAN: Group by Tanggal DAN Jam Mulai
+        $sesi_paginated = $query->select(
+                'tanggal', 
+                'jam_mulai', // Tambahkan jam_mulai
+                DB::raw('COUNT(*) as stase_count')
+            )
+            ->groupBy('tanggal', 'jam_mulai') // Group dua kolom
             ->orderBy('tanggal', 'asc')
-            ->paginate(10) // Terapkan paginasi
+            ->orderBy('jam_mulai', 'asc') // Urutkan jam juga
+            ->paginate(10)
             ->withQueryString();
 
-        // 5. [FIX] Transformasi data paginasi
         $sesi_data = $sesi_paginated->through(function ($sesi_group) use ($id_osce) {
             
-            // Hitung jumlah mahasiswa untuk tanggal sesi ini
-            $jumlah_mahasiswa = EnrollmentOsce::where('id_osce', $id_osce)
-                ->where('tanggal_sesi', $sesi_group->tanggal)
-                ->distinct('id_mahasiswa') // Hitung mahasiswa unik
-                ->count();
+            // Hitung mahasiswa unik untuk (tanggal + jam) ini
+            // Perlu disesuaikan logicnya jika enrollment juga mencatat jam, 
+            // Jika enrollment hanya tanggal, maka angka ini mungkin kurang akurat per jam.
+            // ASUMSI: EnrollmentOsce punya kolom 'jam_sesi' atau mirip.
+            // Jika tidak, kita gunakan filter tanggal saja dulu.
+            
+            $mahasiswaQuery = EnrollmentOsce::where('id_osce', $id_osce)
+                ->where('tanggal_sesi', $sesi_group->tanggal);
+                
+            // OPTIONAL: Jika tabel enrollment_osce punya jam, tambahkan filter ini:
+            // ->where('jam_sesi', $sesi_group->jam_mulai)
+
+            $jumlah_mahasiswa = $mahasiswaQuery->distinct('id_mahasiswa')->count();
+
+            // Format Jam (hapus detik jika ada, misal 08:00:00 -> 08:00)
+            $jam_formatted = substr($sesi_group->jam_mulai, 0, 5); 
 
             return [
-                // Gunakan tanggal sebagai ID Sesi, sesuai contract
-                'id_sesi' => $sesi_group->tanggal, 
-                // Format tanggal agar rapi
-                'tanggal_sesi' => (new \DateTime($sesi_group->tanggal))->format('d M Y'),
+                // ID Sesi gabungan agar unik di URL
+                'id_sesi' => $sesi_group->tanggal . '_' . str_replace(':', '', $jam_formatted), 
+                
+                // Kirim data terpisah agar fleksibel di frontend
+                'tanggal_sesi_raw' => $sesi_group->tanggal,
+                'jam_sesi_raw' => $jam_formatted,
+                
+                // Format gabungan untuk tampilan
+                'tampilan_sesi' => (new \DateTime($sesi_group->tanggal))->format('d M Y') . ' — Pukul ' . $jam_formatted,
+                
                 'jumlah_mahasiswa' => $jumlah_mahasiswa,
             ];
         });
 
         return Inertia::render('Admin/RekapSesiPage', [
-            'osce' => $osce, // <-- 6. [FIX] Kirim objek OSCE
-            'sesi' => $sesi_data, // <-- 7. [FIX] Kirim data paginasi
+            'osce' => $osce,
+            'sesi' => $sesi_data,
             'filters' => $request->only(['search']),
         ]);
     }
@@ -124,25 +142,38 @@ class RekapNilaiController extends Controller
      */
     public function listMahasiswaPerStase(Request $request, $id_osce, $id_sesi)
     {
-        // $id_sesi di sini adalah string tanggal, contoh: "2025-11-10"
-        $sesi_tanggal = $id_sesi; 
+        // [BAGIAN BARU] 1. MEMECAH ID_SESI
+        // Format id_sesi dari URL adalah: "2025-12-04_1456" (Tanggal_Jam)
+        // Kita harus pisahkan agar PHP bisa membaca Tanggalnya saja.
+        
+        $parts = explode('_', $id_sesi); // Pecah berdasarkan garis bawah (_)
+        $sesi_tanggal = $parts[0]; // Ambil bagian depan: "2025-12-04"
+        
+        // Ambil jam (bagian belakang) untuk keperluan tampilan
+        $sesi_jam_raw = isset($parts[1]) ? $parts[1] : ''; 
+        
+        // Format jam agar cantik (misal 1456 menjadi 14:56)
+        $sesi_jam_display = '';
+        if (strlen($sesi_jam_raw) == 4) {
+            $sesi_jam_display = substr($sesi_jam_raw, 0, 2) . ':' . substr($sesi_jam_raw, 2, 2);
+        }
 
-        // 1. Ambil data OSCE untuk breadcrumb
+        // 2. Ambil data OSCE
         $osce = Osce::findOrFail($id_osce);
 
-        // 2. Ambil data filter dari request
+        // 3. Filter Query
         $search = $request->input('search');
-        $angkatan = $request->input('angkatan'); // Ini akan memfilter 'kelas'
+        $angkatan = $request->input('angkatan'); 
 
-        // 3. Ambil ID mahasiswa yang ter-enroll di SESI INI
-        $enrolled_ids = EnrollmentOsce::where('id_osce', $id_osce)
-            ->where('tanggal_sesi', $sesi_tanggal)
-            ->pluck('id_mahasiswa'); // -> [1, 5, 12]
+        // 4. Query Enrollment (Filter berdasarkan Tanggal yang sudah dibersihkan)
+        $enrolledQuery = EnrollmentOsce::where('id_osce', $id_osce)
+            ->where('tanggal_sesi', $sesi_tanggal); // <-- Pakai $sesi_tanggal, JANGAN $id_sesi
 
-        // 4. Query model Mahasiswa HANYA yang ID-nya ada di daftar enrollment
+        $enrolled_ids = $enrolledQuery->pluck('id_mahasiswa');
+
+        // 5. Query Mahasiswa
         $mahasiswa_query = Mahasiswa::whereIn('id_mahasiswa', $enrolled_ids);
 
-        // 5. Terapkan filter
         if ($search) {
             $mahasiswa_query->where(function ($q) use ($search) {
                 $q->where('nama', 'like', "%{$search}%")
@@ -153,9 +184,8 @@ class RekapNilaiController extends Controller
             $mahasiswa_query->where('kelas', $angkatan);
         }
 
-        // 6. Paginate hasilnya
         $mahasiswa_list = $mahasiswa_query->orderBy('nama', 'asc')
-            ->paginate(20) // Sesuaikan jumlah jika perlu
+            ->paginate(20)
             ->withQueryString()
             ->through(fn ($mhs) => [
                 'id_mahasiswa' => $mhs->id_mahasiswa,
@@ -163,18 +193,20 @@ class RekapNilaiController extends Controller
                 'nama' => $mhs->nama,
             ]);
 
-        // 7. Render halaman React dengan props yang benar
+        // 6. Render
         return Inertia::render('Admin/RekapMahasiswaPage', [
             'osce' => $osce,
             'sesi' => [
-                'tanggal' => $sesi_tanggal,
-                'tanggal_formatted' => (new \DateTime($sesi_tanggal))->format('d M Y')
+                'id' => $id_sesi, // ID asli untuk URL
+                'tanggal' => $sesi_tanggal, // Tanggal bersih
+                // [FIX UTAMA] Gunakan $sesi_tanggal untuk format DateTime, bukan $id_sesi
+                'tanggal_formatted' => (new \DateTime($sesi_tanggal))->format('d M Y'),
+                'jam' => $sesi_jam_display 
             ],
-            'mahasiswa_list' => $mahasiswa_list, // Ganti nama prop
+            'mahasiswa_list' => $mahasiswa_list,
             'filters' => $request->only(['search', 'angkatan']),
         ]);
     }
-
     /**
      * TUGAS 2
      * GET /admin/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}
@@ -196,6 +228,14 @@ class RekapNilaiController extends Controller
             if (!$enrollment) {
             abort(404, 'Data mahasiswa untuk OSCE ini tidak ditemukan.');
         }
+
+        $tgl = $enrollment->tanggal_sesi; // Contoh: "2025-12-04"
+        
+        // Ambil 5 karakter pertama jam (14:56) lalu hilangkan titik dua (1456)
+        $jam_raw = substr($enrollment->jam_sesi, 0, 5); 
+        $jam_clean = str_replace(':', '', $jam_raw);
+        
+        $id_sesi_kembali = $tgl . '_' . $jam_clean;
 
         // Ambil semua nilai mahasiswa untuk OSCE tertentu beserta relasi stase, aspek penilaian, dan poin aspek penilaian
         $nilaiOsce = NilaiOsce::with([
@@ -283,6 +323,9 @@ class RekapNilaiController extends Controller
                 'id_osce' => $enrollment->osce->id_osce,
                 'nama_osce' => $enrollment->osce->nama_osce ?? '-',
             ],
+
+            'id_sesi_kembali' => $id_sesi_kembali,
+            
             'nilai_per_stase' => array_values(array_map(function ($stase) {
                 $stase['aspek_penilaian'] = array_values($stase['aspek_penilaian']);
                 return $stase;
