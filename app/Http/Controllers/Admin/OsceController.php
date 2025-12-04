@@ -28,9 +28,19 @@ class OsceController extends Controller
 
         $osceList = $this->service->getAll($search, $tahun);
 
+        // [PENTING] Ambil data tahun akademik untuk dropdown
+        $tahunAkademikOptions = TahunAkademik::orderBy('tahun', 'desc')
+            ->get()
+            ->map(fn($t) => [
+                'label' => $t->tahun . ' - ' . $t->semester,
+                'value' => $t->id_tahun_akademik 
+            ]);
+            
+
         return Inertia::render('Admin/OsceListPage', [
             'osce' => $osceList['data'],
             'filters' => $request->only(['search', 'tahun']),
+            'tahunAkademikOptions' => $tahunAkademikOptions, // Kirim ke Frontend
         ]);
     }
 
@@ -59,16 +69,12 @@ class OsceController extends Controller
             'label' => $th->tahun . ' - ' . $th->semester,
         ]);
 
-        return Inertia::render('Admin/TambahOsce', [ // Menggunakan form yang sama
+        return Inertia::render('Admin/TambahOsce', [ 
             'tahunAkademikOptions' => $tahunAkademik,
-            'osce' => $osce, // Kirim data OSCE yang akan diedit
+            'osce' => $osce,
         ]);
     }
 
-    /**
-     * Memperbarui data OSCE.
-     * PUT /admin/osce/{osce}
-     */
     public function update(Request $request, Osce $osce)
     {
         // Validasi sama seperti store, tapi 'nama_osce' boleh sama dengan dirinya sendiri
@@ -89,10 +95,6 @@ class OsceController extends Controller
         return Redirect::route('admin.osce.index')->with('success', 'Data OSCE berhasil diperbarui.');
     }
 
-    /**
-     * Menghapus data OSCE.
-     * DELETE /admin/osce/{osce}
-     */
     public function destroy(Osce $osce)
     {
         try {
