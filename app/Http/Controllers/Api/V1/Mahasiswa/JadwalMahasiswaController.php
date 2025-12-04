@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1\Mahasiswa;
 use App\Http\Controllers\Controller;
 use App\Services\JadwalMahasiswaService;
 use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse; // Tambahkan ini
+use Illuminate\Http\JsonResponse;
 
 class JadwalMahasiswaController extends Controller
 {
@@ -17,24 +17,14 @@ class JadwalMahasiswaController extends Controller
     }
 
     /**
-     * Menampilkan data Jadwal OSCE Mahasiswa
-     * GET /api/v1/mahasiswa/jadwal-osce
-     * * @return JsonResponse // Tipe hint yang eksplisit
+     * Menampilkan data Jadwal OSCE untuk Mahasiswa yang sedang login.
+     * GET /mahasiswa/jadwal-mahasiswa
+     * * @return JsonResponse
      *
-     * @response 200 array{
-     * success: bool,
-     * data: array{
-     * exam_header: array{id_osce: int, judul: string, tanggal_formatted: string, waktu_mulai: string, waktu_selesai: string, countdown_target: string},
-     * schedule_table: array{
-     * items: array<int, array{no: int, stase_keterampilan: string, waktu: string, ruangan: string, penguji: string}>, 
-     * pagination: array{current_page: int, total_pages: int, total_items: int}
-     * }
-     * }
-     * }
-     * @response 403 array{success: bool, message: string}
-     * @response 404 array{success: bool, message: string}
+     * @response 200 array{...} 
+     * // Scramble akan mendokumentasikan skema output JSON di sini
      */
-    public function index()
+    public function show_jadwal() // <-- Nama method sudah disesuaikan
     {
         try {
             $idMahasiswa = $this->jadwalmahasiswaService->getCurrentMahasiswaId();

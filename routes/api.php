@@ -19,6 +19,7 @@ use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
 use App\Http\Controllers\Mahasiswa\ProfilMahasiswaController;
 use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
+use App\Http\Controllers\Api\V1\Mahasiswa\JadwalMahasiswaController;
 
 
 Route::prefix('v1')->group(function () {
@@ -112,7 +113,7 @@ Route::prefix('v1')->group(function () {
            Route::post('/mahasiswa/profil/update', [ProfilMahasiswaController::class, 'update_account'])
             ->name('api.mahasiswa.account.update');
 
-            Route::get('/mahasiswa/jadwal-mahasiswa', [JadwalMahasiswar::class, 'index']) ->name('api.mahasiswa.jadwal.index');
+            Route::get('/mahasiswa/jadwal-mahasiswa', [JadwalMahasiswaController::class, 'show_jadwal']) ->name('api.mahasiswa.show.jadwal');
 
             // Profil Penguji
             Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
