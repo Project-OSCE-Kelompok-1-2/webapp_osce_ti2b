@@ -16,29 +16,56 @@ import OsModal from "../../components/Modal.jsx";
 import OsInput from "../../components/input.jsx";
 import Modals from "../../components/Modals.jsx";
 
+// const staseColumns = [
+//     {
+//         key: "no",
+//         content: "No",
+//         width: "w-16",
+//         classes: "justify-center items-center",
+//     },
+//     {
+//         key: "nama_stase",
+//         content: "Nama Stase",
+//         width: "w-7/12",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "jumlah_aspek",
+//         content: "Jumlah Aspek",
+//         width: "w-2/12",
+//         classes: "justify-center items-center px-4",
+//     },
+//     {
+//         key: "action",
+//         content: "Aksi",
+//         width: "w-3/12",
+//         classes: "justify-center items-center px-4",
+//     },
+// ];
+
 const staseColumns = [
     {
         key: "no",
         content: "No",
-        width: "w-16",
+        width: "w-16 shrink-0",
         classes: "justify-center items-center",
     },
     {
         key: "nama_stase",
         content: "Nama Stase",
-        width: "w-7/12",
+        width: "w-[400px] shrink-0", // Ganti w-7/12
         classes: "justify-start items-center px-4",
     },
     {
         key: "jumlah_aspek",
         content: "Jumlah Aspek",
-        width: "w-2/12",
+        width: "w-32 shrink-0", // Ganti w-2/12
         classes: "justify-center items-center px-4",
     },
     {
         key: "action",
         content: "Aksi",
-        width: "w-3/12",
+        width: "w-48 shrink-0", // Ganti w-3/12
         classes: "justify-center items-center px-4",
     },
 ];
@@ -268,16 +295,21 @@ export default function Stase() {
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Stase
                     </h2>
-                    <OsTableHeader columns={staseColumns} />
-                    <OsTableBody data={tableData} columns={staseColumns} />
+                    
+                    <div className="w-full overflow-x-auto pb-4">
+                        <div className="min-w-max">
+                            <OsTableHeader columns={staseColumns} />
+                            <OsTableBody data={tableData} columns={staseColumns} />
 
-                    {stase.data.length === 0 && (
-                        <div className="flex items-center border-t border-gray-400">
-                            <p className="w-full text-center text-sm py-os-48 text-gray-500">
-                                Data stase tidak ditemukan.
-                            </p>
+                            {stase.data.length === 0 && (
+                                <div className="flex items-center border-t border-gray-400">
+                                    <p className="w-full text-center text-sm py-os-48 text-gray-500">
+                                        Data stase tidak ditemukan.
+                                    </p>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
                     {stase.links?.length > 0 && (
                         <OsPagination links={stase.links} />
                     )}
