@@ -17,6 +17,7 @@ use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
 use App\Http\Controllers\Api\V1\ViewNilaiController;
 use App\Http\Controllers\Api\V1\InputNilaiController;
 use App\Http\Controllers\Api\Penguji\ProfilController;
+use App\Http\Controllers\Api\Penguji\AksiPenilaianApiController;
 use App\Http\Controllers\Api\V1\ApiHalamanPenilaian;
 
 
@@ -42,6 +43,26 @@ Route::prefix('v1')->group(function () {
 
         Route::prefix('admin')->middleware('roleApi:admin')->group(function () {
 
+        // Profil Penguji
+        Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
+            ->name('api.penguji.account.show');
+        
+        Route::post('/penguji/profil/update', [ProfilController::class, 'update_account'])
+            ->name('api.penguji.account.update');
+        
+        
+        // Route::get('/penguji/nilai/{id_enrollment_osce}', 
+        //     [AksiPenilaianApiController::class, 'showNilai']);
+
+        Route::post('/penguji/penilaian/{id_enrollment_osce}', 
+            [AksiPenilaianApiController::class, 'storePenilaian']);
+
+        Route::get('/penguji/rotasi/{id_osce_stase}', 
+            [AksiPenilaianApiController::class, 'rotasi']);
+
+        Route::get('/penguji/selesai/{id_osce_stase}',
+            [AksiPenilaianApiController::class, 'selesai']);
+    });
             // --- Admin Dashboard & Profile ---
             Route::get('/dashboard', [AdminController::class, 'dashboard']);
 
