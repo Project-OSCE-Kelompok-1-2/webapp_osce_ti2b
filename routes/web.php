@@ -170,39 +170,12 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi'])->name('rekap.sesi');
     Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerStase'])->name('rekap.mahasiswa');
 
-    // --- Dummy Detail Rekap ---
-    Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}', function () {
-        $dummyData = [
-            "mahasiswa" => ["nama" => "Riko Aditya (Dummy)", "nim" => "123456", "id_mahasiswa" => 1],
-            "osce" => ["nama_osce" => "OSCE Radiologi 01-A (Dummy)"],
-            "nilai_per_stase" => [
-                [
-                    "nama_stase" => "Stase Bedah Umum",
-                    "nama_penguji" => "Dr. Afkar",
-                    "nilai_akhir_stase" => 22.25,
-                    "aspek_penilaian" => [
-                        [
-                            "aspek" => "Anamnesis",
-                            "kompetensi" => [
-                                ["kompetensi" => "Menyapa pasien", "skor" => 3, "bobot" => 10, "nilai" => 30],
-                                ["kompetensi" => "Keluhan utama", "skor" => 2, "bobot" => 10, "nilai" => 20]
-                            ]
-                        ],
-                        [
-                            "aspek" => "Pemeriksaan Fisik",
-                            "kompetensi" => [
-                                ["kompetensi" => "Inspeksi", "skor" => 3, "bobot" => 10, "nilai" => 30],
-                                ["kompetensi" => "Palpasi", "skor" => 1, "bobot" => 9, "nilai" => 9]
-                            ]
-                        ]
-                    ]
-                ]
-            ],
-            "nilai_total_osce" => 45.25
-        ];
+    // [PERBAIKAN] Gunakan method Controller Asli
+    Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}', [RekapNilaiController::class, 'detailNilaiMahasiswa'])
+        ->name('rekap.detail');
+    
+    // [BARU] Route Download PDF
+    Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}/download', [RekapNilaiController::class, 'downloadPdf'])
+        ->name('rekap.download');
 
-        return Inertia::render('Admin/RekapDetailPage', [
-            'detailNilai' => $dummyData
-        ]);
-    })->name('rekap.detail');
 });
