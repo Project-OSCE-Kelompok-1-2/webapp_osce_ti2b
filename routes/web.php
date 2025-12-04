@@ -212,8 +212,8 @@ Route::get('/mahasiswa/dashboard', function () {
         // 1. Mockup Data Auth User
         'auth' => [
             'user' => [
-                'name' => 'Khansa Mahasiswa',
-                'email' => 'khansa@student.univ.ac.id',
+                'name' => 'Damian Wayne',
+                'email' => 'robin444@student.univ.ac.id',
                 'foto' => null // Atau url foto jika ada
             ]
         ],
