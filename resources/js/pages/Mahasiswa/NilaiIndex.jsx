@@ -234,4 +234,108 @@ export default function NilaiIndex() {
                     </div>
                 </div>
 
+{/* Tabel Penilaian */}
+                <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow duration-300">
+                    <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+                        <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full bg-blue-600"></span>
+                            Daftar Nilai Ujian
+                        </h3>
+                        <span className="rounded-md bg-white px-3 py-1 text-xs font-medium text-gray-500 border border-gray-200 shadow-sm">
+                            Total: {filteredData.length} Data
+                        </span>
+                    </div>
+                    <table className="w-full text-left text-sm text-gray-600">
+                        <thead className="bg-gray-50 font-semibold uppercase text-gray-500 tracking-wider text-xs">
+                            <tr>
+                                <th className="px-6 py-4 text-center w-16">
+                                    No
+                                </th>
+                                <th className="px-6 py-4">Nama Ujian</th>
+                                <th className="px-6 py-4">Dosen Penguji</th>
+                                <th className="px-6 py-4 text-center">
+                                    Tanggal
+                                </th>
+                                <th className="px-6 py-4 text-center">Aksi</th>
+                                <th className="px-6 py-4 text-center">
+                                    Status
+                                </th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-100">
+                            {filteredData.length > 0 ? (
+                                filteredData.map((ujian, index) => (
+                                    <tr
+                                        key={ujian.id}
+                                        className="group hover:bg-blue-50/30 transition-colors"
+                                    >
+                                        <td className="px-6 py-4 text-center font-medium text-gray-400 group-hover:text-blue-600 transition-colors">
+                                            {index + 1}
+                                        </td>
+                                        <td className="px-6 py-4 font-semibold text-gray-800">
+                                            {ujian.nama_ujian}
+                                        </td>
+                                        <td className="px-6 py-4 text-gray-500">
+                                            {ujian.dosen_penguji}
+                                        </td>
+                                        <td className="px-6 py-4 text-center font-medium">
+                                            {ujian.tanggal_ujian}
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            <button
+                                                onClick={() =>
+                                                    alert(
+                                                        `Detail ID: ${ujian.id}`
+                                                    )
+                                                }
+                                                className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
+                                            >
+                                                Lihat Nilai
+                                            </button>
+                                        </td>
+                                        <td className="px-6 py-4 text-center">
+                                            <span
+                                                className={`inline-flex items-center justify-center w-24 rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase shadow-sm ${
+                                                    ujian.status_lulus
+                                                        ? "bg-green-100 text-green-700 ring-1 ring-green-600/20"
+                                                        : "bg-red-100 text-red-700 ring-1 ring-red-600/20"
+                                                }`}
+                                            >
+                                                {ujian.status_lulus
+                                                    ? "LULUS"
+                                                    : "TIDAK LULUS"}
+                                            </span>
+                                        </td>
+                                    </tr>
+                                ))
+                            ) : (
+                                <tr>
+                                    <td
+                                        colSpan="6"
+                                        className="px-6 py-16 text-center text-gray-400"
+                                    >
+                                        <div className="flex flex-col items-center justify-center gap-4">
+                                            <div className="rounded-full bg-gray-50 p-4 ring-1 ring-gray-100">
+                                                <FileText className="h-10 w-10 text-gray-300" />
+                                            </div>
+                                            <p>
+                                                Data ujian tidak ditemukan untuk
+                                                filter ini.
+                                            </p>
+                                        </div>
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+
+                {/* --- PAGINATION --- */}
+                {/* Menggunakan Mock Links untuk simulasi tampilan */}
+                <Pagination links={MOCK_LINKS} />
+            </main>
+        </div>
+    );
+}
+
                 
