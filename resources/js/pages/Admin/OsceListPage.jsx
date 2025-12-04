@@ -4,7 +4,7 @@ import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/Copyright.jsx";
 import OsButton from "../../components/button.jsx";
 import OsIcon from "../../components/icons";
-import OsInput from "os/components/inputs/OsInput.jsx";
+import OsInput from "../../components/input.jsx";
 import OsModal from "../../components/Modal.jsx";
 import { Head, router, usePage, Link } from "@inertiajs/react";
 import OsPagination from "../../components/pagination";

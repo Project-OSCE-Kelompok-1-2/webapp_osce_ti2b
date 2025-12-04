@@ -13,7 +13,7 @@ import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
 import OsModal from "../../components/Modal.jsx";
-import OsInput from "components/inputs/OsInput.jsx";
+import OsInput from "../../components/input.jsx";
 import Modals from "../../components/Modals.jsx";
 
 const staseColumns = [
