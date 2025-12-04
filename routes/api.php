@@ -3,10 +3,14 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ApiHalamanPenilaian;
+use App\Http\Controllers\Api\V1\ViewNilaiController;
 use App\Http\Controllers\Api\V1\Admin\OsceController;
+use App\Http\Controllers\Api\V1\InputNilaiController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
 use App\Http\Controllers\Api\V1\Admin\StaseController;
 use App\Http\Controllers\Api\V1\Admin\PengujiController;
+use App\Http\Controllers\Api\V1\Penguji\ProfilController;
 use App\Http\Controllers\Api\V1\Admin\MahasiswaController;
 use App\Http\Controllers\Api\V1\Admin\OsceStaseController;
 use App\Http\Controllers\Api\V1\Admin\KompetensiController;
@@ -14,10 +18,6 @@ use App\Http\Controllers\Api\V1\Admin\OsceJadwalController;
 use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
 use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
-use App\Http\Controllers\Api\V1\ViewNilaiController;
-use App\Http\Controllers\Api\V1\InputNilaiController;
-use App\Http\Controllers\Api\Penguji\ProfilController;
-use App\Http\Controllers\Api\V1\ApiHalamanPenilaian;
 
 
 Route::prefix('v1')->group(function () {
