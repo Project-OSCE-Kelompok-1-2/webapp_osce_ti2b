@@ -6,7 +6,7 @@ import {
     UserCheck,
     ExternalLink,
     Bookmark,
-    Bell
+    Bell,
 } from "lucide-react";
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
@@ -109,8 +109,11 @@ export default function Dashboard() {
         stats = { total_osce: 0, total_mahasiswa: 0, total_penguji: 0 },
         notifikasi = [],
     } = usePage().props || {};
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
     // format angka (2 digit seperti mock)
     const totalOsce = (stats.total_osce ?? 0).toString().padStart(2, "0");
     const totalMahasiswa = (stats.total_mahasiswa ?? 0)
@@ -120,10 +123,10 @@ export default function Dashboard() {
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
-                <OsHeader />
+                <OsHeader onMenuClick={handleSidebarToggle} />
 
                 {/* MAIN */}
                 <div className="">
@@ -144,7 +147,7 @@ export default function Dashboard() {
                 {/* Statistika */}
                 <section className="mb-2">
                     <div className="flex gap-os-8 items-center justify-start mb-2">
-                        <OsIcon name={"stat"} className="h-[15px]"/>
+                        <OsIcon name={"stat"} className="h-[15px]" />
                         <h2 className="font-bold text-os-regular text-gray-900">
                             Statistika
                         </h2>
@@ -196,7 +199,7 @@ export default function Dashboard() {
                 {/* Notifikasi */}
                 <section>
                     <div className="flex gap-os-8 items-center justify-start mb-2">
-                        <Bell size={18}/>
+                        <Bell size={18} />
                         <h2 className="font-bold text-os-regular text-gray-900">
                             Notifikasi
                         </h2>
