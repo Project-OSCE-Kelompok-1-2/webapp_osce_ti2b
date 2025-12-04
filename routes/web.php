@@ -66,11 +66,11 @@ Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')
     Route::get('/penilaian/{id_enrollment_osce}', [HalamanPenilaianController::class, 'showPenilaian'])
         ->name('penilaian.show');
 
-    Route::post('/stase/{id_osce_stase}/penilaian/{id_enrollment_osce}', [AksiPenilaianController::class, 'store'])
-        ->name('penilaian.store');
+Route::post('/penilaian/{id_enrollment_osce}', [AksiPenilaianController::class, 'store'])
+    ->name('penilaian.store');
 
     Route::get('/osce/{id_osce}/stase/{id_osce_stase}/rotasi', [AksiPenilaianController::class, 'rotasi'])
-        ->name('stase.rotasi');
+    ->name('rotasi');
 
     Route::post('/osce/{id_osce}/stase/{id_osce_stase}/selesai', [AksiPenilaianController::class, 'selesai'])
         ->name('penilaian.selesai');
