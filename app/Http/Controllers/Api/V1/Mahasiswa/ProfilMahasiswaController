@@ -1,20 +1,20 @@
 <?php
 
-namespace App\Http\Controllers\Api\Penguji;
+namespace App\Http\Controllers\Api\V1\Mahasiswa;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Services\ProfilService;
+use App\Services\ProfilMahasiswaService;
 use Exception;
 
-class ProfilController extends Controller
+class ProfilMahasiswaController extends Controller
 {
-    protected $profilService;
+    protected $profilmahasiswaService;
 
-    public function __construct(ProfilService $profilService)
+    public function __construct(ProfilMahasiswaService $profilmahasiswaService)
     {
-        $this->profilService = $profilService;
+        $this->profilmahasiswaService = $profilmahasiswaService;
     }
 
     /**
@@ -23,18 +23,20 @@ class ProfilController extends Controller
     public function show_profile()
     {
         $user = Auth::user();
-        $user->load('penguji');
+        $user->load('mahasiswa');
 
         return response()->json([
         'success' => true,
-        'message' => 'Detail profil penguji',
+        'message' => 'Detail profil mahasiswa',
         'data'    => [
             'id_pengguna' => $user->id_pengguna,
             'username'    => $user->username,
             'path_gambar' => $user->path_gambar,
-            // Ambil dari relasi
-            'nama'        => $user->penguji ? $user->penguji->nama : null,
-            'nip'         => $user->penguji ? $user->penguji->nip : null,
+            'nama'        => $user->mahasiswa ? $user->mahasiswa->nama : null,
+            'nim'         => $user->mahasiswa ? $user->mahasiswa->nim : null,
+            'kelas'       => $user->mahasiswa ? $user->mahasiswa->kelas : null,
+            'prodi'       => $user->mahasiswa ? $user->mahasiswa->prodi : null,
+            'status'      => $user->mahasiswa ? $user->mahasiswa->status : null,
         ]
     ], 200);
     }
@@ -44,7 +46,7 @@ class ProfilController extends Controller
      */
     public function update_account(Request $request)
     {
-        $penguji = Auth::user();
+        $mahasiswa = Auth::user();
 
         // Validasi
         $validator = \Validator::make($request->all(), [
@@ -63,8 +65,8 @@ class ProfilController extends Controller
         }
 
         try {
-            $updatedPenguji = $this->profilService->updateProfile(
-                $penguji, 
+            $updatedmahasiswa = $this->profilmahasiswaService->updateProfile(
+                $mahasiswa, 
                 $request->all(), 
                 $request->file('foto')
             );
@@ -72,7 +74,7 @@ class ProfilController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Profil berhasil diperbarui',
-                'data'    => $updatedPenguji
+                'data'    => $updatedmahasiswa
             ], 200);
 
         } catch (Exception $e) {

@@ -2,8 +2,8 @@
 
 namespace Database\Factories;
 
-use App\Models\Penguji;
 use App\Models\Pengguna;
+use App\Models\Penguji;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class PengujiFactory extends Factory
@@ -12,10 +12,14 @@ class PengujiFactory extends Factory
 
     public function definition(): array
     {
+        // Gelar dokter Indonesia
+        $gelarDepan = $this->faker->randomElement(['dr.', 'Dr. dr.', 'Prof. dr.']);
+        $gelarBelakang = $this->faker->randomElement(['Sp.PD', 'Sp.A', 'Sp.B', 'Sp.JP', 'Sp.S', 'M.Kes', 'Ph.D']);
+
         return [
             'id_pengguna' => Pengguna::factory()->state(['jenis_role' => 'penguji']),
-            'nama'        => $this->faker->name(),
-            'nip'         => $this->faker->unique()->numerify('1980#######'),
+            'nama' => $gelarDepan . ' ' . $this->faker->firstName() . ' ' . $this->faker->lastName() . ', ' . $gelarBelakang,
+            'nip' => $this->faker->unique()->numerify('19##########'), // Format NIP
         ];
     }
 }

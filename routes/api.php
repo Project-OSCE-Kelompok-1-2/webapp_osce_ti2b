@@ -3,21 +3,23 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Api\V1\ApiHalamanPenilaian;
+use App\Http\Controllers\Api\V1\ViewNilaiController;
 use App\Http\Controllers\Api\V1\Admin\OsceController;
+use App\Http\Controllers\Api\V1\InputNilaiController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
 use App\Http\Controllers\Api\V1\Admin\StaseController;
 use App\Http\Controllers\Api\V1\Admin\PengujiController;
+use App\Http\Controllers\Api\V1\Penguji\ProfilController;
 use App\Http\Controllers\Api\V1\Admin\MahasiswaController;
 use App\Http\Controllers\Api\V1\Admin\OsceStaseController;
 use App\Http\Controllers\Api\V1\Admin\KompetensiController;
 use App\Http\Controllers\Api\V1\Admin\OsceJadwalController;
 use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
+use App\Http\Controllers\Mahasiswa\ProfilMahasiswaController;
 use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
-use App\Http\Controllers\Api\V1\ViewNilaiController;
-use App\Http\Controllers\Api\V1\InputNilaiController;
-use App\Http\Controllers\Api\Penguji\ProfilController;
-use App\Http\Controllers\Api\V1\ApiHalamanPenilaian;
+use App\Http\Controllers\Api\V1\Mahasiswa\JadwalMahasiswaController;
 
 
 Route::prefix('v1')->group(function () {
@@ -104,6 +106,14 @@ Route::prefix('v1')->group(function () {
 
             // VIEW NILAI (Sudah ada)
             Route::get('/penilaian/{id_enrollment_osce}/view', ViewNilaiController::class);
+
+            // Profil Mahasiswa
+            Route::get('/mahasiswa/profil', [ProfilMahasiswaController::class, 'show_profile'])
+            ->name('api.mahasiswa.account.show');
+           Route::post('/mahasiswa/profil/update', [ProfilMahasiswaController::class, 'update_account'])
+            ->name('api.mahasiswa.account.update');
+
+            Route::get('/mahasiswa/jadwal-mahasiswa', [JadwalMahasiswaController::class, 'show_jadwal']) ->name('api.mahasiswa.show.jadwal');
 
             // Profil Penguji
             Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
