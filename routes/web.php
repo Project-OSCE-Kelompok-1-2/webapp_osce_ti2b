@@ -6,6 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 // --- Auth & Admin Controllers ---
 use App\Http\Controllers\AuthController;
+use App\Services\JadwalMahasiswaService;
 use App\Http\Controllers\Admin\OsceController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\StaseController;
@@ -16,9 +17,9 @@ use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Admin\OsceStaseController;
 use App\Http\Controllers\Admin\KompetensiController;
 use App\Http\Controllers\Admin\OsceJadwalController;
-use App\Http\Controllers\Admin\RekapNilaiController;
 
 // --- PENGUJI CONTROLLERS (LENGKAP) ---
+use App\Http\Controllers\Admin\RekapNilaiController;
 use App\Http\Controllers\Penguji\DashboardController;
 use App\Http\Controllers\Penguji\EditNilaiController;
 use App\Http\Controllers\Penguji\ViewNilaiController;
@@ -26,11 +27,11 @@ use App\Http\Controllers\Admin\AspekPenilaianController;
 use App\Http\Controllers\Admin\OsceEnrollmentController;
 use App\Http\Controllers\Penguji\AksiPenilaianController;
 use App\Http\Controllers\Penguji\HalamanPenilaianController;
-use App\Http\Controllers\Penguji\OsceController as PengujiOsceController;
 
 // --- MAHASISWA CONTROLLERS ---
-use App\Http\Controllers\Mahasiswa\ProfilMahasiswaController;
 use App\Http\Controllers\Mahasiswa\JadwalMahasiswaController;
+use App\Http\Controllers\Mahasiswa\ProfilMahasiswaController;
+use App\Http\Controllers\Penguji\OsceController as PengujiOsceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,7 +58,7 @@ Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasi
 
     Route::get('/pengaturan-akun', [ProfilMahasiswaController::class, 'show_profile'])->name('account.show');
     Route::post('/pengaturan-akun', [ProfilMahasiswaController::class, 'update_account'])->name('account.update');
-    Route::get('/jadwal', [JadwalMahasiswaController::class, 'index'])->name('mahasiswa.show.jadwal');
+    // Route::get('/jadwal-osce', [JadwalMahasiswaController::class, 'show_jadwal']);
 });
 // ===========================
 // === RUTE UNTUK PENGUJI ===
@@ -215,6 +216,4 @@ Route::get('mahasiswa/pengaturan-akun', function () {
 });
 
 // Testing Halaman Jadwal OSCE
-Route::get('mahasiswa/jadwal-osce', function () {
-    return Inertia::render('Mahasiswa/JadwalOscePage');
-});
+Route::get('mahasiswa/jadwal-osce', [JadwalMahasiswaController::class, 'show_jadwal']);

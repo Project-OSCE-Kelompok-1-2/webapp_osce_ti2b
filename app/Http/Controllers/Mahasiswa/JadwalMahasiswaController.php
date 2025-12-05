@@ -16,32 +16,48 @@ class JadwalMahasiswaController extends Controller
         $this->jadwalmahasiswaService = $jadwalmahasiswaService;
     }
 
-    public function index()
+    public function show_jadwal()
     {
         $idMahasiswa = $this->jadwalmahasiswaService->getCurrentMahasiswaId();
         
-        // 1. Handle jika bukan mahasiswa / user tidak valid
         if (!$idMahasiswa) {
             return redirect()->route('dashboard')->with('error', 'Akses khusus mahasiswa.');
         }
 
         $examInfo = $this->jadwalmahasiswaService->getActiveExamInfo($idMahasiswa);
-
-        // 2. Handle jika tidak ada ujian (bisa redirect atau render page kosong)
         if (!$examInfo) {
-            return Inertia::render('Mahasiswa/JadwalOsce/EmptyState', [
-                'message' => 'Tidak ada jadwal ujian aktif saat ini.'
-            ]);
+            return Inertia::render('Mahasiswa/JadwalOscePage', ['message' => 'Tidak ada jadwal ujian aktif saat ini.']);
         }
 
-        // 3. Ambil data tabel
         $stasePaginator = $this->jadwalmahasiswaService->getJadwalStase($examInfo['id_osce']);
 
+        // 🛑 PERBAIKAN KRITIS: TRANSFORMASI DATA DENGAN ->through()
+        // Kita petakan setiap item di dalam paginator ke format string yang aman.
+        $mappedStasePaginator = $stasePaginator->through(function ($item) {
+            
+            // 1. Ekstrak string nama penguji
+            $namaPenguji = $item->penguji 
+                            ? ($item->penguji->nama_gelar ?? optional($item->penguji->pengguna)->username ?? '-')
+                            : '-';
+
+            // 2. Ekstrak string nama ruangan
+            $namaRuangan = $item->ruang ? $item->ruang->nama_ruang : '-';
+            
+            // 3. Mengembalikan array data yang sudah di-'string'-kan
+            return [
+                'no' => $item->id, // atau gunakan counter pagination jika diperlukan
+                'id_osce_stase' => $item->id_osce_stase,
+                'stase_keterampilan' => $item->stase->nama_stase ?? 'N/A',
+                'waktu' => substr($item->jam_mulai, 0, 5) . ' - ' . substr($item->jam_selesai, 0, 5) . ' WIB',
+                'ruangan' => $namaRuangan, // Sekarang STRING
+                'penguji' => $namaPenguji, // Sekarang STRING
+            ];
+        });
+        
         // 4. Return Inertia Render
-        // Pastikan Anda punya file Page di: resources/js/Pages/Mahasiswa/JadwalOsce/Index.vue (atau .jsx)
-        return Inertia::render('Mahasiswa/JadwalOsce/Index', [
-            'examHeader' => $examInfo, // Object Header
-            'jadwalStase' => $stasePaginator, // Inertia otomatis menghandle object Pagination Laravel
+        return Inertia::render('Mahasiswa/JadwalOscePage', [
+            'examHeader' => $examInfo,
+            'jadwalStase' => $mappedStasePaginator, // Kirim Paginator yang sudah di-map
         ]);
     }
 }
