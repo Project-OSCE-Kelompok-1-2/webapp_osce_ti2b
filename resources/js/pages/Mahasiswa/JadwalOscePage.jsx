@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Head } from "@inertiajs/react";
+import React, { useState, useEffect } from "react";
+import { Head, usePage } from "@inertiajs/react";
 import {
     Calendar,
     Clock,
@@ -20,13 +20,50 @@ import OsTableBody from "../../components/tablecontain.jsx"; // Pastikan nama fi
 import OsPagination from "../../components/pagination.jsx";
 
 export default function JadwalOsce() {
+    const { examHeader, jadwalStase } = usePage().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [timeLeft, setTimeLeft] = useState({
+        days: 0,
+        hours: 0,
+        minutes: 0,
+        seconds: 0,
+    });
+
+    // --- COUNTDOWN LOGIC ---
+    useEffect(() => {
+        if (!examHeader?.countdown_target) return;
+
+        const targetDate = new Date(examHeader.countdown_target).getTime();
+
+        const interval = setInterval(() => {
+            const now = new Date().getTime();
+            const distance = targetDate - now;
+
+            if (distance < 0) {
+                clearInterval(interval);
+                setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+            } else {
+                setTimeLeft({
+                    days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+                    hours: Math.floor(
+                        (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+                    ),
+                    minutes: Math.floor(
+                        (distance % (1000 * 60 * 60)) / (1000 * 60)
+                    ),
+                    seconds: Math.floor((distance % (1000 * 60)) / 1000),
+                });
+            }
+        }, 1000);
+
+        return () => clearInterval(interval);
+    }, [examHeader]);
 
     // 1. Definisi Kolom
     const tableColumns = [
         {
             content: "No",
-            key: "id",
+            key: "no",
             width: "w-16",
             classes: "justify-center font-bold",
         },
@@ -56,57 +93,22 @@ export default function JadwalOsce() {
         },
     ];
 
-    // 2. Dummy Data
-    const jadwalStase = [
-        {
-            id: 1,
-            stase: "Body",
-            waktu: "Body",
-            ruangan: "Body",
-            penguji: "Body",
-        },
-        {
-            id: 2,
-            stase: "Body",
-            waktu: "Body",
-            ruangan: "Body",
-            penguji: "Body",
-        },
-        {
-            id: 3,
-            stase: "Body",
-            waktu: "Body",
-            ruangan: "Body",
-            penguji: "Body",
-        },
-        {
-            id: 4,
-            stase: "Body",
-            waktu: "Body",
-            ruangan: "Body",
-            penguji: "Body",
-        },
-        {
-            id: 5,
-            stase: "Body",
-            waktu: "Body",
-            ruangan: "Body",
-            penguji: "Body",
-        },
-    ];
-
-    // 3. Mock Links untuk Pagination (Karena data masih dummy)
-    const mockLinks = [
-        { url: null, label: "&laquo; Previous", active: false },
-        { url: "/mahasiswa/jadwal?page=1", label: "1", active: true },
-        { url: "/mahasiswa/jadwal?page=2", label: "2", active: false },
-        { url: "/mahasiswa/jadwal?page=3", label: "3", active: false },
-        {
-            url: "/mahasiswa/jadwal?page=2",
-            label: "Next &raquo;",
-            active: false,
-        },
-    ];
+    // 2. Mapping Data dari Backend ke Format Tabel
+    const tableData =
+        jadwalStase?.data?.map((item, index) => ({
+            id: item.id_osce_stase, // Key unik untuk React
+            no:
+                index +
+                1 +
+                (jadwalStase.current_page - 1) * jadwalStase.per_page,
+            stase: item.stase?.nama_stase || "-",
+            waktu: `${item.jam_mulai?.substring(
+                0,
+                5
+            )} - ${item.jam_selesai?.substring(0, 5)}`,
+            ruangan: item.ruang?.nama_ruang || "-",
+            penguji: item.penguji?.pengguna?.nama || "-",
+        })) || [];
 
     return (
         <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
@@ -138,7 +140,7 @@ export default function JadwalOsce() {
                                         />
                                     </div>
                                     <h2 className="text-2xl font-bold">
-                                        Ujian OSCE
+                                        {examHeader?.judul || "Ujian OSCE"}
                                     </h2>
                                 </div>
 
@@ -153,7 +155,8 @@ export default function JadwalOsce() {
                                                 Tanggal
                                             </p>
                                             <p className="text-lg font-bold">
-                                                12 Oct 2025
+                                                {examHeader?.tanggal_formatted ||
+                                                    "-"}
                                             </p>
                                         </div>
                                     </div>
@@ -167,7 +170,7 @@ export default function JadwalOsce() {
                                                 Waktu Mulai
                                             </p>
                                             <p className="text-lg font-bold">
-                                                08.00
+                                                {examHeader?.waktu_mulai || "-"}
                                             </p>
                                         </div>
                                     </div>
@@ -181,7 +184,8 @@ export default function JadwalOsce() {
                                                 Waktu Selesai
                                             </p>
                                             <p className="text-lg font-bold">
-                                                09.00
+                                                {examHeader?.waktu_selesai ||
+                                                    "-"}
                                             </p>
                                         </div>
                                     </div>
@@ -204,7 +208,7 @@ export default function JadwalOsce() {
                                 <div className="flex justify-between items-center text-center px-2">
                                     <div>
                                         <div className="text-[#0B0931] text-3xl md:text-4xl font-extrabold mb-1">
-                                            10
+                                            {timeLeft.days}
                                         </div>
                                         <div className="text-orange-100 text-sm">
                                             Hari
@@ -212,7 +216,7 @@ export default function JadwalOsce() {
                                     </div>
                                     <div>
                                         <div className="text-[#0B0931] text-3xl md:text-4xl font-extrabold mb-1">
-                                            6
+                                            {timeLeft.hours}
                                         </div>
                                         <div className="text-orange-100 text-sm">
                                             Jam
@@ -220,7 +224,7 @@ export default function JadwalOsce() {
                                     </div>
                                     <div>
                                         <div className="text-[#0B0931] text-3xl md:text-4xl font-extrabold mb-1">
-                                            10
+                                            {timeLeft.minutes}
                                         </div>
                                         <div className="text-orange-100 text-sm">
                                             Menit
@@ -228,7 +232,7 @@ export default function JadwalOsce() {
                                     </div>
                                     <div>
                                         <div className="text-[#0B0931] text-3xl md:text-4xl font-extrabold mb-1">
-                                            40
+                                            {timeLeft.seconds}
                                         </div>
                                         <div className="text-orange-100 text-sm">
                                             Detik
@@ -251,14 +255,16 @@ export default function JadwalOsce() {
                                 {/* PANGGIL KOMPONEN TABEL */}
                                 <OsTableHeader columns={tableColumns} />
                                 <OsTableBody
-                                    data={jadwalStase}
+                                    data={tableData}
                                     columns={tableColumns}
                                 />
                             </div>
 
                             {/* Pagination */}
                             <div className="mt-4">
-                                <OsPagination links={mockLinks} />
+                                <OsPagination
+                                    links={jadwalStase?.links || []}
+                                />
                             </div>
                         </div>
                     </main>

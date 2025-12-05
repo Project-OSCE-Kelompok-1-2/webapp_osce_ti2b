@@ -72,8 +72,8 @@ export default function MahasiswaAccountSettings() {
     const { data, setData, post, processing, reset } = useForm({
         // Data Tampilan (Read Only)
         username: user.username || "",
-        nama: user.penguji?.nama || "",
-        nip: user.penguji?.nip || "",
+        nama: user.mahasiswa?.nama || "",
+        nim: user.mahasiswa?.nim || "",
 
         // Data Inputan
         foto: null,
@@ -108,7 +108,7 @@ export default function MahasiswaAccountSettings() {
 
     const handleSaveChanges = (e) => {
         e.preventDefault();
-        post("/penguji/pengaturan-akun", {
+        post("/mahasiswa/pengaturan-akun", {
             preserveScroll: true,
             onSuccess: () => {
                 reset(
@@ -131,7 +131,7 @@ export default function MahasiswaAccountSettings() {
             <SidebarUniversal
                 isOpen={sidebarOpen}
                 setIsOpen={setSidebarOpen}
-                type={"penguji"}
+                type={"mahasiswa"}
             />
 
             {/* MAIN CONTENT WRAPPER */}
@@ -142,7 +142,7 @@ export default function MahasiswaAccountSettings() {
                         <div className="flex items-center justify-between relative self-stretch w-full">
                             {/* Tombol Back */}
                             <Link
-                                href="/penguji/dashboard"
+                                href="/mahasiswa/jadwal"
                                 // [UBAH WARNA] Back button tetap biru standar atau disesuaikan navy jika mau
                                 className="flex w-[54px] h-[54px] items-center justify-center gap-[13px] p-3 relative bg-blue-600 text-white rounded-xl border border-solid border-black aspect-[1] hover:bg-blue-700 transition"
                             >
@@ -279,10 +279,10 @@ export default function MahasiswaAccountSettings() {
                                         disabled
                                     />
 
-                                    {/* NIP (Read Only) */}
+                                    {/* NIM (Read Only) */}
                                     <CustomInput
-                                        label="NIP / NIDN"
-                                        value={data.nip}
+                                        label="NIM"
+                                        value={data.nim}
                                         disabled
                                         icon={
                                             <OsIcon

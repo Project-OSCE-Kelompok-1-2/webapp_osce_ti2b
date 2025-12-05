@@ -26,7 +26,7 @@ class ProfilMahasiswaController extends Controller
 
         $user->path_gambar = $user->path_gambar ? $user->path_gambar : null;
 
-        return Inertia::render('Mahasiswa/MahasiswaProfil', [
+        return Inertia::render('Mahasiswa/PengaturanAkun', [
             'user' => $user, 
         ]);
     }

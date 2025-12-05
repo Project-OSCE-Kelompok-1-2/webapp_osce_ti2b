@@ -38,8 +38,8 @@ class JadwalMahasiswaController extends Controller
         $stasePaginator = $this->jadwalmahasiswaService->getJadwalStase($examInfo['id_osce']);
 
         // 4. Return Inertia Render
-        // Pastikan Anda punya file Page di: resources/js/Pages/Mahasiswa/JadwalOsce/Index.vue (atau .jsx)
-        return Inertia::render('Mahasiswa/JadwalOsce/Index', [
+        // Pastikan Anda punya file Page di: resources/js/Pages/Mahasiswa/JadwalOscePage.jsx
+        return Inertia::render('Mahasiswa/JadwalOscePage', [
             'examHeader' => $examInfo, // Object Header
             'jadwalStase' => $stasePaginator, // Inertia otomatis menghandle object Pagination Laravel
         ]);
