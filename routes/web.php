@@ -179,3 +179,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
         ->name('rekap.download');
 
 });
+
+Route::get('/mahasiswa/nilai', function () {
+    // Format: 'NamaFolder/NamaFile' (tanpa .jsx)
+    return Inertia::render('Mahasiswa/NilaiIndex');
+})->name('mahasiswa.nilai');
