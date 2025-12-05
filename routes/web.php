@@ -27,6 +27,9 @@ use App\Http\Controllers\Penguji\RekapController;
 use App\Http\Controllers\Penguji\EditNilaiController;
 use App\Http\Controllers\Penguji\ViewNilaiController;
 
+// --- Mahasiswa ---
+use App\Http\Controllers\Mahasiswa\DashboardMahasiswaController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -169,7 +172,20 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 
 });
 
-Route::get('/mahasiswa/nilai', function () {
-    // Format: 'NamaFolder/NamaFile' (tanpa .jsx)
-    return Inertia::render('Mahasiswa/NilaiIndex');
-})->name('mahasiswa.nilai');
+// ===========================
+// == RUTE UNTUK Mahasiswa ===
+// ===========================
+
+Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function () {
+    
+    // Dashboard Mahasiswa
+    Route::get('/dashboard', [DashboardMahasiswaController::class, 'index'])->name('dashboard');
+
+    // Nilai Mahasiswa
+    Route::get('/nilai', function () {
+        // Format: 'NamaFolder/NamaFile' (tanpa .jsx)
+        return Inertia::render('Mahasiswa/NilaiIndex');
+    })->name('nilai');
+
+    // Tambahkan route mahasiswa lainnya di sini nanti
+});
