@@ -119,7 +119,7 @@ export default function JadwalOsce({ examHeader, jadwalStase }) {
                                             <p className="text-xs text-orange-100 opacity-80">Tanggal</p>
                                             <p className="text-lg font-bold">
                                                 {/* DATA BINDING: TANGGAL */}
-                                                {examHeader?.tanggal_formatted || "12 Oct 2025"}
+                                                {examHeader?.tanggal_formatted}
                                             </p>
                                         </div>
                                     </div>
@@ -130,7 +130,7 @@ export default function JadwalOsce({ examHeader, jadwalStase }) {
                                             <p className="text-xs text-orange-100 opacity-80">Waktu Mulai</p>
                                             <p className="text-lg font-bold">
                                                 {/* DATA BINDING: MULAI */}
-                                                {examHeader?.waktu_mulai || "08.00"}
+                                                {examHeader?.waktu_mulai}
                                             </p>
                                         </div>
                                     </div>
@@ -141,7 +141,7 @@ export default function JadwalOsce({ examHeader, jadwalStase }) {
                                             <p className="text-xs text-orange-100 opacity-80">Waktu Selesai</p>
                                             <p className="text-lg font-bold">
                                                 {/* DATA BINDING: SELESAI */}
-                                                {examHeader?.waktu_selesai || "09.00"}
+                                                {examHeader?.waktu_selesai}
                                             </p>
                                         </div>
                                     </div>

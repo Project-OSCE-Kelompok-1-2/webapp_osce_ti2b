@@ -27,11 +27,11 @@ use App\Http\Controllers\Admin\AspekPenilaianController;
 use App\Http\Controllers\Admin\OsceEnrollmentController;
 use App\Http\Controllers\Penguji\AksiPenilaianController;
 use App\Http\Controllers\Penguji\HalamanPenilaianController;
+use App\Http\Controllers\Penguji\OsceController as PengujiOsceController;
 
 // --- MAHASISWA CONTROLLERS ---
 use App\Http\Controllers\Mahasiswa\JadwalMahasiswaController;
 use App\Http\Controllers\Mahasiswa\ProfilMahasiswaController;
-use App\Http\Controllers\Penguji\OsceController as PengujiOsceController;
 
 /*
 |--------------------------------------------------------------------------

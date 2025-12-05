@@ -33,22 +33,14 @@ class JadwalMahasiswaService
             ->with('osce')
             ->first();
         
-        
-
         if (!$enrollment || !$enrollment->osce) {
-        // dd(null);
-
             return null;
         }
 
         $osce = $enrollment->osce;
-        // LOGIKA WAKTU:
-        // Prioritas 1: Ambil dari 'jam_sesi' di tabel EnrollmentOsce (Jadwal Spesifik)
-        // Prioritas 2: Ambil dari 'tanggal_mulai' di tabel Osce (Jadwal Global)
-        // untuk jam_sesi
+
         $jamMulai = $enrollment->jam_sesi ? substr($enrollment->jam_sesi, 0, 5) : Carbon::parse($osce->tanggal_mulai)->format('H:i');
         
-        // Prioritas Tanggal
         $tanggalFix = $enrollment->tanggal_sesi 
             ? Carbon::parse($enrollment->tanggal_sesi) 
             : Carbon::parse($osce->tanggal_mulai);
@@ -58,18 +50,12 @@ class JadwalMahasiswaService
             'tanggal_formatted' => $tanggalFix->translatedFormat('d F Y'),
             'waktu_mulai' => $jamMulai,
             'waktu_selesai' => Carbon::parse($osce->tanggal_selesai)->format('H:i'),
-            // Target countdown: YYYY-MM-DD HH:mm:ss
             'countdown_target' => $tanggalFix->format('Y-m-d') . ' ' . $jamMulai . ':00',
         ];
     }
 
-    /**
-     * Mengambil List Stase (Tabel) untuk Ujian tersebut
-     */
     public function getJadwalStase($idOsce)
     {
-        // Mengambil semua stase yang dikonfigurasi untuk ujian ini via OsceStase
-        // relasi ke 'stase', 'ruang', 'penguji'
         return OsceStase::with(['stase', 'ruang', 'penguji.pengguna']) 
             ->where('id_osce', $idOsce)
             ->orderBy('jam_mulai', 'asc')
