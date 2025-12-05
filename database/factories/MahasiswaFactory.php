@@ -14,16 +14,11 @@ class MahasiswaFactory extends Factory
     {
         return [
             'id_pengguna' => Pengguna::factory()->state(['jenis_role' => 'mahasiswa']),
-            'nama'        => $this->faker->name(),
-            'nim'         => $this->faker->unique()->numerify('NIM####'),
-            'kelas'       => $this->faker->randomElement(['A', 'B', 'C']),
-            'prodi'       => $this->faker->randomElement([
-                'Kedokteran',
-                'Keperawatan',
-                'Farmasi',
-                'Kesehatan Masyarakat',
-            ]),
-            'status'      => $this->faker->randomElement(['aktif', 'nonaktif']),
+            'nama' => $this->faker->name(),
+            'nim' => $this->faker->unique()->numerify('51####'),
+            'kelas' => $this->faker->randomElement(['A', 'B', 'C', 'IUP']),
+            'prodi' => 'Ilmu Keperawatan',
+            'status' => 'aktif',
         ];
     }
 }
