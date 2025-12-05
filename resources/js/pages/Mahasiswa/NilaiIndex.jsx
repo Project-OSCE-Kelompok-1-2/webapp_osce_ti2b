@@ -3,10 +3,10 @@ import { Head, Link } from "@inertiajs/react";
 import { ChevronRight, FileText, User } from "lucide-react";
 
 // --- IMPORT KOMPONEN ---
+// Pastikan path ini sesuai dengan struktur folder Anda
 import SidebarUniversal from "@/Components/SidebarUniversal";
 import Pagination from "@/Components/Pagination";
-// Asumsikan OsSearchBar disimpan di path ini
-import OsSearchBar from "@/Components/searchbar";
+import OsSearchBar from "@/Components/searchbar"; // Sesuaikan jika path berbeda
 
 // --- MOCK DATA (Simulasi Database) ---
 const MOCK_MAHASISWA = {
@@ -80,7 +80,7 @@ export default function NilaiIndex() {
     // State Filter & Search
     const [filterSemester, setFilterSemester] = useState("");
     const [filterTahun, setFilterTahun] = useState("");
-    const [search, setSearch] = useState(""); // State baru untuk search
+    const [search, setSearch] = useState("");
     const [filteredData, setFilteredData] = useState(MOCK_UJIAN_LIST);
 
     // Logic Filter & Search
@@ -108,8 +108,9 @@ export default function NilaiIndex() {
         setFilteredData(result);
     }, [filterSemester, filterTahun, search]);
 
-    // Handler opsional jika tombol Cari diklik manual (biasanya untuk API call, tapi disini reaktif)
+    // Handler Search Click
     const handleSearchClick = () => {
+        // Implementasi tambahan jika ingin fetch ke server saat tombol diklik
         console.log("Searching for:", search);
     };
 
@@ -117,7 +118,7 @@ export default function NilaiIndex() {
         <div className="min-h-screen bg-gray-50 font-sans text-slate-800">
             <Head title="Hasil Penilaian OSCE" />
 
-            {/* --- SIDEBAR (Fixed & Overlay) --- */}
+            {/* --- SIDEBAR --- */}
             <SidebarUniversal
                 isOpen={isSidebarOpen}
                 setIsOpen={setIsSidebarOpen}
@@ -276,7 +277,6 @@ export default function NilaiIndex() {
                 </div>
 
                 {/* --- SEARCH BAR --- */}
-                {/* Ditempatkan di sini agar memisahkan Info Mahasiswa dan Data Tabel */}
                 <div className="mb-2">
                     <OsSearchBar
                         search={search}
@@ -305,8 +305,9 @@ export default function NilaiIndex() {
                                 </th>
                                 <th className="px-6 py-4">Nama Ujian</th>
                                 <th className="px-6 py-4">Dosen Penguji</th>
+                                {/* PERUBAHAN: Header Tanggal menjadi Semester */}
                                 <th className="px-6 py-4 text-center">
-                                    Tanggal
+                                    Semester
                                 </th>
                                 <th className="px-6 py-4 text-center">Aksi</th>
                                 <th className="px-6 py-4 text-center">
@@ -330,8 +331,9 @@ export default function NilaiIndex() {
                                         <td className="px-6 py-4 text-gray-500">
                                             {ujian.dosen_penguji}
                                         </td>
+                                        {/* PERUBAHAN: Menampilkan Semester, bukan Tanggal */}
                                         <td className="px-6 py-4 text-center font-medium">
-                                            {ujian.tanggal_ujian}
+                                            {ujian.semester}
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <button
@@ -383,7 +385,6 @@ export default function NilaiIndex() {
                 </div>
 
                 {/* --- PAGINATION --- */}
-                {/* Menggunakan Mock Links untuk simulasi tampilan */}
                 <Pagination links={MOCK_LINKS} />
             </main>
         </div>
