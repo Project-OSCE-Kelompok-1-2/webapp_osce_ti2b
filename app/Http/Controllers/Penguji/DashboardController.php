@@ -17,27 +17,30 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
-        // 1. Ambil Data Penguji (Eager Load User untuk data login)
+        // 1. Ambil Data Penguji
         $penguji = Penguji::where('id_pengguna', $user->id_pengguna)->firstOrFail();
         
         $now = Carbon::now();
 
-        // Menggunakan query builder langsung ke OSCE untuk performa
+        // 2. Statistik Query (Base Query)
         $baseOsceQuery = Osce::whereHas('osceStase', function($q) use ($penguji) {
             $q->where('id_penguji', $penguji->id_penguji);
         });
 
+        // Hitung Statistik dengan Boundary hari yang tepat
         $statistik = [
-            'osce_mendatang'  => (clone $baseOsceQuery)->where('tanggal_mulai', '>', $now)->count(),
+            'osce_mendatang'  => (clone $baseOsceQuery)->whereDate('tanggal_mulai', '>', $now)->count(),
             'osce_edit_nilai' => (clone $baseOsceQuery)
-                                ->where('tanggal_mulai', '<=', $now)
-                                ->where('tanggal_selesai', '>=', $now)
+                                ->whereDate('tanggal_mulai', '<=', $now)
+                                ->whereDate('tanggal_selesai', '>=', $now)
                                 ->count(),
-            'osce_selesai'    => (clone $baseOsceQuery)->where('tanggal_selesai', '<', $now)->count(),
+            'osce_selesai'    => (clone $baseOsceQuery)->whereDate('tanggal_selesai', '<', $now)->count(),
         ];
 
+        // 3. Jadwal Mendatang (Next 5 items)
         $jadwalMendatang = OsceStase::with(['osce.enrollmentOsce']) 
             ->where('id_penguji', $penguji->id_penguji)
+            // Tampilkan jadwal dari hari ini sampai 30 hari ke depan
             ->whereDate('tanggal', '>=', $now)
             ->whereDate('tanggal', '<=', $now->copy()->addDays(30)) 
             ->orderBy('tanggal', 'asc')
@@ -47,28 +50,37 @@ class DashboardController extends Controller
             ->map(function ($stase) use ($now) {
                 $osce = $stase->osce;
                 
-                // Tentukan Status untuk UI (Warna badge)
+                $staseStart = Carbon::parse($stase->tanggal->format('Y-m-d') . ' ' . $stase->jam_mulai);
+                
+                // Batas akhir penilaian adalah akhir hari dari Tanggal Selesai Event OSCE
+                $eventEnd = Carbon::parse($osce->tanggal_selesai)->endOfDay();
+
                 $status = 'mendatang';
-                if ($now->between($osce->tanggal_mulai, $osce->tanggal_selesai)) {
-                    $status = 'edit'; // Sedang Berlangsung / Masa Edit
-                } elseif ($now->gt($osce->tanggal_selesai)) {
+
+                if ($now->gt($eventEnd)) {
+                    // Jika hari ini > tanggal selesai event
                     $status = 'selesai';
+                } elseif ($now->gte($staseStart) && $now->lte($eventEnd)) {
+                    // Jika sekarang >= Jam Mulai Sesi DAN sekarang <= Akhir Event
+                    // Artinya ujian sudah dimulai/sedang berlangsung
+                    $status = 'edit'; 
+                } else {
+                    // Jika sekarang < Jam Mulai Sesi (Misal ujian nanti sore, sekarang pagi)
+                    $status = 'mendatang';
                 }
 
                 return [
                     'id_osce'          => $osce->id_osce,
                     'id_osce_stase'    => $stase->id_osce_stase,
                     'nama_osce'        => $osce->nama_osce,
-                    // Data spesifik untuk UI Card
                     'hari'             => $stase->tanggal->format('d'), 
                     'bulan'            => $stase->tanggal->format('M'), 
                     'sesi'             => substr($stase->jam_mulai, 0, 5), 
                     'jumlah_mahasiswa' => $osce->enrollmentOsce->count(), 
-                    'status'           => $status,
+                    'status'           => $status, // 'mendatang', 'edit', 'selesai'
                 ];
             });
 
-        // Return ke Inertia dengan Props yang bersih
         return Inertia::render('Penguji/PengujiDashboard', [
             'nama_penguji'     => $penguji->nama,
             'statistik'        => $statistik,

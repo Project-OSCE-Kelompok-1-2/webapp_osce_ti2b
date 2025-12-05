@@ -29,29 +29,55 @@ import OsInput from "../../components/input.jsx";
 import OsButton from "../../components/button.jsx";
 import OsHeader from "../../components/Header.jsx";
 
+// const jadwalColumns = [
+//     {
+//         key: "no",
+//         content: "No",
+//         width: "w-16",
+//         classes: "justify-center items-center",
+//     },
+//     {
+//         key: "tanggal_sesi",
+//         content: "Tanggal / Sesi",
+//         width: "w-7/12",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "jumlah_mahasiswa",
+//         content: "Jumlah Mahasiswa",
+//         width: "w-2/12",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "action",
+//         content: "Action",
+//         width: "w-3/12",
+//         classes: "justify-center items-center",
+//     },
+// ];
 const jadwalColumns = [
     {
         key: "no",
         content: "No",
-        width: "w-16",
+        width: "w-16 shrink-0",
         classes: "justify-center items-center",
     },
     {
         key: "tanggal_sesi",
         content: "Tanggal / Sesi",
-        width: "w-7/12",
+        width: "flex-1 shrink-0", // Ganti w-7/12
         classes: "justify-start items-center px-4",
     },
     {
         key: "jumlah_mahasiswa",
         content: "Jumlah Mahasiswa",
-        width: "w-2/12",
+        width: "w-48 shrink-0", // Ganti w-2/12
         classes: "justify-start items-center px-4",
     },
     {
         key: "action",
         content: "Action",
-        width: "w-3/12",
+        width: " min-w-[300px] shrink-0", // Ganti w-3/12
         classes: "justify-center items-center",
     },
 ];
@@ -348,17 +374,20 @@ export default function SesiOscePage({
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Sesi
                     </h2>
-                    <div className="border rounded-lg overflow-hidden">
-                        <OsTableHeader columns={jadwalColumns} />
-                        {rows.length > 0 ? (
-                            <OsTableBody data={rows} columns={jadwalColumns} />
-                        ) : (
-                            <div className="flex items-center justify-center border-t border-gray-200">
-                                <p className="w-full text-center text-sm py-4 text-gray-500">
-                                    Data sesi tidak ditemukan.
-                                </p>
-                            </div>
-                        )}
+
+                    <div className="w-full overflow-x-auto pb-4">
+                        <div className="min-w-max border rounded-lg overflow-hidden">
+                            <OsTableHeader columns={jadwalColumns} />
+                            {rows.length > 0 ? (
+                                <OsTableBody data={rows} columns={jadwalColumns} />
+                            ) : (
+                                <div className="flex items-center justify-center border-t border-gray-200">
+                                    <p className="w-full text-center text-sm py-4 text-gray-500">
+                                        Data sesi tidak ditemukan.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
                     </div>
                     <OsPagination links={sesi?.links} />
                 </div>
