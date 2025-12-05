@@ -67,7 +67,7 @@ class HandleInertiaRequests extends Middleware
             ],
 
             // untuk notifikasi error dan sukses yang digunakan di front end
-            'flash_massage' => [
+            'flash' => [
                 'success' => fn() => $request->session()->get('success'),
                 'error' => fn() => $request->session()->get('error'),
             ],
