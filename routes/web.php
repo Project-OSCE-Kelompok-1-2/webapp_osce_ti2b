@@ -213,3 +213,8 @@ Route::get('mahasiswa/pengaturan-akun', function () {
         'errors' => [] // Array kosong untuk error
     ]);
 });
+
+// Testing Halaman Jadwal OSCE
+Route::get('mahasiswa/jadwal-osce', function () {
+    return Inertia::render('Mahasiswa/JadwalOscePage');
+});

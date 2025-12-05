@@ -3,36 +3,29 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
-use App\Http\Controllers\Api\V1\ApiHalamanPenilaian;
-use App\Http\Controllers\Api\V1\ViewNilaiController;
 use App\Http\Controllers\Api\V1\Admin\OsceController;
-use App\Http\Controllers\Api\V1\InputNilaiController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
 use App\Http\Controllers\Api\V1\Admin\StaseController;
 use App\Http\Controllers\Api\V1\Admin\PengujiController;
-use App\Http\Controllers\Api\V1\Penguji\ProfilController;
 use App\Http\Controllers\Api\V1\Admin\MahasiswaController;
 use App\Http\Controllers\Api\V1\Admin\OsceStaseController;
 use App\Http\Controllers\Api\V1\Admin\KompetensiController;
 use App\Http\Controllers\Api\V1\Admin\OsceJadwalController;
 use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
-use App\Http\Controllers\Mahasiswa\ProfilMahasiswaController;
 use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
-use App\Http\Controllers\Api\V1\Mahasiswa\JadwalMahasiswaController;
-
+use App\Http\Controllers\Api\Penguji\OscePengujiController as PengujiOsceListController;
+use App\Http\Controllers\Api\V1\Penguji\PenilaianController;
 
 Route::prefix('v1')->group(function () {
     // Route::get('/login', function () {
     //     return redirect()->route('login');
     // });
 
-    Route::get('/login', function () {
-        return redirect()->route('login');
-    });
-
+    // 2. Route API Asli (POST)
     Route::post('/login', [AuthController::class, 'login']);
 
+    // Routes yang butuh Token (Protected)
     Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -96,38 +89,21 @@ Route::prefix('v1')->group(function () {
 
             // --- Mahasiswa ---
             Route::apiResource('mahasiswa', MahasiswaController::class);
+            Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
+        });
+        // List OSCE/Jadwal Penguji
+        Route::get('/penguji/osce', [PengujiOsceListController::class, 'index']);
 
-            Route::get('/me', function (Request $request) {
-                return $request->user();
-            });
+        // Profil Penguji
+        Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
+            ->name('api.penguji.account.show');
+        
+        Route::post('/penguji/profil/update', [ProfilController::class, 'update_account'])
+            ->name('api.penguji.account.update');
 
-            // IMPORT MAHASISWA VIA EXCEL
-            Route::post('/admin/mahasiswa/import', [MahasiswaController::class, 'import']);
-
-            // VIEW NILAI (Sudah ada)
-            Route::get('/penilaian/{id_enrollment_osce}/view', ViewNilaiController::class);
-
-            // Profil Mahasiswa
-            Route::get('/mahasiswa/profil', [ProfilMahasiswaController::class, 'show_profile'])
-            ->name('api.mahasiswa.account.show');
-           Route::post('/mahasiswa/profil/update', [ProfilMahasiswaController::class, 'update_account'])
-            ->name('api.mahasiswa.account.update');
-
-            Route::get('/mahasiswa/jadwal-mahasiswa', [JadwalMahasiswaController::class, 'show_jadwal']) ->name('api.mahasiswa.show.jadwal');
-
-            // Profil Penguji
-            Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
-                ->name('api.penguji.account.show');
-
-            Route::post('/penguji/profil/update', [ProfilController::class, 'update_account'])
-                ->name('api.penguji.account.update');
-        }); // <-- Menutup group auth:sanctum
-
-        // Halaman Penilaian [Penguji]
-        Route::get('/osce/{id_osce}/stase/{id_osce_stase}', [ApiHalamanPenilaian::class, 'getAntrian'])
-            ->name('antrian');
-
-        Route::get('/penilaian/{id_enrollment_osce}', [ApiHalamanPenilaian::class, 'getPenilaian'])
-            ->name('penilaian.show');
+        // --- ALUR PENILAIAN LIVE (Penguji) ---
+        Route::get('/penguji/osce/{id_osce}/stase/{id_osce_stase}', [PenilaianController::class, 'getAntrian']);
+        Route::get('/penguji/penilaian/{id_enrollment_osce}', [PenilaianController::class, 'getFormPenilaian']);
+        Route::post('/penguji/penilaian/{id_enrollment_osce}', [PenilaianController::class, 'storePenilaian']);
     });
-});
+}); 

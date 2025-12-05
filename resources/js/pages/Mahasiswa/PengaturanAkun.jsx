@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 // [UBAH] Import hook Inertia
 import { useForm, usePage, Link, router } from "@inertiajs/react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Home } from "lucide-react";
 
 // Import Komponen Custom Sesuai Desain
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsButton from "../../components/button.jsx";
-import Sidebar from "../../components/Sidebar.jsx";
+import SidebarUniversal from "../../components/SidebarUniversal.jsx";
 
 // Komponen Input Custom (Sesuai Desain)
 const CustomInput = ({
@@ -128,7 +128,7 @@ export default function MahasiswaAccountSettings() {
         <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             {/* SIDEBAR */}
             {/* <SidebarPenguji /> */}
-            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
+            <SidebarUniversal isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
 
 
             {/* MAIN CONTENT WRAPPER */}
@@ -143,10 +143,7 @@ export default function MahasiswaAccountSettings() {
                                 // [UBAH WARNA] Back button tetap biru standar atau disesuaikan navy jika mau
                                 className="flex w-[54px] h-[54px] items-center justify-center gap-[13px] p-3 relative bg-blue-600 text-white rounded-xl border border-solid border-black aspect-[1] hover:bg-blue-700 transition"
                             >
-                                <OsIcon
-                                    name="Back"
-                                    className="relative w-[30px] h-[26px] fill-white"
-                                />
+                                <Home className="w-[30px] h-[26px] text-white" />
                             </Link>
 
                             {/* Breadcrumb */}
