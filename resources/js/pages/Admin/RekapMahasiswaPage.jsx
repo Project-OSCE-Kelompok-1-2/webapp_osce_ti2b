@@ -14,29 +14,55 @@ import OsTableBody from "../../components/tablecontain.jsx";
 import OsInput from "../../components/input.jsx";
 
 // --- Definisi Kolom Tabel (Sudah Benar) ---
+// const mahasiswaColumns = [
+//     {
+//         key: "no",
+//         content: "No",
+//         width: "w-16",
+//         classes: "justify-center items-center",
+//     },
+//     {
+//         key: "nim_mahasiswa",
+//         content: "Nim Mahasiswa",
+//         width: "w-80",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "nama_mahasiswa",
+//         content: "Nama Mahasiswa",
+//         width: "flex-1",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "action",
+//         content: "Action",
+//         width: "w-48",
+//         classes: "justify-center items-center px-4",
+//     },
+// ];
 const mahasiswaColumns = [
     {
         key: "no",
         content: "No",
-        width: "w-16",
+        width: "w-16 shrink-0",
         classes: "justify-center items-center",
     },
     {
         key: "nim_mahasiswa",
         content: "Nim Mahasiswa",
-        width: "w-80",
+        width: "w-80 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
         key: "nama_mahasiswa",
         content: "Nama Mahasiswa",
-        width: "flex-1",
+        width: "w-[350px] flex-1 shrink-0", // Ganti flex-1
         classes: "justify-start items-center px-4",
     },
     {
         key: "action",
         content: "Action",
-        width: "w-48",
+        width: "w-48 shrink-0",
         classes: "justify-center items-center px-4",
     },
 ];
@@ -146,21 +172,26 @@ export default function RekapMahasiswaPage() {
                         />
                     </OsSearchBar>
 
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                   <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Mahasiswa
                     </h2>
-                    <OsTableHeader columns={mahasiswaColumns} />
 
-                    <OsTableBody data={tableData} columns={mahasiswaColumns} />
+                    <div className="w-full overflow-x-auto pb-4">
+                        <div className="min-w-max">
+                            <OsTableHeader columns={mahasiswaColumns} />
 
-                    {/* Pesan jika tidak ada data */}
-                    {mahasiswa_list.data.length === 0 && (
-                        <div className="flex items-center border-t border-gray-400">
-                            <p className="w-full text-center text-sm py-4 text-gray-500">
-                                Data mahasiswa tidak ditemukan.
-                            </p>
+                            <OsTableBody data={tableData} columns={mahasiswaColumns} />
+
+                            {/* Pesan jika tidak ada data */}
+                            {mahasiswa_list.data.length === 0 && (
+                                <div className="flex items-center border-t border-gray-400">
+                                    <p className="w-full text-center text-sm py-4 text-gray-500">
+                                        Data mahasiswa tidak ditemukan.
+                                    </p>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
 
                     {/* 10. [PERBAIKAN] Paginasi Dinamis */}
                     {mahasiswa_list.links &&

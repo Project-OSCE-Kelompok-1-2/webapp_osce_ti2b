@@ -17,29 +17,56 @@ import OsButton from "../../components/button.jsx";
 import Modals from "../../components/Modals.jsx";
 
 // --- Definisi Kolom Tabel Penguji ---
+// const pengujiColumns = [
+//     {
+//         key: "no",
+//         content: "No",
+//         width: "w-16",
+//         classes: "justify-center items-center",
+//     },
+//     {
+//         key: "nip_penguji",
+//         content: "NIP Penguji",
+//         width: "w-56",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "nama_penguji",
+//         content: "Nama Penguji",
+//         width: "flex-1",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "action",
+//         content: "Aksi",
+//         width: "w-56",
+//         classes: "justify-center items-center px-4",
+//     },
+// ];
+
 const pengujiColumns = [
     {
         key: "no",
         content: "No",
-        width: "w-16",
+        width: "w-16 shrink-0",
         classes: "justify-center items-center",
     },
     {
         key: "nip_penguji",
         content: "NIP Penguji",
-        width: "w-56",
+        width: "w-56 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
         key: "nama_penguji",
         content: "Nama Penguji",
-        width: "flex-1",
+        width: "min-w-[350px] !flex-1 shrink-0", // Ganti flex-1
         classes: "justify-start items-center px-4",
     },
     {
         key: "action",
         content: "Aksi",
-        width: "w-56",
+        width: "w-56 shrink-0",
         classes: "justify-center items-center px-4",
     },
 ];
@@ -239,19 +266,24 @@ export default function PengujiPage() {
                         <h2 className="font-semibold text-lg mb-2">
                             Tabel Penguji
                         </h2>
-                        <OsTableHeader columns={pengujiColumns} />
-                        {tableData.length > 0 ? (
-                            <OsTableBody
-                                data={tableData}
-                                columns={pengujiColumns}
-                            />
-                        ) : (
-                            <div className="flex items-center border-t border-gray-400">
-                                <p className="w-full text-center text-sm py-4 text-gray-500">
-                                    Data penguji tidak ditemukan.
-                                </p>
+
+                        <div className="w-full overflow-x-auto pb-4">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={pengujiColumns} />
+                                {tableData.length > 0 ? (
+                                    <OsTableBody
+                                        data={tableData}
+                                        columns={pengujiColumns}
+                                    />
+                                ) : (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-4 text-gray-500">
+                                            Data penguji tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
                             </div>
-                        )}
+                        </div>
                         {dosen.links && dosen.links.length > 3 && (
                             <div className="mt-8">
                                 <OsPagination links={dosen.links} />

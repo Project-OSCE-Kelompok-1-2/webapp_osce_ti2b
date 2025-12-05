@@ -37,7 +37,7 @@ export default function OsModal({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <form
                 onSubmit={onSubmit}
-                className="relative bg-white rounded-2xl w-full max-w-md text-os-paragraph max-h-[80vh] flex flex-col overflow-hidden"
+                className="relative bg-white rounded-2xl w-full md:max-w-md max-w-[90vw] text-os-paragraph max-h-[80vh] flex flex-col overflow-hidden"
             >
                 {/* Header */}
                 <header className="bg-gray-900 text-white text-center p-4 pt-8">

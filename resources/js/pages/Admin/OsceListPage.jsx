@@ -24,34 +24,66 @@ import OsSearchBar from "../../components/searchbar.jsx";
 import Modals from "../../components/Modals.jsx";
 
 //Definisi kolom tabel
+// const columns = [
+//     {
+//         content: "No",
+//         width: "w-16",
+//         classes: "justify-center items-center",
+//         key: "no",
+//     },
+//     {
+//         content: "Nama OSCE",
+//         width: "flex-1",
+//         classes: "justify-start items-center px-4",
+//         key: "nama",
+//     },
+//     {
+//         content: "Rentang Tanggal",
+//         width: "w-2/12",
+//         classes: "justify-center items-center",
+//         key: "tanggal",
+//     },
+//     {
+//         content: "Tahun Akademik",
+//         width: "w-2/12",
+//         classes: "justify-center items-center",
+//         key: "tahun",
+//     },
+//     {
+//         content: "Aksi",
+//         width: "w-3/12",
+//         classes: "justify-center items-center",
+//         key: "aksi",
+//     },
+// ];
 const columns = [
     {
         content: "No",
-        width: "w-16",
+        width: "w-16 shrink-0",
         classes: "justify-center items-center",
         key: "no",
     },
     {
         content: "Nama OSCE",
-        width: "flex-1",
+        width: "w-[400px] flex-1 shrink-0", // Ganti flex-1
         classes: "justify-start items-center px-4",
         key: "nama",
     },
     {
         content: "Rentang Tanggal",
-        width: "w-2/12",
+        width: "w-52 shrink-0", // Ganti w-2/12
         classes: "justify-center items-center",
         key: "tanggal",
     },
     {
         content: "Tahun Akademik",
-        width: "w-2/12",
+        width: "min-w-52 shrink-0 ", // Ganti w-2/12
         classes: "justify-center items-center",
         key: "tahun",
     },
     {
         content: "Aksi",
-        width: "w-3/12",
+        width: "min-w-[300px] shrink-0", // Ganti w-3/12
         classes: "justify-center items-center",
         key: "aksi",
     },
@@ -282,17 +314,21 @@ export default function OsceListPage({
                         <h2 className="text-lg font-semibold mb-2">
                             Table OSCE
                         </h2>
-                        <OsTableHeader columns={columns} />
-                        <OsTableBody data={rows} columns={columns} />
 
-                        {osce.data.length === 0 && (
-                            <div className="flex items-center border-t border-gray-300">
-                                <p className="w-full text-center text-sm py-4 text-gray-500">
-                                    Data OSCE tidak ditemukan.
-                                </p>
+                        <div className="w-full overflow-x-auto pb-4">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={columns} />
+                                <OsTableBody data={rows} columns={columns} />
+
+                                {osce.data.length === 0 && (
+                                    <div className="flex items-center border-t border-gray-300">
+                                        <p className="w-full text-center text-sm py-4 text-gray-500">
+                                            Data OSCE tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
                             </div>
-                        )}
-
+                        </div>
                         {osce.links && osce.links.length > 3 && (
                             <div className="mt-8">
                                 <OsPagination links={osce.links} />

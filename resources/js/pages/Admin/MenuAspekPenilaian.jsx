@@ -16,29 +16,55 @@ import OsIcon from "../../components/icons.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 
 // Definisi kolom tabel
+// const columns = [
+//     {
+//         key: "no",
+//         content: "No",
+//         width: "w-16",
+//         classes: "justify-center items-center",
+//     },
+//     {
+//         key: "aspek",
+//         content: "Deskripsi",
+//         width: "w-7/12",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "bobot_maksimum",
+//         content: "Bobot Maksimum",
+//         width: "w-2/12",
+//         classes: "justify-center items-center",
+//     },
+//     {
+//         key: "action",
+//         content: "Aksi",
+//         width: "w-3/12",
+//         classes: "justify-center items-center",
+//     },
+// ];
 const columns = [
     {
         key: "no",
         content: "No",
-        width: "w-16",
+        width: "w-16 shrink-0",
         classes: "justify-center items-center",
     },
     {
         key: "aspek",
         content: "Deskripsi",
-        width: "w-7/12",
+        width: "w-[400px] flex-1 shrink-0", // Ganti w-7/12
         classes: "justify-start items-center px-4",
     },
     {
         key: "bobot_maksimum",
         content: "Bobot Maksimum",
-        width: "w-2/12",
+        width: "w-32 shrink-0", // Ganti w-2/12
         classes: "justify-center items-center",
     },
     {
         key: "action",
         content: "Aksi",
-        width: "w-3/12",
+        width: " shrink-0 min-w-[300px]", // Ganti w-3/12
         classes: "justify-center items-center",
     },
 ];
@@ -297,15 +323,24 @@ export default function MenuAspekPenilaian() {
                         Table Aspek Penilaian
                     </h2>
 
-                    <OsTableHeader columns={columns} />
+                    <div className="w-full overflow-x-auto pb-4">
+                        <div className="min-w-max">
+                            <OsTableHeader columns={columns} />
 
-                    {tableData.length > 0 ? (
-                        <OsTableBody data={tableData} columns={columns} />
-                    ) : (
-                        <div className="py-6 text-center text-gray-500">
-                            Belum ada aspek penilaian untuk stase ini.
+                            {tableData.length > 0 ? (
+                                <OsTableBody data={tableData} columns={columns} />
+                            ) : (
+                                <div className="py-6 text-center text-gray-500">
+                                    Belum ada aspek penilaian untuk stase ini.
+                                </div>
+                            )}
+
+                            {/* Footer Total Bobot tetap di dalam scroll biar sejajar */}
+                             <div className="bg-os-white rounded-lg overflow-hidden border-os-1 border-os-black mt-3 h-[56px]">
+                                {/* ... isi footer ... */}
+                            </div>
                         </div>
-                    )}
+                    </div>
 
                     <div className="bg-os-white rounded-lg overflow-hidden border-os-1 border-os-black mt-3 h-[56px]">
                         <table className="w-full h-[56px]">

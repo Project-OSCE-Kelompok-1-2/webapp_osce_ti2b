@@ -17,28 +17,55 @@ import Modals from "../../components/Modals.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 
 // Definisi kolom tabel
+// const columns = [
+//     {
+//         content: "No",
+//         width: "w-16",
+//         classes: "justify-center items-center",
+//         key: "no",
+//     },
+//     {
+//         content: "Deskripsi",
+//         width: "w-8/12",
+//         classes: "justify-start items-center px-4",
+//         key: "kompetensi",
+//     },
+//     {
+//         content: "Bobot",
+//         width: "w-2/12",
+//         classes: "justify-center items-center",
+//         key: "bobot",
+//     },
+//     {
+//         content: "Aksi",
+//         width: "w-2/12",
+//         classes: "justify-center items-center",
+//         key: "action",
+//     },
+// ];
+
 const columns = [
     {
         content: "No",
-        width: "w-16",
+        width: "w-16 shrink-0",
         classes: "justify-center items-center",
         key: "no",
     },
     {
         content: "Deskripsi",
-        width: "w-8/12",
+        width: "w-[500px] flex-1 shrink-0", // Ganti w-8/12 jadi fix lebar
         classes: "justify-start items-center px-4",
         key: "kompetensi",
     },
     {
         content: "Bobot",
-        width: "w-2/12",
+        width: "w-32 shrink-0", // Ganti w-2/12
         classes: "justify-center items-center",
         key: "bobot",
     },
     {
         content: "Aksi",
-        width: "w-2/12",
+        width: "w-32 shrink-0", // Ganti w-2/12
         classes: "justify-center items-center",
         key: "action",
     },
@@ -284,15 +311,20 @@ export default function KompetensiPage() {
                         Table Kompetensi
                     </h2>
 
-                    <OsTableHeader columns={columns} />
+                    {/* WRAPPER HORIZONTAL SCROLL */}
+                    <div className="w-full overflow-x-auto pb-4">
+                        <div className="min-w-max">
+                            <OsTableHeader columns={columns} />
 
-                    {tableData.length > 0 ? (
-                        <OsTableBody data={tableData} columns={columns} />
-                    ) : (
-                        <div className="py-6 text-center text-gray-500 border-b">
-                            Belum ada kompetensi untuk aspek ini.
+                            {tableData.length > 0 ? (
+                                <OsTableBody data={tableData} columns={columns} />
+                            ) : (
+                                <div className="py-6 text-center text-gray-500 border-b">
+                                    Belum ada kompetensi untuk aspek ini.
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
 
                     <OsPagination links={kompetensi.links} />
 
