@@ -7,9 +7,6 @@ use App\Models\EnrollmentOsce;
 use App\Models\PoinAspekPenilaian;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\NilaiOsce>
- */
 class NilaiOsceFactory extends Factory
 {
     protected $model = NilaiOsce::class;
@@ -17,9 +14,9 @@ class NilaiOsceFactory extends Factory
     public function definition(): array
     {
         return [
-            'id_enrollment_osce' => EnrollmentOsce::inRandomOrder()->value('id_enrollment_osce') ?? 1,
-            'id_poin_aspek_penilaian' => PoinAspekPenilaian::inRandomOrder()->value('id_poin_aspek_penilaian') ?? 1,
-            'nilai' => fake()->randomFloat(2, 0, 100),
+            'id_enrollment_osce' => EnrollmentOsce::inRandomOrder()->first()->id_enrollment_osce ?? EnrollmentOsce::factory(),
+            'id_poin_aspek_penilaian' => PoinAspekPenilaian::inRandomOrder()->first()->id_poin_aspek_penilaian ?? PoinAspekPenilaian::factory(),
+            'nilai' => $this->faker->randomElement([0, 1, 2, 3, 4]),
         ];
     }
 }
