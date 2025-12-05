@@ -168,7 +168,7 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                 </nav>
 
                 {/* Bagian pengaturan di bawah */}
-                <div className={`flex-shrink-0 ${isOpen ? "border-t block" : "border-none  hidden"} border-gray-300 p-3`}>
+                <div className={`flex-shrink-0 ${isOpen ? "border-t block" : "border-none md:block hidden"} border-gray-300 p-3`}>
                     <a
                         href={`/${currentRole}/pengaturan-akun`}
                         role="link"
