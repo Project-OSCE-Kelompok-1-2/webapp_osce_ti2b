@@ -112,6 +112,8 @@ class KompetensiController extends Controller
     public function update(Request $request, $id_kompetensi)
     {
         try {
+
+            $kompetensi = PoinAspekPenilaian::findOrFail($id_kompetensi);
             $validated = $request->validate([
                 'kompetensi' => [
                     'required',
@@ -125,7 +127,7 @@ class KompetensiController extends Controller
                 'bobot' => 'required|integer|min:1',
             ]);
             
-            $kompetensi = PoinAspekPenilaian::findOrFail($id_kompetensi);
+            
 
             $updatedData = $this->service->update( $kompetensi, $validated);
 
