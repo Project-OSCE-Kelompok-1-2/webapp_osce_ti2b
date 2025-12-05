@@ -333,7 +333,7 @@ export default function KompetensiPage() {
                         <p className="text-black w-[70%] ">
                             Total Bobot dan Jumlah Kompetensi
                         </p>
-                        <div className="flex w-[30%] justify-end gap-4 text-sm">
+                        <div className=" w-[30%] justify-end gap-4 text-sm hidden md:flex">
                             <div className="flex w-full items-center justify-center gap-1.5 px-2 py-1 rounded-md">
                                 <span className="text-sm">Total Bobot:</span>
                                 {/* Indikator Warna Bobot */}
@@ -355,6 +355,27 @@ export default function KompetensiPage() {
                             </div>
                         </div>
                     </div>
+                    <div className=" w-full justify-end gap-4 text-sm flex border-1 border py-3 rounded-lg mt-2 md:hidden border-black">
+                            <div className="flex w-full items-center justify-center gap-1.5 px-2 py-1 rounded-md">
+                                <span className="text-sm">Total Bobot:</span>
+                                {/* Indikator Warna Bobot */}
+                                <span
+                                    className={`font-bold ${
+                                        totalBobot === 100
+                                            ? "text-green-600"
+                                            : "text-red-600"
+                                    }`}
+                                >
+                                    {totalBobot}%
+                                </span>
+                            </div>
+                            <div className="flex w-full items-center justify-center gap-1.5 px-2 py-1 rounded-md">
+                                <span className="text-sm">Kompetensi:</span>
+                                <span className="text-black font-bold">
+                                    {kompetensi.total}
+                                </span>
+                            </div>
+                        </div>
                 </div>
 
                 <footer>

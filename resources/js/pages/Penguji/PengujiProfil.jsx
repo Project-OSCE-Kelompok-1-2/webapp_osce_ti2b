@@ -144,7 +144,7 @@ export default function PengujiProfil() {
                 <OsHeader variant="goback" backLink="dashboard" onMenuClick={handleSidebarToggle} />
 
             {/* MAIN CONTENT WRAPPER */}
-            <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans transition-all duration-300">
+            <div className="bg-white w-full min-h-screen flex justify-center p-6 font-sans transition-all duration-300">
                 <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14">
                     {/* HEADER */}
                     {/* <header className="relative w-full flex flex-col items-start gap-5 bg-white p-4 rounded-xl shadow-sm border border-gray-900">
@@ -222,7 +222,7 @@ export default function PengujiProfil() {
                                         />
                                         <OsIcon
                                             name="Upload"
-                                            className="w-[18px] h-[17px] fill-white"
+                                            className="w-[18px] h-[17px] os-icon-light"
                                         />
                                         <span className="font-sans font-normal text-[15px]">
                                             Upload gambar profil
@@ -236,7 +236,7 @@ export default function PengujiProfil() {
                                     >
                                         <OsIcon
                                             name="Trash"
-                                            className="w-[17px] h-5 fill-white"
+                                            className="w-[17px] h-5 os-icon-light"
                                         />
                                     </button>
                                 </div>
@@ -386,7 +386,7 @@ export default function PengujiProfil() {
                                         >
                                             <OsIcon
                                                 name="Save"
-                                                className="w-[17px] h-[17px] fill-white"
+                                                className="w-[17px] h-[17px] os-icon-light"
                                             />
                                             <span>
                                                 {processing
@@ -403,7 +403,7 @@ export default function PengujiProfil() {
                                         >
                                             <OsIcon
                                                 name="Logout"
-                                                className="w-[23px] h-[21px] fill-white"
+                                                className="w-[23px] h-[21px] os-icon-light"
                                             />
                                             <span>Logout</span>
                                         </OsButton>
