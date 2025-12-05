@@ -183,5 +183,5 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 
     // --- MAHASISWA ROUTES SENDY ---
     Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function () {
-    Route::get('/nilaishow', [NilaiMahasiswaController::class, 'showNilai'])->name('nilai.show');
+    Route::get('/nilaishow', [NilaiMahasiswaController::class, 'showNilai'])->name('show');
 });
