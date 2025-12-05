@@ -61,7 +61,7 @@ const UrgentJadwalCard = ({ jadwal }) => {
             <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10"></div>
 
             <div className="flex items-start gap-4 relative z-10">
-                <div className="bg-red-500 p-3 rounded-xl shadow-md animate-pulse">
+                <div className="bg-red-500 p-3 rounded-xl shadow-md">
                     <AlertCircle size={24} className="text-white" />
                 </div>
                 <div className="flex-1">

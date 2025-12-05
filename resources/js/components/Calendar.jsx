@@ -6,13 +6,23 @@ export default function Calendar({ onDateSelect, events = [] }) {
 
     const [currentMonth, setCurrentMonth] = useState(today.getMonth());
     const [currentYear, setCurrentYear] = useState(today.getFullYear());
-    
+
     // PERBAIKAN 1: State ini sekarang akan menyimpan objek Date lengkap, bukan cuma angka
     const [selectedDate, setSelectedDate] = useState(null);
 
     const monthNames = [
-        "January", "February", "March", "April", "May", "June",
-        "July", "August", "September", "October", "November", "December"
+        "January",
+        "February",
+        "March",
+        "April",
+        "May",
+        "June",
+        "July",
+        "August",
+        "September",
+        "October",
+        "November",
+        "December",
     ];
 
     const daysName = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -37,15 +47,15 @@ export default function Calendar({ onDateSelect, events = [] }) {
 
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
-    const offset = firstDay === 0 ? 6 : firstDay - 1; 
+    const offset = firstDay === 0 ? 6 : firstDay - 1;
 
     const handleSelect = (day) => {
         // Membuat objek date lengkap
         const fullDate = new Date(currentYear, currentMonth, day);
-        
+
         // PERBAIKAN 2: Simpan full date ke state, bukan cuma 'day'
         setSelectedDate(fullDate);
-        
+
         if (onDateSelect) onDateSelect(fullDate);
     };
 
@@ -85,7 +95,9 @@ export default function Calendar({ onDateSelect, events = [] }) {
             {/* Days Name */}
             <div className="grid grid-cols-7 text-center font-semibold text-gray-400 text-xs uppercase mb-2">
                 {daysName.map((d) => (
-                    <div key={d} className="py-1 tracking-wider">{d}</div>
+                    <div key={d} className="py-1 tracking-wider">
+                        {d}
+                    </div>
                 ))}
             </div>
 
@@ -103,16 +115,29 @@ export default function Calendar({ onDateSelect, events = [] }) {
                     .fill(null)
                     .map((_, index) => {
                         const day = index + 1;
-                        
+
                         // Tanggal yang sedang dirender saat looping
-                        const dateToRender = new Date(currentYear, currentMonth, day);
+                        const dateToRender = new Date(
+                            currentYear,
+                            currentMonth,
+                            day
+                        );
 
                         // PERBAIKAN 3: Cek kesamaan tanggal menggunakan helper isSameDay
                         // Ini untuk memastikan misal: tanggal 25 Januari != 25 Februari
-                        const isSelected = isSameDay(selectedDate, dateToRender);
+                        const isSelected = isSameDay(
+                            selectedDate,
+                            dateToRender
+                        );
+
+                        // Logic Cek Hari Ini (Real-time)
+                        // Menggunakan helper isSameDay membandingkan 'today' vs tanggal render
+                        const isToday = isSameDay(today, dateToRender);
 
                         // Logic Dot / Penanda
-                        const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+                        const dateStr = `${currentYear}-${String(
+                            currentMonth + 1
+                        ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                         const hasEvent = events && events.includes(dateStr);
 
                         return (
@@ -121,16 +146,27 @@ export default function Calendar({ onDateSelect, events = [] }) {
                                 onClick={() => handleSelect(day)}
                                 className={`
                                     h-9 w-9 mx-auto flex flex-col items-center justify-center rounded-lg transition relative
-                                    ${isSelected
-                                        ? "bg-blue-600 text-white shadow-md"
-                                        : "bg-white hover:bg-blue-200 text-gray-800"
+                                    ${
+                                        isSelected
+                                            ? "bg-blue-600 text-white shadow-md" // Jika dipilih (Prioritas Utama)
+                                            : isToday
+                                            ? "text-blue-800 font-bold border hover:bg-blue-100 bg-blue-200" // Jika HARI INI (Prioritas Kedua)
+                                            : "bg-white hover:bg-blue-50 text-gray-800" // Normal
                                     }
                                 `}
                             >
-                                <span className="text-sm font-medium leading-none">{day}</span>
-                                
+                                <span className="text-sm font-medium leading-none">
+                                    {day}
+                                </span>
+
                                 {hasEvent && (
-                                    <span className={`absolute bottom-1 w-1 h-1 rounded-full ${isSelected ? 'bg-white' : 'bg-red-500'}`}></span>
+                                    <span
+                                        className={`absolute bottom-1 w-1 h-1 rounded-full ${
+                                            isSelected
+                                                ? "bg-white"
+                                                : "bg-red-500"
+                                        }`}
+                                    ></span>
                                 )}
                             </button>
                         );
@@ -141,7 +177,9 @@ export default function Calendar({ onDateSelect, events = [] }) {
             {events.length > 0 && (
                 <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
                     <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
-                    <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wide">Jadwal Ujian</span>
+                    <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wide">
+                        Jadwal Ujian
+                    </span>
                 </div>
             )}
         </div>
