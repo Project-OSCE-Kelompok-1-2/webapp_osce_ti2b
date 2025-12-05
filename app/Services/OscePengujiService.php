@@ -1,69 +1,67 @@
 <?php
 
-namespace App\Http\Controllers\Penguji;
+namespace App\Services;
 
-use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
-use Inertia\Inertia;
-use Illuminate\Support\Facades\Auth;
-use Carbon\Carbon;
-use App\Models\Penguji;
 use App\Models\OsceStase;
+use App\Models\Penguji;
+use Carbon\Carbon;
+use Illuminate\Support\Facades\Auth;
 
-class OsceController extends Controller
+
+class OscePengujiService
 {
-    public function index(Request $request)
+    /**
+     * Mengambil data OSCE Stase khusus Penguji
+     * Termasuk search, filter tahun, dan pagination
+     */
+    public function getAssignmentsForPenguji($user, $search, $tahun)
     {
-        $user = Auth::user();
+        // 1. Ambil Data Penguji dari User Login
         $penguji = Penguji::where('id_pengguna', $user->id_pengguna)->firstOrFail();
 
-        $search = $request->input('search');
-        $tahun  = $request->input('tahun');
-
-        // Query Dasar
+        // 2. Query Dasar
         $query = OsceStase::with(['osce.enrollmentOsce', 'osce.tahunAkademik'])
             ->where('id_penguji', $penguji->id_penguji);
 
-        // Filter Search
+        // 3. Filter Search (berdasarkan nama OSCE)
         if ($search) {
             $query->whereHas('osce', function ($q) use ($search) {
                 $q->where('nama_osce', 'like', "%{$search}%");
             });
         }
 
-        // Filter Tahun
+        // 4. Filter Tahun
         if ($tahun) {
             $query->whereHas('osce.tahunAkademik', function ($q) use ($tahun) {
                 $q->where('tahun', 'like', "%{$tahun}%");
             });
         }
 
-        // Pagination & Sorting
-        $assignments = $query->orderBy('tanggal', 'desc')->paginate(10)->withQueryString();
+        // 5. Pagination & Sorting
+        $assignments = $query->orderBy('tanggal', 'desc')
+                             ->paginate(10)
+                             ->withQueryString();
 
-        // Transformasi Data untuk Frontend
+        // 6. Transformasi Data (Sama persis dengan logika Inertia)
+        // Menggunakan through() agar struktur pagination (current_page, last_page, dll) tetap ada
         $osceList = $assignments->through(function ($stase) {
             $osce = $stase->osce;
             $now = Carbon::now();
 
-            $startEvent = Carbon::parse($osce->tanggal_mulai)->startOfDay();
-            $endEvent   = Carbon::parse($osce->tanggal_selesai)->endOfDay();
-
             // Logika Status
             $status = 'Selesai';
-            
-            if ($now->lt($startEvent)) {
+            if ($now->lt($osce->tanggal_mulai)) {
                 $status = 'Belum Dimulai';
-            } elseif ($now->between($startEvent, $endEvent)) {
-                $status = 'Aktif'; 
+            } elseif ($now->between($osce->tanggal_mulai, $osce->tanggal_selesai)) {
+                $status = 'Aktif';
             } else {
-                $status = 'Selesai'; 
+                $status = 'Selesai';
             }
 
             return [
                 'id_osce'          => $osce->id_osce,
                 'id_osce_stase'    => $stase->id_osce_stase,
-                'nama'             => $osce->nama_osce, 
+                'nama'             => $osce->nama_osce,
                 'tanggal_mulai'    => $osce->tanggal_mulai->format('d F Y'),
                 'tanggal_akhir'    => $osce->tanggal_selesai->format('d F Y'),
                 'status'           => $status,
@@ -72,12 +70,6 @@ class OsceController extends Controller
             ];
         });
 
-        return Inertia::render('Penguji/PengujiOsceList', [
-            'osce_list' => $osceList,
-            'filters'   => [
-                'search' => $search,
-                'tahun'  => $tahun
-            ]
-        ]);
+        return $osceList;
     }
 }

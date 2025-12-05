@@ -35,7 +35,7 @@ export default function OsHeader({
 
     return (
         <header
-            className={`relative row-[1_/_2] col-[1_/_2] w-full flex flex-col items-start gap-os-12 ${className}`}
+            className={`relative row-[1_/_2] col-[1_/_2] w-full flex flex-col items-start gap-os-12 ${className} fixed`}
         >
             <div className="flex items-center justify-between relative self-stretch w-full gap-os-12">
                 {/* 🔹 Tombol Home atau Go Back */}

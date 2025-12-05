@@ -4,7 +4,6 @@ import { Search } from "lucide-react";
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
-// import OsBreadCrumb from "../../components/breadcrumb"; // Breadcrumb statis lebih cocok di sini
 import OsCopyright from "../../components/Copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
@@ -13,47 +12,76 @@ import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
 import OsInput from "../../components/input.jsx";
 
-// --- Definisi Kolom Tabel (Sudah Benar) ---
+// --- Definisi Kolom Tabel ---
+// const rekapColumns = [
+//     {
+//         key: "no",
+//         content: "No",
+//         width: "w-16",
+//         classes: "justify-center items-center",
+//     },
+//     {
+//         key: "nama_osce",
+//         content: "Nama OSCE",
+//         width: "flex-1",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "rentang_tanggal",
+//         content: "Rentang Tanggal",
+//         width: "w-80",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "tahun_akademik",
+//         content: "Tahun Akademik",
+//         width: "w-48",
+//         classes: "justify-center items-center px-4",
+//     },
+//     {
+//         key: "action",
+//         content: "Action",
+//         width: "w-48",
+//         classes: "justify-center items-center px-4",
+//     },
+// ];
+
 const rekapColumns = [
     {
         key: "no",
         content: "No",
-        width: "w-16",
+        width: "w-16 shrink-0",
         classes: "justify-center items-center",
     },
     {
         key: "nama_osce",
         content: "Nama OSCE",
-        width: "flex-1",
+        width: "w-[350px] flex-1 shrink-0", // Ganti flex-1 jadi fix
         classes: "justify-start items-center px-4",
     },
     {
         key: "rentang_tanggal",
         content: "Rentang Tanggal",
-        width: "w-80",
+        width: "w-80  shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
         key: "tahun_akademik",
         content: "Tahun Akademik",
-        width: "w-48",
+        width: "w-48 shrink-0",
         classes: "justify-center items-center px-4",
     },
     {
         key: "action",
         content: "Action",
-        width: "w-48",
+        width: "w-48 shrink-0",
         classes: "justify-center items-center px-4",
     },
 ];
 
-// 2. [HAPUS] Mock data (mockFilters dan mockOsce) tidak diperlukan lagi
-
 export default function RekapOscePage() {
-    // 3. [PERBAIKAN] Ambil props dinamis langsung dari usePage
-    const { osce, filters, flash } = usePage().props;
+    const { osce, filters, flash, tahunAkademikOptions } = usePage().props;
 
-    // 4. [PERBAIKAN] State filter disesuaikan dengan 'tahun' (dari contract)
     const [search, setSearch] = useState(filters.search || "");
     const [tahun, setTahun] = useState(filters.tahun || "");
 
@@ -63,25 +91,55 @@ export default function RekapOscePage() {
         setIsSidebarOpen((prev) => !prev);
     }; // Ganti 'year' menjadi 'tahun'
 
-    // 5. [PERBAIKAN] Fungsi untuk menjalankan pencarian
     const handleSearch = (e) => {
-        e.preventDefault(); // Bungkus dalam form
+        e.preventDefault();
         router.get(
-            "/admin/rekap-nilai", // URL route yang benar (sesuai contract)
-            { search, tahun }, // Kirim 'tahun', bukan 'year'
+            "/admin/rekap-nilai",
+            { search, tahun },
             { preserveState: true, replace: true }
         );
     };
 
-    // Daftar tahun (bisa dibuat dinamis jika perlu)
     const tahunList = [
         { value: "", label: "Semua Tahun" },
-        { value: "2025/2026", label: "2025/2026" },
-        { value: "2024/2025", label: "2024/2025" },
-        { value: "2023/2024", label: "2023/2024" },
+        ...(Array.isArray(tahunAkademikOptions) ? tahunAkademikOptions : []),
     ];
 
-    //6. Siapkan data untuk isi data tabel
+    /**
+     * 🔹 HELPER: Format Tanggal Indonesia (01 Januari 2024)
+     */
+    const formatDateIndo = (dateStr) => {
+        if (!dateStr) return "";
+        const date = new Date(dateStr);
+        // Cek validitas tanggal
+        if (isNaN(date.getTime())) return dateStr; // Kembalikan asli jika error
+
+        return new Intl.DateTimeFormat("id-ID", {
+            day: "2-digit",
+            month: "long", // "long" = Januari, "short" = Jan
+            year: "numeric",
+        }).format(date);
+    };
+
+    /**
+     * 🔹 HELPER: Format Rentang (Start - End)
+     */
+    const formatRentang = (rawString) => {
+        if (!rawString) return "-";
+
+        // Cek apakah string mengandung pemisah " - "
+        if (typeof rawString === "string" && rawString.includes(" - ")) {
+            const [start, end] = rawString.split(" - ");
+            const formattedStart = formatDateIndo(start);
+            const formattedEnd = formatDateIndo(end);
+            return `${formattedStart} - ${formattedEnd}`;
+        }
+
+        // Fallback jika format tidak dikenali
+        return rawString;
+    };
+
+    // --- Siapkan Data Tabel ---
     const tableData = osce.data.map((item, index) => ({
         no: osce.from + index,
         nama_osce: (
@@ -96,14 +154,19 @@ export default function RekapOscePage() {
                 </div>
             </div>
         ),
-        rentang_tanggal: item.rentang_tanggal,
+        // [PERUBAHAN] Menggunakan helper formatRentang
+        rentang_tanggal: (
+            <span className="text-sm text-gray-700 whitespace-nowrap">
+                {formatRentang(item.rentang_tanggal)}
+            </span>
+        ),
         tahun_akademik: item.tahun_akademik,
         action: (
             <button
                 onClick={() =>
                     router.visit(`/admin/rekap-nilai/${item.id_osce}/sesi`)
                 }
-                className="bg-blue-800 text-white px-3 py-2 rounded-md hover:bg-gray-700"
+                className="bg-blue-800 text-white px-3 py-2 rounded-md hover:bg-gray-700 transition-colors duration-200"
             >
                 Detail
             </button>
@@ -138,15 +201,12 @@ export default function RekapOscePage() {
                         nilai mahasiswa.
                     </p>
 
-                    {/* 6. searchbar+dropdown */}
-
                     <OsSearchBar
                         search={search}
                         setSearch={setSearch}
                         onSearchClick={handleSearch}
                         placeholder="Cari data OSCE..."
                     >
-                        {/* DROPDOWN DI TENGAH */}
                         <OsInput
                             type="select"
                             value={tahun}
@@ -159,26 +219,30 @@ export default function RekapOscePage() {
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table OSCE
                     </h2>
-                    <OsTableHeader columns={rekapColumns} />
 
-                    <OsTableBody data={tableData} columns={rekapColumns} />
+                    {/* WRAPPER HORIZONTAL SCROLL */}
+                    <div className="w-full overflow-x-auto pb-4">
+                        <div className="min-w-max">
+                            <OsTableHeader columns={rekapColumns} />
+                            <OsTableBody data={tableData} columns={rekapColumns} />
 
-                    {/* Pesan jika tidak ada data */}
-                    {osce.data.length === 0 && (
-                        <div className="flex items-center border-t border-gray-400">
-                            <p className="w-full text-center text-sm py-4 text-gray-500">
-                                Data rekap nilai tidak ditemukan.
-                            </p>
+                            {/* Pesan jika tidak ada data */}
+                            {osce.data.length === 0 && (
+                                <div className="flex items-center border-t border-gray-400">
+                                    <p className="w-full text-center text-sm py-4 text-gray-500">
+                                        Data rekap nilai tidak ditemukan.
+                                    </p>
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Paginasi Dinamis */}
+                    {osce.links && osce.links.length > 3 && (
+                        <div className="mt-8">
+                            <OsPagination links={osce.links} />
                         </div>
                     )}
-
-                    {/* 9. [PERBAIKAN] Paginasi Dinamis */}
-                    {osce.links &&
-                        osce.links.length > 3 && ( // Hanya tampilkan jika ada lebih dari 1 halaman
-                            <div className="mt-8">
-                                <OsPagination links={osce.links} />
-                            </div>
-                        )}
                 </div>
 
                 <OsCopyright />

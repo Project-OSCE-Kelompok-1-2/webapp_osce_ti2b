@@ -117,18 +117,22 @@ export default function AdminSettingAkun({ user }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const handleSidebarToggle = () => {
-        setIsSidebarOpen((prev) => !prev);
+    setIsSidebarOpen((prev) => !prev);
     };
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
+            <Sidebar isOpen={isSidebarOpen} type="admin" onToggle={handleSidebarToggle} />
 
-            <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                <OsHeader />
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+                <OsHeader variant="goback" backLink="#" onMenuClick={handleSidebarToggle} />
+
+            <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300">
+                {/* <OsHeader /> */}
                 <div className="flex-1 overflow-auto">
                     {/* MAIN */}
-                    <main className="relative row-[2_/_3] col-[1_/_2] flex flex-col gap-3">
+                    <div className="relative row-[2_/_3] col-[1_/_2] flex flex-col gap-3">
+
                         {/* NAV */}
                         <div className="flex flex-wrap gap-[15px] flex-1">
                             {navigationButtons.map((button) => (
@@ -328,7 +332,7 @@ export default function AdminSettingAkun({ user }) {
                                 </form>
                             </section>
                         </div>
-                    </main>
+                    </div>
 
                     {/* FOOTER */}
                 </div>
@@ -347,6 +351,7 @@ export default function AdminSettingAkun({ user }) {
                 message="Apakah Anda yakin ingin menghapus foto profil Anda?"
                 confirmText="Hapus"
             />
+            </main>
         </div>
     );
 }
