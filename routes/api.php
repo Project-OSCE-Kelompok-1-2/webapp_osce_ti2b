@@ -14,11 +14,9 @@ use App\Http\Controllers\Api\V1\Admin\OsceJadwalController;
 use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
 use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
-<<<<<<< HEAD
-use App\Http\Controllers\Api\Penguji\OscePengujiController as PengujiOsceListController;
-use App\Http\Controllers\Api\V1\Penguji\PenilaianController;
-=======
->>>>>>> 5368c0e6a0e9d5f831dff8bd45bb7c5c230db158
+use App\Http\Controllers\Api\V1\ViewNilaiController;
+use App\Http\Controllers\Api\V1\ApiHalamanPenilaian;
+use App\Http\Controllers\Api\V1\Penguji\ProfilController;
 
 Route::prefix('v1')->group(function () {
     // Route::get('/login', function () {
@@ -94,8 +92,13 @@ Route::prefix('v1')->group(function () {
             Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
         });
         // List OSCE/Jadwal Penguji
-        Route::get('/penguji/osce', [PengujiOsceListController::class, 'index']);
+        // TODO: PengujiOsceListController belum ada. Pastikan controller ini dibuat atau import yang benar.
+        // Route::get('/penguji/osce', [PengujiOsceListController::class, 'index']);
+        
+        
+        // Route::prefix('mahasiswa')->middleware('roleApi:')->group(function () {
 
+            
         // Profil Penguji
         Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
             ->name('api.penguji.account.show');
@@ -124,4 +127,4 @@ Route::prefix('v1')->group(function () {
         Route::get('/penilaian/{id_enrollment_osce}', [ApiHalamanPenilaian::class, 'getPenilaian'])
             ->name('penilaian.show');
     });
-}); 
+
