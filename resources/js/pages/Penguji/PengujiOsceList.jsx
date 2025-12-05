@@ -24,25 +24,25 @@ const osceColumns = [
     {
         key: "tanggal_mulai",
         content: "Tanggal Mulai",
-        width: "w-48",
+        width: "w-32 sm:w-40 md:w-48",
         classes: "justify-center",
     },
     {
         key: "tanggal_akhir",
         content: "Tanggal Akhir",
-        width: "w-48",
+        width: "w-32 sm:w-40 md:w-48",
         classes: "justify-center",
     },
     {
         key: "status",
         content: "Status",
-        width: "w-32",
+        width: "w-32 sm:w-40 md:w-48",
         classes: "justify-center",
     },
     {
         key: "action",
         content: "Action",
-        width: "w-48",
+        width: "w-32 sm:w-40 md:w-48-48",
         classes: "justify-center",
     },
 ];
@@ -173,7 +173,7 @@ export default function PengujiOsceList() {
     });
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start px-4 sm:px-6 md:px-os-12 py-os-12">
             <Head title="Jadwal OSCE" />
 
             {/* Sidebar Penguji */}
@@ -181,7 +181,7 @@ export default function PengujiOsceList() {
             <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
 
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
+            <main className="flex flex-col w-full px-4 sm:px-6 md:px-os-8 h-fit gap-os-14 ml-0 md:ml-20">
                 <OsHeader variant="goback" backLink="/penguji/dashboard" />
 
                 <div className="flex-1 overflow-auto">
@@ -196,7 +196,7 @@ export default function PengujiOsceList() {
                     {/* Filter Bar */}
                     <form
                         onSubmit={handleSearch}
-                        className="flex flex-col md:flex-row items-center gap-4 mb-5"
+                        className="flex flex-col md:flex-row w-full items-stretch md:items-center gap-4 mb-5"
                     >
                         <input
                             type="text"
@@ -206,7 +206,7 @@ export default function PengujiOsceList() {
                             className="block w-full md:flex-1 pl-4 pr-4 py-2 h-[46px] border border-gray-700 rounded-lg"
                         />
 
-                        <div className="flex w-full md:w-auto items-center gap-3">
+                        <div className="flex w-full md:w-auto items-stretch md:items-center gap-3">
                             <select
                                 value={tahun}
                                 onChange={(e) => setTahun(e.target.value)}
@@ -233,19 +233,22 @@ export default function PengujiOsceList() {
                     </h2>
 
                     {/* Tabel Data */}
-                    {data.length > 0 ? (
-                        <>
-                            <OsTableHeader columns={osceColumns} />
-                            <OsTableBody
-                                data={mappedData}
-                                columns={osceColumns}
-                            />
-                        </>
-                    ) : (
-                        <div className="p-10 text-center border rounded-xl bg-white text-gray-500">
-                            Tidak ada data OSCE ditemukan.
-                        </div>
-                    )}
+                    <div className="overflow-x-auto">
+                        <div className="min-w-[900px]">
+                            {data.length > 0 ? (
+                                <>
+                                    <OsTableHeader columns={osceColumns} />
+                                    <OsTableBody
+                                        data={mappedData}
+                                        columns={osceColumns}
+                                    />
+                                </>
+                            ) : (
+                                <div className="p-10 text-center border rounded-xl bg-white text-gray-500">
+                                    Tidak ada data OSCE ditemukan.
+                                </div>
+                            )}</div>
+                            </div>
 
                     {/* Pagination */}
                     <div className="mt-8">
