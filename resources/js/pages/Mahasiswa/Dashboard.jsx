@@ -55,6 +55,14 @@ const StatCard = ({ title, description, value, icon }) => {
    COMPONENT: URGENT / ALERT CARD (Untuk H-1)
 ---------------------------------------------------*/
 const UrgentJadwalCard = ({ jadwal }) => {
+    // MODIFIKASI KECIL (UX):
+    const labelWaktu =
+        jadwal.sisa_hari === 0
+            ? "HARI INI"
+            : jadwal.sisa_hari === 1
+            ? "BESOK"
+            : `H - ${jadwal.sisa_hari}`;
+
     return (
         <div className="w-full bg-blue-500 rounded-xl p-5 text-white shadow-lg mb-6 relative overflow-hidden">
             {/* Abstract circle decoration */}
@@ -66,14 +74,16 @@ const UrgentJadwalCard = ({ jadwal }) => {
                 </div>
                 <div className="flex-1">
                     <div className="flex items-center gap-2 mb-1">
-                        <span className="bg-red-500 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
-                            T - {jadwal.sisa_hari} Hari
+                        <span className="bg-red-500 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm uppercase">
+                            {labelWaktu}
                         </span>
                         <span className="bg-orange-400 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
-                            Penting
+                            PENTING
                         </span>
                     </div>
-                    <h3 className="font-bold text-xl">{jadwal.nama_ujian}</h3>
+                    <h3 className="font-bold text-xl leading-tight">
+                        {jadwal.nama_ujian}
+                    </h3>
                     <div className="flex flex-col gap-1 mt-2 text-blue-50 text-sm">
                         <div className="flex items-center gap-2">
                             <CalendarDays size={14} />
@@ -134,12 +144,15 @@ const JadwalItem = ({ jadwal }) => {
 ---------------------------------------------------*/
 export default function DashboardMahasiswa() {
     // 1. Props dari Backend
+    // props 'url' ditambahkan agar Sidebar tahu halaman mana yang aktif
     const { auth, statistik, jadwal_penting, kalender_event } = usePage().props;
+    const { url } = usePage();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // Helper untuk memisahkan jadwal urgent (H-1 atau H-0)
-    // Menggunakan optional chaining (?.) dan default empty array untuk keamanan
+    // Helper untuk memisahkan jadwal urgent (H-1 atau H-0/Hari H)
     const urgentJadwal = jadwal_penting?.find((j) => j.sisa_hari <= 1);
+
+    // Filter jadwal sisa untuk list di bawah (agar tidak duplikat dengan alert)
     const normalJadwal = jadwal_penting?.filter((j) => j.sisa_hari > 1);
 
     return (
@@ -150,6 +163,7 @@ export default function DashboardMahasiswa() {
                 setIsOpen={setSidebarOpen}
                 user={auth.user}
                 role="mahasiswa"
+                activePath={url} // Passing URL agar menu sidebar ter-highlight otomatis
             />
 
             <main
