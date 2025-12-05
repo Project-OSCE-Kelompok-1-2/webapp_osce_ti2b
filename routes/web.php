@@ -6,7 +6,6 @@ use Illuminate\Support\Facades\Route;
 
 // --- Auth & Admin Controllers ---
 use App\Http\Controllers\AuthController;
-use App\Services\JadwalMahasiswaService;
 use App\Http\Controllers\Admin\OsceController;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\StaseController;
