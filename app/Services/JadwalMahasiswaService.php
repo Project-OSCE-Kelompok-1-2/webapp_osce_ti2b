@@ -27,10 +27,10 @@ class JadwalMahasiswaService
         // Cari enrollment dimana ujiannya belum lewat (tanggal_selesai >= hari ini)
         //
         $enrollment = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
-            // ->whereHas('osce', function ($q) {
-            //     $q->whereDate('tanggal_selesai', '>=', Carbon::now());
-            // })
-            ->with(['osce.osceStase'])
+            ->whereHas('osce', function ($q) {
+                $q->whereDate('tanggal_selesai', '>=', Carbon::now());
+            })
+            ->with('osce')
             ->first();
         
         if (!$enrollment || !$enrollment->osce) {
