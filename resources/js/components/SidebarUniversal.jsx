@@ -10,6 +10,8 @@ import {
     ChevronsLeft,
     ChevronsRight,
     BookOpen,
+    Calendar, // Icon baru untuk Jadwal
+    ClipboardCheck, // Icon baru untuk Hasil Penilaian
 } from "lucide-react";
 
 // --- 1. DEFINISI MENU UNTUK SETIAP ROLE ---
@@ -30,24 +32,55 @@ const pengujiMenus = [
     { label: "OSCE", icon: <FileText />, href: "/penguji/osce" },
 ];
 
+// Menu untuk Mahasiswa (BARU)
+const mahasiswaMenus = [
+    { label: "Beranda", icon: <Home />, href: "/mahasiswa/dashboard" },
+    {
+        label: "Hasil Penilaian",
+        icon: <ClipboardCheck />,
+        href: "/mahasiswa/nilai",
+    },
+    {
+        label: "Jadwal OSCE",
+        icon: <Calendar />,
+        href: "/mahasiswa/jadwal-osce",
+    },
+];
+
 // ---------------------------------------------------
 
 const SidebarUniversal = () => {
     const [isOpen, setIsOpen] = useState(true);
-    const { url, props } = usePage();
+    const { url } = usePage();
 
     // --- 2. LOGIKA DETEKSI ROLE OTOMATIS ---
     const isAdmin = url.startsWith("/admin");
+    const isPenguji = url.startsWith("/penguji");
+    const isMahasiswa = url.startsWith("/mahasiswa");
 
-    // Pilih menu & link pengaturan
-    const menuItems = isAdmin ? adminMenus : pengujiMenus;
-    const settingsLink = isAdmin
-        ? "/admin/pengaturan-akun"
-        : "/penguji/pengaturan-akun";
+    // Helper untuk menentukan data berdasarkan role
+    let menuItems = [];
+    let settingsLink = "#";
+    let userName = "User";
+    let userEmail = "user@email.com";
+    let themeColor = "gray"; // default
 
-    // Data User Dummy
-    const userName = isAdmin ? "Admin1234" : "Penguji1234";
-    const userEmail = isAdmin ? "admin@polines.ac.id" : "Penguji1234@gmail.com";
+    if (isAdmin) {
+        menuItems = adminMenus;
+        settingsLink = "/admin/pengaturan-akun";
+        userName = "Admin1234";
+        userEmail = "admin@polines.ac.id";
+    } else if (isPenguji) {
+        menuItems = pengujiMenus;
+        settingsLink = "/penguji/pengaturan-akun";
+        userName = "Penguji1234";
+        userEmail = "penguji1234@gmail.com";
+    } else if (isMahasiswa) {
+        menuItems = mahasiswaMenus;
+        settingsLink = "/mahasiswa/pengaturan-akun";
+        userName = "Mahasiswa001";
+        userEmail = "mhs@polines.ac.id";
+    }
 
     // Helper untuk cek link aktif
     const isActive = (href) => url.startsWith(href);
@@ -55,27 +88,50 @@ const SidebarUniversal = () => {
     // --- 3. LOGIKA WARNA (STYLE) BERDASARKAN ROLE ---
     const getRoleStyles = (active) => {
         if (isAdmin) {
-            // --- ADMIN: HITAM ---
+            // --- ADMIN: HITAM/ABU ---
             return {
-                icon: "text-gray-900", // Ikon Hitam
-                text: active
-                    ? "text-gray-900 font-bold"
-                    : "text-gray-900 font-medium", // Teks Hitam
-                bg: active ? "bg-gray-100" : "hover:bg-gray-100", // Hover Abu-abu
-                border: active ? "border-l-4 border-gray-600" : "", // Indikator aktif hitam
-            };
-        } else {
-            // --- PENGUJI: BIRU ---
-            return {
-                icon: "text-blue-600", // Ikon Biru
+                icon: "text-blue-600",
                 text: active
                     ? "text-blue-700 font-bold"
-                    : "text-blue-600 font-medium", // Teks Biru
-                bg: active ? "bg-blue-50" : "hover:bg-blue-50", // Hover Biru Muda
-                border: active ? "border-l-4 border-blue-600" : "", // Indikator aktif biru
+                    : "text-blue-600 font-medium",
+                bg: active ? "bg-blue-50" : "hover:bg-blue-50",
+                border: active ? "border-l-4 border-blue-600" : "",
+                avatarBg: "bg-blue-100 text-blue-600",
+                avatarFill: "bg-blue-200/50",
+                toggleBtn: "bg-blue-600 hover:bg-blue-500",
+            };
+        } else if (isPenguji) {
+            // --- PENGUJI: BIRU ---
+            return {
+                icon: "text-blue-600",
+                text: active
+                    ? "text-blue-700 font-bold"
+                    : "text-blue-600 font-medium",
+                bg: active ? "bg-blue-50" : "hover:bg-blue-50",
+                border: active ? "border-l-4 border-blue-600" : "",
+                avatarBg: "bg-blue-100 text-blue-600",
+                avatarFill: "bg-blue-200/50",
+                toggleBtn: "bg-blue-600 hover:bg-blue-500",
+            };
+        } else {
+            // --- MAHASISWA: HIJAU (EMERALD) ---
+            return {
+                icon: "text-blue-600",
+                text: active
+                    ? "text-blue-700 font-bold"
+                    : "text-blue-600 font-medium",
+                bg: active ? "bg-blue-50" : "hover:bg-blue-50",
+                border: active ? "border-l-4 border-blue-600" : "",
+                avatarBg: "bg-blue-100 text-blue-600",
+                avatarFill: "bg-blue-200/50",
+                toggleBtn: "bg-blue-600 hover:bg-blue-500",
             };
         }
     };
+
+    // Ambil style dasar untuk komponen statis (seperti tombol toggle)
+    // Kita anggap jika sedang di menu apapun, style dasar mengikuti role
+    const currentStyles = getRoleStyles(false);
 
     return (
         <aside
@@ -85,8 +141,7 @@ const SidebarUniversal = () => {
             {/* Tombol Toggle */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                // Warna tombol toggle juga bisa disesuaikan, tapi default biru biasanya bagus untuk aksen
-                className="absolute -right-3 top-9 z-50 bg-blue-600 text-white p-1 rounded-full hover:bg-blue-500 transition focus:outline-none shadow-md border border-white"
+                className={`absolute -right-3 top-9 z-50 text-white p-1 rounded-full transition focus:outline-none shadow-md border border-white ${currentStyles.toggleBtn}`}
             >
                 {isOpen ? (
                     <ChevronsLeft size={16} />
@@ -104,18 +159,10 @@ const SidebarUniversal = () => {
                 >
                     {/* Avatar */}
                     <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-xl overflow-hidden
-                        ${
-                            isAdmin
-                                ? "bg-gray-200 text-gray-700"
-                                : "bg-blue-100 text-blue-600"
-                        }
-                    `}
+                        className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-xl overflow-hidden ${currentStyles.avatarBg}`}
                     >
                         <div
-                            className={`w-full h-full ${
-                                isAdmin ? "bg-gray-300" : "bg-blue-200/50"
-                            }`}
+                            className={`w-full h-full ${currentStyles.avatarFill}`}
                         ></div>
                     </div>
 
@@ -138,7 +185,7 @@ const SidebarUniversal = () => {
                 <div className="flex flex-col gap-3 p-3">
                     {menuItems.map((item, index) => {
                         const active = isActive(item.href);
-                        const styles = getRoleStyles(active); // Ambil style sesuai role
+                        const styles = getRoleStyles(active);
 
                         return (
                             <Link
@@ -153,7 +200,7 @@ const SidebarUniversal = () => {
                                 <div className="flex-shrink-0">
                                     {React.cloneElement(item.icon, {
                                         size: 26,
-                                        className: styles.icon, // Terapkan warna ikon (Hitam/Biru)
+                                        className: styles.icon,
                                     })}
                                 </div>
 
