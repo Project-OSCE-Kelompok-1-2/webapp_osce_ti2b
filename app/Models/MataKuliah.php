@@ -10,7 +10,7 @@ class MataKuliah extends Model
     use HasFactory;
 
     protected $table = 'mata_kuliah';
-    protected $primarykey = 'id_mata_kuliah';
+    protected $primaryKey = 'id_mata_kuliah';
     protected $fillable = ['id_blok', 'id_enrollment', 'nama_mata_kuliah', 'deskripsi'];
 
     public function blok()
