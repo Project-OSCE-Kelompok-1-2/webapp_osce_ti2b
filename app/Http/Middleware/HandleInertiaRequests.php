@@ -4,6 +4,7 @@ namespace App\Http\Middleware;
 
 use Illuminate\Http\Request;
 use Inertia\Middleware;
+use App\Models\TahunAkademik;
 
 class HandleInertiaRequests extends Middleware
 {
@@ -37,6 +38,7 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
         $details = null;
+        $fotoUrl = null;
 
         if ($user) {
             if ($user->jenis_role === "penguji") {
@@ -48,12 +50,16 @@ class HandleInertiaRequests extends Middleware
             }
         }
 
+        $tahunAktif = TahunAkademik::where('status', 'Aktif')->first();
+
         return array_merge(parent::share($request), [
-            // memngirimkan data user yang sedang login ke front end
+            // mengirimkan data user yang sedang login ke front end
             'auth' => [
                 'user' => [
                     'id' => $user?->id,
                     'username' => $user?->username,
+                    'name' => $details?->nama ?? $user?->username,
+                    'foto' => $fotoUrl,
                     'jenis_role' => $user?->jenis_role,
                     // details berisi data dari admin / penguji / mahasiswa, tergantung role pengguna
                     'details' => $details,
@@ -61,10 +67,16 @@ class HandleInertiaRequests extends Middleware
             ],
 
             // untuk notifikasi error dan sukses yang digunakan di front end
-            'flash' => [
+            'flash_massage' => [
                 'success' => fn() => $request->session()->get('success'),
                 'error' => fn() => $request->session()->get('error'),
             ],
+
+            // 3. DATA GLOBAL TAHUN AKADEMIK (UPDATED)
+        // Format: "2024/2025 - Ganjil"
+        'academic_year' => $tahunAktif 
+            ? ($tahunAktif->tahun . ' - ' . $tahunAktif->semester) 
+            : null,
         ]);
     }
 }
