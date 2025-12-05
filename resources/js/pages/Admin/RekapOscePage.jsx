@@ -46,7 +46,10 @@ const rekapColumns = [
 
 export default function RekapOscePage() {
     // 3. [PERBAIKAN] Ambil props dinamis langsung dari usePage
-    const { osce, filters, flash } = usePage().props;
+    const { osce, filters, flash, tahunAkademikOptions } = usePage().props;
+    console.log("Props OSCE:", osce);
+    console.log("Props Filters:", filters);
+    console.log("Props Tahun Akademik Options:", tahunAkademikOptions);
 
     // 4. [PERBAIKAN] State filter disesuaikan dengan 'tahun' (dari contract)
     const [search, setSearch] = useState(filters.search || "");
@@ -62,12 +65,10 @@ export default function RekapOscePage() {
         );
     };
 
-    // Daftar tahun (bisa dibuat dinamis jika perlu)
+    // Daftar tahun (DINAMIS dari backend jika tersedia)
     const tahunList = [
         { value: "", label: "Semua Tahun" },
-        { value: "2025/2026", label: "2025/2026" },
-        { value: "2024/2025", label: "2024/2025" },
-        { value: "2023/2024", label: "2023/2024" },
+        ...(Array.isArray(tahunAkademikOptions) ? tahunAkademikOptions : []),
     ];
 
     //6. Siapkan data untuk isi data tabel

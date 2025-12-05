@@ -25,12 +25,12 @@ use App\Http\Controllers\Penguji\ViewNilaiController;
 use App\Http\Controllers\Admin\AspekPenilaianController;
 use App\Http\Controllers\Admin\OsceEnrollmentController;
 use App\Http\Controllers\Penguji\AksiPenilaianController;
-use App\Http\Controllers\Mahasiswa\NilaiMahasiswaController;
 use App\Http\Controllers\Penguji\HalamanPenilaianController;
 use App\Http\Controllers\Penguji\OsceController as PengujiOsceController;
 
 // --- MAHASISWA CONTROLLERS ---
 use App\Http\Controllers\Mahasiswa\ProfilMahasiswaController;
+use App\Http\Controllers\Mahasiswa\JadwalMahasiswaController;
 
 /*
 |--------------------------------------------------------------------------
@@ -57,9 +57,8 @@ Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasi
 
     Route::get('/pengaturan-akun', [ProfilMahasiswaController::class, 'show_profile'])->name('account.show');
     Route::post('/pengaturan-akun', [ProfilMahasiswaController::class, 'update_account'])->name('account.update');
-    Route::get('/nilaishow', [NilaiMahasiswaController::class, 'showNilai'])->name('nilai.show');
+    Route::get('/jadwal', [JadwalMahasiswaController::class, 'index'])->name('mahasiswa.show.jadwal');
 });
-
 // ===========================
 // === RUTE UNTUK PENGUJI ===
 // ===========================
@@ -181,39 +180,41 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi'])->name('rekap.sesi');
     Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerStase'])->name('rekap.mahasiswa');
 
-    // --- Dummy Detail Rekap ---
-    Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}', function () {
-        $dummyData = [
-            "mahasiswa" => ["nama" => "Riko Aditya (Dummy)", "nim" => "123456", "id_mahasiswa" => 1],
-            "osce" => ["nama_osce" => "OSCE Radiologi 01-A (Dummy)"],
-            "nilai_per_stase" => [
-                [
-                    "nama_stase" => "Stase Bedah Umum",
-                    "nama_penguji" => "Dr. Afkar",
-                    "nilai_akhir_stase" => 22.25,
-                    "aspek_penilaian" => [
-                        [
-                            "aspek" => "Anamnesis",
-                            "kompetensi" => [
-                                ["kompetensi" => "Menyapa pasien", "skor" => 3, "bobot" => 10, "nilai" => 30],
-                                ["kompetensi" => "Keluhan utama", "skor" => 2, "bobot" => 10, "nilai" => 20]
-                            ]
-                        ],
-                        [
-                            "aspek" => "Pemeriksaan Fisik",
-                            "kompetensi" => [
-                                ["kompetensi" => "Inspeksi", "skor" => 3, "bobot" => 10, "nilai" => 30],
-                                ["kompetensi" => "Palpasi", "skor" => 1, "bobot" => 9, "nilai" => 9]
-                            ]
-                        ]
-                    ]
-                ]
-            ],
-            "nilai_total_osce" => 45.25
-        ];
+    // [PERBAIKAN] Gunakan method Controller Asli
+    Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}', [RekapNilaiController::class, 'detailNilaiMahasiswa'])
+        ->name('rekap.detail');
+    
+    // [BARU] Route Download PDF
+    Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}/download', [RekapNilaiController::class, 'downloadPdf'])
+        ->name('rekap.download');
 
-        return Inertia::render('Admin/RekapDetailPage', [
-            'detailNilai' => $dummyData
-        ]);
-    })->name('rekap.detail');
+});
+
+// Testing
+
+
+
+
+// Testing
+Route::get('mahasiswa/pengaturan-akun', function () {
+    return Inertia::render('Mahasiswa/PengaturanAkun', [
+        // KITA KIRIM DATA DUMMY AGAR TIDAK ERROR
+        'user' => [
+            'username' => 'rikozaki',
+            'nama' => 'Hafizh',
+            'email' => 'rikozaki@gmail.com',
+            'path_gambar' => null,
+            // Tambahkan object 'penguji' karena komponen Anda membacanya (user.penguji.nama)
+            'penguji' => [
+                'nama' => 'Hafizh (Mahasiswa)',
+                'nip' => '3.34.22.0.12'
+            ]
+        ],
+        'errors' => [] // Array kosong untuk error
+    ]);
+});
+
+// Testing Halaman Jadwal OSCE
+Route::get('mahasiswa/jadwal-osce', function () {
+    return Inertia::render('Mahasiswa/JadwalOscePage');
 });

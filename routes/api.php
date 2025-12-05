@@ -15,22 +15,18 @@ use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
 use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
 use App\Http\Controllers\Api\V1\ViewNilaiController;
-use App\Http\Controllers\Api\V1\InputNilaiController;
-use App\Http\Controllers\Api\Penguji\ProfilController;
 use App\Http\Controllers\Api\V1\ApiHalamanPenilaian;
-
+use App\Http\Controllers\Api\V1\Penguji\ProfilController;
 
 Route::prefix('v1')->group(function () {
     // Route::get('/login', function () {
     //     return redirect()->route('login');
     // });
 
-    Route::get('/login', function () {
-        return redirect()->route('login');
-    });
-
+    // 2. Route API Asli (POST)
     Route::post('/login', [AuthController::class, 'login']);
 
+    // Routes yang butuh Token (Protected)
     Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -47,7 +43,6 @@ Route::prefix('v1')->group(function () {
             ->name('api.penguji.account.update');
 
         Route::prefix('admin')->middleware('roleApi:admin')->group(function () {
-
             // --- Admin Dashboard & Profile ---
             Route::get('/dashboard', [AdminController::class, 'dashboard']);
 
@@ -100,10 +95,22 @@ Route::prefix('v1')->group(function () {
 
             // --- Mahasiswa ---
             Route::apiResource('mahasiswa', MahasiswaController::class);
+            Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
+        });
+        // List OSCE/Jadwal Penguji
+        // TODO: PengujiOsceListController belum ada. Pastikan controller ini dibuat atau import yang benar.
+        // Route::get('/penguji/osce', [PengujiOsceListController::class, 'index']);
+        
+        
+        // Route::prefix('mahasiswa')->middleware('roleApi:')->group(function () {
 
-            Route::get('/me', function (Request $request) {
-                return $request->user();
-            });
+            
+        // Profil Penguji
+        Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
+            ->name('api.penguji.account.show');
+        
+        Route::post('/penguji/profil/update', [ProfilController::class, 'update_account'])
+            ->name('api.penguji.account.update');
 
             // IMPORT MAHASISWA VIA EXCEL
             Route::post('/admin/mahasiswa/import', [MahasiswaController::class, 'import']);
@@ -126,4 +133,5 @@ Route::prefix('v1')->group(function () {
         Route::get('/penilaian/{id_enrollment_osce}', [ApiHalamanPenilaian::class, 'getPenilaian'])
             ->name('penilaian.show');
     });
-});
+
+
