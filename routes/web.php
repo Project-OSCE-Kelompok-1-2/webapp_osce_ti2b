@@ -172,12 +172,6 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 
 });
 
-Route::get('/mahasiswa/nilai', function () {
-    // Format: 'NamaFolder/NamaFile' (tanpa .jsx)
-    return Inertia::render('Mahasiswa/NilaiIndex');
-})->name('mahasiswa.nilai');
-
-
 // ===========================
 // == RUTE UNTUK MAHASISWA ===
 // ===========================
@@ -189,9 +183,7 @@ Route::get('/mahasiswa/nilai', function () {
 
 Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function () {
     
-    // Route::get('/dashboard', [DashboardMahasiswaController::class, 'index'])->name('dashboard'); // <-- Punya Ilham (Belum siap, di-comment dulu)
-
-    // Route Sementara (Khansa + Afkar Integrated):
+    // Dashboard Mahasiswa (Mockup Khansa + Afkar Integrated)
     Route::get('/dashboard', function () {
         return Inertia::render('Mahasiswa/Dashboard', [
             // Mockup Data Statistik
@@ -237,6 +229,12 @@ Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasi
             ]
         ]);
     })->name('dashboard');
+
+    // Nilai Mahasiswa
+    Route::get('/nilai', function () {
+        // Format: 'NamaFolder/NamaFile' (tanpa .jsx)
+        return Inertia::render('Mahasiswa/NilaiIndex');
+    })->name('nilai');
 
     // Tambahkan route mahasiswa lainnya di sini nanti
 

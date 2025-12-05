@@ -49,7 +49,7 @@ const mahasiswaMenus = [
 // ---------------------------------------------------
 
 const SidebarUniversal = () => {
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
     const { url } = usePage();
 
     // --- 2. LOGIKA DETEKSI ROLE OTOMATIS ---
