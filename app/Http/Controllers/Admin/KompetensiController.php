@@ -8,6 +8,7 @@ use App\Models\AspekPenilaian;
 use Illuminate\Validation\Rule;
 use App\Models\PoinAspekPenilaian;
 use App\Http\Controllers\Controller;
+use App\Services\KompetensiService;
 use Illuminate\Support\Facades\Redirect;
 
 class KompetensiController extends Controller
@@ -16,19 +17,21 @@ class KompetensiController extends Controller
      * [INI YANG PERLU DIPERBAIKI]
      * Menampilkan daftar kompetensi untuk aspek penilaian tertentu.
      */
+    protected $service;
+
+    public function __construct(KompetensiService $kompetensiService)
+    {
+        $this->service = $kompetensiService;
+    }
+
     public function index(Request $request, AspekPenilaian $aspekPenilaian)
     {
         // Muat relasi stase agar bisa ditampilkan di breadcrumb
         $aspekPenilaian->load('stase');
+        $search = $request->query("search");
 
         // Ambil data kompetensi dengan paginasi dan fitur pencarian
-        $kompetensi = $aspekPenilaian->poinAspekPenilaian()
-            ->when($request->input('search'), function ($query, $search) {
-                $query->where('kompetensi', 'like', "%{$search}%");
-            })
-            ->paginate(10)
-            ->withQueryString();
-
+        $kompetensi = $this->service->getByAspek($aspekPenilaian, $search);
         // Kirim data ke komponen 'Admin/MenuKompetensi'
         return Inertia::render('Admin/MenuKompetensi', [
             'aspek' => $aspekPenilaian,
@@ -59,13 +62,13 @@ class KompetensiController extends Controller
             'bobot' => 'required|integer|min:1|max:100',
         ]);
 
-        $aspekPenilaian->poinAspekPenilaian()->create($validated);
+        $this->service->create($aspekPenilaian, $validated);
 
         return Redirect::route('admin.aspek-penilaian.kompetensi.index', $aspekPenilaian->id_aspek_penilaian)
             ->with('success', 'Kompetensi berhasil ditambahkan.');
     }
 
-public function edit(PoinAspekPenilaian $kompetensi)
+    public function edit(PoinAspekPenilaian $kompetensi)
     {
         // Muat relasi
         $kompetensi->load('aspekPenilaian.stase');
@@ -85,7 +88,8 @@ public function edit(PoinAspekPenilaian $kompetensi)
     {
         $validated = $request->validate([
             'kompetensi' => [
-                'required', 'string',
+                'required',
+                'string',
                 Rule::unique('poin_aspek_penilaian', 'kompetensi')
                     ->ignore($kompetensi->id_poin_aspek_penilaian, 'id_poin_aspek_penilaian')
                     ->where('id_aspek_penilaian', $kompetensi->id_aspek_penilaian)
@@ -105,7 +109,7 @@ public function edit(PoinAspekPenilaian $kompetensi)
     public function destroy(PoinAspekPenilaian $kompetensi)
     {
         $aspekId = $kompetensi->id_aspek_penilaian;
-        $kompetensi->delete();
+        $this->service->delete($kompetensi);
 
         return Redirect::route('admin.aspek-penilaian.kompetensi.index', $aspekId)
             ->with('success', 'Kompetensi berhasil dihapus.');

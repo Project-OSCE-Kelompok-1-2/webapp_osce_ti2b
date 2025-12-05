@@ -132,15 +132,6 @@ export default function PengujiPage() {
     });
 
     // Mengisi form edit saat tombol diklik (Logic dari useEffect sebelumnya tetap valid untuk modal)
-    useEffect(() => {
-        if (editingPenguji) {
-            setDataEdit({
-                nip: editingPenguji.nip || "",
-                nama: editingPenguji.nama || "",
-            });
-            clearErrorsEdit();
-        }
-    }, [editingPenguji]);
 
     const handleSubmitEdit = (e) => {
         e.preventDefault();
@@ -196,7 +187,16 @@ export default function PengujiPage() {
     // Fungsi helper UI
     const openEditModal = (penguji) => {
         setEditingPenguji(penguji);
+        setDataEdit({
+            nip: penguji.nip || "",
+            nama: penguji.nama || "",
+        });
+
+        // 3. Langsung buka modal
         setShowEditModal(true);
+
+        // Opsional: bersihkan error
+        clearErrorsEdit();
     };
 
     const tableData = dosen.data.map((item, index) => ({

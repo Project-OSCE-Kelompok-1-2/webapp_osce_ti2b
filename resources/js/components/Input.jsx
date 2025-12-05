@@ -132,7 +132,7 @@ export default function OsInput({
         const currentValue = value || "";
 
         const filtered = suggestions.filter((s) =>
-            s.toLowerCase().includes(currentValue.toLowerCase())
+            s?.toLowerCase().includes(currentValue.toLowerCase())
         );
 
         return (

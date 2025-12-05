@@ -210,7 +210,18 @@ export default function RekapOscePage() {
                         <OsInput
                             type="select"
                             value={tahun}
-                            onChange={(e) => setTahun(e.target.value)}
+                            onChange={(e) => {
+                                const newValue = e.target.value;
+                                // Hanya set nilai jika bukan string yang dihasilkan dari konversi objek yang gagal
+                                if (
+                                    typeof newValue === "string" &&
+                                    newValue.includes("[object")
+                                ) {
+                                    setTahun(""); // Default ke nilai kosong jika terjadi error
+                                } else {
+                                    setTahun(newValue);
+                                }
+                            }}
                             options={tahunList}
                             className="w-[180px]"
                         />
