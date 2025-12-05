@@ -7,22 +7,16 @@ use App\Models\Mahasiswa;
 use App\Models\TahunAkademik;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
-/**
- * @extends \Illuminate\Database\Eloquent\Factories\Factory<\App\Models\Enrollment>
- */
 class EnrollmentFactory extends Factory
 {
     protected $model = Enrollment::class;
 
     public function definition(): array
     {
-        $mahasiswa = Mahasiswa::inRandomOrder()->first() ?? Mahasiswa::factory()->create();
-        $tahunAkademik = TahunAkademik::inRandomOrder()->first() ?? TahunAkademik::factory()->create();
-
         return [
-            'id_mahasiswa' => $mahasiswa->id_mahasiswa,
-            'id_tahun_akademik' => $tahunAkademik->id_tahun_akademik,
-            'tanggal_daftar' => fake()->dateTimeBetween('-1 year', 'now'),
+            'id_mahasiswa' => Mahasiswa::inRandomOrder()->first()->id_mahasiswa ?? Mahasiswa::factory(),
+            'id_tahun_akademik' => TahunAkademik::inRandomOrder()->first()->id_tahun_akademik ?? TahunAkademik::factory(),
+            'tanggal_daftar' => now(),
         ];
     }
 }

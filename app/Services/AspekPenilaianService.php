@@ -11,7 +11,7 @@ class AspekPenilaianService
     /**
      * Mengambil data aspek penilaian dengan struktur sesuai permintaan.
      */
-    public function getByStase( Stase $stase, $search)
+    public function getByStase(Stase $stase, $search)
     {
         // Query dasar
         $aspek_penilaian = AspekPenilaian::where('id_stase', $stase->id_stase)
@@ -25,12 +25,10 @@ class AspekPenilaianService
 
         // TRANSFORMASI: Mengubah setiap item agar sesuai struktur JSON yang diminta
         $aspek_penilaian->getCollection()->transform(function ($item) {
-            return [
-                'id_aspek_penilaian' => $item->id_aspek_penilaian,
-                'aspek'              => $item->aspek,
-                'bobot_maksimum'     => $item->bobot_maksimum,
-                'jumlah_kompetensi'  => $item->jumlah_kompetensi, // Data dari withCount
-            ];
+            $item->nama = $item->aspek;
+            $item->bobot = $item->bobot_maksimum;
+            $item->id = $item->id_aspek_penilaian;
+            return $item;
         });
 
         return $aspek_penilaian;

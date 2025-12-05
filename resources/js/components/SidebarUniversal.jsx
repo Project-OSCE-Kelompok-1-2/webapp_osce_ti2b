@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 import { usePage, Link } from "@inertiajs/react";
 import {
     Home,
@@ -14,9 +14,7 @@ import {
     ClipboardCheck, // Icon baru untuk Hasil Penilaian
 } from "lucide-react";
 
-// --- 1. DEFINISI MENU UNTUK SETIAP ROLE ---
-
-// Menu untuk Admin
+// --- MENU DEFINITIONS ---
 const adminMenus = [
     { label: "Beranda", icon: <Home />, href: "/admin/dashboard" },
     { label: "Stase", icon: <BookOpen />, href: "/admin/stase" },
@@ -135,10 +133,11 @@ const SidebarUniversal = () => {
 
     return (
         <aside
-            className={`fixed top-0 left-0 h-full bg-white text-gray-900 border-r border-gray-300 shadow-lg transition-all duration-300 z-50 flex flex-col
-            ${isOpen ? "w-64" : "w-20"}`}
+            // FIXED & Z-50: Agar sidebar mengambang di atas konten saat melebar
+            className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 shadow-2xl z-50 transition-all duration-300 ease-in-out flex flex-col
+            ${isOpen ? "w-72" : "w-20"}`}
         >
-            {/* Tombol Toggle */}
+            {/* --- TOGGLE BUTTON --- */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
                 className={`absolute -right-3 top-9 z-50 text-white p-1 rounded-full transition focus:outline-none shadow-md border border-white ${currentStyles.toggleBtn}`}
@@ -180,9 +179,9 @@ const SidebarUniversal = () => {
                 </div>
             </div>
 
-            {/* Menu Navigasi */}
-            <nav className="flex-grow flex flex-col justify-center overflow-y-auto mt-2">
-                <div className="flex flex-col gap-3 p-3">
+            {/* --- MENU LIST --- */}
+            <nav className="flex-1 overflow-y-auto py-6 pr-3">
+                <div className="flex flex-col">
                     {menuItems.map((item, index) => {
                         const active = isActive(item.href);
                         const styles = getRoleStyles(active);
@@ -191,59 +190,64 @@ const SidebarUniversal = () => {
                             <Link
                                 key={index}
                                 href={item.href}
-                                className={`flex items-center gap-3 p-3 rounded-lg transition-colors duration-200 group
-                                    ${!isOpen ? "justify-center" : "px-4"}
-                                    ${styles.bg} 
-                                    ${styles.border}
-                                `}
+                                className={getLinkClass(active)}
+                                title={!isOpen ? item.label : ""}
                             >
-                                <div className="flex-shrink-0">
+                                <div
+                                    className={`flex-shrink-0 transition-colors ${
+                                        active
+                                            ? "text-blue-600"
+                                            : "text-gray-400 group-hover:text-blue-600"
+                                    }`}
+                                >
                                     {React.cloneElement(item.icon, {
                                         size: 26,
                                         className: styles.icon,
                                     })}
                                 </div>
 
-                                {isOpen && (
-                                    <span
-                                        className={`text-sm whitespace-nowrap ${styles.text}`}
-                                    >
-                                        {item.label}
-                                    </span>
-                                )}
+                                <span
+                                    className={`whitespace-nowrap font-medium text-sm transition-all duration-300 origin-left 
+                                    ${
+                                        isOpen
+                                            ? "opacity-100 ml-0 scale-100"
+                                            : "opacity-0 ml-[-10px] scale-0 w-0 overflow-hidden"
+                                    }`}
+                                >
+                                    {item.label}
+                                </span>
                             </Link>
                         );
                     })}
                 </div>
             </nav>
 
-            {/* Menu Pengaturan */}
-            <div className="flex-shrink-0 border-t border-gray-400 p-3 mb-4 mx-4">
-                {(() => {
-                    const active = isActive(settingsLink);
-                    const styles = getRoleStyles(active);
-
-                    return (
-                        <Link
-                            href={settingsLink}
-                            className={`flex items-center gap-3 p-2 rounded-lg w-full transition-colors duration-200 group mt-2
-                                ${!isOpen ? "justify-center" : ""}
-                                ${styles.bg}
-                            `}
-                        >
-                            <div className="flex-shrink-0">
-                                <Settings size={28} className={styles.icon} />
-                            </div>
-                            {isOpen && (
-                                <span
-                                    className={`whitespace-nowrap text-sm ml-1 ${styles.text}`}
-                                >
-                                    Pengaturan
-                                </span>
-                            )}
-                        </Link>
-                    );
-                })()}
+            {/* --- FOOTER --- */}
+            <div className="p-4 border-t border-gray-100">
+                <Link
+                    href={settingsLink}
+                    className={`flex items-center gap-3 p-3 rounded-lg text-gray-500 hover:bg-gray-50 hover:text-blue-600 transition-all duration-300 group
+                    ${isOpen ? "justify-start" : "justify-center"}`}
+                >
+                    <Settings
+                        size={22}
+                        className="flex-shrink-0 text-gray-400 group-hover:text-blue-600"
+                    />
+                    <span
+                        className={`whitespace-nowrap font-medium text-sm transition-all duration-300 ${
+                            isOpen
+                                ? "opacity-100 w-auto"
+                                : "opacity-0 w-0 overflow-hidden"
+                        }`}
+                    >
+                        Pengaturan
+                    </span>
+                </Link>
+                {isOpen && (
+                    <div className="mt-2 text-xs text-center text-gray-300 py-2">
+                        v1.0.0 © Polines
+                    </div>
+                )}
             </div>
         </aside>
     );
