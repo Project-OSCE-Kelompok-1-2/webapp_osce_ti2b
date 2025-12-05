@@ -27,10 +27,10 @@ class JadwalMahasiswaService
         // Cari enrollment dimana ujiannya belum lewat (tanggal_selesai >= hari ini)
         //
         $enrollment = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
-            ->whereHas('osce', function ($q) {
-                $q->whereDate('tanggal_selesai', '>=', Carbon::now());
-            })
-            ->with('osce')
+            // ->whereHas('osce', function ($q) {
+            //     $q->whereDate('tanggal_selesai', '>=', Carbon::now());
+            // })
+            ->with(['osce.osceStase'])
             ->first();
         
         if (!$enrollment || !$enrollment->osce) {
@@ -39,17 +39,26 @@ class JadwalMahasiswaService
 
         $osce = $enrollment->osce;
 
-        $jamMulai = $enrollment->jam_sesi ? substr($enrollment->jam_sesi, 0, 5) : Carbon::parse($osce->tanggal_mulai)->format('H:i');
+        // Hitung waktu mulai
+        $jamMulaiStr = $enrollment->jam_sesi ? $enrollment->jam_sesi : '00:00:00';
+        $jamMulai = substr($jamMulaiStr, 0, 5);
+
+        // Hitung durasi total dari semua stase (dalam menit)
+        $totalDurasi = $osce->osceStase->sum('durasi_per_mahasiswa');
+
+        // Hitung waktu selesai
+        $waktuSelesai = Carbon::parse($jamMulaiStr)->addMinutes($totalDurasi)->format('H:i');
         
         $tanggalFix = $enrollment->tanggal_sesi 
             ? Carbon::parse($enrollment->tanggal_sesi) 
             : Carbon::parse($osce->tanggal_mulai);
+
         return [
-            'id_osce' => $osce->id_osce, //
+            'id_osce' => $osce->id_osce,
             'judul' => $osce->nama_osce,
             'tanggal_formatted' => $tanggalFix->translatedFormat('d F Y'),
             'waktu_mulai' => $jamMulai,
-            'waktu_selesai' => Carbon::parse($osce->tanggal_selesai)->format('H:i'),
+            'waktu_selesai' => $waktuSelesai,
             'countdown_target' => $tanggalFix->format('Y-m-d') . ' ' . $jamMulai . ':00',
         ];
     }
