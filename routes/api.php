@@ -35,6 +35,12 @@ Route::prefix('v1')->group(function () {
         // Route::get('/me', function (Request $request) {
         //     return $request->user();
         // });
+        // Profil Penguji
+        Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
+            ->name('api.penguji.account.show');
+        
+        Route::post('/penguji/profil/update', [ProfilController::class, 'update_account'])
+            ->name('api.penguji.account.update');
 
         Route::prefix('admin')->middleware('roleApi:admin')->group(function () {
             // --- Admin Dashboard & Profile ---
