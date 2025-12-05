@@ -127,7 +127,7 @@ export default function OsInput({
     }
 
     /** 🔹 SUGGEST INPUT */
-if (type === "suggest") {
+    if (type === "suggest") {
         // Gunakan prop 'value' untuk filtering
         const currentValue = value || "";
 
@@ -391,7 +391,7 @@ if (type === "suggest") {
                     </label>
                 )}
 
-                <div className="p-2 border border-os-black rounded-lg" >
+                <div className="p-2 border border-os-black rounded-lg">
                     {/* 🔍 Search box */}
                     <input
                         type="text"
@@ -399,7 +399,6 @@ if (type === "suggest") {
                         className="border border-os-black rounded-lg p-2 mb-2 text-os-base w-full"
                         value={query}
                         onChange={(e) => setQuery(e.target.value)}
-
                     />
 
                     {/* List Checkbox */}
