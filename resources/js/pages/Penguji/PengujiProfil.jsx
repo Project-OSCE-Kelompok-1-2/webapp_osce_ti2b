@@ -124,47 +124,49 @@ export default function PengujiProfil() {
         router.post("/logout");
     };
 
-    return (
-        <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            {/* SIDEBAR */}
-            {/* <SidebarPenguji /> */}
-            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
+    // return (
+    //     <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+    //         {/* SIDEBAR */}
+    //         {/* <SidebarPenguji /> */}
+    //         <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+    setIsSidebarOpen((prev) => !prev);
+    };
+
+    return (
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            <Sidebar isOpen={isSidebarOpen} type="penguji" onToggle={handleSidebarToggle} />
+
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+                <OsHeader variant="goback" backLink="dashboard" onMenuClick={handleSidebarToggle} />
 
             {/* MAIN CONTENT WRAPPER */}
-            <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans md:ml-20 transition-all duration-300">
+            <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans transition-all duration-300">
                 <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14">
                     {/* HEADER */}
-                    <header className="relative w-full flex flex-col items-start gap-5 bg-white p-4 rounded-xl shadow-sm border border-gray-900">
+                    {/* <header className="relative w-full flex flex-col items-start gap-5 bg-white p-4 rounded-xl shadow-sm border border-gray-900">
                         <div className="flex items-center justify-between relative self-stretch w-full">
-                            {/* Tombol Back */}
                             <Link
                                 href="/penguji/dashboard"
                                 className="flex w-[54px] h-[54px] items-center justify-center gap-[13px] p-3 relative bg-blue-600 text-white rounded-xl border border-solid border-black aspect-[1] hover:bg-blue-700 transition"
                             >
-                                <OsIcon
-                                    name="Back"
-                                    className="relative w-[30px] h-[26px] fill-white"
-                                />
+                                <OsIcon name="Back" className="relative w-[30px] h-[26px] fill-white" />
                             </Link>
 
-                            {/* Breadcrumb */}
                             <nav className="relative flex-1 h-[54px] ml-4">
                                 <div className="h-full items-center bg-white flex w-full rounded-xl overflow-hidden border border-solid border-black px-5">
                                     <p className="font-sans font-normal text-xl whitespace-nowrap">
-                                        <span className="text-gray-400">
-                                            Pengaturan
-                                        </span>
-                                        <span className="text-black">
-                                            {" "}
-                                            / Akun
-                                        </span>
+                                        <span className="text-gray-400">Pengaturan</span>
+                                        <span className="text-black"> / Akun</span>
                                     </p>
                                 </div>
                             </nav>
                         </div>
                         <hr className="relative w-full border-black border-t" />
-                    </header>
+                    </header> */}
 
                     {/* KONTEN UTAMA (DUA KOLOM) */}
                     <main className="flex flex-col gap-5 w-full">
@@ -241,7 +243,7 @@ export default function PengujiProfil() {
                             </aside>
 
                             {/* --- KOLOM KANAN: FORM DATA --- */}
-                            <section className="flex flex-col items-start gap-[15px] p-5 relative flex-1 grow bg-white rounded-xl border border-black shadow-sm">
+                            <section className="flex flex-col items-start gap-[15px] p-5 relative w-full lg:flex-1 bg-white rounded-xl border border-black shadow-sm">
                                 <div className="relative self-stretch w-full h-[29px]">
                                     <h2 className="absolute top-[calc(50%_-_14px)] left-0 font-sans font-normal text-black text-xl">
                                         Akun
@@ -423,6 +425,7 @@ export default function PengujiProfil() {
                     <OsCopyright />
                 </div>
             </div>
-        </div>
-    );
+        </main>
+    </div>
+);
 }
