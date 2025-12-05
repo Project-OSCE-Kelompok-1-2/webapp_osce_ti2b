@@ -32,18 +32,21 @@ class ProfilMahasiswaController extends Controller
 
     public function update_account(Request $request)
     {
-        $mahasiswa = Auth::user();
+        $user = Auth::user();
 
         $request->validate([
-            'foto'          => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:1024'],
+            'foto'          => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:5120'], // Max 5MB
             'new_password'  => ['nullable', 'string', 'min:6', 'confirmed'],
-            'old_password'  => ['nullable', 'string'], 
+            'old_password'  => ['nullable', 'required_with:new_password', 'string'], 
             'delete_foto'   => ['nullable', 'boolean'],
+            'username'      => ['nullable', 'string', 'unique:pengguna,username,'.$user->id_pengguna.',id_pengguna'],
+            'nama'          => ['nullable', 'string'],
+            'nim'           => ['nullable', 'string'],
         ]);
 
         try {
             $this->profilmahasiswaService->updateProfile(
-                $mahasiswa, 
+                $user, 
                 $request->all(), 
                 $request->file('foto')
             );

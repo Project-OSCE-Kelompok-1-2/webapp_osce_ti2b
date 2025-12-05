@@ -38,6 +38,20 @@ class ProfilMahasiswaService
              $user->username = $data['username'];
         }
 
+        // 4. UPDATE DATA MAHASISWA (Nama & NIM)
+        if (isset($data['nama']) || isset($data['nim'])) {
+            // Pastikan relasi mahasiswa ada
+            if ($user->mahasiswa) {
+                if (isset($data['nama'])) {
+                    $user->mahasiswa->nama = $data['nama'];
+                }
+                if (isset($data['nim'])) {
+                    $user->mahasiswa->nim = $data['nim'];
+                }
+                $user->mahasiswa->save();
+            }
+        }
+
         $user->save();
 
         return $user;

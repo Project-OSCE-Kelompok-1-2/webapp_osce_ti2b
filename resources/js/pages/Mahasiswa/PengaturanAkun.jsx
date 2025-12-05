@@ -59,7 +59,7 @@ const CustomInput = ({
 
 export default function MahasiswaAccountSettings() {
     // 1. AMBIL DATA DARI PROPS (Backend Asdif)
-    const { user, errors } = usePage().props;
+    const { user, errors, flash } = usePage().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const [showOldPassword, setShowOldPassword] = useState(false);
@@ -96,13 +96,22 @@ export default function MahasiswaAccountSettings() {
     const handleProfileImageUpload = (event) => {
         const file = event.target.files?.[0];
         if (file) {
-            setData((prev) => ({ ...prev, foto: file, delete_foto: false }));
+            // Update data form secara eksplisit
+            setData({
+                ...data,
+                foto: file,
+                delete_foto: false,
+            });
             setProfileImage(URL.createObjectURL(file));
         }
     };
 
     const handleDeleteProfileImage = () => {
-        setData((prev) => ({ ...prev, foto: null, delete_foto: true }));
+        setData({
+            ...data,
+            foto: null,
+            delete_foto: true,
+        });
         setProfileImage("https://via.placeholder.com/177?text=U");
     };
 
@@ -110,11 +119,13 @@ export default function MahasiswaAccountSettings() {
         e.preventDefault();
         post("/mahasiswa/pengaturan-akun", {
             preserveScroll: true,
+            forceFormData: true, // Pastikan dikirim sebagai FormData
             onSuccess: () => {
                 reset(
                     "old_password",
                     "new_password",
-                    "new_password_confirmation"
+                    "new_password_confirmation",
+                    "foto" // Reset input foto setelah berhasil
                 );
             },
         });
@@ -169,6 +180,32 @@ export default function MahasiswaAccountSettings() {
 
                     {/* KONTEN UTAMA (DUA KOLOM) */}
                     <main className="flex flex-col gap-5 w-full">
+                        {/* FLASH MESSAGE */}
+                        {flash?.success && (
+                            <div
+                                className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
+                                role="alert"
+                            >
+                                <strong className="font-bold">Berhasil!</strong>
+                                <span className="block sm:inline">
+                                    {" "}
+                                    {flash.success}
+                                </span>
+                            </div>
+                        )}
+                        {flash?.error && (
+                            <div
+                                className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+                                role="alert"
+                            >
+                                <strong className="font-bold">Error!</strong>
+                                <span className="block sm:inline">
+                                    {" "}
+                                    {flash.error}
+                                </span>
+                            </div>
+                        )}
+
                         <div className="flex flex-col lg:flex-row items-start gap-5 relative w-full">
                             {/* --- KOLOM KIRI: FOTO PROFIL --- */}
                             {/* [UBAH WARNA] Background Card jadi bg-blue-50 */}
@@ -283,13 +320,13 @@ export default function MahasiswaAccountSettings() {
                                     <CustomInput
                                         label="NIM"
                                         value={data.nim}
-                                        disabled
                                         icon={
                                             <OsIcon
                                                 name="Book"
                                                 className="w-5 h-5"
                                             />
                                         }
+                                        disabled
                                     />
 
                                     <hr className="w-full border-gray-300 my-2" />

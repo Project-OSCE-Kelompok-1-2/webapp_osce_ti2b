@@ -21,7 +21,8 @@ class JadwalMahasiswaController extends Controller
         $idMahasiswa = $this->jadwalmahasiswaService->getCurrentMahasiswaId();
         
         if (!$idMahasiswa) {
-            return redirect()->route('dashboard')->with('error', 'Akses khusus mahasiswa.');
+            // Redirect ke halaman profil jika data mahasiswa tidak ditemukan
+            return redirect()->route('mahasiswa.account.show')->with('error', 'Data mahasiswa tidak ditemukan.');
         }
 
         $examInfo = $this->jadwalmahasiswaService->getActiveExamInfo($idMahasiswa);
