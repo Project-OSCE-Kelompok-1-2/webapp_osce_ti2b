@@ -32,13 +32,16 @@ class JadwalMahasiswaService
             })
             ->with('osce')
             ->first();
+        
+        
 
         if (!$enrollment || !$enrollment->osce) {
+        // dd(null);
+
             return null;
         }
 
         $osce = $enrollment->osce;
-
         // LOGIKA WAKTU:
         // Prioritas 1: Ambil dari 'jam_sesi' di tabel EnrollmentOsce (Jadwal Spesifik)
         // Prioritas 2: Ambil dari 'tanggal_mulai' di tabel Osce (Jadwal Global)
@@ -49,7 +52,6 @@ class JadwalMahasiswaService
         $tanggalFix = $enrollment->tanggal_sesi 
             ? Carbon::parse($enrollment->tanggal_sesi) 
             : Carbon::parse($osce->tanggal_mulai);
-
         return [
             'id_osce' => $osce->id_osce, //
             'judul' => $osce->nama_osce,
