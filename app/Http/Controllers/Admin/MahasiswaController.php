@@ -5,9 +5,10 @@ namespace App\Http\Controllers\Admin;
 use Inertia\Inertia;
 use App\Models\Pengguna;
 use App\Models\Mahasiswa;
-use App\Models\TahunAkademik;
 use Illuminate\Http\Request;
+use App\Models\TahunAkademik;
 use App\Imports\MahasiswaImport;
+use App\Services\MahasiswaService;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
@@ -15,6 +16,13 @@ use Illuminate\Support\Facades\Redirect;
 
 class MahasiswaController extends Controller
 {
+    protected $service;
+
+    public function __construct(MahasiswaService $service)
+    {
+        $this->service = $service;
+    }
+
     /**
      * Menampilkan daftar mahasiswa (Halaman Utama)
      */
@@ -35,32 +43,7 @@ class MahasiswaController extends Controller
             ->pluck('tahun');
 
         // Query Mahasiswa dengan Relasi
-        $mahasiswa = Mahasiswa::query()
-            // Logic Search (Tetap sama)
-            ->when($search, function ($query, $search) {
-                $query->where(function ($q) use ($search) {
-                    $q->where('nama', 'like', "%{$search}%")
-                      ->orWhere('nim', 'like', "%{$search}%");
-                });
-            })
-
-
-            ->when($angkatan, function ($query, $angkatan) {
-                // 'angkatan' dari frontend adalah 'kelas' di DB
-                $query->where('kelas', $angkatan); 
-            })
-
-            ->orderBy('id_mahasiswa', 'desc')
-            ->paginate(10) // Sesuaikan jumlah paginasi jika perlu
-            ->withQueryString()
-            ->through(fn ($mhs) => [ // Kirim data minimal ke frontend
-                'id_mahasiswa' => $mhs->id_mahasiswa,
-                'nim' => $mhs->nim,
-                'nama' => $mhs->nama,
-                // KEMBALIKAN KE KOLOM KELAS (BUKAN ENROLLMENT)
-                'kelas' => $mhs->kelas, 
-                'prodi' => $mhs->prodi,
-            ]);
+        $mahasiswa = $this->service->getAll($search, $angkatan);
 
         // [PERBAIKAN] Render ke 'Admin/MahasiswaPage'
         return Inertia::render('Admin/MahasiswaPage', [
@@ -104,22 +87,8 @@ class MahasiswaController extends Controller
             'prodi' => 'required|string|max:100',
         ]);
 
-        DB::transaction(function () use ($validated) {
-            $pengguna = Pengguna::create([
-                'username' => $validated['nim'],   
-                'password' => $validated['nim'], // Default password = NIM
-                'jenis_role' => 'mahasiswa',
-            ]);
 
-            Mahasiswa::create([
-                'id_pengguna' => $pengguna->id_pengguna,
-                'nim'   => $validated['nim'],
-                'nama'  => $validated['nama'],
-                'kelas' => $validated['kelas'],
-                'prodi' => $validated['prodi'],
-                'status' => 'aktif',
-            ]);
-        });
+        $this->service->store($validated);
 
         return Redirect::route('admin.mahasiswa.index')
             ->with('success', 'Mahasiswa baru berhasil ditambahkan.');
@@ -162,21 +131,8 @@ class MahasiswaController extends Controller
             'kelas' => 'required|string|max:50',
             'prodi' => 'required|string|max:100',
         ]);
-        
-        DB::transaction(function () use ($validated, $mahasiswa) {
-            $mahasiswa->update([
-                'nim'   => $validated['nim'],
-                'nama'  => $validated['nama'],
-                'kelas' => $validated['kelas'],
-                'prodi' => $validated['prodi'],
-            ]);
 
-            if ($mahasiswa->pengguna) {
-                $mahasiswa->pengguna->update([
-                    'username' => $validated['nim'],
-                ]);
-            }
-        });
+        $this->service->update($validated, $mahasiswa);
 
         return Redirect::route('admin.mahasiswa.index')
             ->with('success', 'Data mahasiswa berhasil diperbarui.');
@@ -187,14 +143,7 @@ class MahasiswaController extends Controller
      */
     public function destroy(Mahasiswa $mahasiswa)
     {
-        DB::transaction(function () use ($mahasiswa) {
-            // Hapus data Pengguna yang terkait
-            if ($mahasiswa->pengguna) {
-                $mahasiswa->pengguna->delete();
-            }
-            // Hapus data Mahasiswa
-            $mahasiswa->delete();
-        });
+        $this->service->delete($mahasiswa);
 
         return Redirect::back()->with('success', 'Mahasiswa berhasil dihapus.');
     }
@@ -209,7 +158,7 @@ class MahasiswaController extends Controller
         ]);
 
         try {
-            Excel::import(new MahasiswaImport, $request->file('file'));
+            $this->service->importMahasiswa($request->file('file'));
             return redirect()->back()->with('success', 'Data mahasiswa berhasil diimpor.');
         } catch (\Exception $e) {
             // Tangkap error jika import gagal

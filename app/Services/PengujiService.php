@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\DB;
 class PengujiService
 {
     /** GET LIST + FILTER */
-    public function getAll($search = null, )
+    public function getAll($search = null,)
     {
         $query = Penguji::query();
         $perPage = 10;
@@ -52,21 +52,17 @@ class PengujiService
     }
 
     /** UPDATE */
-    public function update(Penguji $penguji, array $data)
+    public function update(Penguji $penguji, $validated)
     {
-        return DB::transaction(function () use ($penguji, $data) {
+        return DB::transaction(function () use ($penguji, $validated) {
 
-            $penguji->update([
-                'nama' => $data['nama'],
-                'nip' => $data['nip'],
-            ]);
+            $penguji->update($validated);
 
             if ($penguji->pengguna) {
                 $penguji->pengguna->update([
-                    'username' => $data['nip'],
+                    'username' => $validated['nip'],
                 ]);
             }
-
             return $penguji;
         });
     }

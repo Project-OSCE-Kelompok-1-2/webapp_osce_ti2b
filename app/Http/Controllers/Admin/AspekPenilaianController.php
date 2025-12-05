@@ -7,36 +7,32 @@ use App\Models\Stase;
 use Illuminate\Http\Request;
 use App\Models\AspekPenilaian;
 use App\Http\Controllers\Controller;
+use App\Services\AspekPenilaianService;
 use Illuminate\Support\Facades\Redirect;
 
 class AspekPenilaianController extends Controller
 {
+    protected $service;
+
+    public function __construct(AspekPenilaianService $aspekPenilaianService)
+    {
+        $this->service = $aspekPenilaianService;
+    }
+
     // Menggantikan get_aspek_penilaian
     public function index(Request $request, Stase $stase)
     {
-        $aspek_penilaian = AspekPenilaian::where('id_stase', $stase->id_stase)
-            ->when($request->input('search'), function ($query, $search) {
-                $query->where('aspek', 'like', "%{$search}%");
-            })
-            ->withCount('poinAspekPenilaian as jumlah_kompetensi')
-            ->paginate(10)
-            ->withQueryString();
-        
-        // Mengubah nama kolom agar konsisten dengan frontend sebelumnya
-        $aspek_penilaian->getCollection()->transform(function ($item) {
-            $item->nama = $item->aspek;
-            $item->bobot = $item->bobot_maksimum;
-            $item->id = $item->id_aspek_penilaian;
-            return $item;
-        });
-
+        $search = $request->query("search");
+        $aspek_penilaian =  $this->service->getByStase($stase, $search);
+        // Sekarang Anda bisa mengakses properti 'nama' yang sudah Anda buat di Service.
+        dd($aspek_penilaian);
         return Inertia::render('Admin/MenuAspekPenilaian', [
             'stase' => $stase,
             'aspek_penilaian' => $aspek_penilaian,
             'filters' => $request->only(['search'])
         ]);
     }
-    
+
     public function create(Stase $stase)
     {
         return Inertia::render('Admin/TambahAspekPenilaian', [
@@ -55,12 +51,12 @@ class AspekPenilaianController extends Controller
             'bobot_maksimum' => 'required|integer|min:0',
         ]);
 
-        $stase->aspekPenilaian()->create($validated);
+        $this->service->create($stase, $validated);
 
         return Redirect::route('admin.stase.aspek-penilaian.index', $stase->id_stase)
             ->with('success', 'Aspek Penilaian berhasil ditambahkan.');
     }
-    
+
     /**
      * Menampilkan form untuk mengedit Aspek Penilaian.
      */
@@ -82,8 +78,8 @@ class AspekPenilaianController extends Controller
             'aspek' => 'required|string',
             'bobot_maksimum' => 'required|integer|min:0',
         ]);
-        
-        $aspekPenilaian->update($validated);
+
+        $aspekPenilaian = $this->service->update($aspekPenilaian, $validated);
 
         return Redirect::route('admin.stase.aspek-penilaian.index', $aspekPenilaian->id_stase)
             ->with('success', 'Aspek Penilaian berhasil diperbarui.');
@@ -93,10 +89,7 @@ class AspekPenilaianController extends Controller
     {
         // CATATAN: Hapus semua "poin kompetensi" yang terkait dulu
         // untuk menghindari error foreign key (jika tidak di-setting ON DELETE CASCADE)
-        $aspekPenilaian->poinAspekPenilaian()->delete();
-        
-        // Hapus data aspek penilaian
-        $aspekPenilaian->delete();
+        $this->service->delete($aspekPenilaian);
 
         // Redirect kembali ke halaman sebelumnya dengan pesan sukses
         return Redirect::back()->with('success', 'Aspek penilaian berhasil dihapus.');
