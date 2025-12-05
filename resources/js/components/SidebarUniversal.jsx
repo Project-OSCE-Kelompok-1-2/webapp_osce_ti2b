@@ -1,5 +1,6 @@
 import React from "react";
 import { usePage, Link } from "@inertiajs/react";
+import { useState } from "react";
 import {
     Home,
     Users,
@@ -48,7 +49,7 @@ const mahasiswaMenus = [
 // ---------------------------------------------------
 
 const SidebarUniversal = () => {
-    const [isOpen, setIsOpen] = useState(true);
+    const [isOpen, setIsOpen] = useState(false);
     const { url } = usePage();
 
     // --- 2. LOGIKA DETEKSI ROLE OTOMATIS ---
@@ -125,6 +126,17 @@ const SidebarUniversal = () => {
                 toggleBtn: "bg-blue-600 hover:bg-blue-500",
             };
         }
+    };
+
+    // --- FIX: MENAMBAHKAN FUNGSI YANG HILANG (TANPA MENGUBAH TAMPILAN LAIN) ---
+    const getLinkClass = (active) => {
+        // Ambil style role agar warna background (bg) dan border sesuai role
+        const styles = getRoleStyles(active);
+
+        // Gabungkan class layout dasar dengan class warna dari role
+        return `flex items-center gap-3 p-3 rounded-lg transition-all duration-300 group mb-1 ${
+            !isOpen ? "justify-center" : ""
+        } ${styles.bg} ${styles.border}`;
     };
 
     // Ambil style dasar untuk komponen statis (seperti tombol toggle)
