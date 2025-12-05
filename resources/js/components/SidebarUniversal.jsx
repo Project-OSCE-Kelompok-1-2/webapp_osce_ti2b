@@ -128,6 +128,17 @@ const SidebarUniversal = () => {
         }
     };
 
+    // --- FIX: MENAMBAHKAN FUNGSI YANG HILANG (TANPA MENGUBAH TAMPILAN LAIN) ---
+    const getLinkClass = (active) => {
+        // Ambil style role agar warna background (bg) dan border sesuai role
+        const styles = getRoleStyles(active);
+
+        // Gabungkan class layout dasar dengan class warna dari role
+        return `flex items-center gap-3 p-3 rounded-lg transition-all duration-300 group mb-1 ${
+            !isOpen ? "justify-center" : ""
+        } ${styles.bg} ${styles.border}`;
+    };
+
     // Ambil style dasar untuk komponen statis (seperti tombol toggle)
     // Kita anggap jika sedang di menu apapun, style dasar mengikuti role
     const currentStyles = getRoleStyles(false);
