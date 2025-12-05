@@ -53,7 +53,7 @@ const staseColumns = [
     {
         key: "nama_stase",
         content: "Nama Stase",
-        width: "w-[400px] shrink-0", // Ganti w-7/12
+        width: "w-[400px] flex-1 shrink-0", // Ganti w-7/12
         classes: "justify-start items-center px-4",
     },
     {
@@ -65,7 +65,7 @@ const staseColumns = [
     {
         key: "action",
         content: "Aksi",
-        width: "w-48 shrink-0", // Ganti w-3/12
+        width: "w-48 min-w-[300px] shrink-0", // Ganti w-3/12
         classes: "justify-center items-center px-4",
     },
 ];
@@ -295,7 +295,7 @@ export default function Stase() {
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Stase
                     </h2>
-                    
+
                     <div className="w-full overflow-x-auto pb-4">
                         <div className="min-w-max">
                             <OsTableHeader columns={staseColumns} />

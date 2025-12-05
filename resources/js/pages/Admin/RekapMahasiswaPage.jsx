@@ -56,7 +56,7 @@ const mahasiswaColumns = [
     {
         key: "nama_mahasiswa",
         content: "Nama Mahasiswa",
-        width: "w-[350px] shrink-0", // Ganti flex-1
+        width: "w-[350px] flex-1 shrink-0", // Ganti flex-1
         classes: "justify-start items-center px-4",
     },
     {
@@ -175,7 +175,7 @@ export default function RekapMahasiswaPage() {
                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Mahasiswa
                     </h2>
-                    
+
                     <div className="w-full overflow-x-auto pb-4">
                         <div className="min-w-max">
                             <OsTableHeader columns={mahasiswaColumns} />

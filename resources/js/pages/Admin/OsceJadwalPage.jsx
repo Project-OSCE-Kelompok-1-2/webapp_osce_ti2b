@@ -65,7 +65,7 @@ const jadwalColumns = [
     {
         key: "tanggal_sesi",
         content: "Tanggal / Sesi",
-        width: "w-[400px] shrink-0", // Ganti w-7/12
+        width: "flex-1 shrink-0", // Ganti w-7/12
         classes: "justify-start items-center px-4",
     },
     {
@@ -77,7 +77,7 @@ const jadwalColumns = [
     {
         key: "action",
         content: "Action",
-        width: "w-48 shrink-0", // Ganti w-3/12
+        width: " min-w-[300px] shrink-0", // Ganti w-3/12
         classes: "justify-center items-center",
     },
 ];
@@ -374,7 +374,7 @@ export default function SesiOscePage({
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Sesi
                     </h2>
-                    
+
                     <div className="w-full overflow-x-auto pb-4">
                         <div className="min-w-max border rounded-lg overflow-hidden">
                             <OsTableHeader columns={jadwalColumns} />

@@ -59,7 +59,7 @@ const mahasiswaColumns = [
         content: "Nama Mahasiswa",
         // HAPUS "flex-1". Ganti jadi ukuran fix yang lebar.
         // Misal w-[350px] atau w-96. Ini yang bikin dia tetep lebar di HP.
-        width: "w-[350px] shrink-0", 
+        width: "min-w-[350px] !flex-1 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
@@ -328,22 +328,22 @@ export default function MahasiswaPage() {
                         />
                     </OsSearchBar>
 
-                    
+
                     {/* Tabel */}
                     <section>
                         <h2 className="font-semibold text-lg mb-2">
                             Tabel Mahasiswa
                         </h2>
-                        
+
                         {/* Wrapper Scroll Horizontal */}
                         <div className="w-full overflow-x-auto pb-4">
-                            {/* min-w-max: Ini kuncinya! 
-                                Dia akan memaksa div ini selebar total konten di dalamnya 
+                            {/* min-w-max: Ini kuncinya!
+                                Dia akan memaksa div ini selebar total konten di dalamnya
                                 (total width kolom yg kita set di atas).
                                 Jadi tabelnya bakal ngerender seolah-olah di layar lebar,
                                 baru kemudian dipotong oleh overflow-x-auto.
                             */}
-                            <div className="min-w-max"> 
+                            <div className="min-w-max">
                                 <OsTableHeader columns={mahasiswaColumns} />
                                 {mahasiswa.data.length > 0 ? (
                                     <OsTableBody
@@ -388,6 +388,8 @@ export default function MahasiswaPage() {
                         value={data.nim}
                         onChange={(e) => setData("nim", e.target.value)}
                         placeholder="Masukkan NIM..."
+                        className="w-full"
+
                         required
                     />
                     <OsInput
@@ -398,6 +400,8 @@ export default function MahasiswaPage() {
                         onChange={(e) => setData("kelas", e.target.value)}
                         options={angkatanList}
                         required
+                        className="w-full"
+
                     />
                 </div>
                 <OsInput
@@ -449,6 +453,7 @@ export default function MahasiswaPage() {
                         value={data.nim}
                         onChange={(e) => setData("nim", e.target.value)}
                         placeholder="Masukkan NIM..."
+                        className="w-full"
                         required
                     />
                     <OsInput
@@ -460,6 +465,7 @@ export default function MahasiswaPage() {
                         options={angkatanList.filter(
                             (o) => o.value !== "SEMUA"
                         )}
+                        className="w-full"
                         required
                     />
                 </div>

@@ -53,7 +53,7 @@ const columns = [
     },
     {
         content: "Deskripsi",
-        width: "w-[500px] shrink-0", // Ganti w-8/12 jadi fix lebar
+        width: "w-[500px] flex-1 shrink-0", // Ganti w-8/12 jadi fix lebar
         classes: "justify-start items-center px-4",
         key: "kompetensi",
     },

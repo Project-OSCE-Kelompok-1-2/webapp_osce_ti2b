@@ -60,7 +60,7 @@ const pengujiColumns = [
     {
         key: "nama_penguji",
         content: "Nama Penguji",
-        width: "w-[350px] shrink-0", // Ganti flex-1
+        width: "min-w-[350px] !flex-1 shrink-0", // Ganti flex-1
         classes: "justify-start items-center px-4",
     },
     {
@@ -266,7 +266,7 @@ export default function PengujiPage() {
                         <h2 className="font-semibold text-lg mb-2">
                             Tabel Penguji
                         </h2>
-                        
+
                         <div className="w-full overflow-x-auto pb-4">
                             <div className="min-w-max">
                                 <OsTableHeader columns={pengujiColumns} />

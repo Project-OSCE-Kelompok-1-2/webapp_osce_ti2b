@@ -52,7 +52,7 @@ const columns = [
     {
         key: "aspek",
         content: "Deskripsi",
-        width: "w-[400px] shrink-0", // Ganti w-7/12
+        width: "w-[400px] flex-1 shrink-0", // Ganti w-7/12
         classes: "justify-start items-center px-4",
     },
     {
@@ -64,7 +64,7 @@ const columns = [
     {
         key: "action",
         content: "Aksi",
-        width: "w-48 shrink-0", // Ganti w-3/12
+        width: " shrink-0 min-w-[300px]", // Ganti w-3/12
         classes: "justify-center items-center",
     },
 ];
@@ -334,7 +334,7 @@ export default function MenuAspekPenilaian() {
                                     Belum ada aspek penilaian untuk stase ini.
                                 </div>
                             )}
-                            
+
                             {/* Footer Total Bobot tetap di dalam scroll biar sejajar */}
                              <div className="bg-os-white rounded-lg overflow-hidden border-os-1 border-os-black mt-3 h-[56px]">
                                 {/* ... isi footer ... */}

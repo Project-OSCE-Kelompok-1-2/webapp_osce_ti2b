@@ -65,25 +65,25 @@ const columns = [
     },
     {
         content: "Nama OSCE",
-        width: "w-[400px] shrink-0", // Ganti flex-1
+        width: "w-[400px] flex-1 shrink-0", // Ganti flex-1
         classes: "justify-start items-center px-4",
         key: "nama",
     },
     {
         content: "Rentang Tanggal",
-        width: "w-48 shrink-0", // Ganti w-2/12
+        width: "w-52 shrink-0", // Ganti w-2/12
         classes: "justify-center items-center",
         key: "tanggal",
     },
     {
         content: "Tahun Akademik",
-        width: "w-40 shrink-0", // Ganti w-2/12
+        width: "min-w-52 shrink-0 ", // Ganti w-2/12
         classes: "justify-center items-center",
         key: "tahun",
     },
     {
         content: "Aksi",
-        width: "w-48 shrink-0", // Ganti w-3/12
+        width: "min-w-[300px] shrink-0", // Ganti w-3/12
         classes: "justify-center items-center",
         key: "aksi",
     },
@@ -314,7 +314,7 @@ export default function OsceListPage({
                         <h2 className="text-lg font-semibold mb-2">
                             Table OSCE
                         </h2>
-                        
+
                         <div className="w-full overflow-x-auto pb-4">
                             <div className="min-w-max">
                                 <OsTableHeader columns={columns} />
