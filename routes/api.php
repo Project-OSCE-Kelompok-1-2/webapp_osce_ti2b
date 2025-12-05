@@ -14,8 +14,11 @@ use App\Http\Controllers\Api\V1\Admin\OsceJadwalController;
 use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
 use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
+<<<<<<< HEAD
 use App\Http\Controllers\Api\Penguji\OscePengujiController as PengujiOsceListController;
 use App\Http\Controllers\Api\V1\Penguji\PenilaianController;
+=======
+>>>>>>> 5368c0e6a0e9d5f831dff8bd45bb7c5c230db158
 
 Route::prefix('v1')->group(function () {
     // Route::get('/login', function () {
@@ -36,7 +39,6 @@ Route::prefix('v1')->group(function () {
         // });
 
         Route::prefix('admin')->middleware('roleApi:admin')->group(function () {
-
             // --- Admin Dashboard & Profile ---
             Route::get('/dashboard', [AdminController::class, 'dashboard']);
 
@@ -101,9 +103,25 @@ Route::prefix('v1')->group(function () {
         Route::post('/penguji/profil/update', [ProfilController::class, 'update_account'])
             ->name('api.penguji.account.update');
 
-        // --- ALUR PENILAIAN LIVE (Penguji) ---
-        Route::get('/penguji/osce/{id_osce}/stase/{id_osce_stase}', [PenilaianController::class, 'getAntrian']);
-        Route::get('/penguji/penilaian/{id_enrollment_osce}', [PenilaianController::class, 'getFormPenilaian']);
-        Route::post('/penguji/penilaian/{id_enrollment_osce}', [PenilaianController::class, 'storePenilaian']);
+            // IMPORT MAHASISWA VIA EXCEL
+            Route::post('/admin/mahasiswa/import', [MahasiswaController::class, 'import']);
+
+            // VIEW NILAI (Sudah ada)
+            Route::get('/penilaian/{id_enrollment_osce}/view', ViewNilaiController::class);
+
+            // Profil Penguji
+            Route::get('/penguji/profil', [ProfilController::class, 'show_profile'])
+                ->name('api.penguji.account.show');
+
+            Route::post('/penguji/profil/update', [ProfilController::class, 'update_account'])
+                ->name('api.penguji.account.update');
+        }); // <-- Menutup group auth:sanctum
+
+        // Halaman Penilaian [Penguji]
+        Route::get('/osce/{id_osce}/stase/{id_osce_stase}', [ApiHalamanPenilaian::class, 'getAntrian'])
+            ->name('antrian');
+
+        Route::get('/penilaian/{id_enrollment_osce}', [ApiHalamanPenilaian::class, 'getPenilaian'])
+            ->name('penilaian.show');
     });
 }); 

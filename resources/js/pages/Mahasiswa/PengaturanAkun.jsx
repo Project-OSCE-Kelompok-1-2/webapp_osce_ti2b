@@ -128,8 +128,11 @@ export default function MahasiswaAccountSettings() {
         <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             {/* SIDEBAR */}
             {/* <SidebarPenguji /> */}
-            <SidebarUniversal isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
-
+            <SidebarUniversal
+                isOpen={sidebarOpen}
+                setIsOpen={setSidebarOpen}
+                type={"penguji"}
+            />
 
             {/* MAIN CONTENT WRAPPER */}
             <div className="bg-white w-full min-h-screen flex justify-center p-6 font-sans md:ml-20 transition-all duration-300">
@@ -199,7 +202,9 @@ export default function MahasiswaAccountSettings() {
                                     </div>
                                     {/* Text warna hitam/gelap agar terbaca di background abu */}
                                     <p className="font-sans font-normal text-black text-[13px]">
-                                        Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nunc vulputate libero et velit interdum.
+                                        Lorem ipsum dolor sit amet, consectetur
+                                        adipiscing elit. Nunc vulputate libero
+                                        et velit interdum.
                                     </p>
                                 </div>
                                 {errors.foto && (
@@ -379,7 +384,7 @@ export default function MahasiswaAccountSettings() {
                                                             )
                                                         }
                                                     >
-                                                         {/* Logic toggle new pass */}
+                                                        {/* Logic toggle new pass */}
                                                     </div>
                                                 }
                                             />

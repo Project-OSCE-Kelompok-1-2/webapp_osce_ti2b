@@ -71,6 +71,6 @@ class JadwalMahasiswaService
         return OsceStase::with(['stase', 'ruang', 'penguji.pengguna']) 
             ->where('id_osce', $idOsce)
             ->orderBy('jam_mulai', 'asc')
-            ->paginate(10);
+            ->paginate(5);
     }
 }
