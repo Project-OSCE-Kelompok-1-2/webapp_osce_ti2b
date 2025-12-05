@@ -9,6 +9,7 @@ import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsButton from "../../components/button.jsx";
+import Sidebar from "../../components/Sidebar.jsx";
 
 // Komponen Input Custom (Sesuai Desain)
 const CustomInput = ({
@@ -59,6 +60,7 @@ const CustomInput = ({
 export default function PengujiProfil() {
     // 1. AMBIL DATA DARI PROPS (Backend Asdif)
     const { user, errors } = usePage().props;
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const [showOldPassword, setShowOldPassword] = useState(false);
     // State untuk preview gambar
@@ -125,7 +127,9 @@ export default function PengujiProfil() {
     return (
         <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             {/* SIDEBAR */}
-            <SidebarPenguji />
+            {/* <SidebarPenguji /> */}
+            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
+
 
             {/* MAIN CONTENT WRAPPER */}
             <div className="bg-gray-100 w-full min-h-screen flex justify-center p-6 font-sans md:ml-20 transition-all duration-300">

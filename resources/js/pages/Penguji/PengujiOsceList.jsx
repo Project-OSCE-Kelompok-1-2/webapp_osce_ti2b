@@ -10,6 +10,7 @@ import OsHeader from "../../components/Header";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
 import OsTableBody from "../../components/tablecontain";
+import Sidebar from "../../components/Sidebar";
 
 // Struktur kolom tabel
 const osceColumns = [
@@ -85,6 +86,7 @@ export default function PengujiOsceList() {
     // 1. AMBIL PROPS DARI INERTIA (Backend)
     const { osce_list, filters } = usePage().props;
     const { data, links, current_page, from } = osce_list; // Destructure data pagination
+        const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // State Search & Filter (Inisialisasi dari props filter agar persisten)
     const [search, setSearch] = useState(filters.search || "");
@@ -123,7 +125,7 @@ export default function PengujiOsceList() {
         const btn = getButtonStyle(item.status);
 
         // Tentukan link berdasarkan status
-        let linkHref = "#";
+        let linkHref;
         if (item.status === "Aktif") {
             // Ke halaman antrian (Live)
             linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}`;
@@ -175,7 +177,9 @@ export default function PengujiOsceList() {
             <Head title="Jadwal OSCE" />
 
             {/* Sidebar Penguji */}
-            <SidebarPenguji />
+            {/* <SidebarPenguji /> */}
+            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
+
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 <OsHeader variant="goback" backLink="/penguji/dashboard" />

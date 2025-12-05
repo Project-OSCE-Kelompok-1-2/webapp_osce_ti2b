@@ -24,10 +24,11 @@ class AksiPenilaianController extends Controller
     private function cekWaktuHabis($id_osce)
     {
         $osce = Osce::findOrFail($id_osce);
-        // Batas waktu adalah akhir hari dari tanggal selesai
-        $batasWaktu = Carbon::parse($osce->tanggal_selesai)->endOfDay();
-        
-        return Carbon::now()->gt($batasWaktu);
+        // Paksa Parse Tanggal Selesai sebagai WIB (Asia/Jakarta)
+        $batasWaktu = Carbon::parse($osce->tanggal_selesai, 'Asia/Jakarta')->endOfDay();
+
+        // Bandingkan dengan waktu sekarang di Jakarta juga
+        return Carbon::now('Asia/Jakarta')->gt($batasWaktu);
     }
 
     /**
@@ -37,7 +38,7 @@ class AksiPenilaianController extends Controller
     public function store(Request $request, $id_enrollment_osce)
     {
         $user = Auth::user();
-        
+
         // 1. Ambil Data Enrollment
         $enrollment = EnrollmentOsce::findOrFail($id_enrollment_osce);
 
@@ -58,6 +59,12 @@ class AksiPenilaianController extends Controller
         // Kita cari stase mana yang sedang dipegang oleh penguji ini di OSCE ini
         $staseContext = OsceStase::where('id_osce', $enrollment->id_osce)
             ->where('id_penguji', $user->penguji->id_penguji)
+
+            // TAMBAHKAN FILTER WAKTU AGAR TIDAK SALAH AMBIL JADWAL PENGUJI
+            ->whereDate('tanggal', $enrollment->tanggal_sesi)
+            ->whereTime('jam_mulai', '<=', $enrollment->jam_sesi)
+            ->whereTime('jam_selesai', '>', $enrollment->jam_sesi)
+
             ->firstOrFail();
 
         // 5. Simpan Data (Gunakan Transaction)
@@ -101,24 +108,54 @@ class AksiPenilaianController extends Controller
         $osceStase = OsceStase::with(['osce', 'stase'])
             ->where('id_osce', $id_osce)
             ->where('id_osce_stase', $id_osce_stase)
-            ->where('id_penguji', $penguji->id_penguji) 
+            ->where('id_penguji', $penguji->id_penguji)
             ->firstOrFail();
 
+        // 2. Filter Mahasiswa Sesi Ini (Range Waktu)
+        $tglJadwal   = $osceStase->tanggal;
+        $jamMulai    = $osceStase->jam_mulai;
+        $jamSelesai  = $osceStase->jam_selesai;
+
+        // [FIX LOGIKA]
+        // Gunakan '<=' agar mahasiswa yang dijadwalkan tepat di jam selesai (edge case) tetap terbaca.
+        // Risiko: Mahasiswa sesi berikutnya mungkin terbaca, tapi akan kita handle di logika "next".
         $allEnrollments = EnrollmentOsce::with('mahasiswa')
             ->where('id_osce', $id_osce)
+            ->whereDate('tanggal_sesi', $tglJadwal)
+            ->whereTime('jam_sesi', '>=', $jamMulai)
+            ->whereTime('jam_sesi', '<', $jamSelesai) // <--- UBAH JADI <= (Kurang Dari Sama Dengan)
+            ->orderBy('jam_sesi', 'asc')
             ->get();
 
+        // 3. Cek yang sudah dinilai (DENGAN PERBAIKAN)
         $sudahDinilaiIds = NilaiOsce::whereIn('id_enrollment_osce', $allEnrollments->pluck('id_enrollment_osce'))
-            ->whereHas('poinAspekPenilaian.aspekPenilaian', function($q) use ($osceStase) {
+            ->whereHas('poinAspekPenilaian.aspekPenilaian', function ($q) use ($osceStase) {
                 $q->where('id_stase', $osceStase->id_stase);
             })
+            // --- TAMBAHKAN BARIS INI ---
+            ->whereNotNull('nilai') // Hanya hitung jika skor benar-benar sudah diisi
+            // ---------------------------
             ->pluck('id_enrollment_osce')
             ->toArray();
 
-        $nextStudent = $allEnrollments->first(function ($enrollment) use ($sudahDinilaiIds) {
-            return !in_array($enrollment->id_enrollment_osce, $sudahDinilaiIds);
-        });
+        // 4. Cari Next Student
+        // Sekarang Foster tidak akan masuk ke $sudahDinilaiIds karena nilainya masih NULL
+        // Jadi dia akan terpilih sebagai $nextStudent.
+        $currentRequestTime = Carbon::now()->format('H:i:s');
 
+        // OPSI A: Cari mahasiswa yang belum dinilai DAN jadwalnya >= sekarang (atau toleransi sedikit)
+        $nextStudent = $allEnrollments->first(function ($enrollment) use ($sudahDinilaiIds, $currentRequestTime) {
+            // Abaikan yang sudah dinilai
+            if (in_array($enrollment->id_enrollment_osce, $sudahDinilaiIds)) {
+                return false;
+            }
+
+            // (Opsional) Jika ingin memaksa urutan waktu:
+            // return $enrollment->jam_sesi >= $currentRequestTime;
+
+            // Tapi untuk keamanan (takut jam server beda), kembalikan saja logika dasar:
+            return true;
+        });
 
         $mahasiswaSelanjutnya = null;
         if ($nextStudent) {
@@ -137,8 +174,8 @@ class AksiPenilaianController extends Controller
                 'nama_osce' => $osceStase->osce->nama_osce,
                 'nama_stase' => $osceStase->stase->nama_stase,
             ],
-            'mahasiswa_selanjutnya' => $mahasiswaSelanjutnya, 
-            'sisa_waktu_rotasi_detik' => 60 
+            'mahasiswa_selanjutnya' => $mahasiswaSelanjutnya, // Akan NULL jika habis
+            'sisa_waktu_rotasi_detik' => 60
         ]);
     }
 
@@ -156,9 +193,21 @@ class AksiPenilaianController extends Controller
             ->where('id_penguji', $user->penguji->id_penguji)
             ->firstOrFail();
 
-        // Ambil rekap singkat status penilaian
+        // ============================================================
+        // PERBAIKAN LOGIKA: FILTER HANYA MAHASISWA SESI INI
+        // ============================================================
+        $tglJadwal   = $osceStase->tanggal;
+        $jamMulai    = $osceStase->jam_mulai;
+        $jamSelesai  = $osceStase->jam_selesai;
+
+        // Ambil rekap singkat status penilaian (HANYA SESI INI)
         $mahasiswaList = EnrollmentOsce::with('mahasiswa')
             ->where('id_osce', $id_osce)
+            // Tambahkan Filter Waktu Ini!
+            ->whereDate('tanggal_sesi', $tglJadwal)
+            ->whereTime('jam_sesi', '>=', $jamMulai)
+            ->whereTime('jam_sesi', '<', $jamSelesai)
+            ->orderBy('jam_sesi', 'asc')
             ->get()
             ->map(function ($enrollment) use ($osceStase) {
                 $hasNilai = NilaiOsce::where('id_enrollment_osce', $enrollment->id_enrollment_osce)
@@ -167,18 +216,18 @@ class AksiPenilaianController extends Controller
                     })->exists();
 
                 return [
-                    'nama' => $enrollment->mahasiswa->nama,
-                    'nim' => $enrollment->mahasiswa->nim,
+                    'nama'   => $enrollment->mahasiswa->nama,
+                    'nim'    => $enrollment->mahasiswa->nim,
                     'status' => $hasNilai ? 'Sudah Dinilai' : 'Belum Dinilai',
                 ];
             });
 
         return Inertia::render('Penguji/SubmitRubrik', [
             'osce_detail' => [
-                'id_osce' => $osceStase->id_osce,
+                'id_osce'       => $osceStase->id_osce,
                 'id_osce_stase' => $osceStase->id_osce_stase,
-                'nama_osce' => $osceStase->osce->nama_osce,
-                'nama_stase' => $osceStase->stase->nama_stase,
+                'nama_osce'     => $osceStase->osce->nama_osce,
+                'nama_stase'    => $osceStase->stase->nama_stase,
             ],
             'mahasiswa_list' => $mahasiswaList
         ]);

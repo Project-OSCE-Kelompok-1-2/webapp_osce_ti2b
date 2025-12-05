@@ -153,8 +153,8 @@ export default function AdminSettingAkun({ user }) {
                         {/* CONTENT */}
                         <div className="flex flex-col lg:flex-row gap-4 w-full">
                             {/* ASIDE */}
-                            <aside className="flex flex-col w-full lg:w-[403px] gap-[17px] p-5 bg-white rounded-xl border border-black">
-                                <div>
+                            <aside className="flex flex-col w-full lg:w-[403px] gap-[17px] p-5 bg-white rounded-xl border border-black justify-center items-center">
+                                <div className="w-full">
                                     <h2 className="text-xl">Gambar Profil</h2>
                                     <hr className="mt-1 border-black" />
                                 </div>
@@ -166,7 +166,7 @@ export default function AdminSettingAkun({ user }) {
                                     }}
                                 />
 
-                                <div className="flex flex-col gap-[5px] bg-red-100 p-3 rounded-xl border border-red-400">
+                                <div className="flex flex-col gap-[5px] bg-red-100 p-3 rounded-xl border border-red-400 w-full">
                                     <div className="flex items-center gap-[5px]">
                                         <AlertCircle className="w-[15px] text-red-500" />
                                         <p className="text-red-800 font-medium">

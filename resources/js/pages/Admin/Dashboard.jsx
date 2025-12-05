@@ -6,6 +6,7 @@ import {
     UserCheck,
     ExternalLink,
     Bookmark,
+    Bell
 } from "lucide-react";
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
@@ -118,94 +119,105 @@ export default function Dashboard() {
     const totalPenguji = (stats.total_penguji ?? 0).toString().padStart(2, "0");
 
     return (
-        <div className="relative bg-gray-50 w-full min-h-screen flex justify-start font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
 
-            <main
-                className={`flex flex-col flex-1 transition-all duration-300 ${
-                    sidebarOpen ? "md:ml-64" : "md:ml-20"
-                } p-os-20 gap-os-12`}
-            >
-                {/* Header / Breadcrumb */}
-                <OsHeader/>
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+                <OsHeader />
 
                 {/* MAIN */}
-                <div className="flex-1 overflow-auto">
-                    {/* Statistika */}
-                    <section className="mb-8">
-                        <h2 className="font-bold text-lg text-gray-900 mb-4">
+                <div className="">
+                    <p className=" text-gray-600 text-os-regular">
+                        Selamat Datang,
+                    </p>
+                    <h1 className="font-bold text-os-title text-gray-900">
+                        {/* {nama_penguji} */}
+                        USERNAME
+                    </h1>
+                    <p className="text-gray-500 text-sm">
+                        Berikut adalah ringkasan aktivitas pengujian Anda.
+                    </p>
+                </div>
+
+                <hr className="border-1 border-os-black opacity-os-alpha-25" />
+
+                {/* Statistika */}
+                <section className="mb-2">
+                    <div className="flex gap-os-8 items-center justify-start mb-2">
+                        <OsIcon name={"stat"} className="h-[15px]"/>
+                        <h2 className="font-bold text-os-regular text-gray-900">
                             Statistika
                         </h2>
+                    </div>
 
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                            {/* [UBAH] Tambahkan prop 'href' di sini */}
-                            <StatCard
-                                title="Total OSCE"
-                                description="Jumlah total OSCE yang terdaftar"
-                                value={totalOsce}
-                                icon={
-                                    <ClipboardList
-                                        size={22}
-                                        className="text-blue-700"
-                                    />
-                                }
-                                colorClass="bg-blue-50 border-blue-200"
-                                href="/admin/osce" // <-- Tautan ke menu OSCE
-                            />
-                            {/* [UBAH] Tambahkan prop 'href' di sini */}
-                            <StatCard
-                                title="Total Mahasiswa"
-                                description="Jumlah total mahasiswa terdaftar"
-                                value={totalMahasiswa}
-                                icon={
-                                    <Users
-                                        size={22}
-                                        className="text-gray-700"
-                                    />
-                                }
-                                colorClass="bg-white border-gray-200"
-                                href="/admin/mahasiswa" // <-- Tautan ke menu Mahasiswa
-                            />
-                            {/* [UBAH] Tambahkan prop 'href' di sini */}
-                            <StatCard
-                                title="Total Penguji"
-                                description="Jumlah total penguji terdaftar"
-                                value={totalPenguji}
-                                icon={
-                                    <UserCheck
-                                        size={22}
-                                        className="text-gray-700"
-                                    />
-                                }
-                                colorClass="bg-white border-gray-200"
-                                href="/admin/dosen" // <-- Tautan ke menu Dosen (Asumsi Penguji = Dosen)
-                            />
-                        </div>
-                    </section>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        {/* [UBAH] Tambahkan prop 'href' di sini */}
+                        <StatCard
+                            title="Total OSCE"
+                            description="Jumlah total OSCE yang terdaftar"
+                            value={totalOsce}
+                            icon={
+                                <ClipboardList
+                                    size={22}
+                                    className="text-blue-700"
+                                />
+                            }
+                            colorClass="bg-blue-50 border-blue-200"
+                            href="/admin/osce" // <-- Tautan ke menu OSCE
+                        />
+                        {/* [UBAH] Tambahkan prop 'href' di sini */}
+                        <StatCard
+                            title="Total Mahasiswa"
+                            description="Jumlah total mahasiswa terdaftar"
+                            value={totalMahasiswa}
+                            icon={<Users size={22} className="text-gray-700" />}
+                            colorClass="bg-white border-gray-200"
+                            href="/admin/mahasiswa" // <-- Tautan ke menu Mahasiswa
+                        />
+                        {/* [UBAH] Tambahkan prop 'href' di sini */}
+                        <StatCard
+                            title="Total Penguji"
+                            description="Jumlah total penguji terdaftar"
+                            value={totalPenguji}
+                            icon={
+                                <UserCheck
+                                    size={22}
+                                    className="text-gray-700"
+                                />
+                            }
+                            colorClass="bg-white border-gray-200"
+                            href="/admin/dosen" // <-- Tautan ke menu Dosen (Asumsi Penguji = Dosen)
+                        />
+                    </div>
+                </section>
 
-                    {/* Notifikasi */}
-                    <section>
-                        <h2 className="font-bold text-lg text-gray-900 mb-4">
+                <hr className="border-1 border-os-black opacity-os-alpha-25" />
+
+                {/* Notifikasi */}
+                <section>
+                    <div className="flex gap-os-8 items-center justify-start mb-2">
+                        <Bell size={18}/>
+                        <h2 className="font-bold text-os-regular text-gray-900">
                             Notifikasi
                         </h2>
+                    </div>
 
-                        <div className="flex flex-col gap-3">
-                            {notifikasi && notifikasi.length > 0 ? (
-                                notifikasi.map((item, idx) => (
-                                    <NotificationItem
-                                        key={item.id_stase ?? idx}
-                                        stase={item}
-                                        index={idx + 1}
-                                    />
-                                ))
-                            ) : (
-                                <p className="text-sm text-gray-500 text-center py-4 bg-white border rounded-lg">
-                                    Tidak ada notifikasi.
-                                </p>
-                            )}
-                        </div>
-                    </section>
-                </div>
+                    <div className="flex flex-col gap-3">
+                        {notifikasi && notifikasi.length > 0 ? (
+                            notifikasi.map((item, idx) => (
+                                <NotificationItem
+                                    key={item.id_stase ?? idx}
+                                    stase={item}
+                                    index={idx + 1}
+                                />
+                            ))
+                        ) : (
+                            <p className="text-sm text-gray-500 text-center py-4 bg-white border rounded-lg">
+                                Tidak ada notifikasi.
+                            </p>
+                        )}
+                    </div>
+                </section>
 
                 {/* Footer */}
                 <div className="mt-8">

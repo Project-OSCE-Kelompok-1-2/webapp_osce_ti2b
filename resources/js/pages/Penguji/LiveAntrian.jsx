@@ -1,201 +1,385 @@
-import React from "react";
+import React, { useState } from "react";
 import { Head, router, Link } from "@inertiajs/react";
+import {
+    Clock,
+    User,
+    FileText,
+    CheckCircle,
+    AlertCircle,
+    Play,
+    MapPin,
+} from "lucide-react";
+import OsStepModal from "../../components/StepModal.jsx";
 
 export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
-    // Fallback data (biar gak crash kalau null)
+    // --- 1. State Management ---
+    const [showModal, setShowModal] = useState(false);
+    const [currentStep, setCurrentStep] = useState(0);
+
+    // Fallback data
     const safeOsce = osce_detail || {
         nama_osce: "-",
         nama_stase: "-",
         nomor_stasiun: "-",
         total_mahasiswa: 0,
         durasi_per_mahasiswa: 0,
+        jam_mulai: "08:00", // Default fallback jam
+        skenario: "Lorem ipsum dolor sit amet. Skenario belum diisi.",
     };
 
     const safeStudents = antrian_mahasiswa || [];
 
-    const handleBack = () => {
-        router.get("/penguji/dashboard");
+    // --- 2. Handlers ---
+    const handleBack = () => router.get("/penguji/osce");
+    const handleOpenModal = () => {
+        setCurrentStep(0);
+        setShowModal(true);
     };
+    const handleCloseModal = () => setShowModal(false);
+    const handleSubmitExam = () => {
+        if (safeStudents.length > 0) {
+            router.get(
+                `/penguji/penilaian/${safeStudents[0].id_enrollment_osce}`
+            );
+        } else {
+            alert("Tidak ada mahasiswa untuk dinilai.");
+        }
+    };
+
+    // --- 3. Modal Steps Content ---
+    const steps = [
+        {
+            title: "Detail Ujian",
+            content: (
+                <div className="space-y-3">
+                    <div>
+                        <h3 className="text-xs font-bold text-gray-700 mb-1.5">
+                            Deskripsi Skenario
+                        </h3>
+                        <div className="border rounded-lg p-3 bg-gray-50 text-xs text-gray-600 leading-relaxed text-justify h-40 overflow-y-auto">
+                            {safeOsce.skenario}
+                        </div>
+                    </div>
+                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 flex items-start gap-3">
+                        <AlertCircle
+                            className="text-blue-600 mt-0.5 shrink-0"
+                            size={18}
+                        />
+                        <div>
+                            <p className="text-xs font-bold text-blue-800">
+                                Ujian Serentak
+                            </p>
+                            <p className="text-[10px] text-blue-600 mt-0.5 leading-tight">
+                                Ujian dimulai serentak untuk{" "}
+                                <b>{safeStudents.length} mahasiswa</b>.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            title: "Detail Stase",
+            content: (
+                <div className="space-y-3">
+                    <div>
+                        <h3 className="text-xs font-bold text-gray-700 mb-1.5">
+                            Deskripsi Aspek Penilaian
+                        </h3>
+                        <div className="border rounded-lg bg-white overflow-hidden">
+                            {["Nilai 1", "Nilai 2", "Nilai 3"].map(
+                                (val, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="p-2.5 border-b last:border-0 hover:bg-gray-50"
+                                    >
+                                        <p className="text-[10px] font-bold text-gray-800">
+                                            {val}
+                                        </p>
+                                        <p className="text-[10px] text-gray-500 mt-0.5 truncate">
+                                            Deskripsi singkat untuk kriteria
+                                            penilaian {val}...
+                                        </p>
+                                    </div>
+                                )
+                            )}
+                        </div>
+                    </div>
+                    <div className="grid grid-cols-2 gap-2">
+                        {/* Box Durasi */}
+                        <div className="border rounded-lg p-2.5 flex flex-col justify-between">
+                            <Clock size={14} className="text-gray-400 mb-1" />
+                            <div>
+                                <p className="text-[10px] text-gray-500">
+                                    Durasi
+                                </p>
+                                <p className="text-xs font-bold text-gray-800">
+                                    {safeOsce.durasi_per_mahasiswa} Menit
+                                </p>
+                            </div>
+                        </div>
+
+                        {/* Box Jam Mulai (Diganti dari Tipe) */}
+                        <div className="border rounded-lg p-2.5 flex flex-col justify-between">
+                            <Clock size={14} className="text-gray-400 mb-1" />
+                            <div>
+                                <p className="text-[10px] text-gray-500">
+                                    Jam Mulai
+                                </p>
+                                <p className="text-xs font-bold text-gray-800">
+                                    {safeOsce.jam_mulai || "08:00"}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            ),
+        },
+        {
+            title: "Mulai",
+            content: (
+                <div className="flex flex-col items-center justify-center h-full text-center py-6">
+                    <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mb-3 text-green-600">
+                        <CheckCircle size={32} />
+                    </div>
+                    <h3 className="text-base font-bold text-gray-900">
+                        Siap Memulai?
+                    </h3>
+                    <p className="text-xs text-gray-500 max-w-xs mt-1">
+                        Waktu berjalan otomatis untuk <b>semua mahasiswa</b>{" "}
+                        setelah Submit.
+                    </p>
+                </div>
+            ),
+        },
+    ];
 
     return (
         <>
             <Head title={safeOsce.nama_osce} />
 
-            <div className="min-h-screen bg-white flex flex-col font-sans">
-                {/* Header */}
-                <header className="border-b">
-                    <div className="mx-auto max-w-6xl flex items-center gap-3 px-4 py-3">
+            <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-sm">
+                {/* Compact Header */}
+                <header className="bg-white border-b sticky top-0 z-30 shadow-sm">
+                    <div className="mx-auto max-w-5xl flex items-center gap-3 px-4 py-2">
                         <button
-                            type="button"
                             onClick={handleBack}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border hover:bg-gray-100"
+                            className="h-8 w-8 flex items-center justify-center rounded-full border bg-white hover:bg-gray-100 text-gray-600"
                         >
-                            <span className="sr-only">Kembali</span>
-                            <span className="-ml-0.5 text-lg">&larr;</span>
+                            &larr;
                         </button>
-
-                        <div className="flex-1 truncate text-sm text-gray-700">
+                        <div className="flex-1 truncate text-xs">
                             <span className="text-gray-500">
-                                OSCE / {safeOsce.nama_osce} /
-                            </span>{" "}
-                            <span className="font-medium">Detail OSCE</span>
+                                OSCE / {safeOsce.nama_osce} /{" "}
+                            </span>
+                            <span className="font-bold text-gray-900">
+                                Detail
+                            </span>
                         </div>
                     </div>
                 </header>
 
-                {/* Main Content */}
-                <main className="flex-1">
-                    <div className="mx-auto max-w-4xl px-4 py-8">
-                        <div className="overflow-hidden rounded-3xl border shadow-sm">
-                            {/* Header Biru */}
-                            <div className="bg-blue-600 px-6 py-5 text-center text-white">
-                                <h1 className="text-xl font-semibold">
+                <main className="flex-1 py-5 px-3">
+                    <div className="mx-auto max-w-4xl">
+                        <div className="overflow-hidden rounded-xl bg-white shadow border border-gray-200">
+                            {/* Compact Blue Banner */}
+                            <div className="bg-blue-600 px-4 py-5 text-center text-white relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-full bg-white opacity-5 transform -skew-y-6 scale-150 origin-top-left pointer-events-none"></div>
+                                <h1 className="text-lg font-bold relative z-10">
                                     {safeOsce.nama_osce}
                                 </h1>
-                                <p className="mt-1 text-sm text-blue-100">
+                                <p className="text-xs text-blue-100 relative z-10 font-medium opacity-90 mt-0.5">
                                     {safeOsce.nama_stase}
                                 </p>
                             </div>
 
-                            {/* Body */}
-                            <div className="bg-white px-6 pb-6 pt-4">
-                                <p className="mb-3 text-sm font-semibold text-gray-700">
-                                    Detail Stase
-                                </p>
+                            <div className="px-4 py-4">
+                                <div className="flex items-center justify-between mb-3">
+                                    <h2 className="text-sm font-bold text-gray-800">
+                                        Detail Informasi
+                                    </h2>
+                                    <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-100 font-medium">
+                                        Semester Genap 2024
+                                    </span>
+                                </div>
 
-                                {/* Info Grid */}
-                                <div className="grid gap-3 rounded-2xl border bg-gray-50 p-4 md:grid-cols-4">
-                                    {/* Stasiun */}
-                                    <div className="flex flex-col items-center rounded-2xl bg-white px-4 py-4 shadow-sm">
-                                        <p className="text-xs text-gray-500">
-                                            Stasiun
-                                        </p>
-                                        <div className="mt-1 rounded-xl border-2 border-blue-500 px-4 py-2">
-                                            <span className="text-3xl font-semibold text-blue-600">
-                                                {safeOsce.nomor_stasiun}
-                                            </span>
+                                {/* Compact Stats Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
+                                    {/* CARD STASIUN - LEBIH LEBAR & COMPACT */}
+                                    <div className="bg-white border rounded-lg p-2.5 flex flex-row items-center gap-3 shadow-sm relative overflow-hidden group">
+                                        <div className="absolute right-0 top-0 h-full w-1/3 bg-blue-50 -skew-x-12 opacity-50 group-hover:w-1/2 transition-all duration-500"></div>
+                                        {/* Background Color Diperlebar (W-16) */}
+                                        <div className="h-10 w-16 bg-blue-600 text-white rounded-md flex items-center justify-center text-lg font-bold shadow-sm z-10 shrink-0">
+                                            {safeOsce.nomor_stasiun}
+                                        </div>
+                                        <div className="z-10 overflow-hidden">
+                                            <p className="text-[10px] text-gray-500 uppercase tracking-wide font-semibold">
+                                                Stasiun
+                                            </p>
+                                            <p
+                                                className="text-xs font-bold text-gray-900 truncate"
+                                                title={safeOsce.nama_stase}
+                                            >
+                                                {safeOsce.nama_stase}
+                                            </p>
                                         </div>
                                     </div>
 
                                     {/* Durasi */}
-                                    <div className="flex flex-col rounded-2xl bg-white px-4 py-4 shadow-sm justify-center">
-                                        <p className="text-xs text-gray-500 mb-1">
-                                            Waktu per rubrik
+                                    <div className="bg-white border rounded-lg p-2.5 flex flex-col justify-center shadow-sm">
+                                        <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-0.5">
+                                            Waktu/Rubrik
                                         </p>
-                                        <p className="text-sm font-medium text-gray-800">
-                                            {safeOsce.durasi_per_mahasiswa}{" "}
-                                            Menit
-                                        </p>
+                                        <div className="flex items-center gap-1.5">
+                                            <Clock
+                                                size={14}
+                                                className="text-gray-400"
+                                            />
+                                            <p className="text-sm font-bold text-gray-900">
+                                                {safeOsce.durasi_per_mahasiswa}{" "}
+                                                <span className="text-[10px] font-normal text-gray-500">
+                                                    Menit
+                                                </span>
+                                            </p>
+                                        </div>
                                     </div>
 
                                     {/* Enrollment */}
-                                    <div className="flex flex-col rounded-2xl bg-white px-4 py-4 shadow-sm justify-center">
-                                        <p className="text-xs text-gray-500 mb-1">
-                                            Total Mahasiswa
+                                    <div className="bg-white border rounded-lg p-2.5 flex flex-col justify-center shadow-sm">
+                                        <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-0.5">
+                                            Enrollment
                                         </p>
-                                        <p className="text-sm font-medium text-gray-800">
-                                            {safeOsce.total_mahasiswa} Mahasiswa
-                                        </p>
+                                        <div className="flex items-center gap-1.5">
+                                            <User
+                                                size={14}
+                                                className="text-gray-400"
+                                            />
+                                            <p className="text-sm font-bold text-gray-900">
+                                                {safeOsce.total_mahasiswa}{" "}
+                                                <span className="text-[10px] font-normal text-gray-500">
+                                                    Mhs
+                                                </span>
+                                            </p>
+                                        </div>
                                     </div>
 
-                                    {/* Nama Stase */}
-                                    <div className="flex flex-col rounded-2xl bg-white px-4 py-4 shadow-sm justify-center">
-                                        <p className="text-xs text-gray-500 mb-1">
-                                            Nama Stase
+                                    {/* Status */}
+                                    <div className="bg-white border rounded-lg p-2.5 flex flex-col justify-center shadow-sm">
+                                        <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-0.5">
+                                            Status
                                         </p>
-                                        <p className="text-xs font-medium text-gray-800">
-                                            {safeOsce.nama_stase}
-                                        </p>
+                                        <div className="flex items-center gap-1.5">
+                                            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+                                            <p className="text-xs font-bold text-green-600">
+                                                Aktif
+                                            </p>
+                                        </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
 
-                                {/* Tabel Mahasiswa */}
-                                <div className="mt-5">
-                                    <p className="text-sm text-gray-700">
-                                        Daftar Antrian Mahasiswa
-                                    </p>
+                        {/* List Mahasiswa - Compact Table */}
+                        <div className="mt-5 bg-white rounded-xl border shadow-sm overflow-hidden">
+                            <div className="px-4 py-3 border-b flex flex-row justify-between items-center bg-gray-50/50 gap-3">
+                                <div>
+                                    <h3 className="text-sm font-bold text-gray-900">
+                                        Antrian Mahasiswa
+                                    </h3>
+                                </div>
+                                <div className="flex items-center gap-2">
+                                    <div className="text-[10px] font-medium bg-gray-200 text-gray-700 px-2 py-1 rounded">
+                                        Total: {safeStudents.length}
+                                    </div>
+                                    <button
+                                        onClick={handleOpenModal}
+                                        className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md font-bold text-xs transition shadow-sm"
+                                    >
+                                        <Play size={12} fill="currentColor" />
+                                        Mulai Ujian
+                                    </button>
+                                </div>
+                            </div>
 
-                                    <div className="mt-3 overflow-hidden rounded-2xl border">
-                                        <div className="grid grid-cols-[1.5fr,2fr,1.5fr] border-b bg-gray-50 text-sm font-medium text-gray-700">
-                                            <div className="px-4 py-2 border-r">
+                            <div className="overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="border-b bg-gray-50 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
+                                            <th className="px-4 py-2 w-1/4">
                                                 NIM
-                                            </div>
-                                            <div className="px-4 py-2 border-r">
+                                            </th>
+                                            <th className="px-4 py-2 w-1/2">
                                                 Mahasiswa
-                                            </div>
-                                            <div className="px-4 py-2 text-center">
-                                                Status / Aksi
-                                            </div>
-                                        </div>
-
-                                        <div className="max-h-80 overflow-auto">
-                                            {safeStudents.map((s, i) => (
-                                                <div
-                                                    key={
-                                                        s.id_enrollment_osce ||
-                                                        i
-                                                    }
-                                                    className={`grid grid-cols-[1.5fr,2fr,1.5fr] text-sm items-center border-b last:border-0 ${
-                                                        i % 2 === 1
-                                                            ? "bg-gray-50"
-                                                            : "bg-white"
-                                                    }`}
-                                                >
-                                                    <div className="border-r px-4 py-3 text-gray-700">
-                                                        {s.nim}
-                                                    </div>
-                                                    <div className="border-r px-4 py-3 text-gray-900 font-medium">
-                                                        {s.nama}
-                                                    </div>
-
-                                                    {/* Kolom Aksi */}
-                                                    <div className="px-4 py-2 flex justify-center items-center gap-2">
-                                                        {s.status_penilaian ===
-                                                        "Sudah Dinilai" ? (
-                                                            <>
-                                                                <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                            </th>
+                                            <th className="px-4 py-2 w-1/4 text-center">
+                                                Status
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y divide-gray-100 text-xs">
+                                        {safeStudents.length > 0 ? (
+                                            safeStudents.map(
+                                                (student, index) => (
+                                                    <tr
+                                                        key={
+                                                            student.id_enrollment_osce ||
+                                                            index
+                                                        }
+                                                        className="hover:bg-blue-50/50"
+                                                    >
+                                                        <td className="px-4 py-2.5 text-gray-600 font-mono">
+                                                            {student.nim}
+                                                        </td>
+                                                        <td className="px-4 py-2.5 font-medium text-gray-900">
+                                                            {student.nama}
+                                                        </td>
+                                                        <td className="px-4 py-2.5 text-center">
+                                                            {student.status_penilaian ===
+                                                            "Sudah Dinilai" ? (
+                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">
                                                                     Selesai
                                                                 </span>
-                                                                {/* Tombol Edit (Opsional, kalau mau kasih akses edit cepat) */}
-                                                                <Link
-                                                                    href={`/penguji/penilaian/${s.id_enrollment_osce}`}
-                                                                    className="text-xs text-blue-600 hover:underline"
-                                                                >
-                                                                    Edit
-                                                                </Link>
-                                                            </>
-                                                        ) : (
-                                                            <Link
-                                                                href={`/penguji/penilaian/${s.id_enrollment_osce}`}
-                                                                className="flex items-center gap-1 bg-blue-600 text-white px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-blue-700 transition"
-                                                            >
-                                                                <span>
-                                                                    Mulai Nilai
+                                                            ) : (
+                                                                <span className="text-[10px] text-gray-400 italic">
+                                                                    Menunggu
                                                                 </span>
-                                                            </Link>
-                                                        )}
-                                                    </div>
-                                                </div>
-                                            ))}
-
-                                            {safeStudents.length === 0 && (
-                                                <div className="p-4 text-center text-gray-500 text-sm">
-                                                    Tidak ada mahasiswa dalam
-                                                    antrian.
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                </div>
+                                                            )}
+                                                        </td>
+                                                    </tr>
+                                                )
+                                            )
+                                        ) : (
+                                            <tr>
+                                                <td
+                                                    colSpan="3"
+                                                    className="px-4 py-8 text-center text-gray-400"
+                                                >
+                                                    <p className="text-xs">
+                                                        Belum ada antrian.
+                                                    </p>
+                                                </td>
+                                            </tr>
+                                        )}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
                 </main>
 
-                <footer className="border-t py-3 text-center text-xs text-gray-500">
-                    © {new Date().getFullYear()} OSCE System
+                <footer className="py-3 text-center text-[10px] text-gray-400">
+                    &copy; {new Date().getFullYear()} OSCE System.
                 </footer>
             </div>
+
+            <OsStepModal
+                show={showModal}
+                onClose={handleCloseModal}
+                onSubmit={handleSubmitExam}
+                steps={steps}
+                currentStep={currentStep}
+                setCurrentStep={setCurrentStep}
+            />
         </>
     );
 }

@@ -2,9 +2,11 @@ import React, { useState, useEffect } from "react";
 import { usePage, router } from "@inertiajs/react";
 import { ArrowLeft } from "lucide-react";
 
-import Sidebar from "../../components/SidebarPenguji";
+// import Sidebar from "../../components/SidebarPenguji";
+import Sidebar from "../../components/Sidebar";
 import OsTableHeader from "../../components/tableheader";
 
+// Header Tabel Rubrik (Tidak Berubah)
 const rubrikColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
     {
@@ -30,35 +32,57 @@ const rubrikColumns = [
 ];
 
 export default function LivePenilaian() {
-    // 1. AMBIL PROPS DARI BACKEND (Pandu)
+    // =========================================================================
+    // 1. BAGIAN LOGIC (LETALKAN DI ATAS SINI)
+    // =========================================================================
+
+    // Ambil Props dari Controller (Backend)
     const {
         mahasiswa,
         rubrik = [],
-        sisa_waktu_detik = 420,
+        sisa_waktu_detik = 0,
         info_ujian,
         id_enrollment_osce,
         existing_feedback = "",
+        saved_scores = {}, // <--- Data Nilai Lama (Untuk Radio Button)
+        mode_edit = false, // <--- Status apakah sedang Edit atau Ujian Baru
     } = usePage().props;
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
-    const [feedback, setFeedback] = useState(existing_feedback);
-    const [waktu, setWaktu] = useState(sisa_waktu_detik);
-    const [nilaiMap, setNilaiMap] = useState({});
 
-    // Fallback agar tidak crash jika data kosong
+    // State Form
+    const [feedback, setFeedback] = useState(existing_feedback);
+
+    // State Nilai: Inisialisasi dengan saved_scores agar Radio Button terisi otomatis
+    const [nilaiMap, setNilaiMap] = useState(saved_scores || {});
+
+    // State Waktu
+    const [waktu, setWaktu] = useState(sisa_waktu_detik);
     const dataRubrik = rubrik.length > 0 ? rubrik : [];
 
-    // TIMER
+    // --- LOGIKA TIMER BARU (YANG ANDA TANYAKAN) ---
     useEffect(() => {
+        // Jika waktu awal sudah 0 (atau mode edit), jangan jalankan interval sama sekali
         if (waktu <= 0) return;
-        const timer = setInterval(() => {
-            setWaktu((prev) => (prev > 0 ? prev - 1 : 0));
-        }, 1000);
-        return () => clearInterval(timer);
-    }, [waktu]);
 
-    // Format waktu: HH:MM:SS
+        const timer = setInterval(() => {
+            setWaktu((prev) => {
+                if (prev <= 1) {
+                    clearInterval(timer); // Hentikan timer jika mencapai 0
+                    return 0;
+                }
+                return prev - 1;
+            });
+        }, 1000);
+
+        // Cleanup function (penting agar tidak memory leak)
+        return () => clearInterval(timer);
+    }, []); // Dependency array kosong agar run sekali saat mount
+
+    // --- HELPER FORMAT WAKTU ---
     const formatWaktu = () => {
+        if (waktu <= 0) return "00:00:00"; // Paksa tampil nol jika habis
+
         const h = Math.floor(waktu / 3600);
         const m = Math.floor((waktu % 3600) / 60);
         const s = waktu % 60;
@@ -68,18 +92,18 @@ export default function LivePenilaian() {
             "0"
         )}:${String(s).padStart(2, "0")}`;
     };
+    // ----------------------------------------------
 
     const handleSkorChange = (poinId, skor) => {
         setNilaiMap((prev) => ({ ...prev, [poinId]: skor }));
     };
 
-    // Nilai per poin = skor * bobot
     const hitungNilai = (skor, bobot) => {
         if (skor === undefined) return 0;
         return skor * bobot;
     };
 
-    // Total semua nilai (Server Side Calculation sebenarnya lebih aman, ini hanya preview)
+    // Hitung Total Realtime di Frontend (Hanya Preview)
     const totalNilaiMentah = dataRubrik.reduce((total, group) => {
         return (
             total +
@@ -92,14 +116,11 @@ export default function LivePenilaian() {
         );
     }, 0);
 
-    // Hitung rata-rata dinamis (bukan hardcoded bagi 5)
     const jumlahAspek = dataRubrik.length > 0 ? dataRubrik.length : 1;
     const totalNilai = totalNilaiMentah / jumlahAspek;
 
     const handleSubmit = (e) => {
         e.preventDefault();
-
-        // Format payload sesuai Backend Septia
         const nilai = Object.entries(nilaiMap).map(([id_poin, skor]) => ({
             id_poin_aspek_penilaian: Number(id_poin),
             skor,
@@ -111,9 +132,17 @@ export default function LivePenilaian() {
         });
     };
 
+    // =========================================================================
+    // 2. BAGIAN TAMPILAN (JSX)
+    // =========================================================================
     return (
         <div className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
-            <Sidebar onToggle={setSidebarOpen} />
+            {/* <Sidebar onToggle={setSidebarOpen} /> */}
+            <Sidebar
+                isOpen={sidebarOpen}
+                setIsOpen={setSidebarOpen}
+                type={"penguji"}
+            />
 
             <main
                 className={`grid w-full grid-cols-1 grid-rows-[auto_1fr_auto] transition-all duration-300 ${
@@ -167,16 +196,12 @@ export default function LivePenilaian() {
 
                     <div className="border rounded-xl">
                         <OsTableHeader columns={rubrikColumns} />
-
                         <div className="max-h-[450px] overflow-y-auto">
                             {dataRubrik.map((group, gIndex) => (
                                 <React.Fragment key={gIndex}>
-                                    {/* HEADER ASPEK */}
                                     <div className="bg-gray-100 px-4 py-2 font-semibold border-t">
                                         {group.aspek}
                                     </div>
-
-                                    {/* LOOP KOMPETENSI */}
                                     {group.kompetensi.map((poin, index) => (
                                         <div
                                             key={poin.id_poin_aspek_penilaian}
@@ -191,14 +216,12 @@ export default function LivePenilaian() {
                                             <div className="w-16 text-center">
                                                 {index + 1}
                                             </div>
-
                                             <div className="flex-1 px-4 border-l">
                                                 {poin.deskripsi}
                                             </div>
 
-                                            {/* KOLOM SKOR */}
+                                            {/* RADIO BUTTON SKOR */}
                                             <div className="w-[260px] border-l border-gray-300 flex flex-col items-center justify-center py-2">
-                                                {/* Angka 0–4 */}
                                                 <div className="flex justify-between w-full px-6 mb-1 text-[12px]">
                                                     {[0, 1, 2, 3, 4].map(
                                                         (v) => (
@@ -211,8 +234,6 @@ export default function LivePenilaian() {
                                                         )
                                                     )}
                                                 </div>
-
-                                                {/* Bulatan Radio Button */}
                                                 <div className="flex justify-between w-full px-6">
                                                     {[0, 1, 2, 3, 4].map(
                                                         (v) => (
@@ -225,7 +246,8 @@ export default function LivePenilaian() {
                                                                         v
                                                                     )
                                                                 }
-                                                                className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors ${
+                                                                className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors 
+                                                                ${
                                                                     nilaiMap[
                                                                         poin
                                                                             .id_poin_aspek_penilaian
@@ -246,12 +268,9 @@ export default function LivePenilaian() {
                                                 </div>
                                             </div>
 
-                                            {/* KOLOM BOBOT */}
                                             <div className="w-20 text-center border-l">
                                                 {poin.bobot}
                                             </div>
-
-                                            {/* KOLOM NILAI */}
                                             <div className="w-20 text-center border-l font-bold">
                                                 {hitungNilai(
                                                     nilaiMap[
@@ -266,7 +285,6 @@ export default function LivePenilaian() {
                                 </React.Fragment>
                             ))}
                         </div>
-
                         <div className="flex justify-between px-4 py-3 border-t font-semibold bg-gray-50 rounded-b-xl">
                             <span>Total Nilai Sementara (Preview)</span>
                             <span>{totalNilai.toFixed(2)}</span>
@@ -283,22 +301,33 @@ export default function LivePenilaian() {
                         placeholder="Tuliskan catatan untuk mahasiswa..."
                     />
 
-                    {/* BAGIAN SISA WAKTU + SUBMIT */}
+                    {/* FORM SUBMIT */}
                     <form onSubmit={handleSubmit} className="mt-6">
                         <div className="w-full rounded-2xl border border-black shadow-sm p-3 bg-white">
                             <div className="grid grid-cols-3 gap-4">
-                                {/* Button Sisa Waktu */}
+                                {/* --- INI BUTTON TIMER YANG BARU (GANTIKAN YANG LAMA) --- */}
                                 <button
                                     type="button"
-                                    className="col-span-1 w-full h-[70px] rounded-xl bg-red-600 text-white font-semibold flex items-center justify-between px-6 cursor-default"
+                                    className={`col-span-1 w-full h-[70px] rounded-xl text-white font-semibold flex items-center justify-between px-6 cursor-default 
+                                        ${
+                                            waktu > 0
+                                                ? "bg-red-600" // Merah jika waktu jalan
+                                                : "bg-gray-500" // Abu jika waktu habis / mode edit
+                                        }`}
                                 >
-                                    <span>Sisa Waktu</span>
+                                    <span>
+                                        {mode_edit
+                                            ? "Mode Edit"
+                                            : waktu > 0
+                                            ? "Sisa Waktu"
+                                            : "Waktu Habis"}
+                                    </span>
                                     <span className="text-lg font-bold">
-                                        {formatWaktu()}
+                                        {mode_edit ? "--:--:--" : formatWaktu()}
                                     </span>
                                 </button>
+                                {/* ----------------------------------------------------- */}
 
-                                {/* Button Submit */}
                                 <button
                                     type="submit"
                                     className="col-span-2 w-full h-[70px] rounded-xl bg-blue-600 hover:bg-blue-700 transition text-white font-semibold flex items-center justify-center text-lg"
