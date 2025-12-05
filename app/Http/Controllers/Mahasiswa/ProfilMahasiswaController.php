@@ -22,9 +22,8 @@ class ProfilMahasiswaController extends Controller
     {
         $user = Auth::user();
         
+        // Pastikan relasi mahasiswa dimuat agar frontend bisa akses user.mahasiswa.nama & nim
         $user->load('mahasiswa');
-
-        $user->path_gambar = $user->path_gambar ? $user->path_gambar : null;
 
         return Inertia::render('Mahasiswa/PengaturanAkun', [
             'user' => $user, 
