@@ -86,7 +86,6 @@ export default function PengujiOsceList() {
     // 1. AMBIL PROPS DARI INERTIA (Backend)
     const { osce_list, filters } = usePage().props;
     const { data, links, current_page, from } = osce_list; // Destructure data pagination
-        const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // State Search & Filter (Inisialisasi dari props filter agar persisten)
     const [search, setSearch] = useState(filters.search || "");
@@ -172,17 +171,27 @@ export default function PengujiOsceList() {
         };
     });
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start px-4 sm:px-6 md:px-os-12 py-os-12">
             <Head title="Jadwal OSCE" />
+            <Sidebar 
+                isOpen={isSidebarOpen} 
+                type="penguji" 
+                onToggle={handleSidebarToggle} 
+            />
 
-            {/* Sidebar Penguji */}
-            {/* <SidebarPenguji /> */}
-            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
-
-
-            <main className="flex flex-col w-full px-4 sm:px-6 md:px-os-8 h-fit gap-os-14 ml-0 md:ml-20">
-                <OsHeader variant="goback" backLink="/penguji/dashboard" />
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
+                <OsHeader 
+                    variant="goback" 
+                    backLink="/penguji/dashboard" 
+                    onMenuClick={handleSidebarToggle} 
+                />
 
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">

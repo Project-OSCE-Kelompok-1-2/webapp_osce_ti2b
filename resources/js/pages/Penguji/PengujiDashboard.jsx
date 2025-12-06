@@ -133,16 +133,28 @@ export default function PengujiDashboard() {
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
+    // return (
+    //     <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+    //         <Sidebar
+    //             isOpen={sidebarOpen}
+    //             setIsOpen={setSidebarOpen}
+    //             type={"penguji"}
+    //         />
+
+    //         <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+                // <OsHeader />
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+    setIsSidebarOpen((prev) => !prev);
+    };
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar
-                isOpen={sidebarOpen}
-                setIsOpen={setSidebarOpen}
-                type={"penguji"}
-            />
+            <Sidebar isOpen={isSidebarOpen} type="penguji" onToggle={handleSidebarToggle} />
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
-                <OsHeader />
+                <OsHeader variant="goback" backLink="#" onMenuClick={handleSidebarToggle} />
 
                 {/* WELCOME SECTION */}
                 <div className="">
@@ -167,7 +179,7 @@ export default function PengujiDashboard() {
                             Statistika
                         </h2>
                     </div>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                         {/* [UBAH] Tambahkan prop 'href' di sini */}
                         <StatCard
                             title="OSCE Mendatang"
@@ -211,11 +223,9 @@ export default function PengujiDashboard() {
                 <hr className="border-1 border-os-black opacity-os-alpha-25" />
 
                 {/* JADWAL + CALENDAR GRID */}
-                {/* <section className="grid grid-cols-1 lg:grid-cols-3 gap-8"> */}
-                <section className="flex">
+                <section className="flex flex-col lg:flex-row">
                     {/* LEFT SIDE: Jadwal Penting */}
-                    {/* <div className="lg:col-span-2 flex flex-col"> */}
-                    <div className="w-8/12 mr-5">
+                    <div className="w-full lg:w-8/12 lg:mr-5 mb-8 lg:mb-0">
                         <div className="flex justify-between items-center">
                             <div className="flex gap-os-8 items-center justify-start mb-2">
                                 <CalendarRange size={18} />
@@ -250,8 +260,7 @@ export default function PengujiDashboard() {
                     </div>
 
                     {/* RIGHT SIDE: Calendar */}
-                    {/* <div className="lg:col-span-1"> */}
-                    <div className="w-4/12">
+                    <div className="w-full lg:w-4/12">
                         <div className="bg-white p-4 rounded-xl border shadow-sm">
                             <div className="flex gap-os-8 items-center justify-start mb-2">
                                 <CalendarDays size={18} />
