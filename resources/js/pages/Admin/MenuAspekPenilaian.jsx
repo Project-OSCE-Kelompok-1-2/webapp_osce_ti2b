@@ -271,12 +271,15 @@ export default function MenuAspekPenilaian() {
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-              <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
-
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
                 {/* HEADER */}
-                <OsHeader variant="goback" backLink="/admin/stase" onMenuClick={handleSidebarToggle}/>
+                <OsHeader
+                    variant="goback"
+                    backLink="/admin/stase"
+                    onMenuClick={handleSidebarToggle}
+                />
 
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">
@@ -328,7 +331,10 @@ export default function MenuAspekPenilaian() {
                             <OsTableHeader columns={columns} />
 
                             {tableData.length > 0 ? (
-                                <OsTableBody data={tableData} columns={columns} />
+                                <OsTableBody
+                                    data={tableData}
+                                    columns={columns}
+                                />
                             ) : (
                                 <div className="py-6 text-center text-gray-500">
                                     Belum ada aspek penilaian untuk stase ini.
@@ -336,26 +342,23 @@ export default function MenuAspekPenilaian() {
                             )}
 
                             {/* Footer Total Bobot tetap di dalam scroll biar sejajar */}
-                             <div className="bg-os-white rounded-lg overflow-hidden border-os-1 border-os-black mt-3 h-[56px]">
-                                {/* ... isi footer ... */}
-                            </div>
                         </div>
                     </div>
 
                     <div className="bg-os-white rounded-lg overflow-hidden border-os-1 border-os-black mt-3 h-[56px]">
                         <table className="w-full h-[56px]">
                             <tfoot>
-                                <tr className="w-full">
-                                    <td className="pl-4 text-left w-[60%] h-full">
+                                <tr className="w-full h-full flex justify-between p-2">
+                                    <td className="flex text-start items-center pl-2 flex-1">
                                         Total Bobot
                                     </td>
-                                    <td className=" px-3 text-center w-2/12">
+                                    <td className="flex px-3 text-center w-32 items-center justify-center">
                                         <span className="text-sm">Bobot:</span>
                                         <span className="text-black font-bold pl-1.5">
                                             {totalBobot}
                                         </span>
                                     </td>
-                                    <td className=" px-5  text-center w-3/12">
+                                    <td className=" px-2 hidden  md:flex text-center justify-end md:w-[290px] ">
                                         {totalBobot == 100 ? (
                                             <div className="bg-green-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
                                                 Point Seimbang (100%)
@@ -373,6 +376,17 @@ export default function MenuAspekPenilaian() {
                             </tfoot>
                         </table>
                     </div>
+                    {totalBobot == 100 ? (
+                        <div className="bg-green-600 text-white w-full text-sm px-3 py-4 mt-3 rounded-lg inline-block md:hidden">
+                            Point Seimbang (100%)
+                        </div>
+                    ) : (
+                        totalBobot > 0 && (
+                            <div className="bg-red-600 text-white w-full text-sm px-3 py-4 mt-3 rounded-lg inline-block md:hidden">
+                                Point Tidak Seimbang! ({totalBobot}%)
+                            </div>
+                        )
+                    )}
                 </div>
 
                 <OsCopyright />

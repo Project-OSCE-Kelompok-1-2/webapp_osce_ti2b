@@ -194,77 +194,66 @@ export default function LivePenilaian() {
                         Rubrik Penilaian
                     </h2>
 
-                    <div className="border rounded-xl">
+                    {/* ================= DESKTOP VIEW ================= */}
+                    <div className="hidden lg:block border rounded-xl">
                         <OsTableHeader columns={rubrikColumns} />
+
                         <div className="max-h-[450px] overflow-y-auto">
                             {dataRubrik.map((group, gIndex) => (
                                 <React.Fragment key={gIndex}>
                                     <div className="bg-gray-100 px-4 py-2 font-semibold border-t">
                                         {group.aspek}
                                     </div>
+
                                     {group.kompetensi.map((poin, index) => (
                                         <div
                                             key={poin.id_poin_aspek_penilaian}
                                             className={`flex items-center min-h-[70px] border-t ${
-                                                nilaiMap[
-                                                    poin.id_poin_aspek_penilaian
-                                                ] !== undefined
+                                                nilaiMap[poin.id_poin_aspek_penilaian] !== undefined
                                                     ? "bg-blue-50/50"
                                                     : "bg-white"
                                             }`}
                                         >
-                                            <div className="w-16 text-center">
-                                                {index + 1}
-                                            </div>
+                                            <div className="w-16 text-center">{index + 1}</div>
                                             <div className="flex-1 px-4 border-l">
                                                 {poin.deskripsi}
                                             </div>
 
-                                            {/* RADIO BUTTON SKOR */}
-                                            <div className="w-[260px] border-l border-gray-300 flex flex-col items-center justify-center py-2">
+                                            <div className="w-[260px] border-l flex flex-col items-center py-2">
                                                 <div className="flex justify-between w-full px-6 mb-1 text-[12px]">
-                                                    {[0, 1, 2, 3, 4].map(
-                                                        (v) => (
-                                                            <span
-                                                                key={`label-${v}`}
-                                                                className="w-5 text-center"
-                                                            >
-                                                                {v}
-                                                            </span>
-                                                        )
-                                                    )}
+                                                    {[0, 1, 2, 3, 4].map((v) => (
+                                                        <span key={v} className="w-5 text-center">
+                                                            {v}
+                                                        </span>
+                                                    ))}
                                                 </div>
+
                                                 <div className="flex justify-between w-full px-6">
-                                                    {[0, 1, 2, 3, 4].map(
-                                                        (v) => (
-                                                            <button
-                                                                key={`btn-${v}`}
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    handleSkorChange(
-                                                                        poin.id_poin_aspek_penilaian,
-                                                                        v
-                                                                    )
-                                                                }
-                                                                className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors 
-                                                                ${
-                                                                    nilaiMap[
-                                                                        poin
-                                                                            .id_poin_aspek_penilaian
-                                                                    ] === v
-                                                                        ? "border-black bg-white"
-                                                                        : "border-gray-400 hover:border-blue-500"
-                                                                }`}
-                                                            >
-                                                                {nilaiMap[
-                                                                    poin
-                                                                        .id_poin_aspek_penilaian
-                                                                ] === v && (
-                                                                    <span className="w-3 h-3 rounded-full bg-black" />
-                                                                )}
-                                                            </button>
-                                                        )
-                                                    )}
+                                                    {[0, 1, 2, 3, 4].map((v) => (
+                                                        <button
+                                                            key={v}
+                                                            type="button"
+                                                            onClick={() =>
+                                                                handleSkorChange(
+                                                                    poin.id_poin_aspek_penilaian,
+                                                                    v
+                                                                )
+                                                            }
+                                                            className={`w-5 h-5 rounded-full border flex items-center justify-center ${
+                                                                nilaiMap[
+                                                                    poin.id_poin_aspek_penilaian
+                                                                ] === v
+                                                                    ? "border-black bg-white"
+                                                                    : "border-gray-400 hover:border-blue-500"
+                                                            }`}
+                                                        >
+                                                            {nilaiMap[
+                                                                poin.id_poin_aspek_penilaian
+                                                            ] === v && (
+                                                                <span className="w-3 h-3 rounded-full bg-black" />
+                                                            )}
+                                                        </button>
+                                                    ))}
                                                 </div>
                                             </div>
 
@@ -273,10 +262,7 @@ export default function LivePenilaian() {
                                             </div>
                                             <div className="w-20 text-center border-l font-bold">
                                                 {hitungNilai(
-                                                    nilaiMap[
-                                                        poin
-                                                            .id_poin_aspek_penilaian
-                                                    ],
+                                                    nilaiMap[poin.id_poin_aspek_penilaian],
                                                     poin.bobot
                                                 ).toFixed(0)}
                                             </div>
@@ -285,11 +271,80 @@ export default function LivePenilaian() {
                                 </React.Fragment>
                             ))}
                         </div>
+
                         <div className="flex justify-between px-4 py-3 border-t font-semibold bg-gray-50 rounded-b-xl">
                             <span>Total Nilai Sementara (Preview)</span>
                             <span>{totalNilai.toFixed(2)}</span>
                         </div>
                     </div>
+
+                    {/* ================= MOBILE / TABLET VIEW ================= */}
+                    <div className="lg:hidden space-y-3">
+                        {dataRubrik.map((group, gIndex) => (
+                            <React.Fragment key={gIndex}>
+                                <div className="bg-gray-100 px-4 py-2 font-semibold border rounded-lg">
+                                    {group.aspek}
+                                </div>
+
+                                {group.kompetensi.map((poin, index) => (
+                                    <div
+                                        key={poin.id_poin_aspek_penilaian}
+                                        className="border rounded-xl p-4 bg-white space-y-3"
+                                    >
+                                        <p className="text-sm text-gray-700 text-justify">
+                                            {index + 1}. {poin.deskripsi}
+                                        </p>
+
+                                        {/* SKOR */}
+                                        <div>
+                                            <p className="text-xs mb-1 font-medium">Skor:</p>
+                                            <div className="flex gap-3">
+                                                {[0, 1, 2, 3, 4].map((v) => (
+                                                    <button
+                                                        key={v}
+                                                        type="button"
+                                                        onClick={() =>
+                                                            handleSkorChange(
+                                                                poin.id_poin_aspek_penilaian,
+                                                                v
+                                                            )
+                                                        }
+                                                        className={`w-12 sm:w-14 aspect-square rounded-full border flex items-center justify-center text-lg ${
+                                                            nilaiMap[poin.id_poin_aspek_penilaian] === v
+                                                                ? "border-black bg-white"
+                                                                : "border-gray-400"
+                                                        }`}
+                                                    >
+                                                        {v}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {/* BOBOT */}
+                                        <div className="text-sm">
+                                            <span className="font-medium">Bobot: </span> {poin.bobot}
+                                        </div>
+
+                                        {/* NILAI */}
+                                        <div className="text-sm font-semibold">
+                                            Nilai:{" "}
+                                            {hitungNilai(
+                                                nilaiMap[poin.id_poin_aspek_penilaian],
+                                                poin.bobot
+                                            ).toFixed(0)}
+                                        </div>
+                                    </div>
+                                ))}
+                            </React.Fragment>
+                        ))}
+
+                        {/* Total Nilai - Mobile */}
+                        <div className="w-full px-4 py-3 border rounded-xl font-semibold bg-gray-50">
+                            Total Nilai Sementara: {totalNilai.toFixed(2)}
+                        </div>
+                    </div>
+
 
                     <h2 className="font-semibold text-lg mt-6 mb-2">
                         Feedback
@@ -308,21 +363,22 @@ export default function LivePenilaian() {
                                 {/* --- INI BUTTON TIMER YANG BARU (GANTIKAN YANG LAMA) --- */}
                                 <button
                                     type="button"
-                                    className={`col-span-1 w-full h-[70px] rounded-xl text-white font-semibold flex items-center justify-between px-6 cursor-default 
+                                    className={`col-span-1 w-full h-[70px] rounded-xl text-white font-semibold flex flex-col items-center justify-center px-2 text-center
+       
                                         ${
                                             waktu > 0
                                                 ? "bg-red-600" // Merah jika waktu jalan
                                                 : "bg-gray-500" // Abu jika waktu habis / mode edit
                                         }`}
                                 >
-                                    <span>
+                                    <span className="text-sm whitespace-nowrap">
                                         {mode_edit
                                             ? "Mode Edit"
                                             : waktu > 0
                                             ? "Sisa Waktu"
                                             : "Waktu Habis"}
                                     </span>
-                                    <span className="text-lg font-bold">
+                                    <span className="text-xl font-bold tracking-wider mt-1">
                                         {mode_edit ? "--:--:--" : formatWaktu()}
                                     </span>
                                 </button>
