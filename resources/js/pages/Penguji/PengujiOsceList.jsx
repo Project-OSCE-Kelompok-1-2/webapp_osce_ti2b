@@ -24,25 +24,25 @@ const osceColumns = [
     {
         key: "tanggal_mulai",
         content: "Tanggal Mulai",
-        width: "w-32 sm:w-40 md:w-48",
+        width: "w-32 ",
         classes: "justify-center",
     },
     {
         key: "tanggal_akhir",
         content: "Tanggal Akhir",
-        width: "w-32 sm:w-40 md:w-48",
+        width: "w-32 ",
         classes: "justify-center",
     },
     {
         key: "status",
         content: "Status",
-        width: "w-32 sm:w-40 md:w-48",
+        width: "w-32 ",
         classes: "justify-center",
     },
     {
         key: "action",
         content: "Action",
-        width: "w-32 sm:w-40 md:w-48-48",
+        width: "w-52",
         classes: "justify-center",
     },
 ];
@@ -178,19 +178,18 @@ export default function PengujiOsceList() {
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start px-4 sm:px-6 md:px-os-12 py-os-12">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head title="Jadwal OSCE" />
-            <Sidebar 
-                isOpen={isSidebarOpen} 
-                type="penguji" 
-                onToggle={handleSidebarToggle} 
+            <Sidebar
+                isOpen={isSidebarOpen}
+                type="penguji"
+                onToggle={handleSidebarToggle}
             />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                <OsHeader 
-                    variant="goback" 
-                    backLink="/penguji/dashboard" 
-                    onMenuClick={handleSidebarToggle} 
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+                <OsHeader
+                    backLink="/penguji/dashboard"
+                    onMenuClick={handleSidebarToggle}
                 />
 
                 <div className="flex-1 overflow-auto">
@@ -256,8 +255,9 @@ export default function PengujiOsceList() {
                                 <div className="p-10 text-center border rounded-xl bg-white text-gray-500">
                                     Tidak ada data OSCE ditemukan.
                                 </div>
-                            )}</div>
-                            </div>
+                            )}
+                        </div>
+                    </div>
 
                     {/* Pagination */}
                     <div className="mt-8">

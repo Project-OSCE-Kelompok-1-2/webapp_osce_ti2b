@@ -44,7 +44,7 @@ export default function LiveRotasi() {
     };
 
     return (
-        <>
+        < >
             <Head title="Rotasi Mahasiswa" />
 
             <div className="min-h-screen bg-white flex flex-col font-sans">
@@ -70,9 +70,9 @@ export default function LiveRotasi() {
                 </header>
 
                 {/* MAIN */}
-                <main className="flex-1">
+                <main className="flex-1 h-[200px]">
                     <div className="mx-auto max-w-4xl px-4 py-8">
-                        <div className="flex justify-center">
+                        <div className="flex justify-center items-center">
                             {/* Card Rotasi */}
                             <div className="w-full max-w-md bg-white rounded-2xl shadow-[0_4px_8px_rgba(0,0,0,0.15)] border border-black/10 py-10 px-10 text-center">
                                 {/* Icon Check / Finish */}
