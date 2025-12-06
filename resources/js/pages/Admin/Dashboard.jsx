@@ -131,7 +131,7 @@ export default function Dashboard() {
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader onMenuClick={handleSidebarToggle} />
 
                 {/* MAIN */}
@@ -159,7 +159,7 @@ export default function Dashboard() {
                         </h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                         {/* [UBAH] Tambahkan prop 'href' di sini */}
                         <StatCard
                             title="Total OSCE"

@@ -152,7 +152,7 @@ export default function OsceEnrollmentPage({
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* 9. [PERBAIKAN] Header/Breadcrumb dinamis */}
                 <OsHeader
                     variant="goback"
@@ -161,7 +161,7 @@ export default function OsceEnrollmentPage({
 
                 {/* main content */}
                 <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-2 mt-4">
+                    <h2 className="font-semibold text-lg mb-1">
                         Menu Enrollment Mahasiswa
                     </h2>
                     <p className="text-sm text-gray-600 mb-5 max-w-2xl">
@@ -228,7 +228,7 @@ export default function OsceEnrollmentPage({
                     </h2>
 
                     {/* WRAPPER */}
-                    <div className="w-full overflow-x-auto pb-4">
+                    <div className="w-full overflow-x-auto">
                         <div className="min-w-max">
                             <OsTableHeader columns={columns} />
                             <OsTableBody data={tableData} columns={columns} />
@@ -246,7 +246,7 @@ export default function OsceEnrollmentPage({
 
                     {mahasiswa_list.links &&
                         mahasiswa_list.links.length > 3 && (
-                            <div className="mt-8 border-t-4 border-black pt-4 flex justify-start">
+                            <div className="mt-8 flex justify-start">
                                 <OsPagination links={mahasiswa_list.links} />
                             </div>
                         )}

@@ -11,6 +11,7 @@ import OsHeader from "../../components/Header";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
 import OsInput from "../../components/input.jsx";
+import OsButton from "../../components/button.jsx";
 
 // --- Definisi Kolom Tabel ---
 // const rekapColumns = [
@@ -162,14 +163,15 @@ export default function RekapOscePage() {
         ),
         tahun_akademik: item.tahun_akademik,
         action: (
-            <button
+            <OsButton
+                name="primary"
                 onClick={() =>
                     router.visit(`/admin/rekap-nilai/${item.id_osce}/sesi`)
                 }
-                className="bg-blue-800 text-white px-3 py-2 rounded-md hover:bg-gray-700 transition-colors duration-200"
+                className="bg-blue-800 text-white min-w-[100px] px-2 py-2 rounded-md hover:bg-gray-700 transition-colors duration-200"
             >
                 Detail
-            </button>
+            </OsButton>
         ),
     }));
 
@@ -177,7 +179,7 @@ export default function RekapOscePage() {
         <div className="relative  bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader onMenuClick={handleSidebarToggle} />
 
                 <div className="flex-1 overflow-auto">
@@ -235,7 +237,10 @@ export default function RekapOscePage() {
                     <div className="w-full overflow-x-auto pb-4">
                         <div className="min-w-max">
                             <OsTableHeader columns={rekapColumns} />
-                            <OsTableBody data={tableData} columns={rekapColumns} />
+                            <OsTableBody
+                                data={tableData}
+                                columns={rekapColumns}
+                            />
 
                             {/* Pesan jika tidak ada data */}
                             {osce.data.length === 0 && (

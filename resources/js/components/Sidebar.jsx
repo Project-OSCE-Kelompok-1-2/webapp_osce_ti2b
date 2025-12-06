@@ -86,7 +86,7 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
             <aside
                 // Menentukan lebar untuk mobile dan desktop (sm:)
                 className={`fixed top-0 left-0 h-full bg-white text-gray-900 border-r border-gray-300 transition-all duration-300 z-50 flex flex-col
-                ${isOpen ? "w-64" : "w-0 md:w-20"}`}
+                ${isOpen ? "w-64" : "w-0 lg:w-20"}`}
                 // PERBAIKAN 2: Menghentikan Propagasi Klik di dalam Sidebar.
                 // Ini mencegah klik di dalam sidebar menutupnya via Overlay div di mobile.
                 onClick={(e) => e.stopPropagation()}
@@ -96,7 +96,7 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                 {/* Tombol toggle sidebar (Hanya terlihat di desktop: sm:block) */}
                 <button
                     onClick={onToggle}
-                    className="hidden md:block absolute -right-4 top-9 z-50 bg-blue-600 text-white p-1 rounded-full hover:bg-blue-500 transition focus:outline-none shadow-md"
+                    className="hidden lg:block absolute -right-4 top-9 z-50 bg-blue-600 text-white p-1 rounded-full hover:bg-blue-500 transition focus:outline-none shadow-md"
                     aria-label={isOpen ? "Tutup Sidebar" : "Buka Sidebar"}
                 >
                     {isOpen ? (
@@ -112,7 +112,7 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                         <div
                             // PERBAIKAN 3: Menghapus 'sm:flex hidden' yang menyebabkan avatar hilang.
                             // Avatar harus selalu terlihat saat sidebar dilipat/dibuka.
-                            className={`w-12 h-12 rounded-full ${imageBg} ${isOpen ? "flex" : "hidden md:flex"} flex-shrink-0 items-center justify-center text-white font-bold text-xl`}
+                            className={`w-12 h-12 rounded-full ${imageBg} ${isOpen ? "flex" : "hidden lg:flex"} flex-shrink-0 items-center justify-center text-white font-bold text-xl`}
                         >
                             {name.charAt(0)}
                         </div>
@@ -122,7 +122,7 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                             <p className="font-semibold text-black truncate sm:max-w-28">
                                 {name}
                             </p>
-                            <p className="text-sm text-gray-500 truncate md:max-w-28">
+                            <p className="text-sm text-gray-500 truncate lg:max-w-28">
                                 {email}
                             </p>
                             <p className="text-xs font-medium text-blue-500 uppercase mt-1">
@@ -133,7 +133,7 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                 </div>
 
                 {/* Menu navigasi */}
-                <nav className="flex-grow justify-start md:justify-center flex flex-col overflow-y-auto overflow-x-hidden">
+                <nav className="flex-grow justify-start lg:justify-center flex flex-col overflow-y-auto overflow-x-hidden">
                     <div className="flex  flex-col gap-2 p-3 w-full">
                         {menu.map((item, index) => {
                             const isActive = activePath.startsWith(item.href);
@@ -158,7 +158,7 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                                     </div>
                                     {/* Label menu dikontrol visibility-nya */}
                                     <span className={`text-sm whitespace-nowrap transition-opacity duration-300
-                                        ${isOpen ? "opacity-100" : "opacity-0 md:hidden"}`}>
+                                        ${isOpen ? "opacity-100" : "opacity-0 lg:hidden"}`}>
                                         {item.label}
                                     </span>
                                 </a>
@@ -168,7 +168,7 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                 </nav>
 
                 {/* Bagian pengaturan di bawah */}
-                <div className={`flex-shrink-0 ${isOpen ? "border-t block" : "border-none md:block hidden"} border-gray-300 p-3`}>
+                <div className={`flex-shrink-0 ${isOpen ? "border-t block" : "border-none lg:block hidden"} border-gray-300 p-3`}>
                     <a
                         href={`/${currentRole}/pengaturan-akun`}
                         role="link"
@@ -188,7 +188,7 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                         </div>
                         {/* Label Pengaturan dikontrol visibility-nya */}
                         <span className={`whitespace-nowrap text-sm transition-opacity duration-300
-                            ${isOpen ? "opacity-100" : "opacity-0 md:hidden"}`}>
+                            ${isOpen ? "opacity-100" : "opacity-0 lg:hidden"}`}>
                             Pengaturan Akun
                         </span>
                     </a>

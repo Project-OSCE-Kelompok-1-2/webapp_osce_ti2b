@@ -266,7 +266,7 @@ export default function KompetensiPage() {
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+            <div className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader variant="goback" backLink={backUrl} />
 
                 <div className="flex-1 overflow-auto">
@@ -330,10 +330,10 @@ export default function KompetensiPage() {
 
                     {/* Footer Total */}
                     <div className="relative border mt-3 h-[56px] border-black rounded-lg flex items-center justify-between px-4 py-2">
-                        <p className="text-black w-[70%] ">
+                        <p className="text-black lg:w-[70%] w-full ">
                             Total Bobot dan Jumlah Kompetensi
                         </p>
-                        <div className=" w-[30%] justify-end gap-4 text-sm hidden md:flex">
+                        <div className=" w-[30%] justify-end gap-4 text-sm hidden lg:flex">
                             <div className="flex w-full items-center justify-center gap-1.5 px-2 py-1 rounded-md">
                                 <span className="text-sm">Total Bobot:</span>
                                 {/* Indikator Warna Bobot */}
@@ -355,7 +355,7 @@ export default function KompetensiPage() {
                             </div>
                         </div>
                     </div>
-                    <div className=" w-full justify-end gap-4 text-sm flex border-1 border py-3 rounded-lg mt-2 md:hidden border-black">
+                    <div className=" w-full justify-end gap-4 text-sm flex border-1 border py-3 rounded-lg mt-2 lg:hidden border-black">
                             <div className="flex w-full items-center justify-center gap-1.5 px-2 py-1 rounded-md">
                                 <span className="text-sm">Total Bobot:</span>
                                 {/* Indikator Warna Bobot */}

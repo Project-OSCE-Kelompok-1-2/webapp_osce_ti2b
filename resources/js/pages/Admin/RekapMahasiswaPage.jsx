@@ -128,7 +128,7 @@ export default function RekapMahasiswaPage() {
             />
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* 6. [PERBAIKAN] Breadcrumb dinamis */}
                 <OsHeader
                     variant="goback"
@@ -172,7 +172,7 @@ export default function RekapMahasiswaPage() {
                         />
                     </OsSearchBar>
 
-                   <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Mahasiswa
                     </h2>
 
@@ -180,7 +180,10 @@ export default function RekapMahasiswaPage() {
                         <div className="min-w-max">
                             <OsTableHeader columns={mahasiswaColumns} />
 
-                            <OsTableBody data={tableData} columns={mahasiswaColumns} />
+                            <OsTableBody
+                                data={tableData}
+                                columns={mahasiswaColumns}
+                            />
 
                             {/* Pesan jika tidak ada data */}
                             {mahasiswa_list.data.length === 0 && (

@@ -25,7 +25,7 @@ class AspekPenilaianController extends Controller
         $search = $request->query("search");
         $aspek_penilaian =  $this->service->getByStase($stase, $search);
         // Sekarang Anda bisa mengakses properti 'nama' yang sudah Anda buat di Service.
-        dd($aspek_penilaian);
+        // dd($aspek_penilaian);
         return Inertia::render('Admin/MenuAspekPenilaian', [
             'stase' => $stase,
             'aspek_penilaian' => $aspek_penilaian,

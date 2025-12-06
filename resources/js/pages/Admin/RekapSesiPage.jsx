@@ -10,6 +10,7 @@ import OsPagination from "../../components/pagination";
 import OsSearchBar from "../../components/searchbar";
 import OsTableBody from "../../components/tablecontain";
 import OsHeader from "../../components/Header";
+import OsButton from "../../components/button";
 
 // --- Definisi Kolom Tabel ---
 const sesiColumns = [
@@ -68,7 +69,8 @@ export default function RekapSesiPage() {
         ),
         jumlah_mahasiswa: item.jumlah_mahasiswa + " Mahasiswa",
         action: (
-            <button
+            <OsButton
+                name="primary"
                 onClick={() =>
                     router.visit(
                         `/admin/rekap-nilai/${osce.id_osce}/sesi/${item.id_sesi}/mahasiswa`
@@ -77,7 +79,7 @@ export default function RekapSesiPage() {
                 className="bg-gray-800 h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md hover:bg-gray-700"
             >
                 Detail
-            </button>
+            </OsButton>
         ),
     }));
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
@@ -90,7 +92,7 @@ export default function RekapSesiPage() {
             <Head title={`Rekap Sesi - ${osce.nama_osce}`} />
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader variant="goback" backLink="/admin/rekap-nilai" />
 
                 <div className="flex-1 overflow-auto">

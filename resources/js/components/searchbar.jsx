@@ -27,7 +27,7 @@ const OsSearchBar = ({
 
     return (
         <div className="flex h-[46px] items-center space-x-3 mb-5"> {/* Menambahkan margin bottom yang lebih jelas */}
-            <div className="relative h-full w-full ">
+            <div className="relative h-full w-full flex-1">
                 <input
                     type="text"
                     placeholder={placeholder}

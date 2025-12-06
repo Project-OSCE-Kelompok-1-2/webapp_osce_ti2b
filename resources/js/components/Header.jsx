@@ -38,32 +38,37 @@ export default function OsHeader({
             className={`relative row-[1_/_2] col-[1_/_2] w-full flex flex-col items-start gap-os-12 ${className} fixed`}
         >
             <div className="flex items-center justify-between relative self-stretch w-full gap-os-12">
-                {/* 🔹 Tombol Home atau Go Back */}
+                {/* 🔹 LOGIKA TOMBOL HOME / GO BACK / MENU */}
                 {variant === "goback" ? (
+                    // Tampilkan Tombol Go Back. Di mobile/default dia akan flex, di desktop dia juga flex
                     <a
                         href={backLink}
-                        className="md:flex w-[46px] h-[46px] hidden items-center justify-center relative bg-gray-600 text-white rounded-xl border border-solid border-gray-700 aspect-[1] hover:bg-gray-700 transition"
+                        className="flex w-[46px] h-[46px] items-center justify-center relative bg-gray-600 text-white rounded-xl border border-solid border-gray-700 aspect-[1] hover:bg-gray-700 transition"
                         aria-label="Go Back"
                     >
                         <ArrowLeft className="relative w-[28px] h-[24px]" />
                     </a>
                 ) : (
-                    <a
-                        href="/admin/dashboard"
-                        className="md:flex w-[46px] h-[46px] hidden items-center justify-center relative bg-blue-600 text-white rounded-xl border border-solid border-blue-700 aspect-[1] hover:bg-blue-700 transition"
-                        aria-label="Home"
-                    >
-                        <Home className="relative w-[30px] h-[26px]" />
-                    </a>
+                    <>
+                        {/* Tampilkan Tombol Home di desktop */}
+                        <a
+                            href="/admin/dashboard"
+                            className="lg:flex w-[46px] h-[46px] hidden items-center justify-center relative bg-blue-600 text-white rounded-xl border border-solid border-blue-700 aspect-[1] hover:bg-blue-700 transition"
+                            aria-label="Home"
+                        >
+                            <Home className="relative w-[30px] h-[26px]" />
+                        </a>
+                        {/* Tampilkan Tombol Menu di mobile */}
+                        <button
+                            onClick={onMenuClick}
+                            className="flex lg:hidden w-[46px] h-[46px] items-center justify-center relative bg-blue-600 text-white rounded-xl border border-solid border-blue-700 aspect-[1] hover:bg-blue-700 transition"
+                            aria-label="Menu"
+                        >
+                            <Menu className="relative w-[30px] h-[26px]" />
+                        </button>
+                    </>
                 )}
-
-                <button
-                    onClick={onMenuClick}
-                    className="flex md:hidden w-[46px] h-[46px] items-center justify-center relative bg-blue-600 text-white rounded-xl border border-solid border-blue-700 aspect-[1] hover:bg-blue-700 transition"
-                    aria-label="Home"
-                >
-                    <Menu className="relative w-[30px] h-[26px]" />
-                </button>
+                {/* 🔹 AKHIR LOGIKA TOMBOL */}
 
                 {/* 🔹 Kotak judul utama */}
                 <div className="relative flex-1 h-[46px]">

@@ -126,7 +126,7 @@ export default function Stase() {
         setIsDeleteOpen(true);
     };
 
-    const handleConfirmDelete = () => {
+    const handleConfirlgelete = () => {
         if (!selectedId) return;
         destroy(`/admin/stase/${selectedId}`, {
             preserveScroll: true,
@@ -264,7 +264,7 @@ export default function Stase() {
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader onMenuClick={handleSidebarToggle} />
 
                 <div className="flex-1 overflow-auto">
@@ -414,7 +414,7 @@ export default function Stase() {
             <Modals
                 isOpen={isDeleteOpen}
                 onClose={() => setIsDeleteOpen(false)}
-                onConfirm={handleConfirmDelete}
+                onConfirm={handleConfirlgelete}
                 variant="delete"
                 title="Hapus Stase?"
                 message="Apakah Anda yakin ingin menghapus stase ini?"
