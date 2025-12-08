@@ -1,93 +1,73 @@
-import React, { useState, useEffect } from "react";
-import { Head, Link, usePage } from "@inertiajs/react";
+import React, { useState, useEffect, useCallback } from "react";
+import { Head, Link, usePage, router } from "@inertiajs/react";
 import { ChevronRight, FileText, User } from "lucide-react";
 
-// --- IMPORT KOMPONEN ---
-// Pastikan path ini sesuai dengan struktur folder Anda
+// --- COMPONENTS ---
 import SidebarUniversal from "@/Components/SidebarUniversal";
 import Pagination from "@/Components/Pagination";
-import OsSearchBar from "@/Components/searchbar"; // Sesuaikan jika path berbeda
+import OsSearchBar from "@/Components/searchbar";
 
-// --- MOCK DATA (Simulasi Database) ---
-
-const MOCK_MAHASISWA = {
-    nama: "MI. AULIA KURNIA WIDYARANI",
-    nim: "4.33.24.1.13",
-    prodi: "Kedokteran Gigi",
-    status: "Aktif",
+// --- HELPER: DEBOUNCE MANUAL ---
+const customDebounce = (func, delay) => {
+    let timeoutId;
+    return (...args) => {
+        if (timeoutId) clearTimeout(timeoutId);
+        timeoutId = setTimeout(() => {
+            func(...args);
+        }, delay);
+    };
 };
 
-const MOCK_UJIAN_LIST = [
-    {
-        id: 1,
-        nama_ujian: "OSCE Radiologi 01-A",
-        dosen_penguji: "Prof. Dr. dr. Mahalul Azam, M.Kes",
-        tanggal_ujian: "31 / 10 / 2025",
-        semester: "5",
-        tahun_ujian: "2025",
-        status_lulus: true,
-    },
-    {
-        id: 2,
-        nama_ujian: "OSCE Konservasi Gigi 02-B",
-        dosen_penguji: "Dr. drg. Siti Aminah, Sp.KG",
-        tanggal_ujian: "01 / 11 / 2025",
-        semester: "5",
-        tahun_ujian: "2025",
-        status_lulus: true,
-    },
-];
-
-// --- MOCK LINKS (Simulasi Pagination Laravel) ---
-const MOCK_LINKS = [
-    { url: null, label: "Previous", active: false },
-    { url: "#", label: "1", active: true },
-    { url: "#", label: "2", active: false },
-    { url: "#", label: "3", active: false },
-    { url: "#", label: "Next", active: false },
-];
-
-export default function NilaiIndex() {
-    const { ujian, filters } = usePage().props;
-
-    // State Sidebar (Default True = Terbuka)
+// Menerima Props dari Controller (mahasiswa, ujian, filters)
+export default function NilaiIndex({ mahasiswa, ujian, filters }) {
+    // State Sidebar
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
 
-    // State Filter & Search
-    const [filterSemester, setFilterSemester] = useState("");
-    const [filterTahun, setFilterTahun] = useState("");
-    const [search, setSearch] = useState("");
-    const [filteredData, setFilteredData] = useState(MOCK_UJIAN_LIST);
+    // State Filter (Default ambil dari props / URL)
+    const [search, setSearch] = useState(filters.q || "");
+    const [filterSemester, setFilterSemester] = useState(filters.sem || "");
+    const [filterTahun, setFilterTahun] = useState(filters.tahun || "");
 
-    // Logic Filter & Search
-    useEffect(() => {
-        let result = MOCK_UJIAN_LIST;
+    // --- LOGIC FILTER KE SERVER (Router.get) ---
+    const applyFilter = (params) => {
+        router.get("/mahasiswa/nilai", params, {
+            preserveState: true,
+            preserveScroll: true,
+            replace: true,
+        });
+    };
 
-        // 1. Filter berdasarkan Semester
-        if (filterSemester)
-            result = result.filter((item) => item.semester === filterSemester);
+    // Handle Dropdown Change
+    const handleFilterChange = (key, value) => {
+        if (key === "sem") setFilterSemester(value);
+        if (key === "tahun") setFilterTahun(value);
 
-        // 2. Filter berdasarkan Tahun
-        if (filterTahun)
-            result = result.filter((item) => item.tahun_ujian === filterTahun);
+        applyFilter({
+            q: search,
+            sem: key === "sem" ? value : filterSemester,
+            tahun: key === "tahun" ? value : filterTahun,
+        });
+    };
 
-        // 3. Filter berdasarkan Search (Nama Ujian atau Dosen)
-        if (search) {
-            const lowerSearch = search.toLowerCase();
-            result = result.filter(
-                (item) =>
-                    item.nama_ujian.toLowerCase().includes(lowerSearch) ||
-                    item.dosen_penguji.toLowerCase().includes(lowerSearch)
+    // Handle Search dengan Debounce
+    const debouncedSearch = useCallback(
+        customDebounce((query, currentSem, currentTahun) => {
+            router.get(
+                "/mahasiswa/nilai",
+                { q: query, sem: currentSem, tahun: currentTahun },
+                { preserveState: true, preserveScroll: true, replace: true }
             );
-        }
+        }, 500),
+        []
+    );
 
-        setFilteredData(result);
-    }, [filterSemester, filterTahun, search]);
+    const handleSearchChange = (val) => {
+        setSearch(val);
+        debouncedSearch(val, filterSemester, filterTahun);
+    };
 
-    // Handler Search Click
-    const handleSearchClick = () => {
-        // Implementasi tambahan jika ingin fetch ke server saat tombol diklik
-        console.log("Searching for:", search);
+    const handleSearchManual = () => {
+        applyFilter({ q: search, sem: filterSemester, tahun: filterTahun });
     };
 
     return (
@@ -98,14 +78,20 @@ export default function NilaiIndex() {
             <SidebarUniversal
                 isOpen={isSidebarOpen}
                 setIsOpen={setIsSidebarOpen}
+                user={usePage().props.auth.user}
+                role="mahasiswa"
             />
 
             {/* --- MAIN CONTENT --- */}
-            <main className="transition-all duration-300 ease-in-out p-6 pt-8 ml-20">
+            <main
+                className={`transition-all duration-300 ease-in-out p-6 pt-8 ${
+                    isSidebarOpen ? "ml-20" : "ml-20"
+                }`}
+            >
                 {/* Breadcrumb */}
                 <div className="mb-6 flex items-center text-sm text-gray-500">
                     <Link
-                        href="#"
+                        href="/mahasiswa/dashboard"
                         className="hover:text-blue-600 transition-colors"
                     >
                         Dashboard
@@ -131,7 +117,7 @@ export default function NilaiIndex() {
                     </div>
                 </div>
 
-                {/* Card Info Mahasiswa */}
+                {/* Card Info Mahasiswa (DINAMIS DARI DB) */}
                 <div className="relative mb-8 overflow-hidden rounded-2xl bg-blue-600 p-2 text-white shadow-xl shadow-blue-100">
                     <div className="absolute right-0 top-0 h-64 w-64 translate-x-16 -translate-y-16 rounded-full bg-white/10 blur-3xl"></div>
                     <div className="absolute left-0 bottom-0 h-40 w-40 -translate-x-10 translate-y-10 rounded-full bg-blue-400/30 blur-2xl"></div>
@@ -149,7 +135,7 @@ export default function NilaiIndex() {
                                             Nama Lengkap
                                         </p>
                                         <p className="text-xl font-bold tracking-wide">
-                                            {MOCK_MAHASISWA.nama}
+                                            {mahasiswa.nama}
                                         </p>
                                     </div>
                                     <div className="grid grid-cols-2 gap-4">
@@ -158,7 +144,7 @@ export default function NilaiIndex() {
                                                 NIM
                                             </p>
                                             <p className="text-lg font-semibold">
-                                                {MOCK_MAHASISWA.nim}
+                                                {mahasiswa.nim}
                                             </p>
                                         </div>
                                         <div>
@@ -166,7 +152,7 @@ export default function NilaiIndex() {
                                                 Program Studi
                                             </p>
                                             <p className="text-lg font-semibold">
-                                                {MOCK_MAHASISWA.prodi}
+                                                {mahasiswa.prodi}
                                             </p>
                                         </div>
                                     </div>
@@ -184,7 +170,10 @@ export default function NilaiIndex() {
                                     <select
                                         value={filterSemester}
                                         onChange={(e) =>
-                                            setFilterSemester(e.target.value)
+                                            handleFilterChange(
+                                                "sem",
+                                                e.target.value
+                                            )
                                         }
                                         className="w-full rounded-lg border-0 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-blue-200 focus:ring-2 focus:ring-white/50 transition cursor-pointer hover:bg-white/20"
                                     >
@@ -195,16 +184,16 @@ export default function NilaiIndex() {
                                             Semua Semester
                                         </option>
                                         <option
-                                            value="4"
+                                            value="Ganjil"
                                             className="text-gray-800"
                                         >
-                                            Semester 4
+                                            Ganjil
                                         </option>
                                         <option
-                                            value="5"
+                                            value="Genap"
                                             className="text-gray-800"
                                         >
-                                            Semester 5
+                                            Genap
                                         </option>
                                     </select>
                                 </div>
@@ -215,7 +204,10 @@ export default function NilaiIndex() {
                                     <select
                                         value={filterTahun}
                                         onChange={(e) =>
-                                            setFilterTahun(e.target.value)
+                                            handleFilterChange(
+                                                "tahun",
+                                                e.target.value
+                                            )
                                         }
                                         className="w-full rounded-lg border-0 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-blue-200 focus:ring-2 focus:ring-white/50 transition cursor-pointer hover:bg-white/20"
                                     >
@@ -226,27 +218,33 @@ export default function NilaiIndex() {
                                             Semua Tahun
                                         </option>
                                         <option
-                                            value="2024"
+                                            value="2024/2025"
                                             className="text-gray-800"
                                         >
-                                            2024
+                                            2024/2025
                                         </option>
                                         <option
-                                            value="2025"
+                                            value="2025/2026"
                                             className="text-gray-800"
                                         >
-                                            2025
+                                            2025/2026
+                                        </option>
+                                        <option
+                                            value="2026/2027"
+                                            className="text-gray-800"
+                                        >
+                                            2026/2027
                                         </option>
                                     </select>
                                 </div>
-                            </div>
-                            <div className="mt-5 flex items-center justify-between border-t border-white/20 pt-4">
-                                <span className="text-sm font-medium text-blue-100">
-                                    Status Akademik
-                                </span>
-                                <span className="rounded-full bg-green-500 px-4 py-1 text-xs font-bold text-white shadow-lg shadow-green-900/20">
-                                    {MOCK_MAHASISWA.status}
-                                </span>
+                                <div className="mt-5 flex items-center justify-between border-t border-white/20 pt-4">
+                                    <span className="text-sm font-medium text-blue-100">
+                                        Status Akademik
+                                    </span>
+                                    <span className="rounded-full bg-green-500 px-4 py-1 text-xs font-bold text-white shadow-lg shadow-green-900/20">
+                                        {mahasiswa.status}
+                                    </span>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -256,32 +254,22 @@ export default function NilaiIndex() {
                 <div className="mb-2">
                     <OsSearchBar
                         search={search}
-                        setSearch={setSearch}
-                        onSearchClick={handleSearchClick}
+                        setSearch={handleSearchChange}
+                        onSearchClick={handleSearchManual}
                         placeholder="Cari nama ujian atau dosen..."
                     />
                 </div>
 
                 {/* Tabel Penilaian */}
                 <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow duration-300">
-                    <div className="border-b border-gray-100 bg-gray-50/50 px-6 py-4">
-                        <div className="flex items-center justify-between mb-4">
-                            <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                                <span className="h-2 w-2 rounded-full bg-blue-600"></span>
-                                Daftar Nilai Ujian
-                            </h3>
-                            <span className="rounded-md bg-white px-3 py-1 text-xs font-medium text-gray-500 border border-gray-200 shadow-sm">
-                                Total: {filteredData.length} Data
-                            </span>
-                        </div>
-
-                        {/* searchbar di sini */}
-                        <searchbar
-                            search={search}
-                            setSearch={setSearch}
-                            onSearchClick={handleSearchClick}
-                            placeholder="Cari nama ujian atau dosen..."
-                        />
+                    <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+                        <h3 className="font-bold text-gray-800 flex items-center gap-2">
+                            <span className="h-2 w-2 rounded-full bg-blue-600"></span>
+                            Daftar Nilai Ujian
+                        </h3>
+                        <span className="rounded-md bg-white px-3 py-1 text-xs font-medium text-gray-500 border border-gray-200 shadow-sm">
+                            Total: {ujian.total} Data
+                        </span>
                     </div>
 
                     <table className="w-full text-left text-sm text-gray-600">
@@ -292,7 +280,6 @@ export default function NilaiIndex() {
                                 </th>
                                 <th className="px-6 py-4">Nama Ujian</th>
                                 <th className="px-6 py-4">Dosen Penguji</th>
-                                {/* PERUBAHAN: Header Tanggal menjadi Semester */}
                                 <th className="px-6 py-4 text-center">
                                     Semester
                                 </th>
@@ -303,30 +290,37 @@ export default function NilaiIndex() {
                             </tr>
                         </thead>
                         <tbody className="divide-y divide-gray-100">
-                            {filteredData.length > 0 ? (
-                                filteredData.map((ujian, index) => (
+                            {ujian.data.length > 0 ? (
+                                ujian.data.map((item, index) => (
                                     <tr
-                                        key={ujian.id}
+                                        key={item.id}
                                         className="group hover:bg-blue-50/30 transition-colors"
                                     >
                                         <td className="px-6 py-4 text-center font-medium text-gray-400 group-hover:text-blue-600 transition-colors">
-                                            {index + 1}
+                                            {(ujian.current_page - 1) *
+                                                ujian.per_page +
+                                                index +
+                                                1}
                                         </td>
                                         <td className="px-6 py-4 font-semibold text-gray-800">
-                                            {ujian.nama_ujian}
+                                            {item.nama_ujian}
+                                            <div className="text-[10px] text-gray-400 font-normal mt-0.5">
+                                                {/* Ambil Tanggalnya saja */}
+                                                {item.tanggal_ujian} •{" "}
+                                                {item.tahun_ujian}
+                                            </div>
                                         </td>
                                         <td className="px-6 py-4 text-gray-500">
-                                            {ujian.dosen_penguji}
+                                            {item.dosen_penguji}
                                         </td>
-                                        {/* PERUBAHAN: Menampilkan Semester, bukan Tanggal */}
                                         <td className="px-6 py-4 text-center font-medium">
-                                            {ujian.semester}
+                                            {item.semester}
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <button
                                                 onClick={() =>
                                                     alert(
-                                                        `Detail ID: ${ujian.id}`
+                                                        `Detail ID: ${item.id}`
                                                     )
                                                 }
                                                 className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
@@ -337,12 +331,12 @@ export default function NilaiIndex() {
                                         <td className="px-6 py-4 text-center">
                                             <span
                                                 className={`inline-flex items-center justify-center w-24 rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase shadow-sm ${
-                                                    ujian.status_lulus
+                                                    item.status_lulus
                                                         ? "bg-green-100 text-green-700 ring-1 ring-green-600/20"
                                                         : "bg-red-100 text-red-700 ring-1 ring-red-600/20"
                                                 }`}
                                             >
-                                                {ujian.status_lulus
+                                                {item.status_lulus
                                                     ? "LULUS"
                                                     : "TIDAK LULUS"}
                                             </span>
@@ -372,7 +366,9 @@ export default function NilaiIndex() {
                 </div>
 
                 {/* --- PAGINATION --- */}
-                <Pagination links={MOCK_LINKS} />
+                <div className="mt-6">
+                    <Pagination links={ujian.links} />
+                </div>
             </main>
         </div>
     );
