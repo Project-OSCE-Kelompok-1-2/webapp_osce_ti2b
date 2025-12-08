@@ -26,12 +26,14 @@ use App\Http\Controllers\Admin\OsceEnrollmentController;
 use App\Http\Controllers\Penguji\AksiPenilaianController;
 use App\Http\Controllers\Mahasiswa\NilaiMahasiswaController;
 // Tambahkan baris ini di bagian atas file web.php
-use App\Http\Controllers\Mahasiswa\ListNilaiMahasiswaController;
+use App\Http\Controllers\Penguji\HalamanPenilaianController;
 
 // --- MAHASISWA CONTROLERS ---
-use App\Http\Controllers\Penguji\HalamanPenilaianController;
+use App\Http\Controllers\Mahasiswa\JadwalMahasiswaController;
 // --- Mahasiswa ---
+use App\Http\Controllers\Mahasiswa\ProfilMahasiswaController;
 use App\Http\Controllers\Mahasiswa\DashboardMahasiswaController;
+use App\Http\Controllers\Mahasiswa\ListNilaiMahasiswaController;
 use App\Http\Controllers\Penguji\OsceController as PengujiOsceController;
 
 /*
@@ -238,6 +240,17 @@ Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasi
 
     Route::get('/nilai/{id}', [NilaiMahasiswaController::class, 'show'])
             ->name('nilai.show');
+
+    // PAGE: Pengaturan Akun
+    Route::get('/pengaturan-akun', [ProfilMahasiswaController::class, 'show_profile'])
+        ->name('mahasiswa.profil.show');
+
+    // ACTION: Update Akun
+    Route::post('/pengaturan-akun', [ProfilMahasiswaController::class, 'update_account'])
+        ->name('mahasiswa.profil.update');
+
+    Route::get('/jadwal', [JadwalMahasiswaController::class, 'show_jadwal'])
+        ->name('mahasiswa.jadwal.show');
 
     // Tambahkan route mahasiswa lainnya di sini nanti
 
