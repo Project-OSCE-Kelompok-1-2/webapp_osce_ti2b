@@ -27,6 +27,9 @@ use App\Http\Controllers\Penguji\RekapController;
 use App\Http\Controllers\Penguji\EditNilaiController;
 use App\Http\Controllers\Penguji\ViewNilaiController;
 
+// --- Mahasiswa ---
+use App\Http\Controllers\Mahasiswa\DashboardMahasiswaController;
+
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -169,7 +172,70 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 
 });
 
-Route::get('/mahasiswa/nilai', function () {
-    // Format: 'NamaFolder/NamaFile' (tanpa .jsx)
-    return Inertia::render('Mahasiswa/NilaiIndex');
-})->name('mahasiswa.nilai');
+// ===========================
+// == RUTE UNTUK MAHASISWA ===
+// ===========================
+
+// Logic:
+// 1. Menggunakan Middleware Afkar (auth & role:mahasiswa) agar aman.
+// 2. Menggunakan Data Mockup Khansa (Statistik & Jadwal) karena Controller Ilham belum siap.
+// 3. Menghapus 'auth' mockup agar data user mengambil dari HandleInertiaRequests Afkar.
+
+Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function () {
+    
+    // Dashboard Mahasiswa (Mockup Khansa + Afkar Integrated)
+    Route::get('/dashboard', function () {
+        return Inertia::render('Mahasiswa/Dashboard', [
+            // Mockup Data Statistik
+            'statistik' => [
+                'terdaftar' => 4,
+                'selesai' => 2,
+                'nilai_akhir' => 85.5,
+            ],
+
+            // Mockup Data Jadwal
+            'jadwal_penting' => [
+                [
+                    'nama_ujian' => 'OSCE Blok 3.1 - Kardiovaskuler',
+                    'tanggal_full' => 'Jumat, 6 Desember 2025',
+                    'tanggal_pendek' => '6 Des',
+                    'jam' => '08:00',
+                    'sisa_hari' => 1,
+                    'tipe' => 'Ujian Utama'
+                ],
+                [
+                    'nama_ujian' => 'Responsi Farmakologi',
+                    'tanggal_full' => 'Senin, 15 Desember 2025',
+                    'tanggal_pendek' => '15 Des',
+                    'jam' => '10:00',
+                    'sisa_hari' => 10,
+                    'tipe' => 'Responsi'
+                ],
+                [
+                    'nama_ujian' => 'Skill Lab: Anamnesis',
+                    'tanggal_full' => 'Rabu, 20 Desember 2025',
+                    'tanggal_pendek' => '20 Des',
+                    'jam' => '13:00',
+                    'sisa_hari' => 15,
+                    'tipe' => 'Latihan'
+                ]
+            ],
+
+            // Mockup Data Kalender
+            'kalender_event' => [
+                '2025-12-06',
+                '2025-12-15',
+                '2025-12-20'
+            ]
+        ]);
+    })->name('dashboard');
+
+    // Nilai Mahasiswa
+    Route::get('/nilai', function () {
+        // Format: 'NamaFolder/NamaFile' (tanpa .jsx)
+        return Inertia::render('Mahasiswa/NilaiIndex');
+    })->name('nilai');
+
+    // Tambahkan route mahasiswa lainnya di sini nanti
+
+});

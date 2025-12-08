@@ -1,5 +1,6 @@
 import React from "react";
 import { usePage, Link } from "@inertiajs/react";
+import { useState } from "react";
 import {
     Home,
     Users,
@@ -10,7 +11,8 @@ import {
     ChevronsLeft,
     ChevronsRight,
     BookOpen,
-    GraduationCap,
+    Calendar, // Icon baru untuk Jadwal
+    ClipboardCheck, // Icon baru untuk Hasil Penilaian
 } from "lucide-react";
 
 // --- MENU DEFINITIONS ---
@@ -23,44 +25,123 @@ const adminMenus = [
     { label: "Rekap Nilai", icon: <Bookmark />, href: "/admin/rekap-nilai" },
 ];
 
-const userMenus = [
-    { label: "Beranda", icon: <Home />, href: "/dashboard" },
-    { label: "Ujian OSCE", icon: <FileText />, href: "/osce" },
+// Menu untuk Penguji
+const pengujiMenus = [
+    { label: "Beranda", icon: <Home />, href: "/penguji/dashboard" },
+    { label: "OSCE", icon: <FileText />, href: "/penguji/osce" },
+];
+
+// Menu untuk Mahasiswa (BARU)
+const mahasiswaMenus = [
+    { label: "Beranda", icon: <Home />, href: "/mahasiswa/dashboard" },
     {
         label: "Hasil Penilaian",
-        icon: <GraduationCap />,
+        icon: <ClipboardCheck />,
         href: "/mahasiswa/nilai",
+    },
+    {
+        label: "Jadwal OSCE",
+        icon: <Calendar />,
+        href: "/mahasiswa/jadwal-osce",
     },
 ];
 
-const SidebarUniversal = ({ isOpen, setIsOpen }) => {
+// ---------------------------------------------------
+
+const SidebarUniversal = () => {
+    const [isOpen, setIsOpen] = useState(false);
     const { url } = usePage();
-    const currentUrl = url || "/mahasiswa/nilai";
-    const isAdmin = currentUrl.startsWith("/admin");
 
-    const menuItems = isAdmin ? adminMenus : userMenus;
-    const settingsLink = isAdmin ? "/admin/pengaturan" : "/pengaturan";
-    const userName = isAdmin ? "Admin Fakultas" : "Mahasiswa";
-    const userEmail = isAdmin
-        ? "admin.fakultas@kampus.ac.id"
-        : "mahasiswa@polines.ac.id";
+    // --- 2. LOGIKA DETEKSI ROLE OTOMATIS ---
+    const isAdmin = url.startsWith("/admin");
+    const isPenguji = url.startsWith("/penguji");
+    const isMahasiswa = url.startsWith("/mahasiswa");
 
-    // --- STYLE LOGIC ---
-    const getLinkClass = (active) => {
-        let base =
-            "flex items-center gap-3 p-3 rounded-r-lg mb-1 transition-all duration-300 group relative overflow-hidden ";
+    // Helper untuk menentukan data berdasarkan role
+    let menuItems = [];
+    let settingsLink = "#";
+    let userName = "User";
+    let userEmail = "user@email.com";
+    let themeColor = "gray"; // default
 
-        // Alignment: Center icon when closed, Start when open
-        base += isOpen ? "justify-start px-4" : "justify-center px-0";
+    if (isAdmin) {
+        menuItems = adminMenus;
+        settingsLink = "/admin/pengaturan-akun";
+        userName = "Admin1234";
+        userEmail = "admin@polines.ac.id";
+    } else if (isPenguji) {
+        menuItems = pengujiMenus;
+        settingsLink = "/penguji/pengaturan-akun";
+        userName = "Penguji1234";
+        userEmail = "penguji1234@gmail.com";
+    } else if (isMahasiswa) {
+        menuItems = mahasiswaMenus;
+        settingsLink = "/mahasiswa/pengaturan-akun";
+        userName = "Mahasiswa001";
+        userEmail = "mhs@polines.ac.id";
+    }
 
-        if (active) {
-            return (
-                base + " bg-blue-50 text-blue-600 border-l-4 border-blue-600"
-            );
+    // Helper untuk cek link aktif
+    const isActive = (href) => url.startsWith(href);
+
+    // --- 3. LOGIKA WARNA (STYLE) BERDASARKAN ROLE ---
+    const getRoleStyles = (active) => {
+        if (isAdmin) {
+            // --- ADMIN: HITAM/ABU ---
+            return {
+                icon: "text-blue-600",
+                text: active
+                    ? "text-blue-700 font-bold"
+                    : "text-blue-600 font-medium",
+                bg: active ? "bg-blue-50" : "hover:bg-blue-50",
+                border: active ? "border-l-4 border-blue-600" : "",
+                avatarBg: "bg-blue-100 text-blue-600",
+                avatarFill: "bg-blue-200/50",
+                toggleBtn: "bg-blue-600 hover:bg-blue-500",
+            };
+        } else if (isPenguji) {
+            // --- PENGUJI: BIRU ---
+            return {
+                icon: "text-blue-600",
+                text: active
+                    ? "text-blue-700 font-bold"
+                    : "text-blue-600 font-medium",
+                bg: active ? "bg-blue-50" : "hover:bg-blue-50",
+                border: active ? "border-l-4 border-blue-600" : "",
+                avatarBg: "bg-blue-100 text-blue-600",
+                avatarFill: "bg-blue-200/50",
+                toggleBtn: "bg-blue-600 hover:bg-blue-500",
+            };
         } else {
-            return base + " text-gray-500 hover:bg-gray-50 hover:text-blue-600";
+            // --- MAHASISWA: HIJAU (EMERALD) ---
+            return {
+                icon: "text-blue-600",
+                text: active
+                    ? "text-blue-700 font-bold"
+                    : "text-blue-600 font-medium",
+                bg: active ? "bg-blue-50" : "hover:bg-blue-50",
+                border: active ? "border-l-4 border-blue-600" : "",
+                avatarBg: "bg-blue-100 text-blue-600",
+                avatarFill: "bg-blue-200/50",
+                toggleBtn: "bg-blue-600 hover:bg-blue-500",
+            };
         }
     };
+
+    // --- FIX: MENAMBAHKAN FUNGSI YANG HILANG (TANPA MENGUBAH TAMPILAN LAIN) ---
+    const getLinkClass = (active) => {
+        // Ambil style role agar warna background (bg) dan border sesuai role
+        const styles = getRoleStyles(active);
+
+        // Gabungkan class layout dasar dengan class warna dari role
+        return `flex items-center gap-3 p-3 rounded-lg transition-all duration-300 group mb-1 ${
+            !isOpen ? "justify-center" : ""
+        } ${styles.bg} ${styles.border}`;
+    };
+
+    // Ambil style dasar untuk komponen statis (seperti tombol toggle)
+    // Kita anggap jika sedang di menu apapun, style dasar mengikuti role
+    const currentStyles = getRoleStyles(false);
 
     return (
         <aside
@@ -71,7 +152,7 @@ const SidebarUniversal = ({ isOpen, setIsOpen }) => {
             {/* --- TOGGLE BUTTON --- */}
             <button
                 onClick={() => setIsOpen(!isOpen)}
-                className="absolute -right-3 top-10 bg-blue-600 text-white p-1.5 rounded-full shadow-md hover:bg-blue-700 transition-colors border-2 border-white focus:outline-none z-50"
+                className={`absolute -right-3 top-9 z-50 text-white p-1 rounded-full transition focus:outline-none shadow-md border border-white ${currentStyles.toggleBtn}`}
             >
                 {isOpen ? (
                     <ChevronsLeft size={16} />
@@ -80,27 +161,33 @@ const SidebarUniversal = ({ isOpen, setIsOpen }) => {
                 )}
             </button>
 
-            {/* --- PROFILE HEADER --- */}
-            <div
-                className={`flex items-center gap-3 p-6 h-24 border-b border-gray-100 transition-all duration-300 ${
-                    !isOpen && "justify-center p-0"
-                }`}
-            >
-                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg flex-shrink-0">
-                    {userName.charAt(0)}
-                </div>
-
+            {/* Profil User */}
+            <div className="flex-shrink-0">
                 <div
-                    className={`flex flex-col overflow-hidden transition-all duration-300 ${
-                        isOpen ? "opacity-100 w-auto" : "opacity-0 w-0"
+                    className={`flex items-center gap-3 p-4 border-b border-gray-200 h-[100px] transition-all duration-300 ${
+                        !isOpen ? "justify-center" : ""
                     }`}
                 >
-                    <span className="font-bold text-gray-800 text-sm whitespace-nowrap">
-                        {userName}
-                    </span>
-                    <span className="text-xs text-gray-500 whitespace-nowrap">
-                        {userEmail}
-                    </span>
+                    {/* Avatar */}
+                    <div
+                        className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-xl overflow-hidden ${currentStyles.avatarBg}`}
+                    >
+                        <div
+                            className={`w-full h-full ${currentStyles.avatarFill}`}
+                        ></div>
+                    </div>
+
+                    {/* Info Teks */}
+                    {isOpen && (
+                        <div className="overflow-hidden">
+                            <p className="font-bold text-gray-900 truncate text-sm">
+                                {userName}
+                            </p>
+                            <p className="text-xs text-gray-500 truncate">
+                                {userEmail}
+                            </p>
+                        </div>
+                    )}
                 </div>
             </div>
 
@@ -108,7 +195,9 @@ const SidebarUniversal = ({ isOpen, setIsOpen }) => {
             <nav className="flex-1 overflow-y-auto py-6 pr-3">
                 <div className="flex flex-col">
                     {menuItems.map((item, index) => {
-                        const active = currentUrl.startsWith(item.href);
+                        const active = isActive(item.href);
+                        const styles = getRoleStyles(active);
+
                         return (
                             <Link
                                 key={index}
@@ -124,7 +213,8 @@ const SidebarUniversal = ({ isOpen, setIsOpen }) => {
                                     }`}
                                 >
                                     {React.cloneElement(item.icon, {
-                                        size: 22,
+                                        size: 26,
+                                        className: styles.icon,
                                     })}
                                 </div>
 
