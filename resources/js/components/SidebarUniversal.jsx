@@ -25,10 +25,14 @@ const adminMenus = [
     { label: "Rekap Nilai", icon: <Bookmark />, href: "/admin/rekap-nilai" },
 ];
 
-// Menu untuk Penguji
-const pengujiMenus = [
-    { label: "Beranda", icon: <Home />, href: "/penguji/dashboard" },
-    { label: "OSCE", icon: <FileText />, href: "/penguji/osce" },
+const userMenus = [
+    { label: "Beranda", icon: <Home />, href: "/dashboard" },
+    { label: "Ujian OSCE", icon: <FileText />, href: "/osce" },
+    {
+        label: "Hasil Penilaian",
+        icon: <GraduationCap />,
+        href: "/mahasiswa/nilai",
+    },
 ];
 
 // Menu untuk Mahasiswa (BARU)
@@ -161,11 +165,19 @@ const SidebarUniversal = () => {
                 )}
             </button>
 
-            {/* Profil User */}
-            <div className="flex-shrink-0">
+            {/* --- PROFILE HEADER --- */}
+            <div
+                className={`flex items-center gap-3 p-6 h-24 border-b border-gray-100 transition-all duration-300 ${
+                    !isOpen && "justify-center p-0"
+                }`}
+            >
+                <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center text-blue-600 font-bold text-lg flex-shrink-0">
+                    {userName.charAt(0)}
+                </div>
+
                 <div
-                    className={`flex items-center gap-3 p-4 border-b border-gray-200 h-[100px] transition-all duration-300 ${
-                        !isOpen ? "justify-center" : ""
+                    className={`flex flex-col overflow-hidden transition-all duration-300 ${
+                        isOpen ? "opacity-100 w-auto" : "opacity-0 w-0"
                     }`}
                 >
                     {/* Avatar */}
