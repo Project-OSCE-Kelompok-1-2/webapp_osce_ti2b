@@ -13,6 +13,7 @@ import {
     BookOpen,
     Calendar, // Icon baru untuk Jadwal
     ClipboardCheck, // Icon baru untuk Hasil Penilaian
+    GraduationCap,
 } from "lucide-react";
 
 // --- MENU DEFINITIONS ---

@@ -1,36 +1,38 @@
 <?php
 
+use Inertia\Inertia;
 use App\Models\TahunAkademik;
 use Illuminate\Support\Facades\Route;
-use Inertia\Inertia;
 
 // --- Auth & Admin Controllers ---
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\OsceController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Admin\StaseController;
-use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Admin\PengujiController;
+use App\Http\Controllers\Penguji\RekapController;
+use App\Http\Controllers\Penguji\ProfilController;
+use App\Http\Controllers\Admin\MahasiswaController;
 use App\Http\Controllers\Admin\KompetensiController;
 use App\Http\Controllers\Admin\OsceJadwalController;
-use App\Http\Controllers\Admin\RekapNilaiController;
-use App\Http\Controllers\Admin\AspekPenilaianController;
-use App\Http\Controllers\Admin\OsceEnrollmentController;
 
 // --- PENGUJI CONTROLLERS (LENGKAP) ---
-use App\Http\Controllers\Penguji\ProfilController;
+use App\Http\Controllers\Admin\RekapNilaiController;
 use App\Http\Controllers\Penguji\DashboardController;
-use App\Http\Controllers\Penguji\OsceController as PengujiOsceController;
-use App\Http\Controllers\Penguji\HalamanPenilaianController;
-use App\Http\Controllers\Penguji\AksiPenilaianController;
-use App\Http\Controllers\Penguji\RekapController;
 use App\Http\Controllers\Penguji\EditNilaiController;
 use App\Http\Controllers\Penguji\ViewNilaiController;
+use App\Http\Controllers\Admin\AspekPenilaianController;
+use App\Http\Controllers\Admin\OsceEnrollmentController;
+use App\Http\Controllers\Penguji\AksiPenilaianController;
+use App\Http\Controllers\Mahasiswa\NilaiMahasiswaController;
+// Tambahkan baris ini di bagian atas file web.php
+use App\Http\Controllers\Mahasiswa\ListNilaiMahasiswaController;
 
 // --- MAHASISWA CONTROLERS ---
-use App\Http\Controllers\Mahasiswa\NilaiMahasiswaController;
+use App\Http\Controllers\Penguji\HalamanPenilaianController;
 // --- Mahasiswa ---
 use App\Http\Controllers\Mahasiswa\DashboardMahasiswaController;
+use App\Http\Controllers\Penguji\OsceController as PengujiOsceController;
 
 /*
 |--------------------------------------------------------------------------
@@ -231,10 +233,11 @@ Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasi
     })->name('dashboard');
 
     // Nilai Mahasiswa
-    Route::get('/nilai', function () {
-        // Format: 'NamaFolder/NamaFile' (tanpa .jsx)
-        return Inertia::render('Mahasiswa/NilaiIndex');
-    })->name('nilai');
+    Route::get('/nilai', [ListNilaiMahasiswaController::class, 'index'])
+    ->name('nilai');
+
+    Route::get('/nilai/{id}', [NilaiMahasiswaController::class, 'show'])
+            ->name('nilai.show');
 
     // Tambahkan route mahasiswa lainnya di sini nanti
 
