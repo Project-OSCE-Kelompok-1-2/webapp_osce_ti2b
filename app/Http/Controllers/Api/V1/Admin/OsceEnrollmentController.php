@@ -6,7 +6,7 @@ use Illuminate\Http\JsonResponse;
 
 
 use App\Http\Controllers\Controller;
-use App\Services\OsceEnrollmentService;
+use App\Services\Admin\OsceEnrollmentService;
 use Illuminate\Http\Request;
 
 class OsceEnrollmentController extends Controller

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use Illuminate\Http\Request;
-use App\Services\OsceJadwalService;
+use App\Services\Admin\OsceJadwalService;
 use App\Http\Controllers\Controller;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Validation\ValidationException;

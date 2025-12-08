@@ -8,7 +8,7 @@ use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
 use App\Models\TahunAkademik;
 use App\Imports\MahasiswaImport;
-use App\Services\MahasiswaService;
+use App\Services\Admin\MahasiswaService;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;

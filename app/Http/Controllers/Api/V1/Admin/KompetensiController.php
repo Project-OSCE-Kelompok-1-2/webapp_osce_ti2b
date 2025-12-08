@@ -6,7 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\AspekPenilaian;
 use Illuminate\Validation\Rule;
 use App\Models\PoinAspekPenilaian;
-use App\Services\KompetensiService;
+use App\Services\Admin\KompetensiService;
 use App\Http\Controllers\Controller;
 use Dedoc\Scramble\Attributes\Response;
 use Illuminate\Database\Eloquent\ModelNotFoundException;

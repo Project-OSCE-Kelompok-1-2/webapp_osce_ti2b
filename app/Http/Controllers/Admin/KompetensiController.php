@@ -8,7 +8,7 @@ use App\Models\AspekPenilaian;
 use Illuminate\Validation\Rule;
 use App\Models\PoinAspekPenilaian;
 use App\Http\Controllers\Controller;
-use App\Services\KompetensiService;
+use App\Services\Admin\KompetensiService;
 use Illuminate\Support\Facades\Redirect;
 
 class KompetensiController extends Controller

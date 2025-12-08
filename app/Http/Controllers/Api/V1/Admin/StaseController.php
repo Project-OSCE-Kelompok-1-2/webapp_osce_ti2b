@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 use Illuminate\Http\Request;
-use App\Services\StaseService;
+use App\Services\Admin\StaseService;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\ValidationException;

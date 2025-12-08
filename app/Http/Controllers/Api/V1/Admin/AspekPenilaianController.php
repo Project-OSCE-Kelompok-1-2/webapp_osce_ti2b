@@ -6,7 +6,7 @@ use App\Models\Stase;
 use Illuminate\Http\Request;
 use App\Models\AspekPenilaian;
 use App\Http\Controllers\Controller;
-use App\Services\AspekPenilaianService;
+use App\Services\Admin\AspekPenilaianService;
 use Illuminate\Database\Eloquent\ModelNotFoundException; // Tambahkan ini
 
 class AspekPenilaianController extends Controller

@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Models\Penguji;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Services\PengujiService;
+use App\Services\Admin\PengujiService;
 use Illuminate\Validation\Rule;
 
 class PengujiController extends Controller
