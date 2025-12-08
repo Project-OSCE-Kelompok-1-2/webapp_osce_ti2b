@@ -11,7 +11,7 @@ class Stase extends Model
 
     protected $table = 'stase';
     protected $primaryKey = 'id_stase';
-    protected $fillable = ['id_mata_kuliah', 'id_tujuan_pembelajaran', 'nama_stase', 'deskripsi'];
+    protected $fillable = ['id_mata_kuliah', 'nama_stase', 'deskripsi'];
 
     public function mataKuliah()
     {
@@ -20,7 +20,7 @@ class Stase extends Model
 
     public function tujuanPembelajaran()
     {
-        return $this->belongsTo(TujuanPembelajaran::class, 'id_tujuan_pembelajaran');
+        return $this->hasMany(TujuanPembelajaran::class, 'id_stase');
     }
 
     public function aspekPenilaian()

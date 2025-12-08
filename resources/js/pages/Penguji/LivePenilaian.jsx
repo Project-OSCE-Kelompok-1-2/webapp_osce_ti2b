@@ -116,8 +116,8 @@ export default function LivePenilaian() {
         );
     }, 0);
 
-    const jumlahAspek = dataRubrik.length > 0 ? dataRubrik.length : 1;
-    const totalNilai = totalNilaiMentah / jumlahAspek;
+    const SKALA_MAKSIMAL = 4;
+    const totalNilai = totalNilaiMentah / SKALA_MAKSIMAL;
 
     const handleSubmit = (e) => {
         e.preventDefault();

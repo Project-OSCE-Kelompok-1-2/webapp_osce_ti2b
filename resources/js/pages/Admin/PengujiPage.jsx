@@ -8,15 +8,6 @@ import OsTableHeader from "../../components/tableheader.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
-<<<<<<< HEAD
-import Os_button from "../../components/button.jsx"; // Digunakan untuk tombol delete di tabel
-import OsSearchBar from "../../components/searchbar.jsx";
-import OsTableBody from "../../components/tablecontain.jsx";
-import OsModal from "../../components/Modal.jsx"; 
-import OsInput from "../../components/Input.jsx";
-import OsButton from "../../components/button.jsx"; // Digunakan untuk tombol umum
-import Modals from "../../components/Modals.jsx"; 
-=======
 import Os_button from "../../components/button.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
@@ -24,34 +15,38 @@ import OsModal from "../../components/Modal.jsx";
 import OsInput from "../../components/input.jsx";
 import OsButton from "../../components/button.jsx";
 import Modals from "../../components/Modals.jsx";
->>>>>>> d4ae118430d7719a23aba715e3394844d1a14d8d
 
 // --- Definisi Kolom Tabel Penguji ---
 const pengujiColumns = [
-    { key: "no", content: "No", width: "w-16", classes: "justify-center items-center" },
-    { key: "nip_penguji", content: "NIP Penguji", width: "w-56", classes: "justify-start items-center px-4" },
-    { key: "nama_penguji", content: "Nama Penguji", width: "flex-1", classes: "justify-start items-center px-4" },
-    { key: "action", content: "Aksi", width: "w-56", classes: "justify-center items-center px-4" },
+    {
+        key: "no",
+        content: "No",
+        width: "w-16",
+        classes: "justify-center items-center",
+    },
+    {
+        key: "nip_penguji",
+        content: "NIP Penguji",
+        width: "w-56",
+        classes: "justify-start items-center px-4",
+    },
+    {
+        key: "nama_penguji",
+        content: "Nama Penguji",
+        width: "flex-1",
+        classes: "justify-start items-center px-4",
+    },
+    {
+        key: "action",
+        content: "Aksi",
+        width: "w-56",
+        classes: "justify-center items-center px-4",
+    },
 ];
 
 export default function PengujiPage() {
     const { dosen, filters, flash } = usePage().props;
 
-<<<<<<< HEAD
-    // === STATE ===
-    const [showAddModal, setShowAddModal] = useState(false);
-    const [addFormData, setAddFormData] = useState({ nip: "", nama: "" });
-
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [editingPenguji, setEditingPenguji] = useState(null);
-    const [editFormData, setEditFormData] = useState({ nip: "", nama: "" });
-
-    const [search, setSearch] = useState(filters?.search || "");
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedPenguji, setSelectedPenguji] = useState(null);
-
-    // --- EFFECT: Isi form edit saat data dipilih ---
-=======
     // === STATE PENCARIAN ===
     const [search, setSearch] = useState(filters?.search || "");
 
@@ -105,16 +100,6 @@ export default function PengujiPage() {
     });
 
     // Mengisi form edit saat tombol diklik (Logic dari useEffect sebelumnya tetap valid untuk modal)
->>>>>>> d4ae118430d7719a23aba715e3394844d1a14d8d
-    useEffect(() => {
-        if (editingPenguji) {
-            setDataEdit({
-                nip: editingPenguji.nip || "",
-                nama: editingPenguji.nama || "",
-            });
-            clearErrorsEdit();
-        }
-    }, [editingPenguji]);
 
     const handleSubmitEdit = (e) => {
         e.preventDefault();
@@ -134,60 +119,18 @@ export default function PengujiPage() {
     // 3. LOGIC LAINNYA (Search & Delete)
     // ==========================================
     const handleSearch = (e) => {
-        if(e) e.preventDefault();
-        router.get("/admin/dosen", { search }, { preserveState: true, replace: true });
-    };
-
-<<<<<<< HEAD
-    // --- HANDLER TAMBAH ---
-    const handleAddFormChange = (e) => {
-        const { name, value } = e.target;
-        setAddFormData((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmitAdd = (e) => {
         e.preventDefault();
-        router.post("/admin/dosen", addFormData, {
-            onSuccess: () => {
-                setShowAddModal(false);
-                setAddFormData({ nip: "", nama: "" });
-            },
-            onError: (errors) => console.error("Error adding:", errors),
-        });
+        router.get(
+            "/admin/dosen",
+            { search },
+            { preserveState: true, replace: true }
+        );
     };
 
-    // --- HANDLER EDIT ---
-    const openEditModal = (penguji) => {
-        setEditingPenguji(penguji); // Set data dulu
-        setShowEditModal(true);     // Baru buka modal
-    };
-
-    const handleEditFormChange = (e) => {
-        const { name, value } = e.target;
-        setEditFormData((prev) => ({ ...prev, [name]: value }));
-    };
-
-    const handleSubmitEdit = (e) => {
-        e.preventDefault();
-        if (!editingPenguji) return;
-
-        // Pastikan route backend menerima ID
-        router.put(`/admin/dosen/${editingPenguji.id_penguji}`, editFormData, {
-            onSuccess: () => {
-                setShowEditModal(false);
-                setEditingPenguji(null);
-            },
-            onError: (errors) => console.error("Error editing:", errors),
-        });
-    };
-
-    // --- HANDLER DELETE ---
-=======
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedPenguji, setSelectedPenguji] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
->>>>>>> d4ae118430d7719a23aba715e3394844d1a14d8d
     const openDeleteModal = (penguji) => {
         setSelectedPenguji(penguji);
         setIsModalOpen(true);
@@ -204,23 +147,6 @@ export default function PengujiPage() {
                 setSelectedPenguji(null);
                 setIsDeleting(false);
             },
-<<<<<<< HEAD
-        });
-    };
-
-    const closeAddModal = () => {
-        setShowAddModal(false);
-        setAddFormData({ nip: "", nama: "" });
-    };
-
-    const closeEditModal = () => {
-        setShowEditModal(false);
-        setEditingPenguji(null);
-        setEditFormData({ nip: "", nama: "" });
-    };
-
-    // --- PREPARE TABLE DATA ---
-=======
             onError: () => setIsDeleting(false),
             onFinish: () => setIsDeleting(false),
         });
@@ -229,28 +155,27 @@ export default function PengujiPage() {
     // Fungsi helper UI
     const openEditModal = (penguji) => {
         setEditingPenguji(penguji);
+        setDataEdit({
+            nip: penguji.nip || "",
+            nama: penguji.nama || "",
+        });
+
+        // 3. Langsung buka modal
         setShowEditModal(true);
+
+        // Opsional: bersihkan error
+        clearErrorsEdit();
     };
 
->>>>>>> d4ae118430d7719a23aba715e3394844d1a14d8d
     const tableData = dosen.data.map((item, index) => ({
         no: dosen.from + index,
         nip_penguji: item.nip,
         nama_penguji: item.nama,
         action: (
             <div className="flex space-x-3">
-<<<<<<< HEAD
-                {/* Tombol Edit */}
                 <OsButton name="edit" onClick={() => openEditModal(item)}>
                     <Edit2 size={18} />
                 </OsButton>
-
-                {/* Tombol Delete (Perbaikan Typo) */}
-=======
-                <OsButton name="edit" onClick={() => openEditModal(item)}>
-                    <Edit2 size={18} />
-                </OsButton>
->>>>>>> d4ae118430d7719a23aba715e3394844d1a14d8d
                 <OsButton name="warning" onClick={() => openDeleteModal(item)}>
                     <Trash2 size={18} className="text-os-white" />
                 </OsButton>
@@ -263,22 +188,13 @@ export default function PengujiPage() {
             <Sidebar />
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
-<<<<<<< HEAD
-                <OsHeader/>
-=======
                 <OsHeader />
->>>>>>> d4ae118430d7719a23aba715e3394844d1a14d8d
 
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">Menu Penguji</h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-<<<<<<< HEAD
-                        Menu Penguji (Dosen) digunakan untuk mengelola proses penilaian, 
-                        pemantauan, dan evaluasi mahasiswa.
-=======
                         Menu Penguji (Dosen) digunakan untuk mengelola proses
                         penilaian...
->>>>>>> d4ae118430d7719a23aba715e3394844d1a14d8d
                     </p>
 
                     <OsButton
@@ -286,7 +202,10 @@ export default function PengujiPage() {
                         onClick={() => setShowAddModal(true)}
                         className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                     >
-                        <OsIcon name="add" className="h-os-20 os-icon-light mr-os-8" />
+                        <OsIcon
+                            name="add"
+                            className="h-os-20 os-icon-light mr-os-8"
+                        />
                         Tambah Penguji
                     </OsButton>
 
@@ -312,23 +231,15 @@ export default function PengujiPage() {
                     </div>
 
                     <section>
-<<<<<<< HEAD
-                        <h2 className="font-semibold text-lg mb-2">Tabel Penguji</h2>
-=======
                         <h2 className="font-semibold text-lg mb-2">
                             Tabel Penguji
                         </h2>
->>>>>>> d4ae118430d7719a23aba715e3394844d1a14d8d
                         <OsTableHeader columns={pengujiColumns} />
                         {tableData.length > 0 ? (
-<<<<<<< HEAD
-                            <OsTableBody data={tableData} columns={pengujiColumns} />
-=======
                             <OsTableBody
                                 data={tableData}
                                 columns={pengujiColumns}
                             />
->>>>>>> d4ae118430d7719a23aba715e3394844d1a14d8d
                         ) : (
                             <div className="flex items-center border-t border-gray-400">
                                 <p className="w-full text-center text-sm py-4 text-gray-500">
@@ -336,10 +247,6 @@ export default function PengujiPage() {
                                 </p>
                             </div>
                         )}
-<<<<<<< HEAD
-
-=======
->>>>>>> d4ae118430d7719a23aba715e3394844d1a14d8d
                         {dosen.links && dosen.links.length > 3 && (
                             <div className="mt-8">
                                 <OsPagination links={dosen.links} />
@@ -350,13 +257,9 @@ export default function PengujiPage() {
 
                 <OsCopyright />
 
-<<<<<<< HEAD
-                {/* --- MODAL TAMBAH --- */}
-=======
                 {/* ============================================== */}
                 {/* MODAL TAMBAH (Implementasi dari TambahPenguji) */}
                 {/* ============================================== */}
->>>>>>> d4ae118430d7719a23aba715e3394844d1a14d8d
                 <OsModal
                     show={showAddModal}
                     onClose={() => {
@@ -368,29 +271,6 @@ export default function PengujiPage() {
                     onSubmit={handleSubmitAdd}
                     onClear={() => resetAdd()}
                 >
-<<<<<<< HEAD
-                    <form onSubmit={handleSubmitAdd} className="space-y-4">
-                        <OsInput
-                            label="NIP Penguji" type="number" name="nip"
-                            value={addFormData.nip} onChange={handleAddFormChange}
-                            placeholder="Masukkan NIP Penguji..." required
-                        />
-                        <OsInput
-                            label="Nama Penguji" type="text" name="nama"
-                            value={addFormData.nama} onChange={handleAddFormChange}
-                            placeholder="Masukkan Nama Penguji..." required
-                        />
-                        {/* Tombol Submit Wajib Ada */}
-                        <div className="flex justify-end pt-4">
-                             <OsButton type="submit" name="primary" className="bg-blue-600 text-white px-4 py-2 rounded">
-                                Simpan Data
-                            </OsButton>
-                        </div>
-                    </form>
-                </OsModal>
-
-                {/* --- MODAL EDIT --- */}
-=======
                     <div className="space-y-4">
                         {/* NIP - Menggunakan logic onChange spesifik seperti TambahPenguji */}
                         <div>
@@ -444,7 +324,6 @@ export default function PengujiPage() {
                 {/* ============================================== */}
                 {/* MODAL EDIT (Implementasi dari TambahPenguji)   */}
                 {/* ============================================== */}
->>>>>>> d4ae118430d7719a23aba715e3394844d1a14d8d
                 <OsModal
                     show={showEditModal}
                     onClose={() => {
@@ -454,31 +333,6 @@ export default function PengujiPage() {
                     }}
                     variant="edit"
                     title="Edit Data Penguji"
-<<<<<<< HEAD
-                    subtitle={`Ubah informasi untuk penguji: ${editingPenguji?.nama || ""}`}
-                >
-                    <form onSubmit={handleSubmitEdit} className="space-y-4">
-                        <OsInput
-                            label="NIP Penguji" type="number" name="nip"
-                            value={editFormData.nip} onChange={handleEditFormChange}
-                            placeholder="Masukkan NIP Penguji..." required
-                        />
-                        <OsInput
-                            label="Nama Penguji" type="text" name="nama"
-                            value={editFormData.nama} onChange={handleEditFormChange}
-                            placeholder="Masukkan Nama Penguji..." required
-                        />
-                        {/* Tombol Submit Wajib Ada */}
-                        <div className="flex justify-end pt-4">
-                             <OsButton type="submit" name="primary" className="bg-blue-600 text-white px-4 py-2 rounded">
-                                Simpan Perubahan
-                            </OsButton>
-                        </div>
-                    </form>
-                </OsModal>
-
-                {/* --- MODAL DELETE --- */}
-=======
                     subtitle={`Ubah informasi untuk penguji: ${
                         editingPenguji?.nama || ""
                     }`}
@@ -532,7 +386,6 @@ export default function PengujiPage() {
                     </div>
                 </OsModal>
 
->>>>>>> d4ae118430d7719a23aba715e3394844d1a14d8d
                 <Modals
                     isOpen={isModalOpen}
                     onClose={() => !isDeleting && setIsModalOpen(false)}

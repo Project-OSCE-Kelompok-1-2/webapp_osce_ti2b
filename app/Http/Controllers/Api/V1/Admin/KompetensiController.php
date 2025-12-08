@@ -4,11 +4,12 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use Illuminate\Http\Request;
 use App\Models\AspekPenilaian;
+use Illuminate\Validation\Rule;
 use App\Models\PoinAspekPenilaian;
+use App\Services\Admin\KompetensiService;
 use App\Http\Controllers\Controller;
-use App\Services\KompetensiService;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Dedoc\Scramble\Attributes\Response;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class KompetensiController extends Controller
 {
@@ -111,9 +112,24 @@ class KompetensiController extends Controller
     public function update(Request $request, $id_kompetensi)
     {
         try {
-            $kompetensi = PoinAspekPenilaian::findOrFail($id_kompetensi);
 
-            $updatedData = $this->service->update($request, $kompetensi);
+            $kompetensi = PoinAspekPenilaian::findOrFail($id_kompetensi);
+            $validated = $request->validate([
+                'kompetensi' => [
+                    'required',
+                    'string',
+                    // Validasi unik, kecuali untuk ID ini
+                    Rule::unique('poin_aspek_penilaian', 'kompetensi')
+                        ->ignore($kompetensi->id_poin_aspek_penilaian, 'id_poin_aspek_penilaian')
+                        ->where('id_aspek_penilaian', $kompetensi->id_aspek_penilaian)
+                ],
+                'skor' => 'required|integer|min:0', // Ditambahkan
+                'bobot' => 'required|integer|min:1',
+            ]);
+            
+            
+
+            $updatedData = $this->service->update( $kompetensi, $validated);
 
             return response()->json([
                 'status' => 'success',

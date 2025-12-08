@@ -2,20 +2,27 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Http\Controllers\Controller;
+use App\Models\Osce;
+use Inertia\Inertia;
+use App\Models\Stase;
+use App\Models\Penguji;
+use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
+use App\Services\Admin\AdminService;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
-use Inertia\Inertia;
-use App\Models\Osce;
-use App\Models\Mahasiswa;
-use App\Models\Penguji;
-use App\Models\Stase;
 use Illuminate\Validation\Rule; // Import ini untuk validasi unik
 
 class AdminController extends Controller
 {
+    protected $service;
+    public function __construct(AdminService $service)
+    {
+        $this->service = $service;
+    }
+
     public function dashboard()
     {
         $stats = [
@@ -24,27 +31,7 @@ class AdminController extends Controller
             'total_penguji' => Penguji::count(),
         ];
 
-        $notifikasi_bobot = Stase::query()
-            ->with('aspekPenilaian') 
-            ->withSum('aspekPenilaian', 'bobot_maksimum')
-            ->get()
-            ->filter(function ($stase) {
-                $total_bobot = $stase->aspek_penilaian_sum_bobot_maksimum ?? 0;
-                return $total_bobot != 100;
-            })
-            ->map(function($stase) { // Gunakan multi-baris agar lebih aman
-                
-                // Cek dengan aman
-                $first_aspek = $stase->aspekPenilaian->first();
-                $sub_judul = $first_aspek ? $first_aspek->aspek : 'Bobot belum diatur';
-
-                return [
-                    'id_stase' => $stase->id_stase,
-                    'nama_stase' => $stase->nama_stase,
-                    'sub_judul' => $sub_judul,
-                    'total_bobot' => $stase->aspek_penilaian_sum_bobot_maksimum ?? 0,
-                ];
-            });
+        $notifikasi_bobot = $this->service->getDashboardData();
 
         // 3. Kirim data ke view
         return Inertia::render('Admin/Dashboard', [
@@ -61,11 +48,11 @@ class AdminController extends Controller
         $admin = Auth::user();
 
         // Sesuaikan dengan model Anda: gunakan 'path_gambar'
-        $admin->path_gambar = $admin->path_gambar ? ($admin->path_gambar) : null;
+        $admin = $this->service->getProfileData($admin);
 
         return Inertia::render('Admin/PengaturanAkun', [
             // Kirim 'user' ke props 'user' di frontend
-            'user' => $admin, 
+            'user' => $admin,
         ]);
     }
 
@@ -98,53 +85,7 @@ class AdminController extends Controller
             'delete_foto' => ['nullable', 'boolean'],
         ]);
 
-        // --- Logika Update Profil ---
-        // (Selalu update username & foto jika ada)
-
-        // 1. Update Username
-        // $admin->username = $request->username;
-
-        // --- LOGIKA FOTO DIPERBARUI ---
-        // Cek apakah frontend mengirim 'delete_foto: true'
-        if ($request->boolean('delete_foto')) {
-            // 1. HAPUS FOTO
-            if ($admin->path_gambar) {
-                $oldPath = str_replace('storage/', '', $admin->path_gambar);
-                Storage::disk('public')->delete($oldPath);
-            }
-            $admin->path_gambar = null; // Set 'path_gambar' di DB menjadi null
-        }
-        // 2. Update Foto (jika ada file baru)
-        elseif ($request->hasFile('foto')) {
-            // Hapus foto lama
-            if ($admin->path_gambar) {
-                $oldPath = str_replace('storage/', '', $admin->path_gambar);
-                Storage::disk('public')->delete($oldPath);
-            }
-            // Simpan foto baru
-            $fotoPath = $request->file('foto')->store('profiladmin', 'public');
-            $admin->path_gambar = 'storage/' . $fotoPath;
-        }
-
-        // --- Logika Update Password ---
-        
-        // Cek JIKA pengguna MENGISI field password baru
-        if ($request->filled('new_password')) {
-            
-            // Jika password baru diisi, password lama WAJIB benar
-            if (!Hash::check($request->old_password, $admin->password)) {
-                // Kirim error HANYA untuk field old_password
-                return back()->withErrors([
-                    'old_password' => 'Password lama tidak sesuai.',
-                ]);
-            }
-            
-            // 3. Update Password
-            // (Model Pengguna.php Anda sudah punya 'password' => 'hashed' cast,
-            // jadi kita bisa langsung set nilainya)
-            $admin->password = $request->new_password;
-        }
-        
+        $this->service->updateAccount($request, $admin);
         // Simpan semua perubahan (username, foto, dan/atau password)
         $admin->save();
 
