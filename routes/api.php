@@ -16,11 +16,10 @@ use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
 use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
 // Other Controllers
-use App\Http\Controllers\Api\V1\ViewNilaiController;
-use App\Http\Controllers\Api\V1\InputNilaiController;
-use App\Http\Controllers\Api\Penguji\ProfilController;
-use App\Http\Controllers\Api\Penguji\AksiPenilaianApiController;
-use App\Http\Controllers\Api\V1\ApiHalamanPenilaian;
+use App\Http\Controllers\Api\V1\Penguji\ViewNilaiController;
+use App\Http\Controllers\Api\V1\Penguji\ProfilController;
+use App\Http\Controllers\Api\V1\Penguji\AksiPenilaianApiController;
+use App\Http\Controllers\Api\V1\Penguji\ApiHalamanPenilaian;
 
 Route::prefix('v1')->group(function () {
 
@@ -60,11 +59,6 @@ Route::prefix('v1')->group(function () {
             Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
 
             // --- OSCE Relation (Stase & Jadwal) ---
-            Route::get('/osce/{id_osce}/stase', [OsceStaseController::class, 'index']);
-            Route::post('/osce/{id_osce}/stase', [OsceStaseController::class, 'store']);
-            Route::put('/osce/{id_osce}/stase/{osce_stase}', [OsceStaseController::class, 'update']);
-            Route::delete('/osce/{id_osce}/stase/{id_osce_stase}', [OsceStaseController::class, 'destroy']);
-
             Route::get('/osce/{id_osce}/jadwal', [OsceJadwalController::class, 'index']);
             Route::post('/osce/{id_osce}/jadwal', [OsceJadwalController::class, 'store']);
             Route::put('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'update']);

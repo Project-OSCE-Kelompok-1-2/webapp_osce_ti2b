@@ -6,7 +6,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 use App\Models\Pengguna;
 use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
-use App\Services\MahasiswaService;
+use App\Services\Admin\MahasiswaService;
 use App\Http\Controllers\Controller;
 use Illuminate\Validation\ValidationException;
 

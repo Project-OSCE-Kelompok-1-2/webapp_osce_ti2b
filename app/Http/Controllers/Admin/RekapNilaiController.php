@@ -9,7 +9,7 @@ use App\Models\TahunAkademik;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redirect;
-use App\Services\RekapNilaiService; // Import Service
+use App\Services\Admin\RekapNilaiService; // Import Service
 
 class RekapNilaiController extends Controller
 {

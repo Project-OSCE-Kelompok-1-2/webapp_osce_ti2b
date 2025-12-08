@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Penguji;
 
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;

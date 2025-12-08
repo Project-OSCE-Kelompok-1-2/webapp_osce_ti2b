@@ -8,7 +8,7 @@ use App\Models\Stase;
 use App\Models\Penguji;
 use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
-use App\Services\AdminService;
+use App\Services\Admin\AdminService;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;

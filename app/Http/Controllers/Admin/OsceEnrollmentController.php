@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 use App\Models\EnrollmentOsce;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
-use App\Services\OsceEnrollmentService;
+use App\Services\Admin\OsceEnrollmentService;
 use App\Models\OsceStase; // <-- Perlu ini untuk referensi sesi
 
 class OsceEnrollmentController extends Controller

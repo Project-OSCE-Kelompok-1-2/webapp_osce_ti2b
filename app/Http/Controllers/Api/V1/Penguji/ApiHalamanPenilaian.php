@@ -1,10 +1,10 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Http\Controllers\Api\V1\Penguji;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use App\Services\HalamanPenilaianService;
+use App\Services\Penguji\HalamanPenilaianService;
 
 class ApiHalamanPenilaian extends Controller
 {

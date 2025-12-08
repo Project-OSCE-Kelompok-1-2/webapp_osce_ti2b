@@ -1,11 +1,11 @@
 <?php
 
-namespace App\Http\Controllers\Api\Penguji;
+namespace App\Http\Controllers\Api\V1\Penguji;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Services\ProfilService;
+use App\Services\Penguji\ProfilService;
 use Exception;
 
 class ProfilController extends Controller
