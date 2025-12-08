@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use App\Services\ProfilService;
+use App\Services\Penguji\ProfilService;
 use Exception;
 
 class ProfilController extends Controller

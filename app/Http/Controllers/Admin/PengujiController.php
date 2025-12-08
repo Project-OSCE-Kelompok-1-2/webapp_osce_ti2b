@@ -7,7 +7,7 @@ use App\Models\Penguji;
 use App\Models\Pengguna;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
-use App\Services\PengujiService;
+use App\Services\Admin\PengujiService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -57,6 +57,7 @@ class PengujiController extends Controller
      */
     public function store(Request $request)
     {
+        dd($request->all());
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'nip' => [

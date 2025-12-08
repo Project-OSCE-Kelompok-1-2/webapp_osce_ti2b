@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Api\Penguji;
+namespace App\Http\Controllers\Api\V1\Penguji;
 
 use App\Http\Controllers\Controller;
 use App\Services\Penguji\RekapService;

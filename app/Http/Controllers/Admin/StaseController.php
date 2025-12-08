@@ -6,7 +6,7 @@ use Inertia\Inertia;
 use App\Models\Stase;
 use App\Models\MataKuliah;
 use Illuminate\Http\Request;
-use App\Services\StaseService;
+use App\Services\Admin\StaseService;
 use Illuminate\Validation\Rule;
 use App\Models\TujuanPembelajaran;
 use App\Http\Controllers\Controller;

@@ -7,7 +7,7 @@ use App\Models\Stase;
 use Illuminate\Http\Request;
 use App\Models\AspekPenilaian;
 use App\Http\Controllers\Controller;
-use App\Services\AspekPenilaianService;
+use App\Services\Admin\AspekPenilaianService;
 use Illuminate\Support\Facades\Redirect;
 
 class AspekPenilaianController extends Controller

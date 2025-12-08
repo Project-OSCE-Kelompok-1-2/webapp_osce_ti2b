@@ -1,9 +1,9 @@
 <?php
 
-namespace App\Http\Controllers\Api\V1;
+namespace App\Http\Controllers\Api\V1\Penguji;
 
 use App\Http\Controllers\Controller;
-use App\Services\NilaiOsceService;
+use App\Services\Penguji\NilaiOsceService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Exception;

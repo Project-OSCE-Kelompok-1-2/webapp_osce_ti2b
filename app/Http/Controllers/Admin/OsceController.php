@@ -6,7 +6,7 @@ use App\Models\Osce;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\TahunAkademik;
-use App\Services\OsceService;
+use App\Services\Admin\OsceService;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redirect;
