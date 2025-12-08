@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Services\RekapNilaiService;
+use App\Services\Admin\RekapNilaiService;
 use Illuminate\Database\Eloquent\ModelNotFoundException; // Tambahkan import ini
 
 class RekapNilaiController extends Controller

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Admin;
 
 use App\Models\Pengguna;
 use App\Models\Mahasiswa;
@@ -28,13 +28,15 @@ class MahasiswaService
             ->when($angkatan, function ($query, $angkatan) {
                 $query->where('kelas', $angkatan);
             })
-            ->orderBy('nama')
+            ->orderBy('id_mahasiswa', 'desc')
             ->paginate(10)
             ->withQueryString()
             ->through(fn($mhs) => [
                 'id_mahasiswa' => $mhs->id_mahasiswa,
                 'nim' => $mhs->nim,
                 'nama' => $mhs->nama,
+                'kelas' => $mhs->kelas,
+                'prodi' => $mhs->prodi,
             ]);
 
         return $mahasiswa;

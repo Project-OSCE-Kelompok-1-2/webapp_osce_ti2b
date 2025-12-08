@@ -174,22 +174,26 @@ class DatabaseSeeder extends Seeder
         $mk1 = MataKuliah::factory()->create([
             'id_blok' => $blok->id_blok,
             'id_enrollment' => $randomEnrollment->id_enrollment,
-            'nama_mata_kuliah' => 'Keperawatan Gawat Darurat & Kardiovaskuler'
+            'nama_mata_kuliah' => 'Keperawatan Gawat Darurat & Kardiovaskuler',
+            'deskripsi' => 'Mata kuliah yang mempelajari konsep dan prinsip penanganan kegawatdaruratan serta asuhan keperawatan pada pasien dengan gangguan sistem kardiovaskuler.'
         ]);
         $mk2 = MataKuliah::factory()->create([
             'id_blok' => $blok->id_blok,
             'id_enrollment' => $randomEnrollment->id_enrollment,
-            'nama_mata_kuliah' => 'Keperawatan Muskuloskeletal & Trauma'
+            'nama_mata_kuliah' => 'Keperawatan Muskuloskeletal & Trauma',
+            'deskripsi' => 'Mata kuliah yang fokus pada asuhan keperawatan pasien dengan gangguan sistem muskuloskeletal, fraktur, dan manajemen trauma fisik.'
         ]);
         $mk3 = MataKuliah::factory()->create([
             'id_blok' => $blok->id_blok,
             'id_enrollment' => $randomEnrollment->id_enrollment,
-            'nama_mata_kuliah' => 'Keperawatan Bedah Dasar'
+            'nama_mata_kuliah' => 'Keperawatan Bedah Dasar',
+            'deskripsi' => 'Mata kuliah yang membahas prinsip-prinsip dasar keperawatan perioperatif, perawatan luka, dan prosedur bedah minor.'
         ]);
         $mk4 = MataKuliah::factory()->create([
             'id_blok' => $blok->id_blok,
             'id_enrollment' => $randomEnrollment->id_enrollment,
-            'nama_mata_kuliah' => 'Keperawatan Respirasi'
+            'nama_mata_kuliah' => 'Keperawatan Respirasi',
+            'deskripsi' => 'Mata kuliah yang mempelajari patofisiologi, pemeriksaan fisik, dan asuhan keperawatan pada pasien dengan gangguan sistem pernapasan.'
         ]);
 
         // Definisi 7 Stase LENGKAP

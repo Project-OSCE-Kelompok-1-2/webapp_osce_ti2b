@@ -4,74 +4,103 @@ import { Search } from "lucide-react";
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
-// import OsBreadCrumb from "../../components/breadcrumb"; // Breadcrumb statis lebih cocok di sini
 import OsCopyright from "../../components/Copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
 import OsHeader from "../../components/Header";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 
-// --- Definisi Kolom Tabel (Sudah Benar) ---
+// --- Definisi Kolom Tabel ---
 const rekapColumns = [
-    { key:"no",content: "No", width: "w-16", classes: "justify-center items-center" },
     {
-        key:"nama_osce",
+        key: "no",
+        content: "No",
+        width: "w-16",
+        classes: "justify-center items-center",
+    },
+    {
+        key: "nama_osce",
         content: "Nama OSCE",
         width: "flex-1",
         classes: "justify-start items-center px-4",
     },
     {
-        key:"rentang_tanggal",
+        key: "rentang_tanggal",
         content: "Rentang Tanggal",
         width: "w-80",
         classes: "justify-start items-center px-4",
     },
     {
-        key:"tahun_akademik",
+        key: "tahun_akademik",
         content: "Tahun Akademik",
         width: "w-48",
         classes: "justify-center items-center px-4",
     },
     {
-        key:"action",
+        key: "action",
         content: "Action",
         width: "w-48",
         classes: "justify-center items-center px-4",
     },
 ];
 
-// 2. [HAPUS] Mock data (mockFilters dan mockOsce) tidak diperlukan lagi
-
 export default function RekapOscePage() {
-    // 3. [PERBAIKAN] Ambil props dinamis langsung dari usePage
     const { osce, filters, flash, tahunAkademikOptions } = usePage().props;
-    console.log("Props OSCE:", osce);
-    console.log("Props Filters:", filters);
-    console.log("Props Tahun Akademik Options:", tahunAkademikOptions);
 
-    // 4. [PERBAIKAN] State filter disesuaikan dengan 'tahun' (dari contract)
     const [search, setSearch] = useState(filters.search || "");
-    const [tahun, setTahun] = useState(filters.tahun || ""); // Ganti 'year' menjadi 'tahun'
+    const [tahun, setTahun] = useState(filters.tahun || "");
 
-    // 5. [PERBAIKAN] Fungsi untuk menjalankan pencarian
     const handleSearch = (e) => {
-        e.preventDefault(); // Bungkus dalam form
+        e.preventDefault();
         router.get(
-            "/admin/rekap-nilai", // URL route yang benar (sesuai contract)
-            { search, tahun }, // Kirim 'tahun', bukan 'year'
+            "/admin/rekap-nilai",
+            { search, tahun },
             { preserveState: true, replace: true }
         );
     };
 
-    // Daftar tahun (DINAMIS dari backend jika tersedia)
     const tahunList = [
         { value: "", label: "Semua Tahun" },
         ...(Array.isArray(tahunAkademikOptions) ? tahunAkademikOptions : []),
     ];
 
-    //6. Siapkan data untuk isi data tabel
+    /**
+     * 🔹 HELPER: Format Tanggal Indonesia (01 Januari 2024)
+     */
+    const formatDateIndo = (dateStr) => {
+        if (!dateStr) return "";
+        const date = new Date(dateStr);
+        // Cek validitas tanggal
+        if (isNaN(date.getTime())) return dateStr; // Kembalikan asli jika error
+
+        return new Intl.DateTimeFormat("id-ID", {
+            day: "2-digit",
+            month: "long", // "long" = Januari, "short" = Jan
+            year: "numeric",
+        }).format(date);
+    };
+
+    /**
+     * 🔹 HELPER: Format Rentang (Start - End)
+     */
+    const formatRentang = (rawString) => {
+        if (!rawString) return "-";
+
+        // Cek apakah string mengandung pemisah " - "
+        if (typeof rawString === "string" && rawString.includes(" - ")) {
+            const [start, end] = rawString.split(" - ");
+            const formattedStart = formatDateIndo(start);
+            const formattedEnd = formatDateIndo(end);
+            return `${formattedStart} - ${formattedEnd}`;
+        }
+
+        // Fallback jika format tidak dikenali
+        return rawString;
+    };
+
+    // --- Siapkan Data Tabel ---
     const tableData = osce.data.map((item, index) => ({
         no: osce.from + index,
         nama_osce: (
@@ -86,12 +115,19 @@ export default function RekapOscePage() {
                 </div>
             </div>
         ),
-        rentang_tanggal: item.rentang_tanggal,
+        // [PERUBAHAN] Menggunakan helper formatRentang
+        rentang_tanggal: (
+            <span className="text-sm text-gray-700 whitespace-nowrap">
+                {formatRentang(item.rentang_tanggal)}
+            </span>
+        ),
         tahun_akademik: item.tahun_akademik,
         action: (
             <button
-                onClick={() => router.visit(`/admin/rekap-nilai/${item.id_osce}/sesi`)}
-                className="bg-blue-800 text-white px-3 py-2 rounded-md hover:bg-gray-700"
+                onClick={() =>
+                    router.visit(`/admin/rekap-nilai/${item.id_osce}/sesi`)
+                }
+                className="bg-blue-800 text-white px-3 py-2 rounded-md hover:bg-gray-700 transition-colors duration-200"
             >
                 Detail
             </button>
@@ -103,8 +139,7 @@ export default function RekapOscePage() {
             <Sidebar />
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                {/* Breadcrumb Statis */}
-                <OsHeader/>
+                <OsHeader />
 
                 <div className="flex-1 overflow-auto">
                     {/* Notifikasi Sukses/Error */}
@@ -127,26 +162,31 @@ export default function RekapOscePage() {
                         nilai mahasiswa.
                     </p>
 
-                    {/* 6. searchbar+dropdown */}
-
                     <OsSearchBar
                         search={search}
                         setSearch={setSearch}
                         onSearchClick={handleSearch}
                         placeholder="Cari data OSCE..."
                     >
-                        {/* DROPDOWN DI TENGAH */}
                         <OsInput
                             type="select"
                             value={tahun}
-                            onChange={(e) => setTahun(e.target.value)}
+                            onChange={(e) => {
+                                const newValue = e.target.value;
+                                // Hanya set nilai jika bukan string yang dihasilkan dari konversi objek yang gagal
+                                if (
+                                    typeof newValue === "string" &&
+                                    newValue.includes("[object")
+                                ) {
+                                    setTahun(""); // Default ke nilai kosong jika terjadi error
+                                } else {
+                                    setTahun(newValue);
+                                }
+                            }}
                             options={tahunList}
                             className="w-[180px]"
                         />
                     </OsSearchBar>
-
-
-
 
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table OSCE
@@ -164,13 +204,12 @@ export default function RekapOscePage() {
                         </div>
                     )}
 
-                    {/* 9. [PERBAIKAN] Paginasi Dinamis */}
-                    {osce.links &&
-                        osce.links.length > 3 && ( // Hanya tampilkan jika ada lebih dari 1 halaman
-                            <div className="mt-8">
-                                <OsPagination links={osce.links} />
-                            </div>
-                        )}
+                    {/* Paginasi Dinamis */}
+                    {osce.links && osce.links.length > 3 && (
+                        <div className="mt-8">
+                            <OsPagination links={osce.links} />
+                        </div>
+                    )}
                 </div>
 
                 <OsCopyright />

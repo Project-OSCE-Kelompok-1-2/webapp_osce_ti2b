@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 
 use Illuminate\Http\Request;
-use App\Services\AdminService;
+use App\Services\Admin\AdminService;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Auth;

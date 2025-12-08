@@ -7,6 +7,7 @@ use App\Models\Penguji;
 use App\Models\Pengguna;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use App\Services\Admin\PengujiService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
@@ -14,30 +15,21 @@ use Illuminate\Support\Facades\Redirect; // Pastikan Redirect di-import
 
 class PengujiController extends Controller
 {
+    protected $service;
+
+    public function __construct(PengujiService $service)
+    {
+        $this->service = $service;
+    }
+
     /**
      * TUGAS 1: GET /admin/dosen (List Penguji)
      */
     public function index(Request $request)
     {
-        $search = $request->input('search');
-        $query = Penguji::query();
-
-        if ($search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nama', 'LIKE', '%' . $search . '%')
-                  ->orWhere('nip', 'LIKE', '%' . $search . '%');
-            });
-        }
-        
+        $search = $request->query('search');
         // [PERBAIKAN] Paginate dan format data
-        $dosen = $query->orderBy('nama')
-            ->paginate(10)
-            ->withQueryString()
-            ->through(fn ($penguji) => [
-                'id_penguji' => $penguji->id_penguji,
-                'nip' => $penguji->nip,
-                'nama' => $penguji->nama,
-            ]);
+        $dosen = $this->service->getAll($search);
 
         // [PERBAIKAN] Render ke 'Admin/PengujiPage'
         return Inertia::render('Admin/PengujiPage', [
@@ -60,47 +52,30 @@ class PengujiController extends Controller
         ]);
     }
 
-
     /**
      * TUGAS 2: POST /admin/dosen (Create Penguji)
      */
     public function store(Request $request)
     {
+        dd($request->all());
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'nip' => [
-                'required', 'string', 'max:255',
+                'required',
+                'string',
+                'max:255',
                 Rule::unique('penguji', 'nip'),
                 Rule::unique('pengguna', 'username'),
             ],
         ]);
 
-        DB::beginTransaction();
+        $penguji = $this->service->create($validated);
 
-        try {
-            // Model Pengguna akan otomatis hash password jika di-set di $casts
-            $pengguna = Pengguna::create([
-                'username' => $validated['nip'],
-                'password' => $validated['nip'], // Default password = NIP
-                'jenis_role' => 'penguji',
-            ]);
-
-            Penguji::create([
-                'nama' => $validated['nama'],
-                'nip' => $validated['nip'],
-                'id_pengguna' => $pengguna->id_pengguna,
-            ]);
-            
-            DB::commit();
-
-            // [PERBAIKAN] Redirect ke route 'index'
-            return Redirect::route('admin.dosen.index')->with('success', 'Data penguji berhasil ditambahkan.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('GAGAL MEMBUAT PENGUJI BARU: ' . $e->getMessage());
+        if (!$penguji) {
             return Redirect::back()->with('error', 'Gagal menambahkan data penguji. Terjadi kesalahan server.');
         }
+
+        return Redirect::route('admin.dosen.index')->with('success', 'Data penguji berhasil ditambahkan.');
     }
 
     /**
@@ -127,57 +102,35 @@ class PengujiController extends Controller
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'nip' => [
-                'required', 'string', 'max:255',
+                'required',
+                'string',
+                'max:255',
                 Rule::unique('penguji', 'nip')->ignore($dosen->id_penguji, 'id_penguji'),
-                Rule::unique('pengguna', 'username')->ignore($dosen->id_pengguna, 'id_pengguna'),
+                Rule::unique('pengguna', 'username')->ignore( $dosen->id_pengguna, 'id_pengguna'),
             ],
         ]);
 
-        DB::beginTransaction();
-        try {
-            $dosen->update([
-                'nama' => $validated['nama'],
-                'nip' => $validated['nip'],
-            ]);
+        $penguji = $this->service->update($dosen, $validated);
 
-            if ($dosen->pengguna) {
-                $dosen->pengguna->update([
-                    'username' => $validated['nip'],
-                ]);
-            }
-            
-            DB::commit();
-            return Redirect::route('admin.dosen.index')->with('success', 'Data penguji berhasil diperbarui.');
-
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('GAGAL UPDATE PENGUJI: ' . $e->getMessage());
+        if (!$penguji) {
             return Redirect::back()->with('error', 'Gagal memperbarui data penguji.');
         }
+
+        return Redirect::route('admin.dosen.index')->with('success', 'Data penguji berhasil diperbarui.');
     }
 
     /**
      * [BARU] Menghapus data penguji
      * DELETE /admin/dosen/{dosen}
      */
-    public function destroy(Penguji $dosen)
+    public function destroy(Penguji $penguji)
     {
-        DB::beginTransaction();
-        try {
-            // Hapus Pengguna (akun login)
-            if ($dosen->pengguna) {
-                $dosen->pengguna->delete();
-            }
-            // Hapus Penguji
-            $dosen->delete();
-            
-            DB::commit();
-            return Redirect::back()->with('success', 'Penguji berhasil dihapus.');
+        $penguji = $this->service->delete($penguji);
 
-        } catch (\Exception $e) {
-            DB::rollBack();
-            Log::error('GAGAL HAPUS PENGUJI: ' . $e->getMessage());
+        if ($penguji) {
             return Redirect::back()->with('error', 'Gagal menghapus penguji. Mungkin terkait dengan data lain.');
         }
+
+        return Redirect::back()->with('success', 'Penguji berhasil dihapus.');
     }
 }

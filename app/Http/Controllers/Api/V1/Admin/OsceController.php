@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Api\V1\Admin;
 
 use App\Models\Osce;
 use Illuminate\Http\Request;
-use App\Services\OsceService;
+use App\Services\Admin\OsceService;
 use Illuminate\Validation\Rule;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Validator;

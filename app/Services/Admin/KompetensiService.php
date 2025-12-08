@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Services;
+namespace App\Services\Admin;
 
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -21,7 +21,6 @@ class KompetensiService
             })
             ->paginate(10)
             ->withQueryString();
-
         // TRANSFORMASI: Sesuaikan struktur data dengan permintaan
         $kompetensi->getCollection()->transform(function ($item) {
             return [
@@ -46,21 +45,8 @@ class KompetensiService
     /**
      * Logika update kompetensi.
      */
-    public function update(Request $request, PoinAspekPenilaian $kompetensi)
+    public function update(PoinAspekPenilaian $kompetensi, $validated)
     {
-        $validated = $request->validate([
-            'kompetensi' => [
-                'required',
-                'string',
-                // Validasi unik, kecuali untuk ID ini
-                Rule::unique('poin_aspek_penilaian', 'kompetensi')
-                    ->ignore($kompetensi->id_poin_aspek_penilaian, 'id_poin_aspek_penilaian')
-                    ->where('id_aspek_penilaian', $kompetensi->id_aspek_penilaian)
-            ],
-            'skor' => 'required|integer|min:0', // Ditambahkan
-            'bobot' => 'required|integer|min:1',
-        ]);
-
         $kompetensi->update($validated);
 
         return $kompetensi;
