@@ -122,15 +122,12 @@ class PengujiController extends Controller
      * [BARU] Menghapus data penguji
      * DELETE /admin/dosen/{dosen}
      */
-    // PERHATIKAN: Parameter harus '$dosen' agar sesuai dengan route resource,
-    // jika pakai '$penguji' laravel akan menganggap ini object baru (kosong).
     public function destroy(Penguji $dosen)
     {
         // Panggil service delete
         $isDeleted = $this->service->delete($dosen);
 
-        // [PERBAIKAN LOGIC]
-        // Jika $isDeleted bernilai false/gagal, baru kita lempar error.
+        // Jika $isDeleted bernilai false/gagal, baru lempar error.
         if (!$isDeleted) {
             return Redirect::back()->with('error', 'Gagal menghapus penguji. Mungkin terkait dengan data lain.');
         }
