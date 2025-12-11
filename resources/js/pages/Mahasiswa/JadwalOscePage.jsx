@@ -110,7 +110,7 @@ export default function JadwalOsce({ examHeader, jadwalStase }) {
     const paginationLinks = jadwalStase?.links || [];
 
     return (
-        <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head title="Jadwal OSCE" />
 
             {/* SIDEBAR */}
@@ -120,13 +120,11 @@ export default function JadwalOsce({ examHeader, jadwalStase }) {
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
-            {/* MAIN CONTENT WRAPPER */}
-            <div className="bg-white w-full min-h-screen flex justify-center p-6 font-sans md:ml-20 transition-all duration-300">
-                <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14">
-                    {/* --- 1. HEADER --- */}
-                    <OsHeader variant="default" className="w-full" />
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+                {/* --- 1. HEADER --- */}
+                <OsHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
-                    <main className="flex flex-col gap-6">
+                <div className="flex flex-col gap-6">
                         {/* --- 2. Info Cards Section --- */}
                         <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
                             {/* Kartu Kiri: Info Ujian (Blue) */}
@@ -301,12 +299,13 @@ export default function JadwalOsce({ examHeader, jadwalStase }) {
                                 {/* Menggunakan links dari backend */}
                             </div>
                         </div>
-                    </main>
+                </div>
 
-                    {/* --- 4. FOOTER --- */}
+                {/* --- 4. FOOTER --- */}
+                <div className="mt-12">
                     <OsCopyright />
                 </div>
-            </div>
+            </main>
         </div>
     );
 }
