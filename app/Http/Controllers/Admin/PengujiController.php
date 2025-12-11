@@ -57,7 +57,6 @@ class PengujiController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'nip' => [
@@ -106,7 +105,7 @@ class PengujiController extends Controller
                 'string',
                 'max:255',
                 Rule::unique('penguji', 'nip')->ignore($dosen->id_penguji, 'id_penguji'),
-                Rule::unique('pengguna', 'username')->ignore( $dosen->id_pengguna, 'id_pengguna'),
+                Rule::unique('pengguna', 'username')->ignore($dosen->id_pengguna, 'id_pengguna'),
             ],
         ]);
 
