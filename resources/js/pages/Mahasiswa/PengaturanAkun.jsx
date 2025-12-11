@@ -399,21 +399,21 @@ export default function MahasiswaAccountSettings() {
                                     </div>
                                 </div>
 
-                                {/* BUTTONS */}
-                                <div className="w-full flex justify-between gap-3 mt-2">
-                                    <OsButton
-                                        name="primary"
-                                        className="w-[223px] flex items-center rounded-xl p-3 justify-center gap-[13px] border border-black bg-[#0B0931] text-blue-100"
-                                        onClick={handleSaveChanges}
-                                        disabled={processing}
-                                    >
-                                        <Save className="w-[17px]" />
-                                        <span>
-                                            {processing
-                                                ? "Menyimpan..."
-                                                : "Simpan"}
-                                        </span>
-                                    </OsButton>
+                                    {/* BUTTONS GROUP */}
+                                    <div className="w-full flex justify-between gap-3 mt-2">
+                                        <OsButton
+                                            name="primary"
+                                            className="w-[223px] flex items-center rounded-xl p-3 justify-center gap-[13px] border border-black bg-[#0B0931] text-blue-100"
+                                            onClick={handleSaveChanges}
+                                            disabled={processing}
+                                        >
+                                            <Save className="w-[17px]" />
+                                            <span>
+                                                {processing
+                                                    ? "Menyimpan..."
+                                                    : "Simpan"}
+                                            </span>
+                                        </OsButton>
 
                                     <OsButton
                                         name="warning"

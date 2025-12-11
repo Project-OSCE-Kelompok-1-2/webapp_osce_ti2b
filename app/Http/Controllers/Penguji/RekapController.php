@@ -26,7 +26,7 @@ class RekapController extends Controller
     private function getData($id_osce, $id_osce_stase, $mode)
     {
         $user = Auth::user();
-        
+
         // [FIX 1] Validasi User & Relasi Penguji
         if (!$user->penguji) {
             abort(403, 'Akun Anda tidak memiliki profil Penguji.');
