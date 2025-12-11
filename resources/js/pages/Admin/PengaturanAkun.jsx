@@ -208,9 +208,9 @@ export default function AdminSettingAkun({ user }) {
                                             name="warning"
                                             type="button"
                                             onClick={openDeletePhotoModal}
-                                            className="w-12 h-12 bg-red-600 text-white rounded-xl flex items-center justify-center"
+                                            className=" bg-red-600 text-white rounded-xl flex items-center justify-center"
                                         >
-                                            <Trash2 className="w-[20px]" />
+                                            <Trash2 size={18} />
                                         </OsButton>
                                     </div>
                                 </aside>
@@ -232,7 +232,7 @@ export default function AdminSettingAkun({ user }) {
                                                 Nama pengguna
                                             </label>
                                             <div className="flex items-center gap-[13px] p-3 bg-white rounded-xl border border-black">
-                                                <User className="w-4 opacity-45" />
+                                                <User size={18} />
                                                 <input
                                                     disabled
                                                     value={data.username}
@@ -247,7 +247,7 @@ export default function AdminSettingAkun({ user }) {
                                                 Password lama
                                             </label>
                                             <div className="flex items-center p-3 bg-white rounded-xl border border-black">
-                                                <Lock className="w-[19px]" />
+                                                <Lock size={16} />
                                                 <input
                                                     type="password"
                                                     value={data.old_password}
@@ -270,7 +270,7 @@ export default function AdminSettingAkun({ user }) {
                                                     Password baru
                                                 </label>
                                                 <div className="flex items-center p-3 bg-white rounded-xl border border-black">
-                                                    <Lock className="w-5" />
+                                                    <Lock size={16} />
                                                     <input
                                                         type="password"
                                                         value={
@@ -293,7 +293,7 @@ export default function AdminSettingAkun({ user }) {
                                                     Konfirmasi password baru
                                                 </label>
                                                 <div className="flex items-center p-3 bg-white rounded-xl border border-black">
-                                                    <Lock className="w-5" />
+                                                    <Lock size={16} />
                                                     <input
                                                         type="password"
                                                         value={
@@ -327,7 +327,7 @@ export default function AdminSettingAkun({ user }) {
 
                                         <a
                                             href="#contact-admin"
-                                            className="underline text-xs"
+                                            className="underline text-xs text-os-primary mt-2"
                                         >
                                             Ada masalah? hubungi admin
                                         </a>
