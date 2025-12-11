@@ -20,7 +20,7 @@ import OsPagination from "../../components/pagination.jsx"; // Komponen navigasi
 export default function NilaiShow() {
     // --- 1. STATE MANAGEMENT ---
     // Mengatur status Sidebar (Buka/Tutup) agar responsif
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // --- 2. DATA DUMMY (SIMULASI DATABASE) ---
     // Objek ini meniru struktur data yang biasanya dikirim dari Backend (Laravel)
@@ -124,34 +124,26 @@ export default function NilaiShow() {
     // --- RENDER TAMPILAN (JSX) ---
     // =========================================
     return (
-        // Wrapper Utama: Flex container untuk layout Sidebar + Konten Kanan
-        <div className="min-h-screen bg-gray-100 font-sans text-slate-800 flex">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            <Head title="Hasil Penilaian OSCE" />
+
             {/* --- BAGIAN A: SIDEBAR --- */}
-            {/* Mengirim state isOpen dan fungsi setIsOpen agar tombol hamburger berfungsi */}
             <Sidebar
                 type="mahasiswa"
                 isOpen={isSidebarOpen}
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             />
 
-            {/* --- BAGIAN B: WRAPPER KONTEN KANAN --- */}
-            {/* Margin kiri (ml) berubah dinamis: ml-72 jika sidebar buka, ml-20 jika tutup */}
-            <div
-                className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out
-                ${isSidebarOpen ? "ml-72" : "ml-20"}`}
-            >
-                {/* 1. HEADER ATAS (Sticky/Menempel di atas) */}
-                <div className="bg-white border-b border-black px-8 py-4 sticky top-0 z-40 shadow-sm w-full">
-                    <OsHeader />
-                </div>
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+                {/* 1. HEADER ATAS */}
+                <OsHeader
+                    onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                />
 
                 {/* 2. AREA KONTEN UTAMA */}
-                <main className="w-full px-8 mt-8 flex flex-col gap-6 flex-1 pb-10">
-                    {/* Mengubah Judul Tab Browser */}
-                    <Head title="Hasil Penilaian OSCE" />
-
+                <div className="flex flex-col gap-6">
                     {/* --- KARTU 1: JUDUL HALAMAN --- */}
-                    <div className="w-full bg-white p-4 rounded-xl border border-black shadow-sm flex items-center h-[70px]">
+                    <div className="w-full bg-white p-4 rounded-xl shadow-sm flex items-center h-[70px]">
                         <div className="flex items-center gap-3 ml-2">
                             <FileText className="text-blue-600" size={32} />
                             <h1 className="font-sans font-bold text-2xl text-black mt-1">
@@ -240,13 +232,13 @@ export default function NilaiShow() {
                             </div>
                         </div>
                     </div>
+                </div>
 
-                    {/* --- COPYRIGHT FOOTER --- */}
-                    <div className="w-full mt-2">
-                        <OsCopyright />
-                    </div>
-                </main>
-            </div>
+                {/* --- COPYRIGHT FOOTER --- */}
+                <div className="mt-12">
+                    <OsCopyright />
+                </div>
+            </main>
         </div>
     );
 }
