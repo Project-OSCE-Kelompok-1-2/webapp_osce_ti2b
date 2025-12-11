@@ -202,13 +202,19 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                             {displayName.charAt(0)}
                         </div>
                         {/* Konten profil hanya ditampilkan jika isOpen */}
-                        <div className={`overflow-hidden transition-opacity duration-300
-                            ${isOpen ? "opacity-100 w-auto" : "opacity-0 w-0 sm:hidden"}`}>
+                        <div
+                            className={`overflow-hidden transition-opacity duration-300
+                            ${
+                                isOpen
+                                    ? "opacity-100 w-auto"
+                                    : "opacity-0 w-0 sm:hidden"
+                            }`}
+                        >
                             <p className="font-semibold text-white truncate sm:max-w-28">
-                                {name}
+                                {displayName}
                             </p>
                             <p className="text-sm text-white truncate lg:max-w-28">
-                                {email}
+                                {displayEmail}
                             </p>
                             <p className="text-xs font-medium text-white uppercase mt-1">
                                 {currentRole}
