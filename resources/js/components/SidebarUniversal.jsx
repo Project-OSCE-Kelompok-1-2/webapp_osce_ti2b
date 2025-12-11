@@ -196,7 +196,13 @@ const SidebarUniversal = () => {
             </div>
 
             {/* --- MENU LIST --- */}
-            <nav className="flex-1 overflow-y-auto py-6 pr-3">
+            <nav
+                className={`flex-1 overflow-y-auto py-6 pr-3 ${
+                    isMahasiswa || isPenguji
+                        ? "flex flex-col justify-center"
+                        : ""
+                }`}
+            >
                 <div className="flex flex-col">
                     {menuItems.map((item, index) => {
                         const active = isActive(item.href);
