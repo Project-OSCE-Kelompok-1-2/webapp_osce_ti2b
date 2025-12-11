@@ -17,66 +17,33 @@ import OsPagination from "../../components/pagination.jsx"; // Komponen navigasi
 // =========================================
 // --- KOMPONEN UTAMA HALAMAN ---
 // =========================================
-export default function NilaiShow() {
+export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
     // --- 1. STATE MANAGEMENT ---
     // Mengatur status Sidebar (Buka/Tutup) agar responsif
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // --- 2. DATA DUMMY (SIMULASI DATABASE) ---
-    // Objek ini meniru struktur data yang biasanya dikirim dari Backend (Laravel)
+    // --- 2. DATA REAL (DARI BACKEND) ---
+    // Kita mapping props dari controller ke struktur yang dipakai UI
     const data = {
         // Data diri mahasiswa
         mahasiswa: {
-            nama: "MI. AULIA KURNIA WIDYARANI",
-            nim: "4.33.24.1.13",
-            prodi: "Kedokteran Gigi",
-            semester: "1",
+            nama: header_detail?.mahasiswa?.nama || "-",
+            nim: header_detail?.mahasiswa?.nim || "-",
+            prodi: header_detail?.mahasiswa?.prodi || "-",
+            semester: header_detail?.tahun_akademik?.semester || "-",
         },
         // Informasi ujian yang sedang dilihat
         ujian: {
-            stase: "OSCE Radiologi 01-A",
-            tahun: "2025",
-            dosen: "Prof. Dr. dr. Mahalul Azam, M.Kes",
+            stase: header_detail?.mata_kuliah?.nama || "-",
+            tahun: header_detail?.tahun_akademik?.tahun || "-",
+            dosen: "-", // Backend belum mengirim data dosen spesifik (karena penguji banyak)
         },
         // Array daftar nilai per kompetensi
-        daftarNilai: [
-            {
-                id: 1,
-                kompetensi: "Manajemen Halusinasi",
-                nilai: 93.75,
-                keterangan: "Sangat Baik",
-            },
-            { id: 2, kompetensi: "Restrain", nilai: 82.5, keterangan: "Baik" },
-            {
-                id: 3,
-                kompetensi: "Pemasangan Infus",
-                nilai: 86.35,
-                keterangan: "Baik",
-            },
-            {
-                id: 4,
-                kompetensi: "Guided Imagery",
-                nilai: 85.75,
-                keterangan: "Baik",
-            },
-        ],
-        // Array Links untuk Pagination (Biasanya digenerate otomatis oleh Laravel)
-        links: [
-            { url: null, label: "&laquo; Previous", active: false },
-            { url: "http://localhost/page/1", label: "1", active: true }, // Halaman saat ini
-            { url: "http://localhost/page/2", label: "2", active: false },
-            { url: "http://localhost/page/3", label: "3", active: false },
-            { url: "http://localhost/page/4", label: "4", active: false },
-            { url: "http://localhost/page/5", label: "5", active: false },
-            {
-                url: "http://localhost/page/2",
-                label: "Next &raquo;",
-                active: false,
-            },
-        ],
+        daftarNilai: daftar_nilai || [],
+
         // Data ringkasan nilai
-        totalNilai: "87.00",
-        statusKelulusan: "LULUS",
+        totalNilai: footer?.total_nilai_akhir || "0",
+        statusKelulusan: footer?.status_kelulusan || "-",
     };
 
     // --- 3. KONFIGURASI TABEL ---
@@ -134,17 +101,17 @@ export default function NilaiShow() {
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="grid w-full p-os-16 lg:p-4 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* 1. HEADER ATAS */}
                 <OsHeader
                     onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 />
 
                 {/* 2. AREA KONTEN UTAMA */}
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-3">
                     {/* --- KARTU 1: JUDUL HALAMAN --- */}
-                    <div className="w-full bg-white p-4 rounded-xl shadow-sm flex items-center h-[70px]">
-                        <div className="flex items-center gap-3 ml-2">
+                    <div className="w-full flex items-center pl-1">
+                        <div className="flex items-center gap-3">
                             <FileText className="text-blue-600" size={32} />
                             <h1 className="font-sans font-bold text-2xl text-black mt-1">
                                 Hasil Penilaian OSCE
@@ -210,11 +177,10 @@ export default function NilaiShow() {
 
                     {/* --- BAGIAN FOOTER KONTEN --- */}
                     <div className="w-full flex flex-col gap-4">
-                        {/* 1. PAGINATION */}
-                        {/* Memanggil komponen pagination dan mengirim data links */}
-                        <div className="ml-1">
+                        {/* 1. PAGINATION (Dihilangkan karena detail nilai biasanya satu halaman) */}
+                        {/* <div className="ml-1">
                             <OsPagination links={data.links} />
-                        </div>
+                        </div> */}
 
                         {/* 2. KOTAK TOTAL NILAI & STATUS */}
                         <div className="w-full flex bg-white rounded-xl border border-black h-[60px] overflow-hidden items-center shadow-sm">
