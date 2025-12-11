@@ -14,6 +14,8 @@ import {
     Edit2,
     Info, // [BARU] Import Icon Info
     X, // [BARU] Import Icon Close
+    Clock,
+    Users,
 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
@@ -555,10 +557,10 @@ export default function SesiOscePage({
                                                                         key={
                                                                             idx
                                                                         }
-                                                                        className="hover:bg-blue-50/50 transition-colors group"
+                                                                        className=" transition-colors group"
                                                                     >
                                                                         <td className="px-5 py-4 align-top">
-                                                                            <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">
+                                                                            <div className="font-semibold text-gray-800  transition-colors">
                                                                                 {
                                                                                     ds.stase
                                                                                 }
@@ -697,7 +699,7 @@ export default function SesiOscePage({
                                                                         key={
                                                                             idx
                                                                         }
-                                                                        className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:border-blue-200 hover:bg-blue-50 hover:shadow-sm transition-all group"
+                                                                        className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 transition-all group"
                                                                     >
                                                                         {/* Avatar Inisial */}
                                                                         <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 text-indigo-600 flex items-center justify-center text-sm font-bold shadow-sm shrink-0 border border-white">
@@ -707,7 +709,7 @@ export default function SesiOscePage({
                                                                         </div>
 
                                                                         <div className="flex flex-col min-w-0">
-                                                                            <span className="text-sm font-semibold text-gray-800 truncate group-hover:text-blue-700 transition-colors">
+                                                                            <span className="text-sm font-semibold text-gray-800 truncate transition-colors">
                                                                                 {
                                                                                     mhs.nama
                                                                                 }
@@ -751,14 +753,7 @@ export default function SesiOscePage({
                         </div>
 
                         {/* Footer */}
-                        <div className="px-8 py-5 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 z-10">
-                            <button
-                                onClick={() => setIsDetailModalOpen(false)}
-                                className="px-6 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 text-gray-700 rounded-lg text-sm font-semibold shadow-sm transition-all focus:ring-2 focus:ring-gray-200"
-                            >
-                                Tutup Detail
-                            </button>
-                        </div>
+                        <div className="px-8 py-5 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 z-10"></div>
                     </div>
                 </div>
             )}
