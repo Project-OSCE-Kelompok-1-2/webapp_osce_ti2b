@@ -230,7 +230,7 @@ export default function Stase() {
     const tableData = stase.data.map((item, index) => ({
         no: stase.from + index,
         nama_stase: item.nama_stase,
-        jumlah_aspek: item.aspek_penilaian_count,
+        jumlah_aspek: item.jumlah_aspek,
         action: (
             <div className="flex items-center justify-center space-x-3">
                 <OsButton
@@ -299,7 +299,10 @@ export default function Stase() {
                     <div className="w-full overflow-x-auto pb-4">
                         <div className="min-w-max">
                             <OsTableHeader columns={staseColumns} />
-                            <OsTableBody data={tableData} columns={staseColumns} />
+                            <OsTableBody
+                                data={tableData}
+                                columns={staseColumns}
+                            />
 
                             {stase.data.length === 0 && (
                                 <div className="flex items-center border-t border-gray-400">
