@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
 // [UBAH] Import hook Inertia
 import { useForm, usePage, Link, router } from "@inertiajs/react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, UploadCloud } from "lucide-react";
 
 // Import Komponen Custom Sesuai Desain
 import SidebarPenguji from "../../components/SidebarPenguji.jsx";
@@ -28,8 +28,7 @@ const CustomInput = ({
             {label}
         </label>
         <div
-            className={`flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full ${
-                disabled ? "bg-gray-100" : "bg-white"
+            className={`flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full bg-white
             } rounded-xl border border-solid border-black`}
         >
             {icon && (
@@ -190,7 +189,7 @@ export default function PengujiProfil() {
 
                                     {/* Lingkaran Foto */}
                                     <div
-                                        className="relative w-[177px] h-[177px] bg-gray-200 rounded-full border border-solid border-black bg-cover bg-center"
+                                        className="w-[177px] h-[177px] rounded-full bg-[#3a2323] border border-black bg-cover bg-center"
                                         style={{
                                             backgroundImage: `url(${profileImage})`,
                                         }}
@@ -230,12 +229,9 @@ export default function PengujiProfil() {
                                                 }
                                                 className="sr-only"
                                             />
-                                            <OsIcon
-                                                name="Upload"
-                                                className="w-[18px] h-[17px] os-icon-light"
-                                            />
+                                            <UploadCloud className="w-[18px]" />
                                             <span className="font-sans font-normal text-[15px]">
-                                                Upload gambar profil
+                                                Upload
                                             </span>
                                         </label>
 
@@ -387,7 +383,7 @@ export default function PengujiProfil() {
                                         </div>
 
                                         {/* BUTTONS */}
-                                        <div className="flex gap-3 mt-2">
+                                        <div className="w-full flex justify-between gap-3 mt-2">
                                             <OsButton
                                                 name="primary"
                                                 className="w-[223px] flex items-center justify-center gap-[13px] border border-black"
@@ -404,6 +400,19 @@ export default function PengujiProfil() {
                                                         : "Simpan"}
                                                 </span>
                                             </OsButton>
+
+                                            <OsButton
+                                                name="warning"
+                                                className="w-[223px] flex items-center justify-center gap-[13px] border border-black bg-red-600"
+                                                onClick={handleLogout}
+                                                type="button"
+                                            >
+                                                <OsIcon
+                                                    name="Logout"
+                                                    className="w-[23px] h-[21px] os-icon-light"
+                                                />
+                                                <span>Logout</span>
+                                            </OsButton>
                                         </div>
 
                                         <a
@@ -417,18 +426,7 @@ export default function PengujiProfil() {
                                 </section>
                             </div>
                         </main>
-                        <OsButton
-                            name="warning"
-                            className="w-[223px] flex items-center justify-center gap-[13px] border border-black bg-red-600"
-                            onClick={handleLogout}
-                            type="button"
-                        >
-                            <OsIcon
-                                name="Logout"
-                                className="w-[23px] h-[21px] os-icon-light"
-                            />
-                            <span>Logout</span>
-                        </OsButton>
+
                         {/* FOOTER */}
                         <OsCopyright />
                     </div>

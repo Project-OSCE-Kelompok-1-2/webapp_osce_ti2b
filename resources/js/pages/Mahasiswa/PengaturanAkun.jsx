@@ -409,7 +409,7 @@ export default function MahasiswaAccountSettings() {
                                         </div>
                                     </div>
 
-                                    {/* BUTTONS */}
+                                    {/* BUTTONS GROUP */}
                                     <div className="w-full flex justify-between gap-3 mt-2">
                                         <OsButton
                                             name="primary"
