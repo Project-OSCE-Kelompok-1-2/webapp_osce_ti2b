@@ -20,29 +20,55 @@ import OsInput from "../../components/input.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsButton from "../../components/button.jsx";
 
+// const columns = [
+//     {
+//         key: "no",
+//         content: "No",
+//         width: "w-16",
+//         classes: "justify-center items-center",
+//     },
+//     {
+//         key: "nim_mahasiswa",
+//         content: "Nim Mahasiswa",
+//         width: "w-72",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "mahasiswa",
+//         content: "Mahasiswa",
+//         width: "flex-1",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "action",
+//         content: "Action",
+//         width: "w-48",
+//         classes: "justify-center items-center px-4",
+//     },
+// ];
 const columns = [
     {
         key: "no",
         content: "No",
-        width: "w-16",
+        width: "w-16 shrink-0",
         classes: "justify-center items-center",
     },
     {
         key: "nim_mahasiswa",
         content: "Nim Mahasiswa",
-        width: "w-72",
+        width: "w-72 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
         key: "mahasiswa",
         content: "Mahasiswa",
-        width: "flex-1",
+        width: " flex-1 shrink-0", // Ganti flex-1
         classes: "justify-start items-center px-4",
     },
     {
         key: "action",
         content: "Action",
-        width: "w-48",
+        width: "w-48 shrink-0",
         classes: "justify-center items-center px-4",
     },
 ];
@@ -116,12 +142,17 @@ export default function OsceEnrollmentPage({
         ),
     }));
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            {/* <Head title={`Enrollment - ${osce.nama_osce}`} /> */}
-            <Sidebar onToggle={setSidebarOpen} />
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* 9. [PERBAIKAN] Header/Breadcrumb dinamis */}
                 <OsHeader
                     variant="goback"
@@ -130,7 +161,7 @@ export default function OsceEnrollmentPage({
 
                 {/* main content */}
                 <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-2 mt-4">
+                    <h2 className="font-semibold text-lg mb-1">
                         Menu Enrollment Mahasiswa
                     </h2>
                     <p className="text-sm text-gray-600 mb-5 max-w-2xl">
@@ -195,21 +226,27 @@ export default function OsceEnrollmentPage({
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Mahasiswa
                     </h2>
-                    <OsTableHeader columns={columns} />
 
-                    <OsTableBody data={tableData} columns={columns} />
-                    {/* Pesan Kosong */}
-                    {mahasiswa_list.data.length === 0 && (
-                        <div className="flex items-center border-t border-gray-400">
-                            <p className="w-full text-center text-sm py-4 text-gray-500">
-                                Data mahasiswa tidak ditemukan.
-                            </p>
+                    {/* WRAPPER */}
+                    <div className="w-full overflow-x-auto">
+                        <div className="min-w-max">
+                            <OsTableHeader columns={columns} />
+                            <OsTableBody data={tableData} columns={columns} />
+
+                            {/* Pesan Kosong */}
+                            {mahasiswa_list.data.length === 0 && (
+                                <div className="flex items-center border-t border-gray-400">
+                                    <p className="w-full text-center text-sm py-4 text-gray-500">
+                                        Data mahasiswa tidak ditemukan.
+                                    </p>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
 
                     {mahasiswa_list.links &&
                         mahasiswa_list.links.length > 3 && (
-                            <div className="mt-8 border-t-4 border-black pt-4 flex justify-start">
+                            <div className="mt-8 flex justify-start">
                                 <OsPagination links={mahasiswa_list.links} />
                             </div>
                         )}

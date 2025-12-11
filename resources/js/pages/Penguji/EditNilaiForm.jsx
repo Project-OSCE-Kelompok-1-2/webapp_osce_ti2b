@@ -47,19 +47,32 @@ export default function EditNilaiForm() {
         router.visit("/penguji/dashboard");
     };
 
-    return (
-        <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            {/* <SidebarUniversal /> */}
-            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
+    // return (
+    //     <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+    //         {/* <SidebarUniversal /> */}
+    //         <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                {/* Header */}
-                <OsHeader
-                    className="fixed"
-                    title={`OSCE / ${safeOsceInfo.nama_osce} / Edit Nilai`}
-                    icon={<ArrowLeft className="w-5 h-5" />}
-                    // Opsional: onBack={() => window.history.back()}
-                />
+    //         <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
+    //             {/* Header */}
+    //             <OsHeader
+    //                 className="fixed"
+    //                 title={`OSCE / ${safeOsceInfo.nama_osce} / Edit Nilai`}
+    //                 icon={<ArrowLeft className="w-5 h-5" />}
+    //                 // Opsional: onBack={() => window.history.back()}
+    //             />
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+    setIsSidebarOpen((prev) => !prev);
+    };
+
+    return (
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            <Sidebar isOpen={isSidebarOpen} type="penguji" onToggle={handleSidebarToggle} />
+
+            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
+                <OsHeader variant="goback" backLink="#" onMenuClick={handleSidebarToggle} />
 
                 <div className="flex-1 overflow-auto">
                     {/* 2. Header Biru Besar (Detail OSCE) */}

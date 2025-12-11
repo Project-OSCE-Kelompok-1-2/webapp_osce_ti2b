@@ -6,7 +6,7 @@ import {
     UserCheck,
     ExternalLink,
     Bookmark,
-    Bell
+    Bell,
 } from "lucide-react";
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
@@ -70,7 +70,7 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
 const NotificationItem = ({ stase, index }) => {
     // Komponen ini tidak diubah
     return (
-        <div className="flex items-center justify-between bg-white border rounded-lg  overflow-hidden">
+        <div className="flex items-startjustify-between bg-white border rounded-lg  overflow-hidden">
             {/* Left: number */}
             <div className="flex items-center px-4 py-4 border-r">
                 <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-700">
@@ -78,26 +78,30 @@ const NotificationItem = ({ stase, index }) => {
                 </div>
             </div>
 
-            {/* Middle: title + subtitle */}
-            <div className="flex-1 px-4 py-4">
-                <h4 className="font-semibold text-gray-800">
-                    {stase.nama_stase}
-                </h4>
-                <p className="text-sm text-gray-500 mt-1">{stase.sub_judul}</p>
-            </div>
-
-            {/* Right: pill + external link */}
-            <div className="flex items-center gap-3 px-4 py-4">
-                <div className="px-4 py-2 rounded-full bg-red-100 border border-red-300 text-red-700 text-xs font-semibold">
-                    Nilai tidak seimbang ({stase.total_bobot}%)
+            <div className="md:flex md:justify-between w-full gap-5 p-4" >
+                {/* Middle: title + subtitle */}
+                <div className="flex-1">
+                    <h4 className="font-semibold text-gray-800">
+                        {stase.nama_stase}
+                    </h4>
+                    <p className="text-sm text-gray-500 mt-1">
+                        {stase.sub_judul}
+                    </p>
                 </div>
-                <Link
-                    href={`/admin/stase/${stase.id_stase}/edit`}
-                    className="p-2 rounded-md border text-gray-600 hover:bg-gray-50"
-                    title="Edit stase"
-                >
-                    <ExternalLink size={16} />
-                </Link>
+
+                {/* Right: pill + external link */}
+                <div className="flex items-center max-w-[300px] gap-3 pt-1 md:pt-0">
+                    <div className="px-4 py-2 rounded-full bg-red-100 border border-red-300 text-red-700 text-xs font-semibold">
+                        Nilai tidak seimbang ({stase.total_bobot}%)
+                    </div>
+                    <Link
+                        href={`/admin/stase/${stase.id_stase}/edit`}
+                        className="p-2 rounded-md border text-gray-600 hover:bg-gray-50"
+                        title="Edit stase"
+                    >
+                        <ExternalLink size={16} />
+                    </Link>
+                </div>
             </div>
         </div>
     );
@@ -109,7 +113,6 @@ export default function Dashboard() {
         stats = { total_osce: 0, total_mahasiswa: 0, total_penguji: 0 },
         notifikasi = [],
     } = usePage().props || {};
-    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // format angka (2 digit seperti mock)
     const totalOsce = (stats.total_osce ?? 0).toString().padStart(2, "0");
@@ -118,12 +121,18 @@ export default function Dashboard() {
         .padStart(2, "0");
     const totalPenguji = (stats.total_penguji ?? 0).toString().padStart(2, "0");
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} />
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
-                <OsHeader />
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+                <OsHeader onMenuClick={handleSidebarToggle} />
 
                 {/* MAIN */}
                 <div className="">
@@ -144,13 +153,13 @@ export default function Dashboard() {
                 {/* Statistika */}
                 <section className="mb-2">
                     <div className="flex gap-os-8 items-center justify-start mb-2">
-                        <OsIcon name={"stat"} className="h-[15px]"/>
+                        <OsIcon name={"stat"} className="h-[15px]" />
                         <h2 className="font-bold text-os-regular text-gray-900">
                             Statistika
                         </h2>
                     </div>
 
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                         {/* [UBAH] Tambahkan prop 'href' di sini */}
                         <StatCard
                             title="Total OSCE"
@@ -196,7 +205,7 @@ export default function Dashboard() {
                 {/* Notifikasi */}
                 <section>
                     <div className="flex gap-os-8 items-center justify-start mb-2">
-                        <Bell size={18}/>
+                        <Bell size={18} />
                         <h2 className="font-bold text-os-regular text-gray-900">
                             Notifikasi
                         </h2>

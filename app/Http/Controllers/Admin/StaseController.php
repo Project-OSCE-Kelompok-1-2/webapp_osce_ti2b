@@ -6,6 +6,7 @@ use Inertia\Inertia;
 use App\Models\Stase;
 use App\Models\MataKuliah;
 use Illuminate\Http\Request;
+use App\Services\Admin\StaseService;
 use Illuminate\Validation\Rule;
 use App\Models\TujuanPembelajaran;
 use App\Http\Controllers\Controller;
@@ -13,19 +14,23 @@ use Illuminate\Support\Facades\Redirect;
 
 class StaseController extends Controller
 {
+    protected $service;
+
+    public function __construct(StaseService $service)
+    {
+        $this->service = $service;
+    }
+
     public function index(Request $request)
     {
-        $stase = Stase::query()
-            ->when($request->input('search'), function ($query, $search) {
-                $query->where('nama_stase', 'like', "%{$search}%");
-            })
-            ->withCount('aspekPenilaian')
-            ->paginate(10)
-            ->withQueryString();
+        $search = $request->query("search");
+        $stase = $this->service->getAll($search);
 
         return Inertia::render('Admin/MenuStase', [
-            'stase' => $stase,
+            'stase' => $stase['data'],
             'filters' => $request->only(['search']),
+            'mataKuliah' => MataKuliah::all(),
+            'tujuanPembelajaran' => TujuanPembelajaran::all()
         ]);
     }
 
@@ -41,15 +46,14 @@ class StaseController extends Controller
     public function store(Request $request)
     {
         // [UBAH] Tambahkan validasi untuk field baru
-        $request->validate([
+        $validated = $request->validate([
             'nama_stase' => 'required|string|max:255|unique:stase,nama_stase',
             'id_mata_kuliah' => 'required|exists:mata_kuliah,id_mata_kuliah',
             'id_tujuan_pembelajaran' => 'required|exists:tujuan_pembelajaran,id_tujuan_pembelajaran', // <-- [BARU]
             'deskripsi' => 'nullable|string', // <-- [BARU]
         ]);
 
-        Stase::create($request->all());
-
+        $this->service->store($validated);
         return Redirect::route('admin.stase.index')->with('success', 'Stase berhasil ditambahkan.');
     }
 
@@ -65,7 +69,7 @@ class StaseController extends Controller
 
     public function update(Request $request, Stase $stase)
     {
-        $request->validate([
+        $validated = $request->validate([
             // [UBAH] Aturan unique diubah agar mengabaikan data stase saat ini
             'nama_stase' => [
                 'required',
@@ -78,16 +82,16 @@ class StaseController extends Controller
             'deskripsi' => 'nullable|string',
         ]);
 
-        $stase->update($request->all());
+        $this->service->update($validated, $stase->id_stase);
 
         return Redirect::route('admin.stase.index')->with('success', 'Stase berhasil diperbarui.');
     }
 
     public function destroy(Stase $stase)
     {
-        $stase->delete();
+        $this->service->delete($stase->id_stase);
         return Redirect::back()->with('success', 'Stase berhasil dihapus.');
     }
-    
+
     // Anda bisa tambahkan fungsi edit() dan update() jika diperlukan nanti
 }

@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+
 import { usePage, Head } from "@inertiajs/react";
 import { ArrowLeft, Download } from "lucide-react";
 
@@ -13,22 +14,48 @@ export default function RekapDetailPage() {
     // Ambil data dari props controller
     const { detailNilai } = usePage().props;
     // Destructure data biar kodingnya lebih bersih
-    const { mahasiswa, osce, nilai_per_stase, nilai_total_osce } = detailNilai;
+    const {
+        mahasiswa,
+        osce,
+        nilai_per_stase,
+        nilai_total_osce,
+        id_sesi_kembali,
+    } = detailNilai;
 
     const handleBack = () => {
         window.history.back();
+    };
+    const handleDownload = () => {
+        // Pastikan osce.id_osce ada isinya (dari perbaikan controller no 1 di atas)
+        if (!osce.id_osce) {
+            alert("ID OSCE tidak ditemukan, tidak bisa download.");
+            return;
+        }
+        // Construct URL sesuai route web.php yang baru dibuat
+        const url = `/admin/rekap-nilai/mahasiswa/${
+            mahasiswa.id_mahasiswa
+        }/osce/${osce.id_osce || 1}/download`; // Note: pastikan ID Osce ada di props, jika tidak ada fallback ke logic lain
+
+        // Buka di tab baru
+        window.open(url, "_blank");
+    };
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
     };
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head title={`Nilai ${mahasiswa.nama} - ${osce.nama_osce}`} />
-            <Sidebar />
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* --- Breadcrumb --- */}
                 <OsHeader
                     variant="goback"
-                    backLink=""
+                    backLink={`/admin/rekap-nilai/${osce.id_osce}/sesi/${id_sesi_kembali}/mahasiswa`}
                 />
 
                 <div className="flex-1 overflow-auto">
@@ -66,7 +93,12 @@ export default function RekapDetailPage() {
                         <h2 className="font-semibold text-xl text-gray-900">
                             Nilai OSCE: {osce.nama_osce}
                         </h2>
-                        <button className="flex items-center bg-blue-600 text-white text-sm py-2.5 px-5 rounded-lg hover:bg-blue-700  transition-all">
+
+                        {/* Tombol Download dengan onClick */}
+                        <button
+                            onClick={handleDownload}
+                            className="flex items-center bg-blue-600 text-white text-sm py-2.5 px-5 rounded-lg hover:bg-blue-700  transition-all"
+                        >
                             <Download className="w-4 h-4 mr-2" />
                             Download Hasil
                         </button>
@@ -115,14 +147,20 @@ export default function RekapDetailPage() {
                         return (
                             <div
                                 key={`${stase.id_stase}-${index}`}
-                                className={index > 0 ? "mt-12 border-t border-gray-300 pt-8" : ""}
+                                className={
+                                    index > 0
+                                        ? "mt-12 border-t border-gray-300 pt-8"
+                                        : ""
+                                }
                             >
                                 {/* 👇 Memanggil Komponen NilaiDetail.jsx */}
                                 <StaseAssessmentView
                                     staseNumber={`Stase ${index + 1}`}
                                     staseName={stase.nama_stase}
                                     examinerName={stase.nama_penguji} // Nama penguji dari backend
-                                    overallScore={parseFloat(stase.nilai_akhir_stase || 0).toFixed(0)} // Nilai Bulat Stase
+                                    overallScore={parseFloat(
+                                        stase.nilai_akhir_stase || 0
+                                    ).toFixed(0)} // Nilai Bulat Stase
                                     assessmentData={assessmentData} // Data array yang sudah diformat
                                 />
                             </div>
