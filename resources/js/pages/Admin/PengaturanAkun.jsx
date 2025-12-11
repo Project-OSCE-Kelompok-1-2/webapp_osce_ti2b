@@ -20,6 +20,7 @@ import OsHeader from "../../components/Header.jsx";
 import Modals from "../../components/Modals.jsx"; // 🆕 Tambahkan ini
 import OsButton from "../../components/button.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
+import OsIcon from "../../components/icons.jsx";
 
 const Component1 = ({ className }) => <Eye className={className} />;
 const Icon1 = ({ className }) => <Save className={className} />;
@@ -118,6 +119,10 @@ export default function AdminSettingAkun({ user }) {
 
     const handleSidebarToggle = () => {
         setIsSidebarOpen((prev) => !prev);
+    };
+
+    const handleLogout = () => {
+        router.post("/logout");
     };
 
     return (
@@ -312,18 +317,33 @@ export default function AdminSettingAkun({ user }) {
                                             </div>
                                         </div>
 
+                                        <div className="w-full flex justify-between">
+                                            <OsButton
+                                                name="primary"
+                                                type="submit"
+                                                disabled={processing}
+                                                className="sm:w-[223px] bg-blue-600 text-white flex items-center w-full gap-[13px] p-3 rounded-xl border border-black"
+                                            >
+                                                <Save className="w-[17px]" />
+                                                {processing
+                                                    ? "Menyimpan..."
+                                                    : "Simpan"}
+                                            </OsButton>
+
+                                            <OsButton
+                                                name="warning"
+                                                className="w-[223px] flex items-center justify-center gap-[13px] border border-black bg-red-600"
+                                                onClick={handleLogout}
+                                                type="button"
+                                            >
+                                                <OsIcon
+                                                    name="Logout"
+                                                    className="w-[23px] h-[21px] os-icon-light"
+                                                />
+                                                <span>Logout</span>
+                                            </OsButton>
+                                        </div>
                                         {/* SAVE */}
-                                        <OsButton
-                                            name="primary"
-                                            type="submit"
-                                            disabled={processing}
-                                            className="sm:w-[223px] bg-blue-600 text-white flex items-center w-full gap-[13px] p-3 rounded-xl border border-black"
-                                        >
-                                            <Save className="w-[17px]" />
-                                            {processing
-                                                ? "Menyimpan..."
-                                                : "Simpan"}
-                                        </OsButton>
 
                                         <a
                                             href="#contact-admin"
@@ -338,15 +358,7 @@ export default function AdminSettingAkun({ user }) {
 
                         {/* FOOTER */}
                     </div>
-                    <Link
-                        as="button"
-                        method="post"
-                        href="/logout"
-                        className="border-2 bg-white border-red-600 max-w-[120px] inline-flex items-center gap-[13px] p-3 rounded-xl text-red-600 opacity-75 text-sm"
-                    >
-                        <LogOut className="w-[23px] h-[21px]" />
-                        Log Out
-                    </Link>
+
                     <OsCopyright />
                 </div>
 
