@@ -28,32 +28,29 @@ class EditNilaiController extends Controller
         $osceStase = OsceStase::with(['stase', 'osce'])
             ->where('id_osce', $enrollment->id_osce)
             ->where('id_penguji', $user->penguji->id_penguji)
-            ->firstOrFail(); // Otomatis 404 jika penguji tidak berhak
-
-        // 2. Cek Batas Waktu Edit (Optional: kalau mau readonly saat waktu habis)
-        // $isExpired = Carbon::now()->gt($osceStase->osce->tanggal_selesai);
+            ->firstOrFail();
 
         // 3. Ambil Struktur Rubrik + Nilai Tersimpan
-        // Menggunakan teknik eager loading constraint seperti kode asli Najwa (sudah bagus)
         $rubrikStruktur = $osceStase->stase->load([
-            'aspekPenilaian.poinAspekPenilaian.nilaiOsce' => function ($query) use ($id_enrollment_osce) {
+            'aspekPenilaian.poinAspekPenilaian.nilai_osce' => function ($query) use ($id_enrollment_osce) {
                 $query->where('id_enrollment_osce', $id_enrollment_osce);
             }
         ]);
 
         // 4. Format Response untuk Frontend
-        // Kita mapping agar sesuai dengan props yang diminta Frontend (Sendy/Hafizh)
         $rubrikTerisi = $rubrikStruktur->aspekPenilaian->map(function ($aspek) {
             return [
                 'aspek' => $aspek->aspek,
                 'kompetensi' => $aspek->poinAspekPenilaian->map(function ($poin) {
-                    $nilaiDb = $poin->nilaiOsce->first(); // Ambil relasi hasOne/hasMany
+                    // FIX PEMANGGILAN RELASI
+                    $nilaiDb = $poin->nilai_osce;  
+
                     return [
                         'id_poin_aspek_penilaian' => $poin->id_poin_aspek_penilaian,
                         'deskripsi'     => $poin->kompetensi,
                         'bobot'         => $poin->bobot,
-                        'skor_maksimal' => 4, // Asumsi skala 0-4
-                        'skor'          => $nilaiDb ? $nilaiDb->nilai : 0 // Nilai tersimpan
+                        'skor_maksimal' => 4,
+                        'skor'          => $nilaiDb ? $nilaiDb->nilai : 0
                     ];
                 })
             ];
@@ -76,7 +73,7 @@ class EditNilaiController extends Controller
 
         // 1. Validasi Input
         $validated = $request->validate([
-            'nilai' => 'required|array', // Ganti 'items' jadi 'nilai' biar konsisten sama Frontend
+            'nilai' => 'required|array',
             'nilai.*.id_poin_aspek_penilaian' => 'required|integer',
             'nilai.*.skor' => 'required|integer|min:0|max:4',
             'feedback' => 'nullable|string',
@@ -90,7 +87,6 @@ class EditNilaiController extends Controller
             ->where('id_penguji', $user->penguji->id_penguji)
             ->firstOrFail();
 
-        // Cek Tanggal Selesai
         $batasWaktu = Carbon::parse($osceStase->osce->tanggal_selesai)->endOfDay();
         if (Carbon::now()->gt($batasWaktu)) {
             return back()->withErrors(['error' => 'Masa pengeditan nilai sudah berakhir.']);
@@ -98,11 +94,9 @@ class EditNilaiController extends Controller
 
         // 3. Simpan Data
         DB::transaction(function () use ($validated, $id_enrollment_osce, $enrollment) {
-            // Update Feedback
             $enrollment->catatan = $validated['feedback'] ?? null;
             $enrollment->save();
 
-            // Update Nilai
             foreach ($validated['nilai'] as $item) {
                 NilaiOsce::updateOrCreate(
                     [
@@ -116,7 +110,6 @@ class EditNilaiController extends Controller
             }
         });
 
-        // Redirect kembali (biasanya ke list rekap)
         return redirect()->route('penguji.rekap.list', [
             'id_osce' => $osceStase->id_osce,
             'id_osce_stase' => $osceStase->id_osce_stase
