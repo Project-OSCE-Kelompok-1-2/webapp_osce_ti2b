@@ -13,6 +13,7 @@ use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Redirect;
+use App\Exports\TemplateMahasiswaExport;
 
 class MahasiswaController extends Controller
 {
@@ -35,7 +36,7 @@ class MahasiswaController extends Controller
         if ($angkatan === "SEMUA" || $angkatan === "" || empty($angkatan) || $angkatan === "null") {
             $angkatan = null;
         }
-        
+
         // Ambil List Tahun dari Database untuk Dropdown
         $listTahun = TahunAkademik::select('tahun')
             ->distinct()
@@ -75,7 +76,10 @@ class MahasiswaController extends Controller
     {
         $validated = $request->validate([
             'nim'   => [
-                'required', 'string', 'max:20', 'unique:mahasiswa,nim',
+                'required',
+                'string',
+                'max:20',
+                'unique:mahasiswa,nim',
                 function ($attribute, $value, $fail) {
                     if (Pengguna::where('username', $value)->exists()) {
                         $fail('NIM ini sudah digunakan sebagai username di tabel pengguna.');
@@ -108,7 +112,7 @@ class MahasiswaController extends Controller
                 'nama' => $mahasiswa->nama,
                 'kelas' => $mahasiswa->kelas,
                 'prodi' => $mahasiswa->prodi,
-            ], 
+            ],
         ]);
     }
 
@@ -119,7 +123,9 @@ class MahasiswaController extends Controller
     {
         $validated = $request->validate([
             'nim'   => [
-                'required', 'string', 'max:20', 
+                'required',
+                'string',
+                'max:20',
                 'unique:mahasiswa,nim,' . $mahasiswa->id_mahasiswa . ',id_mahasiswa', // Abaikan diri sendiri
                 function ($attribute, $value, $fail) use ($mahasiswa) {
                     if (Pengguna::where('username', $value)->where('id_pengguna', '!=', $mahasiswa->id_pengguna)->exists()) {
@@ -146,6 +152,15 @@ class MahasiswaController extends Controller
         $this->service->delete($mahasiswa);
 
         return Redirect::back()->with('success', 'Mahasiswa berhasil dihapus.');
+    }
+
+    /**
+     * [BARU] Download Template Excel
+     * GET /admin/mahasiswa/template
+     */
+    public function template()
+    {
+        return Excel::download(new TemplateMahasiswaExport, 'template_mahasiswa.xlsx');
     }
 
     /**
