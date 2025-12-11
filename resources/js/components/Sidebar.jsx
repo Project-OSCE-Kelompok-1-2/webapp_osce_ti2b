@@ -8,6 +8,8 @@ import {
     Settings,
     ChevronsLeft,
     ChevronsRight,
+    Calendar,
+    ClipboardCheck,
 } from "lucide-react";
 
 // --- Data Konfigurasi Multi-Role ---
@@ -17,12 +19,42 @@ const roleData = {
         email: "admin.fakultas@kampus.edu",
         imageBg: "bg-blue-600",
         menu: [
-            { label: "Beranda", icon: <Home size={24} />, href: "/admin/dashboard", opacity: "100" },
-            { label: "Stase", icon: <FileText size={24} />, href: "/admin/stase", opacity: "100" },
-            { label: "Mahasiswa", icon: <Users size={24} />, href: "/admin/mahasiswa", opacity: "100" },
-            { label: "Dosen", icon: <UserCheck size={24} />, href: "/admin/dosen", opacity: "100" },
-            { label: "OSCE", icon: <FileText size={24} />, href: "/admin/osce", opacity: "100" },
-            { label: "Rekap Nilai Mahasiswa", icon: <Bookmark size={24} />, href: "/admin/rekap-nilai", opacity: "100" },
+            {
+                label: "Beranda",
+                icon: <Home size={24} />,
+                href: "/admin/dashboard",
+                opacity: "100",
+            },
+            {
+                label: "Stase",
+                icon: <FileText size={24} />,
+                href: "/admin/stase",
+                opacity: "100",
+            },
+            {
+                label: "Mahasiswa",
+                icon: <Users size={24} />,
+                href: "/admin/mahasiswa",
+                opacity: "100",
+            },
+            {
+                label: "Dosen",
+                icon: <UserCheck size={24} />,
+                href: "/admin/dosen",
+                opacity: "100",
+            },
+            {
+                label: "OSCE",
+                icon: <FileText size={24} />,
+                href: "/admin/osce",
+                opacity: "100",
+            },
+            {
+                label: "Rekap Nilai Mahasiswa",
+                icon: <Bookmark size={24} />,
+                href: "/admin/rekap-nilai",
+                opacity: "100",
+            },
         ],
     },
     penguji: {
@@ -30,8 +62,18 @@ const roleData = {
         email: "budi.santoso@kampus.edu",
         imageBg: "bg-green-600",
         menu: [
-            { label: "Beranda", icon: <Home size={24} />, href: "/penguji/dashboard", opacity: "100" },
-            { label: "Verifikasi Nilai", icon: <FileText size={24} />, href: "/penguji/osce", opacity: "100" },
+            {
+                label: "Beranda",
+                icon: <Home size={24} />,
+                href: "/penguji/dashboard",
+                opacity: "100",
+            },
+            {
+                label: "Verifikasi Nilai",
+                icon: <FileText size={24} />,
+                href: "/penguji/osce",
+                opacity: "100",
+            },
         ],
     },
     mahasiswa: {
@@ -39,10 +81,24 @@ const roleData = {
         email: "alya.putri@kampus.edu",
         imageBg: "bg-yellow-600",
         menu: [
-            { label: "Dashboard", icon: <Home size={24} />, href: "/mahasiswa/dashboard", opacity: "100" },
-            { label: "Rencana Stase", icon: <FileText size={24} />, href: "/mahasiswa/stase-plan", opacity: "100" },
-            { label: "Logbook", icon: <Bookmark size={24} />, href: "/mahasiswa/logbook", opacity: "100" },
-            { label: "Hasil Nilai", icon: <Users size={24} />, href: "/mahasiswa/nilai", opacity: "100" },
+            {
+                label: "Beranda",
+                icon: <Home size={24} />,
+                href: "/mahasiswa/dashboard",
+                opacity: "100",
+            },
+            {
+                label: "Hasil Penilaian",
+                icon: <ClipboardCheck size={24} />,
+                href: "/mahasiswa/nilai",
+                opacity: "100",
+            },
+            {
+                label: "Jadwal OSCE",
+                icon: <Calendar size={24} />,
+                href: "/mahasiswa/jadwal",
+                opacity: "100",
+            },
         ],
     },
 };
@@ -57,13 +113,13 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
     useEffect(() => {
         setActivePath(window.location.pathname);
         const handleEscape = (event) => {
-            if (isOpen && event.key === 'Escape') {
+            if (isOpen && event.key === "Escape") {
                 onToggle();
             }
         };
 
-        window.addEventListener('keydown', handleEscape);
-        return () => window.removeEventListener('keydown', handleEscape);
+        window.addEventListener("keydown", handleEscape);
+        return () => window.removeEventListener("keydown", handleEscape);
     }, [isOpen, onToggle]);
 
     // Fungsi untuk menutup sidebar saat mengklik overlay (hanya di mode mobile)
@@ -78,7 +134,11 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
             {/* PERBAIKAN 1: Div Overlay HANYA untuk Mode Mobile/Layar Kecil (sm:hidden) */}
             <div
                 className={`fixed inset-0 bg-black z-40 transition-opacity duration-300
-                    ${isOpen ? "bg-opacity-50 pointer-events-auto" : "bg-opacity-0 pointer-events-none"}`}
+                    ${
+                        isOpen
+                            ? "bg-opacity-50 pointer-events-auto"
+                            : "bg-opacity-0 pointer-events-none"
+                    }`}
                 onClick={handleOverlayClick}
                 aria-hidden={!isOpen}
             ></div>
@@ -112,7 +172,9 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                         <div
                             // PERBAIKAN 3: Menghapus 'sm:flex hidden' yang menyebabkan avatar hilang.
                             // Avatar harus selalu terlihat saat sidebar dilipat/dibuka.
-                            className={`w-12 h-12 rounded-full ${imageBg} ${isOpen ? "flex" : "hidden lg:flex"} flex-shrink-0 items-center justify-center text-white font-bold text-xl`}
+                            className={`w-12 h-12 rounded-full ${imageBg} ${
+                                isOpen ? "flex" : "hidden lg:flex"
+                            } flex-shrink-0 items-center justify-center text-white font-bold text-xl`}
                         >
                             {name.charAt(0)}
                         </div>
@@ -157,8 +219,14 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                                         {item.icon}
                                     </div>
                                     {/* Label menu dikontrol visibility-nya */}
-                                    <span className={`text-sm whitespace-nowrap transition-opacity duration-300
-                                        ${isOpen ? "opacity-100" : "opacity-0 lg:hidden"}`}>
+                                    <span
+                                        className={`text-sm whitespace-nowrap transition-opacity duration-300
+                                        ${
+                                            isOpen
+                                                ? "opacity-100"
+                                                : "opacity-0 lg:hidden"
+                                        }`}
+                                    >
                                         {item.label}
                                     </span>
                                 </a>
@@ -187,8 +255,10 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                             <Settings size={24} />
                         </div>
                         {/* Label Pengaturan dikontrol visibility-nya */}
-                        <span className={`whitespace-nowrap text-sm transition-opacity duration-300
-                            ${isOpen ? "opacity-100" : "opacity-0 lg:hidden"}`}>
+                        <span
+                            className={`whitespace-nowrap text-sm transition-opacity duration-300
+                            ${isOpen ? "opacity-100" : "opacity-0 lg:hidden"}`}
+                        >
                             Pengaturan Akun
                         </span>
                     </a>

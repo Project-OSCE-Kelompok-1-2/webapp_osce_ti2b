@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 // Components
-import SidebarUniversal from "../../components/SidebarUniversal.jsx";
+import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright";
 import Calendar from "../../components/Calendar";
@@ -158,12 +158,10 @@ export default function DashboardMahasiswa() {
     return (
         <div className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
             {/* Sidebar Universal */}
-            <SidebarUniversal
+            <Sidebar
+                type="mahasiswa"
                 isOpen={sidebarOpen}
-                setIsOpen={setSidebarOpen}
-                user={auth.user}
-                role="mahasiswa"
-                activePath={url} // Passing URL agar menu sidebar ter-highlight otomatis
+                onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
             <main

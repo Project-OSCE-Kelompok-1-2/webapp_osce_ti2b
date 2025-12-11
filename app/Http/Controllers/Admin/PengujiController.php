@@ -57,7 +57,6 @@ class PengujiController extends Controller
      */
     public function store(Request $request)
     {
-        dd($request->all());
         $validated = $request->validate([
             'nama' => 'required|string|max:255',
             'nip' => [
@@ -106,7 +105,7 @@ class PengujiController extends Controller
                 'string',
                 'max:255',
                 Rule::unique('penguji', 'nip')->ignore($dosen->id_penguji, 'id_penguji'),
-                Rule::unique('pengguna', 'username')->ignore( $dosen->id_pengguna, 'id_pengguna'),
+                Rule::unique('pengguna', 'username')->ignore($dosen->id_pengguna, 'id_pengguna'),
             ],
         ]);
 
@@ -123,14 +122,17 @@ class PengujiController extends Controller
      * [BARU] Menghapus data penguji
      * DELETE /admin/dosen/{dosen}
      */
-    public function destroy(Penguji $penguji)
+    public function destroy(Penguji $dosen)
     {
-        $penguji = $this->service->delete($penguji);
+        // Panggil service delete
+        $isDeleted = $this->service->delete($dosen);
 
-        if ($penguji) {
+        // Jika $isDeleted bernilai false/gagal, baru lempar error.
+        if (!$isDeleted) {
             return Redirect::back()->with('error', 'Gagal menghapus penguji. Mungkin terkait dengan data lain.');
         }
 
+        // Jika berhasil
         return Redirect::back()->with('success', 'Penguji berhasil dihapus.');
     }
 }

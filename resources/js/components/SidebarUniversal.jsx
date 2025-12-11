@@ -181,15 +181,6 @@ const SidebarUniversal = () => {
                         isOpen ? "opacity-100 w-auto" : "opacity-0 w-0"
                     }`}
                 >
-                    {/* Avatar */}
-                    <div
-                        className={`w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-xl overflow-hidden ${currentStyles.avatarBg}`}
-                    >
-                        <div
-                            className={`w-full h-full ${currentStyles.avatarFill}`}
-                        ></div>
-                    </div>
-
                     {/* Info Teks */}
                     {isOpen && (
                         <div className="overflow-hidden">
@@ -205,7 +196,13 @@ const SidebarUniversal = () => {
             </div>
 
             {/* --- MENU LIST --- */}
-            <nav className="flex-1 overflow-y-auto py-6 pr-3">
+            <nav
+                className={`flex-1 overflow-y-auto py-6 pr-3 ${
+                    isMahasiswa || isPenguji
+                        ? "flex flex-col justify-center"
+                        : ""
+                }`}
+            >
                 <div className="flex flex-col">
                     {menuItems.map((item, index) => {
                         const active = isActive(item.href);
