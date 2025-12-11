@@ -4,7 +4,7 @@ namespace App\Exports;
 
 use Maatwebsite\Excel\Concerns\FromArray;
 use Maatwebsite\Excel\Concerns\WithHeadings;
-use Maatwebsite\Excel\Concerns\WithColumnWidths; // [GANTI] Dari ShouldAutoSize ke WithColumnWidths
+use Maatwebsite\Excel\Concerns\WithColumnWidths;
 use Maatwebsite\Excel\Concerns\WithStyles;
 use PhpOffice\PhpSpreadsheet\Worksheet\Worksheet;
 use PhpOffice\PhpSpreadsheet\Style\Border;
@@ -107,7 +107,7 @@ class TemplateMahasiswaExport implements WithHeadings, WithColumnWidths, FromArr
             ],
         ]);
 
-        // (Opsional) Kolom NIM & Kelas rata tengah
+        // Kolom NIM & Kelas rata tengah
         $sheet->getStyle('A3:A' . $highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
         $sheet->getStyle('C3:C' . $highestRow)->getAlignment()->setHorizontal(Alignment::HORIZONTAL_CENTER);
     }
