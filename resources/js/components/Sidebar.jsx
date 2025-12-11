@@ -96,7 +96,7 @@ const roleData = {
             {
                 label: "Jadwal OSCE",
                 icon: <Calendar size={24} />,
-                href: "/mahasiswa/jadwal-osce",
+                href: "/mahasiswa/jadwal",
                 opacity: "100",
             },
         ],
