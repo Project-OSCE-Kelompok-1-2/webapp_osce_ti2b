@@ -72,7 +72,7 @@ export default function OsHeader({
 
                 {/* 🔹 Kotak judul utama */}
                 <div className="relative flex-1 h-[46px]">
-                    <div className="w-full bg-os-tertiary h-full flex items-center rounded-xl overflow-hidden border border-black ">
+                    <div className="w-full bg-os-tertiary h-full flex items-center rounded-xl overflow-hidden border border-os-primary ">
                         <h1 className="ml-5 text-os-regular text-black tracking-[0] leading-normal whitespace-nowrap">
                             {title}
                         </h1>
@@ -80,7 +80,7 @@ export default function OsHeader({
                 </div>
             </div>
 
-            <hr className="relative w-full border-os-black" />
+            <hr className="relative w-full border-os-primary" />
         </header>
     );
 }
