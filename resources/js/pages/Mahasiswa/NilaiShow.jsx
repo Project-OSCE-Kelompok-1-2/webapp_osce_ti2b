@@ -7,7 +7,7 @@ import { FileText } from "lucide-react";
 // =========================================
 // --- IMPORT KOMPONEN CUSTOM (MODULAR) ---
 // =========================================
-import SidebarUniversal from "../../components/SidebarUniversal.jsx"; // Sidebar navigasi utama
+import Sidebar from "../../components/Sidebar.jsx"; // Sidebar navigasi utama
 import OsHeader from "../../components/Header.jsx";                   // Header atas (navbar)
 import OsTableHeader from "../../components/tableheader.jsx";         // Komponen kepala tabel
 import OsTableBody from "../../components/tablecontain.jsx";          // Komponen isi tabel
@@ -89,7 +89,11 @@ export default function NilaiShow() {
             
             {/* --- BAGIAN A: SIDEBAR --- */}
             {/* Mengirim state isOpen dan fungsi setIsOpen agar tombol hamburger berfungsi */}
-            <SidebarUniversal isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+            <Sidebar
+                type="mahasiswa"
+                isOpen={isSidebarOpen}
+                onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+            />
 
             {/* --- BAGIAN B: WRAPPER KONTEN KANAN --- */}
             {/* Margin kiri (ml) berubah dinamis: ml-72 jika sidebar buka, ml-20 jika tutup */}
