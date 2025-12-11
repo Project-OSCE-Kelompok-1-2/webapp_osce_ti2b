@@ -1,5 +1,7 @@
 import React, { useState, useRef } from "react"; // [PERBAIKAN] Tambah useRef
 import { router, usePage, useForm } from "@inertiajs/react";
+import { Edit2, Trash2, Plus } from "lucide-react"; // Pastikan import Plus ada
+
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
