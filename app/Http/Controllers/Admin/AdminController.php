@@ -22,7 +22,6 @@ class AdminController extends Controller
     {
         $this->service = $service;
     }
-
     public function dashboard()
     {
         $stats = [
