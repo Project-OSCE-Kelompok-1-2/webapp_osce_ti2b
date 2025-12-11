@@ -13,7 +13,6 @@ use App\Models\EnrollmentOsce;
 
 class RekapController extends Controller
 {
-
     public function editNilai(Request $request, $id_osce, $id_osce_stase)
     {
         return $this->getData($id_osce, $id_osce_stase, 'edit');
@@ -30,7 +29,6 @@ class RekapController extends Controller
 
         // [FIX 1] Validasi User & Relasi Penguji
         if (!$user->penguji) {
-
             abort(403, 'Akun Anda tidak memiliki profil Penguji.');
         }
 
@@ -42,10 +40,8 @@ class RekapController extends Controller
             ->where('id_penguji', $user->penguji->id_penguji)
             ->firstOrFail();
 
-
         // [FIX 2] Cast ID ke integer. Ini KUNCI perbaikan agar aman masuk ke string SQL
         $idStase = (int) $osceStase->id_stase;
-
 
         // 2. Query Data Mahasiswa & Hitung Nilai via Subquery
         $mahasiswaRaw = EnrollmentOsce::with('mahasiswa')
@@ -90,7 +86,7 @@ class RekapController extends Controller
         // Tentukan View berdasarkan mode request
         $view = $mode === 'edit' ? 'Penguji/EditNilaiForm' : 'Penguji/SubmitRubrik';
 
-        return Inertia::render("Penguji/EditNilaiForm", [
+        return Inertia::render($view, [
             'osce_detail'    => $osce_detail,
             'mahasiswa_list' => $mahasiswaList
         ]);
