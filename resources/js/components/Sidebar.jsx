@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { usePage } from "@inertiajs/react";
 import {
     Home,
     Users,
@@ -104,11 +105,33 @@ const roleData = {
 };
 
 const Sidebar = ({ type, isOpen, onToggle }) => {
+    const { auth } = usePage().props;
+    const user = auth?.user;
+
     const initialRole = roleData[type] ? type : "admin";
     const [currentRole, setCurrentRole] = useState(initialRole);
     const [activePath, setActivePath] = useState("");
 
-    const { name, email, imageBg, menu } = roleData[currentRole];
+    const { imageBg, menu } = roleData[currentRole];
+
+    // --- LOGIKA DINAMIS USERNAME & EMAIL ---
+    let displayName = roleData[currentRole].name; // Default fallback
+    let displayEmail = roleData[currentRole].email; // Default fallback
+
+    if (user) {
+        displayEmail = user.email || displayEmail;
+
+        if (currentRole === "mahasiswa" && user.mahasiswa) {
+            displayName = user.mahasiswa.nama;
+        } else if (currentRole === "penguji" && user.dosen) {
+            displayName = user.dosen.nama_gelar || user.dosen.nama;
+        } else if (currentRole === "admin" && user.admin) {
+            displayName = user.admin.nama;
+        } else {
+            // Fallback umum jika relasi spesifik tidak ada
+            displayName = user.name || user.username || displayName;
+        }
+    }
 
     useEffect(() => {
         setActivePath(window.location.pathname);
@@ -176,7 +199,7 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                                 isOpen ? "flex" : "hidden lg:flex"
                             } flex-shrink-0 items-center justify-center text-white font-bold text-xl`}
                         >
-                            {name.charAt(0)}
+                            {displayName.charAt(0)}
                         </div>
                         {/* Konten profil hanya ditampilkan jika isOpen */}
                         <div className={`overflow-hidden transition-opacity duration-300
