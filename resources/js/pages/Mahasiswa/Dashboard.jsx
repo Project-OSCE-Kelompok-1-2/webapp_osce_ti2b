@@ -156,7 +156,7 @@ export default function DashboardMahasiswa() {
     const normalJadwal = jadwal_penting?.filter((j) => j.sisa_hari > 1);
 
     return (
-        <div className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             {/* Sidebar Universal */}
             <Sidebar
                 type="mahasiswa"
@@ -166,7 +166,7 @@ export default function DashboardMahasiswa() {
 
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* Header */}
-                <OsHeader />
+                <OsHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
                 <div className="">
                     {/* WELCOME SECTION */}
