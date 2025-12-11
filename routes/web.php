@@ -87,6 +87,7 @@ Route::post('/penilaian/{id_enrollment_osce}', [AksiPenilaianController::class, 
 
     // --- ALUR PASCA UJIAN / REKAP (Bintang, Najwa, Afkar) ---
 
+    // /penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}/rekap
     Route::get('/osce/{id_osce}/stase/{id_osce_stase}/rekap', [RekapController::class, 'rekap'])
         ->name('rekap.list');
 
