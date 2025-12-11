@@ -10,31 +10,32 @@ import OsPagination from "../../components/pagination";
 import OsSearchBar from "../../components/searchbar";
 import OsTableBody from "../../components/tablecontain";
 import OsHeader from "../../components/Header";
+import OsButton from "../../components/button";
 
 // --- Definisi Kolom Tabel ---
 const sesiColumns = [
     {
         key: "no",
         content: "No",
-        width: "w-16",
+        width: "w-16 shrink-0",
         classes: "justify-center items-center",
     },
     {
         key: "tanggal_sesi",
         content: "Tanggal & Waktu", // Ubah judul kolom
-        width: "flex-1",
+        width: "flex-1 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
         key: "jumlah_mahasiswa",
         content: "Jumlah Mahasiswa",
-        width: "w-80",
+        width: "w-80 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
         key: "action",
         content: "Action",
-        width: "w-48",
+        width: "w-48 shrink-0",
         classes: "justify-center items-center px-4",
     },
 ];
@@ -68,7 +69,8 @@ export default function RekapSesiPage() {
         ),
         jumlah_mahasiswa: item.jumlah_mahasiswa + " Mahasiswa",
         action: (
-            <button
+            <OsButton
+                name="primary"
                 onClick={() =>
                     router.visit(
                         `/admin/rekap-nilai/${osce.id_osce}/sesi/${item.id_sesi}/mahasiswa`
@@ -77,16 +79,20 @@ export default function RekapSesiPage() {
                 className="bg-gray-800 h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md hover:bg-gray-700"
             >
                 Detail
-            </button>
+            </OsButton>
         ),
     }));
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head title={`Rekap Sesi - ${osce.nama_osce}`} />
-            <Sidebar />
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader variant="goback" backLink="/admin/rekap-nilai" />
 
                 <div className="flex-1 overflow-auto">
@@ -120,9 +126,16 @@ export default function RekapSesiPage() {
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Sesi
                     </h2>
-                    <OsTableHeader columns={sesiColumns} />
+                    <div className="w-full overflow-x-auto pb-4">
+                        <div className="min-w-max">
+                            <OsTableHeader columns={sesiColumns} />
 
-                    <OsTableBody data={sesiRows} columns={sesiColumns} />
+                            <OsTableBody
+                                data={sesiRows}
+                                columns={sesiColumns}
+                            />
+                        </div>
+                    </div>
 
                     {sesi.data.length === 0 && (
                         <div className="flex items-center border-t border-gray-400">

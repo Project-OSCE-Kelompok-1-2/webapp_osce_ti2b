@@ -10,38 +10,72 @@ import OsPagination from "../../components/pagination";
 import OsHeader from "../../components/Header";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
-import OsInput from "../../components/Input.jsx";
+import OsInput from "../../components/input.jsx";
+import OsButton from "../../components/button.jsx";
 
 // --- Definisi Kolom Tabel ---
+// const rekapColumns = [
+//     {
+//         key: "no",
+//         content: "No",
+//         width: "w-16",
+//         classes: "justify-center items-center",
+//     },
+//     {
+//         key: "nama_osce",
+//         content: "Nama OSCE",
+//         width: "flex-1",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "rentang_tanggal",
+//         content: "Rentang Tanggal",
+//         width: "w-80",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "tahun_akademik",
+//         content: "Tahun Akademik",
+//         width: "w-48",
+//         classes: "justify-center items-center px-4",
+//     },
+//     {
+//         key: "action",
+//         content: "Action",
+//         width: "w-48",
+//         classes: "justify-center items-center px-4",
+//     },
+// ];
+
 const rekapColumns = [
     {
         key: "no",
         content: "No",
-        width: "w-16",
+        width: "w-16 shrink-0",
         classes: "justify-center items-center",
     },
     {
         key: "nama_osce",
         content: "Nama OSCE",
-        width: "flex-1",
+        width: "w-[350px] flex-1 shrink-0", // Ganti flex-1 jadi fix
         classes: "justify-start items-center px-4",
     },
     {
         key: "rentang_tanggal",
         content: "Rentang Tanggal",
-        width: "w-80",
+        width: "w-80  shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
         key: "tahun_akademik",
         content: "Tahun Akademik",
-        width: "w-48",
+        width: "w-48 shrink-0",
         classes: "justify-center items-center px-4",
     },
     {
         key: "action",
         content: "Action",
-        width: "w-48",
+        width: "w-48 shrink-0",
         classes: "justify-center items-center px-4",
     },
 ];
@@ -51,6 +85,12 @@ export default function RekapOscePage() {
 
     const [search, setSearch] = useState(filters.search || "");
     const [tahun, setTahun] = useState(filters.tahun || "");
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    }; // Ganti 'year' menjadi 'tahun'
 
     const handleSearch = (e) => {
         e.preventDefault();
@@ -123,23 +163,24 @@ export default function RekapOscePage() {
         ),
         tahun_akademik: item.tahun_akademik,
         action: (
-            <button
+            <OsButton
+                name="primary"
                 onClick={() =>
                     router.visit(`/admin/rekap-nilai/${item.id_osce}/sesi`)
                 }
-                className="bg-blue-800 text-white px-3 py-2 rounded-md hover:bg-gray-700 transition-colors duration-200"
+                className="bg-blue-800 text-white min-w-[100px] px-2 py-2 rounded-md hover:bg-gray-700 transition-colors duration-200"
             >
                 Detail
-            </button>
+            </OsButton>
         ),
     }));
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar />
+        <div className="relative  bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                <OsHeader />
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+                <OsHeader onMenuClick={handleSidebarToggle} />
 
                 <div className="flex-1 overflow-auto">
                     {/* Notifikasi Sukses/Error */}
@@ -191,18 +232,26 @@ export default function RekapOscePage() {
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table OSCE
                     </h2>
-                    <OsTableHeader columns={rekapColumns} />
 
-                    <OsTableBody data={tableData} columns={rekapColumns} />
+                    {/* WRAPPER HORIZONTAL SCROLL */}
+                    <div className="w-full overflow-x-auto pb-4">
+                        <div className="min-w-max">
+                            <OsTableHeader columns={rekapColumns} />
+                            <OsTableBody
+                                data={tableData}
+                                columns={rekapColumns}
+                            />
 
-                    {/* Pesan jika tidak ada data */}
-                    {osce.data.length === 0 && (
-                        <div className="flex items-center border-t border-gray-400">
-                            <p className="w-full text-center text-sm py-4 text-gray-500">
-                                Data rekap nilai tidak ditemukan.
-                            </p>
+                            {/* Pesan jika tidak ada data */}
+                            {osce.data.length === 0 && (
+                                <div className="flex items-center border-t border-gray-400">
+                                    <p className="w-full text-center text-sm py-4 text-gray-500">
+                                        Data rekap nilai tidak ditemukan.
+                                    </p>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
 
                     {/* Paginasi Dinamis */}
                     {osce.links && osce.links.length > 3 && (

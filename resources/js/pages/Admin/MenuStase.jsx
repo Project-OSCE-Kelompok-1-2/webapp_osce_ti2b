@@ -13,45 +13,75 @@ import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
 import OsModal from "../../components/Modal.jsx";
-import OsInput from "../../components/Input.jsx";
+import OsInput from "../../components/input.jsx";
 import Modals from "../../components/Modals.jsx";
+
+// const staseColumns = [
+//     {
+//         key: "no",
+//         content: "No",
+//         width: "w-16",
+//         classes: "justify-center items-center",
+//     },
+//     {
+//         key: "nama_stase",
+//         content: "Nama Stase",
+//         width: "w-7/12",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "jumlah_aspek",
+//         content: "Jumlah Aspek",
+//         width: "w-2/12",
+//         classes: "justify-center items-center px-4",
+//     },
+//     {
+//         key: "action",
+//         content: "Aksi",
+//         width: "w-3/12",
+//         classes: "justify-center items-center px-4",
+//     },
+// ];
 
 const staseColumns = [
     {
         key: "no",
         content: "No",
-        width: "w-16",
+        width: "w-16 shrink-0",
         classes: "justify-center items-center",
     },
     {
         key: "nama_stase",
         content: "Nama Stase",
-        width: "w-7/12",
+        width: "w-[400px] flex-1 shrink-0", // Ganti w-7/12
         classes: "justify-start items-center px-4",
     },
     {
         key: "jumlah_aspek",
         content: "Jumlah Aspek",
-        width: "w-2/12",
+        width: "w-32 shrink-0", // Ganti w-2/12
         classes: "justify-center items-center px-4",
     },
     {
         key: "action",
         content: "Aksi",
-        width: "w-3/12",
+        width: "w-48 min-w-[300px] shrink-0", // Ganti w-3/12
         classes: "justify-center items-center px-4",
     },
 ];
 
 export default function Stase() {
-    // 1. AMBIL DATA DARI PROPS
     const { stase, filters, mataKuliah, tujuanPembelajaran } = usePage().props;
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // 2. SIAPKAN LIST UNTUK SUGGESTIONS
-    const suggestMataKuliah =
-        mataKuliah?.map((m) => m.nama_mata_kuliah).filter(Boolean) || [];
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
 
     // 🔥 PERBAIKAN DI SINI: Ganti 'deskripsi_tujuan' menjadi 'tujuan' sesuai Model
+    const suggestMataKuliah =
+        tujuanPembelajaran?.map((t) => t.tujuan).filter(Boolean) || [];
+
     const suggestTujuan =
         tujuanPembelajaran?.map((t) => t.tujuan).filter(Boolean) || [];
 
@@ -96,7 +126,7 @@ export default function Stase() {
         setIsDeleteOpen(true);
     };
 
-    const handleConfirmDelete = () => {
+    const handleConfirlgelete = () => {
         if (!selectedId) return;
         destroy(`/admin/stase/${selectedId}`, {
             preserveScroll: true,
@@ -232,9 +262,11 @@ export default function Stase() {
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar />
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
-                <OsHeader />
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
+
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+                <OsHeader onMenuClick={handleSidebarToggle} />
+
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">Menu Stase</h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
@@ -263,16 +295,21 @@ export default function Stase() {
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Stase
                     </h2>
-                    <OsTableHeader columns={staseColumns} />
-                    <OsTableBody data={tableData} columns={staseColumns} />
 
-                    {stase.data.length === 0 && (
-                        <div className="flex items-center border-t border-gray-400">
-                            <p className="w-full text-center text-sm py-os-48 text-gray-500">
-                                Data stase tidak ditemukan.
-                            </p>
+                    <div className="w-full overflow-x-auto pb-4">
+                        <div className="min-w-max">
+                            <OsTableHeader columns={staseColumns} />
+                            <OsTableBody data={tableData} columns={staseColumns} />
+
+                            {stase.data.length === 0 && (
+                                <div className="flex items-center border-t border-gray-400">
+                                    <p className="w-full text-center text-sm py-os-48 text-gray-500">
+                                        Data stase tidak ditemukan.
+                                    </p>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
                     {stase.links?.length > 0 && (
                         <OsPagination links={stase.links} />
                     )}
@@ -377,7 +414,7 @@ export default function Stase() {
             <Modals
                 isOpen={isDeleteOpen}
                 onClose={() => setIsDeleteOpen(false)}
-                onConfirm={handleConfirmDelete}
+                onConfirm={handleConfirlgelete}
                 variant="delete"
                 title="Hapus Stase?"
                 message="Apakah Anda yakin ingin menghapus stase ini?"

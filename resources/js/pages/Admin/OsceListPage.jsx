@@ -4,7 +4,7 @@ import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/Copyright.jsx";
 import OsButton from "../../components/button.jsx";
 import OsIcon from "../../components/icons";
-import OsInput from "../../components/Input.jsx";
+import OsInput from "../../components/input.jsx";
 import OsModal from "../../components/Modal.jsx";
 import { Head, router, usePage, Link } from "@inertiajs/react";
 import OsPagination from "../../components/pagination";
@@ -24,34 +24,66 @@ import OsSearchBar from "../../components/searchbar.jsx";
 import Modals from "../../components/Modals.jsx";
 
 //Definisi kolom tabel
+// const columns = [
+//     {
+//         content: "No",
+//         width: "w-16",
+//         classes: "justify-center items-center",
+//         key: "no",
+//     },
+//     {
+//         content: "Nama OSCE",
+//         width: "flex-1",
+//         classes: "justify-start items-center px-4",
+//         key: "nama",
+//     },
+//     {
+//         content: "Rentang Tanggal",
+//         width: "w-2/12",
+//         classes: "justify-center items-center",
+//         key: "tanggal",
+//     },
+//     {
+//         content: "Tahun Akademik",
+//         width: "w-2/12",
+//         classes: "justify-center items-center",
+//         key: "tahun",
+//     },
+//     {
+//         content: "Aksi",
+//         width: "w-3/12",
+//         classes: "justify-center items-center",
+//         key: "aksi",
+//     },
+// ];
 const columns = [
     {
         content: "No",
-        width: "w-16",
+        width: "w-16 shrink-0",
         classes: "justify-center items-center",
         key: "no",
     },
     {
         content: "Nama OSCE",
-        width: "flex-1",
+        width: "w-[400px] flex-1 shrink-0", // Ganti flex-1
         classes: "justify-start items-center px-4",
         key: "nama",
     },
     {
         content: "Rentang Tanggal",
-        width: "w-2/12",
+        width: "w-52 shrink-0", // Ganti w-2/12
         classes: "justify-center items-center",
         key: "tanggal",
     },
     {
         content: "Tahun Akademik",
-        width: "w-2/12",
+        width: "min-w-52 shrink-0 ", // Ganti w-2/12
         classes: "justify-center items-center",
         key: "tahun",
     },
     {
         content: "Aksi",
-        width: "w-3/12",
+        width: "min-w-[300px] shrink-0", // Ganti w-3/12
         classes: "justify-center items-center",
         key: "aksi",
     },
@@ -76,7 +108,13 @@ export default function OsceListPage({
     const [selectedId, setSelectedId] = useState(null);
     const [selectedOsce, setSelectedOsce] = useState(null);
 
-    // STATE DATA FORM
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
+
+    // 🔥 STATE DATA FORM (untuk Add dan Edit)
     const initialFormState = {
         nama_osce: "",
         id_tahun_akademik: "",
@@ -223,10 +261,10 @@ export default function OsceListPage({
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar />
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
-                <OsHeader />
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+                <OsHeader onMenuClick={handleSidebarToggle} />
 
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">Menu OSCE</h2>
@@ -276,17 +314,21 @@ export default function OsceListPage({
                         <h2 className="text-lg font-semibold mb-2">
                             Table OSCE
                         </h2>
-                        <OsTableHeader columns={columns} />
-                        <OsTableBody data={rows} columns={columns} />
 
-                        {osce.data.length === 0 && (
-                            <div className="flex items-center border-t border-gray-300">
-                                <p className="w-full text-center text-sm py-4 text-gray-500">
-                                    Data OSCE tidak ditemukan.
-                                </p>
+                        <div className="w-full overflow-x-auto pb-4">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={columns} />
+                                <OsTableBody data={rows} columns={columns} />
+
+                                {osce.data.length === 0 && (
+                                    <div className="flex items-center border-t border-gray-300">
+                                        <p className="w-full text-center text-sm py-4 text-gray-500">
+                                            Data OSCE tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
                             </div>
-                        )}
-
+                        </div>
                         {osce.links && osce.links.length > 3 && (
                             <div className="mt-8">
                                 <OsPagination links={osce.links} />
@@ -338,7 +380,7 @@ export default function OsceListPage({
                 onSubmit={handleAddSubmit}
                 onClear={handleClearForm}
             >
-                {/* KEY PROP: Penting! 
+                {/* KEY PROP: Penting!
                    Karena OsInput punya state lokal (inputValue) dan tidak mereset diri saat value prop berubah,
                    kita harus memaksa OsInput hancur & buat baru saat modal dibuka.
                 */}

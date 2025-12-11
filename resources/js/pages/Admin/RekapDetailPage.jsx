@@ -1,4 +1,5 @@
-import React from "react";
+import React, { useState } from "react";
+
 import { usePage, Head } from "@inertiajs/react";
 import { ArrowLeft, Download } from "lucide-react";
 
@@ -39,12 +40,18 @@ export default function RekapDetailPage() {
         window.open(url, "_blank");
     };
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head title={`Nilai ${mahasiswa.nama} - ${osce.nama_osce}`} />
-            <Sidebar />
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* --- Breadcrumb --- */}
                 <OsHeader
                     variant="goback"

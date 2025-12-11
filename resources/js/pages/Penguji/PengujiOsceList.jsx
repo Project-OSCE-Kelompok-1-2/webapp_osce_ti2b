@@ -24,25 +24,25 @@ const osceColumns = [
     {
         key: "tanggal_mulai",
         content: "Tanggal Mulai",
-        width: "w-48",
+        width: "w-32 ",
         classes: "justify-center",
     },
     {
         key: "tanggal_akhir",
         content: "Tanggal Akhir",
-        width: "w-48",
+        width: "w-32 ",
         classes: "justify-center",
     },
     {
         key: "status",
         content: "Status",
-        width: "w-32",
+        width: "w-32 ",
         classes: "justify-center",
     },
     {
         key: "action",
         content: "Action",
-        width: "w-48",
+        width: "w-52",
         classes: "justify-center",
     },
 ];
@@ -86,7 +86,6 @@ export default function PengujiOsceList() {
     // 1. AMBIL PROPS DARI INERTIA (Backend)
     const { osce_list, filters } = usePage().props;
     const { data, links, current_page, from } = osce_list; // Destructure data pagination
-        const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // State Search & Filter (Inisialisasi dari props filter agar persisten)
     const [search, setSearch] = useState(filters.search || "");
@@ -172,17 +171,26 @@ export default function PengujiOsceList() {
         };
     });
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head title="Jadwal OSCE" />
+            <Sidebar
+                isOpen={isSidebarOpen}
+                type="penguji"
+                onToggle={handleSidebarToggle}
+            />
 
-            {/* Sidebar Penguji */}
-            {/* <SidebarPenguji /> */}
-            <Sidebar isOpen={sidebarOpen} setIsOpen={setSidebarOpen} type={'penguji'}/>
-
-
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                <OsHeader variant="goback" backLink="/penguji/dashboard" />
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+                <OsHeader
+                    backLink="/penguji/dashboard"
+                    onMenuClick={handleSidebarToggle}
+                />
 
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">
@@ -196,7 +204,7 @@ export default function PengujiOsceList() {
                     {/* Filter Bar */}
                     <form
                         onSubmit={handleSearch}
-                        className="flex flex-col md:flex-row items-center gap-4 mb-5"
+                        className="flex flex-col md:flex-row w-full items-stretch md:items-center gap-4 mb-5"
                     >
                         <input
                             type="text"
@@ -206,7 +214,7 @@ export default function PengujiOsceList() {
                             className="block w-full md:flex-1 pl-4 pr-4 py-2 h-[46px] border border-gray-700 rounded-lg"
                         />
 
-                        <div className="flex w-full md:w-auto items-center gap-3">
+                        <div className="flex w-full md:w-auto items-stretch md:items-center gap-3">
                             <select
                                 value={tahun}
                                 onChange={(e) => setTahun(e.target.value)}
@@ -233,19 +241,23 @@ export default function PengujiOsceList() {
                     </h2>
 
                     {/* Tabel Data */}
-                    {data.length > 0 ? (
-                        <>
-                            <OsTableHeader columns={osceColumns} />
-                            <OsTableBody
-                                data={mappedData}
-                                columns={osceColumns}
-                            />
-                        </>
-                    ) : (
-                        <div className="p-10 text-center border rounded-xl bg-white text-gray-500">
-                            Tidak ada data OSCE ditemukan.
+                    <div className="overflow-x-auto">
+                        <div className="min-w-[900px]">
+                            {data.length > 0 ? (
+                                <>
+                                    <OsTableHeader columns={osceColumns} />
+                                    <OsTableBody
+                                        data={mappedData}
+                                        columns={osceColumns}
+                                    />
+                                </>
+                            ) : (
+                                <div className="p-10 text-center border rounded-xl bg-white text-gray-500">
+                                    Tidak ada data OSCE ditemukan.
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
 
                     {/* Pagination */}
                     <div className="mt-8">

@@ -15,29 +15,57 @@ import OsButton from "../../components/button.jsx";
 import Modals from "../../components/Modals.jsx";
 
 // 2. Sesuaikan key dengan data dari Controller
+// const mahasiswaColumns = [
+//     {
+//         key: "no",
+//         content: "No",
+//         width: "w-16",
+//         classes: "justify-center items-center",
+//     },
+//     {
+//         key: "nim",
+//         content: "NIM Mahasiswa",
+//         width: "w-56",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "nama",
+//         content: "Nama Mahasiswa",
+//         width: "flex-1",
+//         classes: "justify-start items-center px-4",
+//     },
+//     {
+//         key: "action",
+//         content: "Aksi",
+//         width: "w-56",
+//         classes: "justify-center items-center px-4",
+//     },
+// ];
 const mahasiswaColumns = [
     {
         key: "no",
         content: "No",
-        width: "w-16",
+        width: "w-16 shrink-0", // Tambah shrink-0 biar ga kegencet
         classes: "justify-center items-center",
     },
     {
         key: "nim",
         content: "NIM Mahasiswa",
-        width: "w-56",
+        width: "w-56 shrink-0", // Tambah shrink-0
         classes: "justify-start items-center px-4",
     },
     {
         key: "nama",
         content: "Nama Mahasiswa",
-        width: "flex-1",
+        // HAPUS "flex-1". Ganti jadi ukuran fix yang lebar.
+        // Misal w-[350px] atau w-96. Ini yang bikin dia tetep lebar di HP.
+        width: "min-w-[350px] !flex-1 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
         key: "action",
         content: "Aksi",
-        width: "w-56",
+        width: "w-56 shrink-0", // Tambah shrink-0
         classes: "justify-center items-center px-4",
     },
 ];
@@ -50,6 +78,12 @@ export default function MahasiswaPage() {
     const [angkatanFilter, setAngkatanFilter] = useState(
         filters?.angkatan || ""
     );
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
 
     // --- STATE MODAL ---
     const [showModal, setShowModal] = useState(false);
@@ -195,10 +229,11 @@ export default function MahasiswaPage() {
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar />
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 md:ml-20">
-                <OsHeader />
+            <main className="grid w-full  p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+                <OsHeader onMenuClick={handleSidebarToggle} />
+
 
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">
@@ -293,24 +328,38 @@ export default function MahasiswaPage() {
                         />
                     </OsSearchBar>
 
+
                     {/* Tabel */}
                     <section>
                         <h2 className="font-semibold text-lg mb-2">
                             Tabel Mahasiswa
                         </h2>
-                        <OsTableHeader columns={mahasiswaColumns} />
-                        {mahasiswa.data.length > 0 ? (
-                            <OsTableBody
-                                data={tableData}
-                                columns={mahasiswaColumns}
-                            />
-                        ) : (
-                            <div className="flex items-center border-t border-gray-400">
-                                <p className="w-full text-center text-sm py-4 text-gray-500">
-                                    Data mahasiswa tidak ditemukan.
-                                </p>
+
+                        {/* Wrapper Scroll Horizontal */}
+                        <div className="w-full overflow-x-auto pb-4">
+                            {/* min-w-max: Ini kuncinya!
+                                Dia akan memaksa div ini selebar total konten di dalamnya
+                                (total width kolom yg kita set di atas).
+                                Jadi tabelnya bakal ngerender seolah-olah di layar lebar,
+                                baru kemudian dipotong oleh overflow-x-auto.
+                            */}
+                            <div className="min-w-max">
+                                <OsTableHeader columns={mahasiswaColumns} />
+                                {mahasiswa.data.length > 0 ? (
+                                    <OsTableBody
+                                        data={tableData}
+                                        columns={mahasiswaColumns}
+                                    />
+                                ) : (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-4 text-gray-500">
+                                            Data mahasiswa tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
                             </div>
-                        )}
+                        </div>
+
                         {mahasiswa.links && mahasiswa.links.length > 3 && (
                             <div className="mt-2">
                                 <OsPagination links={mahasiswa.links} />
@@ -339,6 +388,8 @@ export default function MahasiswaPage() {
                         value={data.nim}
                         onChange={(e) => setData("nim", e.target.value)}
                         placeholder="Masukkan NIM..."
+                        className="w-full"
+
                         required
                     />
                     <OsInput
@@ -349,6 +400,8 @@ export default function MahasiswaPage() {
                         onChange={(e) => setData("kelas", e.target.value)}
                         options={angkatanList}
                         required
+                        className="w-full"
+
                     />
                 </div>
                 <OsInput
@@ -400,6 +453,7 @@ export default function MahasiswaPage() {
                         value={data.nim}
                         onChange={(e) => setData("nim", e.target.value)}
                         placeholder="Masukkan NIM..."
+                        className="w-full"
                         required
                     />
                     <OsInput
@@ -411,6 +465,7 @@ export default function MahasiswaPage() {
                         options={angkatanList.filter(
                             (o) => o.value !== "SEMUA"
                         )}
+                        className="w-full"
                         required
                     />
                 </div>
