@@ -17,22 +17,17 @@ class DashboardController extends Controller
     {
         $user = Auth::user();
         
+        // 1. Ambil Data Penguji
         $penguji = Penguji::where('id_pengguna', $user->id_pengguna)->firstOrFail();
         
         $now = Carbon::now();
 
-        // -----------------------------
-        // FILTER TANGGAL (DITAMBAHKAN)
-        // -----------------------------
-        $selectedDate = $request->tanggal ? Carbon::parse($request->tanggal)->format('Y-m-d') : null;
-
-        // -----------------------------
-        // BASE QUERY
-        // -----------------------------
+        // 2. Statistik Query (Base Query)
         $baseOsceQuery = Osce::whereHas('osceStase', function($q) use ($penguji) {
             $q->where('id_penguji', $penguji->id_penguji);
         });
 
+        // Hitung Statistik dengan Boundary hari yang tepat
         $statistik = [
             'osce_mendatang'  => (clone $baseOsceQuery)->whereDate('tanggal_mulai', '>', $now)->count(),
             'osce_edit_nilai' => (clone $baseOsceQuery)
@@ -42,48 +37,47 @@ class DashboardController extends Controller
             'osce_selesai'    => (clone $baseOsceQuery)->whereDate('tanggal_selesai', '<', $now)->count(),
         ];
 
-        // -----------------------------
-        // JADWAL (EDITED)
-        // Jika ada tanggal dipilih → filter
-        // Jika tidak → standar 30 hari ke depan
-        // -----------------------------
-        $jadwalQuery = OsceStase::with(['osce.enrollmentOsce'])
-            ->where('id_penguji', $penguji->id_penguji);
-
-        if ($selectedDate) {
-            $jadwalQuery->whereDate('tanggal', $selectedDate);
-        } else {
-            $jadwalQuery
-                ->whereDate('tanggal', '>=', $now)
-                ->whereDate('tanggal', '<=', $now->copy()->addDays(30));
-        }
-
-        $jadwalMendatang = $jadwalQuery
+        // 3. Jadwal Mendatang (Next 5 items)
+        $jadwalMendatang = OsceStase::with(['osce.enrollmentOsce']) 
+            ->where('id_penguji', $penguji->id_penguji)
+            // Tampilkan jadwal dari hari ini sampai 30 hari ke depan
+            ->whereDate('tanggal', '>=', $now)
+            ->whereDate('tanggal', '<=', $now->copy()->addDays(30)) 
             ->orderBy('tanggal', 'asc')
             ->orderBy('jam_mulai', 'asc')
+            ->take(5) 
             ->get()
             ->map(function ($stase) use ($now) {
                 $osce = $stase->osce;
+                
                 $staseStart = Carbon::parse($stase->tanggal->format('Y-m-d') . ' ' . $stase->jam_mulai);
-                $eventEnd   = Carbon::parse($osce->tanggal_selesai)->endOfDay();
+                
+                // Batas akhir penilaian adalah akhir hari dari Tanggal Selesai Event OSCE
+                $eventEnd = Carbon::parse($osce->tanggal_selesai)->endOfDay();
 
                 $status = 'mendatang';
-                
+
                 if ($now->gt($eventEnd)) {
+                    // Jika hari ini > tanggal selesai event
                     $status = 'selesai';
                 } elseif ($now->gte($staseStart) && $now->lte($eventEnd)) {
-                    $status = 'edit';
+                    // Jika sekarang >= Jam Mulai Sesi DAN sekarang <= Akhir Event
+                    // Artinya ujian sudah dimulai/sedang berlangsung
+                    $status = 'edit'; 
+                } else {
+                    // Jika sekarang < Jam Mulai Sesi (Misal ujian nanti sore, sekarang pagi)
+                    $status = 'mendatang';
                 }
 
                 return [
                     'id_osce'          => $osce->id_osce,
                     'id_osce_stase'    => $stase->id_osce_stase,
                     'nama_osce'        => $osce->nama_osce,
-                    'hari'             => $stase->tanggal->format('d'),
-                    'bulan'            => $stase->tanggal->format('M'),
-                    'sesi'             => substr($stase->jam_mulai, 0, 5),
-                    'jumlah_mahasiswa' => $osce->enrollmentOsce->count(),
-                    'status'           => $status,
+                    'hari'             => $stase->tanggal->format('d'), 
+                    'bulan'            => $stase->tanggal->format('M'), 
+                    'sesi'             => substr($stase->jam_mulai, 0, 5), 
+                    'jumlah_mahasiswa' => $osce->enrollmentOsce->count(), 
+                    'status'           => $status, // 'mendatang', 'edit', 'selesai'
                 ];
             });
 
@@ -91,8 +85,6 @@ class DashboardController extends Controller
             'nama_penguji'     => $penguji->nama,
             'statistik'        => $statistik,
             'jadwal_mendatang' => $jadwalMendatang,
-            'selected_date'    => $selectedDate, // NEW
         ]);
     }
 }
-
