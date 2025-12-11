@@ -2,23 +2,22 @@ import React, { useState } from "react";
 // Import library dari Inertia untuk handling head dan link navigasi
 import { Head, Link } from "@inertiajs/react";
 // Import ikon dari library lucide-react
-import { FileText } from "lucide-react"; 
+import { FileText } from "lucide-react";
 
 // =========================================
 // --- IMPORT KOMPONEN CUSTOM (MODULAR) ---
 // =========================================
-import SidebarUniversal from "../../components/SidebarUniversal.jsx"; // Sidebar navigasi utama
-import OsHeader from "../../components/Header.jsx";                   // Header atas (navbar)
-import OsTableHeader from "../../components/tableheader.jsx";         // Komponen kepala tabel
-import OsTableBody from "../../components/tablecontain.jsx";          // Komponen isi tabel
-import OsCopyright from "../../components/Copyright.jsx";             // Footer hak cipta
-import OsPagination from "../../components/pagination.jsx";           // Komponen navigasi halaman
+import Sidebar from "../../components/Sidebar.jsx"; // Sidebar navigasi utama
+import OsHeader from "../../components/Header.jsx"; // Header atas (navbar)
+import OsTableHeader from "../../components/tableheader.jsx"; // Komponen kepala tabel
+import OsTableBody from "../../components/tablecontain.jsx"; // Komponen isi tabel
+import OsCopyright from "../../components/Copyright.jsx"; // Footer hak cipta
+import OsPagination from "../../components/pagination.jsx"; // Komponen navigasi halaman
 
 // =========================================
 // --- KOMPONEN UTAMA HALAMAN ---
 // =========================================
 export default function NilaiShow() {
-    
     // --- 1. STATE MANAGEMENT ---
     // Mengatur status Sidebar (Buka/Tutup) agar responsif
     const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -41,10 +40,25 @@ export default function NilaiShow() {
         },
         // Array daftar nilai per kompetensi
         daftarNilai: [
-            { id: 1, kompetensi: "Manajemen Halusinasi", nilai: 93.75, keterangan: "Sangat Baik" },
-            { id: 2, kompetensi: "Restrain", nilai: 82.50, keterangan: "Baik" },
-            { id: 3, kompetensi: "Pemasangan Infus", nilai: 86.35, keterangan: "Baik" },
-            { id: 4, kompetensi: "Guided Imagery", nilai: 85.75, keterangan: "Baik" },
+            {
+                id: 1,
+                kompetensi: "Manajemen Halusinasi",
+                nilai: 93.75,
+                keterangan: "Sangat Baik",
+            },
+            { id: 2, kompetensi: "Restrain", nilai: 82.5, keterangan: "Baik" },
+            {
+                id: 3,
+                kompetensi: "Pemasangan Infus",
+                nilai: 86.35,
+                keterangan: "Baik",
+            },
+            {
+                id: 4,
+                kompetensi: "Guided Imagery",
+                nilai: 85.75,
+                keterangan: "Baik",
+            },
         ],
         // Array Links untuk Pagination (Biasanya digenerate otomatis oleh Laravel)
         links: [
@@ -54,20 +68,44 @@ export default function NilaiShow() {
             { url: "http://localhost/page/3", label: "3", active: false },
             { url: "http://localhost/page/4", label: "4", active: false },
             { url: "http://localhost/page/5", label: "5", active: false },
-            { url: "http://localhost/page/2", label: "Next &raquo;", active: false },
+            {
+                url: "http://localhost/page/2",
+                label: "Next &raquo;",
+                active: false,
+            },
         ],
         // Data ringkasan nilai
         totalNilai: "87.00",
-        statusKelulusan: "LULUS"
+        statusKelulusan: "LULUS",
     };
 
     // --- 3. KONFIGURASI TABEL ---
     // Mengatur kolom apa saja yang akan ditampilkan, lebar, dan style-nya
     const tableColumns = [
-        { key: "id", content: "No", width: "w-[80px]", classes: "justify-center font-bold" },
-        { key: "kompetensi", content: "Stase / Keterampilan Klinik", width: "flex-1", classes: "justify-start px-6 font-bold text-left" },
-        { key: "nilai", content: "Nilai", width: "w-[150px]", classes: "justify-center" },
-        { key: "keterangan", content: "Keterangan", width: "w-[200px]", classes: "justify-start px-6" },
+        {
+            key: "id",
+            content: "No",
+            width: "w-[80px]",
+            classes: "justify-center font-bold",
+        },
+        {
+            key: "kompetensi",
+            content: "Stase / Keterampilan Klinik",
+            width: "flex-1",
+            classes: "justify-start px-6 font-bold text-left",
+        },
+        {
+            key: "nilai",
+            content: "Nilai",
+            width: "w-[150px]",
+            classes: "justify-center",
+        },
+        {
+            key: "keterangan",
+            content: "Keterangan",
+            width: "w-[200px]",
+            classes: "justify-start px-6",
+        },
     ];
 
     // --- 4. HELPER COMPONENT (UI KECIL) ---
@@ -75,7 +113,9 @@ export default function NilaiShow() {
     // Tujuannya agar kodingan di bawah tidak berulang-ulang (DRY Principle)
     const InfoRow = ({ label, value }) => (
         <div className="flex flex-col sm:flex-row sm:items-start mb-1">
-            <span className="font-semibold w-40 shrink-0 text-white/90 text-sm">{label}</span>
+            <span className="font-semibold w-40 shrink-0 text-white/90 text-sm">
+                {label}
+            </span>
             <span className="font-medium text-white text-sm">: {value}</span>
         </div>
     );
@@ -86,21 +126,23 @@ export default function NilaiShow() {
     return (
         // Wrapper Utama: Flex container untuk layout Sidebar + Konten Kanan
         <div className="min-h-screen bg-gray-100 font-sans text-slate-800 flex">
-            
             {/* --- BAGIAN A: SIDEBAR --- */}
             {/* Mengirim state isOpen dan fungsi setIsOpen agar tombol hamburger berfungsi */}
-            <SidebarUniversal isOpen={isSidebarOpen} setIsOpen={setIsSidebarOpen} />
+            <Sidebar
+                type="mahasiswa"
+                isOpen={isSidebarOpen}
+                onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+            />
 
             {/* --- BAGIAN B: WRAPPER KONTEN KANAN --- */}
             {/* Margin kiri (ml) berubah dinamis: ml-72 jika sidebar buka, ml-20 jika tutup */}
-            <div 
+            <div
                 className={`flex-1 flex flex-col min-h-screen transition-all duration-300 ease-in-out
                 ${isSidebarOpen ? "ml-72" : "ml-20"}`}
             >
-                
                 {/* 1. HEADER ATAS (Sticky/Menempel di atas) */}
                 <div className="bg-white border-b border-black px-8 py-4 sticky top-0 z-40 shadow-sm w-full">
-                     <OsHeader />
+                    <OsHeader />
                 </div>
 
                 {/* 2. AREA KONTEN UTAMA */}
@@ -124,16 +166,37 @@ export default function NilaiShow() {
                         <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-4">
                             {/* Kolom Kiri */}
                             <div>
-                                <InfoRow label="Nama" value={data.mahasiswa.nama} />
-                                <InfoRow label="NIM" value={data.mahasiswa.nim} />
-                                <InfoRow label="Program Studi" value={data.mahasiswa.prodi} />
-                                <InfoRow label="Stase" value={data.ujian.stase} />
+                                <InfoRow
+                                    label="Nama"
+                                    value={data.mahasiswa.nama}
+                                />
+                                <InfoRow
+                                    label="NIM"
+                                    value={data.mahasiswa.nim}
+                                />
+                                <InfoRow
+                                    label="Program Studi"
+                                    value={data.mahasiswa.prodi}
+                                />
+                                <InfoRow
+                                    label="Stase"
+                                    value={data.ujian.stase}
+                                />
                             </div>
                             {/* Kolom Kanan */}
                             <div>
-                                <InfoRow label="Semester" value={data.mahasiswa.semester} />
-                                <InfoRow label="Tahun Ujian" value={data.ujian.tahun} />
-                                <InfoRow label="Dosen Penguji" value={data.ujian.dosen} />
+                                <InfoRow
+                                    label="Semester"
+                                    value={data.mahasiswa.semester}
+                                />
+                                <InfoRow
+                                    label="Tahun Ujian"
+                                    value={data.ujian.tahun}
+                                />
+                                <InfoRow
+                                    label="Dosen Penguji"
+                                    value={data.ujian.dosen}
+                                />
                             </div>
                         </div>
                     </div>
@@ -146,20 +209,19 @@ export default function NilaiShow() {
                         </div>
                         {/* Bagian Isi/Body Tabel */}
                         <div className="w-full">
-                            <OsTableBody 
-                                data={data.daftarNilai} 
-                                columns={tableColumns} 
+                            <OsTableBody
+                                data={data.daftarNilai}
+                                columns={tableColumns}
                             />
                         </div>
                     </div>
 
                     {/* --- BAGIAN FOOTER KONTEN --- */}
                     <div className="w-full flex flex-col gap-4">
-                        
                         {/* 1. PAGINATION */}
                         {/* Memanggil komponen pagination dan mengirim data links */}
                         <div className="ml-1">
-                             <OsPagination links={data.links} />
+                            <OsPagination links={data.links} />
                         </div>
 
                         {/* 2. KOTAK TOTAL NILAI & STATUS */}
@@ -183,7 +245,6 @@ export default function NilaiShow() {
                     <div className="w-full mt-2">
                         <OsCopyright />
                     </div>
-
                 </main>
             </div>
         </div>
