@@ -18,6 +18,7 @@ use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
 // Other Controllers
 use App\Http\Controllers\Api\V1\Penguji\ViewNilaiController;
 use App\Http\Controllers\Api\V1\Penguji\ProfilController;
+use App\Http\Controllers\Api\V1\InputNilaiController;
 use App\Http\Controllers\Api\V1\Penguji\AksiPenilaianApiController;
 use App\Http\Controllers\Api\V1\Penguji\ApiHalamanPenilaian;
 
@@ -37,6 +38,14 @@ Route::prefix('v1')->group(function () {
 
         Route::get('/me', function (Request $request) {
             return $request->user();
+        });
+        
+            // --- Penilaian (Tugas Najwa) ---
+        // Tugas 1: GET Form Edit (Mengambil data rubrik & nilai)
+        Route::get('/penilaian/{id_enrollment_osce}/edit', [EditNilaiController::class, 'edit'])->name('penilaian.edit');
+    
+        // Tugas 2: PUT Simpan Edit (Menyimpan nilai)
+        Route::put('/penilaian/{id_enrollment_osce}', [EditNilaiController::class, 'update'])->name('penilaian.update');
         });
 
         // =================================================================
