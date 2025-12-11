@@ -164,11 +164,7 @@ export default function DashboardMahasiswa() {
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
-            <main
-                className={`flex-1 p-6 md:p-8 h-screen overflow-y-auto transition-all duration-300 ${
-                    sidebarOpen ? "ml-64" : "ml-20"
-                }`}
-            >
+            <main className="flex-1 p-6 md:p-8 h-screen overflow-y-auto transition-all duration-300 ml-0 lg:ml-20">
                 {/* Header */}
                 <OsHeader />
 
