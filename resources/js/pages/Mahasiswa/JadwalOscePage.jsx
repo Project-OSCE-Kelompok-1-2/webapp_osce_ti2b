@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 
 // --- IMPORT PATHS DARI KODE ASLI ANDA ---
-import SidebarUniversal from "../../components/SidebarUniversal.jsx";
+import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
@@ -114,10 +114,10 @@ export default function JadwalOsce({ examHeader, jadwalStase }) {
             <Head title="Jadwal OSCE" />
 
             {/* SIDEBAR */}
-            <SidebarUniversal
+            <Sidebar
+                type="mahasiswa"
                 isOpen={sidebarOpen}
-                setIsOpen={setSidebarOpen}
-                type={"mahasiswa"}
+                onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
             {/* MAIN CONTENT WRAPPER */}

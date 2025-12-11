@@ -17,7 +17,7 @@ import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsButton from "../../components/button.jsx";
-import SidebarUniversal from "../../components/SidebarUniversal.jsx";
+import Sidebar from "../../components/Sidebar.jsx";
 
 // Komponen Input Custom (Sesuai Desain)
 const CustomInput = ({
@@ -146,10 +146,11 @@ export default function MahasiswaAccountSettings() {
     return (
         <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             {/* SIDEBAR */}
-            <SidebarUniversal
+            {/* <SidebarPenguji /> */}
+            <Sidebar
+                type="mahasiswa"
                 isOpen={sidebarOpen}
-                setIsOpen={setSidebarOpen}
-                type={"mahasiswa"}
+                onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
             {/* MAIN CONTENT WRAPPER */}

@@ -72,11 +72,11 @@ Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')
     Route::get('/penilaian/{id_enrollment_osce}', [HalamanPenilaianController::class, 'showPenilaian'])
         ->name('penilaian.show');
 
-Route::post('/penilaian/{id_enrollment_osce}', [AksiPenilaianController::class, 'store'])
-    ->name('penilaian.store');
+    Route::post('/penilaian/{id_enrollment_osce}', [AksiPenilaianController::class, 'store'])
+        ->name('penilaian.store');
 
     Route::get('/osce/{id_osce}/stase/{id_osce_stase}/rotasi', [AksiPenilaianController::class, 'rotasi'])
-    ->name('rotasi');
+        ->name('rotasi');
 
     Route::post('/osce/{id_osce}/stase/{id_osce_stase}/selesai', [AksiPenilaianController::class, 'selesai'])
         ->name('penilaian.selesai');
@@ -121,6 +121,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::resource('aspek-penilaian.kompetensi', KompetensiController::class)->except(['show'])->shallow();
 
     Route::resource('dosen', PengujiController::class)->except(['show']);
+    Route::get('/mahasiswa/template', [MahasiswaController::class, 'template'])->name('mahasiswa.template');
     Route::resource('mahasiswa', MahasiswaController::class)->except(['show']);
     Route::post('/mahasiswa/import', [MahasiswaController::class, 'import'])->name('mahasiswa.import');
 
@@ -152,7 +153,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::put('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'update'])->name('osce.jadwal.update');
     Route::delete('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'destroy'])->name('osce.jadwal.destroy');
     Route::post('/osce/check-availability', [OsceJadwalController::class, 'checkAvailability'])
-    ->name('admin.osce.check-availability');
+        ->name('admin.osce.check-availability');
 
 
     // --- OSCE Enrollment (Nested di bawah Jadwal) ---
@@ -170,11 +171,10 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     // [PERBAIKAN] Gunakan method Controller Asli
     Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}', [RekapNilaiController::class, 'detailNilaiMahasiswa'])
         ->name('rekap.detail');
-    
+
     // [BARU] Route Download PDF
     Route::get('/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}/download', [RekapNilaiController::class, 'downloadPdf'])
         ->name('rekap.download');
-
 });
 
 // ===========================
@@ -187,7 +187,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
 // 3. Menghapus 'auth' mockup agar data user mengambil dari HandleInertiaRequests Afkar.
 
 Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasiswa.')->group(function () {
-    
+
     // Dashboard Mahasiswa (Mockup Khansa + Afkar Integrated)
     Route::get('/dashboard', function () {
         return Inertia::render('Mahasiswa/Dashboard', [
@@ -237,10 +237,10 @@ Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasi
 
     // Nilai Mahasiswa
     Route::get('/nilai', [ListNilaiMahasiswaController::class, 'index'])
-    ->name('nilai');
+        ->name('nilai');
 
     Route::get('/nilai/{id}', [NilaiMahasiswaController::class, 'show'])
-            ->name('nilai.show');
+        ->name('nilai.show');
 
     // PAGE: Pengaturan Akun
     Route::get('/pengaturan-akun', [ProfilMahasiswaController::class, 'show_profile'])

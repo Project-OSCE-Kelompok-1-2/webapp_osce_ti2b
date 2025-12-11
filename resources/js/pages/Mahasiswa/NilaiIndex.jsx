@@ -3,7 +3,7 @@ import { Head, Link, usePage, router } from "@inertiajs/react";
 import { ChevronRight, FileText, User } from "lucide-react";
 
 // --- IMPORT KOMPONEN ---
-import SidebarUniversal from "@/Components/SidebarUniversal";
+import Sidebar from "@/Components/Sidebar";
 import Pagination from "@/Components/Pagination";
 import OsSearchBar from "@/Components/searchbar";
 
@@ -90,11 +90,10 @@ export default function NilaiIndex() {
             <Head title="Hasil Penilaian OSCE" />
 
             {/* --- SIDEBAR --- */}
-            <SidebarUniversal
+            <Sidebar
+                type="mahasiswa"
                 isOpen={isSidebarOpen}
-                setIsOpen={setIsSidebarOpen}
-                user={usePage().props.auth?.user}
-                role="mahasiswa"
+                onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             />
 
             {/* --- MAIN CONTENT --- */}

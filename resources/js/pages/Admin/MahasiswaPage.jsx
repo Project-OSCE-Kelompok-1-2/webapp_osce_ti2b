@@ -234,7 +234,6 @@ export default function MahasiswaPage() {
             <main className="grid w-full  p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader onMenuClick={handleSidebarToggle} />
 
-
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">
                         Menu Mahasiswa
@@ -328,7 +327,6 @@ export default function MahasiswaPage() {
                         />
                     </OsSearchBar>
 
-
                     {/* Tabel */}
                     <section>
                         <h2 className="font-semibold text-lg mb-2">
@@ -389,7 +387,6 @@ export default function MahasiswaPage() {
                         onChange={(e) => setData("nim", e.target.value)}
                         placeholder="Masukkan NIM..."
                         className="w-full"
-
                         required
                     />
                     <OsInput
@@ -401,7 +398,6 @@ export default function MahasiswaPage() {
                         options={angkatanList}
                         required
                         className="w-full"
-
                     />
                 </div>
                 <OsInput
@@ -513,10 +509,13 @@ export default function MahasiswaPage() {
                 title="Template Excel Mahasiswa"
                 subtitle="Download file excel dan isi data mahasiswa"
             >
+                {/* PERBAIKAN DI SINI: Ganti router.get dengan window.open */}
                 <OsButton
                     name="primary"
                     className="w-full mb-3"
-                    onClick={() => router.get("/admin/mahasiswa/template")}
+                    onClick={() =>
+                        window.open("/admin/mahasiswa/template", "_blank")
+                    }
                 >
                     Download Template Excel
                 </OsButton>
