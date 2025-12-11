@@ -164,11 +164,11 @@ export default function DashboardMahasiswa() {
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
-            <main className="flex-1 p-6 md:p-8 h-screen overflow-y-auto transition-all duration-300 ml-0 lg:ml-20">
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* Header */}
                 <OsHeader />
 
-                <div className="max-w-7xl mx-auto mt-6">
+                <div className="">
                     {/* WELCOME SECTION */}
                     <div className="mb-8">
                         <p className="text-gray-500 text-sm font-medium mb-1">
