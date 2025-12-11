@@ -4,7 +4,7 @@ import { ChevronRight, FileText, User } from "lucide-react";
 
 // --- IMPORT KOMPONEN ---
 import Sidebar from "@/Components/Sidebar";
-import Pagination from "@/Components/Pagination";
+import OsPagination from "../../components/pagination";
 import OsSearchBar from "@/Components/searchbar";
 import OsHeader from "@/Components/Header";
 import OsCopyright from "@/Components/Copyright";
@@ -375,7 +375,7 @@ export default function NilaiIndex() {
 
                     {/* --- PAGINATION (DINAMIS) --- */}
                     <div className="mt-6">
-                        {ujian?.links && <Pagination links={ujian.links} />}
+                        {ujian?.links && <OsPagination links={ujian.links} />}
                     </div>
                 </div>
 
