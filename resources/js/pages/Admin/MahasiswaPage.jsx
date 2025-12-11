@@ -511,10 +511,13 @@ export default function MahasiswaPage() {
                 title="Template Excel Mahasiswa"
                 subtitle="Download file excel dan isi data mahasiswa"
             >
+                {/* PERBAIKAN DI SINI: Ganti router.get dengan window.open */}
                 <OsButton
                     name="primary"
                     className="w-full mb-3"
-                    onClick={() => router.get("/admin/mahasiswa/template")}
+                    onClick={() =>
+                        window.open("/admin/mahasiswa/template", "_blank")
+                    }
                 >
                     Download Template Excel
                 </OsButton>
