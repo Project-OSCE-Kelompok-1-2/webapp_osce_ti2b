@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useForm, usePage, Link } from "@inertiajs/react";
+import { useForm, usePage, Link, router } from "@inertiajs/react";
 import {
     User,
     Mail,
@@ -333,7 +333,10 @@ export default function AdminSettingAkun({ user }) {
                                             <OsButton
                                                 name="warning"
                                                 className="w-[223px] flex items-center justify-center gap-[13px] border border-black bg-red-600"
-                                                onClick={handleLogout}
+                                                onClick={() => {
+                                                    console.log("dsajdsaldka");
+                                                    handleLogout();
+                                                }}
                                                 type="button"
                                             >
                                                 <OsIcon
