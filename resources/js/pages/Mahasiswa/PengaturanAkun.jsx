@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from "react";
-// [UBAH] Import hook Inertia
-import { useForm, usePage, Link, router } from "@inertiajs/react";
-import { Eye, EyeOff, Home } from "lucide-react";
+// Import hook Inertia
+import { useForm, usePage, router } from "@inertiajs/react";
+// Catatan: 'Home' dihapus dari import karena sudah ditangani di dalam OsHeader (atau tidak dipakai jika mode goback)
+import {
+    AlertCircle,
+    Eye,
+    EyeOff,
+    LogOut,
+    Save,
+    Trash2,
+    UploadCloud,
+} from "lucide-react";
 
 // Import Komponen Custom Sesuai Desain
 import OsHeader from "../../components/Header.jsx";
@@ -22,15 +31,13 @@ const CustomInput = ({
     iconRight,
     error,
 }) => (
-    <div className="flex flex-col items-start gap-[3px] relative self-stretch w-full flex-[0_0_auto]">
+    <div className="flex flex-col items-start gap-[3px] relative self-stretch w-full flex-[0_0_auto] ">
         <label className="relative self-stretch mt-[-1.00px] font-sans font-normal text-black text-xs tracking-[0] leading-[normal]">
             {label}
         </label>
         <div
-            className={`flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full ${
-                // [UBAH WARNA] Disabled jadi abu-abu gelap (#BFBFBF) sesuai gambar
-                disabled ? "bg-[#BFBFBF]" : "bg-white"
-            } rounded-xl border border-solid border-black`}
+            className={`flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full
+            rounded-xl border border-solid border-black`}
         >
             {icon && (
                 <div className="!relative !w-5 !h-5 !aspect-[1] flex items-center justify-center opacity-45">
@@ -63,6 +70,8 @@ export default function MahasiswaAccountSettings() {
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     const [showOldPassword, setShowOldPassword] = useState(false);
+    const [showNewPass, setShowNewPass] = useState(false); // Tambahan state untuk new password toggle
+
     // State untuk preview gambar
     const [profileImage, setProfileImage] = useState(
         "https://via.placeholder.com/177?text=U"
@@ -96,7 +105,6 @@ export default function MahasiswaAccountSettings() {
     const handleProfileImageUpload = (event) => {
         const file = event.target.files?.[0];
         if (file) {
-            // Update data form secara eksplisit
             setData({
                 ...data,
                 foto: file,
@@ -119,13 +127,13 @@ export default function MahasiswaAccountSettings() {
         e.preventDefault();
         post("/mahasiswa/pengaturan-akun", {
             preserveScroll: true,
-            forceFormData: true, // Pastikan dikirim sebagai FormData
+            forceFormData: true,
             onSuccess: () => {
                 reset(
                     "old_password",
                     "new_password",
                     "new_password_confirmation",
-                    "foto" // Reset input foto setelah berhasil
+                    "foto"
                 );
             },
         });
@@ -138,7 +146,6 @@ export default function MahasiswaAccountSettings() {
     return (
         <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             {/* SIDEBAR */}
-            {/* <SidebarPenguji /> */}
             <SidebarUniversal
                 isOpen={sidebarOpen}
                 setIsOpen={setSidebarOpen}
@@ -148,35 +155,10 @@ export default function MahasiswaAccountSettings() {
             {/* MAIN CONTENT WRAPPER */}
             <div className="bg-white w-full min-h-screen flex justify-center p-6 font-sans md:ml-20 transition-all duration-300">
                 <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14">
-                    {/* HEADER */}
-                    <header className="relative w-full flex flex-col items-start gap-5 bg-white p-4 rounded-xl shadow-sm border border-gray-900">
-                        <div className="flex items-center justify-between relative self-stretch w-full">
-                            {/* Tombol Back */}
-                            <Link
-                                href="/mahasiswa/jadwal"
-                                // [UBAH WARNA] Back button tetap biru standar atau disesuaikan navy jika mau
-                                className="flex w-[54px] h-[54px] items-center justify-center gap-[13px] p-3 relative bg-blue-600 text-white rounded-xl border border-solid border-black aspect-[1] hover:bg-blue-700 transition"
-                            >
-                                <Home className="w-[30px] h-[26px] text-white" />
-                            </Link>
-
-                            {/* Breadcrumb */}
-                            <nav className="relative flex-1 h-[54px] ml-4">
-                                <div className="h-full items-center bg-white flex w-full rounded-xl overflow-hidden border border-solid border-black px-5">
-                                    <p className="font-sans font-normal text-xl whitespace-nowrap">
-                                        <span className="text-gray-400">
-                                            Pengaturan
-                                        </span>
-                                        <span className="text-black">
-                                            {" "}
-                                            / Akun
-                                        </span>
-                                    </p>
-                                </div>
-                            </nav>
-                        </div>
-                        <hr className="relative w-full border-black border-t" />
-                    </header>
+                    {/* --- IMPLEMENTASI OS HEADER --- */}
+                    <OsHeader
+                        onMenuClick={() => setSidebarOpen(true)} // Handler untuk membuka sidebar di mobile
+                    />
 
                     {/* KONTEN UTAMA (DUA KOLOM) */}
                     <main className="flex flex-col gap-5 w-full">
@@ -208,8 +190,7 @@ export default function MahasiswaAccountSettings() {
 
                         <div className="flex flex-col lg:flex-row items-start gap-5 relative w-full">
                             {/* --- KOLOM KIRI: FOTO PROFIL --- */}
-                            {/* [UBAH WARNA] Background Card jadi bg-blue-50 */}
-                            <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5 bg-blue-50 rounded-xl border border-black shadow-sm">
+                            <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5  rounded-xl border border-black shadow-sm">
                                 <div className="relative self-stretch w-full h-[29px]">
                                     <h2 className="absolute top-[calc(50%_-_14px)] left-0 font-sans font-normal text-black text-xl">
                                         Gambar Profil
@@ -218,30 +199,25 @@ export default function MahasiswaAccountSettings() {
                                 </div>
 
                                 {/* Lingkaran Foto */}
+
                                 <div
-                                    className="relative w-[177px] h-[177px] bg-white rounded-full border border-solid border-black bg-cover bg-center"
+                                    className="w-[177px] h-[177px] rounded-full bg-[#3a2323] border border-black bg-cover bg-center"
                                     style={{
                                         backgroundImage: `url(${profileImage})`,
                                     }}
                                 />
 
                                 {/* Alert Box */}
-                                {/* [UBAH WARNA] Background Box jadi #B0B0B0 (Abu-abu), Text tetap merah sesuai style */}
-                                <div className="flex-col items-start gap-[5px] p-3.5 relative self-stretch flex w-full bg-[#B0B0B0] rounded-xl overflow-hidden border border-solid border-[#B0B0B0]">
-                                    <div className="inline-flex items-center gap-[5px]">
-                                        <OsIcon
-                                            name="Warning"
-                                            className="w-[15px] h-3.5 text-red-500"
-                                        />
-                                        <div className="font-sans font-medium text-red-800 text-[15px]">
+                                <div className="flex flex-col gap-[5px] bg-red-100 p-3 rounded-xl border border-red-400 w-full">
+                                    <div className="flex items-center gap-[5px]">
+                                        <AlertCircle className="w-[15px] text-red-500" />
+                                        <p className="text-red-800 font-medium">
                                             Perhatian!
-                                        </div>
+                                        </p>
                                     </div>
-                                    {/* Text warna hitam/gelap agar terbaca di background abu */}
-                                    <p className="font-sans font-normal text-black text-[13px]">
-                                        Lorem ipsum dolor sit amet, consectetur
-                                        adipiscing elit. Nunc vulputate libero
-                                        et velit interdum.
+                                    <p className="text-red-700 text-[13px]">
+                                        Max 1MB, 500x500px. Format: png, jpeg,
+                                        jpg, gif.
                                     </p>
                                 </div>
                                 {errors.foto && (
@@ -252,20 +228,16 @@ export default function MahasiswaAccountSettings() {
 
                                 {/* Tombol Upload & Delete */}
                                 <div className="flex items-center gap-[15px] relative self-stretch w-full">
-                                    {/* [UBAH WARNA] Tombol Upload jadi Navy (#0B0931) */}
-                                    <label className="flex items-center justify-center gap-2.5 px-3 py-3 relative flex-1 bg-[#0B0931] text-blue-100 rounded-xl cursor-pointer hover:bg-slate-900 transition">
+                                    <label className="flex items-center justify-center gap-2.5 px-3 py-3 relative flex-1 bg-blue-600 text-white rounded-xl cursor-pointer hover:bg-blue-600 transition">
                                         <input
                                             type="file"
                                             accept=".png,.jpg,.jpeg,.gif"
                                             onChange={handleProfileImageUpload}
                                             className="sr-only"
                                         />
-                                        <OsIcon
-                                            name="Upload"
-                                            className="w-[18px] h-[17px] fill-blue-100"
-                                        />
-                                        <span className="font-sans font-normal text-[15px]">
-                                            Upload gambar profil
+                                        <UploadCloud className="w-[18px]" />
+                                        <span className="font-sans font-normal text-[15px] ">
+                                            Upload
                                         </span>
                                     </label>
 
@@ -274,17 +246,13 @@ export default function MahasiswaAccountSettings() {
                                         onClick={handleDeleteProfileImage}
                                         className="flex w-12 h-12 items-center justify-center bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
                                     >
-                                        <OsIcon
-                                            name="Trash"
-                                            className="w-[17px] h-5 fill-white"
-                                        />
+                                        <Trash2 className="w-[20px]" />
                                     </button>
                                 </div>
                             </aside>
 
                             {/* --- KOLOM KANAN: FORM DATA --- */}
-                            {/* [UBAH WARNA] Background Card jadi bg-blue-50 */}
-                            <section className="flex flex-col items-start gap-[15px] p-5 relative flex-1 grow bg-blue-50 rounded-xl border border-black shadow-sm">
+                            <section className="flex flex-col items-start gap-[15px] p-5 relative flex-1 grow  rounded-xl border border-black shadow-sm">
                                 <div className="relative self-stretch w-full h-[29px]">
                                     <h2 className="absolute top-[calc(50%_-_14px)] left-0 font-sans font-normal text-black text-xl">
                                         Akun
@@ -374,7 +342,11 @@ export default function MahasiswaAccountSettings() {
                                     <div className="flex flex-col lg:flex-row gap-5 w-full">
                                         <div className="flex-1">
                                             <CustomInput
-                                                type="password"
+                                                type={
+                                                    showNewPass
+                                                        ? "text"
+                                                        : "password"
+                                                }
                                                 label="Password baru"
                                                 placeholder="Masukkan password baru..."
                                                 value={data.new_password}
@@ -395,7 +367,11 @@ export default function MahasiswaAccountSettings() {
                                         </div>
                                         <div className="flex-1">
                                             <CustomInput
-                                                type="password"
+                                                type={
+                                                    showNewPass
+                                                        ? "text"
+                                                        : "password"
+                                                }
                                                 label="Konfirmasi password baru"
                                                 placeholder="Konfirmasi password..."
                                                 value={
@@ -421,7 +397,11 @@ export default function MahasiswaAccountSettings() {
                                                             )
                                                         }
                                                     >
-                                                        {/* Logic toggle new pass */}
+                                                        {showNewPass ? (
+                                                            <EyeOff className="w-5 h-5" />
+                                                        ) : (
+                                                            <Eye className="w-5 h-5" />
+                                                        )}
                                                     </div>
                                                 }
                                             />
@@ -429,18 +409,14 @@ export default function MahasiswaAccountSettings() {
                                     </div>
 
                                     {/* BUTTONS */}
-                                    <div className="flex gap-3 mt-2">
-                                        {/* [UBAH WARNA] Tombol Simpan jadi Navy (#0B0931) */}
+                                    <div className="w-full flex justify-between gap-3 mt-2">
                                         <OsButton
                                             name="primary"
-                                            className="w-[223px] flex items-center justify-center gap-[13px] border border-black bg-[#0B0931] text-blue-100"
+                                            className="w-[223px] flex items-center rounded-xl p-3 justify-center gap-[13px] border border-black bg-[#0B0931] text-blue-100"
                                             onClick={handleSaveChanges}
                                             disabled={processing}
                                         >
-                                            <OsIcon
-                                                name="Save"
-                                                className="w-[17px] h-[17px] fill-blue-100"
-                                            />
+                                            <Save className="w-[17px]" />
                                             <span>
                                                 {processing
                                                     ? "Menyimpan..."
@@ -450,14 +426,11 @@ export default function MahasiswaAccountSettings() {
 
                                         <OsButton
                                             name="warning"
-                                            className="w-[223px] flex items-center justify-center gap-[13px] border border-black bg-red-600"
+                                            className="w-[223px] flex items-center rounded-xl p-3 justify-center gap-[13px] border border-black bg-red-600"
                                             onClick={handleLogout}
                                             type="button"
                                         >
-                                            <OsIcon
-                                                name="Logout"
-                                                className="w-[23px] h-[21px] fill-white"
-                                            />
+                                            <LogOut className="w-[23px] h-[21px]" />
                                             <span>Logout</span>
                                         </OsButton>
                                     </div>
