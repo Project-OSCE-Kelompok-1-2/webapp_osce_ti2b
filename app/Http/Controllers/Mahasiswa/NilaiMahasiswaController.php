@@ -1,10 +1,11 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Mahasiswa;
 
-use App\Models\EnrollmentOsce;
-use App\Services\NilaiCalculatorService;
+use Inertia\Controller;
 use Illuminate\Http\Request;
+use App\Models\EnrollmentOsce;
+use App\Services\Mahasiswa\NilaiCalculatorService;
 
 class NilaiMahasiswaController extends Controller
 {
@@ -62,9 +63,9 @@ class NilaiMahasiswaController extends Controller
 
         // Mengumpulkan seluruh poin aspek yang sudah dinilai
         // NilaiOsce mengandung poinAspekPenilaian (setiap aspek)
-        $allPoinAspek = $enrollment->nilaiOsce->flatMap(function ($nilai) {
-            return collect($nilai->poinAspekPenilaian);
-        });
+        $allPoinAspek = collect($enrollment->nilaiOsce ?? [])->flatMap(function ($nilai) {
+    return collect($nilai->poinAspekPenilaian);
+});
 
         // ---------------------------------------------------------------------
         // 4. MEMBANGUN daftarNilai BARIS PER STASE / KOMPETENSI
