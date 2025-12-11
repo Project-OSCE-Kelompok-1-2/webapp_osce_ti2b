@@ -1,17 +1,116 @@
 import React, { useState } from "react";
-import { usePage, Link, router } from "@inertiajs/react";
-import { Pencil, Trash2, PlusCircle, Search, ArrowLeft } from "lucide-react";
+import { usePage, router, useForm } from "@inertiajs/react";
+import { Pencil, Trash2, Search } from "lucide-react";
+
+// --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
+import OsIcon from "../../components/icons";
+import OsTableHeader from "../../components/tableheader";
+import OsSearchBar from "../../components/searchbar";
+import OsPagination from "../../components/pagination.jsx";
+import OsTableBody from "../../components/tablecontain.jsx";
+import OsButton from "../../components/button.jsx";
+import OsModal from "../../components/Modal.jsx";
+import OsInput from "../../components/input.jsx";
+import Modals from "../../components/Modals.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
+
+// Definisi kolom tabel
+// const columns = [
+//     {
+//         content: "No",
+//         width: "w-16",
+//         classes: "justify-center items-center",
+//         key: "no",
+//     },
+//     {
+//         content: "Deskripsi",
+//         width: "w-8/12",
+//         classes: "justify-start items-center px-4",
+//         key: "kompetensi",
+//     },
+//     {
+//         content: "Bobot",
+//         width: "w-2/12",
+//         classes: "justify-center items-center",
+//         key: "bobot",
+//     },
+//     {
+//         content: "Aksi",
+//         width: "w-2/12",
+//         classes: "justify-center items-center",
+//         key: "action",
+//     },
+// ];
+
+const columns = [
+    {
+        content: "No",
+        width: "w-16 shrink-0",
+        classes: "justify-center items-center",
+        key: "no",
+    },
+    {
+        content: "Deskripsi",
+        width: "w-[500px] flex-1 shrink-0", // Ganti w-8/12 jadi fix lebar
+        classes: "justify-start items-center px-4",
+        key: "kompetensi",
+    },
+    {
+        content: "Bobot",
+        width: "w-32 shrink-0", // Ganti w-2/12
+        classes: "justify-center items-center",
+        key: "bobot",
+    },
+    {
+        content: "Aksi",
+        width: "w-32 shrink-0", // Ganti w-2/12
+        classes: "justify-center items-center",
+        key: "action",
+    },
+];
 
 export default function KompetensiPage() {
-    // 1. Ambil data dari props yang dikirim Controller
     const { aspek, kompetensi, filters } = usePage().props;
 
-    // 2. Siapkan state untuk input pencarian
+    // 🔥 1. HITUNG TOTAL BOBOT DI AWAL (Agar bisa dipakai validasi)
+    const totalBobot = kompetensi.data.reduce(
+        (acc, curr) => acc + Number(curr.bobot),
+        0
+    );
+
+    // --- SETUP URL BACK BUTTON ---
+    const backUrl = aspek.id_stase
+        ? `/admin/stase/${aspek.id_stase}/aspek-penilaian`
+        : "/admin/stase";
+
+    // --- FORM INERTIA ---
+    const {
+        data,
+        setData,
+        post,
+        put,
+        delete: destroy,
+        processing,
+        errors,
+        reset,
+    } = useForm({
+        id: null,
+        kompetensi: "",
+        bobot: "",
+        id_aspek_penilaian: aspek.id_aspek_penilaian,
+    });
+
+    // SEARCH STATE
     const [search, setSearch] = useState(filters.search || "");
 
-    // 3. Fungsi untuk menjalankan pencarian
+    // MODAL CONTROL
+    const [modalType, setModalType] = useState("");
+    const [modalOpen, setModalOpen] = useState(false);
+    const [selected, setSelected] = useState(null);
+
+    /* ----------------------- SEARCH ----------------------- */
     const handleSearch = () => {
         router.get(
             `/admin/aspek-penilaian/${aspek.id_aspek_penilaian}/kompetensi`,
@@ -20,177 +119,338 @@ export default function KompetensiPage() {
         );
     };
 
-    // 4. Fungsi untuk menghapus data
-    const handleDelete = (kompetensiId) => {
-        if (confirm("Apakah Anda yakin ingin menghapus kompetensi ini?")) {
-            router.delete(`/admin/kompetensi/${kompetensiId}`, {
-                preserveScroll: true,
+    /* ----------------------- ADD DATA ----------------------- */
+    const openAddModal = () => {
+        // 🔥 2. CEK SEBELUM BUKA MODAL
+        if (totalBobot >= 100) {
+            alert(
+                "Total bobot sudah mencapai 100%. Tidak dapat menambah kompetensi lagi."
+            );
+            return;
+        }
+
+        setModalType("add");
+        setData({
+            id: null,
+            kompetensi: "",
+            bobot: "",
+            id_aspek_penilaian: aspek.id_aspek_penilaian,
+        });
+        setModalOpen(true);
+    };
+
+    /* ----------------------- EDIT DATA ----------------------- */
+    const openEditModal = (item) => {
+        setSelected(item);
+        setModalType("edit");
+        setData({
+            id: item.id_poin_aspek_penilaian,
+            kompetensi: item.kompetensi,
+            bobot: item.bobot,
+            id_aspek_penilaian: aspek.id_aspek_penilaian,
+        });
+        setModalOpen(true);
+    };
+
+    /* ----------------------- HANDLE CLEAR ----------------------- */
+    const handleClear = () => {
+        setData({
+            id: null,
+            kompetensi: "",
+            bobot: "",
+            id_aspek_penilaian: aspek.id_aspek_penilaian,
+        });
+    };
+
+    /* ----------------------- SUBMIT HANDLER ----------------------- */
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        const inputBobot = Number(data.bobot);
+
+        // 🔥 3. VALIDASI BOBOT MAKSIMAL 100 SAAT SUBMIT
+        if (modalType === "add") {
+            if (totalBobot + inputBobot > 100) {
+                alert(
+                    `Gagal! Total bobot akan menjadi ${
+                        totalBobot + inputBobot
+                    }%. Maksimal adalah 100%. Sisa bobot: ${100 - totalBobot}`
+                );
+                return; // Stop proses
+            }
+
+            post(
+                `/admin/aspek-penilaian/${aspek.id_aspek_penilaian}/kompetensi`,
+                {
+                    onSuccess: () => {
+                        setModalOpen(false);
+                        reset();
+                        router.reload({ only: ["kompetensi"] });
+                    },
+                }
+            );
+        } else if (modalType === "edit") {
+            // Logika Edit: (Total Lama - Bobot Lama Item Ini) + Bobot Baru
+            const oldBobot = selected ? Number(selected.bobot) : 0;
+            const projectedTotal = totalBobot - oldBobot + inputBobot;
+
+            if (projectedTotal > 100) {
+                alert(
+                    `Gagal! Total bobot akan menjadi ${projectedTotal}%. Maksimal adalah 100%.`
+                );
+                return; // Stop proses
+            }
+
+            put(`/admin/kompetensi/${data.id}`, {
+                onSuccess: () => {
+                    setModalOpen(false);
+                    reset();
+                    router.reload({ only: ["kompetensi"] });
+                },
             });
         }
     };
 
-    // 5. Hitung total bobot dari data yang diterima dari database
-    const totalBobot = kompetensi.data.reduce(
-        (acc, curr) => acc + Number(curr.bobot),
-        0
-    );
+    /* ----------------------- DELETE DATA ----------------------- */
+    const openDeleteModal = (item) => {
+        setSelected(item);
+        setModalType("delete");
+        setModalOpen(true);
+    };
+
+    const handleDeleteSubmit = () => {
+        if (!selected) return;
+        const deleteId = selected.id_poin_aspek_penilaian;
+
+        destroy(`/admin/kompetensi/${deleteId}`, {
+            onSuccess: () => {
+                setModalOpen(false);
+                router.reload({ only: ["kompetensi"] });
+            },
+        });
+    };
+
+    /* ----------------------- TABLE DATA ----------------------- */
+    const tableData = kompetensi.data.map((item, idx) => ({
+        no: kompetensi.from + idx,
+        kompetensi: item.kompetensi,
+        bobot: item.bobot,
+        action: (
+            <div className="flex gap-2 justify-center">
+                <OsButton
+                    name="edit"
+                    onClick={() => openEditModal(item)}
+                    className="p-1.5 text-white bg-yellow-500 hover:bg-yellow-600 border border-transparent rounded-lg"
+                >
+                    <Pencil size={18} />
+                </OsButton>
+
+                <OsButton
+                    name="warning"
+                    onClick={() => openDeleteModal(item)}
+                    className="p-1.5 text-white bg-red-600 hover:bg-red-700 border border-transparent rounded-lg"
+                >
+                    <Trash2 size={18} />
+                </OsButton>
+            </div>
+        ),
+    }));
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
 
     return (
-        // 🆕 Tambahkan relative dan overflow-hidden agar sidebar overlay bisa muncul di atas dashboard
-        <div className="relative bg-os-white w-full min-h-screen  flex justify-start p-os-12 font-sans overflow-hidden">
-            {/* Sidebar dipanggil langsung tanpa kontrol dari dashboard */}
-            <Sidebar />
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-            {/* Breadcrumb */}
-            <OsHeader variant="goback" backLink={`/admin/stase/${aspek.stase.id_stase}/aspek-penilaian`}/>
+            <div className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+                <OsHeader variant="goback" backLink={backUrl} />
 
-            {/* Header */}
-            <div className="mb-6">
-                <h2 className="text-xl font-medium text-black mb-1">
-                    Menu Kompetensi
-                </h2>
-                <p className="text-sm text-gray-500 max-w-md">
-                    Halaman untuk mengelola poin-poin kompetensi dari aspek
-                    penilaian "{aspek.aspek}"
-                </p>
-
-                {/* 👇 [UBAH] Tombol tambah diubah menjadi Link */}
-                <button
-                    onClick={() =>
-                        router.get(
-                            `/admin/aspek-penilaian/${aspek.id_aspek_penilaian}/kompetensi/create`
-                        )
-                    }
-                    className="flex items-center gap-2 mt-3 bg-blue-700 hover:bg-blue-600 text-white px-5 py-3 rounded-xl"
-                >
-                    <PlusCircle size={20} />
-                    Tambah Kompetensi
-                </button>
-            </div>
-
-                {/* Search Bar */}
-                <div className="flex items-center gap-3 mb-6">
-                    <div className="flex flex-1 items-center gap-2 border border-black rounded-xl px-3 py-3">
-                        <Search size={18} className="text-gray-500" />
-                        <input
-                            type="text"
-                            placeholder="Tuliskan data kompetensi..."
-                            className="flex-1 outline-none text-sm text-gray-700"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-                    <button
-                        onClick={handleSearch}
-                        className="px-24 py-3 bg-blue-700 hover:bg-blue-600 text-white rounded-xl border border-black"
-                    >
-                        Cari
-                    </button>
-                </div>
-
-                {/* Tabel Kompetensi */}
-                <h3 className="font-semibold mb-2">Table Kompetensi</h3>
-                <div className="relative overflow-x-auto border border-black rounded-xl shadow-sm">
-                    <table className="w-full text-sm border-collapse">
-                        {/* ======= HEADER (Tidak diubah) ======= */}
-                        <thead className="bg-gray-200 text-black border-b border-black">
-                            <tr>
-                                <th className="border-b border-black py-2 px-3 text-center w-12">
-                                    No
-                                </th>
-                                <th className="border-x border-b border-black py-2 px-3 text-left">
-                                    Deskripsi Kompetensi
-                                </th>
-                                <th className="border-r border-b border-black py-2 px-3 text-center w-24">
-                                    Bobot
-                                </th>
-                                <th className="border-b border-black py-2 px-3 text-center w-28">
-                                    Action
-                                </th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            {kompetensi.data.length > 0 ? (
-                                kompetensi.data.map((item, idx) => (
-                                    <tr
-                                        key={item.id_poin_aspek_penilaian}
-                                        className="hover:bg-gray-50 transition border-t border-black/30"
-                                    >
-                                        <td className="border-r border-black/30 text-center py-2">
-                                            {kompetensi.from + idx}
-                                        </td>
-                                        <td className="border-r border-black/30 py-2 px-3 text-gray-800">
-                                            {item.kompetensi}
-                                        </td>
-                                        <td className="border-r border-black/30 text-center py-2">
-                                            {item.bobot}
-                                        </td>
-                                        <td className="py-2 flex items-center justify-center gap-2">
-                                            <button
-                                                onClick={() => {
-                                                    // [BENAR] Arahkan ke route 'edit' yang sesuai route:resource
-                                                    router.get(
-                                                        `/admin/kompetensi/${item.id_poin_aspek_penilaian}/edit`
-                                                    );
-                                                }}
-                                                className="p-1.5 text-white bg-blue-700 hover:bg-blue-500 border border-black rounded-lg"
-                                            >
-                                                <Pencil size={16} />
-                                            </button>
-                                            <button
-                                                onClick={() =>
-                                                    handleDelete(
-                                                        item.id_poin_aspek_penilaian
-                                                    )
-                                                }
-                                                className="p-1.5 text-black bg-white hover:bg-red-600 hover:text-white border border-black rounded-lg transition"
-                                            >
-                                                <Trash2 size={16} />
-                                            </button>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td
-                                        colSpan={4}
-                                        className="text-center text-gray-500 py-4 border-t border-black/30"
-                                    >
-                                        Data tidak ditemukan.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
-                </div>
-
-                {/* PAGINATION (Untuk sementara dihapus agar tidak error, bisa diganti dengan komponen Paginasi nanti) */}
-
-                {/* Footer Total Kompetensi / Aspek Penilaian */}
-                <div className="relative mt-12 my-6 border border-black rounded-xl flex items-center justify-between px-4 py-2">
-                    <p className="text-sm text-black">
-                        Total bobot kompetensi / aspek penilaian
+                <div className="flex-1 overflow-auto">
+                    <h2 className="font-semibold text-lg mb-1">
+                        {aspek.aspek}
+                    </h2>
+                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                        Kelola dan definisikan poin-poin kompetensi
+                        (sub-kriteria) yang spesifik dan terukur untuk Aspek
+                        Penilaian.
                     </p>
-                    <div className="flex gap-3">
-                        <div className="border border-black rounded-xl px-8 py-2">
-                            <span className="font-medium">Kompetensi:</span>{" "}
-                            {kompetensi.total}{" "}
-                            {/* [UBAH] Gunakan total dari paginator */}
-                        </div>
-                        <div className="border border-black rounded-xl px-8 py-2">
-                            <span className="font-medium">Total Bobot:</span>{" "}
-                            {totalBobot}
+
+                    {/* 🔥 4. TOMBOL TAMBAH DISABLE JIKA 100% */}
+                    <OsButton
+                        name="primary"
+                        onClick={openAddModal}
+                        // Tambahkan style visual disabled jika totalBobot >= 100
+                        className={`flex h-[46px] items-center text-white text-sm py-2 px-4 rounded-lg mb-5 ${
+                            totalBobot >= 100
+                                ? "bg-gray-400 cursor-not-allowed hover:bg-gray-400"
+                                : "bg-blue-600 hover:bg-blue-700"
+                        }`}
+                        disabled={totalBobot >= 100}
+                    >
+                        <OsIcon
+                            name="add"
+                            className="h-os-20 os-icon-light mr-os-8"
+                        />
+                        {totalBobot >= 100
+                            ? "Bobot Penuh (100%)"
+                            : "Tambah Kompetensi"}
+                    </OsButton>
+
+                    <OsSearchBar
+                        search={search}
+                        setSearch={setSearch}
+                        onSearchClick={handleSearch}
+                        placeholder="Cari kompetensi..."
+                    />
+
+                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        Table Kompetensi
+                    </h2>
+
+                    {/* WRAPPER HORIZONTAL SCROLL */}
+                    <div className="w-full overflow-x-auto pb-4">
+                        <div className="min-w-max">
+                            <OsTableHeader columns={columns} />
+
+                            {tableData.length > 0 ? (
+                                <OsTableBody data={tableData} columns={columns} />
+                            ) : (
+                                <div className="py-6 text-center text-gray-500 border-b">
+                                    Belum ada kompetensi untuk aspek ini.
+                                </div>
+                            )}
                         </div>
                     </div>
+
+                    <OsPagination links={kompetensi.links} />
+
+                    {/* Footer Total */}
+                    <div className="relative border mt-3 h-[56px] border-black rounded-lg flex items-center justify-between px-4 py-2">
+                        <p className="text-black lg:w-[70%] w-full ">
+                            Total Bobot dan Jumlah Kompetensi
+                        </p>
+                        <div className=" w-[30%] justify-end gap-4 text-sm hidden lg:flex">
+                            <div className="flex w-full items-center justify-center gap-1.5 px-2 py-1 rounded-md">
+                                <span className="text-sm">Total Bobot:</span>
+                                {/* Indikator Warna Bobot */}
+                                <span
+                                    className={`font-bold ${
+                                        totalBobot === 100
+                                            ? "text-green-600"
+                                            : "text-red-600"
+                                    }`}
+                                >
+                                    {totalBobot}%
+                                </span>
+                            </div>
+                            <div className="flex w-full items-center justify-center gap-1.5 px-2 py-1 rounded-md">
+                                <span className="text-sm">Kompetensi:</span>
+                                <span className="text-black font-bold">
+                                    {kompetensi.total}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div className=" w-full justify-end gap-4 text-sm flex border-1 border py-3 rounded-lg mt-2 lg:hidden border-black">
+                            <div className="flex w-full items-center justify-center gap-1.5 px-2 py-1 rounded-md">
+                                <span className="text-sm">Total Bobot:</span>
+                                {/* Indikator Warna Bobot */}
+                                <span
+                                    className={`font-bold ${
+                                        totalBobot === 100
+                                            ? "text-green-600"
+                                            : "text-red-600"
+                                    }`}
+                                >
+                                    {totalBobot}%
+                                </span>
+                            </div>
+                            <div className="flex w-full items-center justify-center gap-1.5 px-2 py-1 rounded-md">
+                                <span className="text-sm">Kompetensi:</span>
+                                <span className="text-black font-bold">
+                                    {kompetensi.total}
+                                </span>
+                            </div>
+                        </div>
                 </div>
 
-                {/* Footer Copyright */}
-                <footer className="border border-black rounded-xl text-start px-4 py-4 text-sm text-gray-600">
-                    © Jorem ipsum dolor sit amet, consectetur adipiscing elit.
+                <footer>
+                    <OsCopyright />
                 </footer>
             </div>
+
+            {/* MODAL FORM */}
+            <OsModal
+                show={modalOpen && modalType !== "delete"}
+                onClose={() => setModalOpen(false)}
+                onSubmit={handleSubmit}
+                onClear={handleClear}
+                variant={modalType}
+                title={
+                    modalType === "add"
+                        ? "Tambah Kompetensi"
+                        : "Edit Kompetensi"
+                }
+                subtitle="Isi form berikut"
+            >
+                <div className="space-y-3">
+                    <OsInput
+                        label="Deskripsi Kompetensi"
+                        type="textarea"
+                        name="kompetensi"
+                        value={data.kompetensi}
+                        placeholder="Masukkan deskripsi kompetensi..."
+                        onChange={(e) => setData("kompetensi", e.target.value)}
+                        required
+                    />
+                    <OsInput
+                        label="Bobot Kompetensi"
+                        type="number"
+                        name="bobot"
+                        value={data.bobot}
+                        placeholder="Masukkan bobot kompetensi..."
+                        onChange={(e) => setData("bobot", e.target.value)}
+                        required
+                    />
+                    {/* Pesan Sisa Bobot di Modal */}
+                    <div className="text-xs text-gray-500">
+                        Sisa bobot yang tersedia:{" "}
+                        <span className="font-bold">
+                            {100 -
+                                (modalType === "edit"
+                                    ? totalBobot -
+                                      (selected ? selected.bobot : 0)
+                                    : totalBobot)}
+                        </span>
+                    </div>
+
+                    {(errors.kompetensi || errors.bobot) && (
+                        <div className="text-red-500 text-xs">
+                            {errors.kompetensi && <p>{errors.kompetensi}</p>}
+                            {errors.bobot && <p>{errors.bobot}</p>}
+                        </div>
+                    )}
+                </div>
+            </OsModal>
+
+            {/* MODAL DELETE */}
+            <Modals
+                isOpen={modalOpen && modalType === "delete"}
+                onClose={() => setModalOpen(false)}
+                onConfirm={handleDeleteSubmit}
+                variant="delete"
+                title="Hapus Kompetensi?"
+                message="Apakah Anda yakin ingin menghapus kompetensi ini?"
+                confirmText="Hapus"
+                dataToDelete={[
+                    { key: "Deskripsi", value: selected?.kompetensi || "-" },
+                    { key: "Bobot", value: selected?.bobot || "-" },
+                ]}
+            />
         </div>
     );
 }

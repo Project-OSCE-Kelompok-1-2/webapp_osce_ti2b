@@ -1,246 +1,236 @@
-import { Head, router, useForm, usePage, Link } from "@inertiajs/react";
-import { ChevronLeft, Trash2, Send } from "lucide-react";
-import React from "react";
+// import { Head, router, useForm, usePage, Link } from "@inertiajs/react";
+// import { ChevronLeft, Trash2, Send } from "lucide-react";
+// import React, { useState } from "react";
+// import Modals from "@/Components/Modals"; // ⬅️ PENTING: import Modals
 
-// [UBAH] Terima props 'tahunAkademikOptions' dari controller
-export default function TambahOsce({ tahunAkademikOptions = [], osce = null }) {
-    const { errors } = usePage().props;
+// export default function TambahOsce({ tahunAkademikOptions = [], osce = null }) {
+//     const { errors } = usePage().props;
 
-    // [UBAH] Tentukan mode edit
-    const isEditMode = !!osce;
+//     const isEditMode = !!osce;
 
-    // [UBAH] Isi form dengan data 'osce' jika ada
-    const { data, setData, post, put, processing, reset } = useForm({
-        nama_osce: osce ? osce.nama_osce : "",
-        id_tahun_akademik: osce ? osce.id_tahun_akademik : "",
-        tanggal_mulai: osce ? osce.tanggal_mulai : "",
-        tanggal_selesai: osce ? osce.tanggal_selesai : "",
-    });
+//     const { data, setData, post, put, processing, reset } = useForm({
+//         nama_osce: osce ? osce.nama_osce : "",
+//         id_tahun_akademik: osce ? osce.id_tahun_akademik : "",
+//         tanggal_mulai: osce ? osce.tanggal_mulai : "",
+//         tanggal_selesai: osce ? osce.tanggal_selesai : "",
+//     });
 
-    // [UBAH] Buat fungsi handleSubmit
-    function handleSubmit(e) {
-        e.preventDefault();
+//     // ============================
+//     // STATE MODALS
+//     // ============================
+//     const [isDeleteModalOpen, setDeleteModalOpen] = useState(false);
 
-        if (isEditMode) {
-            // Kirim PUT ke endpoint 'update' Bintang
-            put(`/admin/osce/${osce.id_osce}`, {
-                onSuccess: () => router.get("/admin/osce"),
-            });
-        } else {
-            // Kirim POST ke endpoint 'store' Bintang
-            post("/admin/osce", {
-                onSuccess: () => router.get("/admin/osce"),
-            });
-        }
-    }
+//     function openDeleteModal() {
+//         setDeleteModalOpen(true);
+//     }
 
-    return (
-        <div className="min-h-screen flex flex-col bg-white">
-            <Head title="Tambah OSCE" />
+//     function closeDeleteModal() {
+//         setDeleteModalOpen(false);
+//     }
 
-            {/* Header Atas */}
-            <header className="flex items-center gap-3 p-4 border-b bg-gray-50">
-                <Link
-                    href="/admin/osce"
-                    className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-2 flex items-center justify-center transition"
-                >
-                    <ChevronLeft size={20} />
-                </Link>
+//     // Confirm delete → Reset form
+//     function handleConfirmDelete() {
+//         reset();
+//         closeDeleteModal();
+//     }
 
-                <input
-                    type="text"
-                    value="OSCE / Tambah OSCE"
-                    readOnly
-                    className="border rounded-lg px-4 py-2 text-sm w-full focus:outline-none bg-white"
-                />
-            </header>
+//     function handleSubmit(e) {
+//         e.preventDefault();
 
-            {/* Main Content */}
-            <main className="flex flex-1 items-center justify-center py-[5rem]">
-                {/* [UBAH] Ganti <div> menjadi <form> */}
-                <form
-                    onSubmit={handleSubmit}
-                    className="w-full max-w-[400px] border rounded-xl overflow-hidden shadow-sm"
-                >
-                    {/* Card Header */}
-                    <div className="bg-gray-800 text-white p-5 text-center">
-                        <h2 className="text-lg font-semibold mb-1">
-                            Form Tambah OSCE
-                        </h2>
-                        <p className="text-gray-400 text-sm max-w-sm mx-auto">
-                            Silakan isi form berikut untuk menambahkan data OSCE
-                            baru.
-                        </p>
-                    </div>
+//         if (isEditMode) {
+//             put(`/admin/osce/${osce.id_osce}`, {
+//                 onSuccess: () => router.get("/admin/osce"),
+//             });
+//         } else {
+//             post("/admin/osce", {
+//                 onSuccess: () => router.get("/admin/osce"),
+//             });
+//         }
+//     }
 
-                    {/* Form Body */}
-                    <div className="p-5 space-y-4">
-                        {/* Nama OSCE */}
-                        <div>
-                            <label
-                                htmlFor="nama_osce"
-                                className="text-sm font-medium text-gray-700"
-                            >
-                                Nama OSCE
-                            </label>
-                            <input
-                                id="nama_osce"
-                                type="text"
-                                placeholder="Masukkan nama OSCE..."
-                                className={`mt-1 w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
-                                    errors.nama_osce
-                                        ? "border-red-500 ring-red-500"
-                                        : "focus:ring-blue-500 border-gray-300"
-                                }`}
-                                // [UBAH] Hubungkan ke state
-                                value={data.nama_osce}
-                                onChange={(e) =>
-                                    setData("nama_osce", e.target.value)
-                                }
-                            />
-                            {errors.nama_osce && (
-                                <div className="text-red-500 text-xs mt-1">
-                                    {errors.nama_osce}
-                                </div>
-                            )}
-                        </div>
+//     return (
+//         <div className="min-h-screen flex flex-col bg-white">
+//             <Head title="Tambah OSCE" />
 
-                        {/* Tahun Akademik */}
-                        <div>
-                            <label
-                                htmlFor="id_tahun_akademik"
-                                className="text-sm font-medium text-gray-700"
-                            >
-                                Tahun Akademik
-                            </label>
-                            <select
-                                id="id_tahun_akademik"
-                                className={`mt-1 w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
-                                    errors.id_tahun_akademik
-                                        ? "border-red-500 ring-red-500"
-                                        : "focus:ring-blue-500 border-gray-300"
-                                } bg-white`}
-                                // [UBAH] Hubungkan ke state
-                                value={data.id_tahun_akademik}
-                                onChange={(e) =>
-                                    setData("id_tahun_akademik", e.target.value)
-                                }
-                            >
-                                <option value="">Pilih Tahun</option>
-                                {/* [UBAH] Loop data dinamis dari props */}
-                                {tahunAkademikOptions.map((option) => (
-                                    <option
-                                        key={option.value}
-                                        value={option.value}
-                                    >
-                                        {option.label}
-                                    </option>
-                                ))}
-                            </select>
-                            {errors.id_tahun_akademik && (
-                                <div className="text-red-500 text-xs mt-1">
-                                    {errors.id_tahun_akademik}
-                                </div>
-                            )}
-                        </div>
+//             {/* HEADER */}
+//             <header className="flex items-center gap-3 p-4 border-b bg-gray-50">
+//                 <Link
+//                     href="/admin/osce"
+//                     className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg p-2 flex items-center justify-center transition"
+//                 >
+//                     <ChevronLeft size={20} />
+//                 </Link>
 
-                        {/* Jadwal Mulai dan Akhir */}
-                        <div className="flex gap-3 ">
-                            <div className="w-1/2">
-                                <label
-                                    htmlFor="tanggal_mulai"
-                                    className="text-sm font-medium text-gray-700"
-                                >
-                                    Jadwal Mulai
-                                </label>
-                                <div className="mt-1 flex items-center border rounded-lg">
-                                    {/* [UBAH] Ganti ke type="date" */}
-                                    <input
-                                        id="tanggal_mulai"
-                                        type="date"
-                                        className={`flex-1 text-sm outline-none bg-white px-3 py-2 rounded-lg ${
-                                            errors.tanggal_mulai
-                                                ? "border-red-500"
-                                                : "border-transparent"
-                                        }`}
-                                        // [UBAH] Hubungkan ke state
-                                        value={data.tanggal_mulai}
-                                        onChange={(e) =>
-                                            setData(
-                                                "tanggal_mulai",
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-                                </div>
-                                {errors.tanggal_mulai && (
-                                    <div className="text-red-500 text-xs mt-1">
-                                        {errors.tanggal_mulai}
-                                    </div>
-                                )}
-                            </div>
+//                 <input
+//                     type="text"
+//                     value="OSCE / Tambah OSCE"
+//                     readOnly
+//                     className="border rounded-lg px-4 py-2 text-sm w-full focus:outline-none bg-white"
+//                 />
+//             </header>
 
-                            <div className="w-1/2">
-                                <label
-                                    htmlFor="tanggal_selesai"
-                                    className="text-sm font-medium text-gray-700"
-                                >
-                                    Jadwal Akhir
-                                </label>
-                                <div className="mt-1 flex items-center border rounded-lg">
-                                    {/* [UBAH] Ganti ke type="date" */}
-                                    <input
-                                        id="tanggal_selesai"
-                                        type="date"
-                                        className={`flex-1 text-sm outline-none bg-white px-3 py-2 rounded-lg ${
-                                            errors.tanggal_selesai
-                                                ? "border-red-500"
-                                                : "border-transparent"
-                                        }`}
-                                        // [UBAH] Hubungkan ke state
-                                        value={data.tanggal_selesai}
-                                        onChange={(e) =>
-                                            setData(
-                                                "tanggal_selesai",
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-                                </div>
-                                {errors.tanggal_selesai && (
-                                    <div className="text-red-500 text-xs mt-1">
-                                        {errors.tanggal_selesai}
-                                    </div>
-                                )}
-                            </div>
-                        </div>
+//             {/* MAIN */}
+//             <main className="flex flex-1 items-center justify-center py-[5rem]">
+//                 <form
+//                     onSubmit={handleSubmit}
+//                     className="w-full max-w-[400px] border rounded-xl overflow-hidden "
+//                 >
+//                     {/* CARD HEADER */}
+//                     <div className="bg-gray-800 text-white p-5 text-center">
+//                         <h2 className="text-lg font-semibold mb-1">
+//                             Form Tambah OSCE
+//                         </h2>
+//                         <p className="text-gray-400 text-sm max-w-sm mx-auto">
+//                             Silakan isi form berikut untuk menambahkan data OSCE baru.
+//                         </p>
+//                     </div>
 
-                        {/* Tombol Submit dan Delete */}
-                        <div className="flex items-center justify-between pt-[5rem]">
-                            <button
-                                type="submit"
-                                disabled={processing}
-                                className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm flex-1 mr-2 transition disabled:opacity-50"
-                            >
-                                <Send size={16} className="mr-2" />
-                                {processing ? "Menyimpan..." : "Submit"}
-                            </button>
-                            <button
-                                type="button"
-                                onClick={() => reset()}
-                                className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg transition"
-                            >
-                                <Trash2 size={16} />
-                            </button>
-                        </div>
-                    </div>
-                </form>
-            </main>
+//                     {/* FORM BODY */}
+//                     <div className="p-5 space-y-4">
 
-            {/* Footer */}
-            <footer className="border text-center text-gray-600 text-xs py-3 mt-4 mx-4 rounded-lg bg-gray-50">
-                © 2025 — OSCE Management System
-            </footer>
-        </div>
-    );
-}
+//                         {/* Nama OSCE */}
+//                         <div>
+//                             <label className="text-sm font-medium text-gray-700">
+//                                 Nama OSCE
+//                             </label>
+//                             <input
+//                                 type="text"
+//                                 placeholder="Masukkan nama OSCE..."
+//                                 className={`mt-1 w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
+//                                     errors.nama_osce
+//                                         ? "border-red-500 ring-red-500"
+//                                         : "focus:ring-blue-500 border-gray-300"
+//                                 }`}
+//                                 value={data.nama_osce}
+//                                 onChange={(e) =>
+//                                     setData("nama_osce", e.target.value)
+//                                 }
+//                             />
+//                             {errors.nama_osce && (
+//                                 <div className="text-red-500 text-xs mt-1">
+//                                     {errors.nama_osce}
+//                                 </div>
+//                             )}
+//                         </div>
+
+//                         {/* Tahun Akademik */}
+//                         <div>
+//                             <label className="text-sm font-medium text-gray-700">
+//                                 Tahun Akademik
+//                             </label>
+//                             <select
+//                                 className={`mt-1 w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 ${
+//                                     errors.id_tahun_akademik
+//                                         ? "border-red-500 ring-red-500"
+//                                         : "focus:ring-blue-500 border-gray-300"
+//                                 } bg-white`}
+//                                 value={data.id_tahun_akademik}
+//                                 onChange={(e) =>
+//                                     setData("id_tahun_akademik", e.target.value)
+//                                 }
+//                             >
+//                                 <option value="">Pilih Tahun</option>
+//                                 {tahunAkademikOptions.map((opt) => (
+//                                     <option key={opt.value} value={opt.value}>
+//                                         {opt.label}
+//                                     </option>
+//                                 ))}
+//                             </select>
+//                             {errors.id_tahun_akademik && (
+//                                 <div className="text-red-500 text-xs mt-1">
+//                                     {errors.id_tahun_akademik}
+//                                 </div>
+//                             )}
+//                         </div>
+
+//                         {/* Jadwal */}
+//                         <div className="flex gap-3">
+//                             <div className="w-1/2">
+//                                 <label className="text-sm font-medium text-gray-700">
+//                                     Jadwal Mulai
+//                                 </label>
+//                                 <input
+//                                     type="date"
+//                                     className="mt-1 w-full border rounded-lg px-3 py-2 text-sm bg-white"
+//                                     value={data.tanggal_mulai}
+//                                     onChange={(e) =>
+//                                         setData("tanggal_mulai", e.target.value)
+//                                     }
+//                                 />
+//                                 {errors.tanggal_mulai && (
+//                                     <p className="text-red-500 text-xs mt-1">
+//                                         {errors.tanggal_mulai}
+//                                     </p>
+//                                 )}
+//                             </div>
+
+//                             <div className="w-1/2">
+//                                 <label className="text-sm font-medium text-gray-700">
+//                                     Jadwal Akhir
+//                                 </label>
+//                                 <input
+//                                     type="date"
+//                                     className="mt-1 w-full border rounded-lg px-3 py-2 text-sm bg-white"
+//                                     value={data.tanggal_selesai}
+//                                     onChange={(e) =>
+//                                         setData("tanggal_selesai", e.target.value)
+//                                     }
+//                                 />
+//                                 {errors.tanggal_selesai && (
+//                                     <p className="text-red-500 text-xs mt-1">
+//                                         {errors.tanggal_selesai}
+//                                     </p>
+//                                 )}
+//                             </div>
+//                         </div>
+
+//                         {/* BUTTONS */}
+//                         <div className="flex items-center justify-between pt-[5rem]">
+//                             <button
+//                                 type="submit"
+//                                 disabled={processing}
+//                                 className="flex items-center justify-center bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg text-sm flex-1 mr-2 transition disabled:opacity-50"
+//                             >
+//                                 <Send size={16} className="mr-2" />
+//                                 {processing ? "Menyimpan..." : "Submit"}
+//                             </button>
+
+//                             {/* DELETE → BUKA MODAL */}
+//                             <button
+//                                 type="button"
+//                                 onClick={openDeleteModal}
+//                                 className="bg-red-600 hover:bg-red-700 text-white p-3 rounded-lg transition"
+//                             >
+//                                 <Trash2 size={16} />
+//                             </button>
+//                         </div>
+//                     </div>
+//                 </form>
+//             </main>
+
+//             {/* FOOTER */}
+//             <footer className="border text-center text-gray-600 text-xs py-3 mt-4 mx-4 rounded-lg bg-gray-50">
+//                 © 2025 — OSCE Management System
+//             </footer>
+
+//             {/* ======================= */}
+//             {/* MODALS DELETE           */}
+//             {/* ======================= */}
+//             <Modals
+//                 isOpen={isDeleteModalOpen}
+//                 onClose={closeDeleteModal}
+//                 onConfirm={handleConfirmDelete}
+//                 variant="delete"
+//                 title="Reset Form?"
+//                 message="Apakah Anda yakin ingin menghapus seluruh isi form? Data yang sudah diketik akan hilang."
+//                 dataToDelete={[
+//                     { key: "Nama OSCE", value: data.nama_osce || "-" },
+//                     { key: "Tahun Akademik", value: data.id_tahun_akademik || "-" },
+//                     { key: "Tanggal Mulai", value: data.tanggal_mulai || "-" },
+//                     { key: "Tanggal Selesai", value: data.tanggal_selesai || "-" },
+//                 ]}
+//                 confirmText="Hapus Data Form"
+//             />
+//         </div>
+//     );
+// }

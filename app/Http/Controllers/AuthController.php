@@ -3,13 +3,21 @@
 namespace App\Http\Controllers;
 
 use Inertia\Inertia;
-use App\Models\Pengguna;
+use Dedoc\Scramble\Scramble;
 use Illuminate\Http\Request;
+use App\Services\AuthService; 
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 
 class AuthController extends Controller
 {
+    protected $authService;
+
+    // Inject Service
+    public function __construct(AuthService $authService)
+    {
+        $this->authService = $authService;
+    }
+
     public function show_login()
     {
         return Inertia::render("Auth/Login");
@@ -22,20 +30,19 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        $username = $request->username;
-        $password = $request->password;
+        // 1. PANGGIL SERVICE (Cek User)
+        $pengguna = $this->authService->verifyCredentials(
+            $request->username,
+            $request->password
+        );
 
-        $pengguna = Pengguna::where("username", $username)->first();
-
-        if ($pengguna && Hash::check($password, $pengguna->password)) {
+        if ($pengguna) {
+            // 2. LOGIKA WEB (Pakai Session)
             Auth::login($pengguna);
             $request->session()->regenerate();
 
-            $redirectPath = match ($pengguna->jenis_role) {
-                "admin" => "/admin/dashboard",
-                "mahasiswa" => "/mahasiswa/dashboard",
-                "penguji" => "/penguji/dashboard",
-            };
+            // Ambil path redirect dari service
+            $redirectPath = $this->authService->getRedirectPathByRole($pengguna->jenis_role);
 
             return redirect($redirectPath)->with("success", "Berhasil login");
         } else {

@@ -5,7 +5,6 @@ import { useForm, usePage } from "@inertiajs/react";
 import Os_button from "../../components/button.jsx";
 import OsInput from "../../components/input.jsx";
 import OsIcon from "../../components/icons.jsx";
-import OsModal from "../../components/Modal";
 
 export default function LoginMosaicPage() {
     // 👇 [BARU] Ambil error dari props yang dikirim controller
@@ -29,8 +28,8 @@ export default function LoginMosaicPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-0 m-0 ">
-            <div className="w-full h-full min-h-[519px] flex flex-col justify-between border-black max-w-md border rounded-xl p-8">
+        <div className="min-h-screen w-screen flex items-center justify-center p-8 m-0 sm:p-0">
+            <div className="w-full h-full min-h-[519px] flex flex-col justify-between max-w-md border border-black rounded-xl p-8">
                 <form
                     onSubmit={onSubmit}
                     className="flex h-full flex-col gap-os-14 min-h-[450px] justify-around"
@@ -93,9 +92,10 @@ export default function LoginMosaicPage() {
 
                             {/* button jadi nggak bisa di ubah tipe password */}
                             <button
+
                                 type="button"
                                 onClick={() => setShowPwd((v) => !v)}
-                                className="w-[48px] h-[48px] mt-5 flex items-center justify-center border rounded-xl bg-gray-900 text-white hover:bg-gray-600"
+                                className="w-[48px] h-[48px] mt-5 flex items-center justify-center border rounded-xl bg-os-primary text-white hover:bg-gray-600"
                             >
                                 {showPwd ? (
                                     // <EyeOff className="h-os-36" />
@@ -124,6 +124,7 @@ export default function LoginMosaicPage() {
                     <div>
                         <div className="flex justify-center">
                             <Os_button
+                            name="primary"
                                 type="submit"
                                 // 👇 [UBAH] Tambahkan disabled saat loading
                                 disabled={processing}
