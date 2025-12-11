@@ -143,7 +143,7 @@ export default function NilaiShow() {
                 {/* 2. AREA KONTEN UTAMA */}
                 <div className="flex flex-col gap-6">
                     {/* --- KARTU 1: JUDUL HALAMAN --- */}
-                    <div className="w-full bg-white p-4 rounded-xl border border-black shadow-sm flex items-center h-[70px]">
+                    <div className="w-full bg-white p-4 rounded-xl shadow-sm flex items-center h-[70px]">
                         <div className="flex items-center gap-3 ml-2">
                             <FileText className="text-blue-600" size={32} />
                             <h1 className="font-sans font-bold text-2xl text-black mt-1">

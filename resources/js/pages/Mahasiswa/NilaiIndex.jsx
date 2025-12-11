@@ -107,9 +107,7 @@ export default function NilaiIndex() {
                 <div className="pt-6">
                     {/* Judul Halaman */}
                     <div className="mb-8 flex items-center gap-3">
-                        <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-200">
-                            <FileText className="h-6 w-6" />
-                        </div>
+                        <FileText className="text-blue-600" size={32} />
                         <div>
                             <h1 className="text-2xl font-bold text-gray-900 leading-tight">
                                 Hasil Penilaian OSCE
