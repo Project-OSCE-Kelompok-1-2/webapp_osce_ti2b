@@ -1,5 +1,7 @@
 import React, { useState } from "react";
-import { router, usePage, useForm } from "@inertiajs/react"; // 1. Tambah useForm
+import { router, usePage, useForm } from "@inertiajs/react";
+import { Edit2, Trash2, Plus } from "lucide-react"; // Pastikan import Plus ada
+// 1. Tambah useForm
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
@@ -213,7 +215,7 @@ export default function MahasiswaPage() {
         action: (
             <div className="flex items-center justify-center space-x-3">
                 <OsButton name="edit" onClick={() => openEditModal(item)}>
-                    <OsIcon name="Edit" className="h-os-20 os-icon-light" />
+                    <Edit2 size={18} />
                 </OsButton>
                 <OsButton
                     name="warning"
@@ -221,7 +223,7 @@ export default function MahasiswaPage() {
                         openDeleteModal(item.id_mahasiswa, item.nama)
                     }
                 >
-                    <OsIcon name="Trash" className="h-os-20 os-icon-light" />
+                    <Trash2 size={18} />
                 </OsButton>
             </div>
         ),
@@ -233,7 +235,6 @@ export default function MahasiswaPage() {
 
             <main className="grid w-full  p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader onMenuClick={handleSidebarToggle} />
-
 
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">
@@ -328,7 +329,6 @@ export default function MahasiswaPage() {
                         />
                     </OsSearchBar>
 
-
                     {/* Tabel */}
                     <section>
                         <h2 className="font-semibold text-lg mb-2">
@@ -389,7 +389,6 @@ export default function MahasiswaPage() {
                         onChange={(e) => setData("nim", e.target.value)}
                         placeholder="Masukkan NIM..."
                         className="w-full"
-
                         required
                     />
                     <OsInput
@@ -401,7 +400,6 @@ export default function MahasiswaPage() {
                         options={angkatanList}
                         required
                         className="w-full"
-
                     />
                 </div>
                 <OsInput

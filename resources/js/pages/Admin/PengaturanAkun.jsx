@@ -342,7 +342,7 @@ export default function AdminSettingAkun({ user }) {
                         as="button"
                         method="post"
                         href="/logout"
-                        className="border-2 bg-white border-red-600 max-w-[120px] inline-flex items-center gap-[13px] p-3 rounded-xl text-red-600 opacity-75 text-sm"
+                        className="border bg-red-600  max-w-[120px] inline-flex items-center gap-[13px] p-3 rounded-xl text-white hover:bg-red-800 opacity-75 text-sm"
                     >
                         <LogOut className="w-[23px] h-[21px]" />
                         Log Out
