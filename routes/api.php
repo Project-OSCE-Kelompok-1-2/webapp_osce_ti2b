@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AuthController;
+
 // Admin Controllers
 use App\Http\Controllers\Api\V1\Admin\OsceController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
@@ -15,23 +16,26 @@ use App\Http\Controllers\Api\V1\Admin\OsceJadwalController;
 use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
 use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
 use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
+
 // Other Controllers
 use App\Http\Controllers\Api\V1\Penguji\ViewNilaiController;
 use App\Http\Controllers\Api\V1\Penguji\ProfilController;
 use App\Http\Controllers\Api\V1\InputNilaiController;
 use App\Http\Controllers\Api\V1\Penguji\AksiPenilaianApiController;
 use App\Http\Controllers\Api\V1\Penguji\ApiHalamanPenilaian;
+// TAMBAHAN: Pastikan EditNilaiController di-import
+use App\Http\Controllers\Api\V1\Penguji\EditNilaiController; 
 
 Route::prefix('v1')->group(function () {
 
-    // --- Authentication ---
+    // --- Authentication (Public) ---
     Route::get('/login', function () {
         return response()->json(['message' => 'Unauthorized'], 401);
     })->name('login');
 
     Route::post('/login', [AuthController::class, 'login']);
 
-    // --- Protected Routes ---
+    // --- Protected Routes (Butuh Login) ---
     Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -40,13 +44,15 @@ Route::prefix('v1')->group(function () {
             return $request->user();
         });
         
-            // --- Penilaian (Tugas Najwa) ---
+        // --- Penilaian (Tugas Najwa) ---
         // Tugas 1: GET Form Edit (Mengambil data rubrik & nilai)
         Route::get('/penilaian/{id_enrollment_osce}/edit', [EditNilaiController::class, 'edit'])->name('penilaian.edit');
     
         // Tugas 2: PUT Simpan Edit (Menyimpan nilai)
         Route::put('/penilaian/{id_enrollment_osce}', [EditNilaiController::class, 'update'])->name('penilaian.update');
-        });
+        
+        // CATATAN: Kurung penutup '});' yang ada di sini sebelumnya SAYA HAPUS
+        // agar rute Admin & Penguji di bawah tetap terlindungi auth:sanctum.
 
         // =================================================================
         // GROUP 1: ADMIN ROUTES
@@ -93,7 +99,6 @@ Route::prefix('v1')->group(function () {
         // =================================================================
         // GROUP 2: PENGUJI ROUTES (EXAMINER)
         // Prefix: /api/v1/penguji/...
-        // (Disarankan pakai middleware roleApi:penguji jika ada)
         // =================================================================
         Route::prefix('penguji')->group(function () {
             
