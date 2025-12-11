@@ -34,7 +34,7 @@ const OsSearchBar = ({
                     value={search}
                     onChange={(e) => setSearch(e.target.value)}
                     onKeyDown={handleKeyDown}
-                    className="w-full rounded-lg py-2 px-4 pr-4 h-full text-os-paragraft focus:outline-none border-os-1 border-os-black"
+                    className="w-full rounded-lg py-2 px-4 pr-4 h-full bg-os-tertiary text-os-paragraft focus:outline-none border-os-1 border-os-primary"
                 />
             </div>
             {children}

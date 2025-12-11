@@ -7,7 +7,7 @@ const OsTableBody = ({ data = [], columns = [] }) => {
         <div
           key={rowIndex}
           className={`flex text-sm h-[83px] text-os-regular
-            ${rowIndex % 2 === 0 ? "bg-white" : "bg-gray-100"}
+            ${rowIndex % 2 === 0 ? "bg-b" : "bg-blue-50"}
             items-center relative`}
         >
           {columns.map((col, colIndex) => (
@@ -20,7 +20,7 @@ const OsTableBody = ({ data = [], columns = [] }) => {
               {row[col.key]}
 
               {colIndex < columns.length - 1 && (
-                <div className="absolute right-0 top-1/2 -translate-y-1/2 h-[61px] w-px bg-gray-500" />
+                <div className="absolute right-0 top-1/2 -translate-y-1/2 h-[61px] w-px bg-blue-500" />
               )}
             </div>
           ))}
