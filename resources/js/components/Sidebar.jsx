@@ -134,7 +134,7 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
 
                 {/* Menu navigasi */}
                 <nav className="flex-grow justify-start lg:justify-center flex flex-col overflow-y-auto overflow-x-hidden">
-                    <div className="flex  flex-col gap-2 p-3 w-full">
+                    <div className="flex flex-col gap-2 p-3 w-full">
                         {menu.map((item, index) => {
                             const isActive = activePath.startsWith(item.href);
                             return (
