@@ -1,7 +1,5 @@
-import React, { useState } from "react";
+import React, { useState, useRef } from "react"; // [PERBAIKAN] Tambah useRef
 import { router, usePage, useForm } from "@inertiajs/react";
-import { Edit2, Trash2, Plus } from "lucide-react"; // Pastikan import Plus ada
-// 1. Tambah useForm
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
@@ -16,58 +14,29 @@ import OsModal from "../../components/Modal.jsx";
 import OsButton from "../../components/button.jsx";
 import Modals from "../../components/Modals.jsx";
 
-// 2. Sesuaikan key dengan data dari Controller
-// const mahasiswaColumns = [
-//     {
-//         key: "no",
-//         content: "No",
-//         width: "w-16",
-//         classes: "justify-center items-center",
-//     },
-//     {
-//         key: "nim",
-//         content: "NIM Mahasiswa",
-//         width: "w-56",
-//         classes: "justify-start items-center px-4",
-//     },
-//     {
-//         key: "nama",
-//         content: "Nama Mahasiswa",
-//         width: "flex-1",
-//         classes: "justify-start items-center px-4",
-//     },
-//     {
-//         key: "action",
-//         content: "Aksi",
-//         width: "w-56",
-//         classes: "justify-center items-center px-4",
-//     },
-// ];
 const mahasiswaColumns = [
     {
         key: "no",
         content: "No",
-        width: "w-16 shrink-0", // Tambah shrink-0 biar ga kegencet
+        width: "w-16 shrink-0",
         classes: "justify-center items-center",
     },
     {
         key: "nim",
         content: "NIM Mahasiswa",
-        width: "w-56 shrink-0", // Tambah shrink-0
+        width: "w-56 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
         key: "nama",
         content: "Nama Mahasiswa",
-        // HAPUS "flex-1". Ganti jadi ukuran fix yang lebar.
-        // Misal w-[350px] atau w-96. Ini yang bikin dia tetep lebar di HP.
         width: "min-w-[350px] !flex-1 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
         key: "action",
         content: "Aksi",
-        width: "w-56 shrink-0", // Tambah shrink-0
+        width: "w-56 shrink-0",
         classes: "justify-center items-center px-4",
     },
 ];
@@ -98,6 +67,9 @@ export default function MahasiswaPage() {
     const [importing, setImporting] = useState(false);
     const [mahasiswaToEdit, setMahasiswaToEdit] = useState(null); // Untuk Judul Modal Edit
     const [selectedMahasiswa, setSelectedMahasiswa] = useState(null); // Untuk Hapus
+
+    // [PERBAIKAN] Ref untuk reset input file
+    const fileInputRef = useRef(null);
 
     // 3. GUNAKAN USEFORM (Pengganti state manual & defaultValue)
     // Nama field disesuaikan dengan Controller: nim, nama, kelas, prodi
@@ -133,6 +105,17 @@ export default function MahasiswaPage() {
         reset(); // Kosongkan form
         clearErrors();
         setShowModal(true);
+    };
+
+    // [PERBAIKAN 1] Gunakan setData untuk reset manual agar lebih pasti
+    const handleClear = () => {
+        setData({
+            nim: "",
+            nama: "",
+            kelas: "",
+            prodi: "",
+        });
+        clearErrors();
     };
 
     const submitAdd = (e) => {
@@ -200,11 +183,21 @@ export default function MahasiswaPage() {
                     alert("File Excel berhasil diunggah!");
                     setShowExcelModal(false);
                     setImportFile(null);
+                    // Reset input file native value
+                    if (fileInputRef.current) fileInputRef.current.value = "";
                 },
                 onError: () => alert("Terjadi kesalahan saat mengunggah file."),
                 onFinish: () => setImporting(false),
             }
         );
+    };
+
+    // [PERBAIKAN] Fungsi Clear khusus untuk Modal Import
+    const handleClearImport = () => {
+        setImportFile(null);
+        if (fileInputRef.current) {
+            fileInputRef.current.value = ""; // Reset input file asli agar bisa pilih file sama lagi jika perlu
+        }
     };
 
     // --- DATA TABEL ---
@@ -233,7 +226,7 @@ export default function MahasiswaPage() {
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full  p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader onMenuClick={handleSidebarToggle} />
 
                 <div className="flex-1 overflow-auto">
@@ -297,7 +290,6 @@ export default function MahasiswaPage() {
                             type="select"
                             value={angkatanFilter}
                             onChange={(e) => {
-                                // A. Ambil nilai (handle jika object)
                                 let val = e?.target?.value ?? e;
                                 // Jaga-jaga jika library UI mengembalikan object {value: "...", label: "..."}
                                 if (
@@ -337,12 +329,7 @@ export default function MahasiswaPage() {
 
                         {/* Wrapper Scroll Horizontal */}
                         <div className="w-full overflow-x-auto pb-4">
-                            {/* min-w-max: Ini kuncinya!
-                                Dia akan memaksa div ini selebar total konten di dalamnya
-                                (total width kolom yg kita set di atas).
-                                Jadi tabelnya bakal ngerender seolah-olah di layar lebar,
-                                baru kemudian dipotong oleh overflow-x-auto.
-                            */}
+                            {/* min-w-max: Ini kuncinya! */}
                             <div className="min-w-max">
                                 <OsTableHeader columns={mahasiswaColumns} />
                                 {mahasiswa.data.length > 0 ? (
@@ -378,6 +365,7 @@ export default function MahasiswaPage() {
                 subtitle="Isi form di bawah untuk menambahkan mahasiswa baru."
                 variant="add"
                 onSubmit={submitAdd}
+                onClear={handleClear} // [PERBAIKAN 2] Hubungkan handleClear ke tombol merah
             >
                 {/* Gunakan Controlled Component (value & onChange) */}
                 <div className="flex gap-4">
@@ -510,8 +498,11 @@ export default function MahasiswaPage() {
                 onClose={() => setShowExcelModal(false)}
                 title="Template Excel Mahasiswa"
                 subtitle="Download file excel dan isi data mahasiswa"
+                // [PERBAIKAN] Tambahkan onSubmit untuk memindahkan tombol submit ke footer
+                onSubmit={handleImport}
+                // [PERBAIKAN] Tambahkan onClear untuk tombol merah (menghapus file)
+                onClear={handleClearImport}
             >
-                {/* PERBAIKAN DI SINI: Ganti router.get dengan window.open */}
                 <OsButton
                     name="primary"
                     className="w-full mb-3"
@@ -536,6 +527,8 @@ export default function MahasiswaPage() {
                     </label>
                     <input
                         id="mahasiswa-import-file"
+                        // [PERBAIKAN] Gunakan ref agar bisa di-reset valuenya
+                        ref={fileInputRef}
                         type="file"
                         accept=".xlsx,.xls,.csv"
                         onChange={(e) =>
@@ -544,14 +537,7 @@ export default function MahasiswaPage() {
                         className="hidden"
                     />
                 </div>
-                <OsButton
-                    name="primary"
-                    className="w-full"
-                    disabled={importing}
-                    onClick={handleImport}
-                >
-                    {importing ? "Mengunggah..." : "Import Data Mahasiswa"}
-                </OsButton>
+                {/* [PERBAIKAN] Tombol submit dihapus dari sini karena sudah pindah ke footer via prop onSubmit */}
             </OsModal>
         </div>
     );
