@@ -153,29 +153,36 @@ class OsceJadwalController extends Controller
      */
 public function getMahasiswa(Request $request)
     {
-        // Tangkap filter angkatan (misal: "2023/2024")
+        // 1. Tangkap id_osce dari request frontend
+        $id_osce = $request->id_osce;
         $tahun_filter = $request->angkatan;
 
-        // Query Dasar Mahasiswa
+        // 2. Ambil daftar ID mahasiswa yang SUDAH punya jadwal di OSCE ini
+        $booked_ids = [];
+        if ($id_osce) {
+            $booked_ids = EnrollmentOsce::where('id_osce', $id_osce)
+                ->pluck('id_mahasiswa')
+                ->toArray();
+        }
+
         $query = Mahasiswa::query()
             ->select('id_mahasiswa', 'nama', 'nim')
             ->orderBy('nim', 'asc');
 
-        // Filter Berdasarkan Tahun Akademik (Jika ada filter)
-        // Pastikan relasi di Model Mahasiswa: enrollment -> tahunAkademik sudah benar
         if ($tahun_filter) {
             $query->whereHas('enrollment.tahunAkademik', function ($q) use ($tahun_filter) {
                 $q->where('tahun', $tahun_filter);
             });
         }
 
-        // Ambil data
+        // 3. Map data dan tambahkan flag 'already_enrolled'
         $mahasiswa = $query->get()->map(fn($m) => [
             'value' => $m->id_mahasiswa,
-            'label' => "{$m->nim} - {$m->nama}"
+            'label' => "{$m->nim} - {$m->nama}",
+            // True jika ID ada di daftar booked
+            'already_enrolled' => in_array($m->id_mahasiswa, $booked_ids) 
         ]);
 
-        // List Tahun Akademik untuk Filter Dropdown
         $list_angkatan = TahunAkademik::whereHas('enrollment')
             ->distinct()
             ->orderBy('tahun', 'desc')
@@ -192,7 +199,7 @@ public function getMahasiswa(Request $request)
      */
    public function store(Request $request, $id_osce)
     {
-        // 1. Validasi Input Dasar
+        // ... (Validasi input awal tetap sama) ...
         $validated = $request->validate([
             'tanggal'       => 'required|date',
             'jam_mulai'     => 'required', 
@@ -204,33 +211,27 @@ public function getMahasiswa(Request $request)
             'mahasiswa_ids.*' => 'exists:mahasiswa,id_mahasiswa',
         ]);
 
-        // Hitung jumlah
+        // ... (Logika validasi jumlah stase vs mahasiswa tetap sama) ...
         $jumlah_stase = count($validated['stase_ids']);
         $jumlah_mahasiswa = count($validated['mahasiswa_ids'] ?? []);
 
-        // --- [LOGIKA BARU] Validasi Jumlah Mahasiswa vs Stase ---
         if ($jumlah_stase !== $jumlah_mahasiswa) {
             return redirect()->back()
-                ->withErrors([
-                    'mahasiswa_ids' => "Jumlah mahasiswa ($jumlah_mahasiswa) harus sama dengan jumlah stase ($jumlah_stase) dalam satu sirkuit."
-                ])
-                ->withInput(); // Kembalikan input agar user tidak perlu isi ulang dari awal
+                ->withErrors(['mahasiswa_ids' => "Jumlah mahasiswa ($jumlah_mahasiswa) harus sama dengan jumlah stase ($jumlah_stase)."])
+                ->withInput();
         }
-        // --------------------------------------------------------
 
-        // 2. Format Waktu
+        // 2. Format Waktu (Tetap sama)
         $waktu_mulai = Carbon::parse($validated['jam_mulai']);
         $jam_fix = $waktu_mulai->format('H:i'); 
-        
         $total_menit  = (int)$validated['durasi'] * $jumlah_stase;
         $waktu_selesai = $waktu_mulai->copy()->addMinutes($total_menit);
 
         DB::beginTransaction();
         try {
-            // A. SIMPAN JADWAL STASE
+            // A. SIMPAN JADWAL STASE (Tetap sama)
             foreach ($validated['stase_ids'] as $staseId) {
                 $pengujiId = $validated['penguji_map'][$staseId] ?? null;
-
                 if ($pengujiId) {
                     $new = new OsceStase();
                     $new->id_osce = $id_osce;
@@ -245,23 +246,32 @@ public function getMahasiswa(Request $request)
                 }
             }
 
-            // B. SIMPAN ENROLLMENT MAHASISWA
+            // B. SIMPAN ENROLLMENT MAHASISWA [LOGIKA BARU]
             if (!empty($validated['mahasiswa_ids'])) {
                 foreach ($validated['mahasiswa_ids'] as $mhsId) {
-                    // Cek Duplikasi
-                    $exists = EnrollmentOsce::where('id_osce', $id_osce)
+                    
+                    // [UBAH DISINI] Cek apakah sudah ada di OSCE ini (apapun tanggal/jamnya)
+                    $alreadyBooked = EnrollmentOsce::where('id_osce', $id_osce)
                         ->where('id_mahasiswa', $mhsId)
-                        ->where('tanggal_sesi', $validated['tanggal']) 
-                        ->exists(); 
+                        ->exists();
 
-                    if (!$exists) {
-                        $enroll = new EnrollmentOsce();
-                        $enroll->id_osce      = $id_osce;
-                        $enroll->id_mahasiswa = $mhsId;
-                        $enroll->tanggal_sesi = $validated['tanggal'];
-                        $enroll->jam_sesi     = $jam_fix;
-                        $enroll->save();
+                    if ($alreadyBooked) {
+                        // Jika ternyata backend mendeteksi duplikat, batalkan semua (Rollback)
+                        DB::rollBack();
+                        // Ambil nama mahasiswa untuk pesan error yang jelas
+                        $mhsName = Mahasiswa::find($mhsId)->nama ?? 'Mahasiswa';
+                        return redirect()->back()
+                            ->withErrors(['mahasiswa_ids' => "Gagal: $mhsName sudah memiliki jadwal di ujian ini."])
+                            ->withInput();
                     }
+
+                    // Jika aman, simpan
+                    $enroll = new EnrollmentOsce();
+                    $enroll->id_osce      = $id_osce;
+                    $enroll->id_mahasiswa = $mhsId;
+                    $enroll->tanggal_sesi = $validated['tanggal'];
+                    $enroll->jam_sesi     = $jam_fix;
+                    $enroll->save();
                 }
             }
 
@@ -273,6 +283,43 @@ public function getMahasiswa(Request $request)
             return redirect()->back()->with('error', 'Gagal menyimpan: ' . $e->getMessage());
         }
     }
+
+    public function getSessionDetail(Request $request, $id_osce)
+{
+    $request->validate([
+        'tanggal' => 'required|date',
+        'jam_mulai' => 'required'
+    ]);
+
+    // 1. Ambil Data Stase, Penguji, dan Ruangan di sesi ini
+    $stase_list = OsceStase::with(['stase', 'penguji', 'ruang'])
+        ->where('id_osce', $id_osce)
+        ->where('tanggal', $request->tanggal)
+        ->where('jam_mulai', $request->jam_mulai)
+        ->get()
+        ->map(fn($item) => [
+            'stase' => $item->stase->nama_stase,
+            'penguji' => $item->penguji->nama ?? '-',
+            'ruang' => $item->ruang->nomor_ruangan . ' (' . $item->ruang->lokasi . ')'
+        ]);
+
+    // 2. Ambil Data Mahasiswa yang terdaftar di sesi ini
+    $mahasiswa_list = EnrollmentOsce::with('mahasiswa')
+        ->where('id_osce', $id_osce)
+        ->where('tanggal_sesi', $request->tanggal)
+        ->where('jam_sesi', $request->jam_mulai)
+        ->get()
+        ->map(fn($item) => [
+            'nama' => $item->mahasiswa->nama,
+            'nim' => $item->mahasiswa->nim
+        ]);
+
+    return response()->json([
+        'stase_data' => $stase_list,
+        'mahasiswa_data' => $mahasiswa_list
+    ]);
+}
+    
 
     /**
      * Menampilkan form untuk membuat jadwal baru

@@ -12,6 +12,8 @@ import {
     Plus,
     Edit,
     Edit2,
+    Info, // [BARU] Import Icon Info
+    X, // [BARU] Import Icon Close
 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
@@ -21,7 +23,6 @@ import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
 import Modals from "../../components/Modals.jsx";
-import OsModal from "../../components/Modal";
 import OsIcon from "../../components/icons.jsx";
 import OsStepModal from "../../components/StepModal.jsx";
 
@@ -40,37 +41,37 @@ const jadwalColumns = [
     {
         key: "tanggal",
         content: "Tanggal",
-        width: "w-48 shrink-0", // [UBAH] Diperlebar dari w-32 ke w-48
-        classes: "justify-start items-center px-6", // [UBAH] Padding diperbesar (px-6)
+        width: "w-48 shrink-0",
+        classes: "justify-start items-center px-6",
     },
     {
         key: "jam_mulai",
         content: "Mulai",
-        width: "w-28 shrink-0", // [UBAH] Sedikit diperlebar
+        width: "w-28 shrink-0",
         classes: "justify-center items-center px-2",
     },
     {
         key: "jam_selesai",
         content: "Selesai",
-        width: "w-28 shrink-0", // [UBAH] Sedikit diperlebar
+        width: "w-28 shrink-0",
         classes: "justify-center items-center px-2",
     },
     {
         key: "ruangan",
         content: "Ruangan",
-        width: "flex-1 min-w-[250px] shrink-0", // [UBAH] Min-width ditambah agar tidak terlalu sempit
-        classes: "justify-start items-center px-6", // [UBAH] Padding diperbesar
+        width: "flex-1 min-w-[250px] shrink-0",
+        classes: "justify-start items-center px-6",
     },
     {
         key: "jumlah_mahasiswa",
         content: "Kuota",
-        width: "w-44 shrink-0", // [UBAH] Diperlebar agar header tidak sesak
+        width: "w-44 shrink-0",
         classes: "justify-center items-center px-4",
     },
     {
         key: "action",
         content: "Action",
-        width: "w-24 shrink-0",
+        width: "w-32 shrink-0", // [UBAH] Diperlebar untuk 2 tombol
         classes: "justify-center items-center",
     },
 ];
@@ -87,7 +88,14 @@ export default function SesiOscePage({
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSesi, setSelectedSesi] = useState(null);
-    const [isEditOpen, setIsEditOpen] = useState(false);
+
+    // [BARU] State untuk Detail Modal
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [detailData, setDetailData] = useState({
+        stase_data: [],
+        mahasiswa_data: [],
+    });
+    const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
     // --- STATE KHUSUS WIZARD (STEP MODAL) ---
     const [isStepOpen, setIsStepOpen] = useState(false);
@@ -120,7 +128,6 @@ export default function SesiOscePage({
 
     // State untuk Step 5 (Mahasiswa)
     const [listAngkatan, setListAngkatan] = useState([]);
-    // const [useFilterAngkatan, setUseFilterAngkatan] = useState(false); <-- Hapus state ini jika sudah tidak dipakai
     const [availableMahasiswa, setAvailableMahasiswa] = useState([]);
     const [isLoadingMhs, setIsLoadingMhs] = useState(false);
 
@@ -162,6 +169,7 @@ export default function SesiOscePage({
         try {
             const res = await axios.post("/admin/osce/get-mahasiswa", {
                 angkatan: angkatan,
+                id_osce: osce.id_osce,
             });
 
             setAvailableMahasiswa(res.data.mahasiswa);
@@ -171,13 +179,37 @@ export default function SesiOscePage({
                     value: th,
                     label: `Tahun Akademik ${th}`,
                 }));
-                // Hapus unshift opsi "Semua Angkatan" sesuai request sebelumnya
                 setListAngkatan(optionsRaw);
             }
         } catch (err) {
             console.error(err);
         } finally {
             setIsLoadingMhs(false);
+        }
+    };
+
+    // [BARU] Function Fetch Detail Sesi
+    const fetchSessionDetail = async (item) => {
+        setIsLoadingDetail(true);
+        // Simpan data sesi yang dipilih untuk judul modal
+        setSelectedSesi(item);
+
+        try {
+            // Pastikan route ini ada di web.php: Route::post('/osce/{id}/get-session-detail', ...)
+            const res = await axios.post(
+                `/admin/osce/${osce.id_osce}/get-session-detail`,
+                {
+                    tanggal: item.tanggal, // kirim raw date
+                    jam_mulai: item.jam_mulai, // kirim raw time
+                }
+            );
+            setDetailData(res.data);
+            setIsDetailModalOpen(true);
+        } catch (err) {
+            console.error(err);
+            alert("Gagal mengambil detail sesi.");
+        } finally {
+            setIsLoadingDetail(false);
         }
     };
 
@@ -260,7 +292,7 @@ export default function SesiOscePage({
             </span>
         ),
 
-        // Menampilkan Jam Selesai (Data dari controller yang baru kita tambah)
+        // Menampilkan Jam Selesai
         jam_selesai: (
             <span className="text-sm bg-red-50 text-red-700 px-2 py-1 rounded border border-red-200">
                 {item.jam_selesai_formatted}
@@ -274,7 +306,17 @@ export default function SesiOscePage({
         ),
 
         action: (
-            <div className="flex items-center justify-center w-full px-2">
+            <div className="flex items-center justify-center w-full px-2 gap-2">
+                {/* [BARU] Tombol Info */}
+                <OsButton
+                    name="secondary"
+                    onClick={() => fetchSessionDetail(item)}
+                    title="Lihat Detail"
+                    className="p-2 bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
+                >
+                    <Info size={18} />
+                </OsButton>
+
                 <OsButton
                     name="warning"
                     onClick={() => handleDeleteSesi(item)}
@@ -412,6 +454,314 @@ export default function SesiOscePage({
                 }
                 confirmText="Hapus"
             />
+
+            {/* [BARU] DETAIL MODAL */}
+            {isDetailModalOpen && (
+                <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
+                    {/* Backdrop dengan blur */}
+                    <div
+                        className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
+                        onClick={() => setIsDetailModalOpen(false)}
+                    ></div>
+
+                    {/* Modal Container */}
+                    <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden transform transition-all scale-100">
+                        {/* 1. Header dengan Gradient Modern */}
+                        <div className="flex justify-between items-start px-8 py-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md z-10">
+                            <div>
+                                <h3 className="text-xl font-bold flex items-center gap-2">
+                                    <ClipboardList
+                                        className="text-blue-200"
+                                        size={24}
+                                    />
+                                    Detail Sesi OSCE
+                                </h3>
+                                {selectedSesi && (
+                                    <div className="flex flex-wrap items-center gap-3 mt-3 text-sm font-medium text-blue-100">
+                                        <div className="flex items-center gap-1.5 bg-white/20 px-3 py-1 rounded-full backdrop-blur-md">
+                                            <CalendarClock size={16} />
+                                            <span>
+                                                {selectedSesi.tanggal_formatted}
+                                            </span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 bg-white/20 px-3 py-1 rounded-full backdrop-blur-md">
+                                            <Clock size={16} />
+                                            <span>
+                                                {
+                                                    selectedSesi.jam_mulai_formatted
+                                                }{" "}
+                                                -{" "}
+                                                {
+                                                    selectedSesi.jam_selesai_formatted
+                                                }{" "}
+                                                WIB
+                                            </span>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                            <button
+                                onClick={() => setIsDetailModalOpen(false)}
+                                className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors text-white focus:outline-none focus:ring-2 focus:ring-white/50"
+                            >
+                                <X size={24} />
+                            </button>
+                        </div>
+
+                        {/* Modal Body */}
+                        <div className="flex-1 overflow-y-auto bg-gray-50/50 p-6 lg:p-8">
+                            {isLoadingDetail ? (
+                                <div className="flex flex-col items-center justify-center h-64 gap-4 text-gray-400">
+                                    <div className="animate-spin rounded-full h-10 w-10 border-4 border-indigo-500 border-t-transparent"></div>
+                                    <p className="font-medium text-gray-500">
+                                        Mengambil data sesi...
+                                    </p>
+                                </div>
+                            ) : (
+                                <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 h-full">
+                                    {/* 2. Kolom Kiri: Konfigurasi Stase (Lebih Lebar: 3/5) */}
+                                    <div className="lg:col-span-3 flex flex-col gap-4 h-full">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <div className="p-1.5 bg-indigo-100 text-indigo-600 rounded-lg">
+                                                <ClipboardList size={20} />
+                                            </div>
+                                            <h4 className="font-bold text-gray-800 text-lg">
+                                                Konfigurasi Stase
+                                            </h4>
+                                        </div>
+
+                                        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex-1">
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-sm text-left">
+                                                    <thead className="bg-gray-50 border-b border-gray-100">
+                                                        <tr>
+                                                            <th className="px-5 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">
+                                                                Nama Stase
+                                                            </th>
+                                                            <th className="px-5 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs w-1/4">
+                                                                Lokasi
+                                                            </th>
+                                                            <th className="px-5 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs w-1/3">
+                                                                Penguji
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-100">
+                                                        {detailData.stase_data
+                                                            .length > 0 ? (
+                                                            detailData.stase_data.map(
+                                                                (ds, idx) => (
+                                                                    <tr
+                                                                        key={
+                                                                            idx
+                                                                        }
+                                                                        className="hover:bg-blue-50/50 transition-colors group"
+                                                                    >
+                                                                        <td className="px-5 py-4 align-top">
+                                                                            <div className="font-semibold text-gray-800 group-hover:text-blue-700 transition-colors">
+                                                                                {
+                                                                                    ds.stase
+                                                                                }
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="px-5 py-4 align-top">
+                                                                            <div className="flex items-start gap-2 text-gray-600">
+                                                                                <div className="mt-0.5 shrink-0 text-gray-400">
+                                                                                    <svg
+                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                        width="14"
+                                                                                        height="14"
+                                                                                        viewBox="0 0 24 24"
+                                                                                        fill="none"
+                                                                                        stroke="currentColor"
+                                                                                        strokeWidth="2"
+                                                                                        strokeLinecap="round"
+                                                                                        strokeLinejoin="round"
+                                                                                    >
+                                                                                        <path d="M20 10c0 6-9 13-9 13s-9-7-9-13a9 9 0 0 1 18 0z" />
+                                                                                        <circle
+                                                                                            cx="12"
+                                                                                            cy="10"
+                                                                                            r="3"
+                                                                                        />
+                                                                                    </svg>
+                                                                                </div>
+                                                                                <span>
+                                                                                    {
+                                                                                        ds.ruang
+                                                                                    }
+                                                                                </span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="px-5 py-4 align-top">
+                                                                            <div className="flex items-start gap-2 text-gray-600 bg-gray-50 px-3 py-2 rounded-lg border border-gray-100">
+                                                                                <div className="mt-0.5 shrink-0 text-blue-500">
+                                                                                    <svg
+                                                                                        xmlns="http://www.w3.org/2000/svg"
+                                                                                        width="14"
+                                                                                        height="14"
+                                                                                        viewBox="0 0 24 24"
+                                                                                        fill="none"
+                                                                                        stroke="currentColor"
+                                                                                        strokeWidth="2"
+                                                                                        strokeLinecap="round"
+                                                                                        strokeLinejoin="round"
+                                                                                    >
+                                                                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+                                                                                        <circle
+                                                                                            cx="12"
+                                                                                            cy="7"
+                                                                                            r="4"
+                                                                                        />
+                                                                                    </svg>
+                                                                                </div>
+                                                                                <span className="font-medium text-xs leading-snug">
+                                                                                    {
+                                                                                        ds.penguji
+                                                                                    }
+                                                                                </span>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                )
+                                                            )
+                                                        ) : (
+                                                            <tr>
+                                                                <td
+                                                                    colSpan="3"
+                                                                    className="px-6 py-8 text-center text-gray-400 bg-gray-50 italic"
+                                                                >
+                                                                    Tidak ada
+                                                                    konfigurasi
+                                                                    stase.
+                                                                </td>
+                                                            </tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    {/* 3. Kolom Kanan: Mahasiswa (Lebih Ramping: 2/5) */}
+                                    <div className="lg:col-span-2 flex flex-col gap-4 h-full">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <div className="flex items-center gap-2">
+                                                <div className="p-1.5 bg-green-100 text-green-600 rounded-lg">
+                                                    <Users size={20} />
+                                                </div>
+                                                <h4 className="font-bold text-gray-800 text-lg">
+                                                    Mahasiswa
+                                                </h4>
+                                            </div>
+                                            <span className="text-xs font-bold bg-green-100 text-green-700 px-3 py-1 rounded-full border border-green-200 shadow-sm">
+                                                {
+                                                    detailData.mahasiswa_data
+                                                        .length
+                                                }{" "}
+                                                Orang
+                                            </span>
+                                        </div>
+
+                                        {/* List Mahasiswa dengan Scroll */}
+                                        <div className="bg-white border border-gray-200 rounded-xl shadow-sm flex-1 overflow-hidden flex flex-col">
+                                            <div className="overflow-y-auto flex-1 p-2 max-h-[500px]">
+                                                {detailData.mahasiswa_data
+                                                    .length > 0 ? (
+                                                    <ul className="flex flex-col gap-2">
+                                                        {detailData.mahasiswa_data.map(
+                                                            (mhs, idx) => {
+                                                                // Membuat inisial nama
+                                                                const initials =
+                                                                    mhs.nama
+                                                                        .split(
+                                                                            " "
+                                                                        )
+                                                                        .map(
+                                                                            (
+                                                                                n
+                                                                            ) =>
+                                                                                n[0]
+                                                                        )
+                                                                        .slice(
+                                                                            0,
+                                                                            2
+                                                                        )
+                                                                        .join(
+                                                                            ""
+                                                                        )
+                                                                        .toUpperCase();
+
+                                                                return (
+                                                                    <li
+                                                                        key={
+                                                                            idx
+                                                                        }
+                                                                        className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 hover:border-blue-200 hover:bg-blue-50 hover:shadow-sm transition-all group"
+                                                                    >
+                                                                        {/* Avatar Inisial */}
+                                                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 text-indigo-600 flex items-center justify-center text-sm font-bold shadow-sm shrink-0 border border-white">
+                                                                            {
+                                                                                initials
+                                                                            }
+                                                                        </div>
+
+                                                                        <div className="flex flex-col min-w-0">
+                                                                            <span className="text-sm font-semibold text-gray-800 truncate group-hover:text-blue-700 transition-colors">
+                                                                                {
+                                                                                    mhs.nama
+                                                                                }
+                                                                            </span>
+                                                                            <div className="flex items-center gap-2">
+                                                                                <span className="text-xs text-gray-500 font-mono bg-gray-100 px-1.5 py-0.5 rounded">
+                                                                                    {
+                                                                                        mhs.nim
+                                                                                    }
+                                                                                </span>
+                                                                                <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                                                                                <span className="text-[10px] text-green-600 font-medium uppercase tracking-wide">
+                                                                                    Terdaftar
+                                                                                </span>
+                                                                            </div>
+                                                                        </div>
+                                                                    </li>
+                                                                );
+                                                            }
+                                                        )}
+                                                    </ul>
+                                                ) : (
+                                                    <div className="h-full flex flex-col items-center justify-center text-gray-400 p-8 text-center">
+                                                        <div className="bg-gray-50 p-4 rounded-full mb-3">
+                                                            <Users
+                                                                size={32}
+                                                                className="text-gray-300"
+                                                            />
+                                                        </div>
+                                                        <p className="text-sm">
+                                                            Belum ada mahasiswa
+                                                            terdaftar.
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                        {/* Footer */}
+                        <div className="px-8 py-5 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 z-10">
+                            <button
+                                onClick={() => setIsDetailModalOpen(false)}
+                                className="px-6 py-2.5 bg-white border border-gray-300 hover:bg-gray-50 hover:border-gray-400 text-gray-700 rounded-lg text-sm font-semibold shadow-sm transition-all focus:ring-2 focus:ring-gray-200"
+                            >
+                                Tutup Detail
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* === STEP MODAL DINAMIS === */}
             <OsStepModal
@@ -745,22 +1095,29 @@ export default function SesiOscePage({
                                                             wizardData.mahasiswa_ids.includes(
                                                                 mhs.value
                                                             );
+
+                                                        const isAlreadyEnrolled =
+                                                            mhs.already_enrolled ===
+                                                            true;
+
                                                         const isMaxReached =
                                                             wizardData
                                                                 .mahasiswa_ids
                                                                 .length >=
                                                             wizardData.stase_ids
                                                                 .length;
+
                                                         const isDisabled =
-                                                            isMaxReached &&
-                                                            !isSelected;
+                                                            (isMaxReached &&
+                                                                !isSelected) ||
+                                                            isAlreadyEnrolled;
 
                                                         return (
                                                             <label
                                                                 key={mhs.value}
                                                                 className={`group flex items-center p-3 rounded-lg border transition-all duration-200 ${
                                                                     isDisabled
-                                                                        ? "bg-gray-50 border-gray-100 opacity-60 cursor-not-allowed"
+                                                                        ? "bg-gray-100 border-gray-200 opacity-70 cursor-not-allowed" // Style disabled lebih gelap
                                                                         : "cursor-pointer hover:border-blue-300 hover:shadow-sm"
                                                                 } ${
                                                                     isSelected
@@ -793,7 +1150,6 @@ export default function SesiOscePage({
                                                                                 [
                                                                                     ...wizardData.mahasiswa_ids,
                                                                                 ];
-
                                                                             if (
                                                                                 checked
                                                                             ) {
@@ -817,7 +1173,6 @@ export default function SesiOscePage({
                                                                                             mhs.value
                                                                                     );
                                                                             }
-
                                                                             setWizardData(
                                                                                 {
                                                                                     ...wizardData,
@@ -828,15 +1183,30 @@ export default function SesiOscePage({
                                                                         }}
                                                                     />
                                                                 </div>
-                                                                <span
-                                                                    className={`ml-3 text-sm font-medium ${
-                                                                        isSelected
-                                                                            ? "text-blue-900"
-                                                                            : "text-gray-700"
-                                                                    }`}
-                                                                >
-                                                                    {mhs.label}
-                                                                </span>
+                                                                <div className="ml-3 flex flex-col">
+                                                                    <span
+                                                                        className={`text-sm font-medium ${
+                                                                            isSelected
+                                                                                ? "text-blue-900"
+                                                                                : "text-gray-700"
+                                                                        } ${
+                                                                            isAlreadyEnrolled
+                                                                                ? "text-gray-500 line-through decoration-gray-400"
+                                                                                : ""
+                                                                        }`} // Coret nama jika sudah ada
+                                                                    >
+                                                                        {
+                                                                            mhs.label
+                                                                        }
+                                                                    </span>
+                                                                    {isAlreadyEnrolled && (
+                                                                        <span className="text-xs text-red-500 font-semibold italic mt-0.5">
+                                                                            Sudah
+                                                                            memiliki
+                                                                            jadwal
+                                                                        </span>
+                                                                    )}
+                                                                </div>
                                                             </label>
                                                         );
                                                     }
