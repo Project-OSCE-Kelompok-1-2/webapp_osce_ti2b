@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { usePage, Link } from "@inertiajs/react";
+import { usePage, Link, router } from "@inertiajs/react";
 import {
     BookOpen,
     CheckCircle,
@@ -8,6 +8,7 @@ import {
     Clock,
     AlertCircle,
     ArrowRight,
+    CalendarRange,
 } from "lucide-react";
 
 // Components
@@ -145,9 +146,30 @@ const JadwalItem = ({ jadwal }) => {
 export default function DashboardMahasiswa() {
     // 1. Props dari Backend
     // props 'url' ditambahkan agar Sidebar tahu halaman mana yang aktif
-    const { auth, statistik, jadwal_penting, kalender_event } = usePage().props;
+    const { auth, statistik, jadwal_penting, kalender_event, selected_date } =
+        usePage().props;
     const { url } = usePage();
     const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    // [BARU] Handler saat tanggal di kalender diklik
+    const handleDateSelect = (dateObj) => {
+        // Format tanggal JS ke 'YYYY-MM-DD' secara manual untuk menghindari masalah timezone
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+        const day = String(dateObj.getDate()).padStart(2, "0");
+        const dateString = `${year}-${month}-${day}`;
+
+        // Kirim request ke URL yang sama dengan query param ?date=...
+        router.get(
+            "/mahasiswa/dashboard", // Pastikan URL ini sesuai rute Anda
+            { date: dateString },
+            {
+                preserveState: true, // Jangan refresh full page state
+                preserveScroll: true, // Jangan scroll ke atas
+                only: ["jadwal_penting", "selected_date", "kalender_event"], // Update kalender_event juga untuk memastikan data sinkron
+            }
+        );
+    };
 
     // Helper untuk memisahkan jadwal urgent (H-1 atau H-0/Hari H)
     const urgentJadwal = jadwal_penting?.find((j) => j.sisa_hari <= 1);
@@ -210,9 +232,16 @@ export default function DashboardMahasiswa() {
                         {/* LEFT: JADWAL PENTING */}
                         <div className="lg:col-span-2">
                             <div className="flex items-center justify-between mb-6">
-                                <h2 className="font-bold text-xl text-gray-900">
-                                    Jadwal Penting
-                                </h2>
+                                <div className="flex gap-os-8 items-center justify-start">
+                                    <CalendarRange size={18} />
+                                    <div className="flex items-center gap-2">
+                                        <h2 className="font-bold text-xl text-gray-900">
+                                            {selected_date
+                                                ? `Jadwal Tanggal: ${selected_date}`
+                                                : "Jadwal Penting"}
+                                        </h2>
+                                    </div>
+                                </div>
                                 <Link
                                     href="/mahasiswa/jadwal"
                                     className="text-blue-500 text-sm hover:underline flex items-center gap-1"
@@ -231,25 +260,27 @@ export default function DashboardMahasiswa() {
                                 <h3 className="text-sm font-medium text-gray-500 mb-2">
                                     Mendatang
                                 </h3>
-                                {normalJadwal && normalJadwal.length > 0
-                                    ? normalJadwal.map((item, index) => (
-                                          <JadwalItem
-                                              key={index}
-                                              jadwal={item}
-                                          />
-                                      ))
-                                    : !urgentJadwal && (
-                                          <div className="p-6 text-center border border-dashed rounded-xl text-gray-400">
-                                              Belum ada jadwal ujian mendatang.
-                                          </div>
-                                      )}
+                                {normalJadwal && normalJadwal.length > 0 ? (
+                                    normalJadwal.map((item, index) => (
+                                        <JadwalItem key={index} jadwal={item} />
+                                    ))
+                                ) : !urgentJadwal ? (
+                                    <div className="p-6 text-center border border-dashed rounded-xl text-gray-400">
+                                        {selected_date
+                                            ? "Tidak ada jadwal ujian pada tanggal ini."
+                                            : "Belum ada jadwal ujian mendatang."}
+                                    </div>
+                                ) : null}
                             </div>
                         </div>
 
                         {/* RIGHT: KALENDER */}
                         <div className="lg:col-span-1">
                             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                                <Calendar events={kalender_event} />
+                                <Calendar
+                                    events={kalender_event}
+                                    onDateSelect={handleDateSelect}
+                                />
                             </div>
                         </div>
                     </section>
