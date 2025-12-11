@@ -122,14 +122,17 @@ class PengujiController extends Controller
      * [BARU] Menghapus data penguji
      * DELETE /admin/dosen/{dosen}
      */
-    public function destroy(Penguji $penguji)
+    public function destroy(Penguji $dosen)
     {
-        $penguji = $this->service->delete($penguji);
+        // Panggil service delete
+        $isDeleted = $this->service->delete($dosen);
 
-        if ($penguji) {
+        // Jika $isDeleted bernilai false/gagal, baru lempar error.
+        if (!$isDeleted) {
             return Redirect::back()->with('error', 'Gagal menghapus penguji. Mungkin terkait dengan data lain.');
         }
 
+        // Jika berhasil
         return Redirect::back()->with('success', 'Penguji berhasil dihapus.');
     }
 }
