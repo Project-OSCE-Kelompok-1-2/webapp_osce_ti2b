@@ -35,7 +35,7 @@ export default function NilaiIndex() {
     } = usePage().props;
 
     // --- STATE UI ---
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // --- STATE FILTER (Server Side) ---
     const [search, setSearch] = useState(filters?.q || "");
@@ -105,20 +105,6 @@ export default function NilaiIndex() {
                 />
 
                 <div className="">
-                    {/* Breadcrumb */}
-                    <div className="mb-6 flex items-center text-sm text-gray-500">
-                        <Link
-                            href="/mahasiswa/dashboard"
-                            className="hover:text-blue-600 transition-colors"
-                        >
-                            Dashboard
-                        </Link>
-                        <ChevronRight className="mx-2 h-4 w-4" />
-                        <span className="font-semibold text-blue-600">
-                            Hasil Penilaian
-                        </span>
-                    </div>
-
                     {/* Judul Halaman */}
                     <div className="mb-8 flex items-center gap-3">
                         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-white shadow-lg shadow-blue-200">

@@ -20,7 +20,7 @@ import OsPagination from "../../components/pagination.jsx"; // Komponen navigasi
 export default function NilaiShow() {
     // --- 1. STATE MANAGEMENT ---
     // Mengatur status Sidebar (Buka/Tutup) agar responsif
-    const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // --- 2. DATA DUMMY (SIMULASI DATABASE) ---
     // Objek ini meniru struktur data yang biasanya dikirim dari Backend (Laravel)
