@@ -144,7 +144,7 @@ export default function MahasiswaAccountSettings() {
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
             <Head title="Pengaturan Akun" />
 
             {/* SIDEBAR */}
@@ -154,7 +154,7 @@ export default function MahasiswaAccountSettings() {
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
-            <main className="grid w-full p-os-16 lg:p-4 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-8 transition-all duration-300 lg:ml-20">
                 {/* --- IMPLEMENTASI OS HEADER --- */}
                 <OsHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 

@@ -105,15 +105,24 @@ const UrgentJadwalCard = ({ jadwal }) => {
    COMPONENT: STANDARD JADWAL CARD
 ---------------------------------------------------*/
 const JadwalItem = ({ jadwal }) => {
+    const isPast = jadwal.sisa_hari < 0;
+    const displaySisa = isPast ? "✓" : jadwal.sisa_hari;
+    const displayLabel = isPast ? "Selesai" : "Hari";
+    const bgClass = isPast ? "bg-gray-400" : "bg-blue-500";
+
     return (
         <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-center justify-between hover:bg-blue-100 transition-colors cursor-pointer group">
             <div className="flex items-center gap-4">
                 {/* Badge Tanggal */}
-                <div className="flex flex-col items-center justify-center w-12 h-12 bg-blue-500 rounded-xl text-white shadow-sm group-hover:scale-105 transition-transform">
+                <div
+                    className={`flex flex-col items-center justify-center w-12 h-12 ${bgClass} rounded-xl text-white shadow-sm group-hover:scale-105 transition-transform`}
+                >
                     <span className="font-bold text-lg leading-none">
-                        {jadwal.sisa_hari}
+                        {displaySisa}
                     </span>
-                    <span className="text-[9px] font-medium">Hari</span>
+                    <span className="text-[9px] font-medium">
+                        {displayLabel}
+                    </span>
                 </div>
 
                 {/* Info */}
@@ -172,13 +181,19 @@ export default function DashboardMahasiswa() {
     };
 
     // Helper untuk memisahkan jadwal urgent (H-1 atau H-0/Hari H)
-    const urgentJadwal = jadwal_penting?.find((j) => j.sisa_hari <= 1);
+    // Pastikan hanya jadwal masa depan atau hari ini yang dianggap urgent
+    const urgentJadwal = jadwal_penting?.find(
+        (j) => j.sisa_hari >= 0 && j.sisa_hari <= 1
+    );
 
     // Filter jadwal sisa untuk list di bawah (agar tidak duplikat dengan alert)
-    const normalJadwal = jadwal_penting?.filter((j) => j.sisa_hari > 1);
+    // Tampilkan jadwal yang bukan urgent, ATAU jadwal masa lalu (sisa_hari < 0)
+    const normalJadwal = jadwal_penting?.filter(
+        (j) => j.sisa_hari > 1 || j.sisa_hari < 0
+    );
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
             {/* Sidebar Universal */}
             <Sidebar
                 type="mahasiswa"
@@ -186,7 +201,7 @@ export default function DashboardMahasiswa() {
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
-            <main className="grid w-full p-os-16 lg:p-4 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-8 transition-all duration-300 lg:ml-20">
                 {/* Header */}
                 <OsHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 

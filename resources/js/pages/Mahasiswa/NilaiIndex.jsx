@@ -88,7 +88,7 @@ export default function NilaiIndex() {
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
             <Head title="Hasil Penilaian OSCE" />
 
             {/* --- SIDEBAR --- */}
@@ -99,14 +99,14 @@ export default function NilaiIndex() {
             />
 
             {/* --- MAIN CONTENT --- */}
-            <main className="grid w-full p-os-16 lg:p-4 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-4 md:gap-8 transition-all duration-300 lg:ml-20">
                 <OsHeader
                     onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 />
 
-                <div className="pt-6">
+                <div className="pt-2 md:pt-4">
                     {/* Judul Halaman */}
-                    <div className="mb-8 flex items-center gap-3">
+                    <div className="mb-6 md:mb-8 flex items-center gap-3">
                         <FileText className="text-blue-600" size={32} />
                         <div>
                             <h1 className="text-2xl font-bold text-gray-900 leading-tight">

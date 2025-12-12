@@ -91,7 +91,7 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
     // --- RENDER TAMPILAN (JSX) ---
     // =========================================
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
             <Head title="Hasil Penilaian OSCE" />
 
             {/* --- BAGIAN A: SIDEBAR --- */}
@@ -101,14 +101,14 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             />
 
-            <main className="grid w-full p-os-16 lg:p-4 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-4 md:gap-8 transition-all duration-300 lg:ml-20">
                 {/* 1. HEADER ATAS */}
                 <OsHeader
                     onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 />
 
                 {/* 2. AREA KONTEN UTAMA */}
-                <div className="flex flex-col gap-3">
+                <div className="flex flex-col gap-4 md:gap-6 pt-2 md:pt-4">
                     {/* --- KARTU 1: JUDUL HALAMAN --- */}
                     <div className="w-full flex items-center pl-1">
                         <div className="flex items-center gap-3">
@@ -162,16 +162,20 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
 
                     {/* --- KARTU 3: TABEL NILAI --- */}
                     <div className="w-full bg-white rounded-xl shadow-sm border border-black overflow-hidden flex flex-col">
-                        {/* Bagian Header Tabel */}
-                        <div className="bg-white">
-                            <OsTableHeader columns={tableColumns} />
-                        </div>
-                        {/* Bagian Isi/Body Tabel */}
-                        <div className="w-full">
-                            <OsTableBody
-                                data={data.daftarNilai}
-                                columns={tableColumns}
-                            />
+                        <div className="overflow-x-auto">
+                            <div className="min-w-[600px]">
+                                {/* Bagian Header Tabel */}
+                                <div className="bg-white">
+                                    <OsTableHeader columns={tableColumns} />
+                                </div>
+                                {/* Bagian Isi/Body Tabel */}
+                                <div className="w-full">
+                                    <OsTableBody
+                                        data={data.daftarNilai}
+                                        columns={tableColumns}
+                                    />
+                                </div>
+                            </div>
                         </div>
                     </div>
 
@@ -183,17 +187,17 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                         </div> */}
 
                         {/* 2. KOTAK TOTAL NILAI & STATUS */}
-                        <div className="w-full flex bg-white rounded-xl border border-black h-[60px] overflow-hidden items-center shadow-sm">
+                        <div className="w-full flex flex-col sm:flex-row bg-white rounded-xl border border-black h-auto sm:h-[60px] overflow-hidden items-center shadow-sm">
                             {/* Label Total */}
-                            <div className="flex-1 h-full flex items-center justify-center font-bold text-black border-r border-black">
+                            <div className="w-full sm:flex-1 h-[50px] sm:h-full flex items-center justify-center font-bold text-black border-b sm:border-b-0 sm:border-r border-black bg-gray-50 sm:bg-white">
                                 Total / Rata - rata
                             </div>
                             {/* Angka Nilai */}
-                            <div className="w-[150px] h-full flex items-center justify-center font-extrabold text-xl text-black border-r border-black">
+                            <div className="w-full sm:w-[150px] h-[50px] sm:h-full flex items-center justify-center font-extrabold text-xl text-black border-b sm:border-b-0 sm:border-r border-black">
                                 {data.totalNilai}
                             </div>
                             {/* Status LULUS/TIDAK */}
-                            <div className="w-[200px] h-full flex items-center justify-center font-extrabold text-black text-lg uppercase tracking-wide bg-gray-50">
+                            <div className="w-full sm:w-[200px] h-[50px] sm:h-full flex items-center justify-center font-extrabold text-black text-lg uppercase tracking-wide bg-gray-50">
                                 {data.statusKelulusan}
                             </div>
                         </div>

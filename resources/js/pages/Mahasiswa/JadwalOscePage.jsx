@@ -110,7 +110,7 @@ export default function JadwalOsce({ examHeader, jadwalStase }) {
     const paginationLinks = jadwalStase?.links || [];
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
             <Head title="Jadwal OSCE" />
 
             {/* SIDEBAR */}
@@ -120,7 +120,7 @@ export default function JadwalOsce({ examHeader, jadwalStase }) {
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
-            <main className="grid w-full p-os-16 lg:p-4 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-8 transition-all duration-300 lg:ml-20">
                 {/* --- 1. HEADER --- */}
                 <OsHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
@@ -281,13 +281,15 @@ export default function JadwalOsce({ examHeader, jadwalStase }) {
                             </h2>
                         </div>
 
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2 overflow-x-auto">
                             {/* PANGGIL KOMPONEN TABEL */}
-                            <OsTableHeader columns={tableColumns} />
-                            <OsTableBody
-                                data={tableData} // Menggunakan data hasil mapping backend
-                                columns={tableColumns}
-                            />
+                            <div className="min-w-[800px]">
+                                <OsTableHeader columns={tableColumns} />
+                                <OsTableBody
+                                    data={tableData} // Menggunakan data hasil mapping backend
+                                    columns={tableColumns}
+                                />
+                            </div>
                         </div>
 
                         {/* Pagination */}
