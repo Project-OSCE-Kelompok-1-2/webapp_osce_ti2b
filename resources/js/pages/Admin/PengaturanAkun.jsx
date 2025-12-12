@@ -161,16 +161,16 @@ export default function AdminSettingAkun({ user }) {
                             {/* CONTENT */}
                             <div className="flex flex-col lg:flex-row gap-4 w-full">
                                 {/* ASIDE */}
-                                <aside className="flex flex-col w-full lg:w-[403px] gap-[17px] p-5 bg-white rounded-xl border border-black justify-center items-center">
+                                <aside className="flex flex-col w-full lg:w-[403px] gap-[17px] p-5 bg-white rounded-xl border border-os-primary justify-center items-center">
                                     <div className="w-full">
                                         <h2 className="text-xl">
                                             Gambar Profil
                                         </h2>
-                                        <hr className="mt-1 border-black" />
+                                        <hr className="mt-1 border-os-primary" />
                                     </div>
 
                                     <div
-                                        className="w-[177px] h-[177px] rounded-full bg-[#3a2323] border border-black bg-cover bg-center"
+                                        className="w-[177px] h-[177px] rounded-full bg-[#3a2323] border border-os-primary bg-cover bg-center"
                                         style={{
                                             backgroundImage: `url(${profileImage})`,
                                         }}
@@ -221,10 +221,10 @@ export default function AdminSettingAkun({ user }) {
                                 </aside>
 
                                 {/* FORM */}
-                                <section className="flex-1 flex flex-col gap-[15px] p-5 bg-white rounded-xl border border-black">
+                                <section className="flex-1 flex flex-col gap-[15px] p-5 bg-white rounded-xl border border-os-primary">
                                     <div>
                                         <h2 className="text-xl">Akun</h2>
-                                        <hr className="mt-1 border-black" />
+                                        <hr className="mt-1 border-os-primary" />
                                     </div>
 
                                     <form
@@ -237,7 +237,7 @@ export default function AdminSettingAkun({ user }) {
                                                 Nama pengguna
                                             </label>
                                             <div className="flex items-center gap-[13px] p-3 bg-white rounded-xl border border-black">
-                                                <User size={18} />
+                                                <User size={18} opacity={0.5} />
                                                 <input
                                                     disabled
                                                     value={data.username}
@@ -246,13 +246,15 @@ export default function AdminSettingAkun({ user }) {
                                             </div>
                                         </div>
 
+                                        <hr className="w-full border-os-primary my-2" />
+
                                         {/* PASSWORD LAMA */}
                                         <div className="flex flex-col gap-[3px]">
                                             <label className="text-xs">
                                                 Password lama
                                             </label>
                                             <div className="flex items-center p-3 bg-white rounded-xl border border-black">
-                                                <Lock size={16} />
+                                                <Lock size={16} opacity={0.5} />
                                                 <input
                                                     type="password"
                                                     value={data.old_password}
@@ -275,7 +277,10 @@ export default function AdminSettingAkun({ user }) {
                                                     Password baru
                                                 </label>
                                                 <div className="flex items-center p-3 bg-white rounded-xl border border-black">
-                                                    <Lock size={16} />
+                                                    <Lock
+                                                        size={16}
+                                                        opacity={0.5}
+                                                    />
                                                     <input
                                                         type="password"
                                                         value={
@@ -298,7 +303,10 @@ export default function AdminSettingAkun({ user }) {
                                                     Konfirmasi password baru
                                                 </label>
                                                 <div className="flex items-center p-3 bg-white rounded-xl border border-black">
-                                                    <Lock size={16} />
+                                                    <Lock
+                                                        size={16}
+                                                        opacity={0.5}
+                                                    />
                                                     <input
                                                         type="password"
                                                         value={
@@ -322,7 +330,7 @@ export default function AdminSettingAkun({ user }) {
                                                 name="primary"
                                                 type="submit"
                                                 disabled={processing}
-                                                className="sm:w-[223px] bg-blue-600 text-white flex items-center w-full gap-[13px] p-3 rounded-xl border border-black"
+                                                className="sm:w-[223px] bg-blue-600 text-white flex items-center w-full gap-[13px] p-3 border border-black"
                                             >
                                                 <Save className="w-[17px]" />
                                                 {processing
@@ -332,17 +340,14 @@ export default function AdminSettingAkun({ user }) {
 
                                             <OsButton
                                                 name="warning"
-                                                className="w-[223px] flex items-center justify-center gap-[13px] border border-black bg-red-600"
+                                                className="w-[223px] !bg-white !text-red-600 !border-red-600  flex items-center justify-start gap-[13px] !border-os-2"
                                                 onClick={() => {
                                                     console.log("dsajdsaldka");
                                                     handleLogout();
                                                 }}
                                                 type="button"
                                             >
-                                                <OsIcon
-                                                    name="Logout"
-                                                    className="w-[23px] h-[21px] os-icon-light"
-                                                />
+                                                <LogOut size={17} />
                                                 <span>Logout</span>
                                             </OsButton>
                                         </div>
@@ -350,7 +355,7 @@ export default function AdminSettingAkun({ user }) {
 
                                         <a
                                             href="#contact-admin"
-                                            className="underline text-xs text-os-primary mt-2"
+                                            className="underline text-xs text-os-primary"
                                         >
                                             Ada masalah? hubungi admin
                                         </a>

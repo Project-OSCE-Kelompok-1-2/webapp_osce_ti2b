@@ -329,13 +329,13 @@ export default function KompetensiPage() {
                     <OsPagination links={kompetensi.links} />
 
                     {/* Footer Total */}
-                    <div className="relative border mt-3 h-[56px] border-black rounded-lg flex items-center justify-between px-4 py-2">
-                        <p className="text-black lg:w-[70%] w-full ">
+                    <div className="relative border mt-3 h-[56px] border-os-primary bg-os-tertiary rounded-lg flex items-center justify-between px-4 py-2">
+                        <p className="text-black text-os-paragraph lg:w-[70%] w-full ">
                             Total Bobot dan Jumlah Kompetensi
                         </p>
                         <div className=" w-[30%] justify-end gap-4 text-sm hidden lg:flex">
                             <div className="flex w-full items-center justify-center gap-1.5 px-2 py-1 rounded-md">
-                                <span className="text-sm">Total Bobot:</span>
+                                <span className="text-os-paragraph">Total Bobot:</span>
                                 {/* Indikator Warna Bobot */}
                                 <span
                                     className={`font-bold ${
@@ -348,7 +348,7 @@ export default function KompetensiPage() {
                                 </span>
                             </div>
                             <div className="flex w-full items-center justify-center gap-1.5 px-2 py-1 rounded-md">
-                                <span className="text-sm">Kompetensi:</span>
+                                <span className="text-os-paragraph">Kompetensi:</span>
                                 <span className="text-black font-bold">
                                     {kompetensi.total}
                                 </span>

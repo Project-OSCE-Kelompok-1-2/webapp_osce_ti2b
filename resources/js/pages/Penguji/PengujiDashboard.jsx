@@ -30,12 +30,10 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
             <div>
                 <div className="flex justify-between items-start mb-2">
                     <div>
-                        <h3 className="font-medium text-sm text-gray-800">
+                        <h3 className="font-medium text-sm text-white">
                             {title}
                         </h3>
-                        <p className="text-xs text-gray-500 mt-1">
-                            {description}
-                        </p>
+                        <p className="text-xs text-white mt-1">{description}</p>
                     </div>
                     <div className="p-1 rounded bg-white/60 border">
                         <Bookmark size={16} className="text-gray-600" />
@@ -43,9 +41,9 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
                 </div>
             </div>
 
-            <div className="flex items-center justify-between mt-4">
+            <div className="flex items-end justify-between mt-4">
                 <div>
-                    <div className="text-4xl font-extrabold text-gray-900 leading-none">
+                    <div className="text-4xl font-extrabold text-white leading-none">
                         {value}
                     </div>
                 </div>
@@ -165,7 +163,7 @@ export default function PengujiDashboard() {
                     </p>
                 </div>
 
-                <hr className="border-1 border-os-black opacity-os-alpha-25" />
+                <hr className="border-1 border-os-primary" />
 
                 {/* STATISTIK GRID */}
                 <section className="mb-2">
@@ -186,7 +184,7 @@ export default function PengujiDashboard() {
                                     className="text-blue-700"
                                 />
                             }
-                            colorClass="bg-blue-50 border-blue-200"
+                            colorClass="bg-blue-400 border-blue-300"
                             href="/penguji/osce"
                         />
                         <StatCard
@@ -194,7 +192,7 @@ export default function PengujiDashboard() {
                             description="Ujian sedang berlangsung"
                             value={statistik?.osce_edit_nilai ?? 0}
                             icon={<Users size={22} className="text-gray-700" />}
-                            colorClass="bg-white border-gray-200"
+                            colorClass="bg-red-400 border-blue-300"
                             href="/penguji/osce"
                         />
                         <StatCard
@@ -207,13 +205,13 @@ export default function PengujiDashboard() {
                                     className="text-gray-700"
                                 />
                             }
-                            colorClass="bg-white border-gray-200"
+                            colorClass="bg-lime-500 border-blue-300"
                             href="/penguji/riwayat"
                         />
                     </div>
                 </section>
 
-                <hr className="border-1 border-os-black opacity-os-alpha-25" />
+                <hr className="border-1 border-os-primary" />
 
                 {/* JADWAL + CALENDAR GRID */}
                 <section className="flex flex-col lg:flex-row">
@@ -251,7 +249,7 @@ export default function PengujiDashboard() {
                                     />
                                 ))
                             ) : (
-                                <div className="p-8 text-center bg-white border rounded-xl text-gray-500">
+                                <div className="p-5 text-center bg-white border rounded-xl text-gray-500">
                                     {selected_date
                                         ? "Tidak ada jadwal ujian pada tanggal ini."
                                         : "Tidak ada jadwal ujian dalam waktu dekat."}
