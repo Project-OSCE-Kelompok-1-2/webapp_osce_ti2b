@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 // Import hook Inertia
-import { useForm, usePage, router } from "@inertiajs/react";
+import { useForm, usePage, router, Head } from "@inertiajs/react";
 // Catatan: 'Home' dihapus dari import karena sudah ditangani di dalam OsHeader (atau tidak dipakai jika mode goback)
 import {
     AlertCircle,
@@ -144,7 +144,7 @@ export default function MahasiswaAccountSettings() {
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
             <Head title="Pengaturan Akun" />
 
             {/* SIDEBAR */}
@@ -154,7 +154,7 @@ export default function MahasiswaAccountSettings() {
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-8 transition-all duration-300 lg:ml-20">
                 {/* --- IMPLEMENTASI OS HEADER --- */}
                 <OsHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
@@ -399,21 +399,21 @@ export default function MahasiswaAccountSettings() {
                                     </div>
                                 </div>
 
-                                    {/* BUTTONS GROUP */}
-                                    <div className="w-full flex justify-between gap-3 mt-2">
-                                        <OsButton
-                                            name="primary"
-                                            className="w-[223px] flex items-center rounded-xl p-3 justify-center gap-[13px] border border-black bg-[#0B0931] text-blue-100"
-                                            onClick={handleSaveChanges}
-                                            disabled={processing}
-                                        >
-                                            <Save className="w-[17px]" />
-                                            <span>
-                                                {processing
-                                                    ? "Menyimpan..."
-                                                    : "Simpan"}
-                                            </span>
-                                        </OsButton>
+                                {/* BUTTONS GROUP */}
+                                <div className="w-full flex justify-between gap-3 mt-2">
+                                    <OsButton
+                                        name="primary"
+                                        className="w-[223px] flex items-center rounded-xl p-3 justify-center gap-[13px] border border-black bg-[#0B0931] text-blue-100"
+                                        onClick={handleSaveChanges}
+                                        disabled={processing}
+                                    >
+                                        <Save className="w-[17px]" />
+                                        <span>
+                                            {processing
+                                                ? "Menyimpan..."
+                                                : "Simpan"}
+                                        </span>
+                                    </OsButton>
 
                                     <OsButton
                                         name="warning"
