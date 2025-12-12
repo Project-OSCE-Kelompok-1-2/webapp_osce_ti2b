@@ -11,6 +11,7 @@ import {
 
 import OsButton from "../../components/button";
 import OsHeader from "../../components/Header";
+import OsCopyright from "../../components/Copyright";
 
 export default function SubmitRubrik() {
     const [showModal, setShowModal] = useState(false);
@@ -43,9 +44,9 @@ export default function SubmitRubrik() {
             <Head title={`Rekap - ${osce_detail.nama_stase}`} />
 
             {/* Container Utama */}
-            <div className="min-h-screen bg-white flex flex-col font-sans text-gray-800">
+            <div className="min-h-screen w-screen  flex flex-col items-center font-sans p-os-12 text-gray-800">
                 {/* WRAPPER KONTEN UTAMA */}
-                <div className="flex-1 flex flex-col items-center p-6 pt-8">
+                <main className="flex flex-col items-center justify-center w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                     {/* TOP NAVIGATION BAR (FULL WIDTH) */}
                     {/* <div className="w-full flex gap-4 mb-8 items-center">
                         <button
@@ -64,13 +65,10 @@ export default function SubmitRubrik() {
                             </span>
                         </div>
                     </div> */}
-                    <OsHeader
-                        variant="goback"
-                        backLink="/penguji/dashboard"
-                    />
+                    <OsHeader variant="goback" backLink="/penguji/dashboard" />
 
                     {/* MAIN CARD */}
-                    <main className="w-full max-w-[800px] border border-gray-400 rounded-2xl overflow-hidden shadow-sm bg-white mb-10">
+                    <main className="w-full max-w-[800px] border border-os-primary rounded-2xl overflow-hidden shadow-sm bg-white mb-4">
                         {/* CARD HEADER */}
                         <div className="bg-[#2F6ECB] text-white text-center py-6">
                             <h1 className="text-xl font-bold">Detail OSCE</h1>
@@ -252,14 +250,16 @@ export default function SubmitRubrik() {
                             </div>
                         </div>
                     </main>
-                </div>
+                </main>
 
                 {/* FOOTER */}
-                <footer className="w-full border-t border-gray-400 bg-white py-4 text-center mt-auto">
+                {/* <footer className="w-full border-t border-gray-400 bg-white py-4 text-center mt-auto">
                     <p className="text-xs text-gray-600">
                         © 2025 All rights reserved. | Polines
                     </p>
-                </footer>
+                </footer> */}
+
+                <OsCopyright />
 
                 {/* POPUP MODAL */}
                 {showModal && (
