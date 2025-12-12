@@ -1,5 +1,5 @@
+import React, { useState, useEffect, useMemo } from "react"; // [1] Tambah useEffect & useMemo
 import { Link, usePage, router, Head } from "@inertiajs/react";
-import React, { useState } from "react";
 import { Search } from "lucide-react";
 
 // --- Import Komponen ---
@@ -13,40 +13,6 @@ import OsSearchBar from "../../components/searchbar.jsx";
 import OsInput from "../../components/input.jsx";
 import OsButton from "../../components/button.jsx";
 
-// --- Definisi Kolom Tabel ---
-// const rekapColumns = [
-//     {
-//         key: "no",
-//         content: "No",
-//         width: "w-16",
-//         classes: "justify-center items-center",
-//     },
-//     {
-//         key: "nama_osce",
-//         content: "Nama OSCE",
-//         width: "flex-1",
-//         classes: "justify-start items-center px-4",
-//     },
-//     {
-//         key: "rentang_tanggal",
-//         content: "Rentang Tanggal",
-//         width: "w-80",
-//         classes: "justify-start items-center px-4",
-//     },
-//     {
-//         key: "tahun_akademik",
-//         content: "Tahun Akademik",
-//         width: "w-48",
-//         classes: "justify-center items-center px-4",
-//     },
-//     {
-//         key: "action",
-//         content: "Action",
-//         width: "w-48",
-//         classes: "justify-center items-center px-4",
-//     },
-// ];
-
 const rekapColumns = [
     {
         key: "no",
@@ -57,13 +23,13 @@ const rekapColumns = [
     {
         key: "nama_osce",
         content: "Nama OSCE",
-        width: "w-[350px] flex-1 shrink-0", // Ganti flex-1 jadi fix
+        width: "w-[350px] flex-1 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
         key: "rentang_tanggal",
         content: "Rentang Tanggal",
-        width: "w-80  shrink-0",
+        width: "w-80 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
@@ -81,87 +47,153 @@ const rekapColumns = [
 ];
 
 export default function RekapOscePage() {
-    const { osce, filters, flash, tahunAkademikOptions } = usePage().props;
+    // 1. Ambil Data Full
+    const { osce, flash, tahunAkademikOptions } = usePage().props;
+    const allData = Array.isArray(osce) ? osce : osce?.data || [];
 
-    const [search, setSearch] = useState(filters.search || "");
-    const [tahun, setTahun] = useState(filters.tahun || "");
+    // 2. State Filter & Pagination
+    const [search, setSearch] = useState("");
+    const [tahun, setTahun] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    const handleSidebarToggle = () => {
-        setIsSidebarOpen((prev) => !prev);
-    }; // Ganti 'year' menjadi 'tahun'
-
-    const handleSearch = (e) => {
-        e.preventDefault();
-        router.get(
-            "/admin/rekap-nilai",
-            { search, tahun },
-            { preserveState: true, replace: true }
-        );
-    };
+    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
     const tahunList = [
         { value: "", label: "Semua Tahun" },
         ...(Array.isArray(tahunAkademikOptions) ? tahunAkademikOptions : []),
     ];
 
-    /**
-     * 🔹 HELPER: Format Tanggal Indonesia (01 Januari 2024)
-     */
+    // --- HELPER FUNCTIONS ---
     const formatDateIndo = (dateStr) => {
         if (!dateStr) return "";
         const date = new Date(dateStr);
-        // Cek validitas tanggal
-        if (isNaN(date.getTime())) return dateStr; // Kembalikan asli jika error
-
+        if (isNaN(date.getTime())) return dateStr;
         return new Intl.DateTimeFormat("id-ID", {
             day: "2-digit",
-            month: "long", // "long" = Januari, "short" = Jan
+            month: "long",
             year: "numeric",
         }).format(date);
     };
 
-    /**
-     * 🔹 HELPER: Format Rentang (Start - End)
-     */
     const formatRentang = (rawString) => {
+        // Jika data dari backend sudah diformat (misal "2024-01-01 - 2024-01-02"), kita bisa memprosesnya
+        // Atau jika data berupa object (startDate, endDate)
         if (!rawString) return "-";
-
-        // Cek apakah string mengandung pemisah " - "
         if (typeof rawString === "string" && rawString.includes(" - ")) {
             const [start, end] = rawString.split(" - ");
-            const formattedStart = formatDateIndo(start);
-            const formattedEnd = formatDateIndo(end);
-            return `${formattedStart} - ${formattedEnd}`;
+            return `${formatDateIndo(start)} - ${formatDateIndo(end)}`;
         }
-
-        // Fallback jika format tidak dikenali
-        return rawString;
+        // Jika rawString adalah string tanggal biasa
+        return formatDateIndo(rawString);
     };
 
-    // --- Siapkan Data Tabel ---
-    const tableData = osce.data.map((item, index) => ({
-        no: osce.from + index,
+    // --- LOGIC INSTANT FILTER ---
+
+    // A. Reset halaman ke 1 saat filter berubah
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, tahun]);
+
+    // B. Filter Data (Client Side)
+    const filteredData = useMemo(() => {
+        return allData.filter((item) => {
+            // Filter Search (Nama OSCE)
+            // Note: Pastikan field di database adalah 'nama_osce'
+            const term = search.toLowerCase();
+            const matchSearch = item.nama_osce?.toLowerCase().includes(term);
+
+            // Filter Tahun (ID Tahun Akademik)
+            let matchTahun = true;
+            if (tahun) {
+                // Konversi ke string agar aman saat membandingkan "1" == 1
+                matchTahun = String(item.id_tahun_akademik) === String(tahun);
+            }
+
+            return matchSearch && matchTahun;
+        });
+    }, [search, tahun, allData]);
+
+    // C. Pagination Slice
+    const totalItems = filteredData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = filteredData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    // D. Link Generator
+    const generatedLinks = useMemo(() => {
+        if (totalPages <= 1) return [];
+        const links = [];
+        links.push({
+            url: currentPage > 1 ? "#" : null,
+            label: "&laquo; Previous",
+            active: false,
+            pageNumber: currentPage - 1,
+        });
+        for (let i = 1; i <= totalPages; i++) {
+            if (
+                i === 1 ||
+                i === totalPages ||
+                (i >= currentPage - 1 && i <= currentPage + 1)
+            ) {
+                links.push({
+                    url: "#",
+                    label: i.toString(),
+                    active: i === currentPage,
+                    pageNumber: i,
+                });
+            } else if (
+                (i === currentPage - 2 && i > 1) ||
+                (i === currentPage + 2 && i < totalPages)
+            ) {
+                links.push({ url: null, label: "...", active: false });
+            }
+        }
+        links.push({
+            url: currentPage < totalPages ? "#" : null,
+            label: "Next &raquo;",
+            active: false,
+            pageNumber: currentPage + 1,
+        });
+        return links;
+    }, [currentPage, totalPages]);
+
+    // --- TABLE ROWS MAPPING (Dari Paginated Data) ---
+    const tableData = paginatedData.map((item, index) => ({
+        no: (currentPage - 1) * itemsPerPage + index + 1,
         nama_osce: (
             <div className="text-left px-4">
                 <div className="font-medium text-gray-900">
-                    {item.nama_rubrik}
+                    {item.nama_osce}
                 </div>
                 <div className="text-sm text-gray-500">
-                    {item.detail_mahasiswa}
+                    {/* Render detail jika ada, handle null safety */}
+                    {item.detail_mahasiswa || ""}
                     {item.detail_mahasiswa && item.detail_sesi && " | "}
-                    {item.detail_sesi}
+                    {item.detail_sesi || ""}
                 </div>
             </div>
         ),
-        // [PERUBAHAN] Menggunakan helper formatRentang
+        // Handle logic rentang tanggal (asumsi item punya tanggal_mulai & tanggal_selesai)
         rentang_tanggal: (
             <span className="text-sm text-gray-700 whitespace-nowrap">
-                {formatRentang(item.rentang_tanggal)}
+                {item.rentang_tanggal
+                    ? formatRentang(item.rentang_tanggal)
+                    : item.tanggal_mulai
+                    ? `${formatDateIndo(item.tanggal_mulai)} - ${formatDateIndo(
+                          item.tanggal_selesai
+                      )}`
+                    : "-"}
             </span>
         ),
-        tahun_akademik: item.tahun_akademik,
+        // Handle nama tahun akademik (relasi atau attribute)
+        tahun_akademik: item.tahun_akademik?.tahun
+            ? `${item.tahun_akademik.tahun} - ${item.tahun_akademik.semester}`
+            : item.tahun_akademik || "-",
+
         action: (
             <OsButton
                 name="primary"
@@ -176,14 +208,14 @@ export default function RekapOscePage() {
     }));
 
     return (
-        <div className="relative  bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader onMenuClick={handleSidebarToggle} />
 
                 <div className="flex-1 overflow-auto">
-                    {/* Notifikasi Sukses/Error */}
+                    {/* Notifikasi */}
                     {flash.success && (
                         <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
                             {flash.success}
@@ -203,25 +235,25 @@ export default function RekapOscePage() {
                         nilai mahasiswa.
                     </p>
 
+                    {/* SEARCH & FILTER */}
                     <OsSearchBar
                         search={search}
-                        setSearch={setSearch}
-                        onSearchClick={handleSearch}
+                        setSearch={setSearch} // Instant Update State
                         placeholder="Cari data OSCE..."
                     >
                         <OsInput
                             type="select"
                             value={tahun}
                             onChange={(e) => {
-                                const newValue = e.target.value;
-                                // Hanya set nilai jika bukan string yang dihasilkan dari konversi objek yang gagal
+                                const val = e.target.value;
+                                // Handle potential [object Object] bug from library
                                 if (
-                                    typeof newValue === "string" &&
-                                    newValue.includes("[object")
+                                    typeof val === "string" &&
+                                    val.includes("[object")
                                 ) {
-                                    setTahun(""); // Default ke nilai kosong jika terjadi error
+                                    setTahun("");
                                 } else {
-                                    setTahun(newValue);
+                                    setTahun(val);
                                 }
                             }}
                             options={tahunList}
@@ -231,19 +263,21 @@ export default function RekapOscePage() {
 
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table OSCE
+                        <span className="text-sm font-normal text-gray-500 ml-2">
+                            (Total: {totalItems} data)
+                        </span>
                     </h2>
 
-                    {/* WRAPPER HORIZONTAL SCROLL */}
+                    {/* TABEL */}
                     <div className="w-full overflow-x-auto pb-4">
                         <div className="min-w-max">
                             <OsTableHeader columns={rekapColumns} />
-                            <OsTableBody
-                                data={tableData}
-                                columns={rekapColumns}
-                            />
-
-                            {/* Pesan jika tidak ada data */}
-                            {osce.data.length === 0 && (
+                            {filteredData.length > 0 ? (
+                                <OsTableBody
+                                    data={tableData}
+                                    columns={rekapColumns}
+                                />
+                            ) : (
                                 <div className="flex items-center border-t border-gray-400">
                                     <p className="w-full text-center text-sm py-4 text-gray-500">
                                         Data rekap nilai tidak ditemukan.
@@ -253,10 +287,13 @@ export default function RekapOscePage() {
                         </div>
                     </div>
 
-                    {/* Paginasi Dinamis */}
-                    {osce.links && osce.links.length > 3 && (
+                    {/* PAGINATION CLIENT-SIDE */}
+                    {totalPages > 1 && (
                         <div className="mt-8">
-                            <OsPagination links={osce.links} />
+                            <OsPagination
+                                links={generatedLinks}
+                                onPageChange={(page) => setCurrentPage(page)}
+                            />
                         </div>
                     )}
                 </div>

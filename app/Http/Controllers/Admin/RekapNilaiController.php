@@ -6,9 +6,9 @@ use App\Models\Osce;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\TahunAkademik;
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redirect;
+use PhpOffice\PhpSpreadsheet\Writer\Pdf;
 use App\Services\Admin\RekapNilaiService; // Import Service
 
 class RekapNilaiController extends Controller

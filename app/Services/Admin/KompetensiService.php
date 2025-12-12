@@ -12,21 +12,25 @@ class KompetensiService
     /**
      * Mengambil daftar kompetensi dengan transformasi struktur data.
      */
-    public function getByAspek(AspekPenilaian $aspekPenilaian, $search)
+    public function getByAspek(AspekPenilaian $aspekPenilaian)
     {
-        // Ambil data kompetensi dengan paginasi
+        // Ambil semua data kompetensi (tanpa paginate)
         $kompetensi = $aspekPenilaian->poinAspekPenilaian()
-            ->when($search, function ($query, $search) {
-                $query->where('kompetensi', 'like', "%{$search}%");
-            })
-            ->paginate(10)
-            ->withQueryString();
-        // TRANSFORMASI: Sesuaikan struktur data dengan permintaan
-        $kompetensi->getCollection()->transform(function ($item) {
+            // [HAPUS] Logic search dihilangkan agar semua data terambil
+            // ->when($search, function ($query, $search) { ... }) 
+            
+            ->orderBy('created_at', 'asc') // [TAMBAH] Sorting biar rapi
+            
+            // [PENTING] Ganti paginate(10) menjadi get()
+            ->get(); 
+
+        // TRANSFORMASI: 
+        // Karena pakai get(), hasilnya adalah Collection. Langsung transform saja.
+        $kompetensi->transform(function ($item) {
             return [
                 'id_poin_aspek_penilaian' => $item->id_poin_aspek_penilaian,
                 'kompetensi' => $item->kompetensi,
-                'skor' => $item->skor ?? 0, // Default 0 jika null
+                'skor' => $item->skor ?? 0,
                 'bobot' => $item->bobot,
             ];
         });
