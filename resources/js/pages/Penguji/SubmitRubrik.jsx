@@ -100,7 +100,7 @@ export default function SubmitRubrik() {
                                         <div className="flex-1 border-l border-gray-300 pl-4 flex flex-col justify-between h-20">
                                             <div>
                                                 <span className="text-[10px] text-gray-500 block">
-                                                    Rubrik
+                                                    Nama Stase
                                                 </span>
                                                 <span className="font-bold text-sm">
                                                     {osce_detail.nama_stase}
@@ -119,11 +119,11 @@ export default function SubmitRubrik() {
                                         <div className="flex-1 border-l border-gray-300 pl-4 flex flex-col justify-between h-20">
                                             <div>
                                                 <span className="text-[10px] text-gray-500 block">
-                                                    Waktu per rubrik
+                                                    Durasi per mahasiswa
                                                 </span>
                                                 <span className="font-bold text-sm">
                                                     {
-                                                        osce_detail.waktu_per_rubrik
+                                                        osce_detail.durasi_per_mahasiswa
                                                     }
                                                 </span>
                                             </div>
