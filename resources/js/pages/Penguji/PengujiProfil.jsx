@@ -249,11 +249,9 @@ export default function PengujiProfil() {
 
                                 {/* --- KOLOM KANAN: FORM DATA --- */}
                                 <section className="flex flex-col items-start gap-[15px] p-5 relative w-full lg:flex-1 bg-white rounded-xl border border-os-primary shadow-sm">
-                                    <div className="relative self-stretch w-full h-[29px]">
-                                        <h2 className="absolute top-[calc(50%_-_14px)] left-0 font-sans font-normal text-black text-xl">
-                                            Akun
-                                        </h2>
-                                        <hr className="absolute top-7 left-0 w-full border-black border-t" />
+                                    <div className="w-full" >
+                                        <h2 className="text-xl">Akun</h2>
+                                        <hr className="mt-1 border-os-primary" />
                                     </div>
 
                                     <form
@@ -409,7 +407,7 @@ export default function PengujiProfil() {
 
                                         <a
                                             href="#"
-                                            className="text-xs underline text-os-primary mt-2 "
+                                            className="text-xs underline text-os-primary"
                                             onClick={(e) => e.preventDefault()}
                                         >
                                             Ada masalah? hubungi admin
