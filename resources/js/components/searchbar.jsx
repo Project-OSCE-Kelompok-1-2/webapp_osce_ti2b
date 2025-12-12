@@ -1,58 +1,48 @@
-// components/OsSearchBar.jsx
 import React from "react";
-import { Search } from "lucide-react";
-import OsButton from "./button";
-import OsIcon from "./icons";
+import { Search, X } from "lucide-react";
 
 /**
- * Komponen Search Bar yang reusable dengan tombol Cari.
- * * @param {string} search - Nilai input pencarian saat ini.
- * @param {function} setSearch - Fungsi state setter untuk mengupdate nilai search.
- * @param {function} onSearchClick - Fungsi yang dipanggil ketika tombol 'Cari' diklik.
- * @param {string} placeholder - Teks placeholder untuk input.
+ * Komponen Search Bar Minimalis & Modern.
+ * - Menggunakan 'div' untuk tombol 'X' agar tidak konflik dengan style global.
+ * - Styling input yang lebih bersih dengan efek fokus yang halus.
  */
-const OsSearchBar = ({
-    search,
-    setSearch,
-    onSearchClick,
-    placeholder = "Cari data...",
-    children
-    }) => {
-
-        const handleKeyDown = (e) => {
-            if (e.key === 'Enter') {
-                onSearchClick();
-            }
-        };
-
+const OsSearchBar = ({ search, setSearch, placeholder = "Cari data..." }) => {
     return (
-        <div className="flex h-[46px] items-center space-x-3 mb-5"> {/* Menambahkan margin bottom yang lebih jelas */}
-            <div className="relative h-full w-full flex-1">
-                <input
-                    type="text"
-                    placeholder={placeholder}
-                    value={search}
-                    onChange={(e) => setSearch(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    className="w-full rounded-lg py-2 px-4 pr-4 h-full text-os-paragraft focus:outline-none border-os-1 border-os-primary"
-                />
+        // Tambahkan class 'group' di container untuk efek hover/fokus gabungan
+        <div className="relative w-full mb-5 h-[46px] group">
+            {/* Ikon Kaca Pembesar (Kiri) */}
+            {/* group-focus-within:text-blue-500 membuat ikon jadi biru saat input difokuskan */}
+            <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <Search className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
             </div>
-            {children}
-            <OsButton
-                name="primary"
-                onClick={onSearchClick}
-                className="bg-blue-600  md:min-w-[120px] text-white h-full text-os-paragraft px-4 md:px-6 py-2 rounded-lg hover:bg-blue-700 transition duration-150 flex items-center justify-around"
-            >
-                <OsIcon
-                    name={'search'}
-                    className="os-icon-light w-[18px] min-w-[18px]"
-                />
-                <span className="hidden md:block" >Cari</span>
-            </OsButton>
+
+            {/* Input Field */}
+            <input
+                type="text"
+                className="block w-full h-full pl-10 pr-10 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200 shadow-sm"
+                placeholder={placeholder}
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+            />
+
+            {/* Tombol Clear 'X' (Kanan) - Hanya muncul jika ada teks */}
+            {search && (
+                // Menggunakan 'div' dengan role='button' untuk menghindari konflik style
+                <div
+                    role="button"
+                    tabIndex={0}
+                    onClick={() => setSearch("")}
+                    onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") setSearch("");
+                    }}
+                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600 cursor-pointer transition-colors duration-200 z-10 outline-none"
+                    title="Hapus pencarian"
+                >
+                    <X className="h-5 w-5" />
+                </div>
+            )}
         </div>
     );
 };
-
-
 
 export default OsSearchBar;

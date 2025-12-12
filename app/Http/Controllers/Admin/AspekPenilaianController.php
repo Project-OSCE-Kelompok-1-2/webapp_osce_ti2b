@@ -22,14 +22,15 @@ class AspekPenilaianController extends Controller
     // Menggantikan get_aspek_penilaian
     public function index(Request $request, Stase $stase)
     {
-        $search = $request->query("search");
-        $aspek_penilaian =  $this->service->getByStase($stase, $search);
-        // Sekarang Anda bisa mengakses properti 'nama' yang sudah Anda buat di Service.
-        // dd($aspek_penilaian);
+        // $search = $request->query("search"); // Tidak perlu ambil search dari request lagi
+        
+        // Panggil service TANPA parameter search
+        $aspek_penilaian = $this->service->getByStase($stase);
+
         return Inertia::render('Admin/MenuAspekPenilaian', [
             'stase' => $stase,
             'aspek_penilaian' => $aspek_penilaian,
-            'filters' => $request->only(['search'])
+            'filters' => [], // Filter kosong
         ]);
     }
 

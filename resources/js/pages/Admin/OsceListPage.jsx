@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react"; // [1] Tambah useEffect & useMemo
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/Copyright.jsx";
@@ -6,56 +6,14 @@ import OsButton from "../../components/button.jsx";
 import OsIcon from "../../components/icons";
 import OsInput from "../../components/input.jsx";
 import OsModal from "../../components/Modal.jsx";
-import { Head, router, usePage, Link } from "@inertiajs/react";
+import { router, usePage } from "@inertiajs/react";
 import OsPagination from "../../components/pagination";
-import {
-    Home,
-    Plus,
-    Search,
-    Edit2,
-    Trash2,
-    ChevronLeft,
-    ChevronRight,
-    Copyright,
-} from "lucide-react";
+import { Edit2, Trash2 } from "lucide-react";
 import OsTableHeader from "../../components/tableheader.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
 import Modals from "../../components/Modals.jsx";
 
-//Definisi kolom tabel
-// const columns = [
-//     {
-//         content: "No",
-//         width: "w-16",
-//         classes: "justify-center items-center",
-//         key: "no",
-//     },
-//     {
-//         content: "Nama OSCE",
-//         width: "flex-1",
-//         classes: "justify-start items-center px-4",
-//         key: "nama",
-//     },
-//     {
-//         content: "Rentang Tanggal",
-//         width: "w-2/12",
-//         classes: "justify-center items-center",
-//         key: "tanggal",
-//     },
-//     {
-//         content: "Tahun Akademik",
-//         width: "w-2/12",
-//         classes: "justify-center items-center",
-//         key: "tahun",
-//     },
-//     {
-//         content: "Aksi",
-//         width: "w-3/12",
-//         classes: "justify-center items-center",
-//         key: "aksi",
-//     },
-// ];
 const columns = [
     {
         content: "No",
@@ -65,25 +23,25 @@ const columns = [
     },
     {
         content: "Nama OSCE",
-        width: "w-[400px] flex-1 shrink-0", // Ganti flex-1
+        width: "w-[400px] flex-1 shrink-0",
         classes: "justify-start items-center px-4",
         key: "nama",
     },
     {
         content: "Rentang Tanggal",
-        width: "w-52 shrink-0", // Ganti w-2/12
+        width: "w-52 shrink-0",
         classes: "justify-center items-center",
         key: "tanggal",
     },
     {
         content: "Tahun Akademik",
-        width: "min-w-52 shrink-0 ", // Ganti w-2/12
+        width: "min-w-52 shrink-0 ",
         classes: "justify-center items-center",
         key: "tahun",
     },
     {
         content: "Aksi",
-        width: "min-w-[300px] shrink-0", // Ganti w-3/12
+        width: "min-w-[300px] shrink-0",
         classes: "justify-center items-center",
         key: "aksi",
     },
@@ -91,30 +49,104 @@ const columns = [
 
 export default function OsceListPage({
     osce,
-    filters,
+    // filters, // Tidak dipakai lagi
     tahunAkademikOptions,
-    errors,
 }) {
-    const [search, setSearch] = useState(filters.search || "");
-    const [tahun, setTahun] = useState(filters.tahun || "2025");
+    // 1. Ambil Data Full
+    const allOsceData = Array.isArray(osce) ? osce : osce?.data || [];
 
-    // STATE MODAL
+    // 2. State Filter & Pagination
+    const [search, setSearch] = useState("");
+    const [tahun, setTahun] = useState(""); // Default kosong biar tampil semua
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    // --- LOGIC INSTANT FILTER ---
+    // A. Reset halaman ke 1 jika filter berubah
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, tahun]);
+
+    // B. Filter Data
+    const filteredData = useMemo(() => {
+        return allOsceData.filter((item) => {
+            // Filter Search (Nama OSCE)
+            const matchSearch = item.nama_osce
+                ?.toLowerCase()
+                .includes(search.toLowerCase());
+
+            // Filter Tahun (String match atau ID match)
+            // Asumsi: 'item.tahun_akademik_string' berisi misal "2025/2026"
+            // Jika user pilih "2025", kita cek apakah string tersebut mengandung "2025"
+            let matchTahun = true;
+            if (tahun) {
+                const taString = item.tahun_akademik_string || "";
+                matchTahun = taString.includes(tahun);
+            }
+
+            return matchSearch && matchTahun;
+        });
+    }, [search, tahun, allOsceData]);
+
+    // C. Pagination Slicing
+    const totalItems = filteredData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = filteredData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    // D. Link Generator
+    const generatedLinks = useMemo(() => {
+        if (totalPages <= 1) return [];
+        const links = [];
+        links.push({
+            url: currentPage > 1 ? "#" : null,
+            label: "&laquo; Previous",
+            active: false,
+            pageNumber: currentPage - 1,
+        });
+        for (let i = 1; i <= totalPages; i++) {
+            if (
+                i === 1 ||
+                i === totalPages ||
+                (i >= currentPage - 1 && i <= currentPage + 1)
+            ) {
+                links.push({
+                    url: "#",
+                    label: i.toString(),
+                    active: i === currentPage,
+                    pageNumber: i,
+                });
+            } else if (
+                (i === currentPage - 2 && i > 1) ||
+                (i === currentPage + 2 && i < totalPages)
+            ) {
+                links.push({ url: null, label: "...", active: false });
+            }
+        }
+        links.push({
+            url: currentPage < totalPages ? "#" : null,
+            label: "Next &raquo;",
+            active: false,
+            pageNumber: currentPage + 1,
+        });
+        return links;
+    }, [currentPage, totalPages]);
+
+    // --- STATE MODAL & CRUD ---
     const [isAddOpen, setIsAddOpen] = useState(false);
     const [isEditOpen, setIsEditOpen] = useState(false);
     const [editData, setEditData] = useState(null);
-
-    // STATE MODAL DELETE
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
     const [selectedOsce, setSelectedOsce] = useState(null);
 
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-    const handleSidebarToggle = () => {
-        setIsSidebarOpen((prev) => !prev);
-    };
-
-    // 🔥 STATE DATA FORM (untuk Add dan Edit)
+    // Form Data
     const initialFormState = {
         nama_osce: "",
         id_tahun_akademik: "",
@@ -123,18 +155,7 @@ export default function OsceListPage({
     };
     const [formData, setFormData] = useState(initialFormState);
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        router.get(
-            "/admin/osce",
-            { search, tahun },
-            {
-                preserveState: true,
-                replace: true,
-            }
-        );
-    };
-
+    // --- ACTION HANDLERS ---
     const openEditModal = (item) => {
         setEditData(item);
         setFormData({
@@ -165,9 +186,33 @@ export default function OsceListPage({
         }
     };
 
-    // 1. Siapin isi data tabel
-    const rows = osce.data.map((item, i) => ({
-        no: osce.from + i,
+    const handleAddSubmit = (e) => {
+        e.preventDefault();
+        router.post("/admin/osce", formData, {
+            onSuccess: () => {
+                setIsAddOpen(false);
+                setFormData(initialFormState);
+            },
+            onError: (errors) => console.error("Gagal Validasi:", errors),
+        });
+    };
+
+    const handleEditSubmit = (e) => {
+        e.preventDefault();
+        if (!editData) return;
+        router.put(`/admin/osce/${editData.id_osce}`, formData, {
+            onSuccess: () => {
+                setIsEditOpen(false);
+                setFormData(initialFormState);
+            },
+            onError: (errors) => console.error("Gagal Update:", errors),
+        });
+    };
+
+    // --- TABLE ROWS (MAPPING DATA PAGINATION) ---
+    // Gunakan 'paginatedData' di sini
+    const rows = paginatedData.map((item, i) => ({
+        no: (currentPage - 1) * itemsPerPage + i + 1,
         nama: (
             <div className="flex flex-col items-start leading-tight">
                 <div className="font-semibold leading-tight">
@@ -179,7 +224,6 @@ export default function OsceListPage({
                 </div>
             </div>
         ),
-
         tanggal: (
             <div className="h-full flex items-center justify-center">
                 {item.tanggal_mulai} - {item.tanggal_selesai}
@@ -190,7 +234,6 @@ export default function OsceListPage({
                 {item.tahun_akademik_string}
             </div>
         ),
-
         aksi: (
             <div className="flex justify-center gap-2">
                 <OsButton
@@ -203,7 +246,6 @@ export default function OsceListPage({
                     <OsIcon name={"add"} className="os-icon-light h-[20px]" />
                     Edit Property
                 </OsButton>
-
                 <OsButton
                     name="edit"
                     onClick={() => openEditModal(item)}
@@ -211,7 +253,6 @@ export default function OsceListPage({
                 >
                     <Edit2 size={18} />
                 </OsButton>
-
                 <OsButton
                     name="warning"
                     onClick={() => openDeleteModal(item)}
@@ -223,42 +264,6 @@ export default function OsceListPage({
         ),
     }));
 
-    const handleAddSubmit = (e) => {
-        e.preventDefault();
-        // console.log("DATA ADD:", formData); // Debugging
-        router.post("/admin/osce", formData, {
-            onSuccess: () => {
-                setIsAddOpen(false);
-                setFormData(initialFormState);
-            },
-            onError: (errors) => {
-                console.error("Gagal Validasi:", errors);
-            },
-        });
-    };
-
-    const handleEditSubmit = (e) => {
-        e.preventDefault();
-        if (!editData) return;
-        // console.log("DATA EDIT:", formData); // Debugging
-        router.put(`/admin/osce/${editData.id_osce}`, formData, {
-            onSuccess: () => {
-                setIsEditOpen(false);
-                setFormData(initialFormState);
-            },
-            onError: (errors) => {
-                console.error("Gagal Update:", errors);
-            },
-        });
-    };
-
-    const handleClearForm = () => {
-        setFormData(initialFormState);
-    };
-
-    // Kita tidak pakai handleFormChange generic lagi karena OsInput bermasalah dengan 'name'
-    // Kita akan pasang onChange manual di setiap input di bawah.
-
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
@@ -269,10 +274,7 @@ export default function OsceListPage({
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">Menu OSCE</h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Halaman OSCE digunakan untuk mengelola daftar OSCE,
-                        termasuk pencarian data, filter tahun akademik, serta
-                        pengaturan properti seperti stase, sesi, dan mahasiswa
-                        yang terlibat.
+                        Halaman OSCE digunakan untuk mengelola daftar OSCE.
                     </p>
 
                     <OsButton
@@ -291,10 +293,10 @@ export default function OsceListPage({
                     </OsButton>
 
                     <section>
+                        {/* SEARCH BAR INSTAN */}
                         <OsSearchBar
                             search={search}
-                            setSearch={setSearch}
-                            onSearchClick={handleSearch}
+                            setSearch={setSearch} // Langsung update state
                             placeholder="Cari data OSCE..."
                         >
                             <OsInput
@@ -307,20 +309,27 @@ export default function OsceListPage({
                                     { label: "2023", value: "2023" },
                                 ]}
                                 value={tahun}
-                                onChange={(e) => setTahun(e.target.value)}
+                                onChange={(e) => setTahun(e.target.value)} // Langsung update state
                                 className="w-[140px]"
                             />
                         </OsSearchBar>
+
                         <h2 className="text-lg font-semibold mb-2">
                             Table OSCE
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
                         </h2>
 
                         <div className="w-full overflow-x-auto pb-4">
                             <div className="min-w-max">
                                 <OsTableHeader columns={columns} />
-                                <OsTableBody data={rows} columns={columns} />
-
-                                {osce.data.length === 0 && (
+                                {filteredData.length > 0 ? (
+                                    <OsTableBody
+                                        data={rows}
+                                        columns={columns}
+                                    />
+                                ) : (
                                     <div className="flex items-center border-t border-gray-300">
                                         <p className="w-full text-center text-sm py-4 text-gray-500">
                                             Data OSCE tidak ditemukan.
@@ -329,9 +338,16 @@ export default function OsceListPage({
                                 )}
                             </div>
                         </div>
-                        {osce.links && osce.links.length > 3 && (
+
+                        {/* PAGINATION CLIENT SIDE */}
+                        {totalPages > 1 && (
                             <div className="mt-8">
-                                <OsPagination links={osce.links} />
+                                <OsPagination
+                                    links={generatedLinks}
+                                    onPageChange={(page) =>
+                                        setCurrentPage(page)
+                                    }
+                                />
                             </div>
                         )}
                     </section>
@@ -340,7 +356,9 @@ export default function OsceListPage({
                 <OsCopyright />
             </main>
 
-            {/* DELETE CONFIRMATION MODAL */}
+            {/* ... SISA KODE MODAL (ADD, EDIT, DELETE) TETAP SAMA PERSIS ... */}
+            {/* Saya sertakan modal add/edit/delete agar kode tetap lengkap, tidak ada logika yang berubah di sini */}
+
             <Modals
                 isOpen={isDeleteOpen}
                 onClose={() => setIsDeleteOpen(false)}
@@ -370,7 +388,6 @@ export default function OsceListPage({
                 confirmText="Hapus"
             />
 
-            {/* ADD MODAL */}
             <OsModal
                 show={isAddOpen}
                 onClose={() => setIsAddOpen(false)}
@@ -378,12 +395,8 @@ export default function OsceListPage({
                 subtitle="Masukkan detail ujian OSCE yang baru"
                 variant="add"
                 onSubmit={handleAddSubmit}
-                onClear={handleClearForm}
+                onClear={() => setFormData(initialFormState)}
             >
-                {/* KEY PROP: Penting!
-                   Karena OsInput punya state lokal (inputValue) dan tidak mereset diri saat value prop berubah,
-                   kita harus memaksa OsInput hancur & buat baru saat modal dibuka.
-                */}
                 <div
                     className="flex flex-col gap-3"
                     key={isAddOpen ? "add-active" : "add-inactive"}
@@ -393,7 +406,6 @@ export default function OsceListPage({
                         label="Nama OSCE"
                         placeholder="Contoh: OSCE Blok A Semester Ganjil"
                         value={formData.nama_osce}
-                        // FIX: Manual set state karena OsInput text tidak kirim 'name'
                         onChange={(e) =>
                             setFormData({
                                 ...formData,
@@ -401,7 +413,6 @@ export default function OsceListPage({
                             })
                         }
                     />
-
                     <OsInput
                         type="select"
                         label="Tahun Akademik"
@@ -410,7 +421,6 @@ export default function OsceListPage({
                             ...(tahunAkademikOptions || []),
                         ]}
                         value={formData.id_tahun_akademik}
-                        // FIX: Manual set state
                         onChange={(e) =>
                             setFormData({
                                 ...formData,
@@ -423,7 +433,6 @@ export default function OsceListPage({
                             type="date"
                             label="Tanggal Mulai"
                             value={formData.tanggal_mulai}
-                            // FIX: Manual set state
                             onChange={(e) =>
                                 setFormData({
                                     ...formData,
@@ -436,7 +445,6 @@ export default function OsceListPage({
                             type="date"
                             label="Tanggal Selesai"
                             value={formData.tanggal_selesai}
-                            // FIX: Manual set state
                             onChange={(e) =>
                                 setFormData({
                                     ...formData,
@@ -449,7 +457,6 @@ export default function OsceListPage({
                 </div>
             </OsModal>
 
-            {/* EDIT MODAL */}
             <OsModal
                 show={isEditOpen}
                 onClose={() => setIsEditOpen(false)}
@@ -462,7 +469,6 @@ export default function OsceListPage({
                     openDeleteModal(editData);
                 }}
             >
-                {/* KEY PROP: Memaksa input ter-refresh saat data edit berubah */}
                 <div
                     className="flex flex-col gap-3"
                     key={editData ? editData.id_osce : "edit"}
@@ -472,7 +478,6 @@ export default function OsceListPage({
                         label="Nama OSCE"
                         placeholder="Contoh: OSCE Blok A Semester Ganjil"
                         value={formData.nama_osce}
-                        // FIX: Manual set state
                         onChange={(e) =>
                             setFormData({
                                 ...formData,
@@ -480,7 +485,6 @@ export default function OsceListPage({
                             })
                         }
                     />
-
                     <OsInput
                         type="select"
                         label="Tahun Akademik"
@@ -489,7 +493,6 @@ export default function OsceListPage({
                             ...(tahunAkademikOptions || []),
                         ]}
                         value={formData.id_tahun_akademik}
-                        // FIX: Manual set state
                         onChange={(e) =>
                             setFormData({
                                 ...formData,
@@ -502,7 +505,6 @@ export default function OsceListPage({
                             type="date"
                             label="Tanggal Mulai"
                             value={formData.tanggal_mulai}
-                            // FIX: Manual set state
                             onChange={(e) =>
                                 setFormData({
                                     ...formData,
@@ -515,7 +517,6 @@ export default function OsceListPage({
                             type="date"
                             label="Tanggal Selesai"
                             value={formData.tanggal_selesai}
-                            // FIX: Manual set state
                             onChange={(e) =>
                                 setFormData({
                                     ...formData,
