@@ -370,7 +370,7 @@ export default function AdminSettingAkun({ user }) {
                 </div>
 
                 {/* ============================
-                MODAL DELETE FOTO PROFIL
+                MODAL UNTUK DELETE FOTO PROFIL
             ============================ */}
                 <Modals
                     isOpen={isDeleteModalOpen}
