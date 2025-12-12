@@ -78,9 +78,8 @@ export default function Stase() {
         setIsSidebarOpen((prev) => !prev);
     };
 
-    // 🔥 PERBAIKAN DI SINI: Ganti 'deskripsi_tujuan' menjadi 'tujuan' sesuai Model
     const suggestMataKuliah =
-        tujuanPembelajaran?.map((t) => t.tujuan).filter(Boolean) || [];
+        mataKuliah?.map((m) => m.nama_mata_kuliah).filter(Boolean) || [];
 
     const suggestTujuan =
         tujuanPembelajaran?.map((t) => t.tujuan).filter(Boolean) || [];
@@ -253,9 +252,8 @@ export default function Stase() {
                     onClick={() =>
                         openDeleteModal(item.id_stase, item.nama_stase)
                     }
-
                 >
-                    <Trash2 size={18}/>
+                    <Trash2 size={18} />
                 </OsButton>
             </div>
         ),
