@@ -12,6 +12,7 @@ use App\Models\OsceStase;
 
 class OsceController extends Controller
 {
+    // mengembvalikan semua data
     public function index(Request $request)
     {
         $user = Auth::user();
@@ -51,19 +52,19 @@ class OsceController extends Controller
 
             // Logika Status
             $status = 'Selesai';
-            
+
             if ($now->lt($startEvent)) {
                 $status = 'Belum Dimulai';
             } elseif ($now->between($startEvent, $endEvent)) {
-                $status = 'Aktif'; 
+                $status = 'Aktif';
             } else {
-                $status = 'Selesai'; 
+                $status = 'Selesai';
             }
 
             return [
                 'id_osce'          => $osce->id_osce,
                 'id_osce_stase'    => $stase->id_osce_stase,
-                'nama'             => $osce->nama_osce, 
+                'nama'             => $osce->nama_osce,
                 'tanggal_mulai'    => $osce->tanggal_mulai->format('d F Y'),
                 'tanggal_akhir'    => $osce->tanggal_selesai->format('d F Y'),
                 'status'           => $status,
