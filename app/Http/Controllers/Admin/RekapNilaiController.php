@@ -57,15 +57,15 @@ class RekapNilaiController extends Controller
      */
     public function listSesi(Request $request, $id_osce)
     {
-        $search = $request->input('search');
-
-        // ✅ Panggil Service
-        $result = $this->service->getSesiList($id_osce, $search);
+        // $search = $request->input('search'); // Tidak perlu ambil dari request
+        
+        // Panggil Service TANPA parameter search
+        $result = $this->service->getSesiList($id_osce);
 
         return Inertia::render('Admin/RekapSesiPage', [
             'osce' => $result['osce'],
-            'sesi' => $result['sesi'],
-            'filters' => $request->only(['search']),
+            'sesi' => $result['sesi'], // Array Full
+            'filters' => [], // Filter kosong
         ]);
     }
 

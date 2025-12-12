@@ -63,50 +63,55 @@ class RekapNilaiService
      * @param string|null $search
      * @return array
      */
-    public function getSesiList($id_osce, $search)
+    public function getSesiList($id_osce)
     {
         $osce = Osce::findOrFail($id_osce);
 
+        // Hapus parameter $search, kita tidak filter di database lagi
         $query = DB::table('osce_stase')
             ->where('id_osce', $id_osce)
             ->whereNotNull('tanggal');
 
-        if ($search) {
-            $query->where('tanggal', 'like', "%{$search}%");
-        }
-
-        $sesi_paginated = $query->select(
+        // [HAPUS] if ($search) { $query->where(...) }
+        
+        // Ambil SEMUA data yang sudah di-group
+        $sesi_virtual = $query->select(
             'tanggal',
             'jam_mulai',
             DB::raw('COUNT(*) as stase_count')
         )
-            ->groupBy('tanggal', 'jam_mulai')
-            ->orderBy('tanggal', 'asc')
-            ->orderBy('jam_mulai', 'asc')
-            ->paginate(10)
-            ->withQueryString();
+        ->groupBy('tanggal', 'jam_mulai')
+        ->orderBy('tanggal', 'asc')
+        ->orderBy('jam_mulai', 'asc')
+        ->get(); // Gunakan GET(), bukan paginate()
 
-        $sesi_data = $sesi_paginated->through(function ($sesi_group) use ($id_osce) {
+        // Transformasi Data (Map Collection)
+        $sesi_data = $sesi_virtual->map(function ($sesi_group) use ($id_osce) {
             $jam_formatted = substr($sesi_group->jam_mulai, 0, 5);
 
             $jumlah_mahasiswa = EnrollmentOsce::where('id_osce', $id_osce)
                 ->where('tanggal_sesi', $sesi_group->tanggal)
+                ->where('jam_sesi', $sesi_group->jam_mulai) // Pastikan format jam di DB sesuai (mungkin perlu like atau exact match)
                 ->distinct('id_mahasiswa')
                 ->count();
+
+            // Format tanggal Indonesia manual atau pakai Carbon
+            $tanggal_indo = (new \DateTime($sesi_group->tanggal))->format('d M Y'); // Contoh: 12 Dec 2025
 
             return [
                 // Format ID sesi: Tanggal_Jam(tanpa titik dua)
                 'id_sesi' => $sesi_group->tanggal . '_' . str_replace(':', '', $jam_formatted),
                 'tanggal_sesi_raw' => $sesi_group->tanggal,
                 'jam_sesi_raw' => $jam_formatted,
-                'tampilan_sesi' => (new \DateTime($sesi_group->tanggal))->format('d M Y') . ' — Pukul ' . $jam_formatted,
+                // String gabungan untuk tampilan & pencarian
+                'tampilan_sesi' => $tanggal_indo . ' — Pukul ' . $jam_formatted, 
                 'jumlah_mahasiswa' => $jumlah_mahasiswa,
             ];
         });
 
         return [
             'osce' => $osce,
-            'sesi' => $sesi_data
+            'sesi' => $sesi_data // Kirim Array Lengkap
         ];
     }
 
