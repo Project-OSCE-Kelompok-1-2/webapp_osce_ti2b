@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { usePage, Link } from "@inertiajs/react";
+import { usePage, Link, Head } from "@inertiajs/react"; // <-- Menambahkan Head
 import {
     ClipboardList,
     Users,
@@ -59,7 +59,8 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
 
 const NotificationItem = ({ stase, index }) => {
     return (
-        <div className="flex items-startjustify-between bg-white border rounded-lg  overflow-hidden">
+        // Memperbaiki typo di className: items-startjustify-between -> items-start justify-between
+        <li className="flex items-start justify-between bg-white border rounded-lg overflow-hidden">
             <div className="flex items-center px-4 py-4 border-r">
                 <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-700">
                     {index}
@@ -89,7 +90,7 @@ const NotificationItem = ({ stase, index }) => {
                     </Link>
                 </div>
             </div>
-        </div>
+        </li>
     );
 };
 
@@ -182,6 +183,7 @@ export default function Dashboard() {
                             href="/admin/dosen"
                         />
                     </div>
+                </section>
 
                 <hr className="border-1 border-os-black opacity-os-alpha-25" />
 
@@ -192,15 +194,25 @@ export default function Dashboard() {
                             Notifikasi
                         </h2>
                     </div>
-                </div>
+                </section>
 
                 {/* Notifikasi / Reminder */}
                 <div className="bg-white shadow rounded-xl p-4">
                     <h3 className="font-semibold text-lg mb-3">Notifikasi</h3>
                     <ul className="space-y-2">
-                        {notifikasi.length === 0 && (
+                        {notifikasi.length === 0 ? ( // <-- Memperbaiki cara menampilkan notifikasi kosong
                             <p className="text-gray-500">Tidak ada notifikasi.</p>
+                        ) : (
+                            notifikasi.map((stase, index) => ( // <-- Menambahkan pemetaan notifikasi
+                                <NotificationItem
+                                    key={stase.id_stase || index} // Menggunakan id_stase sebagai key
+                                    stase={stase}
+                                    index={index + 1}
+                                />
+                            ))
                         )}
+                    </ul>
+                </div>
 
                 <div className="mt-8">
                     <OsCopyright />
@@ -208,4 +220,5 @@ export default function Dashboard() {
             </div>
         </>
     );
+
 }
