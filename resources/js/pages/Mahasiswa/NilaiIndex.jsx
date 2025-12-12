@@ -88,7 +88,7 @@ export default function NilaiIndex() {
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
             <Head title="Hasil Penilaian OSCE" />
 
             {/* --- SIDEBAR --- */}
@@ -99,14 +99,14 @@ export default function NilaiIndex() {
             />
 
             {/* --- MAIN CONTENT --- */}
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-2 md:gap-4 transition-all duration-300 lg:ml-20">
                 <OsHeader
                     onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 />
 
-                <div className="pt-6">
+                <div className="pt-0">
                     {/* Judul Halaman */}
-                    <div className="mb-8 flex items-center gap-3">
+                    <div className="mb-6 md:mb-8 flex items-center gap-3">
                         <FileText className="text-blue-600" size={32} />
                         <div>
                             <h1 className="text-2xl font-bold text-gray-900 leading-tight">
@@ -119,7 +119,7 @@ export default function NilaiIndex() {
                     </div>
 
                     {/* Card Info Mahasiswa (DINAMIS DARI CONTROLLER) */}
-                    <div className="relative mb-8 overflow-hidden rounded-2xl bg-blue-600 p-2 text-white shadow-xl shadow-blue-100">
+                    <div className="relative mb-8 overflow-hidden rounded-2xl bg-blue-600 p-6 text-white shadow-xl shadow-blue-100">
                         <div className="absolute right-0 top-0 h-64 w-64 translate-x-16 -translate-y-16 rounded-full bg-white/10 blur-3xl"></div>
                         <div className="absolute left-0 bottom-0 h-40 w-40 -translate-x-10 translate-y-10 rounded-full bg-blue-400/30 blur-2xl"></div>
 
