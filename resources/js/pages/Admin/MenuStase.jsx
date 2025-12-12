@@ -183,12 +183,20 @@ export default function Stase() {
         clearErrors();
         setTujuanInput("");
 
+        // Debugging: Cek di console browser apakah data lengkap
+        console.log("Data Item Edit:", item);
+
         const currentMK = mataKuliah.find(
             (m) => m.id_mata_kuliah === item.id_mata_kuliah
         );
 
-        const currentTujuanList = item.tujuan_pembelajaran
-            ? item.tujuan_pembelajaran.map((t) => t.tujuan)
+        // Pastikan backend mengirim 'tujuan_pembelajaran' (camelCase atau snake_case tergantung settingan Laravel)
+        // Biasanya Laravel mengirim snake_case 'tujuan_pembelajaran' jika toArray() dipanggil,
+        // tapi jika menggunakan resource bisa jadi beda. Kita cek keduanya untuk keamanan.
+        const rawTujuan = item.tujuan_pembelajaran || item.tujuanPembelajaran;
+
+        const currentTujuanList = rawTujuan
+            ? rawTujuan.map((t) => t.tujuan)
             : [];
 
         setData({
@@ -338,9 +346,7 @@ export default function Stase() {
                     setTujuanInput("");
                 }}
                 onSubmit={handleSubmit}
-                title={
-                    modalMode === "edit" ? "Edit Stase" : "Tambah Stase Baru"
-                }
+                title={modalMode === "edit" ? " Stase" : "Tambah Stase Baru"}
                 subtitle={
                     modalMode === "edit"
                         ? `Ubah data stase: ${data.nama_stase}`
