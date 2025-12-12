@@ -262,8 +262,9 @@ export default function Stase() {
                     onClick={() =>
                         openDeleteModal(item.id_stase, item.nama_stase)
                     }
+
                 >
-                    <Trash2 size={18} className="text-os-white" />
+                    <Trash2 size={18}/>
                 </OsButton>
             </div>
         ),

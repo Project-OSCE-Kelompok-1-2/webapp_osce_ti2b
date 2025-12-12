@@ -26,10 +26,10 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
                 {/* ... (bagian judul dan deskripsi, tidak berubah) ... */}
                 <div className="flex justify-between items-start mb-2">
                     <div>
-                        <h3 className="font-medium text-sm text-gray-800">
+                        <h3 className="font-medium text-sm text-white">
                             {title}
                         </h3>
-                        <p className="text-xs text-gray-500 mt-1">
+                        <p className="text-xs text-white mt-1">
                             {description}
                         </p>
                     </div>
@@ -41,14 +41,14 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
 
             <div className="flex items-center justify-between mt-4">
                 <div>
-                    <div className="text-4xl font-extrabold text-gray-900 leading-none">
+                    <div className="text-4xl font-extrabold text-white leading-none">
                         {value}
                     </div>
 
                     {/* [UBAH] Mengganti <button> menjadi <Link> DAN UBAH STYLE */}
                     <Link
                         href={href} // Menggunakan href dari props
-                        className="mt-2 inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200 transition-colors"
+                        className="mt-2 inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border text-white border-yellow-200 hover:bg-blue-200 transition-colors"
                     >
                         <ClipboardList size={14} />
                         <span>Tampilkan lebih</span>
@@ -148,7 +148,7 @@ export default function Dashboard() {
                     </p>
                 </div>
 
-                <hr className="border-1 border-os-black opacity-os-alpha-25" />
+                <hr className="border-1 border-os-primary" />
 
                 {/* Statistika */}
                 <section className="mb-2">
@@ -171,7 +171,7 @@ export default function Dashboard() {
                                     className="text-blue-700"
                                 />
                             }
-                            colorClass="bg-blue-50 border-blue-200"
+                            colorClass="bg-blue-400 border-blue-300"
                             href="/admin/osce" // <-- Tautan ke menu OSCE
                         />
                         {/* [UBAH] Tambahkan prop 'href' di sini */}
@@ -180,7 +180,7 @@ export default function Dashboard() {
                             description="Jumlah total mahasiswa terdaftar"
                             value={totalMahasiswa}
                             icon={<Users size={22} className="text-gray-700" />}
-                            colorClass="bg-white border-gray-200"
+                            colorClass="bg-red-400 border-blue-300"
                             href="/admin/mahasiswa" // <-- Tautan ke menu Mahasiswa
                         />
                         {/* [UBAH] Tambahkan prop 'href' di sini */}
@@ -194,13 +194,13 @@ export default function Dashboard() {
                                     className="text-gray-700"
                                 />
                             }
-                            colorClass="bg-white border-gray-200"
+                            colorClass="bg-lime-500 border-blue-300"
                             href="/admin/dosen" // <-- Tautan ke menu Dosen (Asumsi Penguji = Dosen)
                         />
                     </div>
                 </section>
 
-                <hr className="border-1 border-os-black opacity-os-alpha-25" />
+                <hr className="border-1 border-os-primary" />
 
                 {/* Notifikasi */}
                 <section>
@@ -221,7 +221,7 @@ export default function Dashboard() {
                                 />
                             ))
                         ) : (
-                            <p className="text-sm text-gray-500 text-center py-4 bg-white border rounded-lg">
+                            <p className="text-sm text-blue-800 text-center py-4 bg-os-tertiary border-os-primary border rounded-lg">
                                 Tidak ada notifikasi.
                             </p>
                         )}
