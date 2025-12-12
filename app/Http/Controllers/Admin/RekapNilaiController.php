@@ -76,17 +76,17 @@ class RekapNilaiController extends Controller
      */
     public function listMahasiswaPerStase(Request $request, $id_osce, $id_sesi)
     {
-        $search = $request->input('search');
-        $angkatan = $request->input('angkatan');
+        // $search = $request->input('search');   // Tidak perlu
+        // $angkatan = $request->input('angkatan'); // Tidak perlu
 
-        // ✅ Panggil Service
-        $result = $this->service->getMahasiswaPerSesi($id_osce, $id_sesi, $search, $angkatan);
+        // Panggil Service TANPA parameter filter
+        $result = $this->service->getMahasiswaPerSesi($id_osce, $id_sesi);
 
         return Inertia::render('Admin/RekapMahasiswaPage', [
             'osce' => $result['osce'],
-            'sesi' => $result['sesi_info'],
+            'sesi' => $result['sesi_info'],     // Perhatikan nama key ini
             'mahasiswa_list' => $result['mahasiswa_list'],
-            'filters' => $request->only(['search', 'angkatan']),
+            'filters' => [], // Filter kosong
         ]);
     }
 

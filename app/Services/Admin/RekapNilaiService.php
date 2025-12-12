@@ -123,9 +123,9 @@ class RekapNilaiService
      * @param string|null $angkatan
      * @return array
      */
-    public function getMahasiswaPerSesi($id_osce, $id_sesi, $search, $angkatan)
+    public function getMahasiswaPerSesi($id_osce, $id_sesi)
     {
-        // 1. Pecah ID Sesi untuk mendapatkan Tanggal dan Jam
+        // 1. Pecah ID Sesi
         $parts = explode('_', $id_sesi);
         $sesi_tanggal = $parts[0];
         $sesi_jam_raw = isset($parts[1]) ? $parts[1] : '';
@@ -140,29 +140,18 @@ class RekapNilaiService
         // 2. Ambil ID mahasiswa yang ter-enroll di SESI INI
         $enrolled_ids = EnrollmentOsce::where('id_osce', $id_osce)
             ->where('tanggal_sesi', $sesi_tanggal)
-            // Jika Anda ingin memfilter berdasarkan jam juga: ->where('jam_sesi', $sesi_jam_display)
+            // Jika perlu filter jam: ->where('jam_sesi', 'LIKE', $sesi_jam_display . '%')
             ->pluck('id_mahasiswa');
 
-        // 3. Query Mahasiswa
-        $mahasiswa_query = Mahasiswa::whereIn('id_mahasiswa', $enrolled_ids);
-
-        if ($search) {
-            $mahasiswa_query->where(function ($q) use ($search) {
-                $q->where('nama', 'like', "%{$search}%")
-                    ->orWhere('nim', 'like', "%{$search}%");
-            });
-        }
-        if ($angkatan) {
-            $mahasiswa_query->where('kelas', $angkatan);
-        }
-
-        $mahasiswa_list = $mahasiswa_query->orderBy('nama', 'asc')
-            ->paginate(20)
-            ->withQueryString()
-            ->through(fn($mhs) => [
+        // 3. Query Mahasiswa (Ambil SEMUA tanpa filter search/angkatan)
+        $mahasiswa_list = Mahasiswa::whereIn('id_mahasiswa', $enrolled_ids)
+            ->orderBy('nama', 'asc')
+            ->get() // [PENTING] Gunakan get()
+            ->map(fn($mhs) => [
                 'id_mahasiswa' => $mhs->id_mahasiswa,
                 'nim' => $mhs->nim,
                 'nama' => $mhs->nama,
+                'kelas' => $mhs->kelas, // Tambahkan ini agar bisa difilter angkatan di frontend
             ]);
 
         return [
@@ -173,7 +162,7 @@ class RekapNilaiService
                 'tanggal_formatted' => (new \DateTime($sesi_tanggal))->format('d M Y'),
                 'jam' => $sesi_jam_display,
             ],
-            'mahasiswa_list' => $mahasiswa_list
+            'mahasiswa_list' => $mahasiswa_list // Array Full
         ];
     }
 
