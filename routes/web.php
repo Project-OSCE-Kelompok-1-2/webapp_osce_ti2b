@@ -150,19 +150,7 @@ Route::prefix('mahasiswa')->middleware(['auth', 'role:mahasiswa'])->name('mahasi
 
     // [PERBAIKAN] Nama route diperbaiki (menghapus 'mahasiswa.' di dalam group)
     
-    Route::get('/dashboard', function () {
-        return Inertia::render('Mahasiswa/Dashboard', [
-            'statistik' => [
-                'terdaftar' => 4, 'selesai' => 2, 'nilai_akhir' => 85.5,
-            ],
-            'jadwal_penting' => [
-                ['nama_ujian' => 'OSCE Blok 3.1 - Kardiovaskuler', 'tanggal_full' => 'Jumat, 6 Desember 2025', 'tanggal_pendek' => '6 Des', 'jam' => '08:00', 'sisa_hari' => 1, 'tipe' => 'Ujian Utama'],
-                ['nama_ujian' => 'Responsi Farmakologi', 'tanggal_full' => 'Senin, 15 Desember 2025', 'tanggal_pendek' => '15 Des', 'jam' => '10:00', 'sisa_hari' => 10, 'tipe' => 'Responsi'],
-                ['nama_ujian' => 'Skill Lab: Anamnesis', 'tanggal_full' => 'Rabu, 20 Desember 2025', 'tanggal_pendek' => '20 Des', 'jam' => '13:00', 'sisa_hari' => 15, 'tipe' => 'Latihan']
-            ],
-            'kalender_event' => ['2025-12-06', '2025-12-15', '2025-12-20']
-        ]);
-    })->name('dashboard'); // Hasil: mahasiswa.dashboard
+    Route::get('/dashboard', [DashboardMahasiswaController::class, 'index'])->name('dashboard'); // Hasil: mahasiswa.dashboard
 
     Route::get('/nilai', [ListNilaiMahasiswaController::class, 'index'])->name('nilai');
     Route::get('/nilai/{id}', [NilaiMahasiswaController::class, 'show'])->name('nilai.show');
