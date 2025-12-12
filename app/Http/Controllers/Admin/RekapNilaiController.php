@@ -6,9 +6,9 @@ use App\Models\Osce;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
 use App\Models\TahunAkademik;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redirect;
-use PhpOffice\PhpSpreadsheet\Writer\Pdf;
 use App\Services\Admin\RekapNilaiService; // Import Service
 
 class RekapNilaiController extends Controller
@@ -27,16 +27,26 @@ class RekapNilaiController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->input('search');
-        $tahun = $request->input('tahun');
+        // [PERUBAHAN] Ambil SEMUA data OSCE tanpa pagination server-side
+        // Kita gunakan Osce model langsung agar konsisten dengan halaman sebelumnya
+        // Pastikan diload relasi 'tahunAkademik' agar filtering tahun berjalan lancar
+        
+        $osce = Osce::with('tahunAkademik')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        // ✅ Panggil Service untuk mengambil data OSCE dan Tahun Akademik
-        $result = $this->service->getRekapList($search, $tahun);
+        // Ambil data tahun akademik untuk dropdown
+        $tahunAkademikOptions = TahunAkademik::orderBy('tahun', 'desc')
+            ->get()
+            ->map(fn($t) => [
+                'label' => $t->tahun . ' - ' . $t->semester,
+                'value' => $t->id_tahun_akademik
+            ]);
 
         return Inertia::render('Admin/RekapOscePage', [
-            'osce' => $result['osce'], // Paginator Object
-            'filters' => $request->only(['search', 'tahun']),
-            'tahunAkademikOptions' => $result['tahunAkademikOptions'],
+            'osce' => $osce, // Mengirim Array Full
+            'tahunAkademikOptions' => $tahunAkademikOptions,
+            'filters' => [], // Filter dikosongkan karena dihandle frontend
         ]);
     }
 
