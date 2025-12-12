@@ -26,6 +26,50 @@ const Component1 = ({ className }) => <Eye className={className} />;
 const Icon1 = ({ className }) => <Save className={className} />;
 const IconComponentNode = ({ className }) => <Lock className={className} />;
 
+const CustomInput = ({
+    label,
+    type = "text",
+    value,
+    onChange,
+    disabled,
+    placeholder,
+    icon,
+    iconRight,
+    error,
+}) => (
+    <div className="flex flex-col items-start gap-[3px] relative self-stretch w-full flex-[0_0_auto] ">
+        <label className="relative self-stretch mt-[-1.00px] font-sans font-normal text-black text-xs tracking-[0] leading-[normal]">
+            {label}
+        </label>
+        <div
+            className={`flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full
+            rounded-xl border border-solid border-black`}
+        >
+            {icon && (
+                <div className="!relative !w-5 !h-5 !aspect-[1] flex items-center justify-center opacity-45">
+                    {icon}
+                </div>
+            )}
+
+            <input
+                type={type}
+                value={value}
+                onChange={onChange}
+                disabled={disabled}
+                placeholder={placeholder}
+                className="relative flex-1 font-sans font-normal text-black text-[15.4px] tracking-[0] leading-[normal] bg-transparent border-none outline-none w-full placeholder:text-gray-400"
+            />
+
+            {iconRight && (
+                <div className="!relative !w-5 !h-5 !aspect-[1] flex items-center justify-center cursor-pointer">
+                    {iconRight}
+                </div>
+            )}
+        </div>
+        {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
+    </div>
+);
+
 export default function AdminSettingAkun({ user }) {
     const { errors } = usePage().props;
     const [showOldPassword, setShowOldPassword] = useState(false);
@@ -247,26 +291,44 @@ export default function AdminSettingAkun({ user }) {
                                         </div>
 
                                         {/* PASSWORD LAMA */}
-                                        <div className="flex flex-col gap-[3px]">
-                                            <label className="text-xs">
-                                                Password lama
-                                            </label>
-                                            <div className="flex items-center p-3 bg-white rounded-xl border border-black">
-                                                <Lock size={16} />
-                                                <input
-                                                    type="password"
-                                                    value={data.old_password}
-                                                    onChange={(e) =>
-                                                        setData(
-                                                            "old_password",
-                                                            e.target.value
+                                        <CustomInput
+                                            type={
+                                                showOldPassword
+                                                    ? "text"
+                                                    : "password"
+                                            }
+                                            label="Password lama"
+                                            placeholder="Masukkan password lama..."
+                                            value={data.old_password}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "old_password",
+                                                    e.target.value
+                                                )
+                                            }
+                                            error={errors.old_password}
+                                            icon={
+                                                <OsIcon
+                                                    name="Lock"
+                                                    className="w-5 h-5"
+                                                />
+                                            }
+                                            iconRight={
+                                                <div
+                                                    onClick={() =>
+                                                        setShowOldPassword(
+                                                            !showOldPassword
                                                         )
                                                     }
-                                                    placeholder="Masukkan password lama"
-                                                    className="flex-1 bg-transparent outline-none ml-2"
-                                                />
-                                            </div>
-                                        </div>
+                                                >
+                                                    {showOldPassword ? (
+                                                        <EyeOff className="w-5 h-5" />
+                                                    ) : (
+                                                        <Eye className="w-5 h-5" />
+                                                    )}
+                                                </div>
+                                            }
+                                        />
 
                                         {/* PASSWORD BARU */}
                                         <div className="flex flex-col md:flex-row gap-[15px]">
