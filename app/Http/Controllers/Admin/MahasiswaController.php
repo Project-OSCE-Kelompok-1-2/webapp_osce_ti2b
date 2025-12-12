@@ -7,9 +7,7 @@ use App\Models\Pengguna;
 use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
 use App\Models\TahunAkademik;
-use App\Imports\MahasiswaImport;
 use App\Services\Admin\MahasiswaService;
-use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
 use Maatwebsite\Excel\Facades\Excel;
 use Illuminate\Support\Facades\Redirect;
@@ -29,43 +27,31 @@ class MahasiswaController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->input('search');
-        $angkatan = $request->input('angkatan'); // Ini memfilter kolom 'kelas'
-
-        // Jika 'SEMUA', atau kosong, atau null -> jadikan null agar tidak difilter
-        if ($angkatan === "SEMUA" || $angkatan === "" || empty($angkatan) || $angkatan === "null") {
-            $angkatan = null;
-        }
-
-        // Ambil List Tahun dari Database untuk Dropdown
+        // 1. Ambil List Tahun untuk Dropdown
         $listTahun = TahunAkademik::select('tahun')
             ->distinct()
             ->orderBy('tahun', 'desc')
             ->pluck('tahun');
 
-        // Query Mahasiswa dengan Relasi
-        $mahasiswa = $this->service->getAll($search, $angkatan);
+        // 2. [UBAH DISINI] Query SEMUA Data Mahasiswa
+        // Kita bypass service jika service tersebut melakukan ->paginate().
+        // Kita butuh ->get() agar data dikirim sebagai Array lengkap ke React.
+        $mahasiswa = Mahasiswa::orderBy('nama', 'asc')->get();
 
-        // [PERBAIKAN] Render ke 'Admin/MahasiswaPage'
         return Inertia::render('Admin/MahasiswaPage', [
-            'mahasiswa' => $mahasiswa,
-            'filters' => [
-                'search' => $search,
-                'angkatan' => $angkatan,
-            ],
-            'list_tahun' => $listTahun, // Kirim list tahun ke frontend
+            'mahasiswa' => $mahasiswa, // Data Array Full
+            'list_tahun' => $listTahun,
+            'filters' => [], // Filter dikosongkan, tidak perlu dikirim balik
         ]);
     }
 
     /**
-     * [BARU] Menampilkan halaman form untuk menambah mahasiswa
+     * Menampilkan halaman form untuk menambah mahasiswa
      */
     public function create()
     {
-        // Anda perlu membuat file 'Admin/MahasiswaFormPage.jsx'
-        // untuk menampilkan form ini.
         return Inertia::render('Admin/TambahMahasiswa', [
-            'mahasiswa' => null, // Kirim null untuk mode 'create'
+            'mahasiswa' => null,
         ]);
     }
 
@@ -87,10 +73,9 @@ class MahasiswaController extends Controller
                 },
             ],
             'nama'  => 'required|string|max:255',
-            'kelas' => 'required|string|max:50', // Ini adalah 'angkatan' di form
+            'kelas' => 'required|string|max:50',
             'prodi' => 'required|string|max:100',
         ]);
-
 
         $this->service->store($validated);
 
@@ -99,13 +84,11 @@ class MahasiswaController extends Controller
     }
 
     /**
-     * [BARU] Menampilkan halaman form untuk mengedit mahasiswa
+     * Menampilkan halaman form untuk mengedit mahasiswa
      */
     public function edit(Mahasiswa $mahasiswa)
     {
-        // Menggunakan form yang sama dengan 'create', tapi kirim data
         return Inertia::render('Admin/TambahMahasiswa', [
-            // Kirim data lengkap mahasiswa untuk di-edit
             'mahasiswa' => [
                 'id_mahasiswa' => $mahasiswa->id_mahasiswa,
                 'nim' => $mahasiswa->nim,
@@ -117,7 +100,7 @@ class MahasiswaController extends Controller
     }
 
     /**
-     * [BARU] Menyimpan perubahan data mahasiswa (Edit Submit)
+     * Menyimpan perubahan data mahasiswa (Edit Submit)
      */
     public function update(Request $request, Mahasiswa $mahasiswa)
     {
@@ -126,7 +109,7 @@ class MahasiswaController extends Controller
                 'required',
                 'string',
                 'max:20',
-                'unique:mahasiswa,nim,' . $mahasiswa->id_mahasiswa . ',id_mahasiswa', // Abaikan diri sendiri
+                'unique:mahasiswa,nim,' . $mahasiswa->id_mahasiswa . ',id_mahasiswa',
                 function ($attribute, $value, $fail) use ($mahasiswa) {
                     if (Pengguna::where('username', $value)->where('id_pengguna', '!=', $mahasiswa->id_pengguna)->exists()) {
                         $fail('NIM ini sudah digunakan sebagai username oleh pengguna lain.');
@@ -145,7 +128,7 @@ class MahasiswaController extends Controller
     }
 
     /**
-     * [BARU] Menghapus data mahasiswa
+     * Menghapus data mahasiswa
      */
     public function destroy(Mahasiswa $mahasiswa)
     {
@@ -155,8 +138,7 @@ class MahasiswaController extends Controller
     }
 
     /**
-     * [BARU] Download Template Excel
-     * GET /admin/mahasiswa/template
+     * Download Template Excel
      */
     public function template()
     {
@@ -176,7 +158,6 @@ class MahasiswaController extends Controller
             $this->service->importMahasiswa($request->file('file'));
             return redirect()->back()->with('success', 'Data mahasiswa berhasil diimpor.');
         } catch (\Exception $e) {
-            // Tangkap error jika import gagal
             return redirect()->back()->with('error', 'Gagal mengimpor data: ' . $e->getMessage());
         }
     }

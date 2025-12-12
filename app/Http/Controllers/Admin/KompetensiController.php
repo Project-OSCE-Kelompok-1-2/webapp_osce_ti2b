@@ -26,17 +26,15 @@ class KompetensiController extends Controller
 
     public function index(Request $request, AspekPenilaian $aspekPenilaian)
     {
-        // Muat relasi stase agar bisa ditampilkan di breadcrumb
         $aspekPenilaian->load('stase');
-        $search = $request->query("search");
+        
+        // [UBAH] Panggil service TANPA parameter search
+        $kompetensi = $this->service->getByAspek($aspekPenilaian);
 
-        // Ambil data kompetensi dengan paginasi dan fitur pencarian
-        $kompetensi = $this->service->getByAspek($aspekPenilaian, $search);
-        // Kirim data ke komponen 'Admin/MenuKompetensi'
         return Inertia::render('Admin/MenuKompetensi', [
             'aspek' => $aspekPenilaian,
             'kompetensi' => $kompetensi,
-            'filters' => $request->only(['search']),
+            'filters' => [], // Filter kosong
         ]);
     }
 
