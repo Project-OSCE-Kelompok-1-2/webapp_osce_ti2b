@@ -10,6 +10,7 @@ import {
 } from "lucide-react";
 
 import OsButton from "../../components/button";
+import OsHeader from "../../components/Header";
 
 export default function SubmitRubrik() {
     const [showModal, setShowModal] = useState(false);
@@ -46,7 +47,7 @@ export default function SubmitRubrik() {
                 {/* WRAPPER KONTEN UTAMA */}
                 <div className="flex-1 flex flex-col items-center p-6 pt-8">
                     {/* TOP NAVIGATION BAR (FULL WIDTH) */}
-                    <div className="w-full flex gap-4 mb-8 items-center">
+                    {/* <div className="w-full flex gap-4 mb-8 items-center">
                         <button
                             onClick={handleBack}
                             className="h-12 w-12 bg-[#1d4ed8] rounded-lg flex items-center justify-center text-white hover:bg-blue-800 transition shadow-sm shrink-0"
@@ -62,7 +63,11 @@ export default function SubmitRubrik() {
                                 </span>
                             </span>
                         </div>
-                    </div>
+                    </div> */}
+                    <OsHeader
+                        variant="goback"
+                        backLink="/penguji/dashboard"
+                    />
 
                     {/* MAIN CARD */}
                     <main className="w-full max-w-[800px] border border-gray-400 rounded-2xl overflow-hidden shadow-sm bg-white mb-10">
