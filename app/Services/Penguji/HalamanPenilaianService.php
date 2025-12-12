@@ -26,7 +26,14 @@ class HalamanPenilaianService
         $penguji = $user->penguji; // Ambil data model Penguji
 
         // 2. [SECURITY FIX] Ambil Detail OSCE & Stase DENGAN Validasi Penguji
-        $osceStaseContext = OsceStase::with(['osce', 'stase', 'ruang'])
+        // Panggilan relasi ditambahkan:
+        // osceStaseContext -> osce (Model OSCE)
+        // osceStaseContext -> stase -> aspekPenilaian (Aspek Penilaian dari Stase)
+        $osceStaseContext = OsceStase::with([
+            'osce',
+            'stase.aspekPenilaian', // ⭐ Memanggil relasi ke aspekPenilaian melalui stase
+            'ruang'
+        ])
             ->where('id_osce', $id_osce)
             ->where('id_osce_stase', $id_osce_stase)
             ->where('id_penguji', $penguji->id_penguji)
@@ -37,12 +44,15 @@ class HalamanPenilaianService
             abort(404, 'Akses Ditolak. Anda tidak ditugaskan di stase ini.');
         }
 
+        // Memastikan relasi aspekPenilaian ada sebelum diakses
+        $tujuan_pembelajaran = $osceStaseContext->stase->tujuanPembelajaran ?? collect();
+
         $carbon_time = Carbon::parse($osceStaseContext->jam_mulai);
         $jam_mulai_terformat = $carbon_time->format("H:i");
 
         // Ambil Tanggal dan Jam Mulai tugas si Penguji
-        $tanggalPenguji    = $osceStaseContext->tanggal;
-        $jamMulaiPenguji   = $jam_mulai_terformat;
+        $tanggalPenguji      = $osceStaseContext->tanggal;
+        $jamMulaiPenguji     = $jam_mulai_terformat;
         $jamSelesaiPenguji = $osceStaseContext->jam_selesai;
 
         // 3. Detail OSCE
@@ -51,15 +61,16 @@ class HalamanPenilaianService
             ->where('jam_sesi', $jamMulaiPenguji)
             ->count();
 
-
         $osceDetail = [
-            'nama_osce'            => $osceStaseContext->osce->nama_osce,
-            'nama_stase'           => $osceStaseContext->stase->nama_stase,
+            'nama_osce'              => $osceStaseContext->osce->nama_osce,
+            'nama_stase'             => $osceStaseContext->stase->nama_stase,
             'durasi_per_mahasiswa' => $osceStaseContext->durasi_per_mahasiswa,
-            'total_mahasiswa'      => $totalMahasiswa,
-            'nomor_stasiun'        => $osceStaseContext->ruang->nomor_ruangan ?? '-',
-            'jam_mulai'            => $jamMulaiPenguji . ' WIB',
-            'skenario'             => $osceStaseContext->skenario
+            'total_mahasiswa'        => $totalMahasiswa,
+            'nomor_stasiun'          => $osceStaseContext->ruang->nomor_ruangan ?? '-',
+            'jam_mulai'              => $jamMulaiPenguji . ' WIB',
+            'skenario'               => $osceStaseContext->skenario,
+            // ⭐ Menambahkan Aspek Penilaian ke detail yang dikirim
+            'tujuan_pembelajaran'      => $tujuan_pembelajaran
         ];
 
         // 4. Ambil Antrian Mahasiswa (FIX LOGIKA RANGE)
@@ -93,8 +104,6 @@ class HalamanPenilaianService
             ];
         });
 
-        // Return raw array data
-        // dd($osceDetail);
         return [
             'osce_detail'       => $osceDetail,
             'antrian_mahasiswa' => $antrianMahasiswa
