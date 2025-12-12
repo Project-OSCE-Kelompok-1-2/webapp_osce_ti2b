@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { usePage, router, useForm } from "@inertiajs/react";
-import { Edit2, Trash2, X, AlertCircle } from "lucide-react";
+import { Edit2, Trash2, X, AlertCircle } from "lucide-react"; // Import AlertCircle & X
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
@@ -14,7 +14,7 @@ import OsButton from "../../components/button.jsx";
 import OsModal from "../../components/Modal.jsx";
 import OsInput from "../../components/input.jsx";
 import Modals from "../../components/Modals.jsx";
-import OsPagination from "../../components/pagination.jsx";
+import OsPagination from "../../components/pagination.jsx"; // Cukup satu kali import
 
 const staseColumns = [
     {
@@ -57,9 +57,12 @@ export default function Stase() {
     const itemsPerPage = 10;
 
     // 3. Filter Data Instan
-    const filteredData = useMemo(() => {
-        if (currentPage !== 1 && search) setCurrentPage(1);
+    // [PERBAIKAN] Gunakan useEffect untuk reset page, useMemo murni untuk filter
+    React.useEffect(() => {
+        if (search) setCurrentPage(1);
+    }, [search]);
 
+    const filteredData = useMemo(() => {
         return allStaseData.filter((item) => {
             const term = search.toLowerCase();
             return (
@@ -79,6 +82,8 @@ export default function Stase() {
 
     // --- 5. GENERATOR LINKS UTAMA ---
     const generatedLinks = useMemo(() => {
+        if (totalPages <= 1) return []; // Return empty array if only 1 page
+
         const links = [];
 
         // A. Tombol Previous
@@ -138,6 +143,7 @@ export default function Stase() {
         post,
         put,
         delete: destroy,
+        processing,
         errors,
         reset,
         clearErrors,
@@ -146,10 +152,13 @@ export default function Stase() {
         nama_stase: "",
         deskripsi: "",
         id_mata_kuliah: "",
+        // id_tujuan_pembelajaran: "", // Hapus jika tidak dipakai langsung (diganti array string)
         display_mata_kuliah: "",
-        tujuan_pembelajaran: [],
+        tujuan_pembelajaran: [], // Array string untuk menampung tujuan yang dipilih
+        // display_tujuan: "", // Tidak perlu di state form utama jika hanya untuk input helper
     });
 
+    // Filter saran agar yang SUDAH DIPILIH tidak muncul lagi di dropdown
     const availableSuggestTujuan = allSuggestTujuan.filter(
         (tujuan) => !data.tujuan_pembelajaran.includes(tujuan)
     );
@@ -161,28 +170,6 @@ export default function Stase() {
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
     const [selectedName, setSelectedName] = useState("");
-
-    const handleSearch = () => {
-        router.get(
-            "/admin/stase",
-            { search },
-            { preserveState: true, replace: true }
-        );
-    };
-
-    const openDeleteModal = (id, name) => {
-        setSelectedId(id);
-        setSelectedName(name);
-        setIsDeleteOpen(true);
-    };
-
-    const handleConfirmDelete = () => {
-        if (!selectedId) return;
-        destroy(`/admin/stase/${selectedId}`, {
-            preserveScroll: true,
-            onSuccess: () => setIsDeleteOpen(false),
-        });
-    };
 
     // --- HANDLE FORM LOGIC ---
 
@@ -211,6 +198,7 @@ export default function Stase() {
 
         if (valueToAdd && valueToAdd.trim() !== "") {
             if (!data.tujuan_pembelajaran.includes(valueToAdd)) {
+                // Update array tujuan_pembelajaran
                 setData("tujuan_pembelajaran", [
                     ...data.tujuan_pembelajaran,
                     valueToAdd,
@@ -251,9 +239,10 @@ export default function Stase() {
             (m) => m.id_mata_kuliah === item.id_mata_kuliah
         );
 
+        // Ambil data tujuan dari item (sesuaikan dengan format dari backend, misal array of objects)
         const rawTujuan = item.tujuan_pembelajaran || item.tujuanPembelajaran;
-        const currentTujuanList = rawTujuan
-            ? rawTujuan.map((t) => t.tujuan)
+        const currentTujuanList = Array.isArray(rawTujuan)
+            ? rawTujuan.map((t) => (typeof t === "string" ? t : t.tujuan)) // Handle jika string atau object
             : [];
 
         setData({
@@ -286,6 +275,7 @@ export default function Stase() {
             onSuccess: () => {
                 setShowModal(false);
                 reset();
+                setTujuanInput("");
             },
             preserveScroll: true,
         };
@@ -295,12 +285,26 @@ export default function Stase() {
             : post("/admin/stase", options);
     };
 
-    // Format Data Tabel
+    const openDeleteModal = (id, name) => {
+        setSelectedId(id);
+        setSelectedName(name);
+        setIsDeleteOpen(true);
+    };
+
+    // [PERBAIKAN TYPO] handleConfirmDelete
+    const handleConfirmDelete = () => {
+        if (!selectedId) return;
+        destroy(`/admin/stase/${selectedId}`, {
+            preserveScroll: true,
+            onSuccess: () => setIsDeleteOpen(false),
+        });
+    };
+
+    // Format Data Tabel dari 'paginatedData'
     const tableData = paginatedData.map((item, index) => ({
         no: (currentPage - 1) * itemsPerPage + index + 1,
         nama_stase: item.nama_stase,
-        // PERBAIKAN DISINI: Ubah 'item.jumlah_aspek' menjadi 'item.aspek_penilaian_count'
-        jumlah_aspek: item.aspek_penilaian_count || 0,
+        jumlah_aspek: item.jumlah_aspek || 0,
         action: (
             <div className="flex items-center justify-center space-x-3">
                 <OsButton
@@ -359,10 +363,11 @@ export default function Stase() {
                         Tambah Stase
                     </OsButton>
 
+                    {/* SEARCHBAR INSTAN */}
                     <OsSearchBar
                         search={search}
                         setSearch={setSearch}
-                        placeholder="Cari stase..."
+                        placeholder="Cari stase secara instan..."
                     />
 
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
@@ -376,7 +381,7 @@ export default function Stase() {
                                 data={tableData}
                                 columns={staseColumns}
                             />
-                            {stase.data.length === 0 && (
+                            {filteredData.length === 0 && (
                                 <div className="flex items-center border-t border-gray-400">
                                     <p className="w-full text-center text-sm py-os-48 text-gray-500">
                                         Data tidak ditemukan.
@@ -386,11 +391,14 @@ export default function Stase() {
                         </div>
                     </div>
 
+                    {/* --- PAGINATION --- */}
                     {totalPages > 1 && (
-                        <OsPagination
-                            links={generatedLinks}
-                            onPageChange={(page) => setCurrentPage(page)}
-                        />
+                        <div className="mt-2">
+                            <OsPagination
+                                links={generatedLinks}
+                                onPageChange={(page) => setCurrentPage(page)}
+                            />
+                        </div>
                     )}
                 </div>
                 <OsCopyright />
@@ -404,9 +412,12 @@ export default function Stase() {
                 onClear={() => {
                     reset();
                     setTujuanInput("");
+                    clearErrors();
                 }}
                 onSubmit={handleSubmit}
-                title={modalMode === "edit" ? " Stase" : "Tambah Stase Baru"}
+                title={
+                    modalMode === "edit" ? "Edit Stase" : "Tambah Stase Baru"
+                }
                 subtitle={
                     modalMode === "edit"
                         ? "Ubah data stase"
@@ -456,6 +467,7 @@ export default function Stase() {
                             <label className="block text-sm font-medium text-gray-700">
                                 Tujuan Pembelajaran *
                             </label>
+                            {/* Counter Indikator */}
                             <span
                                 className={`text-xs font-medium ${
                                     data.tujuan_pembelajaran.length >=
@@ -469,6 +481,7 @@ export default function Stase() {
                             </span>
                         </div>
 
+                        {/* LIST ITEMS (BOX STYLE) */}
                         {data.tujuan_pembelajaran.length > 0 && (
                             <div className="flex flex-col gap-2 mb-2 max-h-60 overflow-y-auto pr-1">
                                 {data.tujuan_pembelajaran.map((item, idx) => (
@@ -506,6 +519,7 @@ export default function Stase() {
                                             ? "Batas maksimal tercapai."
                                             : "Ketik tujuan lalu tekan Tambah..."
                                     }
+                                    // Disable input jika sudah max
                                     disabled={
                                         data.tujuan_pembelajaran.length >=
                                         MAX_TUJUAN
@@ -521,6 +535,7 @@ export default function Stase() {
                             <button
                                 type="button"
                                 onClick={() => handleAddTujuan()}
+                                // Disable tombol jika sudah max
                                 disabled={
                                     data.tujuan_pembelajaran.length >=
                                     MAX_TUJUAN
@@ -528,8 +543,8 @@ export default function Stase() {
                                 className={`px-4 py-2 rounded h-[42px] text-sm font-medium transition-colors ${
                                     data.tujuan_pembelajaran.length >=
                                     MAX_TUJUAN
-                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                        : "bg-gray-200 hover:bg-gray-300 text-gray-700"
+                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed" // Style disabled
+                                        : "bg-gray-200 hover:bg-gray-300 text-gray-700" // Style normal
                                 }`}
                             >
                                 {data.tujuan_pembelajaran.length >= MAX_TUJUAN
@@ -538,6 +553,7 @@ export default function Stase() {
                             </button>
                         </div>
 
+                        {/* Pesan Helper jika kosong atau error */}
                         {errors.tujuan_pembelajaran ? (
                             <p className="text-red-500 text-xs">
                                 {errors.tujuan_pembelajaran}

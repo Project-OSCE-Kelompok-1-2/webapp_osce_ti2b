@@ -13,36 +13,41 @@ import OsTableBody from "../../components/tablecontain";
 
 // Struktur kolom tabel
 const osceColumns = [
-    { key: "no", content: "No", width: "w-16", classes: "justify-center" },
+    {
+        key: "no",
+        content: "No",
+        width: "w-16",
+        classes: "justify-center items-center",
+    },
     {
         key: "nama",
         content: "Nama OSCE",
         width: "flex-1",
-        classes: "justify-start px-4",
+        classes: "justify-start items-center px-4",
     },
     {
         key: "tanggal_mulai",
         content: "Tanggal Mulai",
         width: "w-32 ",
-        classes: "justify-center",
+        classes: "justify-center items-center",
     },
     {
         key: "tanggal_akhir",
         content: "Tanggal Akhir",
         width: "w-32 ",
-        classes: "justify-center",
+        classes: "justify-center items-center",
     },
     {
         key: "status",
         content: "Status",
         width: "w-32 ",
-        classes: "justify-center",
+        classes: "justify-center items-center",
     },
     {
         key: "action",
-        content: "Action",
+        content: "Aksi",
         width: "w-52",
-        classes: "justify-center",
+        classes: "justify-center items-center",
     },
 ];
 
@@ -251,8 +256,8 @@ export default function PengujiOsceList() {
                             type="text"
                             placeholder="Cari data OSCE..."
                             value={search}
-                            onChange={(e) => setSearch(e.target.value)} // Instant Update
-                            className="block w-full md:flex-1 pl-4 pr-4 py-2 h-[46px] border border-gray-700 rounded-lg"
+                            onChange={(e) => setSearch(e.target.value)}
+                            className="block w-full md:flex-1 pl-4 pr-4 py-2 h-[46px] border border-os-primary rounded-lg"
                         />
 
                         <div className="flex w-full md:w-auto items-stretch md:items-center gap-3">
