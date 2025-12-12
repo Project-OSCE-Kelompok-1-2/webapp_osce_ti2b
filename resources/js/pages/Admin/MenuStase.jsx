@@ -362,7 +362,7 @@ export default function Stase() {
                     <OsSearchBar
                         search={search}
                         setSearch={setSearch}
-                        placeholder="Cari stase secara instan..."
+                        placeholder="Cari stase..."
                     />
 
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
