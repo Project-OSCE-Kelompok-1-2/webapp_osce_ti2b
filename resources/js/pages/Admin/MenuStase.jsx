@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { usePage, router, useForm } from "@inertiajs/react";
-import { Edit2, Trash2, Plus } from "lucide-react"; // Pastikan import Plus ada
+import { Edit2, Trash2, X, AlertCircle } from "lucide-react"; // Import AlertCircle & X
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
@@ -9,39 +9,12 @@ import OsCopyright from "../../components/Copyright.jsx";
 import OsIcon from "../../components/icons";
 import OsTableHeader from "../../components/tableheader";
 import OsSearchBar from "../../components/searchbar";
-import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
 import OsModal from "../../components/Modal.jsx";
 import OsInput from "../../components/input.jsx";
 import Modals from "../../components/Modals.jsx";
-
-// const staseColumns = [
-//     {
-//         key: "no",
-//         content: "No",
-//         width: "w-16",
-//         classes: "justify-center items-center",
-//     },
-//     {
-//         key: "nama_stase",
-//         content: "Nama Stase",
-//         width: "w-7/12",
-//         classes: "justify-start items-center px-4",
-//     },
-//     {
-//         key: "jumlah_aspek",
-//         content: "Jumlah Aspek",
-//         width: "w-2/12",
-//         classes: "justify-center items-center px-4",
-//     },
-//     {
-//         key: "action",
-//         content: "Aksi",
-//         width: "w-3/12",
-//         classes: "justify-center items-center px-4",
-//     },
-// ];
+import OsPagination from "../../components/pagination.jsx"; // Cukup satu kali import
 
 const staseColumns = [
     {
@@ -53,37 +26,116 @@ const staseColumns = [
     {
         key: "nama_stase",
         content: "Nama Stase",
-        width: "w-[400px] flex-1 shrink-0", // Ganti w-7/12
+        width: "w-[400px] flex-1 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
         key: "jumlah_aspek",
         content: "Jumlah Aspek",
-        width: "w-32 shrink-0", // Ganti w-2/12
+        width: "w-32 shrink-0",
         classes: "justify-center items-center px-4",
     },
     {
         key: "action",
         content: "Aksi",
-        width: "w-48 min-w-[300px] shrink-0", // Ganti w-3/12
+        width: "w-48 min-w-[300px] shrink-0",
         classes: "justify-center items-center px-4",
     },
 ];
 
 export default function Stase() {
-    const { stase, filters, mataKuliah, tujuanPembelajaran } = usePage().props;
+    // 1. Ambil data full (Array)
+    const { stase, mataKuliah, tujuanPembelajaran } = usePage().props;
+    const allStaseData = Array.isArray(stase) ? stase : stase?.data || [];
+
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-    const handleSidebarToggle = () => {
-        setIsSidebarOpen((prev) => !prev);
-    };
+    // 2. State untuk Client-Side Logic
+    const [search, setSearch] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
-    // 🔥 PERBAIKAN DI SINI: Ganti 'deskripsi_tujuan' menjadi 'tujuan' sesuai Model
+    // 3. Filter Data Instan
+    // [PERBAIKAN] Gunakan useEffect untuk reset page, useMemo murni untuk filter
+    React.useEffect(() => {
+        if (search) setCurrentPage(1);
+    }, [search]);
+
+    const filteredData = useMemo(() => {
+        return allStaseData.filter((item) => {
+            const term = search.toLowerCase();
+            return (
+                item.nama_stase?.toLowerCase().includes(term) ||
+                item.deskripsi?.toLowerCase().includes(term)
+            );
+        });
+    }, [search, allStaseData]);
+
+    // 4. Pagination Data (Potong Array)
+    const totalItems = filteredData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = filteredData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    // --- 5. GENERATOR LINKS UTAMA ---
+    const generatedLinks = useMemo(() => {
+        if (totalPages <= 1) return []; // Return empty array if only 1 page
+
+        const links = [];
+
+        // A. Tombol Previous
+        links.push({
+            url: currentPage > 1 ? "#" : null,
+            label: "&laquo; Previous",
+            active: false,
+            pageNumber: currentPage - 1,
+        });
+
+        // B. Tombol Angka (1, 2, 3...)
+        for (let i = 1; i <= totalPages; i++) {
+            if (
+                i === 1 ||
+                i === totalPages ||
+                (i >= currentPage - 1 && i <= currentPage + 1)
+            ) {
+                links.push({
+                    url: "#",
+                    label: i.toString(),
+                    active: i === currentPage,
+                    pageNumber: i,
+                });
+            } else if (
+                (i === currentPage - 2 && i > 1) ||
+                (i === currentPage + 2 && i < totalPages)
+            ) {
+                links.push({ url: null, label: "...", active: false });
+            }
+        }
+
+        // C. Tombol Next
+        links.push({
+            url: currentPage < totalPages ? "#" : null,
+            label: "Next &raquo;",
+            active: false,
+            pageNumber: currentPage + 1,
+        });
+
+        return links;
+    }, [currentPage, totalPages]);
+
+    // --- Suggestion Lists ---
     const suggestMataKuliah =
-        tujuanPembelajaran?.map((t) => t.tujuan).filter(Boolean) || [];
+        mataKuliah?.map((m) => m.nama_mata_kuliah).filter(Boolean) || [];
 
-    const suggestTujuan =
-        tujuanPembelajaran?.map((t) => t.tujuan).filter(Boolean) || [];
+    const allSuggestTujuan =
+        [
+            ...new Set(
+                tujuanPembelajaran?.map((t) => t.tujuan).filter(Boolean)
+            ),
+        ] || [];
 
     const {
         data,
@@ -94,30 +146,143 @@ export default function Stase() {
         processing,
         errors,
         reset,
-        clearErrors, // Tambahkan clearErrors
+        clearErrors,
     } = useForm({
         id: null,
         nama_stase: "",
         deskripsi: "",
         id_mata_kuliah: "",
-        id_tujuan_pembelajaran: "",
+        // id_tujuan_pembelajaran: "", // Hapus jika tidak dipakai langsung (diganti array string)
         display_mata_kuliah: "",
-        display_tujuan: "",
+        tujuan_pembelajaran: [], // Array string untuk menampung tujuan yang dipilih
+        // display_tujuan: "", // Tidak perlu di state form utama jika hanya untuk input helper
     });
 
+    // Filter saran agar yang SUDAH DIPILIH tidak muncul lagi di dropdown
+    const availableSuggestTujuan = allSuggestTujuan.filter(
+        (tujuan) => !data.tujuan_pembelajaran.includes(tujuan)
+    );
+
+    // State Lokal
+    const [tujuanInput, setTujuanInput] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState("add");
-    const [search, setSearch] = useState(filters.search || "");
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
     const [selectedName, setSelectedName] = useState("");
 
-    const handleSearch = () => {
-        router.get(
-            "/admin/stase",
-            { search },
-            { preserveState: true, replace: true }
+    // --- HANDLE FORM LOGIC ---
+
+    const handleMataKuliahChange = (e) => {
+        const val = e?.target ? e.target.value : e;
+        const s = mataKuliah.find((m) => m.nama_mata_kuliah === val);
+        setData((prev) => ({
+            ...prev,
+            display_mata_kuliah: val,
+            id_mata_kuliah: s?.id_mata_kuliah || "",
+        }));
+    };
+
+    // --- LOGIC MULTI SELECT TUJUAN ---
+    const MAX_TUJUAN = 5;
+
+    const handleAddTujuan = (val) => {
+        const valueToAdd = val || tujuanInput;
+
+        if (data.tujuan_pembelajaran.length >= MAX_TUJUAN) {
+            alert(
+                `Maksimal hanya boleh menambahkan ${MAX_TUJUAN} Tujuan Pembelajaran.`
+            );
+            return;
+        }
+
+        if (valueToAdd && valueToAdd.trim() !== "") {
+            if (!data.tujuan_pembelajaran.includes(valueToAdd)) {
+                // Update array tujuan_pembelajaran
+                setData("tujuan_pembelajaran", [
+                    ...data.tujuan_pembelajaran,
+                    valueToAdd,
+                ]);
+                setTujuanInput("");
+            } else {
+                setTujuanInput("");
+            }
+        }
+    };
+
+    const removeTujuan = (indexToRemove) => {
+        setData(
+            "tujuan_pembelajaran",
+            data.tujuan_pembelajaran.filter((_, i) => i !== indexToRemove)
         );
+    };
+
+    const handleTujuanInputChange = (e) => {
+        const val = e?.target ? e.target.value : e;
+        setTujuanInput(val);
+    };
+
+    const openAddModal = () => {
+        setModalMode("add");
+        clearErrors();
+        reset();
+        setTujuanInput("");
+        setShowModal(true);
+    };
+
+    const openEditModal = (item) => {
+        setModalMode("edit");
+        clearErrors();
+        setTujuanInput("");
+
+        const currentMK = mataKuliah.find(
+            (m) => m.id_mata_kuliah === item.id_mata_kuliah
+        );
+
+        // Ambil data tujuan dari item (sesuaikan dengan format dari backend, misal array of objects)
+        const rawTujuan = item.tujuan_pembelajaran || item.tujuanPembelajaran;
+        const currentTujuanList = Array.isArray(rawTujuan)
+            ? rawTujuan.map((t) => (typeof t === "string" ? t : t.tujuan)) // Handle jika string atau object
+            : [];
+
+        setData({
+            id: item.id_stase,
+            nama_stase: item.nama_stase,
+            deskripsi: item.deskripsi,
+            id_mata_kuliah: item.id_mata_kuliah,
+            display_mata_kuliah: currentMK ? currentMK.nama_mata_kuliah : "",
+            tujuan_pembelajaran: currentTujuanList,
+        });
+        setShowModal(true);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        if (!data.id_mata_kuliah) {
+            alert(
+                "Mata Kuliah tidak valid. Harap pilih dari daftar yang tersedia."
+            );
+            return;
+        }
+
+        if (data.tujuan_pembelajaran.length === 0) {
+            alert("Mohon masukkan minimal satu Tujuan Pembelajaran.");
+            return;
+        }
+
+        const options = {
+            onSuccess: () => {
+                setShowModal(false);
+                reset();
+                setTujuanInput("");
+            },
+            preserveScroll: true,
+        };
+
+        modalMode === "edit"
+            ? put(`/admin/stase/${data.id}`, options)
+            : post("/admin/stase", options);
     };
 
     const openDeleteModal = (id, name) => {
@@ -126,111 +291,20 @@ export default function Stase() {
         setIsDeleteOpen(true);
     };
 
-    const handleConfirlgelete = () => {
+    // [PERBAIKAN TYPO] handleConfirmDelete
+    const handleConfirmDelete = () => {
         if (!selectedId) return;
         destroy(`/admin/stase/${selectedId}`, {
             preserveScroll: true,
-            onSuccess: () => {
-                setIsDeleteOpen(false);
-                // Tidak perlu reload manual
-            },
+            onSuccess: () => setIsDeleteOpen(false),
         });
     };
 
-    // --- HANDLE PERUBAHAN INPUT SUGGEST ---
-
-    const handleMataKuliahChange = (e) => {
-        const val = e?.target ? e.target.value : e;
-        const selectedObj = mataKuliah.find((m) => m.nama_mata_kuliah === val);
-
-        setData((prev) => ({
-            ...prev,
-            display_mata_kuliah: val,
-            id_mata_kuliah: selectedObj ? selectedObj.id_mata_kuliah : "",
-        }));
-    };
-
-    const handleTujuanChange = (e) => {
-        const val = e?.target ? e.target.value : e;
-
-        // 🔥 PERBAIKAN DI SINI: Cari berdasarkan 'tujuan'
-        const selectedObj = tujuanPembelajaran.find((t) => t.tujuan === val);
-
-        setData((prev) => ({
-            ...prev,
-            display_tujuan: val,
-            id_tujuan_pembelajaran: selectedObj
-                ? selectedObj.id_tujuan_pembelajaran
-                : "",
-        }));
-    };
-
-    // --- MODAL CONTROLS ---
-
-    const openAddModal = () => {
-        setModalMode("add");
-        clearErrors();
-        reset(); // Reset semua field termasuk display
-        setShowModal(true);
-    };
-
-    const openEditModal = (item) => {
-        setModalMode("edit");
-        clearErrors();
-
-        const currentMK = mataKuliah.find(
-            (m) => m.id_mata_kuliah === item.id_mata_kuliah
-        );
-        const currentTP = tujuanPembelajaran.find(
-            (t) => t.id_tujuan_pembelajaran === item.id_tujuan_pembelajaran
-        );
-
-        setData({
-            id: item.id_stase,
-            nama_stase: item.nama_stase || "",
-            deskripsi: item.deskripsi || "",
-            id_mata_kuliah: item.id_mata_kuliah,
-            id_tujuan_pembelajaran: item.id_tujuan_pembelajaran,
-            display_mata_kuliah: currentMK ? currentMK.nama_mata_kuliah : "",
-            // 🔥 PERBAIKAN DI SINI: Tampilkan 'tujuan' saat edit
-            display_tujuan: currentTP ? currentTP.tujuan : "",
-        });
-        setShowModal(true);
-    };
-
-    const handleClear = () => {
-        reset();
-    };
-
-    const handleSubmit = (e) => {
-        e.preventDefault();
-
-        if (!data.id_mata_kuliah || !data.id_tujuan_pembelajaran) {
-            alert(
-                "Mohon pilih Mata Kuliah dan Tujuan Pembelajaran dari daftar saran yang tersedia."
-            );
-            return;
-        }
-
-        const options = {
-            onSuccess: () => {
-                setShowModal(false);
-                reset();
-            },
-            preserveScroll: true,
-        };
-
-        if (modalMode === "edit") {
-            put(`/admin/stase/${data.id}`, options);
-        } else {
-            post("/admin/stase", options);
-        }
-    };
-
-    const tableData = stase.data.map((item, index) => ({
-        no: stase.from + index,
+    // Format Data Tabel dari 'paginatedData'
+    const tableData = paginatedData.map((item, index) => ({
+        no: (currentPage - 1) * itemsPerPage + index + 1,
         nama_stase: item.nama_stase,
-        jumlah_aspek: item.jumlah_aspek,
+        jumlah_aspek: item.jumlah_aspek || 0,
         action: (
             <div className="flex items-center justify-center space-x-3">
                 <OsButton
@@ -240,9 +314,9 @@ export default function Stase() {
                             `/admin/stase/${item.id_stase}/aspek-penilaian`
                         )
                     }
-                    className="h-[38px] text-os-small w-full flex justify-between items-center gap-3"
+                    className="h-[38px] w-full flex justify-between items-center gap-3"
                 >
-                    <OsIcon name={"add"} className="os-icon-light h-[20px]" />{" "}
+                    <OsIcon name={"add"} className="os-icon-light h-[20px]" />
                     Edit Aspek Penilaian
                 </OsButton>
                 <OsButton name="edit" onClick={() => openEditModal(item)}>
@@ -253,13 +327,15 @@ export default function Stase() {
                     onClick={() =>
                         openDeleteModal(item.id_stase, item.nama_stase)
                     }
-
                 >
-                    <Trash2 size={18}/>
+                    <Trash2 size={18} />
                 </OsButton>
             </div>
         ),
     }));
+
+    const isMataKuliahInvalid =
+        data.display_mata_kuliah && !data.id_mata_kuliah;
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
@@ -272,7 +348,7 @@ export default function Stase() {
                     <h2 className="font-semibold text-lg mb-1">Menu Stase</h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
                         Kelola konten Stase secara menyeluruh, termasuk daftar
-                        kompetensi inti yang diujikan serta aspek penilaian.
+                        kompetensi inti dan aspek penilaian.
                     </p>
 
                     <OsButton
@@ -283,16 +359,17 @@ export default function Stase() {
                         <OsIcon
                             name="add"
                             className="h-os-20 os-icon-light mr-os-8"
-                        />{" "}
+                        />
                         Tambah Stase
                     </OsButton>
 
+                    {/* SEARCHBAR INSTAN */}
                     <OsSearchBar
                         search={search}
                         setSearch={setSearch}
-                        onSearchClick={handleSearch}
-                        placeholder="Cari stase..."
+                        placeholder="Cari stase secara instan..."
                     />
+
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Stase
                     </h2>
@@ -304,41 +381,51 @@ export default function Stase() {
                                 data={tableData}
                                 columns={staseColumns}
                             />
-
-                            {stase.data.length === 0 && (
+                            {filteredData.length === 0 && (
                                 <div className="flex items-center border-t border-gray-400">
                                     <p className="w-full text-center text-sm py-os-48 text-gray-500">
-                                        Data stase tidak ditemukan.
+                                        Data tidak ditemukan.
                                     </p>
                                 </div>
                             )}
                         </div>
                     </div>
-                    {stase.links?.length > 0 && (
-                        <OsPagination links={stase.links} />
+
+                    {/* --- PAGINATION --- */}
+                    {totalPages > 1 && (
+                        <div className="mt-2">
+                            <OsPagination
+                                links={generatedLinks}
+                                onPageChange={(page) => setCurrentPage(page)}
+                            />
+                        </div>
                     )}
                 </div>
                 <OsCopyright />
             </main>
 
-            {/* MODAL ADD/EDIT STASE */}
+            {/* Modal Components */}
             <OsModal
                 show={showModal}
                 onClose={() => setShowModal(false)}
                 variant={modalMode}
-                onClear={handleClear}
+                onClear={() => {
+                    reset();
+                    setTujuanInput("");
+                    clearErrors();
+                }}
                 onSubmit={handleSubmit}
                 title={
                     modalMode === "edit" ? "Edit Stase" : "Tambah Stase Baru"
                 }
                 subtitle={
                     modalMode === "edit"
-                        ? `Ubah data stase: ${data.nama_stase}`
-                        : "Isi form di bawah untuk menambahkan stase baru."
+                        ? "Ubah data stase"
+                        : "Isi form di bawah"
                 }
             >
                 <div className="space-y-4">
-                    {/* INPUT SUGGEST: MATA KULIAH */}
+                    {/* INPUT MATA KULIAH */}
                     <div>
                         <OsInput
                             label="Mata Kuliah"
@@ -347,42 +434,133 @@ export default function Stase() {
                             value={data.display_mata_kuliah}
                             onChange={handleMataKuliahChange}
                             suggestions={suggestMataKuliah}
-                            placeholder="Ketik atau pilih Mata Kuliah..."
+                            placeholder="Ketik untuk mencari, lalu KLIK."
                             required
                         />
-                        {data.display_mata_kuliah && !data.id_mata_kuliah && (
-                            <p className="text-red-500 text-xs mt-1">
-                                Mata kuliah tidak ditemukan di database.
+
+                        {isMataKuliahInvalid ? (
+                            <div className="flex items-start gap-1 mt-1 text-red-500">
+                                <AlertCircle size={14} className="mt-0.5" />
+                                <p className="text-xs">
+                                    Pilihan tidak valid. Anda{" "}
+                                    <b>wajib memilih</b> dari daftar saran yang
+                                    muncul.
+                                </p>
+                            </div>
+                        ) : (
+                            <p className="text-xs text-gray-400 mt-1">
+                                *Wajib memilih (klik) dari daftar saran. Tidak
+                                bisa input manual.
                             </p>
                         )}
+
                         {errors.id_mata_kuliah && (
-                            <p className="text-red-500 text-xs">
+                            <p className="text-red-500 text-xs mt-1">
                                 {errors.id_mata_kuliah}
                             </p>
                         )}
                     </div>
 
-                    {/* INPUT SUGGEST: TUJUAN PEMBELAJARAN */}
-                    <div>
-                        <OsInput
-                            label="Tujuan Pembelajaran"
-                            type="suggest"
-                            name="display_tujuan"
-                            value={data.display_tujuan}
-                            onChange={handleTujuanChange}
-                            suggestions={suggestTujuan}
-                            placeholder="Ketik atau pilih Tujuan..."
-                            required
-                        />
-                        {data.display_tujuan &&
-                            !data.id_tujuan_pembelajaran && (
-                                <p className="text-red-500 text-xs mt-1">
-                                    Tujuan pembelajaran tidak ditemukan.
-                                </p>
-                            )}
-                        {errors.id_tujuan_pembelajaran && (
+                    {/* INPUT MULTI SELECT TUJUAN PEMBELAJARAN */}
+                    <div className="space-y-2">
+                        <div className="flex justify-between items-center">
+                            <label className="block text-sm font-medium text-gray-700">
+                                Tujuan Pembelajaran *
+                            </label>
+                            {/* Counter Indikator */}
+                            <span
+                                className={`text-xs font-medium ${
+                                    data.tujuan_pembelajaran.length >=
+                                    MAX_TUJUAN
+                                        ? "text-red-600"
+                                        : "text-gray-500"
+                                }`}
+                            >
+                                {data.tujuan_pembelajaran.length}/{MAX_TUJUAN}{" "}
+                                Item
+                            </span>
+                        </div>
+
+                        {/* LIST ITEMS (BOX STYLE) */}
+                        {data.tujuan_pembelajaran.length > 0 && (
+                            <div className="flex flex-col gap-2 mb-2 max-h-60 overflow-y-auto pr-1">
+                                {data.tujuan_pembelajaran.map((item, idx) => (
+                                    <div
+                                        key={idx}
+                                        className="relative flex items-start justify-between gap-3 p-3 bg-slate-50 border border-slate-300 rounded-md text-sm text-slate-700 shadow-sm hover:border-blue-400 transition-colors"
+                                    >
+                                        <span className="leading-snug text-justify flex-1">
+                                            {item}
+                                        </span>
+                                        <button
+                                            type="button"
+                                            onClick={() => removeTujuan(idx)}
+                                            className="shrink-0 text-slate-400 hover:text-red-600 transition-colors mt-0.5"
+                                            title="Hapus"
+                                        >
+                                            <X size={18} />
+                                        </button>
+                                    </div>
+                                ))}
+                            </div>
+                        )}
+
+                        <div className="flex gap-2 items-end">
+                            <div className="w-full">
+                                <OsInput
+                                    type="suggest"
+                                    name="tujuanInput"
+                                    value={tujuanInput}
+                                    onChange={handleTujuanInputChange}
+                                    suggestions={availableSuggestTujuan}
+                                    placeholder={
+                                        data.tujuan_pembelajaran.length >=
+                                        MAX_TUJUAN
+                                            ? "Batas maksimal tercapai."
+                                            : "Ketik tujuan lalu tekan Tambah..."
+                                    }
+                                    // Disable input jika sudah max
+                                    disabled={
+                                        data.tujuan_pembelajaran.length >=
+                                        MAX_TUJUAN
+                                    }
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            handleAddTujuan();
+                                        }
+                                    }}
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => handleAddTujuan()}
+                                // Disable tombol jika sudah max
+                                disabled={
+                                    data.tujuan_pembelajaran.length >=
+                                    MAX_TUJUAN
+                                }
+                                className={`px-4 py-2 rounded h-[42px] text-sm font-medium transition-colors ${
+                                    data.tujuan_pembelajaran.length >=
+                                    MAX_TUJUAN
+                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed" // Style disabled
+                                        : "bg-gray-200 hover:bg-gray-300 text-gray-700" // Style normal
+                                }`}
+                            >
+                                {data.tujuan_pembelajaran.length >= MAX_TUJUAN
+                                    ? "Full"
+                                    : "Tambah"}
+                            </button>
+                        </div>
+
+                        {/* Pesan Helper jika kosong atau error */}
+                        {errors.tujuan_pembelajaran ? (
                             <p className="text-red-500 text-xs">
-                                {errors.id_tujuan_pembelajaran}
+                                {errors.tujuan_pembelajaran}
+                            </p>
+                        ) : (
+                            <p className="text-xs text-gray-400">
+                                Minimal 1, Maksimal 5 tujuan pembelajaran.
                             </p>
                         )}
                     </div>
@@ -393,39 +571,27 @@ export default function Stase() {
                         name="nama_stase"
                         value={data.nama_stase}
                         onChange={(e) => setData("nama_stase", e.target.value)}
-                        placeholder="Masukkan Nama Stase..."
                         required
                     />
-
                     <OsInput
                         label="Deskripsi"
                         type="textarea"
                         name="deskripsi"
                         value={data.deskripsi}
                         onChange={(e) => setData("deskripsi", e.target.value)}
-                        placeholder="Masukkan Deskripsi..."
                     />
-
-                    {(errors.nama_stase || errors.deskripsi) && (
-                        <div className="text-red-600 text-xs space-y-1">
-                            {errors.nama_stase && <p>{errors.nama_stase}</p>}
-                            {errors.deskripsi && <p>{errors.deskripsi}</p>}
-                        </div>
-                    )}
                 </div>
             </OsModal>
 
             <Modals
                 isOpen={isDeleteOpen}
                 onClose={() => setIsDeleteOpen(false)}
-                onConfirm={handleConfirlgelete}
+                onConfirm={handleConfirmDelete}
                 variant="delete"
                 title="Hapus Stase?"
-                message="Apakah Anda yakin ingin menghapus stase ini?"
+                message="Yakin ingin menghapus?"
                 confirmText="Hapus"
-                dataToDelete={[
-                    { key: "Nama Stase", value: selectedName || "-" },
-                ]}
+                dataToDelete={[{ key: "Nama", value: selectedName }]}
             />
         </div>
     );

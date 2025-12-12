@@ -29,9 +29,7 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
                         <h3 className="font-medium text-sm text-white">
                             {title}
                         </h3>
-                        <p className="text-xs text-white mt-1">
-                            {description}
-                        </p>
+                        <p className="text-xs text-white mt-1">{description}</p>
                     </div>
                     <div className="p-1 rounded bg-white/60 border">
                         <Bookmark size={16} className="text-gray-600" />
@@ -78,7 +76,7 @@ const NotificationItem = ({ stase, index }) => {
                 </div>
             </div>
 
-            <div className="md:flex md:justify-between w-full gap-5 p-4" >
+            <div className="md:flex md:justify-between w-full gap-5 p-4">
                 {/* Middle: title + subtitle */}
                 <div className="flex-1">
                     <h4 className="font-semibold text-gray-800">

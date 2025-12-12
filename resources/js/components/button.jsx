@@ -22,8 +22,10 @@ export default function OsButton({
                 color: "var(--os-white)",
                 transition: "all 0.25s ease-in-out",
                 fontWeight: "var(--os-font-regular)",
+                border: "2px solid " + baseColor,
+
             }}
-            className={`px-4 py-2 min-h-[45px] rounded-md font-os-weight-semibold transform hover:scale-[102%] active:scale-95 ${className}`}
+            className={`px-4 py-2 min-h-[45px] rounded-lg font-os-weight-semibold transform border-2 hover:scale-[102%] active:scale-95 ${className}`}
             onMouseEnter={(e) => {
                 // Buat efek hover warna sedikit gelap
                 e.currentTarget.style.backgroundColor = `color-mix(in srgb, ${baseColor} 85%, black 15%)`;

@@ -23,12 +23,15 @@ class OsceController extends Controller
 
     public function index(Request $request)
     {
-        $search = $request->query("search");
-        $tahun = $request->query("tahun");
+        // [PERBAIKAN] Ambil SEMUA data OSCE untuk Client-Side Pagination
+        // Pastikan Model Osce memiliki relasi/appends 'tahun_akademik_string' jika diperlukan
+        // Gunakan get() bukan paginate()
+        
+        $osce = Osce::with('tahunAkademik') // Eager load relasi biar ringan
+            ->orderBy('created_at', 'desc')
+            ->get();
 
-        $osceList = $this->service->getAll($search, $tahun);
-
-        // [PENTING] Ambil data tahun akademik untuk dropdown
+        // Ambil data tahun akademik untuk dropdown (Sama seperti sebelumnya)
         $tahunAkademikOptions = TahunAkademik::orderBy('tahun', 'desc')
             ->get()
             ->map(fn($t) => [
@@ -36,12 +39,10 @@ class OsceController extends Controller
                 'value' => $t->id_tahun_akademik
             ]);
 
-        // dd($tahunAkademikOptions);
-
         return Inertia::render('Admin/OsceListPage', [
-            'osce' => $osceList['data'],
-            'filters' => $request->only(['search', 'tahun']),
-            'tahunAkademikOptions' => $tahunAkademikOptions, // Kirim ke Frontend
+            'osce' => $osce, // Kirim Array Full
+            'tahunAkademikOptions' => $tahunAkademikOptions,
+            // Filters tidak perlu dikirim balik karena state ada di frontend
         ]);
     }
 
