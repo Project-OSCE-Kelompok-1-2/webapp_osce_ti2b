@@ -99,12 +99,12 @@ export default function NilaiIndex() {
             />
 
             {/* --- MAIN CONTENT --- */}
-            <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-4 md:gap-8 transition-all duration-300 lg:ml-20">
+            <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-2 md:gap-4 transition-all duration-300 lg:ml-20">
                 <OsHeader
                     onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 />
 
-                <div className="pt-2 md:pt-4">
+                <div className="pt-0">
                     {/* Judul Halaman */}
                     <div className="mb-6 md:mb-8 flex items-center gap-3">
                         <FileText className="text-blue-600" size={32} />

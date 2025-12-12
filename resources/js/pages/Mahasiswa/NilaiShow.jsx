@@ -101,14 +101,14 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             />
 
-            <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-4 md:gap-8 transition-all duration-300 lg:ml-20">
+            <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-2 md:gap-4 transition-all duration-300 lg:ml-20">
                 {/* 1. HEADER ATAS */}
                 <OsHeader
                     onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 />
 
                 {/* 2. AREA KONTEN UTAMA */}
-                <div className="flex flex-col gap-4 md:gap-6 pt-2 md:pt-4">
+                <div className="flex flex-col gap-4 md:gap-6 pt-0">
                     {/* --- KARTU 1: JUDUL HALAMAN --- */}
                     <div className="w-full flex items-center pl-1">
                         <div className="flex items-center gap-3">
