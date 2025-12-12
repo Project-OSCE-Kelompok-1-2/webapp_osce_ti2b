@@ -1,8 +1,8 @@
 import { Head, usePage, router, Link } from "@inertiajs/react";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react"; // [1] Import Hooks
 
 // Sidebar khusus Penguji
-import SidebarPenguji from "../../components/SidebarPenguji";
+import Sidebar from "../../components/Sidebar";
 
 // Layout & Components
 import OsCopyright from "../../components/Copyright";
@@ -10,40 +10,44 @@ import OsHeader from "../../components/Header";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
 import OsTableBody from "../../components/tablecontain";
-import Sidebar from "../../components/Sidebar";
 
 // Struktur kolom tabel
 const osceColumns = [
-    { key: "no", content: "No", width: "w-16", classes: "justify-center" },
+    {
+        key: "no",
+        content: "No",
+        width: "w-16",
+        classes: "justify-center items-center",
+    },
     {
         key: "nama",
         content: "Nama OSCE",
         width: "flex-1",
-        classes: "justify-start px-4",
+        classes: "justify-start items-center px-4",
     },
     {
         key: "tanggal_mulai",
         content: "Tanggal Mulai",
         width: "w-32 ",
-        classes: "justify-center",
+        classes: "justify-center items-center",
     },
     {
         key: "tanggal_akhir",
         content: "Tanggal Akhir",
         width: "w-32 ",
-        classes: "justify-center",
+        classes: "justify-center items-center",
     },
     {
         key: "status",
         content: "Status",
         width: "w-32 ",
-        classes: "justify-center",
+        classes: "justify-center items-center",
     },
     {
         key: "action",
-        content: "Action",
+        content: "Aksi",
         width: "w-52",
-        classes: "justify-center",
+        classes: "justify-center items-center",
     },
 ];
 
@@ -55,86 +59,131 @@ const getButtonStyle = (status) => {
                 label: "Mulai Ujian",
                 className: "bg-blue-600 hover:bg-blue-700 text-white",
             };
-
         case "Tidak Aktif":
             return {
                 label: "Ajukan Edit Nilai",
                 className: "bg-blue-400 hover:bg-blue-500 text-white",
             };
-
         case "Selesai":
             return {
                 label: "Lihat Rekap Nilai",
                 className: "bg-blue-700 hover:bg-blue-800 text-white",
             };
-
         case "Belum Dimulai":
             return {
                 label: "Lihat",
                 className: "bg-gray-400 hover:bg-gray-500 text-white",
             };
-
         default:
-            return {
-                label: "Detail",
-                className: "bg-blue-500 text-white",
-            };
+            return { label: "Detail", className: "bg-blue-500 text-white" };
     }
 };
 
 export default function PengujiOsceList() {
-    // 1. AMBIL PROPS DARI INERTIA (Backend)
-    const { osce_list, filters } = usePage().props;
-    const { data, links, current_page, from } = osce_list; // Destructure data pagination
+    // 1. Ambil Data Full
+    const { osce_list } = usePage().props;
+    const allData = Array.isArray(osce_list)
+        ? osce_list
+        : osce_list?.data || [];
 
-    // State Search & Filter (Inisialisasi dari props filter agar persisten)
-    const [search, setSearch] = useState(filters.search || "");
-    const [tahun, setTahun] = useState(filters.tahun || "");
+    // 2. State Search, Filter & Pagination
+    const [search, setSearch] = useState("");
+    const [tahun, setTahun] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
     const tahunList = [
-        { value: "", label: "Semua Tahun" }, // Opsi default
+        { value: "", label: "Semua Tahun" },
         { value: "2025/2026", label: "2025/2026" },
         { value: "2024/2025", label: "2024/2025" },
         { value: "2023/2024", label: "2023/2024" },
     ];
 
-    // 2. HANDLE FILTER CHANGE (Server-side Filtering via Inertia)
-    const handleSearch = (e) => {
-        e.preventDefault();
-        router.get(
-            "/penguji/osce",
-            { search, tahun },
-            { preserveState: true, replace: true }
-        );
-    };
+    // --- INSTANT FILTER LOGIC ---
 
-    // Auto-submit saat dropdown tahun berubah
+    // A. Reset halaman saat filter berubah
     useEffect(() => {
-        if (tahun !== filters.tahun) {
-            router.get(
-                "/penguji/osce",
-                { search, tahun },
-                { preserveState: true, replace: true }
-            );
+        setCurrentPage(1);
+    }, [search, tahun]);
+
+    // B. Filter Data
+    const filteredData = useMemo(() => {
+        return allData.filter((item) => {
+            const term = search.toLowerCase();
+            const matchSearch = item.nama?.toLowerCase().includes(term);
+
+            let matchTahun = true;
+            if (tahun) {
+                // Asumsi: item.tahun_akademik dikirim dari controller
+                // Filter "contains" agar lebih fleksibel (misal "2024" cocok dengan "2024/2025")
+                matchTahun = item.tahun_akademik?.toString().includes(tahun);
+            }
+
+            return matchSearch && matchTahun;
+        });
+    }, [search, tahun, allData]);
+
+    // C. Slice Pagination
+    const totalItems = filteredData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = filteredData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    // D. Generate Links
+    const generatedLinks = useMemo(() => {
+        if (totalPages <= 1) return [];
+        const links = [];
+        links.push({
+            url: currentPage > 1 ? "#" : null,
+            label: "&laquo; Previous",
+            active: false,
+            pageNumber: currentPage - 1,
+        });
+        for (let i = 1; i <= totalPages; i++) {
+            if (
+                i === 1 ||
+                i === totalPages ||
+                (i >= currentPage - 1 && i <= currentPage + 1)
+            ) {
+                links.push({
+                    url: "#",
+                    label: i.toString(),
+                    active: i === currentPage,
+                    pageNumber: i,
+                });
+            } else if (
+                (i === currentPage - 2 && i > 1) ||
+                (i === currentPage + 2 && i < totalPages)
+            ) {
+                links.push({ url: null, label: "...", active: false });
+            }
         }
-    }, [tahun]);
+        links.push({
+            url: currentPage < totalPages ? "#" : null,
+            label: "Next &raquo;",
+            active: false,
+            pageNumber: currentPage + 1,
+        });
+        return links;
+    }, [currentPage, totalPages]);
 
-    // 3. MAPPING DATA KE TABEL UI
-    const mappedData = data.map((item, index) => {
+    // --- MAPPING DATA KE TABEL UI ---
+    const mappedData = paginatedData.map((item, index) => {
         const btn = getButtonStyle(item.status);
-
-        // Tentukan link berdasarkan status
         let linkHref;
         if (item.status === "Aktif") {
-            // Ke halaman antrian (Live)
             linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}`;
         } else if (item.status === "Selesai") {
-            // Ke halaman rekap (Read Only)
             linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}/rekap`;
         }
 
         return {
-            no: from + index, // Nomor urut sesuai pagination
+            no: (currentPage - 1) * itemsPerPage + index + 1,
             nama: (
                 <div className="text-left px-2">
                     <div className="font-medium text-gray-900">{item.nama}</div>
@@ -160,9 +209,15 @@ export default function PengujiOsceList() {
             ),
             action: (
                 <Link
-                    href={linkHref}
+                    href={linkHref || "#"}
                     as="button"
-                    className={`${btn.className} h-[38px] w-full max-w-[140px] rounded-lg text-sm font-medium transition-colors flex items-center justify-center`}
+                    className={`${
+                        btn.className
+                    } h-[38px] w-full max-w-[140px] rounded-lg text-sm font-medium transition-colors flex items-center justify-center ${
+                        item.status === "Belum Dimulai"
+                            ? "cursor-not-allowed opacity-50"
+                            : ""
+                    }`}
                     disabled={item.status === "Belum Dimulai"}
                 >
                     {btn.label}
@@ -170,12 +225,6 @@ export default function PengujiOsceList() {
             ),
         };
     });
-
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    const handleSidebarToggle = () => {
-        setIsSidebarOpen((prev) => !prev);
-    };
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
@@ -202,22 +251,19 @@ export default function PengujiOsceList() {
                     </p>
 
                     {/* Filter Bar */}
-                    <form
-                        onSubmit={handleSearch}
-                        className="flex flex-col md:flex-row w-full items-stretch md:items-center gap-4 mb-5"
-                    >
+                    <div className="flex flex-col md:flex-row w-full items-stretch md:items-center gap-4 mb-5">
                         <input
                             type="text"
                             placeholder="Cari data OSCE..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
-                            className="block w-full md:flex-1 pl-4 pr-4 py-2 h-[46px] border border-gray-700 rounded-lg"
+                            className="block w-full md:flex-1 pl-4 pr-4 py-2 h-[46px] border border-os-primary rounded-lg"
                         />
 
                         <div className="flex w-full md:w-auto items-stretch md:items-center gap-3">
                             <select
                                 value={tahun}
-                                onChange={(e) => setTahun(e.target.value)}
+                                onChange={(e) => setTahun(e.target.value)} // Instant Update
                                 className="border border-gray-700 rounded-lg h-[46px] w-full md:w-40 bg-white"
                             >
                                 {tahunList.map((t) => (
@@ -226,15 +272,9 @@ export default function PengujiOsceList() {
                                     </option>
                                 ))}
                             </select>
-
-                            <button
-                                type="submit"
-                                className="bg-blue-600 hover:bg-blue-700 text-white rounded-lg h-[46px] px-5 transition-colors"
-                            >
-                                Cari
-                            </button>
+                            {/* Tombol Cari dihapus atau dijadikan dummy karena instant search */}
                         </div>
-                    </form>
+                    </div>
 
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Daftar OSCE
@@ -243,7 +283,7 @@ export default function PengujiOsceList() {
                     {/* Tabel Data */}
                     <div className="overflow-x-auto">
                         <div className="min-w-[900px]">
-                            {data.length > 0 ? (
+                            {mappedData.length > 0 ? (
                                 <>
                                     <OsTableHeader columns={osceColumns} />
                                     <OsTableBody
@@ -260,9 +300,14 @@ export default function PengujiOsceList() {
                     </div>
 
                     {/* Pagination */}
-                    <div className="mt-8">
-                        <OsPagination links={links} />
-                    </div>
+                    {totalPages > 1 && (
+                        <div className="mt-8">
+                            <OsPagination
+                                links={generatedLinks}
+                                onPageChange={(page) => setCurrentPage(page)}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 <OsCopyright />

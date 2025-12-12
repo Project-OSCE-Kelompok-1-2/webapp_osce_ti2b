@@ -15,17 +15,13 @@ class ListNilaiMahasiswaController extends Controller
     public function index(Request $request)
     {
         // 1. AMBIL SIAPA YANG SEDANG LOGIN
-        $user = Auth::user(); // Ini mengambil data dari tabel 'pengguna'
+        $user = Auth::user();
 
-        // 2. CARI DATA MAHASISWA BERDASARKAN USER YANG LOGIN
-        // Logika: Cari di tabel 'mahasiswa' yang kolom 'id_pengguna'-nya sama dengan ID user saat ini
+        // 2. CARI DATA MAHASISWA
         $mahasiswa = Mahasiswa::where('id_pengguna', $user->id_pengguna)->first();
 
-        // --- PENTING: PENGECEKAN DATA ---
-        // Jika User login (misal Admin atau User baru) tapi datanya BELUM dimasukkan ke tabel mahasiswa
+        // Handle jika data mahasiswa belum ada
         if (!$mahasiswa) {
-            // Kita return data kosong agar web tidak error (Layar Putih)
-            // Nanti di layar akan muncul Nama User tapi datanya strip (-)
             return Inertia::render('Mahasiswa/NilaiIndex', [
                 'mahasiswa' => [
                     'nama'   => $user->username . ' (Belum terhubung ke Data Mahasiswa)',
@@ -33,22 +29,16 @@ class ListNilaiMahasiswaController extends Controller
                     'prodi'  => '-',
                     'status' => 'Data Tidak Ditemukan'
                 ],
-                'ujian' => [
-                    'data' => [],
-                    'links' => [],
-                    'total' => 0
-                ],
+                'ujian' => [], // Kirim array kosong
                 'filters' => []
             ]);
         }
 
-        // 3. JIKA DATA MAHASISWA KETEMU, BARU KITA AMBIL NILAINYA
-        $search = $request->input('q');
-        $tahun = $request->input('tahun');
-        $semester = $request->input('sem');
-
+        // 3. AMBIL SEMUA DATA NILAI (Client-Side Pagination)
+        // Kita hapus filter search/tahun/semester di sini agar frontend dapat semua data
+        
         $ujian = EnrollmentOsce::query()
-            ->where('enrollment_osce.id_mahasiswa', $mahasiswa->id_mahasiswa) // Filter punya dia saja
+            ->where('enrollment_osce.id_mahasiswa', $mahasiswa->id_mahasiswa)
             ->join('osce', 'osce.id_osce', '=', 'enrollment_osce.id_osce')
             ->leftJoin('tahun_akademik', 'tahun_akademik.id_tahun_akademik', '=', 'osce.id_tahun_akademik')
             ->addSelect(['nilai_total' => DB::table('nilai_osce')
@@ -56,9 +46,7 @@ class ListNilaiMahasiswaController extends Controller
                 ->whereColumn('id_enrollment_osce', 'enrollment_osce.id_enrollment_osce')
                 ->limit(1)
             ])
-            ->when($search, fn($q) => $q->where('osce.nama_osce', 'like', "%{$search}%"))
-            ->when($tahun, fn($q) => $q->where('tahun_akademik.tahun', $tahun))
-            ->when($semester, fn($q) => $q->where('tahun_akademik.semester', $semester))
+            // [HAPUS] Filter search, tahun, semester di level database
             ->select([
                 'enrollment_osce.id_enrollment_osce as id',
                 'osce.nama_osce as nama_ujian',
@@ -67,14 +55,14 @@ class ListNilaiMahasiswaController extends Controller
                 'tahun_akademik.tahun as tahun_akademik',
             ])
             ->orderBy('osce.tanggal_mulai', 'desc')
-            ->paginate(10)
-            ->withQueryString();
+            ->get(); // [PENTING] Gunakan get(), bukan paginate()
 
         // 4. LOGIKA TAMBAHAN (Formatting)
-        // Ambil tahun masuk dari NIM atau created_at (Contoh logika sederhana)
+        // Asumsi tahun masuk statis untuk contoh, sebaiknya ambil dari $mahasiswa->angkatan
         $tahunMasuk = (int)date('Y') - 2; 
 
-        $ujian->getCollection()->transform(function ($item) use ($tahunMasuk) {
+        // Karena get() mengembalikan Collection, kita pakai map()
+        $ujianData = $ujian->map(function ($item) use ($tahunMasuk) {
             $tahunAkademik = $item->tahun_akademik ?? date('Y') . "/" . (date('Y')+1);
             $semLabel = $item->semester_label ?? 'Ganjil';
             
@@ -84,12 +72,16 @@ class ListNilaiMahasiswaController extends Controller
             $semAngka = ($selisih * 2) + ($semLabel === 'Ganjil' ? 1 : 2);
             if($semAngka < 1) $semAngka = 1;
 
-            $item->semester = (string) $semAngka;
-            $item->status_lulus = $item->nilai_total >= 70;
-            $item->dosen_penguji = '-';
-            $item->tahun_ujian = $tahunAkademik;
-
-            return $item;
+            return [
+                'id' => $item->id,
+                'nama_ujian' => $item->nama_ujian,
+                'tanggal_ujian' => $item->tanggal_ujian,
+                'semester' => (string) $semAngka,
+                'semester_label' => $semLabel, // Tambahan untuk filter
+                'status_lulus' => $item->nilai_total >= 70,
+                'dosen_penguji' => '-', // Placeholder jika tidak ada di query
+                'tahun_ujian' => $tahunAkademik,
+            ];
         });
 
         return Inertia::render('Mahasiswa/NilaiIndex', [
@@ -99,12 +91,8 @@ class ListNilaiMahasiswaController extends Controller
                 'prodi'  => $mahasiswa->prodi,
                 'status' => $mahasiswa->status ?? 'Aktif'
             ],
-            'ujian' => $ujian,
-            'filters' => [
-                'q' => $search,
-                'tahun' => $tahun,
-                'sem' => $semester,
-            ]
+            'ujian' => $ujianData, // Kirim Array Full
+            'filters' => []        // Kosongkan filter
         ]);
     }
 }

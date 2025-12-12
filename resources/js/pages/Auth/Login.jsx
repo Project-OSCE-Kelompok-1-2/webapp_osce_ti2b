@@ -29,7 +29,7 @@ export default function LoginMosaicPage() {
 
     return (
         <div className="min-h-screen w-screen flex bg-os-tertiary items-center justify-center p-8 m-0 sm:p-0">
-            <div className="w-full h-full min-h-[519px] flex flex-col justify-between max-w-md border bg-os-white border-black rounded-xl p-8">
+            <div className="w-full h-full min-h-[519px] flex flex-col justify-between max-w-md border bg-os-white border-os-primary rounded-xl p-8">
                 <form
                     onSubmit={onSubmit}
                     className="flex h-full flex-col gap-os-14 min-h-[450px] justify-around"
