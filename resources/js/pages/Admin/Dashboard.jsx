@@ -115,11 +115,10 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
+        <>
+            <Head title="Dashboard Admin" />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader onMenuClick={handleSidebarToggle} />
+            <div className="p-6 space-y-6">
 
                 <div className="">
                     <p className=" text-gray-600 text-os-regular">
@@ -183,7 +182,6 @@ export default function Dashboard() {
                             href="/admin/dosen"
                         />
                     </div>
-                </section>
 
                 <hr className="border-1 border-os-black opacity-os-alpha-25" />
 
@@ -194,28 +192,20 @@ export default function Dashboard() {
                             Notifikasi
                         </h2>
                     </div>
+                </div>
 
-                    <div className="flex flex-col gap-3">
-                        {notifikasi && notifikasi.length > 0 ? (
-                            notifikasi.map((item, idx) => (
-                                <NotificationItem
-                                    key={item.id_stase ?? idx}
-                                    stase={item}
-                                    index={idx + 1}
-                                />
-                            ))
-                        ) : (
-                            <p className="text-sm text-gray-500 text-center py-4 bg-white border rounded-lg">
-                                Tidak ada notifikasi.
-                            </p>
+                {/* Notifikasi / Reminder */}
+                <div className="bg-white shadow rounded-xl p-4">
+                    <h3 className="font-semibold text-lg mb-3">Notifikasi</h3>
+                    <ul className="space-y-2">
+                        {notifikasi.length === 0 && (
+                            <p className="text-gray-500">Tidak ada notifikasi.</p>
                         )}
-                    </div>
-                </section>
 
                 <div className="mt-8">
                     <OsCopyright />
                 </div>
-            </main>
-        </div>
+            </div>
+        </>
     );
 }

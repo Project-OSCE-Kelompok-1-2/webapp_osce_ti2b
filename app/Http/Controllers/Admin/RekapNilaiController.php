@@ -1,135 +1,92 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
+namespace App\Http\Controllers\Penguji;
 
-use App\Models\Osce;
-use Inertia\Inertia;
-use Illuminate\Http\Request;
-use App\Models\TahunAkademik;
-use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Redirect;
-use App\Services\Admin\RekapNilaiService; // Import Service
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Inertia\Inertia;
 
-class RekapNilaiController extends Controller
+use App\Models\OsceStase;
+use App\Models\EnrollmentOsce;
+
+class RekapController extends Controller
 {
-    protected $service;
-
-    // Pastikan Service di-inject di constructor
-    public function __construct(RekapNilaiService $rekapNilaiService)
+    public function editNilai(Request $request, $id_osce, $id_osce_stase)
     {
-        $this->service = $rekapNilaiService;
+        return $this->getData($id_osce, $id_osce_stase, 'edit');
     }
 
-    /**
-     * GET /admin/rekap-nilai
-     * List OSCE untuk rekap nilai
-     */
-    public function index(Request $request)
+    public function rekap(Request $request, $id_osce, $id_osce_stase)
     {
-        // [PERUBAHAN] Ambil SEMUA data OSCE tanpa pagination server-side
-        // Kita gunakan Osce model langsung agar konsisten dengan halaman sebelumnya
-        // Pastikan diload relasi 'tahunAkademik' agar filtering tahun berjalan lancar
-        
-        $osce = Osce::with('tahunAkademik')
-            ->orderBy('created_at', 'desc')
+        return $this->getData($id_osce, $id_osce_stase, 'rekap');
+    }
+
+    private function getData($id_osce, $id_osce_stase, $mode)
+    {
+        $user = Auth::user();
+
+        if (!$user->penguji) {
+            abort(403, 'Akun Anda tidak memiliki profil Penguji.');
+        }
+
+        $osceStase = OsceStase::with(['osce', 'stase'])
+            ->where('id_osce', $id_osce)
+            ->where('id_osce_stase', $id_osce_stase)
+            ->where('id_penguji', $user->penguji->id_penguji)
+            ->firstOrFail();
+
+        $idStase = (int) $osceStase->id_stase;
+
+        // --- Ambil mahasiswa + nilai ---
+        $mahasiswaRaw = EnrollmentOsce::with('mahasiswa')
+            ->where('id_osce', $id_osce)
+            ->select([
+                'enrollment_osce.*',
+                DB::raw("
+                    (
+                        SELECT SUM(no.nilai * pap.bobot)
+                        FROM nilai_osce AS no
+                        JOIN poin_aspek_penilaian AS pap 
+                            ON no.id_poin_aspek_penilaian = pap.id_poin_aspek_penilaian
+                        JOIN aspek_penilaian AS ap 
+                            ON pap.id_aspek_penilaian = ap.id_aspek_penilaian
+                        WHERE no.id_enrollment_osce = enrollment_osce.id_enrollment_osce
+                        AND ap.id_stase = $idStase
+                    ) AS nilai_total
+                ")
+            ])
             ->get();
 
-        // Ambil data tahun akademik untuk dropdown
-        $tahunAkademikOptions = TahunAkademik::orderBy('tahun', 'desc')
-            ->get()
-            ->map(fn($t) => [
-                'label' => $t->tahun . ' - ' . $t->semester,
-                'value' => $t->id_tahun_akademik
-            ]);
+        // --- Mapping untuk frontend ---
+        $mahasiswaList = $mahasiswaRaw->map(function ($item) {
+            return [
+                'id_enrollment_osce' => $item->id_enrollment_osce,
+                'nama'               => $item->mahasiswa->nama ?? '-',
+                'nim'                => $item->mahasiswa->nim ?? '-',
+                'nilai_total'        => $item->nilai_total ? round((float)$item->nilai_total, 2) : 0,
+            ];
+        });
 
-        return Inertia::render('Admin/RekapOscePage', [
-            'osce' => $osce, // Mengirim Array Full
-            'tahunAkademikOptions' => $tahunAkademikOptions,
-            'filters' => [], // Filter dikosongkan karena dihandle frontend
+        // --- Detail Header ---
+        $osce_detail = [
+            'id_osce'         => $id_osce,
+            'id_osce_stase'   => $id_osce_stase,
+            'nama_osce'       => $osceStase->osce->nama_osce,
+            'nama_stase'      => $osceStase->stase->nama_stase,
+            'waktu_per_rubrik'=> $osceStase->durasi_per_mahasiswa . ' Menit',
+            'total_mahasiswa' => $mahasiswaList->count(),
+            'nama_penguji'    => $user->penguji->nama,
+        ];
+
+        $view = $mode === 'edit'
+            ? 'Penguji/EditNilaiForm'
+            : 'Penguji/SubmitRubrik';
+
+        return Inertia::render($view, [
+            'osce_detail'    => $osce_detail,
+            'mahasiswa_list' => $mahasiswaList,
         ]);
-    }
-
-
-    /**
-     * GET /admin/rekap-nilai/{id_osce}/sesi
-     * List sesi berdasarkan tanggal dan jam untuk OSCE tertentu
-     */
-    public function listSesi(Request $request, $id_osce)
-    {
-        // $search = $request->input('search'); // Tidak perlu ambil dari request
-        
-        // Panggil Service TANPA parameter search
-        $result = $this->service->getSesiList($id_osce);
-
-        return Inertia::render('Admin/RekapSesiPage', [
-            'osce' => $result['osce'],
-            'sesi' => $result['sesi'], // Array Full
-            'filters' => [], // Filter kosong
-        ]);
-    }
-
-    /**
-     * TUGAS 1
-     * Endpoint: GET /admin/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa
-     * Menampilkan daftar mahasiswa yang terdaftar pada sesi tertentu
-     */
-    public function listMahasiswaPerStase(Request $request, $id_osce, $id_sesi)
-    {
-        // $search = $request->input('search');   // Tidak perlu
-        // $angkatan = $request->input('angkatan'); // Tidak perlu
-
-        // Panggil Service TANPA parameter filter
-        $result = $this->service->getMahasiswaPerSesi($id_osce, $id_sesi);
-
-        return Inertia::render('Admin/RekapMahasiswaPage', [
-            'osce' => $result['osce'],
-            'sesi' => $result['sesi_info'],     // Perhatikan nama key ini
-            'mahasiswa_list' => $result['mahasiswa_list'],
-            'filters' => [], // Filter kosong
-        ]);
-    }
-
-    /**
-     * TUGAS 2
-     * GET /admin/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}
-     * Menampilkan detail nilai mahasiswa per stase.
-     */
-    public function detailNilaiMahasiswa($id_mahasiswa, $id_osce)
-    {
-        // ✅ Panggil Service untuk perhitungan
-        $detailNilai = $this->service->calculateDetailNilai($id_mahasiswa, $id_osce);
-
-        if (!$detailNilai) {
-            abort(404, 'Data mahasiswa untuk OSCE ini tidak ditemukan.');
-        }
-
-        return Inertia::render('Admin/RekapDetailPage', [
-            'detailNilai' => $detailNilai,
-        ]);
-    }
-
-    /**
-     * TUGAS 3: DOWNLOAD PDF
-     * GET /admin/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}/download
-     */
-    public function downloadPdf($id_mahasiswa, $id_osce)
-    {
-        // ✅ Panggil Service untuk perhitungan
-        $detailNilai = $this->service->calculateDetailNilai($id_mahasiswa, $id_osce);
-
-        if (!$detailNilai) {
-            return Redirect::back()->with('error', 'Data mahasiswa untuk PDF tidak ditemukan.');
-        }
-
-        // Persiapkan Data untuk View PDF
-        $data = $detailNilai;
-        $data['tahun'] = date('Y'); // Tambahkan tahun saat ini untuk kebutuhan PDF
-
-        // Generate PDF
-        $pdf = Pdf::loadView('pdf.rekap_nilai', $data);
-        $pdf->setPaper('A4', 'portrait');
-
-        return $pdf->download('Hasil_OSCE_' . $detailNilai['mahasiswa']['nim'] . '.pdf');
     }
 }
