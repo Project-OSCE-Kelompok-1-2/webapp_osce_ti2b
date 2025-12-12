@@ -2,29 +2,29 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\V1\AuthController;
+use App\Http\Controllers\Admin\StaseController;
 
 // Admin Controllers
+use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\Admin\OsceController;
+use App\Http\Controllers\Api\V1\InputNilaiController;
 use App\Http\Controllers\Api\V1\Admin\AdminController;
-use App\Http\Controllers\Api\V1\Admin\StaseController;
 use App\Http\Controllers\Api\V1\Admin\PengujiController;
+use App\Http\Controllers\Api\V1\Penguji\ProfilController;
 use App\Http\Controllers\Api\V1\Admin\MahasiswaController;
 use App\Http\Controllers\Api\V1\Admin\OsceStaseController;
 use App\Http\Controllers\Api\V1\Admin\KompetensiController;
 use App\Http\Controllers\Api\V1\Admin\OsceJadwalController;
 use App\Http\Controllers\Api\V1\Admin\RekapNilaiController;
-use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
-use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
 
 // Other Controllers
-use App\Http\Controllers\Api\V1\Penguji\ViewNilaiController;
-use App\Http\Controllers\Api\V1\Penguji\ProfilController;
-use App\Http\Controllers\Api\V1\InputNilaiController;
-use App\Http\Controllers\Api\V1\Penguji\AksiPenilaianApiController;
 use App\Http\Controllers\Api\V1\Penguji\ApiHalamanPenilaian;
-// TAMBAHAN: Pastikan EditNilaiController di-import
+use App\Http\Controllers\Api\V1\Penguji\ViewNilaiController;
 use App\Http\Controllers\Api\V1\Penguji\EditNilaiController; 
+use App\Http\Controllers\Api\V1\Admin\AspekPenilaianController;
+use App\Http\Controllers\Api\V1\Admin\OsceEnrollmentController;
+// TAMBAHAN: Pastikan EditNilaiController di-import
+use App\Http\Controllers\Api\V1\Penguji\AksiPenilaianApiController;
 
 Route::prefix('v1')->group(function () {
 

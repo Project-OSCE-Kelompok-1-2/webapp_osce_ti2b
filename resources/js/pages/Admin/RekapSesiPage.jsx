@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useMemo } from "react"; // [1] Tambah Import Hooks
 import { Link, usePage, router, Head } from "@inertiajs/react";
 import { Search, ArrowLeft } from "lucide-react";
 
@@ -12,7 +12,6 @@ import OsTableBody from "../../components/tablecontain";
 import OsHeader from "../../components/Header";
 import OsButton from "../../components/button";
 
-// --- Definisi Kolom Tabel ---
 const sesiColumns = [
     {
         key: "no",
@@ -22,7 +21,7 @@ const sesiColumns = [
     },
     {
         key: "tanggal_sesi",
-        content: "Tanggal & Waktu", // Ubah judul kolom
+        content: "Tanggal & Waktu",
         width: "flex-1 shrink-0",
         classes: "justify-start items-center px-4",
     },
@@ -42,21 +41,83 @@ const sesiColumns = [
 
 export default function RekapSesiPage() {
     const { osce, sesi, filters, flash } = usePage().props;
-    const [search, setSearch] = useState(filters.search || "");
 
-    const handleSearch = (e) => {
-        e.preventDefault();
-        router.get(
-            `/admin/rekap-nilai/${osce.id_osce}/sesi`,
-            { search },
-            { preserveState: true, replace: true }
-        );
-    };
+    // 1. Ambil Data Full
+    const allSesiData = Array.isArray(sesi) ? sesi : sesi?.data || [];
 
-    // 6. Siapkan untuk isi data tabel
-    const sesiRows = sesi.data.map((item, index) => ({
-        no: sesi.from + index,
-        // PERBAIKAN: Gunakan 'tampilan_sesi' yang sudah ada jamnya
+    // 2. State Filter & Pagination
+    const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
+
+    // --- LOGIC INSTANT FILTER ---
+
+    // A. Reset halaman saat search berubah
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
+
+    // B. Filter Data
+    const filteredData = useMemo(() => {
+        return allSesiData.filter((item) => {
+            const term = searchTerm.toLowerCase();
+            // Filter berdasarkan string tampilan sesi (Tanggal & Jam)
+            return item.tampilan_sesi?.toLowerCase().includes(term);
+        });
+    }, [searchTerm, allSesiData]);
+
+    // C. Slice Pagination
+    const totalItems = filteredData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = filteredData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    // D. Generate Pagination Links
+    const generatedLinks = useMemo(() => {
+        if (totalPages <= 1) return [];
+        const links = [];
+        links.push({
+            url: currentPage > 1 ? "#" : null,
+            label: "&laquo; Previous",
+            active: false,
+            pageNumber: currentPage - 1,
+        });
+        for (let i = 1; i <= totalPages; i++) {
+            if (
+                i === 1 ||
+                i === totalPages ||
+                (i >= currentPage - 1 && i <= currentPage + 1)
+            ) {
+                links.push({
+                    url: "#",
+                    label: i.toString(),
+                    active: i === currentPage,
+                    pageNumber: i,
+                });
+            } else if (
+                (i === currentPage - 2 && i > 1) ||
+                (i === currentPage + 2 && i < totalPages)
+            ) {
+                links.push({ url: null, label: "...", active: false });
+            }
+        }
+        links.push({
+            url: currentPage < totalPages ? "#" : null,
+            label: "Next &raquo;",
+            active: false,
+            pageNumber: currentPage + 1,
+        });
+        return links;
+    }, [currentPage, totalPages]);
+
+    // --- TABLE ROWS MAPPING (Gunakan 'paginatedData') ---
+    const sesiRows = paginatedData.map((item, index) => ({
+        no: (currentPage - 1) * itemsPerPage + index + 1,
         tanggal_sesi: (
             <div className="flex flex-col">
                 <span className="font-medium text-gray-900">
@@ -82,11 +143,7 @@ export default function RekapSesiPage() {
             </OsButton>
         ),
     }));
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    const handleSidebarToggle = () => {
-        setIsSidebarOpen((prev) => !prev);
-    };
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head title={`Rekap Sesi - ${osce.nama_osce}`} />
@@ -96,7 +153,7 @@ export default function RekapSesiPage() {
                 <OsHeader variant="goback" backLink="/admin/rekap-nilai" />
 
                 <div className="flex-1 overflow-auto">
-                    {/* Notifikasi Sukses/Error */}
+                    {/* Notifikasi */}
                     {flash.success && (
                         <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
                             {flash.success}
@@ -116,38 +173,45 @@ export default function RekapSesiPage() {
                         untuk melihat daftar mahasiswa.
                     </p>
 
+                    {/* SEARCH INSTANT */}
                     <OsSearchBar
-                        search={search}
-                        setSearch={setSearch}
-                        onSearchClick={handleSearch}
-                        placeholder="Cari tanggal..."
+                        search={searchTerm}
+                        setSearch={setSearchTerm} // Instant update
+                        placeholder="Cari tanggal atau jam..."
                     />
 
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Sesi
+                        <span className="text-sm font-normal text-gray-500 ml-2">
+                            (Total: {totalItems} data)
+                        </span>
                     </h2>
+
                     <div className="w-full overflow-x-auto pb-4">
                         <div className="min-w-max">
                             <OsTableHeader columns={sesiColumns} />
-
-                            <OsTableBody
-                                data={sesiRows}
-                                columns={sesiColumns}
-                            />
+                            {filteredData.length > 0 ? (
+                                <OsTableBody
+                                    data={sesiRows}
+                                    columns={sesiColumns}
+                                />
+                            ) : (
+                                <div className="flex items-center border-t border-gray-400">
+                                    <p className="w-full text-center text-sm py-4 text-gray-500">
+                                        Data sesi tidak ditemukan.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </div>
 
-                    {sesi.data.length === 0 && (
-                        <div className="flex items-center border-t border-gray-400">
-                            <p className="w-full text-center text-sm py-4 text-gray-500">
-                                Data sesi tidak ditemukan.
-                            </p>
-                        </div>
-                    )}
-
-                    {sesi.links && sesi.links.length > 3 && (
+                    {/* PAGINATION CLIENT-SIDE */}
+                    {totalPages > 1 && (
                         <div className="mt-8">
-                            <OsPagination links={sesi.links} />
+                            <OsPagination
+                                links={generatedLinks}
+                                onPageChange={(page) => setCurrentPage(page)}
+                            />
                         </div>
                     )}
                 </div>

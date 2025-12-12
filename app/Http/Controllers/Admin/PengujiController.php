@@ -27,16 +27,13 @@ class PengujiController extends Controller
      */
     public function index(Request $request)
     {
-        $search = $request->query('search');
-        // [PERBAIKAN] Paginate dan format data
-        $dosen = $this->service->getAll($search);
+        // [PERUBAHAN] Ambil SEMUA data untuk Client-Side Pagination
+        // Jangan gunakan paginate(), gunakan get()
+        $dosen = Penguji::orderBy('nama', 'asc')->get();
 
-        // [PERBAIKAN] Render ke 'Admin/PengujiPage'
         return Inertia::render('Admin/PengujiPage', [
-            'dosen' => $dosen, // 'dosen' adalah nama prop di React
-            'filters' => [
-                'search' => $search,
-            ]
+            'dosen' => $dosen, // Mengirim Array Full
+            'filters' => [],   // Filter kosong karena dihandle frontend
         ]);
     }
 

@@ -1,10 +1,9 @@
-import React, { useState } from "react";
-import { Link, usePage, router, Head } from "@inertiajs/react"; // 1. Tambahkan Head
+import React, { useState, useEffect, useMemo } from "react"; // [1] Import Hooks
+import { Link, usePage, router, Head } from "@inertiajs/react";
 import { Search, ArrowLeft } from "lucide-react";
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
-// import OsBreadCrumb from "../../components/breadcrumb"; // Buat breadcrumb statis/dinamis
 import OsCopyright from "../../components/Copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
@@ -13,33 +12,6 @@ import OsSearchBar from "../../components/searchbar.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsInput from "../../components/input.jsx";
 
-// --- Definisi Kolom Tabel (Sudah Benar) ---
-// const mahasiswaColumns = [
-//     {
-//         key: "no",
-//         content: "No",
-//         width: "w-16",
-//         classes: "justify-center items-center",
-//     },
-//     {
-//         key: "nim_mahasiswa",
-//         content: "Nim Mahasiswa",
-//         width: "w-80",
-//         classes: "justify-start items-center px-4",
-//     },
-//     {
-//         key: "nama_mahasiswa",
-//         content: "Nama Mahasiswa",
-//         width: "flex-1",
-//         classes: "justify-start items-center px-4",
-//     },
-//     {
-//         key: "action",
-//         content: "Action",
-//         width: "w-48",
-//         classes: "justify-center items-center px-4",
-//     },
-// ];
 const mahasiswaColumns = [
     {
         key: "no",
@@ -49,14 +21,14 @@ const mahasiswaColumns = [
     },
     {
         key: "nim_mahasiswa",
-        content: "Nim Mahasiswa",
+        content: "NIM Mahasiswa",
         width: "w-80 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
         key: "nama_mahasiswa",
         content: "Nama Mahasiswa",
-        width: "w-[350px] flex-1 shrink-0", // Ganti flex-1
+        width: "w-[350px] flex-1 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
@@ -67,38 +39,107 @@ const mahasiswaColumns = [
     },
 ];
 
-// 2. [HAPUS] Mock data (mockFilters dan mockMahasiswa) tidak diperlukan lagi
-
-// --- Komponen Utama ---
 export default function RekapMahasiswaPage() {
-    // 3. [PERBAIKAN] Ambil props dinamis dari controller
     const { osce, sesi, mahasiswa_list, filters, flash } = usePage().props;
 
-    // 4. [PERBAIKAN] State filter disesuaikan (search dan angkatan)
-    const [search, setSearch] = useState(filters.search || "");
-    const [angkatan, setAngkatan] = useState(filters.angkatan || ""); // Ganti 'year' jadi 'angkatan'
+    // 1. Ambil Data Full
+    const allData = Array.isArray(mahasiswa_list)
+        ? mahasiswa_list
+        : mahasiswa_list?.data || [];
 
-    // Opsi untuk filter angkatan
+    // 2. State Filter & Pagination
+    const [search, setSearch] = useState("");
+    const [angkatan, setAngkatan] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
+
     const angkatanList = [
         { value: "", label: "Semua Angkatan" },
         { value: "2025", label: "2025" },
         { value: "2024", label: "2024" },
         { value: "2023", label: "2023" },
+        // Anda bisa menambahkan opsi dinamis jika ada props 'listAngkatan'
     ];
 
-    // 5. [PERBAIKAN] Fungsi search dinamis
-    const handleSearch = (e) => {
-        e.preventDefault();
-        router.get(
-            window.location.pathname, // Tetap di halaman ini
-            { search, angkatan }, // Kirim filter yang benar
-            { preserveState: true, replace: true, preserveScroll: true }
-        );
-    };
+    // --- INSTANT FILTER LOGIC ---
 
-    //6. Siapkan data untuk isi data tabel
-    const tableData = mahasiswa_list.data.map((item, index) => ({
-        no: mahasiswa_list.from + index,
+    // A. Reset halaman saat filter berubah
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, angkatan]);
+
+    // B. Filter Data
+    const filteredData = useMemo(() => {
+        return allData.filter((item) => {
+            // Filter Search (Nama atau NIM)
+            const term = search.toLowerCase();
+            const matchSearch =
+                item.nama?.toLowerCase().includes(term) ||
+                item.nim?.toLowerCase().includes(term);
+
+            // Filter Angkatan (Kelas)
+            // Asumsi: field di DB adalah 'kelas', sesuaikan jika beda
+            let matchAngkatan = true;
+            if (angkatan) {
+                matchAngkatan = item.kelas === angkatan;
+            }
+
+            return matchSearch && matchAngkatan;
+        });
+    }, [search, angkatan, allData]);
+
+    // C. Pagination Slice
+    const totalItems = filteredData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = filteredData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    // D. Generate Links
+    const generatedLinks = useMemo(() => {
+        if (totalPages <= 1) return [];
+        const links = [];
+        links.push({
+            url: currentPage > 1 ? "#" : null,
+            label: "&laquo; Previous",
+            active: false,
+            pageNumber: currentPage - 1,
+        });
+        for (let i = 1; i <= totalPages; i++) {
+            if (
+                i === 1 ||
+                i === totalPages ||
+                (i >= currentPage - 1 && i <= currentPage + 1)
+            ) {
+                links.push({
+                    url: "#",
+                    label: i.toString(),
+                    active: i === currentPage,
+                    pageNumber: i,
+                });
+            } else if (
+                (i === currentPage - 2 && i > 1) ||
+                (i === currentPage + 2 && i < totalPages)
+            ) {
+                links.push({ url: null, label: "...", active: false });
+            }
+        }
+        links.push({
+            url: currentPage < totalPages ? "#" : null,
+            label: "Next &raquo;",
+            active: false,
+            pageNumber: currentPage + 1,
+        });
+        return links;
+    }, [currentPage, totalPages]);
+
+    // --- TABLE ROWS MAPPING (Gunakan 'paginatedData') ---
+    const tableData = paginatedData.map((item, index) => ({
+        no: (currentPage - 1) * itemsPerPage + index + 1,
         nim_mahasiswa: item.nim,
         nama_mahasiswa: item.nama,
         action: (
@@ -115,12 +156,6 @@ export default function RekapMahasiswaPage() {
         ),
     }));
 
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    const handleSidebarToggle = () => {
-        setIsSidebarOpen((prev) => !prev);
-    };
-
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head
@@ -129,14 +164,13 @@ export default function RekapMahasiswaPage() {
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                {/* 6. [PERBAIKAN] Breadcrumb dinamis */}
                 <OsHeader
                     variant="goback"
                     backLink={`/admin/rekap-nilai/${osce.id_osce}/sesi`}
                 />
 
                 <div className="flex-1 overflow-auto">
-                    {/* Notifikasi Sukses/Error */}
+                    {/* Notifikasi */}
                     {flash.success && (
                         <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
                             {flash.success}
@@ -156,17 +190,16 @@ export default function RekapMahasiswaPage() {
                         {sesi.tanggal_formatted}.
                     </p>
 
-                    {/* 7. searchbar+dropdown */}
+                    {/* SEARCH INSTANT */}
                     <OsSearchBar
                         search={search}
-                        setSearch={setSearch}
-                        onSearchClick={handleSearch}
+                        setSearch={setSearch} // Update state langsung
                         placeholder="Cari NIM atau Nama Mahasiswa..."
                     >
                         <OsInput
                             type="select"
                             value={angkatan}
-                            onChange={(e) => setAngkatan(e.target.value)}
+                            onChange={(e) => setAngkatan(e.target.value)} // Update state langsung
                             options={angkatanList}
                             className="w-[160px]"
                         />
@@ -174,19 +207,20 @@ export default function RekapMahasiswaPage() {
 
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Mahasiswa
+                        <span className="text-sm font-normal text-gray-500 ml-2">
+                            (Total: {totalItems} data)
+                        </span>
                     </h2>
 
                     <div className="w-full overflow-x-auto pb-4">
                         <div className="min-w-max">
                             <OsTableHeader columns={mahasiswaColumns} />
-
-                            <OsTableBody
-                                data={tableData}
-                                columns={mahasiswaColumns}
-                            />
-
-                            {/* Pesan jika tidak ada data */}
-                            {mahasiswa_list.data.length === 0 && (
+                            {filteredData.length > 0 ? (
+                                <OsTableBody
+                                    data={tableData}
+                                    columns={mahasiswaColumns}
+                                />
+                            ) : (
                                 <div className="flex items-center border-t border-gray-400">
                                     <p className="w-full text-center text-sm py-4 text-gray-500">
                                         Data mahasiswa tidak ditemukan.
@@ -196,13 +230,15 @@ export default function RekapMahasiswaPage() {
                         </div>
                     </div>
 
-                    {/* 10. [PERBAIKAN] Paginasi Dinamis */}
-                    {mahasiswa_list.links &&
-                        mahasiswa_list.links.length > 3 && (
-                            <div className="mt-8">
-                                <OsPagination links={mahasiswa_list.links} />
-                            </div>
-                        )}
+                    {/* PAGINATION CLIENT-SIDE */}
+                    {totalPages > 1 && (
+                        <div className="mt-8">
+                            <OsPagination
+                                links={generatedLinks}
+                                onPageChange={(page) => setCurrentPage(page)}
+                            />
+                        </div>
+                    )}
                 </div>
 
                 <OsCopyright />
