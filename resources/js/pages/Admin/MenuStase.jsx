@@ -301,10 +301,11 @@ export default function Stase() {
     };
 
     // Format Data Tabel dari 'paginatedData'
-    const tableData = paginatedData.map((item, index) => ({
-        no: (currentPage - 1) * itemsPerPage + index + 1,
+    const tableData = stase.data.map((item, index) => ({
+        no: (stase.from || 1) + index,
         nama_stase: item.nama_stase,
-        jumlah_aspek: item.jumlah_aspek || 0,
+        // PERBAIKAN DISINI: Ubah 'item.jumlah_aspek' menjadi 'item.aspek_penilaian_count'
+        jumlah_aspek: item.aspek_penilaian_count || 0,
         action: (
             <div className="flex items-center justify-center space-x-3">
                 <OsButton
@@ -314,7 +315,7 @@ export default function Stase() {
                             `/admin/stase/${item.id_stase}/aspek-penilaian`
                         )
                     }
-                    className="h-[38px] w-full flex justify-between items-center gap-3"
+                    className="h-[38px] text-os-small w-full flex justify-between items-center gap-3"
                 >
                     <OsIcon name={"add"} className="os-icon-light h-[20px]" />
                     Edit Aspek Penilaian
