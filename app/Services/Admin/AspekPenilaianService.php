@@ -11,20 +11,24 @@ class AspekPenilaianService
     /**
      * Mengambil data aspek penilaian dengan struktur sesuai permintaan.
      */
-    public function getByStase(Stase $stase, $search)
+    public function getByStase(Stase $stase) 
     {
         // Query dasar
         $aspek_penilaian = AspekPenilaian::where('id_stase', $stase->id_stase)
-            ->when($search, function ($query, $search) {
-                $query->where('aspek', 'like', "%{$search}%");
-            })
+            // [HAPUS] Logic search dihilangkan agar semua data terambil
+            // ->when($search, function ($query, $search) { ... }) 
+            
             // Menghitung jumlah kompetensi (relation count)
             ->withCount('poinAspekPenilaian as jumlah_kompetensi')
-            ->paginate(10)
-            ->withQueryString();
+            ->orderBy('created_at', 'asc') // [TAMBAH] Sorting biar rapi
+            
+            // [PENTING] Ganti paginate(10) menjadi get()
+            ->get(); 
 
-        // TRANSFORMASI: Mengubah setiap item agar sesuai struktur JSON yang diminta
-        $aspek_penilaian->getCollection()->transform(function ($item) {
+        // TRANSFORMASI: 
+        // Karena pakai get(), hasilnya adalah Collection, bukan Paginator.
+        // Jadi tidak perlu ->getCollection(), langsung saja ->transform()
+        $aspek_penilaian->transform(function ($item) {
             $item->nama = $item->aspek;
             $item->bobot = $item->bobot_maksimum;
             $item->id = $item->id_aspek_penilaian;

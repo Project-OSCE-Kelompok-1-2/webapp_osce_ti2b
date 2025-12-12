@@ -1,81 +1,92 @@
-// components/OsPagination.jsx (Revisi: Panah Hover Hitam)
+// components/OsPagination.jsx
 import { Link } from "@inertiajs/react";
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 /**
- * Komponen Pagination yang reusable untuk data Inertia.
- *
- * @param {Array<Object>} links - Array tautan pagination dari Inertia (misalnya: stase.links).
+ * Komponen Pagination Hybrid.
+ * Bisa dipakai untuk Server-Side (Inertia) ataupun Client-Side (Instant).
+ * * @param {Array} links - Array tautan pagination.
+ * @param {Function} onPageChange - (Optional) Fungsi callback untuk Client-side pagination.
  */
-const OsPagination = ({ links = [] }) => {
-
-    // Pastikan ada links untuk di render selain Prev dan Next
+const OsPagination = ({ links = [], onPageChange }) => {
     if (links.length <= 3) {
         return null;
     }
 
     return (
-        <nav className="flex items-center justify-start space-x-2 my-4" aria-label="Pagination">
+        <nav
+            className="flex items-center justify-start space-x-2 my-4"
+            aria-label="Pagination"
+        >
             {links.map((link, index) => {
-
-                // Tentukan apakah ini tombol panah (Previous atau Next)
                 const isArrow = index === 0 || index === links.length - 1;
 
-                // Tentukan ikon untuk tombol panah
                 let icon = null;
                 if (isArrow) {
-                    icon = index === 0 ? <ChevronLeft size={16} /> : <ChevronRight size={16} />;
-                }
-
-                // Class dasar untuk semua tombol (lingkaran w-10 h-10)
-                const baseClasses = "flex items-center justify-center rounded-full transition duration-150 w-8 h-8 text-sm";
-
-                let combinedClasses;
-
-                // Menampilkan tombol "..." jika link tidak memiliki URL (break/ellipsis)
-                if (link.label.includes('...')) {
-                    return (
-                        <span key={index} className="text-gray-500 mx-1">...</span>
+                    // Cek label untuk menentukan ikon (biasanya 'Previous'/'Next' atau '&laquo;')
+                    const isPrev =
+                        link.label.includes("Previous") ||
+                        link.label.includes("&laquo;");
+                    icon = isPrev ? (
+                        <ChevronLeft size={16} />
+                    ) : (
+                        <ChevronRight size={16} />
                     );
                 }
 
-                // --- LOGIC STYLING BARU ---
+                const baseClasses =
+                    "flex items-center justify-center rounded-full transition duration-150 w-8 h-8 text-sm select-none";
+                let combinedClasses;
 
-                if (link.active) {
-                    // Gaya untuk halaman AKTIF (Angka Aktif): Hitam Solid
-                    combinedClasses = "bg-os-primary text-white font-semibold";
-                } else if (link.url === null) {
-                    // Gaya untuk tombol NON-AKTIF (Disabled Prev/Next): Berongga, kursor non-aktif
-                    combinedClasses = "bg-white border border-gray-400 text-gray-400 cursor-not-allowed";
-                } else if (isArrow) {
-                    // Gaya untuk tombol PANAH yang AKTIF (Bisa diklik)
-                    // Default: Berongga, Hover: Hitam Solid
-                    combinedClasses = "bg-white border border-gray-400 text-gray-700 hover:bg-black hover:text-white";
-                } else {
-                    // Gaya untuk tombol ANGKA yang TIDAK AKTIF
-                    // Default: Berongga, Hover: Abu-abu Muda
-                    combinedClasses = "bg-white border border-gray-400 text-gray-700 hover:bg-gray-100";
+                if (link.label.includes("...")) {
+                    return (
+                        <span key={index} className="text-gray-500 mx-1">
+                            ...
+                        </span>
+                    );
                 }
 
-                // Gunakan <span> jika disabled, <Link> jika bisa diklik
-                const Tag = link.url === null ? 'span' : Link;
+                // Styling logic
+                if (link.active) {
+                    combinedClasses =
+                        "bg-os-primary text-white font-semibold cursor-default";
+                } else if (link.url === null) {
+                    combinedClasses =
+                        "bg-white border border-gray-400 text-gray-400 cursor-not-allowed";
+                } else if (isArrow) {
+                    combinedClasses =
+                        "bg-white border border-gray-400 text-gray-700 hover:bg-black hover:text-white cursor-pointer";
+                } else {
+                    combinedClasses =
+                        "bg-white border border-gray-400 text-gray-700 hover:bg-gray-100 cursor-pointer";
+                }
 
-                // Render tombol
+                // Tentukan Tag: Jika client-side (ada onPageChange), pakai 'button' atau 'div' biar gak reload
+                // Jika server-side (URL asli), pakai Link
+                const Tag =
+                    link.url === null ? "span" : onPageChange ? "button" : Link;
+
                 return (
                     <Tag
                         key={index}
-                        href={link.url || '#'}
-                        preserveScroll
+                        href={onPageChange ? undefined : link.url || "#"} // Hapus href jika client-side
+                        disabled={link.url === null}
                         className={`${baseClasses} ${combinedClasses}`}
-                        aria-disabled={link.url === null}
-                        tabIndex={link.url === null ? -1 : 0}
-                        onClick={(e) => link.url === null && e.preventDefault()}
+                        onClick={(e) => {
+                            if (link.url === null) {
+                                e.preventDefault();
+                                return;
+                            }
+                            // LOGIC BARU: Jika mode Client-Side
+                            if (onPageChange) {
+                                e.preventDefault();
+                                // Kita sisipkan properti 'pageNumber' saat generate link di parent
+                                onPageChange(link.pageNumber || link.label);
+                            }
+                        }}
                     >
-                        {/* Jika panah, tampilkan ikon. Jika angka, tampilkan label. */}
-                        {isArrow
-                            ? icon
-                            : link.label}
+                        {isArrow ? icon : link.label}
                     </Tag>
                 );
             })}
