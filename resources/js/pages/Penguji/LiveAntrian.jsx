@@ -228,7 +228,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                     {/* Durasi */}
                                     <div className="bg-white border rounded-lg p-2.5 flex flex-col justify-center shadow-sm">
                                         <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-0.5">
-                                            Waktu/Rubrik
+                                            Waktu/Stase
                                         </p>
                                         <div className="flex items-center gap-1.5">
                                             <Clock
