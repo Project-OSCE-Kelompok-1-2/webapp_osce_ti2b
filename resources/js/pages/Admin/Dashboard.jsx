@@ -89,7 +89,7 @@ const NotificationItem = ({ stase, index }) => {
                     </Link>
                 </div>
             </div>
-        </li>
+        </div>
     );
 };
 
