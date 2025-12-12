@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
-import { Link, router, usePage, Head, useForm } from "@inertiajs/react";
-import { Trash2, X, Edit2 } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react"; // Tambah useMemo
+import { router, usePage, useForm } from "@inertiajs/react";
+import { Trash2, Edit2 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
@@ -8,41 +8,12 @@ import OsTableHeader from "../../components/tableheader.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
-import Os_button from "../../components/button.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsModal from "../../components/Modal.jsx";
 import OsInput from "../../components/input.jsx";
 import OsButton from "../../components/button.jsx";
 import Modals from "../../components/Modals.jsx";
-
-// --- Definisi Kolom Tabel Penguji ---
-// const pengujiColumns = [
-//     {
-//         key: "no",
-//         content: "No",
-//         width: "w-16",
-//         classes: "justify-center items-center",
-//     },
-//     {
-//         key: "nip_penguji",
-//         content: "NIP Penguji",
-//         width: "w-56",
-//         classes: "justify-start items-center px-4",
-//     },
-//     {
-//         key: "nama_penguji",
-//         content: "Nama Penguji",
-//         width: "flex-1",
-//         classes: "justify-start items-center px-4",
-//     },
-//     {
-//         key: "action",
-//         content: "Aksi",
-//         width: "w-56",
-//         classes: "justify-center items-center px-4",
-//     },
-// ];
 
 const pengujiColumns = [
     {
@@ -60,7 +31,7 @@ const pengujiColumns = [
     {
         key: "nama_penguji",
         content: "Nama Penguji",
-        width: "min-w-[350px] !flex-1 shrink-0", // Ganti flex-1
+        width: "min-w-[350px] !flex-1 shrink-0",
         classes: "justify-start items-center px-4",
     },
     {
@@ -72,22 +43,92 @@ const pengujiColumns = [
 ];
 
 export default function PengujiPage() {
-    const { dosen, filters, flash } = usePage().props;
+    // 1. Ambil data (Array penuh dari controller)
+    const { dosen, flash } = usePage().props;
+    const allDosenData = Array.isArray(dosen) ? dosen : dosen?.data || [];
 
-    // === STATE PENCARIAN ===
-    const [search, setSearch] = useState(filters?.search || "");
+    // === STATE PENCARIAN & PAGINATION ===
+    const [search, setSearch] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
-    // ==========================================
-    // 1. LOGIC TAMBAH (Create)
-    // ==========================================
-    const [showAddModal, setShowAddModal] = useState(false);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    const handleSidebarToggle = () => {
-        setIsSidebarOpen((prev) => !prev);
-    };
+    // === LOGIC FILTER INSTAN ===
+    // 1. Reset halaman jika search berubah
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search]);
 
-    // Inisialisasi useForm persis seperti di TambahPenguji
+    // 2. Filter data berdasarkan search
+    const filteredData = useMemo(() => {
+        return allDosenData.filter((item) => {
+            const term = search.toLowerCase();
+            return (
+                item.nama?.toLowerCase().includes(term) ||
+                item.nip?.toString().toLowerCase().includes(term)
+            );
+        });
+    }, [search, allDosenData]);
+
+    // 3. Potong data untuk pagination (Slice)
+    const totalItems = filteredData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = filteredData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    // 4. Generate Link Pagination Manual
+    const generatedLinks = useMemo(() => {
+        if (totalPages <= 1) return [];
+        const links = [];
+        // Prev
+        links.push({
+            url: currentPage > 1 ? "#" : null,
+            label: "&laquo; Previous",
+            active: false,
+            pageNumber: currentPage - 1,
+        });
+        // Numbers
+        for (let i = 1; i <= totalPages; i++) {
+            if (
+                i === 1 ||
+                i === totalPages ||
+                (i >= currentPage - 1 && i <= currentPage + 1)
+            ) {
+                links.push({
+                    url: "#",
+                    label: i.toString(),
+                    active: i === currentPage,
+                    pageNumber: i,
+                });
+            } else if (
+                (i === currentPage - 2 && i > 1) ||
+                (i === currentPage + 2 && i < totalPages)
+            ) {
+                links.push({ url: null, label: "...", active: false });
+            }
+        }
+        // Next
+        links.push({
+            url: currentPage < totalPages ? "#" : null,
+            label: "Next &raquo;",
+            active: false,
+            pageNumber: currentPage + 1,
+        });
+        return links;
+    }, [currentPage, totalPages]);
+
+    // === LOGIC CRUD (Sama seperti sebelumnya) ===
+    const [showAddModal, setShowAddModal] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
+    const [editingPenguji, setEditingPenguji] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedPenguji, setSelectedPenguji] = useState(null);
+    const [isDeleting, setIsDeleting] = useState(false);
+
+    // Form Add
     const {
         data: dataAdd,
         setData: setDataAdd,
@@ -96,28 +137,9 @@ export default function PengujiPage() {
         errors: errorsAdd,
         reset: resetAdd,
         clearErrors: clearErrorsAdd,
-    } = useForm({
-        nip: "",
-        nama: "",
-    });
+    } = useForm({ nip: "", nama: "" });
 
-    const handleSubmitAdd = (e) => {
-        e.preventDefault();
-        // Menggunakan post seperti di TambahPenguji
-        postAdd("/admin/dosen", {
-            onSuccess: () => {
-                setShowAddModal(false);
-                resetAdd();
-            },
-        });
-    };
-
-    // ==========================================
-    // 2. LOGIC EDIT (Update)
-    // ==========================================
-    const [showEditModal, setShowEditModal] = useState(false);
-    const [editingPenguji, setEditingPenguji] = useState(null);
-
+    // Form Edit
     const {
         data: dataEdit,
         setData: setDataEdit,
@@ -126,18 +148,21 @@ export default function PengujiPage() {
         errors: errorsEdit,
         reset: resetEdit,
         clearErrors: clearErrorsEdit,
-    } = useForm({
-        nip: "",
-        nama: "",
-    });
+    } = useForm({ nip: "", nama: "" });
 
-    // Mengisi form edit saat tombol diklik (Logic dari useEffect sebelumnya tetap valid untuk modal)
+    const handleSubmitAdd = (e) => {
+        e.preventDefault();
+        postAdd("/admin/dosen", {
+            onSuccess: () => {
+                setShowAddModal(false);
+                resetAdd();
+            },
+        });
+    };
 
     const handleSubmitEdit = (e) => {
         e.preventDefault();
         if (!editingPenguji) return;
-
-        // Menggunakan put seperti di TambahPenguji
         putEdit(`/admin/dosen/${editingPenguji.id_penguji}`, {
             onSuccess: () => {
                 setShowEditModal(false);
@@ -147,21 +172,12 @@ export default function PengujiPage() {
         });
     };
 
-    // ==========================================
-    // 3. LOGIC LAINNYA (Search & Delete)
-    // ==========================================
-    const handleSearch = (e) => {
-        e.preventDefault();
-        router.get(
-            "/admin/dosen",
-            { search },
-            { preserveState: true, replace: true }
-        );
+    const openEditModal = (penguji) => {
+        setEditingPenguji(penguji);
+        setDataEdit({ nip: penguji.nip || "", nama: penguji.nama || "" });
+        clearErrorsEdit();
+        setShowEditModal(true);
     };
-
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedPenguji, setSelectedPenguji] = useState(null);
-    const [isDeleting, setIsDeleting] = useState(false);
 
     const openDeleteModal = (penguji) => {
         setSelectedPenguji(penguji);
@@ -171,7 +187,6 @@ export default function PengujiPage() {
     const confirmDelete = () => {
         if (!selectedPenguji || isDeleting) return;
         setIsDeleting(true);
-
         router.delete(`/admin/dosen/${selectedPenguji.id_penguji}`, {
             preserveScroll: true,
             onSuccess: () => {
@@ -184,23 +199,9 @@ export default function PengujiPage() {
         });
     };
 
-    // Fungsi helper UI
-    const openEditModal = (penguji) => {
-        setEditingPenguji(penguji);
-        setDataEdit({
-            nip: penguji.nip || "",
-            nama: penguji.nama || "",
-        });
-
-        // 3. Langsung buka modal
-        setShowEditModal(true);
-
-        // Opsional: bersihkan error
-        clearErrorsEdit();
-    };
-
-    const tableData = dosen.data.map((item, index) => ({
-        no: dosen.from + index,
+    // === FORMAT DATA TABEL (Dari Paginated Data) ===
+    const tableDisplayData = paginatedData.map((item, index) => ({
+        no: (currentPage - 1) * itemsPerPage + index + 1,
         nip_penguji: item.nip,
         nama_penguji: item.nama,
         action: (
@@ -217,17 +218,21 @@ export default function PengujiPage() {
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
+            <Sidebar
+                isOpen={isSidebarOpen}
+                onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
+            />
 
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-
-                <OsHeader onMenuClick={handleSidebarToggle} />
+                <OsHeader
+                    onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                />
 
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">Menu Penguji</h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
                         Menu Penguji (Dosen) digunakan untuk mengelola proses
-                        penilaian...
+                        penilaian.
                     </p>
 
                     <OsButton
@@ -238,7 +243,7 @@ export default function PengujiPage() {
                         <OsIcon
                             name="add"
                             className="h-os-20 os-icon-light mr-os-8"
-                        />
+                        />{" "}
                         Tambah Penguji
                     </OsButton>
 
@@ -253,27 +258,29 @@ export default function PengujiPage() {
                         </div>
                     )}
 
+                    {/* INSTANT SEARCH BAR */}
                     <div className="w-full">
                         <OsSearchBar
-                            onSubmit={handleSearch}
                             search={search}
-                            setSearch={setSearch}
-                            onSearchClick={handleSearch}
-                            placeholder="Cari NIP atau Nama Penguji..."
+                            setSearch={setSearch} // Trigger useMemo filter
+                            placeholder="Cari NIP atau Nama Penguji secara instan..."
                         />
                     </div>
 
                     <section>
                         <h2 className="font-semibold text-lg mb-2">
                             Tabel Penguji
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
                         </h2>
 
                         <div className="w-full overflow-x-auto pb-4">
                             <div className="min-w-max">
                                 <OsTableHeader columns={pengujiColumns} />
-                                {tableData.length > 0 ? (
+                                {tableDisplayData.length > 0 ? (
                                     <OsTableBody
-                                        data={tableData}
+                                        data={tableDisplayData}
                                         columns={pengujiColumns}
                                     />
                                 ) : (
@@ -285,9 +292,16 @@ export default function PengujiPage() {
                                 )}
                             </div>
                         </div>
-                        {dosen.links && dosen.links.length > 3 && (
+
+                        {/* Pagination Client Side */}
+                        {totalPages > 1 && (
                             <div className="mt-8">
-                                <OsPagination links={dosen.links} />
+                                <OsPagination
+                                    links={generatedLinks}
+                                    onPageChange={(page) =>
+                                        setCurrentPage(page)
+                                    }
+                                />
                             </div>
                         )}
                     </section>
@@ -295,9 +309,7 @@ export default function PengujiPage() {
 
                 <OsCopyright />
 
-                {/* ============================================== */}
-                {/* MODAL TAMBAH (Implementasi dari TambahPenguji) */}
-                {/* ============================================== */}
+                {/* MODAL TAMBAH */}
                 <OsModal
                     show={showAddModal}
                     onClose={() => {
@@ -310,7 +322,6 @@ export default function PengujiPage() {
                     onClear={() => resetAdd()}
                 >
                     <div className="space-y-4">
-                        {/* NIP - Menggunakan logic onChange spesifik seperti TambahPenguji */}
                         <div>
                             <OsInput
                                 label="NIP Penguji"
@@ -319,7 +330,7 @@ export default function PengujiPage() {
                                 value={dataAdd.nip}
                                 onChange={(e) =>
                                     setDataAdd("nip", e.target.value)
-                                } // Perubahan utama disini
+                                }
                                 placeholder="Masukkan NIP Penguji..."
                                 required
                             />
@@ -329,8 +340,6 @@ export default function PengujiPage() {
                                 </p>
                             )}
                         </div>
-
-                        {/* NAMA - Menggunakan logic onChange spesifik seperti TambahPenguji */}
                         <div>
                             <OsInput
                                 label="Nama Penguji"
@@ -339,7 +348,7 @@ export default function PengujiPage() {
                                 value={dataAdd.nama}
                                 onChange={(e) =>
                                     setDataAdd("nama", e.target.value)
-                                } // Perubahan utama disini
+                                }
                                 placeholder="Masukkan Nama Penguji..."
                                 required
                             />
@@ -349,8 +358,6 @@ export default function PengujiPage() {
                                 </p>
                             )}
                         </div>
-
-                        {/* Loading Indicator */}
                         {processingAdd && (
                             <p className="text-blue-600 text-sm text-center animate-pulse">
                                 Menyimpan data...
@@ -359,9 +366,7 @@ export default function PengujiPage() {
                     </div>
                 </OsModal>
 
-                {/* ============================================== */}
-                {/* MODAL EDIT (Implementasi dari TambahPenguji)   */}
-                {/* ============================================== */}
+                {/* MODAL EDIT */}
                 <OsModal
                     show={showEditModal}
                     onClose={() => {
@@ -386,7 +391,7 @@ export default function PengujiPage() {
                                 value={dataEdit.nip}
                                 onChange={(e) =>
                                     setDataEdit("nip", e.target.value)
-                                } // Perubahan utama disini
+                                }
                                 placeholder="Masukkan NIP Penguji..."
                                 required
                             />
@@ -396,7 +401,6 @@ export default function PengujiPage() {
                                 </p>
                             )}
                         </div>
-
                         <div>
                             <OsInput
                                 label="Nama Penguji"
@@ -405,7 +409,7 @@ export default function PengujiPage() {
                                 value={dataEdit.nama}
                                 onChange={(e) =>
                                     setDataEdit("nama", e.target.value)
-                                } // Perubahan utama disini
+                                }
                                 placeholder="Masukkan Nama Penguji..."
                                 required
                             />
@@ -415,7 +419,6 @@ export default function PengujiPage() {
                                 </p>
                             )}
                         </div>
-
                         {processingEdit && (
                             <p className="text-blue-600 text-sm text-center animate-pulse">
                                 Memperbarui data...
