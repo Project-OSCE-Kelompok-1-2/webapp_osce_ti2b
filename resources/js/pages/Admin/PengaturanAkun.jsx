@@ -325,12 +325,12 @@ export default function AdminSettingAkun({ user }) {
                                             </div>
                                         </div>
 
-                                        <div className="w-full flex justify-between">
+                                        <div className="w-full flex justify-between gap-3">
                                             <OsButton
                                                 name="primary"
                                                 type="submit"
                                                 disabled={processing}
-                                                className="sm:w-[223px] bg-blue-600 text-white flex items-center w-full gap-[13px] p-3 border border-black"
+                                                className="sm:w-[223px] w-6/12  bg-blue-600 text-white flex items-center gap-[13px] p-3 border border-black"
                                             >
                                                 <Save className="w-[17px]" />
                                                 {processing
@@ -340,7 +340,7 @@ export default function AdminSettingAkun({ user }) {
 
                                             <OsButton
                                                 name="warning"
-                                                className="w-[223px] !bg-white !text-red-600 !border-red-600  flex items-center justify-start gap-[13px] !border-os-2"
+                                                className="sm:w-[223px] w-6/12 !bg-white !text-red-600 !border-red-600  flex items-center justify-start gap-[13px] !border-os-2"
                                                 onClick={() => {
                                                     console.log("dsajdsaldka");
                                                     handleLogout();

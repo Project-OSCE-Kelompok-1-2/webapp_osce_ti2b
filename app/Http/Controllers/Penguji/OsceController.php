@@ -18,32 +18,15 @@ class OsceController extends Controller
         $user = Auth::user();
         $penguji = Penguji::where('id_pengguna', $user->id_pengguna)->firstOrFail();
 
-        $search = $request->input('search');
-        $tahun  = $request->input('tahun');
+        // [PERUBAHAN] Ambil SEMUA data tanpa filter search/tahun di DB
+        // Eager load relasi yang dibutuhkan
+        $assignments = OsceStase::with(['osce.enrollmentOsce', 'osce.tahunAkademik'])
+            ->where('id_penguji', $penguji->id_penguji)
+            ->orderBy('tanggal', 'desc')
+            ->get(); // Gunakan GET(), bukan paginate()
 
-        // Query Dasar
-        $query = OsceStase::with(['osce.enrollmentOsce', 'osce.tahunAkademik'])
-            ->where('id_penguji', $penguji->id_penguji);
-
-        // Filter Search
-        if ($search) {
-            $query->whereHas('osce', function ($q) use ($search) {
-                $q->where('nama_osce', 'like', "%{$search}%");
-            });
-        }
-
-        // Filter Tahun
-        if ($tahun) {
-            $query->whereHas('osce.tahunAkademik', function ($q) use ($tahun) {
-                $q->where('tahun', 'like', "%{$tahun}%");
-            });
-        }
-
-        // Pagination & Sorting
-        $assignments = $query->orderBy('tanggal', 'desc')->paginate(10)->withQueryString();
-
-        // Transformasi Data untuk Frontend
-        $osceList = $assignments->through(function ($stase) {
+        // Transformasi Data
+        $osceList = $assignments->map(function ($stase) {
             $osce = $stase->osce;
             $now = Carbon::now();
 
@@ -52,7 +35,6 @@ class OsceController extends Controller
 
             // Logika Status
             $status = 'Selesai';
-
             if ($now->lt($startEvent)) {
                 $status = 'Belum Dimulai';
             } elseif ($now->between($startEvent, $endEvent)) {
@@ -60,6 +42,9 @@ class OsceController extends Controller
             } else {
                 $status = 'Selesai';
             }
+            
+            // Format Tahun Akademik untuk filtering di frontend
+            $tahunAkademik = $osce->tahunAkademik->tahun ?? '';
 
             return [
                 'id_osce'          => $osce->id_osce,
@@ -70,15 +55,13 @@ class OsceController extends Controller
                 'status'           => $status,
                 'jumlah_mahasiswa' => $osce->enrollmentOsce->count(),
                 'sesi'             => substr($stase->jam_mulai, 0, 5) . ' - ' . substr($stase->jam_selesai, 0, 5),
+                'tahun_akademik'   => $tahunAkademik, // Tambahkan field ini
             ];
         });
 
         return Inertia::render('Penguji/PengujiOsceList', [
-            'osce_list' => $osceList,
-            'filters'   => [
-                'search' => $search,
-                'tahun'  => $tahun
-            ]
+            'osce_list' => $osceList, // Mengirim Array Full
+            'filters'   => [],        // Filter kosong
         ]);
     }
 }

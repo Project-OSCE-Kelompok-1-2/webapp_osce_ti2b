@@ -10,6 +10,7 @@ import {
     Save,
     Trash2,
     UploadCloud,
+    Lock,
 } from "lucide-react";
 
 // Import Komponen Custom Sesuai Desain
@@ -144,7 +145,7 @@ export default function MahasiswaAccountSettings() {
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head title="Pengaturan Akun" />
 
             {/* SIDEBAR */}
@@ -154,7 +155,7 @@ export default function MahasiswaAccountSettings() {
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
-            <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-8 transition-all duration-300 lg:ml-20">
+            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* --- IMPLEMENTASI OS HEADER --- */}
                 <OsHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
@@ -188,12 +189,10 @@ export default function MahasiswaAccountSettings() {
 
                     <div className="flex flex-col lg:flex-row items-start gap-5 relative w-full">
                         {/* --- KOLOM KIRI: FOTO PROFIL --- */}
-                        <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5  rounded-xl border border-black shadow-sm">
+                        <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5  rounded-xl border border-os-primary shadow-sm">
                             <div className="relative self-stretch w-full h-[29px]">
-                                <h2 className="absolute top-[calc(50%_-_14px)] left-0 font-sans font-normal text-black text-xl">
-                                    Gambar Profil
-                                </h2>
-                                <hr className="absolute top-7 left-0 w-full border-black border-t" />
+                                <h2 className="text-xl">Gambar Profil</h2>
+                                <hr className="mt-1 border-os-primary" />
                             </div>
 
                             {/* Lingkaran Foto */}
@@ -250,12 +249,12 @@ export default function MahasiswaAccountSettings() {
                         </aside>
 
                         {/* --- KOLOM KANAN: FORM DATA --- */}
-                        <section className="flex flex-col items-start gap-[15px] p-5 relative flex-1 grow  rounded-xl border border-black shadow-sm">
+                        <section className="flex flex-col items-start gap-[15px] p-5 relative flex-1 grow  rounded-xl border border-os-primary shadow-sm">
                             <div className="relative self-stretch w-full h-[29px]">
                                 <h2 className="absolute top-[calc(50%_-_14px)] left-0 font-sans font-normal text-black text-xl">
                                     Akun
                                 </h2>
-                                <hr className="absolute top-7 left-0 w-full border-black border-t" />
+                                <hr className="absolute top-7 left-0 w-full border-os-primary border-t" />
                             </div>
 
                             <form
@@ -295,7 +294,7 @@ export default function MahasiswaAccountSettings() {
                                     disabled
                                 />
 
-                                <hr className="w-full border-gray-300 my-2" />
+                                <hr className="w-full border-os-primary my-2" />
 
                                 {/* PASSWORD INPUTS */}
                                 <CustomInput
@@ -307,12 +306,7 @@ export default function MahasiswaAccountSettings() {
                                         setData("old_password", e.target.value)
                                     }
                                     error={errors.old_password}
-                                    icon={
-                                        <OsIcon
-                                            name="Lock"
-                                            className="w-5 h-5"
-                                        />
-                                    }
+                                    icon={<Lock size={16} opacity={0.5} />}
                                     iconRight={
                                         <div
                                             onClick={() =>
@@ -349,10 +343,7 @@ export default function MahasiswaAccountSettings() {
                                             }
                                             error={errors.new_password}
                                             icon={
-                                                <OsIcon
-                                                    name="Lock"
-                                                    className="w-5 h-5"
-                                                />
+                                                <Lock size={16} opacity={0.5} />
                                             }
                                         />
                                     </div>
@@ -375,10 +366,7 @@ export default function MahasiswaAccountSettings() {
                                                 )
                                             }
                                             icon={
-                                                <OsIcon
-                                                    name="Lock"
-                                                    className="w-5 h-5"
-                                                />
+                                                <Lock size={16} opacity={0.5} />
                                             }
                                             iconRight={
                                                 <div
@@ -403,7 +391,7 @@ export default function MahasiswaAccountSettings() {
                                 <div className="w-full flex justify-between gap-3 mt-2">
                                     <OsButton
                                         name="primary"
-                                        className="w-[223px] flex items-center rounded-xl p-3 justify-center gap-[13px] border border-black bg-[#0B0931] text-blue-100"
+                                        className="w-[223px] flex items-center rounded-xl p-3 justify-start gap-[13px] border border-black bg-[#0B0931] text-blue-100"
                                         onClick={handleSaveChanges}
                                         disabled={processing}
                                     >
@@ -415,7 +403,7 @@ export default function MahasiswaAccountSettings() {
                                         </span>
                                     </OsButton>
 
-                                    <OsButton
+                                    {/* <OsButton
                                         name="warning"
                                         className="w-[223px] flex items-center rounded-xl p-3 justify-center gap-[13px] border border-black bg-red-600"
                                         onClick={handleLogout}
@@ -423,12 +411,24 @@ export default function MahasiswaAccountSettings() {
                                     >
                                         <LogOut className="w-[23px] h-[21px]" />
                                         <span>Logout</span>
+                                    </OsButton> */}
+                                    <OsButton
+                                        name="warning"
+                                        className="sm:w-[223px] w-6/12 !bg-white !text-red-600 !border-red-600  flex items-center justify-start gap-[13px] !border-os-2"
+                                        onClick={() => {
+                                            console.log("dsajdsaldka");
+                                            handleLogout();
+                                        }}
+                                        type="button"
+                                    >
+                                        <LogOut size={17} />
+                                        <span>Logout</span>
                                     </OsButton>
                                 </div>
 
                                 <a
                                     href="#"
-                                    className="text-xs underline text-black mt-2"
+                                    className="text-xs underline text-os-primary"
                                     onClick={(e) => e.preventDefault()}
                                 >
                                     Ada masalah? hubungi admin
@@ -439,7 +439,7 @@ export default function MahasiswaAccountSettings() {
                 </div>
 
                 {/* FOOTER */}
-                <div className="mt-12">
+                <div className="mt-2">
                     <OsCopyright />
                 </div>
             </main>
