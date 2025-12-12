@@ -19,13 +19,6 @@ class StaseService
                 ->with(['tujuanPembelajaran']) // Load relasi agar bisa dilihat datanya
                 ->withCount('aspekPenilaian')
                 ->paginate(10)
-                ->through(function ($item) {
-                    return [
-                        'id_stase' => $item->id_stase,
-                        'nama_stase' => $item->nama_stase,
-                        'jumlah_aspek' => $item->aspek_penilaian_count,
-                    ];
-                })
                 ->withQueryString()
         ];
         // Note: Saya menyederhanakan return agar load relasi tujuanPembelajaran terbawa ke frontend
