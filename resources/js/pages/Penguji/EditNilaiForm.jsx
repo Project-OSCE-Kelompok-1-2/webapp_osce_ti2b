@@ -18,7 +18,7 @@ export default function EditNilaiForm() {
     const safeOsceInfo = osce_detail || {
         nama_osce: "-",
         nama_stase: "-",
-        waktu_per_rubrik: "-",
+        durasi_per_mahasiswa: "-",
         total_mahasiswa: 0,
         nama_penguji: "-",
     };
@@ -101,7 +101,7 @@ export default function EditNilaiForm() {
                                 <div className="p-4 flex-1 flex flex-col justify-between">
                                     <div>
                                         <span className="text-xs text-gray-600 block mb-1">
-                                            Rubrik
+                                            Nama Stase
                                         </span>
                                         <span className="text-sm font-bold block">
                                             {safeOsceInfo.nama_stase}
@@ -114,10 +114,10 @@ export default function EditNilaiForm() {
                                 <div className="p-4 flex-1 flex flex-col justify-between">
                                     <div>
                                         <span className="text-xs text-gray-600 block mb-1">
-                                            Waktu per rubrik
+                                            Durasi per mahasiswa
                                         </span>
                                         <span className="text-sm font-bold block">
-                                            {safeOsceInfo.waktu_per_rubrik}
+                                            {safeOsceInfo.durasi_per_mahasiswa}
                                         </span>
                                     </div>
                                     <ExternalLink className="w-4 h-4 text-gray-400 mt-4" />
