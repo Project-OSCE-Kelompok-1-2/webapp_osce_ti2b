@@ -70,10 +70,9 @@ class JadwalMahasiswaService
      */
     public function getJadwalStase($idOsce)
     {
-        // Ambil data stase, urutkan berdasarkan jam mulai
         return OsceStase::with(['stase', 'ruang', 'penguji.pengguna']) 
             ->where('id_osce', $idOsce)
             ->orderBy('jam_mulai', 'asc')
-            ->paginate(5); // Pagination 5 per halaman sesuai desain
+            ->get(); // [PENTING] Ganti paginate() menjadi get()
     }
 }

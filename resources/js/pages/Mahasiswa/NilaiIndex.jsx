@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from "react";
+import React, { useState, useEffect, useMemo } from "react"; // [1] Import Hooks
 import { Head, Link, usePage, router } from "@inertiajs/react";
 import { ChevronRight, FileText, User } from "lucide-react";
 
@@ -8,104 +8,125 @@ import OsPagination from "../../components/pagination";
 import OsSearchBar from "@/Components/searchbar";
 import OsHeader from "@/Components/Header";
 import OsCopyright from "@/Components/Copyright";
-
-// --- HELPER: DEBOUNCE MANUAL ---
-const customDebounce = (func, delay) => {
-    let timeoutId;
-    return (...args) => {
-        if (timeoutId) clearTimeout(timeoutId);
-        timeoutId = setTimeout(() => {
-            func(...args);
-        }, delay);
-    };
-};
+import OsTableBody from "../../components/tablecontain"; // Asumsi ada OsTableBody, jika tidak pakai table biasa
 
 export default function NilaiIndex() {
-    // 1. AMBIL DATA DARI CONTROLLER (Safe Access)
-    const {
-        mahasiswa = {},
-        ujian = {
-            data: [],
-            links: [],
-            total: 0,
-            current_page: 1,
-            per_page: 10,
-        },
-        filters = {},
-    } = usePage().props;
+    // 1. Ambil Data Full
+    const { mahasiswa, ujian, filters } = usePage().props;
+    const allUjianData = Array.isArray(ujian) ? ujian : ujian?.data || [];
 
-    // --- STATE UI ---
+    // 2. State Filter & Pagination
+    const [search, setSearch] = useState("");
+    const [filterSemester, setFilterSemester] = useState("");
+    const [filterTahun, setFilterTahun] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // --- STATE FILTER (Server Side) ---
-    const [search, setSearch] = useState(filters?.q || "");
-    const [filterSemester, setFilterSemester] = useState(filters?.sem || "");
-    const [filterTahun, setFilterTahun] = useState(filters?.tahun || "");
+    // --- INSTANT FILTER LOGIC ---
 
-    // --- LOGIC 1: DROPDOWN CHANGE ---
-    const handleFilterChange = (key, value) => {
-        if (key === "sem") setFilterSemester(value);
-        if (key === "tahun") setFilterTahun(value);
+    // A. Reset halaman saat filter berubah
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [search, filterSemester, filterTahun]);
 
-        router.get(
-            "/mahasiswa/nilai",
-            {
-                q: search,
-                sem: key === "sem" ? value : filterSemester,
-                tahun: key === "tahun" ? value : filterTahun,
-            },
-            { preserveState: true, preserveScroll: true, replace: true }
-        );
-    };
+    // B. Filter Data
+    const filteredData = useMemo(() => {
+        return allUjianData.filter((item) => {
+            const term = search.toLowerCase();
 
-    // --- LOGIC 2: SEARCH ---
-    const debouncedSearch = useCallback(
-        customDebounce((query, currentSem, currentTahun) => {
-            router.get(
-                "/mahasiswa/nilai",
-                {
-                    q: query,
-                    sem: currentSem,
-                    tahun: currentTahun,
-                },
-                { preserveState: true, preserveScroll: true, replace: true }
-            );
-        }, 500),
-        []
+            // Filter Search (Nama Ujian atau Dosen)
+            const matchSearch =
+                item.nama_ujian?.toLowerCase().includes(term) ||
+                item.dosen_penguji?.toLowerCase().includes(term);
+
+            // Filter Semester (Ganjil/Genap label atau Angka Semester)
+            // Di controller kita kirim 'semester_label' (Ganjil/Genap) dan 'semester' (1, 2, 3...)
+            let matchSemester = true;
+            if (filterSemester) {
+                // Jika filterSemester berisi "Ganjil"/"Genap", cek semester_label
+                // Jika berisi angka, cek semester
+                if (filterSemester === "Ganjil" || filterSemester === "Genap") {
+                    matchSemester = item.semester_label === filterSemester;
+                } else {
+                    // Jika filter angka (opsional jika dropdown punya angka)
+                    matchSemester = item.semester === filterSemester;
+                }
+            }
+
+            // Filter Tahun
+            let matchTahun = true;
+            if (filterTahun) {
+                matchTahun = item.tahun_ujian === filterTahun;
+            }
+
+            return matchSearch && matchSemester && matchTahun;
+        });
+    }, [search, filterSemester, filterTahun, allUjianData]);
+
+    // C. Slice Pagination
+    const totalItems = filteredData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = filteredData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
     );
 
-    const handleSearchChange = (val) => {
-        setSearch(val);
-        debouncedSearch(val, filterSemester, filterTahun);
-    };
-
-    const handleSearchManual = () => {
-        router.get(
-            "/mahasiswa/nilai",
-            { q: search, sem: filterSemester, tahun: filterTahun },
-            { preserveState: true, preserveScroll: true, replace: true }
-        );
-    };
+    // D. Generate Links
+    const generatedLinks = useMemo(() => {
+        if (totalPages <= 1) return [];
+        const links = [];
+        links.push({
+            url: currentPage > 1 ? "#" : null,
+            label: "&laquo; Previous",
+            active: false,
+            pageNumber: currentPage - 1,
+        });
+        for (let i = 1; i <= totalPages; i++) {
+            if (
+                i === 1 ||
+                i === totalPages ||
+                (i >= currentPage - 1 && i <= currentPage + 1)
+            ) {
+                links.push({
+                    url: "#",
+                    label: i.toString(),
+                    active: i === currentPage,
+                    pageNumber: i,
+                });
+            } else if (
+                (i === currentPage - 2 && i > 1) ||
+                (i === currentPage + 2 && i < totalPages)
+            ) {
+                links.push({ url: null, label: "...", active: false });
+            }
+        }
+        links.push({
+            url: currentPage < totalPages ? "#" : null,
+            label: "Next &raquo;",
+            active: false,
+            pageNumber: currentPage + 1,
+        });
+        return links;
+    }, [currentPage, totalPages]);
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
             <Head title="Hasil Penilaian OSCE" />
 
-            {/* --- SIDEBAR --- */}
             <Sidebar
                 type="mahasiswa"
                 isOpen={isSidebarOpen}
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             />
 
-            {/* --- MAIN CONTENT --- */}
             <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-2 md:gap-4 transition-all duration-300 lg:ml-20">
                 <OsHeader
                     onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 />
 
                 <div className="pt-0">
-                    {/* Judul Halaman */}
                     <div className="mb-6 md:mb-8 flex items-center gap-3">
                         <FileText className="text-blue-600" size={32} />
                         <div>
@@ -118,7 +139,7 @@ export default function NilaiIndex() {
                         </div>
                     </div>
 
-                    {/* Card Info Mahasiswa (DINAMIS DARI CONTROLLER) */}
+                    {/* Card Info Mahasiswa (SAMA) */}
                     <div className="relative mb-8 overflow-hidden rounded-2xl bg-blue-600 p-6 text-white shadow-xl shadow-blue-100">
                         <div className="absolute right-0 top-0 h-64 w-64 translate-x-16 -translate-y-16 rounded-full bg-white/10 blur-3xl"></div>
                         <div className="absolute left-0 bottom-0 h-40 w-40 -translate-x-10 translate-y-10 rounded-full bg-blue-400/30 blur-2xl"></div>
@@ -171,11 +192,10 @@ export default function NilaiIndex() {
                                         <select
                                             value={filterSemester}
                                             onChange={(e) =>
-                                                handleFilterChange(
-                                                    "sem",
+                                                setFilterSemester(
                                                     e.target.value
                                                 )
-                                            }
+                                            } // Update state langsung
                                             className="w-full rounded-lg border-0 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-blue-200 focus:ring-2 focus:ring-white/50 transition cursor-pointer hover:bg-white/20"
                                         >
                                             <option
@@ -205,11 +225,8 @@ export default function NilaiIndex() {
                                         <select
                                             value={filterTahun}
                                             onChange={(e) =>
-                                                handleFilterChange(
-                                                    "tahun",
-                                                    e.target.value
-                                                )
-                                            }
+                                                setFilterTahun(e.target.value)
+                                            } // Update state langsung
                                             className="w-full rounded-lg border-0 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-blue-200 focus:ring-2 focus:ring-white/50 transition cursor-pointer hover:bg-white/20"
                                         >
                                             <option
@@ -251,12 +268,11 @@ export default function NilaiIndex() {
                         </div>
                     </div>
 
-                    {/* --- SEARCH BAR --- */}
+                    {/* SEARCH BAR */}
                     <div className="mb-2">
                         <OsSearchBar
                             search={search}
-                            setSearch={handleSearchChange}
-                            onSearchClick={handleSearchManual}
+                            setSearch={setSearch} // Instant Update
                             placeholder="Cari nama ujian atau dosen..."
                         />
                     </div>
@@ -269,7 +285,7 @@ export default function NilaiIndex() {
                                 Daftar Nilai Ujian
                             </h3>
                             <span className="rounded-md bg-white px-3 py-1 text-xs font-medium text-gray-500 border border-gray-200 shadow-sm">
-                                Total: {ujian?.total || 0} Data
+                                Total: {totalItems} Data
                             </span>
                         </div>
 
@@ -298,16 +314,15 @@ export default function NilaiIndex() {
                                     </tr>
                                 </thead>
                                 <tbody className="divide-y divide-gray-100">
-                                    {/* LOOP DATA DINAMIS DARI 'ujian.data' */}
-                                    {ujian?.data && ujian.data.length > 0 ? (
-                                        ujian.data.map((item, index) => (
+                                    {paginatedData.length > 0 ? (
+                                        paginatedData.map((item, index) => (
                                             <tr
                                                 key={item.id}
                                                 className="group hover:bg-blue-50/30 transition-colors"
                                             >
                                                 <td className="px-6 py-4 text-center font-medium text-gray-400 group-hover:text-blue-600 transition-colors">
-                                                    {(ujian.current_page - 1) *
-                                                        ujian.per_page +
+                                                    {(currentPage - 1) *
+                                                        itemsPerPage +
                                                         index +
                                                         1}
                                                 </td>
@@ -325,14 +340,12 @@ export default function NilaiIndex() {
                                                     {item.semester}
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
-                                                    {/* --- PERBAIKAN: GANTI BUTTON JADI LINK --- */}
                                                     <Link
                                                         href={`/mahasiswa/nilai/${item.id}`}
                                                         className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
                                                     >
                                                         Lihat Nilai
                                                     </Link>
-                                                    {/* -------------------------------------- */}
                                                 </td>
                                                 <td className="px-6 py-4 text-center">
                                                     <span
@@ -373,13 +386,17 @@ export default function NilaiIndex() {
                         </div>
                     </div>
 
-                    {/* --- PAGINATION (DINAMIS) --- */}
+                    {/* PAGINATION */}
                     <div className="mt-6">
-                        {ujian?.links && <OsPagination links={ujian.links} />}
+                        {totalPages > 1 && (
+                            <OsPagination
+                                links={generatedLinks}
+                                onPageChange={(page) => setCurrentPage(page)}
+                            />
+                        )}
                     </div>
                 </div>
 
-                {/* Footer */}
                 <div className="mt-12">
                     <OsCopyright />
                 </div>
