@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { usePage, Link } from "@inertiajs/react";
+import { usePage, Link, router } from "@inertiajs/react";
 import {
     BookOpen,
     CheckCircle,
@@ -8,6 +8,7 @@ import {
     Clock,
     AlertCircle,
     ArrowRight,
+    CalendarRange,
 } from "lucide-react";
 
 // Components
@@ -104,15 +105,24 @@ const UrgentJadwalCard = ({ jadwal }) => {
    COMPONENT: STANDARD JADWAL CARD
 ---------------------------------------------------*/
 const JadwalItem = ({ jadwal }) => {
+    const isPast = jadwal.sisa_hari < 0;
+    const displaySisa = isPast ? "✓" : jadwal.sisa_hari;
+    const displayLabel = isPast ? "Selesai" : "Hari";
+    const bgClass = isPast ? "bg-gray-400" : "bg-blue-500";
+
     return (
         <div className="bg-blue-50 border border-blue-100 rounded-xl p-4 flex items-center justify-between hover:bg-blue-100 transition-colors cursor-pointer group">
             <div className="flex items-center gap-4">
                 {/* Badge Tanggal */}
-                <div className="flex flex-col items-center justify-center w-12 h-12 bg-blue-500 rounded-xl text-white shadow-sm group-hover:scale-105 transition-transform">
+                <div
+                    className={`flex flex-col items-center justify-center w-12 h-12 ${bgClass} rounded-xl text-white shadow-sm group-hover:scale-105 transition-transform`}
+                >
                     <span className="font-bold text-lg leading-none">
-                        {jadwal.sisa_hari}
+                        {displaySisa}
                     </span>
-                    <span className="text-[9px] font-medium">Hari</span>
+                    <span className="text-[9px] font-medium">
+                        {displayLabel}
+                    </span>
                 </div>
 
                 {/* Info */}
@@ -145,18 +155,45 @@ const JadwalItem = ({ jadwal }) => {
 export default function DashboardMahasiswa() {
     // 1. Props dari Backend
     // props 'url' ditambahkan agar Sidebar tahu halaman mana yang aktif
-    const { auth, statistik, jadwal_penting, kalender_event } = usePage().props;
+    const { auth, statistik, jadwal_penting, kalender_event, selected_date } =
+        usePage().props;
     const { url } = usePage();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
+    // [BARU] Handler saat tanggal di kalender diklik
+    const handleDateSelect = (dateObj) => {
+        // Format tanggal JS ke 'YYYY-MM-DD' secara manual untuk menghindari masalah timezone
+        const year = dateObj.getFullYear();
+        const month = String(dateObj.getMonth() + 1).padStart(2, "0");
+        const day = String(dateObj.getDate()).padStart(2, "0");
+        const dateString = `${year}-${month}-${day}`;
+
+        // Kirim request ke URL yang sama dengan query param ?date=...
+        router.get(
+            "/mahasiswa/dashboard", // Pastikan URL ini sesuai rute Anda
+            { date: dateString },
+            {
+                preserveState: true, // Jangan refresh full page state
+                preserveScroll: true, // Jangan scroll ke atas
+                only: ["jadwal_penting", "selected_date", "kalender_event"], // Update kalender_event juga untuk memastikan data sinkron
+            }
+        );
+    };
+
     // Helper untuk memisahkan jadwal urgent (H-1 atau H-0/Hari H)
-    const urgentJadwal = jadwal_penting?.find((j) => j.sisa_hari <= 1);
+    // Pastikan hanya jadwal masa depan atau hari ini yang dianggap urgent
+    const urgentJadwal = jadwal_penting?.find(
+        (j) => j.sisa_hari >= 0 && j.sisa_hari <= 1
+    );
 
     // Filter jadwal sisa untuk list di bawah (agar tidak duplikat dengan alert)
-    const normalJadwal = jadwal_penting?.filter((j) => j.sisa_hari > 1);
+    // Tampilkan jadwal yang bukan urgent, ATAU jadwal masa lalu (sisa_hari < 0)
+    const normalJadwal = jadwal_penting?.filter(
+        (j) => j.sisa_hari > 1 || j.sisa_hari < 0
+    );
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
             {/* Sidebar Universal */}
             <Sidebar
                 type="mahasiswa"
@@ -164,7 +201,7 @@ export default function DashboardMahasiswa() {
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-8 transition-all duration-300 lg:ml-20">
                 {/* Header */}
                 <OsHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
@@ -210,9 +247,16 @@ export default function DashboardMahasiswa() {
                         {/* LEFT: JADWAL PENTING */}
                         <div className="lg:col-span-2">
                             <div className="flex items-center justify-between mb-6">
-                                <h2 className="font-bold text-xl text-gray-900">
-                                    Jadwal Penting
-                                </h2>
+                                <div className="flex gap-os-8 items-center justify-start">
+                                    <CalendarRange size={18} />
+                                    <div className="flex items-center gap-2">
+                                        <h2 className="font-bold text-xl text-gray-900">
+                                            {selected_date
+                                                ? `Jadwal Tanggal: ${selected_date}`
+                                                : "Jadwal Penting"}
+                                        </h2>
+                                    </div>
+                                </div>
                                 <Link
                                     href="/mahasiswa/jadwal"
                                     className="text-blue-500 text-sm hover:underline flex items-center gap-1"
@@ -231,25 +275,27 @@ export default function DashboardMahasiswa() {
                                 <h3 className="text-sm font-medium text-gray-500 mb-2">
                                     Mendatang
                                 </h3>
-                                {normalJadwal && normalJadwal.length > 0
-                                    ? normalJadwal.map((item, index) => (
-                                          <JadwalItem
-                                              key={index}
-                                              jadwal={item}
-                                          />
-                                      ))
-                                    : !urgentJadwal && (
-                                          <div className="p-6 text-center border border-dashed rounded-xl text-gray-400">
-                                              Belum ada jadwal ujian mendatang.
-                                          </div>
-                                      )}
+                                {normalJadwal && normalJadwal.length > 0 ? (
+                                    normalJadwal.map((item, index) => (
+                                        <JadwalItem key={index} jadwal={item} />
+                                    ))
+                                ) : !urgentJadwal ? (
+                                    <div className="p-6 text-center border border-dashed rounded-xl text-gray-400">
+                                        {selected_date
+                                            ? "Tidak ada jadwal ujian pada tanggal ini."
+                                            : "Belum ada jadwal ujian mendatang."}
+                                    </div>
+                                ) : null}
                             </div>
                         </div>
 
                         {/* RIGHT: KALENDER */}
                         <div className="lg:col-span-1">
                             <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                                <Calendar events={kalender_event} />
+                                <Calendar
+                                    events={kalender_event}
+                                    onDateSelect={handleDateSelect}
+                                />
                             </div>
                         </div>
                     </section>
