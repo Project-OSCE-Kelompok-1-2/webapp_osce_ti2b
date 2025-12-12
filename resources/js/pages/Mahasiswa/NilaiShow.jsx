@@ -52,26 +52,43 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
         {
             key: "id",
             content: "No",
-            width: "w-[80px]",
-            classes: "justify-center font-bold",
+            width: "w-[40px] md:w-[80px]",
+            classes: "justify-center items-center font-bold",
         },
         {
             key: "kompetensi",
-            content: "Stase / Keterampilan Klinik",
+            content: (
+                <>
+                    <span className="hidden md:inline">
+                        Stase / Keterampilan Klinik
+                    </span>
+                    {/* Ukuran text-xs (12px) agar terbaca, dan rata tengah secara default */}
+                    <span className="md:hidden text-xs">
+                        Stase / Keterampilan Klinik
+                    </span>
+                </>
+            ),
             width: "flex-1",
-            classes: "justify-start px-6 font-bold text-left",
+            // Mobile: Center, Desktop: Left-aligned
+            classes:
+                "justify-center md:justify-start items-center px-2 md:px-6 font-bold text-center md:text-left",
         },
         {
             key: "nilai",
             content: "Nilai",
-            width: "w-[150px]",
-            classes: "justify-center",
+            width: "w-[60px] md:w-[150px]",
+            classes: "justify-center items-center",
         },
         {
             key: "keterangan",
-            content: "Keterangan",
-            width: "w-[200px]",
-            classes: "justify-start px-6",
+            content: (
+                <>
+                    <span className="hidden md:inline">Keterangan</span>
+                    <span className="md:hidden">Ket.</span>
+                </>
+            ),
+            width: "w-[80px] md:w-[200px]",
+            classes: "justify-center items-center px-3 md:px-6",
         },
     ];
 
@@ -163,7 +180,7 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                     {/* --- KARTU 3: TABEL NILAI --- */}
                     <div className="w-full bg-white rounded-xl shadow-sm border border-black overflow-hidden flex flex-col">
                         <div className="overflow-x-auto">
-                            <div className="min-w-[600px]">
+                            <div className="min-w-full">
                                 {/* Bagian Header Tabel */}
                                 <div className="bg-white">
                                     <OsTableHeader columns={tableColumns} />
