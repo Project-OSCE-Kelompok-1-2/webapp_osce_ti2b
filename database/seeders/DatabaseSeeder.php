@@ -22,93 +22,344 @@ use App\Models\NilaiOsce;
 use App\Models\Enrollment;
 use App\Models\LogoInstitusi;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\DB;
 
 class DatabaseSeeder extends Seeder
 {
     public function run(): void
     {
-        // =====================================================================
-        // 1. KONFIGURASI WAKTU & SESI
-        // =====================================================================
-        $waktuEksekusi = Carbon::now('Asia/Jakarta');
+        DB::transaction(function () {
+            // =====================================================================
+            // 1. DATA GLOBAL (ADMIN, LOGO, INSTRUKTUR/PENGUJI) - Dibuat Sekali
+            // =====================================================================
+            $this->command->info("--- Memulai Seeding Data Global ---");
 
-        $durasiPerMhs = 7; // menit
-        $jumlahMhsPerSesi = 7; // orang
-        $durasiSesi = $durasiPerMhs * $jumlahMhsPerSesi; // 49 menit
+            // Logo
+            LogoInstitusi::firstOrCreate(
+                ['nama_institusi' => 'Politeknik Negeri Semarang'],
+                [
+                    'path_logo' => 'images/logo_polines.png',
+                    'deskripsi' => 'Program Studi Ilmu Keperawatan',
+                ]
+            );
 
-        // --- SKENARIO A: UJIAN SEDANG BERLANGSUNG (ACTIVE) ---
-        // SESI 1: Sedang Berlangsung (Mulai 1 menit yang lalu)
-        $sesi1Mulai = $waktuEksekusi->copy()->subMinutes(1);
-        $sesi1Selesai = $sesi1Mulai->copy()->addMinutes($durasiSesi);
+            // Admin
+            $userAdmin = Pengguna::firstOrCreate(
+                ['username' => 'admin'],
+                ['jenis_role' => 'admin', 'password' => 'password']
+            );
 
-        // SESI 2: 2 Jam setelah Sesi 1 Selesai (Mendatang)
-        $sesi2Mulai = $sesi1Selesai->copy()->addHours(2);
-        $sesi2Selesai = $sesi2Mulai->copy()->addMinutes($durasiSesi);
+            if (!Admin::where('id_pengguna', $userAdmin->id_pengguna)->exists()) {
+                Admin::factory()->create(['id_pengguna' => $userAdmin->id_pengguna]);
+            }
 
-        // SESI 3: 2 Jam setelah Sesi 2 Selesai (Mendatang)
-        $sesi3Mulai = $sesi2Selesai->copy()->addHours(2);
-        $sesi3Selesai = $sesi3Mulai->copy()->addMinutes($durasiSesi);
+            // Instruktur (Penguji) - Disimpan dalam collection untuk dipanggil tiap tahun
+            $daftarInstruktur = [
+                ['nama' => 'Sutono, S.Kp., M.Sc., M.Kep', 'username' => 'sutono'],
+                ['nama' => 'Maryami Yuliana Kosim, S.Kep., Ns., M.Kep., Ph.D', 'username' => 'maryami'],
+                ['nama' => 'Dr. Sri Setiyarini, S.Kp., M.Kes', 'username' => 'setiyarini'],
+                ['nama' => 'Syahirul Alim, S.Kp., MNSc., Ph.D', 'username' => 'syahirul'],
+                ['nama' => 'Khudazi Aulawi, S.Kp., M.Kes., MNSc., Ph.D', 'username' => 'khudazi'],
+                ['nama' => 'Anggi Lukman Wicaksana, S.Kep., Ns, MS., PhD', 'username' => 'anggi'],
+                ['nama' => 'Arifin Triyanto, S.Kep., Ns., M.Kep., Sp.KMB', 'username' => 'arifin'],
+            ];
 
-        // Event Global Active: Mencakup semua sesi (Buffer 1 jam sebelum dan sesudah)
-        $eventActiveMulai = $sesi1Mulai->copy()->subHour();
-        $eventActiveSelesai = $sesi3Selesai->copy()->addHour();
+            $pengujis = collect();
+            foreach ($daftarInstruktur as $data) {
+                $user = Pengguna::firstOrCreate(
+                    ['username' => $data['username']],
+                    ['jenis_role' => 'penguji', 'password' => 'password']
+                );
 
-        // --- SKENARIO B: UJIAN SUDAH SELESAI (HISTORY/PAST) ---
-        // Dilaksanakan 1 bulan yang lalu
-        $pastEventMulai = $waktuEksekusi->copy()->subMonth();
-        $pastEventSelesai = $pastEventMulai->copy()->addHours(5); // Durasi 5 jam
+                $penguji = Penguji::where('id_pengguna', $user->id_pengguna)->first();
+                if (!$penguji) {
+                    $penguji = Penguji::factory()->create(['id_pengguna' => $user->id_pengguna, 'nama' => $data['nama']]);
+                }
+                $pengujis->push($penguji);
+            }
 
-        // Sesi di masa lalu
-        $pastSesiMulai = $pastEventMulai->copy()->addMinutes(30);
-        $pastSesiSelesai = $pastSesiMulai->copy()->addMinutes($durasiSesi);
+            // =====================================================================
+            // 2. LOOPING TAHUN AKADEMIK (2020 - 2025)
+            // =====================================================================
+            // Loop ini mencakup 2023/2024, 2024/2025, hingga 2025/2026 sesuai request.
 
-        $this->command->info("--------------------------------------------------");
-        $this->command->info("WAKTU SEKARANG : " . $waktuEksekusi->format('H:i:s'));
-        $this->command->info("--- SKENARIO ACTIVE ---");
-        $this->command->info("SESI 1 (Active): " . $sesi1Mulai->format('H:i') . " - " . $sesi1Selesai->format('H:i'));
-        $this->command->info("SESI 2 (Next)  : " . $sesi2Mulai->format('H:i') . " - " . $sesi2Selesai->format('H:i'));
-        $this->command->info("SESI 3 (Last)  : " . $sesi3Mulai->format('H:i') . " - " . $sesi3Selesai->format('H:i'));
-        $this->command->info("--- SKENARIO SELESAI ---");
-        $this->command->info("EVENT HISTORY  : " . $pastEventMulai->format('d M Y'));
-        $this->command->info("--------------------------------------------------");
+            $startYear = 2020;
+            $endYear = 2025;
 
-        // =====================================================================
-        // 2. DATA USER & MAHASISWA
-        // =====================================================================
+            for ($year = $startYear; $year <= $endYear; $year++) {
+                $tahunString = $year . '/' . ($year + 1);
+                $isCurrentYear = ($year === 2025); // Flag untuk tahun skenario utama (Active)
 
-        LogoInstitusi::factory()->create([
-            'nama_institusi' => 'Politeknik Negeri Semarang',
-            'path_logo' => 'images/logo_polines.png',
-            'deskripsi' => 'Program Studi Ilmu Keperawatan Fakultas Kedokteran, Kesehatan Masyarakat, dan Keperawatan',
-        ]);
+                $this->command->info(">>> Memproses Tahun Akademik: $tahunString " . ($isCurrentYear ? "(CURRENT SCENARIO)" : "(HISTORY)"));
 
-        $userAdmin = Pengguna::factory()->create(['username' => 'admin', 'jenis_role' => 'admin', 'password' => ('password')]);
-        Admin::factory()->create(['id_pengguna' => $userAdmin->id_pengguna]);
+                // Buat Tahun Akademik
+                // STATUS: 'nonaktif' jika bukan tahun sekarang
+                // FIX: Menambahkan mulai_input_nilai & selesai_input_nilai untuk mencegah error 1364
+                $ta = TahunAkademik::firstOrCreate(
+                    ['tahun' => $tahunString],
+                    [
+                        'semester' => 'Ganjil',
+                        'status' => $isCurrentYear ? 'aktif' : 'nonaktif',
+                        'mulai_input_nilai' => Carbon::createFromDate($year, 12, 1), // Awal input nilai (Desember)
+                        'selesai_input_nilai' => Carbon::createFromDate($year + 1, 1, 31), // Akhir input nilai (Januari tahun depannya)
+                    ]
+                );
 
-        $ta = TahunAkademik::factory()->create([
-            'tahun' => '2025/2026',
-            'semester' => 'Ganjil',
-            'status' => 'aktif'
-        ]);
+                // Buat Struktur Kurikulum (Blok, MK, Stase) DULUAN untuk tahun ini
+                // Kita butuh jumlah stase untuk menentukan kapasitas sesi (jumlah mahasiswa per sesi)
+                $dummyEnrollment = Enrollment::firstOrCreate(
+                    ['id_tahun_akademik' => $ta->id_tahun_akademik],
+                    [
+                        'id_mahasiswa' => Mahasiswa::factory()->create()->id_mahasiswa, // Create dummy student if needed for FK
+                        'tanggal_daftar' => now() // FIX: Tambahkan tanggal daftar
+                    ]
+                );
 
-        // Instruktur
-        $daftarInstruktur = [
-            ['nama' => 'Sutono, S.Kp., M.Sc., M.Kep', 'username' => 'sutono'],
-            ['nama' => 'Maryami Yuliana Kosim, S.Kep., Ns., M.Kep., Ph.D', 'username' => 'maryami'],
-            ['nama' => 'Dr. Sri Setiyarini, S.Kp., M.Kes', 'username' => 'setiyarini'],
-            ['nama' => 'Syahirul Alim, S.Kp., MNSc., Ph.D', 'username' => 'syahirul'],
-            ['nama' => 'Khudazi Aulawi, S.Kp., M.Kes., MNSc., Ph.D', 'username' => 'khudazi'],
-            ['nama' => 'Anggi Lukman Wicaksana, S.Kep., Ns, MS., PhD', 'username' => 'anggi'],
-            ['nama' => 'Arifin Triyanto, S.Kep., Ns., M.Kep., Sp.KMB', 'username' => 'arifin'],
+                $curriculumData = $this->createCurriculumStructure($ta, $dummyEnrollment);
+                $staseObjects = $curriculumData['staseObjects'];
+                $ruangs = $curriculumData['ruangs'];
+                $daftarStaseData = $curriculumData['data_mentah'];
+
+                // HITUNG KAPASITAS SESI
+                // ATURAN UTAMA: Jumlah mahasiswa per sesi HARUS SAMA dengan jumlah stase.
+                $jumlahStase = $staseObjects->count();
+                $this->command->info("    -> Jumlah Stase: $jumlahStase. Aturan: 1 Sesi Wajib $jumlahStase Mahasiswa.");
+
+                // Buat Mahasiswa untuk tahun ini
+                $mahasiswasTahunIni = collect();
+
+                if ($isCurrentYear) {
+                    // --- TAHUN 2025: SKENARIO SPESIFIK ---
+                    // Menggunakan data real/spesifik (Klp 1-4)
+                    // Data di createSpecificStudents sudah dipastikan kelipatan 7 (4 kelompok @ 7 orang)
+                    $mahasiswasTahunIni = $this->createSpecificStudents($ta);
+                } else {
+                    // --- TAHUN 2020-2024: SKENARIO HISTORY ---
+                    // LOGIKA PERBAIKAN: Hitung total mahasiswa agar tepat terbagi habis oleh jumlah stase.
+                    // Misalnya: 3 Sesi x 7 Stase = 21 Mahasiswa. Tidak boleh 20 atau 22.
+
+                    $jumlahSesiHistory = 3; // Kita tentukan ada 3 sesi history
+                    $totalMahasiswa = $jumlahSesiHistory * $jumlahStase;
+
+                    $mahasiswasTahunIni = $this->createIndonesianStudents($ta, $year, $totalMahasiswa);
+                    $this->command->info("    -> History: Membuat $totalMahasiswa mahasiswa untuk $jumlahSesiHistory sesi.");
+                }
+
+                // =================================================================
+                // 3. GENERATE OSCE EVENT & JADWAL
+                // =================================================================
+
+                if ($isCurrentYear) {
+                    // -------------------------------------------------------------
+                    // SKENARIO 2025: ACTIVE REAL-TIME
+                    // -------------------------------------------------------------
+                    // Memastikan setiap sesi diisi oleh kelompok mahasiswa yang berbeda
+                    $this->handleCurrentYearScenario($ta, $pengujis, $staseObjects, $ruangs, $daftarStaseData, $jumlahStase);
+                } else {
+                    // -------------------------------------------------------------
+                    // SKENARIO 2020-2024: HISTORICAL
+                    // -------------------------------------------------------------
+
+                    // Buat Event Masa Lalu
+                    $tglMulai = Carbon::createFromDate($year, 11, 10)->startOfDay();
+                    $tglSelesai = $tglMulai->copy()->addDays(2);
+
+                    $osceHistory = Osce::factory()->create([
+                        'id_tahun_akademik' => $ta->id_tahun_akademik,
+                        'nama_osce' => "OSCE Final Semester Ganjil $tahunString",
+                        'tanggal_mulai' => $tglMulai,
+                        'tanggal_selesai' => $tglSelesai,
+                    ]);
+
+                    // LOGIKA KUNCI: PEMBAGIAN SESI
+                    // Pecah total mahasiswa menjadi potongan-potongan (chunks) sesuai jumlah stase.
+                    // Setiap potongan (chunk) akan menjadi SATU SESI yang unik.
+                    $studentChunks = $mahasiswasTahunIni->chunk($jumlahStase);
+
+                    $sesiKe = 1;
+                    $jamMulaiSesi = $tglMulai->copy()->addHour(8); // Mulai jam 08:00
+
+                    foreach ($studentChunks as $batchMahasiswa) {
+                        // VALIDASI STRICT: Pastikan batch ini full sesuai jumlah stase
+                        // Karena kita sudah hitung di awal ($jumlahSesiHistory * $jumlahStase), ini seharusnya selalu pass.
+                        if ($batchMahasiswa->count() != $jumlahStase) {
+                            $this->command->error("    ERROR LOGIKA: Sesi $sesiKe memiliki " . $batchMahasiswa->count() . " mahasiswa, seharusnya $jumlahStase. Sesi ini dilewati untuk menjaga integritas data.");
+                            continue;
+                        }
+
+                        $jamSelesaiSesi = $jamMulaiSesi->copy()->addMinutes(7 * $jumlahStase); // Durasi: 7 menit * jumlah stase
+
+                        // 1. Buat Jadwal Penguji/Stase untuk Sesi INI
+                        // Stase sama, tapi WAKTU berbeda untuk setiap sesi.
+                        foreach ($staseObjects as $idx => $stase) {
+                            $penguji = $pengujis[$idx % $pengujis->count()];
+                            OsceStase::factory()->create([
+                                'id_osce' => $osceHistory->id_osce,
+                                'id_stase' => $stase->id_stase,
+                                'id_penguji' => $penguji->id_penguji,
+                                'id_ruang' => $ruangs[$idx]->id_ruang,
+                                'tanggal' => $tglMulai->format('Y-m-d'),
+                                'jam_mulai' => $jamMulaiSesi->format('H:i'),
+                                'jam_selesai' => $jamSelesaiSesi->format('H:i'),
+                                'skenario' => $daftarStaseData[$idx]['skenario'],
+                                'durasi_per_mahasiswa' => 7
+                            ]);
+                        }
+
+                        // 2. Enroll Mahasiswa Batch INI ke Sesi INI
+                        // Mahasiswa di batch ini HANYA masuk ke sesi ini.
+                        foreach ($batchMahasiswa as $mhs) {
+                            $enrollmentOsce = EnrollmentOsce::factory()->create([
+                                'id_osce' => $osceHistory->id_osce,
+                                'id_mahasiswa' => $mhs->id_mahasiswa,
+                                'tanggal_sesi' => $tglMulai->format('Y-m-d'),
+                                'jam_sesi' => $jamMulaiSesi->format('H:i'), // Kunci: Jam sesi sesuai jam mulai batch ini
+                                'catatan' => 'Lulus dengan kompeten.',
+                            ]);
+
+                            // Beri Nilai
+                            foreach ($staseObjects as $stase) {
+                                $aspeks = AspekPenilaian::where('id_stase', $stase->id_stase)->get();
+                                foreach ($aspeks as $aspek) {
+                                    $points = PoinAspekPenilaian::where('id_aspek_penilaian', $aspek->id_aspek_penilaian)->get();
+                                    foreach ($points as $poin) {
+                                        $nilai = (rand(1, 100) > 15) ? rand(3, 4) : rand(1, 2); // 85% chance nilai bagus
+                                        NilaiOsce::factory()->create([
+                                            'id_enrollment_osce' => $enrollmentOsce->id_enrollment_osce,
+                                            'id_poin_aspek_penilaian' => $poin->id_poin_aspek_penilaian,
+                                            'nilai' => $nilai
+                                        ]);
+                                    }
+                                }
+                            }
+                        }
+
+                        // Geser waktu untuk sesi berikutnya (beri jeda 15 menit istirahat antar sesi)
+                        $jamMulaiSesi = $jamSelesaiSesi->addMinutes(15);
+                        $sesiKe++;
+                    }
+                }
+            } // End Loop Tahun
+
+            $this->command->info("--- SEEDING SELESAI ---");
+        });
+    }
+
+    // =========================================================================
+    // HELPER FUNCTIONS
+    // =========================================================================
+
+    /**
+     * Membuat Mahasiswa dengan Nama Indonesia Asli untuk History
+     */
+    private function createIndonesianStudents($ta, $year, $totalNeeded)
+    {
+        $names = [
+            "Budi Santoso",
+            "Siti Aminah",
+            "Rizky Pratama",
+            "Dewi Sartika",
+            "Agus Setiawan",
+            "Rina Wulandari",
+            "Eko Prasetyo",
+            "Sri Wahyuni",
+            "Adi Nugroho",
+            "Nur Hidayah",
+            "Fajar Kurniawan",
+            "Ratna Sari",
+            "Bayu Saputra",
+            "Lestari Indah",
+            "Hendra Gunawan",
+            "Sari Rahmawati",
+            "Dedi Suryana",
+            "Fitriani",
+            "Bambang Pamungkas",
+            "Nina Marlina",
+            "Iwan Fals",
+            "Yuni Shara",
+            "Reza Rahadian",
+            "Dian Sastrowardoyo",
+            "Nicholas Saputra",
+            "Maudy Ayunda",
+            "Vino G. Bastian",
+            "Chelsea Islan",
+            "Chicco Jerikho",
+            "Tara Basro",
+            "Adipati Dolken",
+            "Pevita Pearce",
+            "Joe Taslim",
+            "Iko Uwais",
+            "Yayan Ruhian",
+            "Christine Hakim",
+            "Slamet Rahardjo",
+            "Mathias Muchus",
+            "Lukman Sardi",
+            "Tio Pakusadewo",
+            "Ario Bayu",
+            "Laura Basuki",
+            "Marsha Timothy",
+            "Abimana Aryasatya",
+            "Acha Septriasa",
+            "Didik Nini Thowok",
+            "Butet Kartaredjasa",
+            "Sujiwo Tejo",
+            "Guruh Soekarno",
+            "Megawati Putri"
         ];
 
-        $pengujis = collect();
-        foreach ($daftarInstruktur as $data) {
-            $user = Pengguna::factory()->create(['username' => $data['username'], 'jenis_role' => 'penguji', 'password' => ('password')]);
-            $pengujis->push(Penguji::factory()->create(['id_pengguna' => $user->id_pengguna, 'nama' => $data['nama']]));
+        // Pastikan nama cukup jika request banyak, duplikasi jika perlu tapi dengan NIM beda
+        while (count($names) < $totalNeeded) {
+            $names = array_merge($names, $names);
         }
 
-        // Mahasiswa - KELOMPOK 1 (Sesi 1 - Active)
+        // Shuffle untuk variasi tiap tahun
+        shuffle($names);
+        $selectedNames = array_slice($names, 0, $totalNeeded);
+
+        $collection = collect();
+        $counter = 1;
+
+        foreach ($selectedNames as $name) {
+            $nim = $year . '00' . str_pad($counter, 3, '0', STR_PAD_LEFT);
+
+            // Perbaikan: Gunakan firstOrCreate untuk mencegah error Duplicate Entry
+            $user = Pengguna::firstOrCreate(
+                ['username' => 'mhs.' . $nim],
+                ['jenis_role' => 'mahasiswa', 'password' => 'password']
+            );
+
+            $mhs = Mahasiswa::firstOrCreate(
+                ['nim' => $nim],
+                [
+                    'id_pengguna' => $user->id_pengguna,
+                    'nama' => $name,
+                    'prodi' => 'Ilmu Keperawatan',
+                    'kelas' => 'A',
+                    'status' => 'aktif'
+                ]
+            );
+
+            Enrollment::firstOrCreate(
+                [
+                    'id_mahasiswa' => $mhs->id_mahasiswa,
+                    'id_tahun_akademik' => $ta->id_tahun_akademik
+                ],
+                ['tanggal_daftar' => now()] // FIX: Tambahkan tanggal daftar
+            );
+
+            $collection->push($mhs);
+            $counter++;
+        }
+
+        return $collection;
+    }
+
+    /**
+     * Membuat Mahasiswa Spesifik untuk Tahun 2025
+     */
+    private function createSpecificStudents($ta)
+    {
+        // Data Kelompok 1, 2, 3, 4 (Pastikan masing-masing 7 orang agar pas dengan 7 stase)
         $klp1 = [
             ['niu' => '511953', 'nama' => 'Dini Afiana'],
             ['niu' => '512440', 'nama' => 'Arrifa Ilyana Cholarin'],
@@ -118,8 +369,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '514752', 'nama' => 'Melvia Dinda C.D.'],
             ['niu' => '514914', 'nama' => 'Christine Chintia T.'],
         ];
-
-        // Mahasiswa - KELOMPOK 2 (Sesi 2 - Next)
         $klp2 = [
             ['niu' => '512932', 'nama' => 'Shelly Yolanda Putri'],
             ['niu' => '514825', 'nama' => 'Alya Ramdhani'],
@@ -129,8 +378,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '518857', 'nama' => 'Ismi Maulfi Rahma'],
             ['niu' => '518877', 'nama' => 'Herawati Kahartan'],
         ];
-
-        // Mahasiswa - KELOMPOK 3 (Sesi 3 - Last)
         $klp3 = [
             ['niu' => '514180', 'nama' => 'Alifa Cahya Nugraha'],
             ['niu' => '514400', 'nama' => 'Syafira Nur Rosyida'],
@@ -140,8 +387,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '518906', 'nama' => 'Velysia Irgi Novitasari'],
             ['niu' => '519068', 'nama' => 'Aristya Salsabila'],
         ];
-
-        // Mahasiswa - KELOMPOK 4 (History - Sudah Ada Nilai)
         $klp4 = [
             ['niu' => '519132', 'nama' => 'Riekha Yustiana'],
             ['niu' => '521830', 'nama' => 'Annisa Nurlaila J.'],
@@ -152,52 +397,303 @@ class DatabaseSeeder extends Seeder
             ['niu' => '523077', 'nama' => 'Nafarum Chealsi E.'],
         ];
 
-        // Gabung semua mhs untuk create user di database
         $allMhsData = array_merge($klp1, $klp2, $klp3, $klp4);
+        $collection = collect();
 
         foreach ($allMhsData as $data) {
-            $user = Pengguna::factory()->create(['username' => 'mhs.' . $data['niu'], 'jenis_role' => 'mahasiswa', 'password' => ('password')]);
-            $mhs = Mahasiswa::factory()->create(['id_pengguna' => $user->id_pengguna, 'nama' => $data['nama'], 'nim' => $data['niu'], 'prodi' => 'Ilmu Keperawatan']);
-            Enrollment::factory()->create(['id_mahasiswa' => $mhs->id_mahasiswa, 'id_tahun_akademik' => $ta->id_tahun_akademik]);
+            // Perbaikan: Gunakan firstOrCreate untuk mencegah error Duplicate Entry jika data sudah ada
+            $user = Pengguna::firstOrCreate(
+                ['username' => 'mhs.' . $data['niu']],
+                ['jenis_role' => 'mahasiswa', 'password' => 'password']
+            );
+
+            $mhs = Mahasiswa::firstOrCreate(
+                ['nim' => $data['niu']],
+                [
+                    'id_pengguna' => $user->id_pengguna,
+                    'nama' => $data['nama'],
+                    'prodi' => 'Ilmu Keperawatan',
+                    'kelas' => 'A',
+                    'status' => 'aktif'
+                ]
+            );
+
+            Enrollment::firstOrCreate(
+                [
+                    'id_mahasiswa' => $mhs->id_mahasiswa,
+                    'id_tahun_akademik' => $ta->id_tahun_akademik
+                ],
+                ['tanggal_daftar' => now()] // FIX: Tambahkan tanggal daftar
+            );
+
+            $collection->push($mhs);
         }
 
-        // =====================================================================
-        // 3. KURIKULUM & STASE
-        // =====================================================================
+        return $collection;
+    }
+
+    /**
+     * Menangani Skenario Tahun 2025 (Active & Past Events)
+     */
+    private function handleCurrentYearScenario($ta, $pengujis, $staseObjects, $ruangs, $daftarStaseData, $jumlahStase)
+    {
+        $waktuEksekusi = Carbon::now('Asia/Jakarta');
+        $durasiPerMhs = 7;
+        $durasiSesi = $durasiPerMhs * $jumlahStase; // Durasi dinamis berdasarkan jumlah stase
+
+        // Waktu
+        $sesi1Mulai = $waktuEksekusi->copy()->subMinutes(1);
+        $sesi1Selesai = $sesi1Mulai->copy()->addMinutes($durasiSesi);
+        $sesi2Mulai = $sesi1Selesai->copy()->addHours(2);
+        $sesi2Selesai = $sesi2Mulai->copy()->addMinutes($durasiSesi);
+        $sesi3Mulai = $sesi2Selesai->copy()->addHours(2);
+        $sesi3Selesai = $sesi3Mulai->copy()->addMinutes($durasiSesi);
+        $eventActiveMulai = $sesi1Mulai->copy()->subHour();
+        $eventActiveSelesai = $sesi3Selesai->copy()->addHour();
+
+        $pastEventMulai = $waktuEksekusi->copy()->subMonth();
+        $pastEventSelesai = $pastEventMulai->copy()->addHours(5);
+        $pastSesiMulai = $pastEventMulai->copy()->addMinutes(30);
+        $pastSesiSelesai = $pastSesiMulai->copy()->addMinutes($durasiSesi);
+
+        // --- A. OSCE ACTIVE ---
+        $osceActive = Osce::factory()->create([
+            'id_tahun_akademik' => $ta->id_tahun_akademik,
+            'nama_osce' => 'OSCE BNS 6 Semester Gasal 2025/2026 (Active)',
+            'tanggal_mulai' => $eventActiveMulai->format('Y-m-d H:i:s'),
+            'tanggal_selesai' => $eventActiveSelesai->format('Y-m-d H:i:s'),
+        ]);
+
+        // Helper untuk ambil object mahasiswa berdasarkan array NIU
+        $getMhsIds = fn($arrNiu) => Mahasiswa::whereIn('nim', array_column($arrNiu, 'niu'))->get();
+
+        // Data Kelompok (Sudah dipastikan masing-masing 7 orang dan BERBEDA isi mahasiswanya)
+        // KUNCI: Sesi 1 = Klp 1, Sesi 2 = Klp 2, Sesi 3 = Klp 3. Tidak ada overlap.
+        $sesiConfigsActive = [
+            ['mahasiswas' => $getMhsIds($this->getKlpData(1)), 'mulai' => $sesi1Mulai, 'selesai' => $sesi1Selesai],
+            ['mahasiswas' => $getMhsIds($this->getKlpData(2)), 'mulai' => $sesi2Mulai, 'selesai' => $sesi2Selesai],
+            ['mahasiswas' => $getMhsIds($this->getKlpData(3)), 'mulai' => $sesi3Mulai, 'selesai' => $sesi3Selesai],
+        ];
+
+        foreach ($sesiConfigsActive as $config) {
+            $jamMulai = $config['mulai'];
+            $jamSelesai = $config['selesai'];
+            $mhsList = $config['mahasiswas'];
+
+            // VALIDASI: Jumlah mahasiswa harus sama dengan jumlah stase
+            if ($mhsList->count() != $jumlahStase) {
+                $this->command->warn("    Warning Skenario Active: Jumlah mahasiswa (" . $mhsList->count() . ") tidak sama dengan jumlah stase ($jumlahStase).");
+            }
+
+            // Jadwal Penguji Active (Untuk sesi ini)
+            foreach ($staseObjects as $index => $stase) {
+                $penguji = $pengujis[$index % $pengujis->count()];
+                OsceStase::factory()->create([
+                    'id_osce' => $osceActive->id_osce,
+                    'id_stase' => $stase->id_stase,
+                    'id_penguji' => $penguji->id_penguji,
+                    'id_ruang' => $ruangs[$index]->id_ruang,
+                    'tanggal' => $jamMulai->format('Y-m-d'),
+                    'jam_mulai' => $jamMulai->format('H:i'),
+                    'jam_selesai' => $jamSelesai->format('H:i'),
+                    'durasi_per_mahasiswa' => $durasiPerMhs,
+                    'skenario' => $daftarStaseData[$index]['skenario']
+                ]);
+            }
+            // Enroll Active (Tanpa Nilai, KHUSUS untuk mahasiswa di list ini saja)
+            foreach ($mhsList as $mhs) {
+                EnrollmentOsce::factory()->create([
+                    'id_osce' => $osceActive->id_osce,
+                    'id_mahasiswa' => $mhs->id_mahasiswa,
+                    'tanggal_sesi' => $jamMulai->format('Y-m-d'),
+                    'jam_sesi' => $jamMulai->format('H:i'),
+                    'catatan' => null
+                ]);
+            }
+        }
+
+        // --- B. OSCE PAST (HISTORY KELOMPOK 4) ---
+        $oscePast = Osce::factory()->create([
+            'id_tahun_akademik' => $ta->id_tahun_akademik,
+            'nama_osce' => 'OSCE Pra-Klinik BNS 5 (History)',
+            'tanggal_mulai' => $pastEventMulai->format('Y-m-d H:i:s'),
+            'tanggal_selesai' => $pastEventSelesai->format('Y-m-d H:i:s'),
+        ]);
+
+        // Jadwal Past (Hanya 1 sesi untuk history spesifik ini)
+        foreach ($staseObjects as $index => $stase) {
+            $penguji = $pengujis[$index % $pengujis->count()];
+            OsceStase::factory()->create([
+                'id_osce' => $oscePast->id_osce,
+                'id_stase' => $stase->id_stase,
+                'id_penguji' => $penguji->id_penguji,
+                'id_ruang' => $ruangs[$index]->id_ruang,
+                'tanggal' => $pastSesiMulai->format('Y-m-d'),
+                'jam_mulai' => $pastSesiMulai->format('H:i'),
+                'jam_selesai' => $pastSesiSelesai->format('H:i'),
+                'durasi_per_mahasiswa' => $durasiPerMhs,
+                'skenario' => $daftarStaseData[$index]['skenario']
+            ]);
+        }
+
+        // Enroll & Nilai Past (Klp 4)
+        $mhsKlp4 = $getMhsIds($this->getKlpData(4));
+
+        if ($mhsKlp4->count() != $jumlahStase) {
+            $this->command->warn("    Warning Skenario History: Jumlah mahasiswa (" . $mhsKlp4->count() . ") tidak sama dengan jumlah stase ($jumlahStase).");
+        }
+
+        foreach ($mhsKlp4 as $idx => $mhs) {
+            // Logika Nilai (4 Lulus, 3 Remidi)
+            $isLulus = $idx < 4;
+            $catatan = $isLulus ? 'Kompeten.' : 'REMIDI.';
+
+            $enrollment = EnrollmentOsce::factory()->create([
+                'id_osce' => $oscePast->id_osce,
+                'id_mahasiswa' => $mhs->id_mahasiswa,
+                'tanggal_sesi' => $pastSesiMulai->format('Y-m-d'),
+                'jam_sesi' => $pastSesiMulai->format('H:i'),
+                'catatan' => $catatan
+            ]);
+
+            foreach ($staseObjects as $stase) {
+                $aspeks = AspekPenilaian::where('id_stase', $stase->id_stase)->get();
+                foreach ($aspeks as $aspek) {
+                    $points = PoinAspekPenilaian::where('id_aspek_penilaian', $aspek->id_aspek_penilaian)->get();
+                    foreach ($points as $poin) {
+                        $nilai = $isLulus ? rand(3, 4) : rand(1, 2);
+                        NilaiOsce::factory()->create([
+                            'id_enrollment_osce' => $enrollment->id_enrollment_osce,
+                            'id_poin_aspek_penilaian' => $poin->id_poin_aspek_penilaian,
+                            'nilai' => $nilai
+                        ]);
+                    }
+                }
+            }
+        }
+    }
+
+    /**
+     * Membuat Struktur Kurikulum (Blok, MK, Stase, Aspek)
+     * Mengembalikan Object Stase untuk dipakai di pembuatan Jadwal
+     */
+    private function createCurriculumStructure($ta, $enrollment)
+    {
+        // 1. Buat Blok
         $blok = Blok::factory()->create([
-            'nama_blok' => 'Basic Nursing Skills 6 (BNS 6) Semester 5',
-            'deskripsi' => 'Blok pembelajaran keterampilan klinis keperawatan semester 5 yang mencakup resusitasi, perawatan trauma, perioperatif, dan perawatan kritis.'
-        ]);
-        $randomEnrollment = Enrollment::first();
-
-        // 4 Mata Kuliah - FIX: Tambahkan id_enrollment agar tidak error
-        $mk1 = MataKuliah::factory()->create([
-            'id_blok' => $blok->id_blok,
-            'id_enrollment' => $randomEnrollment->id_enrollment,
-            'nama_mata_kuliah' => 'Keperawatan Gawat Darurat & Kardiovaskuler',
-            'deskripsi' => 'Mata kuliah yang mempelajari konsep dan prinsip penanganan kegawatdaruratan serta asuhan keperawatan pada pasien dengan gangguan sistem kardiovaskuler.'
-        ]);
-        $mk2 = MataKuliah::factory()->create([
-            'id_blok' => $blok->id_blok,
-            'id_enrollment' => $randomEnrollment->id_enrollment,
-            'nama_mata_kuliah' => 'Keperawatan Muskuloskeletal & Trauma',
-            'deskripsi' => 'Mata kuliah yang fokus pada asuhan keperawatan pasien dengan gangguan sistem muskuloskeletal, fraktur, dan manajemen trauma fisik.'
-        ]);
-        $mk3 = MataKuliah::factory()->create([
-            'id_blok' => $blok->id_blok,
-            'id_enrollment' => $randomEnrollment->id_enrollment,
-            'nama_mata_kuliah' => 'Keperawatan Bedah Dasar',
-            'deskripsi' => 'Mata kuliah yang membahas prinsip-prinsip dasar keperawatan perioperatif, perawatan luka, dan prosedur bedah minor.'
-        ]);
-        $mk4 = MataKuliah::factory()->create([
-            'id_blok' => $blok->id_blok,
-            'id_enrollment' => $randomEnrollment->id_enrollment,
-            'nama_mata_kuliah' => 'Keperawatan Respirasi',
-            'deskripsi' => 'Mata kuliah yang mempelajari patofisiologi, pemeriksaan fisik, dan asuhan keperawatan pada pasien dengan gangguan sistem pernapasan.'
+            'nama_blok' => 'Basic Nursing Skills (BNS) - TA ' . $ta->tahun,
+            'deskripsi' => 'Blok keterampilan klinis untuk tahun akademik ' . $ta->tahun
         ]);
 
-        // Definisi 7 Stase LENGKAP
-        $daftarStase = [
+        // 2. Buat MK (Menggunakan enrollment dummy agar tidak error FK)
+        // Kita simpan MK dalam variable agar mudah diakses
+        $mk1 = MataKuliah::factory()->create(['id_blok' => $blok->id_blok, 'id_enrollment' => $enrollment->id_enrollment, 'nama_mata_kuliah' => 'Keperawatan Gawat Darurat']);
+        $mk2 = MataKuliah::factory()->create(['id_blok' => $blok->id_blok, 'id_enrollment' => $enrollment->id_enrollment, 'nama_mata_kuliah' => 'Keperawatan Muskuloskeletal']);
+        $mk3 = MataKuliah::factory()->create(['id_blok' => $blok->id_blok, 'id_enrollment' => $enrollment->id_enrollment, 'nama_mata_kuliah' => 'Keperawatan Bedah Dasar']);
+        $mk4 = MataKuliah::factory()->create(['id_blok' => $blok->id_blok, 'id_enrollment' => $enrollment->id_enrollment, 'nama_mata_kuliah' => 'Keperawatan Respirasi']);
+
+        // 3. Ambil Definisi Stase (Teks Panjang)
+        $daftarStase = $this->getDetailedStaseData($mk1, $mk2, $mk3, $mk4);
+
+        $staseObjects = collect();
+        $ruangs = collect();
+
+        foreach ($daftarStase as $index => $dataStase) {
+            // Buat Ruang (Agar unik per tahun atau bisa dibuat global, disini saya buat per loop agar nomor ruangan variatif)
+            $ruang = Ruang::factory()->create([
+                'nomor_ruangan' => 'R-' . $ta->id_tahun_akademik . '-' . ($index + 1),
+                'lokasi' => $dataStase['ruang']
+            ]);
+            $ruangs->push($ruang);
+
+            // Buat Stase
+            $stase = Stase::factory()->create([
+                'id_mata_kuliah' => $dataStase['mk_id'],
+                'nama_stase' => $dataStase['nama'],
+                'deskripsi' => implode("\n", $dataStase['tujuan'])
+            ]);
+            $staseObjects->push($stase);
+
+            // Buat Tujuan
+            foreach ($dataStase['tujuan'] as $poinTujuan) {
+                TujuanPembelajaran::factory()->create(['id_stase' => $stase->id_stase, 'tujuan' => $poinTujuan]);
+            }
+
+            // Buat Aspek & Poin
+            foreach ($dataStase['aspek'] as $dataAspek) {
+                $aspek = AspekPenilaian::factory()->create([
+                    'id_stase' => $stase->id_stase,
+                    'aspek' => $dataAspek['nama'],
+                    'bobot_maksimum' => $dataAspek['bobot']
+                ]);
+
+                foreach ($dataAspek['poin'] as $dataPoin) {
+                    PoinAspekPenilaian::factory()->create([
+                        'id_aspek_penilaian' => $aspek->id_aspek_penilaian,
+                        'kompetensi' => $dataPoin['kompetensi'],
+                        'bobot' => $dataPoin['bobot']
+                    ]);
+                }
+            }
+        }
+
+        return [
+            'staseObjects' => $staseObjects,
+            'ruangs' => $ruangs,
+            'data_mentah' => $daftarStase
+        ];
+    }
+
+    // Fungsi bantu untuk mengambil data NIM mentah per kelompok (untuk tahun 2025)
+    private function getKlpData($nomor)
+    {
+        $klp1 = [
+            ['niu' => '511953'],
+            ['niu' => '512440'],
+            ['niu' => '513078'],
+            ['niu' => '513248'],
+            ['niu' => '514514'],
+            ['niu' => '514752'],
+            ['niu' => '514914'],
+        ];
+        $klp2 = [
+            ['niu' => '512932'],
+            ['niu' => '514825'],
+            ['niu' => '515848'],
+            ['niu' => '517347'],
+            ['niu' => '517577'],
+            ['niu' => '518857'],
+            ['niu' => '518877'],
+        ];
+        $klp3 = [
+            ['niu' => '514180'],
+            ['niu' => '514400'],
+            ['niu' => '516548'],
+            ['niu' => '517626'],
+            ['niu' => '517820'],
+            ['niu' => '518906'],
+            ['niu' => '519068'],
+        ];
+        $klp4 = [
+            ['niu' => '519132'],
+            ['niu' => '521830'],
+            ['niu' => '522024'],
+            ['niu' => '522842'],
+            ['niu' => '522865'],
+            ['niu' => '522974'],
+            ['niu' => '523077'],
+        ];
+
+        if ($nomor == 1) return $klp1;
+        if ($nomor == 2) return $klp2;
+        if ($nomor == 3) return $klp3;
+        return $klp4;
+    }
+
+    // Definisi Data Stase yang sangat panjang (dipisahkan agar run() bersih)
+    private function getDetailedStaseData($mk1, $mk2, $mk3, $mk4)
+    {
+        return [
             // MK 1: Gawat Darurat & Kardio
             [
                 'mk_id' => $mk1->id_mata_kuliah,
@@ -651,188 +1147,7 @@ class DatabaseSeeder extends Seeder
                         ]
                     ]
                 ]
-            ],
+            ]
         ];
-
-        // =====================================================================
-        // 4. EKSEKUSI PENGISIAN DATABASE
-        // =====================================================================
-
-        // A. OSCE ACTIVE (SEDANG BERLANGSUNG)
-        $osceActive = Osce::factory()->create([
-            'id_tahun_akademik' => $ta->id_tahun_akademik,
-            'nama_osce' => 'OSCE BNS 6 Semester Gasal 2025/2026 (Active)',
-            'tanggal_mulai' => $eventActiveMulai->format('Y-m-d H:i:s'),
-            'tanggal_selesai' => $eventActiveSelesai->format('Y-m-d H:i:s'),
-        ]);
-
-        // B. OSCE PAST (SUDAH SELESAI - UNTUK TES NILAI)
-        $oscePast = Osce::factory()->create([
-            'id_tahun_akademik' => $ta->id_tahun_akademik,
-            'nama_osce' => 'OSCE Pra-Klinik BNS 5 (History)',
-            'tanggal_mulai' => $pastEventMulai->format('Y-m-d H:i:s'),
-            'tanggal_selesai' => $pastEventSelesai->format('Y-m-d H:i:s'),
-        ]);
-
-        $staseObjects = collect();
-        $ruangs = collect();
-
-        // Create Stase, Aspek, Poin, Ruang
-        foreach ($daftarStase as $index => $dataStase) {
-            // 1. Buat RUANG dulu
-            $ruang = Ruang::factory()->create([
-                'nomor_ruangan' => 'R-' . ($index + 1),
-                'lokasi' => $dataStase['ruang']
-            ]);
-            $ruangs->push($ruang);
-
-            // 2. Buat STASE (Parent)
-            // Ini WAJIB dibuat sebelum Tujuan Pembelajaran agar kita punya id_stase
-            $stase = Stase::factory()->create([
-                'id_mata_kuliah' => $dataStase['mk_id'],
-                'nama_stase' => $dataStase['nama'],
-                'deskripsi' => implode("\n", $dataStase['tujuan'])
-            ]);
-            $staseObjects->push($stase);
-
-            // 3. Buat TUJUAN PEMBELAJARAN (Child)
-            // Loop setiap poin tujuan yang ada di array, dan masukkan id_stase yang baru dibuat
-            foreach ($dataStase['tujuan'] as $poinTujuan) {
-                TujuanPembelajaran::factory()->create([
-                    'id_stase' => $stase->id_stase,
-                    'tujuan' => $poinTujuan
-                ]);
-            }
-
-            // 4. Buat ASPEK & POIN PENILAIAN
-            foreach ($dataStase['aspek'] as $dataAspek) {
-                $aspek = AspekPenilaian::factory()->create([
-                    'id_stase' => $stase->id_stase,
-                    'aspek' => $dataAspek['nama'],
-                    'bobot_maksimum' => $dataAspek['bobot']
-                ]);
-
-                foreach ($dataAspek['poin'] as $dataPoin) {
-                    PoinAspekPenilaian::factory()->create([
-                        'id_aspek_penilaian' => $aspek->id_aspek_penilaian,
-                        'kompetensi' => $dataPoin['kompetensi'],
-                        'bobot' => $dataPoin['bobot']
-                    ]);
-                }
-            }
-        }
-
-        // =====================================================================
-        // 5. MAPPING JADWAL & PESERTA PER SESI (ACTIVE EVENT)
-        // =====================================================================
-        $sesiConfigsActive = [
-            ['mahasiswas' => $klp1, 'mulai' => $sesi1Mulai, 'selesai' => $sesi1Selesai], // Sesi 1 (Active)
-            ['mahasiswas' => $klp2, 'mulai' => $sesi2Mulai, 'selesai' => $sesi2Selesai], // Sesi 2 (Next)
-            ['mahasiswas' => $klp3, 'mulai' => $sesi3Mulai, 'selesai' => $sesi3Selesai], // Sesi 3 (Last)
-        ];
-
-        foreach ($sesiConfigsActive as $config) {
-            $jamMulai = $config['mulai'];
-            $jamSelesai = $config['selesai'];
-
-            // Jadwal Penguji (OsceStase)
-            foreach ($staseObjects as $index => $stase) {
-                $penguji = $pengujis[$index % $pengujis->count()];
-                $skenario = $daftarStase[$index]['skenario'];
-
-                OsceStase::factory()->create([
-                    'id_osce' => $osceActive->id_osce,
-                    'id_stase' => $stase->id_stase,
-                    'id_penguji' => $penguji->id_penguji,
-                    'id_ruang' => $ruangs[$index]->id_ruang,
-                    'tanggal' => $jamMulai->format('Y-m-d'),
-                    'jam_mulai' => $jamMulai->format('H:i'),
-                    'jam_selesai' => $jamSelesai->format('H:i'),
-                    'durasi_per_mahasiswa' => $durasiPerMhs,
-                    'skenario' => $skenario
-                ]);
-            }
-
-            // Enroll Mahasiswa (Tanpa Nilai)
-            foreach ($config['mahasiswas'] as $mhsData) {
-                $mhsDb = Mahasiswa::where('nim', $mhsData['niu'])->first();
-                if ($mhsDb) {
-                    EnrollmentOsce::factory()->create([
-                        'id_osce' => $osceActive->id_osce,
-                        'id_mahasiswa' => $mhsDb->id_mahasiswa,
-                        'tanggal_sesi' => $jamMulai->format('Y-m-d'),
-                        'jam_sesi' => $jamMulai->format('H:i'),
-                        'catatan' => null
-                    ]);
-                }
-            }
-        }
-
-        // =====================================================================
-        // 6. MAPPING JADWAL & PESERTA & NILAI (PAST EVENT)
-        // =====================================================================
-
-        // Jadwal Penguji (OsceStase) untuk Past Event (Satu Sesi Saja)
-        foreach ($staseObjects as $index => $stase) {
-            $penguji = $pengujis[$index % $pengujis->count()];
-            $skenario = $daftarStase[$index]['skenario'];
-
-            OsceStase::factory()->create([
-                'id_osce' => $oscePast->id_osce,
-                'id_stase' => $stase->id_stase,
-                'id_penguji' => $penguji->id_penguji,
-                'id_ruang' => $ruangs[$index]->id_ruang,
-                'tanggal' => $pastSesiMulai->format('Y-m-d'),
-                'jam_mulai' => $pastSesiMulai->format('H:i'),
-                'jam_selesai' => $pastSesiSelesai->format('H:i'),
-                'durasi_per_mahasiswa' => $durasiPerMhs,
-                'skenario' => $skenario
-            ]);
-        }
-
-        // Enroll Mahasiswa KLP 4 & Beri Nilai Variasi
-        foreach ($klp4 as $idx => $mhsData) {
-            $mhsDb = Mahasiswa::where('nim', $mhsData['niu'])->first();
-
-            if ($mhsDb) {
-                // Logika Variasi Nilai
-                // Mahasiswa index 0-3: LULUS (Nilai Bagus)
-                // Mahasiswa index 4-6: REMEDIAL (Nilai Jelek)
-                $isLulus = $idx < 4;
-
-                // Set catatan berdasarkan status kelulusan
-                $catatan = $isLulus
-                    ? 'Mahasiswa kompeten. Lulus ujian dengan baik.'
-                    : 'Tidak kompeten pada beberapa prosedur. Wajib mengikuti REMIDI.';
-
-                $enrollment = EnrollmentOsce::factory()->create([
-                    'id_osce' => $oscePast->id_osce,
-                    'id_mahasiswa' => $mhsDb->id_mahasiswa,
-                    'tanggal_sesi' => $pastSesiMulai->format('Y-m-d'),
-                    'jam_sesi' => $pastSesiMulai->format('H:i'),
-                    'catatan' => $catatan
-                ]);
-
-                // Beri nilai untuk semua poin di semua stase (Simulasi full exam)
-                foreach ($staseObjects as $stase) {
-                    $aspeks = AspekPenilaian::where('id_stase', $stase->id_stase)->get();
-                    foreach ($aspeks as $aspek) {
-                        $points = PoinAspekPenilaian::where('id_aspek_penilaian', $aspek->id_aspek_penilaian)->get();
-                        foreach ($points as $poin) {
-                            // Skor: 0-4
-                            // Lulus: Random 3 atau 4
-                            // Gagal: Random 1 atau 2
-                            $nilai = $isLulus ? rand(3, 4) : rand(1, 2);
-
-                            NilaiOsce::factory()->create([
-                                'id_enrollment_osce' => $enrollment->id_enrollment_osce,
-                                'id_poin_aspek_penilaian' => $poin->id_poin_aspek_penilaian,
-                                'nilai' => $nilai
-                            ]);
-                        }
-                    }
-                }
-            }
-        }
     }
 }
