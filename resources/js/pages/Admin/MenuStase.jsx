@@ -240,10 +240,12 @@ export default function Stase() {
         }
     };
 
+    // --- TABLE RENDER ---
     const tableData = stase.data.map((item, index) => ({
         no: (stase.from || 1) + index,
         nama_stase: item.nama_stase,
-        jumlah_aspek: item.jumlah_aspek || 0,
+        // PERBAIKAN DISINI: Ubah 'item.jumlah_aspek' menjadi 'item.aspek_penilaian_count'
+        jumlah_aspek: item.aspek_penilaian_count || 0,
         action: (
             <div className="flex items-center justify-center space-x-3">
                 <OsButton
