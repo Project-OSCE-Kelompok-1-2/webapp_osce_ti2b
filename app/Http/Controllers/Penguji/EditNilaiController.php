@@ -68,7 +68,7 @@ class EditNilaiController extends Controller
     }
 
     /**
-     * PUT: Simpan Perubahan Nilai
+     * PUT: Simpan Perubahan Nilai yang terjadi
      */
     public function update(Request $request, $id_enrollment_osce)
     {
