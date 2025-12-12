@@ -299,7 +299,8 @@ export default function Stase() {
     const tableData = paginatedData.map((item, index) => ({
         no: (currentPage - 1) * itemsPerPage + index + 1,
         nama_stase: item.nama_stase,
-        jumlah_aspek: item.jumlah_aspek || 0,
+        // PERBAIKAN DISINI: Ubah 'item.jumlah_aspek' menjadi 'item.aspek_penilaian_count'
+        jumlah_aspek: item.aspek_penilaian_count || 0,
         action: (
             <div className="flex items-center justify-center space-x-3">
                 <OsButton
