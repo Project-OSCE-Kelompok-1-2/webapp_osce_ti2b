@@ -1,5 +1,7 @@
 import React, { useState, useRef } from "react"; // [PERBAIKAN] Tambah useRef
 import { router, usePage, useForm } from "@inertiajs/react";
+import { Edit2, Trash2, Plus } from "lucide-react"; // Pastikan import Plus ada
+
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
@@ -208,7 +210,7 @@ export default function MahasiswaPage() {
         action: (
             <div className="flex items-center justify-center space-x-3">
                 <OsButton name="edit" onClick={() => openEditModal(item)}>
-                    <OsIcon name="Edit" className="h-os-20 os-icon-light" />
+                    <Edit2 size={18} />
                 </OsButton>
                 <OsButton
                     name="warning"
@@ -216,7 +218,7 @@ export default function MahasiswaPage() {
                         openDeleteModal(item.id_mahasiswa, item.nama)
                     }
                 >
-                    <OsIcon name="Trash" className="h-os-20 os-icon-light" />
+                    <Trash2 size={18} />
                 </OsButton>
             </div>
         ),

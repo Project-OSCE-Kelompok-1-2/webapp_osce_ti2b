@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Penguji;
 
 use App\Http\Controllers\Controller;
 use Inertia\Inertia;
-use App\Services\HalamanPenilaianService;
+use App\Services\Penguji\HalamanPenilaianService;
 
 class HalamanPenilaianController extends Controller
 {

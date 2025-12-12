@@ -10,7 +10,15 @@ import SubmitConfirmationModal from "../../components/SubmitConfirmationModal";
 export default function EditNilaiForm() {
     const { osce_detail, mahasiswa_list } = usePage().props;
 
-    const safeOsceInfo = osce_detail || {};
+    // Fallback jika data kosong (biar tidak crash)
+    const safeOsceInfo = osce_detail || {
+        nama_osce: "-",
+        nama_stase: "-",
+        durasi_per_mahasiswa: "-",
+        total_mahasiswa: 0,
+        nama_penguji: "-",
+    };
+
     const safeStudents = mahasiswa_list || [];
 
     const [search, setSearch] = useState("");
@@ -45,13 +53,30 @@ export default function EditNilaiForm() {
                         <p className="text-sm opacity-90">{safeOsceInfo.nama_osce}</p>
                     </div>
 
-                    <div className="bg-white p-6">
-                        <div className="flex flex-col lg:flex-row border border-gray-400 rounded-xl divide-gray-400 divide-y lg:divide-y-0 lg:divide-x">
+                                {/* Rubrik / Stase */}
+                                <div className="p-4 flex-1 flex flex-col justify-between">
+                                    <div>
+                                        <span className="text-xs text-gray-600 block mb-1">
+                                            Nama Stase
+                                        </span>
+                                        <span className="text-sm font-bold block">
+                                            {safeOsceInfo.nama_stase}
+                                        </span>
+                                    </div>
+                                    <ExternalLink className="w-4 h-4 text-gray-400 mt-4" />
+                                </div>
 
-                            <div className="p-4">
-                                <span className="text-xs text-gray-600">Stasiun</span>
-                                <div className="bg-[#3177C8] text-white w-16 h-16 rounded-xl flex items-center justify-center text-3xl font-bold mt-2">
-                                    01
+                                {/* Waktu */}
+                                <div className="p-4 flex-1 flex flex-col justify-between">
+                                    <div>
+                                        <span className="text-xs text-gray-600 block mb-1">
+                                            Durasi per mahasiswa
+                                        </span>
+                                        <span className="text-sm font-bold block">
+                                            {safeOsceInfo.durasi_per_mahasiswa}
+                                        </span>
+                                    </div>
+                                    <ExternalLink className="w-4 h-4 text-gray-400 mt-4" />
                                 </div>
                             </div>
 

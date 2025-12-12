@@ -1,26 +1,26 @@
 import React, { useState } from "react";
 import { Eye, EyeOff, User, KeyRound } from "lucide-react";
-// 👇 [UBAH] Impor hook yang diperlukan dari Inertia
+// [UBAH] Impor hook yang diperlukan dari Inertia
 import { useForm, usePage } from "@inertiajs/react";
 import Os_button from "../../components/button.jsx";
 import OsInput from "../../components/input.jsx";
 import OsIcon from "../../components/icons.jsx";
 
 export default function LoginMosaicPage() {
-    // 👇 [BARU] Ambil error dari props yang dikirim controller
+    // [BARU] Ambil error dari props yang dikirim controller
     const { errors } = usePage().props;
 
     // State untuk show/hide password tetap sama
     const [showPwd, setShowPwd] = useState(false);
     const [showModal, setShowModal] = useState(false);
 
-    // 👇 [UBAH] Ganti useState dengan useForm untuk data login
+    // [UBAH] Ganti useState dengan useForm untuk data login
     const { data, setData, post, processing } = useForm({
         username: "",
         password: "",
     });
 
-    // 👇 [UBAH] Fungsi onSubmit sekarang mengirim data ke backend
+    //[UBAH] Fungsi onSubmit sekarang mengirim data ke backend
     const onSubmit = (e) => {
         e.preventDefault();
         // Kirim request POST ke URL '/login'
@@ -28,8 +28,8 @@ export default function LoginMosaicPage() {
     };
 
     return (
-        <div className="min-h-screen w-screen flex items-center justify-center p-8 m-0 sm:p-0">
-            <div className="w-full h-full min-h-[519px] flex flex-col justify-between max-w-md border border-black rounded-xl p-8">
+        <div className="min-h-screen w-screen flex bg-os-tertiary items-center justify-center p-8 m-0 sm:p-0">
+            <div className="w-full h-full min-h-[519px] flex flex-col justify-between max-w-md border bg-os-white border-os-primary rounded-xl p-8">
                 <form
                     onSubmit={onSubmit}
                     className="flex h-full flex-col gap-os-14 min-h-[450px] justify-around"

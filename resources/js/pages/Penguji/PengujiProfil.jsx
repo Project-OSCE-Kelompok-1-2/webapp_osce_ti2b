@@ -1,7 +1,16 @@
 import React, { useState, useEffect } from "react";
 // [UBAH] Import hook Inertia
 import { useForm, usePage, Link, router } from "@inertiajs/react";
-import { Eye, EyeOff, UploadCloud } from "lucide-react";
+import {
+    Eye,
+    EyeOff,
+    UploadCloud,
+    LogOut,
+    Lock,
+    Save,
+    Trash2,
+    AlertCircle,
+} from "lucide-react";
 
 // Import Komponen Custom Sesuai Desain
 import SidebarPenguji from "../../components/SidebarPenguji.jsx";
@@ -144,11 +153,7 @@ export default function PengujiProfil() {
             />
 
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader
-                    variant="goback"
-                    backLink="dashboard"
-                    onMenuClick={handleSidebarToggle}
-                />
+                <OsHeader onMenuClick={handleSidebarToggle} />
 
                 {/* MAIN CONTENT WRAPPER */}
                 <div className="bg-white w-full min-h-screen flex justify-center p-0 font-sans transition-all duration-300">
@@ -179,12 +184,12 @@ export default function PengujiProfil() {
                         <main className="flex flex-col gap-5 w-full">
                             <div className="flex flex-col lg:flex-row items-start gap-5 relative w-full">
                                 {/* --- KOLOM KIRI: FOTO PROFIL --- */}
-                                <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5 bg-white rounded-xl border border-black shadow-sm">
-                                    <div className="relative self-stretch w-full h-[29px]">
-                                        <h2 className="absolute top-[calc(50%_-_14px)] left-0 font-sans font-normal text-black text-xl">
+                                <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5 bg-white rounded-xl border border-os-primary shadow-sm">
+                                    <div className="w-full">
+                                        <h2 className="text-xl">
                                             Gambar Profil
                                         </h2>
-                                        <hr className="absolute top-7 left-0 w-full border-black border-t" />
+                                        <hr className="mt-1 border-os-primary" />
                                     </div>
 
                                     {/* Lingkaran Foto */}
@@ -198,10 +203,7 @@ export default function PengujiProfil() {
                                     {/* Alert Box */}
                                     <div className="flex-col items-start gap-[5px] p-3.5 relative self-stretch flex w-full bg-red-100 rounded-xl overflow-hidden border border-solid border-red-400">
                                         <div className="inline-flex items-center gap-[5px]">
-                                            <OsIcon
-                                                name="Warning"
-                                                className="w-[15px] h-3.5 text-red-500"
-                                            />
+                                            <AlertCircle className="w-[15px] text-red-500" />
                                             <div className="font-sans font-medium text-red-800 text-[15px]">
                                                 Perhatian!
                                             </div>
@@ -234,22 +236,19 @@ export default function PengujiProfil() {
                                                 Upload
                                             </span>
                                         </label>
-
-                                        <button
+                                        <OsButton
+                                            name="warning"
                                             type="button"
                                             onClick={handleDeleteProfileImage}
-                                            className="flex w-12 h-12 items-center justify-center bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
+                                            className=" bg-red-600 text-white rounded-xl flex items-center justify-center"
                                         >
-                                            <OsIcon
-                                                name="Trash"
-                                                className="w-[17px] h-5 os-icon-light"
-                                            />
-                                        </button>
+                                            <Trash2 size={18} />
+                                        </OsButton>
                                     </div>
                                 </aside>
 
                                 {/* --- KOLOM KANAN: FORM DATA --- */}
-                                <section className="flex flex-col items-start gap-[15px] p-5 relative w-full lg:flex-1 bg-white rounded-xl border border-black shadow-sm">
+                                <section className="flex flex-col items-start gap-[15px] p-5 relative w-full lg:flex-1 bg-white rounded-xl border border-os-primary shadow-sm">
                                     <div className="relative self-stretch w-full h-[29px]">
                                         <h2 className="absolute top-[calc(50%_-_14px)] left-0 font-sans font-normal text-black text-xl">
                                             Akun
@@ -269,7 +268,7 @@ export default function PengujiProfil() {
                                             icon={
                                                 <OsIcon
                                                     name="User"
-                                                    className="w-4 h-4"
+                                                    className="w-4 h-4 opacity-50"
                                                 />
                                             }
                                         />
@@ -289,12 +288,12 @@ export default function PengujiProfil() {
                                             icon={
                                                 <OsIcon
                                                     name="Book"
-                                                    className="w-5 h-5"
+                                                    className="w-4 h-4 opacity-50"
                                                 />
                                             }
                                         />
 
-                                        <hr className="w-full border-gray-300 my-2" />
+                                        <hr className="w-full border-os-primary my-2" />
 
                                         {/* PASSWORD INPUTS */}
                                         <CustomInput
@@ -314,10 +313,7 @@ export default function PengujiProfil() {
                                             }
                                             error={errors.old_password}
                                             icon={
-                                                <OsIcon
-                                                    name="Lock"
-                                                    className="w-5 h-5"
-                                                />
+                                                <Lock size={16} opacity={0.5} />
                                             }
                                             iconRight={
                                                 <div
@@ -351,9 +347,9 @@ export default function PengujiProfil() {
                                                     }
                                                     error={errors.new_password}
                                                     icon={
-                                                        <OsIcon
-                                                            name="Lock"
-                                                            className="w-5 h-5"
+                                                        <Lock
+                                                            size={16}
+                                                            opacity={0.5}
                                                         />
                                                     }
                                                 />
@@ -373,9 +369,9 @@ export default function PengujiProfil() {
                                                         )
                                                     }
                                                     icon={
-                                                        <OsIcon
-                                                            name="Lock"
-                                                            className="w-5 h-5"
+                                                        <Lock
+                                                            size={16}
+                                                            opacity={0.5}
                                                         />
                                                     }
                                                 />
@@ -386,14 +382,12 @@ export default function PengujiProfil() {
                                         <div className="w-full flex justify-between gap-3 mt-2">
                                             <OsButton
                                                 name="primary"
-                                                className="w-[223px] flex items-center justify-center gap-[13px] border border-black"
+                                                className="w-[223px] flex items-center justify-start gap-[13px] border border-black"
                                                 onClick={handleSaveChanges}
                                                 disabled={processing}
                                             >
-                                                <OsIcon
-                                                    name="Save"
-                                                    className="w-[17px] h-[17px] os-icon-light"
-                                                />
+                                                <Save className="w-[17px]" />
+
                                                 <span>
                                                     {processing
                                                         ? "Menyimpan..."
@@ -403,21 +397,19 @@ export default function PengujiProfil() {
 
                                             <OsButton
                                                 name="warning"
-                                                className="w-[223px] flex items-center justify-center gap-[13px] border border-black bg-red-600"
+                                                className="w-[223px] !bg-white !text-red-600 !border-red-600  flex items-center justify-start gap-[13px] !border-os-2"
                                                 onClick={handleLogout}
                                                 type="button"
                                             >
-                                                <OsIcon
-                                                    name="Logout"
-                                                    className="w-[23px] h-[21px] os-icon-light"
-                                                />
+                                                <LogOut size={17} />
+
                                                 <span>Logout</span>
                                             </OsButton>
                                         </div>
 
                                         <a
                                             href="#"
-                                            className="text-xs underline text-black mt-2"
+                                            className="text-xs underline text-os-primary mt-2 "
                                             onClick={(e) => e.preventDefault()}
                                         >
                                             Ada masalah? hubungi admin

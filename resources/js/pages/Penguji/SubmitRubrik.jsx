@@ -10,6 +10,8 @@ import {
 } from "lucide-react";
 
 import OsButton from "../../components/button";
+import OsHeader from "../../components/Header";
+import OsCopyright from "../../components/Copyright";
 
 export default function SubmitRubrik() {
     const [showModal, setShowModal] = useState(false);
@@ -42,11 +44,11 @@ export default function SubmitRubrik() {
             <Head title={`Rekap - ${osce_detail.nama_stase}`} />
 
             {/* Container Utama */}
-            <div className="min-h-screen bg-white flex flex-col font-sans text-gray-800">
+            <div className="min-h-screen w-screen  flex flex-col items-center font-sans p-os-12 text-gray-800">
                 {/* WRAPPER KONTEN UTAMA */}
-                <div className="flex-1 flex flex-col items-center p-6 pt-8">
+                <main className="flex flex-col items-center justify-center w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                     {/* TOP NAVIGATION BAR (FULL WIDTH) */}
-                    <div className="w-full flex gap-4 mb-8 items-center">
+                    {/* <div className="w-full flex gap-4 mb-8 items-center">
                         <button
                             onClick={handleBack}
                             className="h-12 w-12 bg-[#1d4ed8] rounded-lg flex items-center justify-center text-white hover:bg-blue-800 transition shadow-sm shrink-0"
@@ -62,10 +64,11 @@ export default function SubmitRubrik() {
                                 </span>
                             </span>
                         </div>
-                    </div>
+                    </div> */}
+                    <OsHeader variant="goback" backLink="/penguji/dashboard" />
 
                     {/* MAIN CARD */}
-                    <main className="w-full max-w-[800px] border border-gray-400 rounded-2xl overflow-hidden shadow-sm bg-white mb-10">
+                    <main className="w-full max-w-[800px] border border-os-primary rounded-2xl overflow-hidden shadow-sm bg-white mb-4">
                         {/* CARD HEADER */}
                         <div className="bg-[#2F6ECB] text-white text-center py-6">
                             <h1 className="text-xl font-bold">Detail OSCE</h1>
@@ -100,7 +103,7 @@ export default function SubmitRubrik() {
                                         <div className="flex-1 border-l border-gray-300 pl-4 flex flex-col justify-between h-20">
                                             <div>
                                                 <span className="text-[10px] text-gray-500 block">
-                                                    Rubrik
+                                                    Nama Stase
                                                 </span>
                                                 <span className="font-bold text-sm">
                                                     {osce_detail.nama_stase}
@@ -119,11 +122,11 @@ export default function SubmitRubrik() {
                                         <div className="flex-1 border-l border-gray-300 pl-4 flex flex-col justify-between h-20">
                                             <div>
                                                 <span className="text-[10px] text-gray-500 block">
-                                                    Waktu per rubrik
+                                                    Durasi per mahasiswa
                                                 </span>
                                                 <span className="font-bold text-sm">
                                                     {
-                                                        osce_detail.waktu_per_rubrik
+                                                        osce_detail.durasi_per_mahasiswa
                                                     }
                                                 </span>
                                             </div>
@@ -247,14 +250,16 @@ export default function SubmitRubrik() {
                             </div>
                         </div>
                     </main>
-                </div>
+                </main>
 
                 {/* FOOTER */}
-                <footer className="w-full border-t border-gray-400 bg-white py-4 text-center mt-auto">
+                {/* <footer className="w-full border-t border-gray-400 bg-white py-4 text-center mt-auto">
                     <p className="text-xs text-gray-600">
                         © 2025 All rights reserved. | Polines
                     </p>
-                </footer>
+                </footer> */}
+
+                <OsCopyright />
 
                 {/* POPUP MODAL */}
                 {showModal && (

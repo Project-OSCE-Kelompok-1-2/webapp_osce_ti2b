@@ -1,15 +1,118 @@
-import React from "react";
-import { Head, usePage } from "@inertiajs/react";
+import React, { useState } from "react";
+import { usePage, Link } from "@inertiajs/react";
+import {
+    ClipboardList,
+    Users,
+    UserCheck,
+    ExternalLink,
+    Bookmark,
+    Bell,
+} from "lucide-react";
+import OsHeader from "../../components/Header.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
+import Sidebar from "../../components/Sidebar.jsx";
+import OsIcon from "../../components/icons.jsx";
+
+const StatCard = ({ title, value, description, icon, colorClass, href }) => {
+    return (
+        <article
+            className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass}`}
+        >
+            <div>
+                <div className="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 className="font-medium text-sm text-gray-800">
+                            {title}
+                        </h3>
+                        <p className="text-xs text-gray-500 mt-1">
+                            {description}
+                        </p>
+                    </div>
+                    <div className="p-1 rounded bg-white/60 border">
+                        <Bookmark size={16} className="text-gray-600" />
+                    </div>
+                </div>
+            </div>
+
+            <div className="flex items-center justify-between mt-4">
+                <div>
+                    <div className="text-4xl font-extrabold text-gray-900 leading-none">
+                        {value}
+                    </div>
+
+                    <Link
+                        href={href}
+                        className="mt-2 inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200 transition-colors"
+                    >
+                        <ClipboardList size={14} />
+                        <span>Tampilkan lebih</span>
+                    </Link>
+                </div>
+
+                <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-white/60 border">
+                    {icon}
+                </div>
+            </div>
+        </article>
+    );
+};
+
+const NotificationItem = ({ stase, index }) => {
+    return (
+        <div className="flex items-startjustify-between bg-white border rounded-lg  overflow-hidden">
+            <div className="flex items-center px-4 py-4 border-r">
+                <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-700">
+                    {index}
+                </div>
+            </div>
+
+            <div className="md:flex md:justify-between w-full gap-5 p-4">
+                <div className="flex-1">
+                    <h4 className="font-semibold text-gray-800">
+                        {stase.nama_stase}
+                    </h4>
+                    <p className="text-sm text-gray-500 mt-1">
+                        {stase.sub_judul}
+                    </p>
+                </div>
+
+                <div className="flex items-center max-w-[300px] gap-3 pt-1 md:pt-0">
+                    <div className="px-4 py-2 rounded-full bg-red-100 border border-red-300 text-red-700 text-xs font-semibold">
+                        Nilai tidak seimbang ({stase.total_bobot}%)
+                    </div>
+                    <Link
+                        href={`/admin/stase/${stase.id_stase}/edit`}
+                        className="p-2 rounded-md border text-gray-600 hover:bg-gray-50"
+                        title="Edit stase"
+                    >
+                        <ExternalLink size={16} />
+                    </Link>
+                </div>
+            </div>
+        </div>
+    );
+};
 
 export default function Dashboard() {
-    // ==============================
-    // PERBAIKAN: Tambah "user"
-    // ==============================
     const {
         stats = { total_osce: 0, total_mahasiswa: 0, total_penguji: 0 },
         notifikasi = [],
-        user = null,
+        user = {}, // ← TERIMA USER DI SINI
     } = usePage().props || {};
+
+    const totalOsce = (stats.total_osce ?? 0).toString().padStart(2, "0");
+    const totalMahasiswa = (stats.total_mahasiswa ?? 0)
+        .toString()
+        .padStart(2, "0");
+    const totalPenguji = (stats.total_penguji ?? 0)
+        .toString()
+        .padStart(2, "0");
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
 
     return (
         <>
@@ -17,33 +120,77 @@ export default function Dashboard() {
 
             <div className="p-6 space-y-6">
 
-                {/* Header User */}
-                <div className="flex items-center justify-between">
-                    <div>
-                        <h1 className="text-2xl font-bold text-gray-900">
-                            {user?.username ?? "USERNAME"}
-                        </h1>
-                        <p className="text-gray-500">
-                            {user?.email ?? "email@example.com"}
-                        </p>
-                    </div>
+                <div className="">
+                    <p className=" text-gray-600 text-os-regular">
+                        Selamat Datang,
+                    </p>
+
+                    <h1 className="font-bold text-os-title text-gray-900">
+                        {user?.nama_lengkap || user?.username}
+                    </h1>
+
+                    <p className="text-gray-500 text-sm">
+                        Berikut adalah ringkasan aktivitas pengujian Anda.
+                    </p>
                 </div>
 
-                {/* Statistik OSCE */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <div className="p-4 rounded-xl bg-white shadow">
-                        <p className="text-gray-500">Total OSCE</p>
-                        <h2 className="text-2xl font-bold">{stats.total_osce}</h2>
+                <hr className="border-1 border-os-black opacity-os-alpha-25" />
+
+                <section className="mb-2">
+                    <div className="flex gap-os-8 items-center justify-start mb-2">
+                        <OsIcon name={"stat"} className="h-[15px]" />
+                        <h2 className="font-bold text-os-regular text-gray-900">
+                            Statistika
+                        </h2>
                     </div>
 
-                    <div className="p-4 rounded-xl bg-white shadow">
-                        <p className="text-gray-500">Total Mahasiswa</p>
-                        <h2 className="text-2xl font-bold">{stats.total_mahasiswa}</h2>
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                        <StatCard
+                            title="Total OSCE"
+                            description="Jumlah total OSCE yang terdaftar"
+                            value={totalOsce}
+                            icon={
+                                <ClipboardList
+                                    size={22}
+                                    className="text-blue-700"
+                                />
+                            }
+                            colorClass="bg-blue-50 border-blue-200"
+                            href="/admin/osce"
+                        />
+
+                        <StatCard
+                            title="Total Mahasiswa"
+                            description="Jumlah total mahasiswa terdaftar"
+                            value={totalMahasiswa}
+                            icon={<Users size={22} className="text-gray-700" />}
+                            colorClass="bg-white border-gray-200"
+                            href="/admin/mahasiswa"
+                        />
+
+                        <StatCard
+                            title="Total Penguji"
+                            description="Jumlah total penguji terdaftar"
+                            value={totalPenguji}
+                            icon={
+                                <UserCheck
+                                    size={22}
+                                    className="text-gray-700"
+                                />
+                            }
+                            colorClass="bg-white border-gray-200"
+                            href="/admin/dosen"
+                        />
                     </div>
 
-                    <div className="p-4 rounded-xl bg-white shadow">
-                        <p className="text-gray-500">Total Penguji</p>
-                        <h2 className="text-2xl font-bold">{stats.total_penguji}</h2>
+                <hr className="border-1 border-os-black opacity-os-alpha-25" />
+
+                <section>
+                    <div className="flex gap-os-8 items-center justify-start mb-2">
+                        <Bell size={18} />
+                        <h2 className="font-bold text-os-regular text-gray-900">
+                            Notifikasi
+                        </h2>
                     </div>
                 </div>
 
@@ -55,12 +202,8 @@ export default function Dashboard() {
                             <p className="text-gray-500">Tidak ada notifikasi.</p>
                         )}
 
-                        {notifikasi.map((item, index) => (
-                            <li key={index} className="text-gray-700">
-                                • {item}
-                            </li>
-                        ))}
-                    </ul>
+                <div className="mt-8">
+                    <OsCopyright />
                 </div>
             </div>
         </>
