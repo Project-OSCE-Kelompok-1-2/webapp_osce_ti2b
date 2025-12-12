@@ -66,13 +66,8 @@ class OsceController extends Controller
             $jumlahMahasiswaSesi = $osce->enrollmentOsce
                 ->filter(function ($enrollment) use ($staseTanggal, $staseJamMulai) {
                     
-                    // Konversi tanggal enrollment ke string YYYY-MM-DD
-                    $enrollmentTanggal = (string) Carbon::parse($enrollment->tanggal_sesi)->toDateString();
-                    
-                    // Potong jam enrollment ke format HH:MM
+                    $enrollmentTanggal = (string) Carbon::parse($enrollment->tanggal_sesi)->toDateString();                    
                     $enrollmentJam = substr((string) $enrollment->jam_sesi, 0, 5); 
-
-                    // Bandingkan nilai string yang sudah diseragamkan
                     return $enrollmentTanggal === $staseTanggal && $enrollmentJam === $staseJamMulai;
                 })
                 ->count();
