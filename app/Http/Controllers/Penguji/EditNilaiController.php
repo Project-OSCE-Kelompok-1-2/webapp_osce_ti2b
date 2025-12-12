@@ -21,7 +21,7 @@ class EditNilaiController extends Controller
     public function edit($id_enrollment_osce)
     {
         $user = Auth::user();
-        
+
         // 1. Ambil Data & Validasi Akses Penguji
         $enrollment = EnrollmentOsce::with(['mahasiswa', 'osce'])->findOrFail($id_enrollment_osce);
 
@@ -84,7 +84,7 @@ class EditNilaiController extends Controller
 
         // 2. Security & Time Check
         $enrollment = EnrollmentOsce::findOrFail($id_enrollment_osce);
-        
+
         $osceStase = OsceStase::with('osce')
             ->where('id_osce', $enrollment->id_osce)
             ->where('id_penguji', $user->penguji->id_penguji)

@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { usePage, Link } from "@inertiajs/react"; // Pastikan Link di-import
+import { usePage, Link } from "@inertiajs/react";
 import {
     ClipboardList,
     Users,
@@ -13,17 +13,12 @@ import OsCopyright from "../../components/Copyright.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
 import OsIcon from "../../components/icons.jsx";
 
-/**
- * props: title, value, description, icon, colorClass, href
- */
-// [UBAH] Tambahkan 'href' sebagai properti
 const StatCard = ({ title, value, description, icon, colorClass, href }) => {
     return (
         <article
             className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass}`}
         >
             <div>
-                {/* ... (bagian judul dan deskripsi, tidak berubah) ... */}
                 <div className="flex justify-between items-start mb-2">
                     <div>
                         <h3 className="font-medium text-sm text-gray-800">
@@ -45,15 +40,13 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
                         {value}
                     </div>
 
-                    {/* [UBAH] Mengganti <button> menjadi <Link> DAN UBAH STYLE */}
                     <Link
-                        href={href} // Menggunakan href dari props
+                        href={href}
                         className="mt-2 inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200 transition-colors"
                     >
                         <ClipboardList size={14} />
                         <span>Tampilkan lebih</span>
                     </Link>
-                    {/* [SELESAI UBAH] */}
                 </div>
 
                 <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-white/60 border">
@@ -64,22 +57,16 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
     );
 };
 
-/**
- * NotificationItem: layout sesuai mock
- */
 const NotificationItem = ({ stase, index }) => {
-    // Komponen ini tidak diubah
     return (
         <div className="flex items-startjustify-between bg-white border rounded-lg  overflow-hidden">
-            {/* Left: number */}
             <div className="flex items-center px-4 py-4 border-r">
                 <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-700">
                     {index}
                 </div>
             </div>
 
-            <div className="md:flex md:justify-between w-full gap-5 p-4" >
-                {/* Middle: title + subtitle */}
+            <div className="md:flex md:justify-between w-full gap-5 p-4">
                 <div className="flex-1">
                     <h4 className="font-semibold text-gray-800">
                         {stase.nama_stase}
@@ -89,7 +76,6 @@ const NotificationItem = ({ stase, index }) => {
                     </p>
                 </div>
 
-                {/* Right: pill + external link */}
                 <div className="flex items-center max-w-[300px] gap-3 pt-1 md:pt-0">
                     <div className="px-4 py-2 rounded-full bg-red-100 border border-red-300 text-red-700 text-xs font-semibold">
                         Nilai tidak seimbang ({stase.total_bobot}%)
@@ -108,18 +94,19 @@ const NotificationItem = ({ stase, index }) => {
 };
 
 export default function Dashboard() {
-    // fallback aman jika props belum ada
     const {
         stats = { total_osce: 0, total_mahasiswa: 0, total_penguji: 0 },
         notifikasi = [],
+        user = {}, // ← TERIMA USER DI SINI
     } = usePage().props || {};
 
-    // format angka (2 digit seperti mock)
     const totalOsce = (stats.total_osce ?? 0).toString().padStart(2, "0");
     const totalMahasiswa = (stats.total_mahasiswa ?? 0)
         .toString()
         .padStart(2, "0");
-    const totalPenguji = (stats.total_penguji ?? 0).toString().padStart(2, "0");
+    const totalPenguji = (stats.total_penguji ?? 0)
+        .toString()
+        .padStart(2, "0");
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -134,15 +121,15 @@ export default function Dashboard() {
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader onMenuClick={handleSidebarToggle} />
 
-                {/* MAIN */}
                 <div className="">
                     <p className=" text-gray-600 text-os-regular">
                         Selamat Datang,
                     </p>
+
                     <h1 className="font-bold text-os-title text-gray-900">
-                        {/* {nama_penguji} */}
-                        USERNAME
+                        {user?.nama_lengkap || user?.username}
                     </h1>
+
                     <p className="text-gray-500 text-sm">
                         Berikut adalah ringkasan aktivitas pengujian Anda.
                     </p>
@@ -150,7 +137,6 @@ export default function Dashboard() {
 
                 <hr className="border-1 border-os-black opacity-os-alpha-25" />
 
-                {/* Statistika */}
                 <section className="mb-2">
                     <div className="flex gap-os-8 items-center justify-start mb-2">
                         <OsIcon name={"stat"} className="h-[15px]" />
@@ -160,7 +146,6 @@ export default function Dashboard() {
                     </div>
 
                     <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        {/* [UBAH] Tambahkan prop 'href' di sini */}
                         <StatCard
                             title="Total OSCE"
                             description="Jumlah total OSCE yang terdaftar"
@@ -172,18 +157,18 @@ export default function Dashboard() {
                                 />
                             }
                             colorClass="bg-blue-50 border-blue-200"
-                            href="/admin/osce" // <-- Tautan ke menu OSCE
+                            href="/admin/osce"
                         />
-                        {/* [UBAH] Tambahkan prop 'href' di sini */}
+
                         <StatCard
                             title="Total Mahasiswa"
                             description="Jumlah total mahasiswa terdaftar"
                             value={totalMahasiswa}
                             icon={<Users size={22} className="text-gray-700" />}
                             colorClass="bg-white border-gray-200"
-                            href="/admin/mahasiswa" // <-- Tautan ke menu Mahasiswa
+                            href="/admin/mahasiswa"
                         />
-                        {/* [UBAH] Tambahkan prop 'href' di sini */}
+
                         <StatCard
                             title="Total Penguji"
                             description="Jumlah total penguji terdaftar"
@@ -195,14 +180,13 @@ export default function Dashboard() {
                                 />
                             }
                             colorClass="bg-white border-gray-200"
-                            href="/admin/dosen" // <-- Tautan ke menu Dosen (Asumsi Penguji = Dosen)
+                            href="/admin/dosen"
                         />
                     </div>
                 </section>
 
                 <hr className="border-1 border-os-black opacity-os-alpha-25" />
 
-                {/* Notifikasi */}
                 <section>
                     <div className="flex gap-os-8 items-center justify-start mb-2">
                         <Bell size={18} />
@@ -228,7 +212,6 @@ export default function Dashboard() {
                     </div>
                 </section>
 
-                {/* Footer */}
                 <div className="mt-8">
                     <OsCopyright />
                 </div>
