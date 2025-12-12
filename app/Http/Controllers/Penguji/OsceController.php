@@ -46,6 +46,18 @@ class OsceController extends Controller
             // Format Tahun Akademik untuk filtering di frontend
             $tahunAkademik = $osce->tahunAkademik->tahun ?? '';
 
+            $staseTanggal = $stase->tanggal->toDateString();
+            $staseJamMulai = substr($stase->jam_mulai, 0, 5);
+            
+            $jumlahMahasiswaSesi = $osce->enrollmentOsce
+                ->filter(function ($enrollment) use ($staseTanggal, $staseJamMulai) {
+                    
+                    $enrollmentTanggal = (string) Carbon::parse($enrollment->tanggal_sesi)->toDateString();                    
+                    $enrollmentJam = substr((string) $enrollment->jam_sesi, 0, 5); 
+                    return $enrollmentTanggal === $staseTanggal && $enrollmentJam === $staseJamMulai;
+                })
+                ->count();
+
             return [
                 'id_osce'          => $osce->id_osce,
                 'id_osce_stase'    => $stase->id_osce_stase,
@@ -53,7 +65,7 @@ class OsceController extends Controller
                 'tanggal_mulai'    => $osce->tanggal_mulai->format('d F Y'),
                 'tanggal_akhir'    => $osce->tanggal_selesai->format('d F Y'),
                 'status'           => $status,
-                'jumlah_mahasiswa' => $osce->enrollmentOsce->count(),
+                'jumlah_mahasiswa' => $jumlahMahasiswaSesi,
                 'sesi'             => substr($stase->jam_mulai, 0, 5) . ' - ' . substr($stase->jam_selesai, 0, 5),
                 'tahun_akademik'   => $tahunAkademik, // Tambahkan field ini
             ];
