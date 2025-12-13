@@ -26,24 +26,27 @@ class MahasiswaController extends Controller
      * Menampilkan daftar mahasiswa (Halaman Utama)
      */
     public function index(Request $request)
-    {
-        // 1. Ambil List Tahun untuk Dropdown
-        $listTahun = TahunAkademik::select('tahun')
-            ->distinct()
-            ->orderBy('tahun', 'desc')
-            ->pluck('tahun');
+{
+    // 1. Ambil List Tahun untuk Dropdown
+    $listTahun = TahunAkademik::select('tahun')
+        ->distinct()
+        ->orderBy('tahun', 'desc')
+        ->pluck('tahun');
 
-        // 2. [UBAH DISINI] Query SEMUA Data Mahasiswa
-        // Kita bypass service jika service tersebut melakukan ->paginate().
-        // Kita butuh ->get() agar data dikirim sebagai Array lengkap ke React.
-        $mahasiswa = Mahasiswa::orderBy('nama', 'asc')->get();
+    // 2. Ambil parameter filter dari Request
+    $search = $request->input('search');
+    $angkatan = $request->input('angkatan');
 
-        return Inertia::render('Admin/MahasiswaPage', [
-            'mahasiswa' => $mahasiswa, // Data Array Full
-            'list_tahun' => $listTahun,
-            'filters' => [], // Filter dikosongkan, tidak perlu dikirim balik
-        ]);
-    }
+    // 3. [PERBAIKAN] Panggil Service, jangan query manual!
+    // Service ini sudah memuat logika 'with(enrollment)' dan transformasi data 'angkatan'
+    $mahasiswa = $this->service->getAll($search, $angkatan);
+
+    return Inertia::render('Admin/MahasiswaPage', [
+        'mahasiswa' => $mahasiswa, 
+        'list_tahun' => $listTahun,
+        'filters' => $request->only(['search', 'angkatan']),
+    ]);
+}
 
     /**
      * Menampilkan halaman form untuk menambah mahasiswa
@@ -59,29 +62,29 @@ class MahasiswaController extends Controller
      * Menyimpan mahasiswa baru (Form Submit)
      */
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nim'   => [
-                'required',
-                'string',
-                'max:20',
-                'unique:mahasiswa,nim',
-                function ($attribute, $value, $fail) {
-                    if (Pengguna::where('username', $value)->exists()) {
-                        $fail('NIM ini sudah digunakan sebagai username di tabel pengguna.');
-                    }
-                },
-            ],
-            'nama'  => 'required|string|max:255',
-            'kelas' => 'required|string|max:50',
-            'prodi' => 'required|string|max:100',
-        ]);
+{
+    $validated = $request->validate([
+        'nim'   => [
+            'required', 'string', 'max:20', 'unique:mahasiswa,nim',
+            function ($attribute, $value, $fail) {
+                if (Pengguna::where('username', $value)->exists()) {
+                    $fail('NIM ini sudah digunakan sebagai username.');
+                }
+            },
+        ],
+        'nama'  => 'required|string|max:255',
+        'kelas' => 'required|string|max:50',
+        'prodi' => 'required|string|max:100',
+        
+        // TAMBAHKAN BARIS INI AGAR DATA TAHUN DITERIMA
+        'angkatan' => 'required|string', 
+    ]);
 
-        $this->service->store($validated);
+    $this->service->store($validated);
 
-        return Redirect::route('admin.mahasiswa.index')
-            ->with('success', 'Mahasiswa baru berhasil ditambahkan.');
-    }
+    return Redirect::route('admin.mahasiswa.index')
+        ->with('success', 'Mahasiswa baru berhasil ditambahkan.');
+}
 
     /**
      * Menampilkan halaman form untuk mengedit mahasiswa
@@ -119,6 +122,7 @@ class MahasiswaController extends Controller
             'nama'  => 'required|string|max:255',
             'kelas' => 'required|string|max:50',
             'prodi' => 'required|string|max:100',
+            'angkatan' => 'required|string',
         ]);
 
         $this->service->update($validated, $mahasiswa);

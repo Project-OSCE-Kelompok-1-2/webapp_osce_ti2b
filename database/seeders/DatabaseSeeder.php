@@ -67,7 +67,6 @@ class DatabaseSeeder extends Seeder
         $this->command->info("--- SKENARIO ACTIVE ---");
         $this->command->info("SESI 1 (Active): " . $sesi1Mulai->format('H:i') . " - " . $sesi1Selesai->format('H:i'));
         $this->command->info("SESI 2 (Next)  : " . $sesi2Mulai->format('H:i') . " - " . $sesi2Selesai->format('H:i'));
-        $this->command->info("SESI 3 (Last)  : " . $sesi3Mulai->format('H:i') . " - " . $sesi3Selesai->format('H:i'));
         $this->command->info("--- SKENARIO SELESAI ---");
         $this->command->info("EVENT HISTORY  : " . $pastEventMulai->format('d M Y'));
         $this->command->info("--------------------------------------------------");
@@ -174,26 +173,22 @@ class DatabaseSeeder extends Seeder
         $mk1 = MataKuliah::factory()->create([
             'id_blok' => $blok->id_blok,
             'id_enrollment' => $randomEnrollment->id_enrollment,
-            'nama_mata_kuliah' => 'Keperawatan Gawat Darurat & Kardiovaskuler',
-            'deskripsi' => 'Mata kuliah yang mempelajari konsep dan prinsip penanganan kegawatdaruratan serta asuhan keperawatan pada pasien dengan gangguan sistem kardiovaskuler.'
+            'nama_mata_kuliah' => 'Keperawatan Gawat Darurat & Kardiovaskuler'
         ]);
         $mk2 = MataKuliah::factory()->create([
             'id_blok' => $blok->id_blok,
             'id_enrollment' => $randomEnrollment->id_enrollment,
-            'nama_mata_kuliah' => 'Keperawatan Muskuloskeletal & Trauma',
-            'deskripsi' => 'Mata kuliah yang fokus pada asuhan keperawatan pasien dengan gangguan sistem muskuloskeletal, fraktur, dan manajemen trauma fisik.'
+            'nama_mata_kuliah' => 'Keperawatan Muskuloskeletal & Trauma'
         ]);
         $mk3 = MataKuliah::factory()->create([
             'id_blok' => $blok->id_blok,
             'id_enrollment' => $randomEnrollment->id_enrollment,
-            'nama_mata_kuliah' => 'Keperawatan Bedah Dasar',
-            'deskripsi' => 'Mata kuliah yang membahas prinsip-prinsip dasar keperawatan perioperatif, perawatan luka, dan prosedur bedah minor.'
+            'nama_mata_kuliah' => 'Keperawatan Bedah Dasar'
         ]);
         $mk4 = MataKuliah::factory()->create([
             'id_blok' => $blok->id_blok,
             'id_enrollment' => $randomEnrollment->id_enrollment,
-            'nama_mata_kuliah' => 'Keperawatan Respirasi',
-            'deskripsi' => 'Mata kuliah yang mempelajari patofisiologi, pemeriksaan fisik, dan asuhan keperawatan pada pasien dengan gangguan sistem pernapasan.'
+            'nama_mata_kuliah' => 'Keperawatan Respirasi'
         ]);
 
         // Definisi 7 Stase LENGKAP

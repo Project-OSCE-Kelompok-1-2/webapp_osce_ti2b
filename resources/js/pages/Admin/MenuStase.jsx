@@ -301,13 +301,18 @@ export default function Stase() {
     };
 
     // Format Data Tabel dari 'paginatedData'
-    const tableData = stase.data.map((item, index) => ({
-        no: (stase.from || 1) + index,
+    // Format Data Tabel dari 'paginatedData'
+    const tableData = paginatedData.map((item, index) => ({
+        // Hitung nomor urut berdasarkan halaman saat ini
+        no: (currentPage - 1) * itemsPerPage + index + 1,
+
         nama_stase: item.nama_stase,
-        // PERBAIKAN DISINI: Ubah 'item.jumlah_aspek' menjadi 'item.aspek_penilaian_count'
-        jumlah_aspek: item.aspek_penilaian_count || 0,
+        // Pastikan properti ini sesuai dengan respon JSON backend
+        jumlah_aspek: item.aspek_penilaian_count || item.jumlah_aspek || 0,
+
         action: (
             <div className="flex items-center justify-center space-x-3">
+                {/* ... tombol aksi tetap sama ... */}
                 <OsButton
                     name="primary"
                     onClick={() =>

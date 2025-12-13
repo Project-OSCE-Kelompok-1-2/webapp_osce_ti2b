@@ -13,15 +13,13 @@ class StaseService
 {
     public function getAll($search)
     {
-        return [
-            'data' => Stase::query()
-                ->when($search, fn($q) => $q->where('nama_stase', 'like', "%{$search}%"))
-                ->with(['tujuanPembelajaran']) // Load relasi agar bisa dilihat datanya
-                ->withCount('aspekPenilaian')
-                ->paginate(10)
-                ->withQueryString()
-        ];
-        // Note: Saya menyederhanakan return agar load relasi tujuanPembelajaran terbawa ke frontend
+        // HAPUS return array wrapper, langsung return Collection
+        return Stase::query()
+            ->when($search, fn($q) => $q->where('nama_stase', 'like', "%{$search}%"))
+            ->with(['tujuanPembelajaran'])
+            ->withCount('aspekPenilaian')
+            ->orderBy('created_at', 'desc') // Optional: Agar data terbaru diatas
+            ->get(); // <--- PERBAIKAN: Gunakan get() agar semua data terkirim
     }
 
     public function getFormData()
