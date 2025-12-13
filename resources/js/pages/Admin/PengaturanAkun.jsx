@@ -14,6 +14,7 @@ import {
     LogIn,
     ArrowLeft,
     Save,
+    Image,
 } from "lucide-react";
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
@@ -159,23 +160,29 @@ export default function AdminSettingAkun({ user }) {
                                     </div>
                                 </div>
 
-                                {/* CONTENT */}
-                                <div className="flex flex-col lg:flex-row gap-4 w-full">
-                                    {/* ASIDE */}
-                                    <aside className="flex flex-col w-full lg:w-[403px] gap-[17px] p-5 bg-white rounded-xl border border-os-primary justify-center items-center">
-                                        <div className="w-full">
-                                            <h2 className="text-xl">
+                            {/* CONTENT */}
+                            <div className="flex flex-col lg:flex-row gap-4 w-full">
+                                {/* ASIDE */}
+                                <aside className="flex flex-col w-full lg:w-[403px] gap-[17px] p-5 bg-white rounded-xl border border-os-primary justify-center items-center">
+                                    <div className="w-full h-full">
+                                        {/* <h2 className="text-xl">
+                                            Gambar Profil
+                                        </h2> */}
+                                        <div className="flex gap-1 items-center justify-start">
+                                            <Image size={18} />
+                                            <h2 className="font-semibold text-lg">
                                                 Gambar Profil
                                             </h2>
-                                            <hr className="mt-1 border-os-primary" />
                                         </div>
+                                        <hr className="mt-1 border-os-primary" />
+                                    </div>
 
-                                        <div
-                                            className="w-[177px] h-[177px] rounded-full bg-[#3a2323] border border-os-primary bg-cover bg-center"
-                                            style={{
-                                                backgroundImage: `url(${profileImage})`,
-                                            }}
-                                        />
+                                    <div
+                                        className="min-w-[177px] min-h-[177px] rounded-full bg-[#3a2323] border border-os-primary bg-cover bg-center"
+                                        style={{
+                                            backgroundImage: `url(${profileImage})`,
+                                        }}
+                                    />
 
                                         <div className="flex flex-col gap-[5px] bg-red-100 p-3 rounded-xl border border-red-400 w-full">
                                             <div className="flex items-center gap-[5px]">
@@ -221,12 +228,18 @@ export default function AdminSettingAkun({ user }) {
                                         </div>
                                     </aside>
 
-                                    {/* FORM */}
-                                    <section className="flex-1 flex flex-col gap-[15px] p-5 bg-white rounded-xl border border-os-primary">
-                                        <div>
-                                            <h2 className="text-xl">Akun</h2>
-                                            <hr className="mt-1 border-os-primary" />
+                                {/* FORM */}
+                                <section className="flex-1 flex flex-col gap-[15px] p-5 bg-white rounded-xl border border-os-primary">
+                                    <div>
+                                        {/* <h2 className="text-xl">Akun</h2> */}
+                                        <div className="flex gap-1 items-center justify-start">
+                                            <User size={18} />
+                                            <h2 className="font-semibold text-lg">
+                                                Akun
+                                            </h2>
                                         </div>
+                                        <hr className="mt-1 border-os-primary" />
+                                    </div>
 
                                         <form
                                             onSubmit={handleSaveChanges}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react"; // [1] Tambah Import Hooks
 import { Link, usePage, router, Head } from "@inertiajs/react";
-import { Search, ArrowLeft } from "lucide-react";
+import { Search, ArrowLeft, Bookmark, Table2, Info } from "lucide-react";
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
@@ -137,15 +137,16 @@ export default function RekapSesiPage() {
                         `/admin/rekap-nilai/${osce.id_osce}/sesi/${item.id_sesi}/mahasiswa`
                     )
                 }
-                className="bg-gray-800 h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md hover:bg-gray-700"
+                className="bg-os-primary h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
             >
+                <Info size={18} />
                 Detail
             </OsButton>
         ),
     }));
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head title={`Rekap Sesi - ${osce.nama_osce}`} />
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
@@ -166,13 +167,19 @@ export default function RekapSesiPage() {
                             </div>
                         )}
 
-                        <h2 className="font-semibold text-lg mb-1">
+                    {/* <h2 className="font-semibold text-lg mb-1">
+                        Menu Rekap Nilai
+                    </h2> */}
+                    <div className="flex gap-1 items-center justify-start my-2">
+                        <Bookmark size={18} />
+                        <h2 className="font-semibold text-lg">
                             Menu Rekap Nilai
                         </h2>
-                        <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                            Pilih salah satu sesi (berdasarkan tanggal dan
-                            waktu) untuk melihat daftar mahasiswa.
-                        </p>
+                    </div>
+                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                        Pilih salah satu sesi (berdasarkan tanggal dan waktu)
+                        untuk melihat daftar mahasiswa.
+                    </p>
 
                         {/* SEARCH INSTANT */}
                         <OsSearchBar
@@ -181,30 +188,37 @@ export default function RekapSesiPage() {
                             placeholder="Cari tanggal atau jam..."
                         />
 
-                        <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                            Table Sesi
-                            <span className="text-sm font-normal text-gray-500 ml-2">
-                                (Total: {totalItems} data)
-                            </span>
-                        </h2>
+                    {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        Table Sesi
+                        <span className="text-sm font-normal text-gray-500 ml-2">
+                            (Total: {totalItems} data)
+                        </span>
+                    </h2> */}
+                    <div className="flex gap-1 items-center justify-start mb-2">
+                        <Table2 size={18} />
+                        <h2 className="font-semibold text-lg">Table Sesi</h2>
+                        <span className="text-sm font-normal text-gray-500 ml-2">
+                            (Total: {totalItems} data)
+                        </span>
+                    </div>
 
-                        <div className="w-full overflow-x-auto pb-4">
-                            <div className="min-w-max">
-                                <OsTableHeader columns={sesiColumns} />
-                                {filteredData.length > 0 ? (
-                                    <OsTableBody
-                                        data={sesiRows}
-                                        columns={sesiColumns}
-                                    />
-                                ) : (
-                                    <div className="flex items-center border-t border-gray-400">
-                                        <p className="w-full text-center text-sm py-4 text-gray-500">
-                                            Data sesi tidak ditemukan.
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
+                    <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                        <div className="min-w-max">
+                            <OsTableHeader columns={sesiColumns} />
+                            {filteredData.length > 0 ? (
+                                <OsTableBody
+                                    data={sesiRows}
+                                    columns={sesiColumns}
+                                />
+                            ) : (
+                                <div className="flex items-center border-t border-gray-400">
+                                    <p className="w-full text-center text-sm py-4 text-gray-500">
+                                        Data sesi tidak ditemukan.
+                                    </p>
+                                </div>
+                            )}
                         </div>
+                    </section>
 
                         {/* PAGINATION CLIENT-SIDE */}
                         {totalPages > 1 && (

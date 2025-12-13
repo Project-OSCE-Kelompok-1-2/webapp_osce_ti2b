@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react"; // [1] Tambah useEffect & useMemo
 import { usePage, Link, router, useForm } from "@inertiajs/react";
-import { Trash2, Pencil } from "lucide-react";
+import { Trash2, Pencil, FileText, Table2 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
@@ -279,9 +279,12 @@ export default function MenuAspekPenilaian() {
                     />
 
                     <div className="flex-1 overflow-auto">
-                        <h2 className="font-semibold text-lg mb-1">
-                            {stase.nama_stase}
-                        </h2>
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <FileText size={18} />
+                            <h2 className="font-semibold text-lg">
+                                {stase.nama_stase}
+                            </h2>
+                        </div>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
                             Halaman ini didedikasikan untuk mengatur seluruh
                             Aspek Penilaian...
@@ -290,7 +293,7 @@ export default function MenuAspekPenilaian() {
                         {totalBobot == 100 ? (
                             <OsButton
                                 name="secondary"
-                                className="flex h-[46px] items-center bg-gray-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-gray-700 !scale-100 !pointer-events-none"
+                                className="flex h-[46px] items-center !bg-white border border-os-primary !text-os-secondary text-sm py-2 px-4 rounded-lg mb-5 hover:bg-gray-700 !scale-100 !pointer-events-none"
                             >
                                 Bobot sudah penuh
                             </OsButton>
@@ -312,32 +315,45 @@ export default function MenuAspekPenilaian() {
                         <OsSearchBar
                             search={search}
                             setSearch={setSearch}
-                            placeholder="Cari aspek penilaian..."
+                            placeholder="Cari aspek penilaian secara instan..."
                         />
 
-                        <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
                             Table Aspek Penilaian
                             <span className="text-sm font-normal text-gray-500 ml-2">
                                 (Total: {totalItems} data)
                             </span>
-                        </h2>
-
-                        <div className="w-full overflow-x-auto pb-4">
-                            <div className="min-w-max">
-                                <OsTableHeader columns={columns} />
-                                {tableDisplayData.length > 0 ? (
-                                    <OsTableBody
-                                        data={tableDisplayData}
-                                        columns={columns}
-                                    />
-                                ) : (
-                                    <div className="py-6 text-center text-gray-500">
-                                        Belum ada aspek penilaian untuk stase
-                                        ini.
-                                    </div>
-                                )}
-                            </div>
+                        </h2> */}
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Table Aspek Penilaian
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
                         </div>
+
+                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                            <div className="w-full overflow-x-auto pb-2">
+                                <div className="min-w-max">
+                                    <OsTableHeader columns={columns} />
+                                    {tableDisplayData.length > 0 ? (
+                                        <OsTableBody
+                                            data={tableDisplayData}
+                                            columns={columns}
+                                        />
+                                    ) : (
+                                        <div className="py-6 mt-2 text-center text-gray-500">
+                                            Belum ada aspek penilaian untuk
+                                            stase ini.
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </section>
+
+                        {/* <hr className="border-1 border-os-primary my-2" /> */}
 
                         {/* PAGINATION */}
                         {totalPages > 1 && (
@@ -399,6 +415,7 @@ export default function MenuAspekPenilaian() {
                         )}
                     </div>
                 </div>
+
                 <div className="mt-8">
                     <OsCopyright />
                 </div>

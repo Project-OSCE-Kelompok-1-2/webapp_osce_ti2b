@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react"; // [1] Import useEffect & useMemo
 import { usePage, router, useForm } from "@inertiajs/react";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, FileText, Table2 } from "lucide-react";
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
@@ -272,7 +272,7 @@ export default function KompetensiPage() {
     }));
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
@@ -284,9 +284,12 @@ export default function KompetensiPage() {
                     />
 
                     <div className="flex-1 overflow-auto">
-                        <h2 className="font-semibold text-lg mb-1">
-                            {aspek.aspek}
-                        </h2>
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <FileText size={18} />
+                            <h2 className="font-semibold text-lg">
+                                {aspek.aspek}
+                            </h2>
+                        </div>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
                             Kelola dan definisikan poin-poin kompetensi
                             (sub-kriteria) yang spesifik dan terukur untuk Aspek
@@ -316,17 +319,26 @@ export default function KompetensiPage() {
                         <OsSearchBar
                             search={search}
                             setSearch={setSearch}
-                            placeholder="Cari kompetensi..."
+                            placeholder="Cari kompetensi secara instan..."
                         />
 
-                        <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                            Table Kompetensi
+                        {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        Table Kompetensi
+                        <span className="text-sm font-normal text-gray-500 ml-2">
+                            (Total: {totalItems} data)
+                        </span>
+                    </h2> */}
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Tabel Kompetensi{" "}
+                            </h2>
                             <span className="text-sm font-normal text-gray-500 ml-2">
                                 (Total: {totalItems} data)
                             </span>
-                        </h2>
+                        </div>
 
-                        <div className="w-full overflow-x-auto pb-4">
+                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
                             <div className="min-w-max">
                                 <OsTableHeader columns={columns} />
                                 {tableData.length > 0 ? (
@@ -340,7 +352,7 @@ export default function KompetensiPage() {
                                     </div>
                                 )}
                             </div>
-                        </div>
+                        </section>
 
                         {/* PAGINATION */}
                         {totalPages > 1 && (
