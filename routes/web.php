@@ -76,6 +76,8 @@ Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')
     // --- ALUR PASCA UJIAN / REKAP (PENGUJI) ---
     Route::get('/osce/{id_osce}/stase/{id_osce_stase}/rekap', [RekapController::class, 'rekap'])->name('rekap.list');
     Route::get('/osce/{id_osce}/stase/{id_osce_stase}/edit-nilai', [RekapController::class, 'editNilai'])->name('edit.list');
+    Route::get('/osce/{id_osce}/stase/{id_osce_stase}/export/excel', [RekapController::class, 'exportExcel'])->name('rekap.export.excel');
+    Route::get('/osce/{id_osce}/stase/{id_osce_stase}/export/pdf', [RekapController::class, 'exportPdf'])->name('rekap.export.pdf');
     
     Route::get('/penilaian/{id_enrollment_osce}/edit', [EditNilaiController::class, 'edit'])->name('penilaian.edit');
     Route::put('/penilaian/{id_enrollment_osce}', [EditNilaiController::class, 'update'])->name('penilaian.update');

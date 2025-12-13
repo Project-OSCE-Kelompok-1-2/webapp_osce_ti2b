@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react"; // Tambahkan useMemo
-import { Link, usePage, } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import {
     ArrowLeft,
     Download,
@@ -10,7 +10,7 @@ import {
     Clock,
     UserCheck,
     Table2,
-    Info
+    Info,
 } from "lucide-react";
 
 // --- Import Komponen ---
@@ -67,8 +67,8 @@ const generatePaginationLinks = (currentPage, totalPages, totalItems) => {
 
     // Tombol Previous
     links.push({
-        url: '#',
-        label: 'Previous',
+        url: "#",
+        label: "Previous",
         active: false,
         pageNumber: currentPage > 1 ? currentPage - 1 : null,
     });
@@ -84,15 +84,15 @@ const generatePaginationLinks = (currentPage, totalPages, totalItems) => {
 
     // Add first page and ellipsis if needed
     if (startPage > 1) {
-        links.push({ url: '#', label: '1', active: false, pageNumber: 1 });
+        links.push({ url: "#", label: "1", active: false, pageNumber: 1 });
         if (startPage > 2) {
-            links.push({ url: null, label: '...', active: false });
+            links.push({ url: null, label: "...", active: false });
         }
     }
 
     for (let i = startPage; i <= endPage; i++) {
         links.push({
-            url: '#',
+            url: "#",
             label: String(i),
             active: i === currentPage,
             pageNumber: i,
@@ -102,28 +102,32 @@ const generatePaginationLinks = (currentPage, totalPages, totalItems) => {
     // Add ellipsis and last page if needed
     if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
-            links.push({ url: null, label: '...', active: false });
+            links.push({ url: null, label: "...", active: false });
         }
-        links.push({ url: '#', label: String(totalPages), active: false, pageNumber: totalPages });
+        links.push({
+            url: "#",
+            label: String(totalPages),
+            active: false,
+            pageNumber: totalPages,
+        });
     }
-
 
     // Tombol Next
     links.push({
-        url: '#',
-        label: 'Next',
+        url: "#",
+        label: "Next",
         active: false,
         pageNumber: currentPage < totalPages ? currentPage + 1 : null,
     });
 
     // Menyesuaikan url null untuk tombol panah
-    links[0].url = links[0].pageNumber === null ? null : '#';
-    links[links.length - 1].url = links[links.length - 1].pageNumber === null ? null : '#';
+    links[0].url = links[0].pageNumber === null ? null : "#";
+    links[links.length - 1].url =
+        links[links.length - 1].pageNumber === null ? null : "#";
 
     return links;
 };
 // --- END LOGIC PAGINATION UTILITY ---
-
 
 export default function RekapMahasiswaPage() {
     // 1. AMBIL PROPS DARI BACKEND
@@ -176,17 +180,42 @@ export default function RekapMahasiswaPage() {
     // 6. HANDLER PERPINDAHAN HALAMAN
     const handlePageChange = (pageNumber) => {
         // Pastikan pageNumber adalah angka valid
-        if (typeof pageNumber === 'number' && pageNumber >= 1 && pageNumber <= totalPages) {
+        if (
+            typeof pageNumber === "number" &&
+            pageNumber >= 1 &&
+            pageNumber <= totalPages
+        ) {
             setCurrentPage(pageNumber);
-        } else if (pageNumber === 'Previous' && currentPage > 1) {
+        } else if (pageNumber === "Previous" && currentPage > 1) {
             setCurrentPage(currentPage - 1);
-        } else if (pageNumber === 'Next' && currentPage < totalPages) {
+        } else if (pageNumber === "Next" && currentPage < totalPages) {
             setCurrentPage(currentPage + 1);
         }
     };
+
     // --- END LOGIC CLIENT-SIDE PAGINATION ---
 
+    // --- BARU: Logic Handle Download ---
+    const handleDownload = (type) => {
+        const osceId = safeOsceInfo.id_osce;
+        const osceStaseId = safeOsceInfo.id_osce_stase; // Ambil ID Stase
 
+        if (!osceId || !osceStaseId) {
+            alert("ID OSCE atau ID OSCE Stase tidak ditemukan.");
+            return;
+        }
+
+        const queryParams = new URLSearchParams({
+            search: search,
+        }).toString();
+
+        // UBAH URL INI AGAR SESUAI DENGAN ROUTE LARAVEL:
+        // Route Laravel: /osce/{id_osce}/stase/{id_osce_stase}/export/{type}
+        const downloadUrl = `/penguji/osce/${osceId}/stase/${osceStaseId}/export/${type}?${queryParams}`;
+
+        // Redirect window location untuk memicu download browser
+        window.location.href = downloadUrl;
+    };
     // 7. MAPPING DATA UNTUK OsTableBody (Menggunakan data yang sudah dipaginasi)
     const tableData = paginatedStudents.map((mhs, index) => ({
         // Index dihitung berdasarkan urutan global, bukan hanya di halaman ini
@@ -209,7 +238,7 @@ export default function RekapMahasiswaPage() {
                     // Mengganti router.get karena 'router' belum didefinisikan di sini.
                     // Idealnya, Anda menggunakan Inertia.get atau link Inertia.
                     // Untuk sementara, kita pakai window.location (hanya jika memang harus ada aksi)
-                    window.location.href = `/penguji/penilaian/${mhs.id_enrollment_osce}/view`
+                    (window.location.href = `/penguji/penilaian/${mhs.id_enrollment_osce}/view`)
                 }
                 className="flex items-center justify-center gap-2 bg-[#1447E6] text-white text-xs font-medium px-6 py-2.5 rounded-lg hover:bg-blue-700 transition "
             >
@@ -339,13 +368,22 @@ export default function RekapMahasiswaPage() {
                     </div>
 
                     {/* 3. Navigasi Download */}
-                    <div className="mb-4">
+                    <div className="mb-4 flex gap-4">
                         <OsButton
                             name="primary-pj"
-                            className="text-sm font-medium shadow-sm px-4 py-2.5 flex items-center justify-start"
+                            onClick={() => handleDownload("excel")}
+                            className="text-sm font-medium shadow-sm px-4 py-2.5 flex items-center justify-start cursor-pointer hover:bg-green-600 transition-colors"
                         >
                             <Download className="w-4 h-4 mr-2" />
-                            Unduh Rekap Nilai
+                            Unduh Rekap Nilai (Excel)
+                        </OsButton>
+                        <OsButton
+                            name="primary-pj"
+                            onClick={() => handleDownload("pdf")}
+                            className="text-sm font-medium shadow-sm px-4 py-2.5 flex items-center justify-start cursor-pointer hover:bg-red-600 transition-colors"
+                        >
+                            <Download className="w-4 h-4 mr-2" />
+                            Unduh Rekap Nilai (PDF)
                         </OsButton>
                     </div>
 
@@ -431,7 +469,6 @@ export default function RekapMahasiswaPage() {
                             variant="penguji"
                         />
                     )}
-
                 </div>
                 <OsCopyright variant="penguji" />
             </main>
