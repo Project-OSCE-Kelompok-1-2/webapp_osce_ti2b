@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo } from "react";
 import { router, usePage, useForm } from "@inertiajs/react";
-import { Edit2, Trash2, AlertTriangle, X } from "lucide-react"; // Tambah AlertTriangle
+import { Edit2, Trash2, AlertTriangle, X } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
@@ -35,8 +35,14 @@ const mahasiswaColumns = [
         classes: "justify-start items-center px-4",
     },
     {
+        key: "angkatan",
+        content: "Angkatan",
+        width: "w-32 shrink-0",
+        classes: "justify-center items-center px-4",
+    },
+    {
         key: "kelas",
-        content: "Kelas", // Ubah label header jadi Kelas
+        content: "Kelas",
         width: "w-32 shrink-0",
         classes: "justify-center items-center px-4",
     },
@@ -50,20 +56,20 @@ const mahasiswaColumns = [
 
 export default function MahasiswaPage() {
     const { mahasiswa, flash, list_tahun } = usePage().props;
-
     const allMahasiswaData = Array.isArray(mahasiswa)
         ? mahasiswa
         : mahasiswa?.data || [];
 
     // --- STATE UI ---
     const [search, setSearch] = useState("");
-    const [angkatanFilter, setAngkatanFilter] = useState("SEMUA");
+    const [angkatanFilter, setAngkatanFilter] = useState("SEMUA"); // State untuk filter
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isManualKelas, setIsManualKelas] = useState(false);
 
-    // --- FILTERING ---
+    // --- FILTERING CLIENT SIDE ---
+    // Reset halaman ke 1 jika filter berubah
     React.useEffect(() => {
         setCurrentPage(1);
     }, [search, angkatanFilter]);
@@ -71,16 +77,22 @@ export default function MahasiswaPage() {
     const filteredData = useMemo(() => {
         return allMahasiswaData.filter((item) => {
             const term = search.toLowerCase();
+
+            // 1. Filter Search (Nama atau NIM)
             const matchSearch =
                 item.nama?.toLowerCase().includes(term) ||
                 item.nim?.toLowerCase().includes(term);
+
+            // 2. Filter Angkatan (Client Side)
+            // Cek apakah filter "SEMUA" atau item.angkatan cocok dengan filter yang dipilih
             const matchAngkatan =
-                angkatanFilter === "SEMUA" || item.kelas === angkatanFilter;
+                angkatanFilter === "SEMUA" || item.angkatan === angkatanFilter;
+
             return matchSearch && matchAngkatan;
         });
     }, [search, angkatanFilter, allMahasiswaData]);
 
-    // --- PAGINATION ---
+    // --- PAGINATION (Berdasarkan data yang sudah difilter) ---
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -88,6 +100,7 @@ export default function MahasiswaPage() {
         currentPage * itemsPerPage
     );
 
+    // Generate Pagination Links
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];
@@ -97,7 +110,6 @@ export default function MahasiswaPage() {
             active: false,
             pageNumber: currentPage - 1,
         });
-
         for (let i = 1; i <= totalPages; i++) {
             if (
                 i === 1 ||
@@ -126,7 +138,7 @@ export default function MahasiswaPage() {
         return links;
     }, [currentPage, totalPages]);
 
-    // --- MODAL STATES ---
+    // --- MODAL STATES & FORM ---
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -136,15 +148,15 @@ export default function MahasiswaPage() {
     const [selectedMahasiswa, setSelectedMahasiswa] = useState(null);
     const fileInputRef = useRef(null);
 
-    // --- FORM HANDLING ---
     const { data, setData, post, put, reset, errors, clearErrors } = useForm({
         nim: "",
         nama: "",
-        kelas: "", // INI UNTUK KELAS (Contoh: A, B, C)
-        angkatan: "", // INI UNTUK TAHUN (Contoh: 2025/2026) -> Field Baru
+        kelas: "",
+        angkatan: "",
         prodi: "",
     });
 
+    // List Tahun untuk Form Input & Filter
     const angkatanListOptions = [
         ...(list_tahun || []).map((tahun) => ({ value: tahun, label: tahun })),
     ];
@@ -163,7 +175,7 @@ export default function MahasiswaPage() {
     const openAddModal = () => {
         reset();
         clearErrors();
-        setIsManualKelas(false); // Reset ke mode dropdown
+        setIsManualKelas(false);
         setShowModal(true);
     };
     const handleClear = () => {
@@ -183,27 +195,19 @@ export default function MahasiswaPage() {
     const openEditModal = (item) => {
         setMahasiswaToEdit(item);
         clearErrors();
-
-        // Logika deteksi manual/dropdown kelas
         const standardClasses = ["A", "B", "C", "D", "E", "F"];
         const isStandard = standardClasses.includes(item.kelas);
         setIsManualKelas(!isStandard);
-
         setData({
             nim: item.nim,
             nama: item.nama,
-
-            // PENTING: Jika data kelas di DB isinya "2025/2026" (Data Salah),
-            // form akan menampilkannya di sini. Anda harus menghapusnya manual nanti.
             kelas: item.kelas || "",
-
             prodi: item.prodi || "",
-
-            // PENTING: Ini mengambil field 'angkatan' yang baru kita buat di Service PHP
             angkatan: item.angkatan || "",
         });
         setShowEditModal(true);
     };
+
     const submitEdit = (e) => {
         e.preventDefault();
         put(`/admin/mahasiswa/${mahasiswaToEdit.id_mahasiswa}`, {
@@ -213,7 +217,6 @@ export default function MahasiswaPage() {
             },
         });
     };
-
     const openDeleteModal = (id, nama) => {
         setSelectedMahasiswa({ id, nama });
         setShowDeleteModal(true);
@@ -250,7 +253,7 @@ export default function MahasiswaPage() {
         const val = e.target.value;
         if (val === "MANUAL") {
             setIsManualKelas(true);
-            setData("kelas", ""); // Reset nilai agar user bisa mengetik
+            setData("kelas", "");
         } else {
             setIsManualKelas(false);
             setData("kelas", val);
@@ -262,7 +265,8 @@ export default function MahasiswaPage() {
         no: (currentPage - 1) * itemsPerPage + index + 1,
         nim: item.nim,
         nama: item.nama,
-        kelas: item.kelas, // Ini akan menampilkan isi kolom kelas
+        angkatan: item.angkatan,
+        kelas: item.kelas,
         action: (
             <div className="flex items-center justify-center space-x-3">
                 <OsButton name="edit" onClick={() => openEditModal(item)}>
@@ -286,19 +290,16 @@ export default function MahasiswaPage() {
                 isOpen={isSidebarOpen}
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             />
-
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader
                     onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 />
-
                 <div className="flex-1 overflow-auto">
                     <h2 className="font-semibold text-lg mb-1">
                         Menu Mahasiswa
                     </h2>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                        Menu Mahasiswa berisi berbagai fitur yang digunakan
-                        untuk mengelola data mahasiswa
+                        Kelola data mahasiswa.
                     </p>
 
                     <div className="flex items-center gap-3 mb-5">
@@ -341,50 +342,52 @@ export default function MahasiswaPage() {
                         </div>
                     )}
 
-                    <OsSearchBar
-                        search={search}
-                        setSearch={setSearch}
-                        placeholder="Cari nama atau NIM..."
-                    >
-                        <OsInput
-                            type="select"
-                            value={angkatanFilter}
-                            onChange={(e) => {
-                                let val = e?.target?.value ?? e;
-                                if (typeof val === "object" && val?.value)
-                                    val = val.value;
-                                setAngkatanFilter(!val ? "SEMUA" : val);
-                            }}
-                            options={angkatanListOptions}
-                        />
-                    </OsSearchBar>
+                    {/* --- SEARCH BAR & FILTER ANGKATAN --- */}
+                    {/* Menggunakan Flexbox agar sejajar */}
+                    <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                        <div className="flex-grow">
+                            <OsSearchBar
+                                search={search}
+                                setSearch={setSearch}
+                                placeholder="Cari nama atau NIM..."
+                            />
+                        </div>
+
+                        {/* DROPDOWN FILTER ANGKATAN (Client Side) */}
+                        <div className="w-full sm:w-48 shrink-0">
+                            <OsInput
+                                type="select"
+                                value={angkatanFilter}
+                                onChange={(e) => {
+                                    // Handle event change dari select native atau custom component
+                                    const val = e.target ? e.target.value : e;
+                                    setAngkatanFilter(val);
+                                }}
+                                options={[
+                                    { value: "SEMUA", label: "Semua Angkatan" },
+                                    ...angkatanListOptions,
+                                ]}
+                                className="h-[46px]" // Sesuaikan tinggi dengan searchbar jika perlu
+                            />
+                        </div>
+                    </div>
 
                     <section>
                         <h2 className="font-semibold text-lg mb-2">
-                            Tabel Mahasiswa
+                            Tabel Mahasiswa{" "}
                             <span className="text-sm font-normal text-gray-500 ml-2">
                                 (Total: {totalItems} data)
                             </span>
                         </h2>
-
                         <div className="w-full overflow-x-auto pb-4">
                             <div className="min-w-max">
                                 <OsTableHeader columns={mahasiswaColumns} />
-                                {filteredData.length > 0 ? (
-                                    <OsTableBody
-                                        data={tableDisplayData}
-                                        columns={mahasiswaColumns}
-                                    />
-                                ) : (
-                                    <div className="flex items-center border-t border-gray-400">
-                                        <p className="w-full text-center text-sm py-4 text-gray-500">
-                                            Data mahasiswa tidak ditemukan.
-                                        </p>
-                                    </div>
-                                )}
+                                <OsTableBody
+                                    data={tableDisplayData}
+                                    columns={mahasiswaColumns}
+                                />
                             </div>
                         </div>
-
                         {totalPages > 1 && (
                             <div className="mt-2">
                                 <OsPagination
@@ -400,7 +403,7 @@ export default function MahasiswaPage() {
                 <OsCopyright />
             </main>
 
-            {/* --- MODAL TAMBAH (UPDATED) --- */}
+            {/* --- MODAL TAMBAH --- */}
             <OsModal
                 show={showModal}
                 onClose={() => setShowModal(false)}
@@ -411,7 +414,6 @@ export default function MahasiswaPage() {
                 onClear={handleClear}
             >
                 <div className="flex flex-col gap-4">
-                    {/* BARIS 1: NIM & ANGKATAN */}
                     <div className="flex gap-4 w-full">
                         <div className="w-1/2">
                             <OsInput
@@ -425,7 +427,6 @@ export default function MahasiswaPage() {
                             />
                         </div>
                         <div className="w-1/2">
-                            {/* ANGKATAN: Tambahkan placeholder manual di opsi */}
                             <OsInput
                                 label="Tahun Angkatan"
                                 type="select"
@@ -434,7 +435,6 @@ export default function MahasiswaPage() {
                                 onChange={(e) =>
                                     setData("angkatan", e.target.value)
                                 }
-                                // Opsi dimulai dengan placeholder kosong agar tidak langsung terpilih
                                 options={[
                                     { value: "", label: "Pilih Tahun..." },
                                     ...angkatanListOptions,
@@ -444,11 +444,8 @@ export default function MahasiswaPage() {
                             />
                         </div>
                     </div>
-
-                    {/* BARIS 2: KELAS & JURUSAN (Sejajar & Ukuran Kecil) */}
                     <div className="flex gap-4 w-full items-end">
                         <div className="w-1/2 relative">
-                            {/* LOGIKA KELAS: Dropdown atau Manual Input */}
                             {!isManualKelas ? (
                                 <OsInput
                                     label="Kelas"
@@ -479,7 +476,6 @@ export default function MahasiswaPage() {
                                             autoFocus
                                         />
                                     </div>
-                                    {/* Tombol X untuk kembali ke dropdown */}
                                     <button
                                         type="button"
                                         onClick={() => {
@@ -487,7 +483,6 @@ export default function MahasiswaPage() {
                                             setData("kelas", "");
                                         }}
                                         className="mb-[10px] p-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-600 transition"
-                                        title="Kembali ke pilihan"
                                     >
                                         <X size={18} />
                                     </button>
@@ -508,7 +503,6 @@ export default function MahasiswaPage() {
                             />
                         </div>
                     </div>
-
                     <OsInput
                         label="Nama Mahasiswa"
                         name="nama"
@@ -521,7 +515,7 @@ export default function MahasiswaPage() {
                 </div>
             </OsModal>
 
-            {/* --- MODAL EDIT (SAMA LOGIKA DENGAN ADD) --- */}
+            {/* --- MODAL EDIT --- */}
             <OsModal
                 show={showEditModal}
                 onClose={() => setShowEditModal(false)}
@@ -538,7 +532,6 @@ export default function MahasiswaPage() {
                 }}
             >
                 <div className="flex flex-col gap-4">
-                    {/* Row 1: NIM & Angkatan */}
                     <div className="flex gap-4 w-full">
                         <div className="w-1/2">
                             <OsInput
@@ -555,7 +548,7 @@ export default function MahasiswaPage() {
                                 label="Tahun Angkatan"
                                 type="select"
                                 name="angkatan"
-                                value={data.angkatan} // Ini akan terisi jika backend mengirim data angkatan
+                                value={data.angkatan}
                                 onChange={(e) =>
                                     setData("angkatan", e.target.value)
                                 }
@@ -568,8 +561,6 @@ export default function MahasiswaPage() {
                             />
                         </div>
                     </div>
-
-                    {/* Row 2: Kelas & Jurusan (SEJAJAR SEPERTI ADD) */}
                     <div className="flex gap-4 w-full items-end">
                         <div className="w-1/2 relative">
                             {!isManualKelas ? (
@@ -626,8 +617,6 @@ export default function MahasiswaPage() {
                             />
                         </div>
                     </div>
-
-                    {/* Row 3: Nama (Full Width) */}
                     <OsInput
                         label="Nama"
                         name="nama"
@@ -639,7 +628,7 @@ export default function MahasiswaPage() {
                 </div>
             </OsModal>
 
-            {/* --- MODAL DELETE --- */}
+            {/* --- MODAL DELETE & IMPORT EXCEL (Tidak Berubah) --- */}
             {showDeleteModal && (
                 <Modals
                     isOpen={showDeleteModal}
@@ -651,7 +640,6 @@ export default function MahasiswaPage() {
                     onConfirm={confirmDelete}
                 />
             )}
-            {/* --- MODAL IMPORT EXCEL --- */}
             <OsModal
                 show={showExcelModal}
                 onClose={() => setShowExcelModal(false)}
@@ -662,7 +650,6 @@ export default function MahasiswaPage() {
                 onClear={handleClearImport}
             >
                 <div className="w-full">
-                    {/* Tombol Download Template */}
                     <button
                         type="button"
                         onClick={() =>
@@ -672,10 +659,7 @@ export default function MahasiswaPage() {
                     >
                         Download Template Excel
                     </button>
-
-                    {/* Alert Warning Box */}
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 flex gap-3 items-start">
-                        {/* Ikon Segitiga Kuning */}
                         <div className="mt-0.5">
                             <AlertTriangle
                                 className="text-yellow-500 fill-yellow-500 stroke-black"
@@ -693,8 +677,6 @@ export default function MahasiswaPage() {
                             </p>
                         </div>
                     </div>
-
-                    {/* Tombol Upload Excel */}
                     <div>
                         <label
                             htmlFor="import-file"

@@ -19,45 +19,45 @@ class MahasiswaService
      * Mengambil daftar mahasiswa dengan filter dan paginasi.
      */
     public function getAll($search = null, $angkatan = null)
-{
-    // 1. Tambahkan 'with' agar query lebih ringan (Eager Loading)
-    $mahasiswaQuery = Mahasiswa::query()->with(['enrollment.tahunAkademik']);
+    {
+        // 1. Eager Loading
+        $mahasiswaQuery = Mahasiswa::query()->with(['enrollment.tahunAkademik']);
 
-    // ... (Logic Filter Search & Angkatan BIARKAN SAMA SEPERTI SEBELUMNYA) ...
-    $mahasiswaQuery->when($search, function ($query, $search) {
-        $query->where(function ($q) use ($search) {
-            $q->where('nim', 'like', "%{$search}%")
-                ->orWhere('nama', 'like', "%{$search}%");
-        });
-    });
-
-    if ($angkatan && $angkatan !== 'SEMUA') {
-        $mahasiswaQuery->whereHas('enrollment', function ($qEnroll) use ($angkatan) {
-            $qEnroll->whereHas('tahunAkademik', function ($qTahun) use ($angkatan) {
-                $qTahun->where('tahun', $angkatan);
+        // 2. Filter Search
+        $mahasiswaQuery->when($search, function ($query, $search) {
+            $query->where(function ($q) use ($search) {
+                $q->where('nim', 'like', "%{$search}%")
+                    ->orWhere('nama', 'like', "%{$search}%");
             });
         });
+
+        // 3. Filter Angkatan
+        if ($angkatan && $angkatan !== 'SEMUA') {
+            $mahasiswaQuery->whereHas('enrollment', function ($qEnroll) use ($angkatan) {
+                $qEnroll->whereHas('tahunAkademik', function ($qTahun) use ($angkatan) {
+                    $qTahun->where('tahun', $angkatan);
+                });
+            });
+        }
+
+        // 4. Ambil SEMUA data (get) lalu format (map)
+        // Kita HAPUS paginate() agar frontend menerima array lengkap.
+        $mahasiswa = $mahasiswaQuery
+            ->orderBy('nama', 'asc')
+            ->get() // <--- GANTI paginate() MENJADI get()
+            ->map(fn($mhs) => [ // <--- GANTI through() MENJADI map()
+                'id_mahasiswa' => $mhs->id_mahasiswa,
+                'nim' => $mhs->nim,
+                'nama' => $mhs->nama,
+                'kelas' => $mhs->kelas,
+                'prodi' => $mhs->prodi,
+                
+                // Ambil tahun angkatan
+                'angkatan' => $mhs->enrollment->first()?->tahunAkademik?->tahun ?? "",
+            ]);
+
+        return $mahasiswa;
     }
-    // ... (Akhir Logic Filter) ...
-
-    $mahasiswa = $mahasiswaQuery
-        ->orderBy('nama', 'asc')
-        ->paginate(10)
-        ->withQueryString()
-        ->through(fn($mhs) => [
-            'id_mahasiswa' => $mhs->id_mahasiswa,
-            'nim' => $mhs->nim,
-            'nama' => $mhs->nama,
-            'kelas' => $mhs->kelas, // Ini mengambil data dari kolom kelas
-            'prodi' => $mhs->prodi,
-            
-            // [PERBAIKAN UTAMA ADA DISINI]
-            // Ambil tahun dari tabel enrollment -> tahun_akademik
-            'angkatan' => $mhs->enrollment->first()?->tahunAkademik?->tahun ?? "",
-        ]);
-
-    return $mahasiswa;
-}
 
     /**
      * Logika validasi dan penyimpanan mahasiswa baru (Transaction).
