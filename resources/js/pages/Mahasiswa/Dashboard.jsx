@@ -8,6 +8,10 @@ import {
     Clock,
     AlertCircle,
     ArrowRight,
+    UserCheck,
+    Users,
+    ClipboardList,
+    Bookmark,
     CalendarRange,
 } from "lucide-react";
 
@@ -20,35 +24,69 @@ import Calendar from "../../components/Calendar";
 /* -------------------------------------------------
    COMPONENT: STATISTIC CARD (Gaya Mahasiswa)
 ---------------------------------------------------*/
-const StatCard = ({ title, description, value, icon }) => {
+// const StatCard = ({ title, description, value, icon }) => {
+//     return (
+//         <div className="w-full bg-blue-50 border border-blue-100 rounded-xl p-6 flex flex-col justify-between relative overflow-hidden transition-all hover:shadow-md">
+//             <div className="flex justify-between items-start z-10">
+//                 <div>
+//                     <h3 className="font-bold text-gray-800 text-lg">{title}</h3>
+//                     <p className="text-xs text-gray-500 mt-1">{description}</p>
+//                 </div>
+//                 <div className="p-2 bg-white rounded-lg shadow-sm text-blue-600">
+//                     {icon}
+//                 </div>
+//             </div>
+
+//             <div className="mt-6 z-10">
+//                 <span className="text-4xl font-extrabold text-gray-900">
+//                     {value}
+//                 </span>
+//                 <div className="mt-2">
+//                     <span className="inline-flex items-center text-[10px] px-2 py-1 rounded-full border border-blue-200 bg-white text-blue-600">
+//                         Lihat detail
+//                     </span>
+//                 </div>
+//             </div>
+
+//             {/* Dekorasi Background */}
+//             <div className="absolute -bottom-4 -right-4 text-blue-100 opacity-50 transform rotate-12">
+//                 {React.cloneElement(icon, { size: 80 })}
+//             </div>
+//         </div>
+//     );
+// };
+
+const StatCard = ({ title, value, description, icon, colorClass, href }) => {
     return (
-        <div className="w-full bg-blue-50 border border-blue-100 rounded-xl p-6 flex flex-col justify-between relative overflow-hidden transition-all hover:shadow-md">
-            <div className="flex justify-between items-start z-10">
-                <div>
-                    <h3 className="font-bold text-gray-800 text-lg">{title}</h3>
-                    <p className="text-xs text-gray-500 mt-1">{description}</p>
+        <article
+            className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass}`}
+        >
+            <div>
+                <div className="flex justify-between items-start mb-2">
+                    <div>
+                        <h3 className="font-medium text-sm text-white">
+                            {title}
+                        </h3>
+                        <p className="text-xs text-white mt-1">{description}</p>
+                    </div>
+                    <div className="p-1 rounded bg-white/60 border">
+                        <Bookmark size={16} className="text-gray-600" />
+                    </div>
                 </div>
-                <div className="p-2 bg-white rounded-lg shadow-sm text-blue-600">
+            </div>
+
+            <div className="flex items-end justify-between mt-4">
+                <div>
+                    <div className="text-4xl font-extrabold text-white leading-none">
+                        {value}
+                    </div>
+                </div>
+
+                <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-white/60 border">
                     {icon}
                 </div>
             </div>
-
-            <div className="mt-6 z-10">
-                <span className="text-4xl font-extrabold text-gray-900">
-                    {value}
-                </span>
-                <div className="mt-2">
-                    <span className="inline-flex items-center text-[10px] px-2 py-1 rounded-full border border-blue-200 bg-white text-blue-600">
-                        Lihat detail
-                    </span>
-                </div>
-            </div>
-
-            {/* Dekorasi Background */}
-            <div className="absolute -bottom-4 -right-4 text-blue-100 opacity-50 transform rotate-12">
-                {React.cloneElement(icon, { size: 80 })}
-            </div>
-        </div>
+        </article>
     );
 };
 
@@ -222,7 +260,7 @@ export default function DashboardMahasiswa() {
 
                     {/* STATS GRID */}
                     <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                        <StatCard
+                        {/* <StatCard
                             title="Ujian OSCE Terdaftar"
                             description="Jumlah Ujian OSCE yang terdaftar"
                             value={statistik?.terdaftar || 0}
@@ -239,6 +277,30 @@ export default function DashboardMahasiswa() {
                             description="Rata-rata hasil nilai akhir"
                             value={statistik?.nilai_akhir || "-"}
                             icon={<Award size={24} />}
+                        /> */}
+                        <StatCard
+                            title="Ujian OSCE Terdaftar"
+                            description="Jumlah Ujian OSCE yang terdaftar"
+                            value={statistik?.terdaftar || 0}
+                            icon={<BookOpen size={24} className="text-blue-950" />}
+                            colorClass="bg-blue-400 border-blue-300"
+                            // href="/penguji/osce"
+                        />
+                        <StatCard
+                            title="Ujian OSCE Selesai"
+                            description="Jumlah Total Ujian OSCE selesai"
+                            value={statistik?.selesai || 0}
+                            icon={<CheckCircle size={24} className="text-red-950"/>}
+                            colorClass="bg-red-400 border-red-300"
+                            href="/penguji/osce"
+                        />
+                        <StatCard
+                            title="Nilai Akhir"
+                            description="Rata-rata hasil nilai akhir"
+                            value={statistik?.nilai_akhir || "-"}
+                            icon={<Award size={24} className="text-lime-950" />}
+                            colorClass="bg-lime-500 border-lime-300"
+                            href="/penguji/riwayat"
                         />
                     </section>
 
