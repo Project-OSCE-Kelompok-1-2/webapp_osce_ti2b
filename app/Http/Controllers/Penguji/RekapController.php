@@ -84,7 +84,7 @@ class RekapController extends Controller
         ];
 
         // Tentukan View berdasarkan mode request
-        $view = $mode === 'edit' ? 'Penguji/EditNilaiForm' : 'Penguji/SubmitRubrik';
+        $view = $mode === 'view' ? 'Penguji/EditNilaiForm' : 'Penguji/RekapMahasiswaPage';
         return Inertia::render($view, [
             'osce_detail'    => $osce_detail,
             'mahasiswa_list' => $mahasiswaList
