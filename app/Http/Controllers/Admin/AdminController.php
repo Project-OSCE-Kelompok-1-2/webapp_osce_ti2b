@@ -18,6 +18,7 @@ use Illuminate\Validation\Rule;
 class AdminController extends Controller
 {
     protected $service;
+
     public function __construct(AdminService $service)
     {
         $this->service = $service;
@@ -36,7 +37,7 @@ class AdminController extends Controller
         return Inertia::render('Admin/Dashboard', [
             'stats' => $stats,
             'notifikasi' => $notifikasi_bobot,
-            'user' => Auth::user(), // ← TAMBAHAN AGAR USERNAME TERKIRIM
+            'user' => Auth::user(), // ✅ PERBAIKAN
         ]);
     }
 

@@ -80,201 +80,51 @@ const jadwalColumns = [
 ];
 
 export default function SesiOscePage({
-    sesi,
+    sesi = [], // [MODIFIKASI] Default array kosong, bukan object pagination
     osce,
-    filters,
     master_stase = [],
 }) {
     const { errors } = usePage().props;
 
-    // State UI Standar
-    const [searchTerm, setSearchTerm] = useState(filters?.search || "");
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedSesi, setSelectedSesi] = useState(null);
+    // --- CLIENT SIDE STATE ---
+    const [searchTerm, setSearchTerm] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
 
-    // State untuk Detail Modal
-    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-    const [detailData, setDetailData] = useState({
-        stase_data: [],
-        mahasiswa_data: [],
-    });
-    const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+    // --- FILTERING LOGIC (AUTOCOMPLETE) ---
+    // Menggunakan useMemo agar filter hanya jalan saat search/data berubah
+    const filteredSesi = useMemo(() => {
+        if (!searchTerm) return sesi;
+        const lowerSearch = searchTerm.toLowerCase();
 
-    // --- STATE KHUSUS WIZARD (STEP MODAL) ---
-    const [isStepOpen, setIsStepOpen] = useState(false);
-    const [currentStep, setCurrentStep] = useState(0);
-
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
-
-    // Menyimpan data input wizard
-    const [wizardData, setWizardData] = useState({
-        stase_objs: [],
-        stase_ids: [],
-        tanggal: "",
-        jam_mulai: "",
-        durasi: "60",
-        id_ruang: "",
-        penguji_map: {},
-        filter_angkatan: "",
-        mahasiswa_ids: [],
-    });
-
-    // Menyimpan data dinamis (hasil filter API)
-    const [isLoadingCheck, setIsLoadingCheck] = useState(false);
-    const [availRooms, setAvailRooms] = useState([]);
-    const [availPenguji, setAvailPenguji] = useState([]);
-
-    // State untuk Step 5 (Mahasiswa)
-    const [listAngkatan, setListAngkatan] = useState([]);
-    const [availableMahasiswa, setAvailableMahasiswa] = useState([]);
-    const [isLoadingMhs, setIsLoadingMhs] = useState(false);
-
-    // [BARU] State untuk Auto Complete / Pencarian Mahasiswa di Modal
-    const [mhsSearchTerm, setMhsSearchTerm] = useState("");
-
-    // --- LOGIC FILTER DINAMIS ---
-    useEffect(() => {
-        if (currentStep === 2 && wizardData.tanggal && wizardData.jam_mulai) {
-            checkAvailability();
-        }
-    }, [currentStep]);
-
-    useEffect(() => {
-        if (currentStep === 4) {
-            fetchMahasiswa(wizardData.filter_angkatan);
-        }
-    }, [currentStep, wizardData.filter_angkatan]);
-
-    // [BARU] Logic Filtering Real-time Mahasiswa
-    const filteredMahasiswaList = useMemo(() => {
-        if (!mhsSearchTerm) return availableMahasiswa;
-        const lowerSearch = mhsSearchTerm.toLowerCase();
-        return availableMahasiswa.filter((mhs) =>
-            mhs.label.toLowerCase().includes(lowerSearch)
-        );
-    }, [availableMahasiswa, mhsSearchTerm]);
-
-    const checkAvailability = async () => {
-        setIsLoadingCheck(true);
-        try {
-            const res = await axios.post("/admin/osce/check-availability", {
-                tanggal: wizardData.tanggal,
-                jam_mulai: wizardData.jam_mulai,
-                durasi: wizardData.durasi,
-            });
-            setAvailRooms(res.data.rooms);
-            setAvailPenguji(res.data.penguji);
-        } catch (err) {
-            console.error(err);
-            alert("Gagal mengecek ketersediaan jadwal.");
-        } finally {
-            setIsLoadingCheck(false);
-        }
-    };
-
-    const fetchMahasiswa = async (angkatan = "") => {
-        setIsLoadingMhs(true);
-        try {
-            const res = await axios.post("/admin/osce/get-mahasiswa", {
-                angkatan: angkatan,
-                id_osce: osce.id_osce,
-            });
-
-            setAvailableMahasiswa(res.data.mahasiswa);
-
-            if (res.data.list_angkatan && listAngkatan.length === 0) {
-                const optionsRaw = res.data.list_angkatan.map((th) => ({
-                    value: th,
-                    label: `Tahun Akademik ${th}`,
-                }));
-                setListAngkatan(optionsRaw);
-            }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setIsLoadingMhs(false);
-        }
-    };
-
-    const fetchSessionDetail = async (item) => {
-        setIsLoadingDetail(true);
-        setSelectedSesi(item);
-        try {
-            const res = await axios.post(
-                `/admin/osce/${osce.id_osce}/get-session-detail`,
-                {
-                    tanggal: item.tanggal,
-                    jam_mulai: item.jam_mulai,
-                }
+        return sesi.filter((item) => {
+            // Kita cari di field search_string yang dibuat di controller
+            // Atau cari manual di properti object
+            return (
+                item.search_string?.includes(lowerSearch) ||
+                item.tanggal_formatted.toLowerCase().includes(lowerSearch) ||
+                item.nama_ruang.toLowerCase().includes(lowerSearch)
             );
-            setDetailData(res.data);
-            setIsDetailModalOpen(true);
-        } catch (err) {
-            console.error(err);
-            alert("Gagal mengambil detail sesi.");
-        } finally {
-            setIsLoadingDetail(false);
-        }
-    };
-
-    const handleWizardSubmit = () => {
-        router.post(`/admin/osce/${osce.id_osce}/jadwal`, wizardData, {
-            onSuccess: () => {
-                setIsStepOpen(false);
-                setCurrentStep(0);
-                setMhsSearchTerm(""); // Reset pencarian
-                setWizardData({
-                    stase_objs: [],
-                    stase_ids: [],
-                    tanggal: "",
-                    jam_mulai: "",
-                    durasi: "60",
-                    id_ruang: "",
-                    penguji_map: {},
-                    filter_angkatan: "",
-                    mahasiswa_ids: [],
-                });
-            },
-            preserveScroll: true,
-            onError: (errors) => {
-                console.log("Validation Errors:", errors);
-            },
         });
-    };
+    }, [searchTerm, sesi]);
 
-    function handleSearch(e) {
-        e.preventDefault();
-        router.get(
-            `/admin/osce/${osce.id_osce}/sesi`,
-            { search: searchTerm },
-            { preserveState: true, replace: true }
-        );
-    }
+    // --- PAGINATION LOGIC ---
+    const indexOfLastItem = currentPage * itemsPerPage;
+    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+    const currentRowsRaw = filteredSesi.slice(
+        indexOfFirstItem,
+        indexOfLastItem
+    );
+    const totalPages = Math.ceil(filteredSesi.length / itemsPerPage);
 
-    function openDeleteModal(item) {
-        setSelectedSesi(item);
-        setIsModalOpen(true);
-    }
+    // Reset halaman ke 1 jika melakukan pencarian baru
+    useEffect(() => {
+        setCurrentPage(1);
+    }, [searchTerm]);
 
-    function confirmDelete() {
-        if (!selectedSesi) return;
-        const jamMulaiClean = selectedSesi.jam_mulai.substring(0, 5);
-        const uniqueSesiId = `${selectedSesi.tanggal}_${jamMulaiClean}`;
-
-        router.delete(`/admin/osce/${osce.id_osce}/jadwal/${uniqueSesiId}`, {
-            onSuccess: () => {
-                setIsModalOpen(false);
-                setSelectedSesi(null);
-            },
-            preserveScroll: true,
-        });
-    }
-
-    const handleDeleteSesi = (item) => openDeleteModal(item);
-
-    const rows = sesi.data.map((item, index) => ({
-        no: sesi.from + index,
+    // Mapping rows untuk tampilan table (sama seperti sebelumnya, tapi pakai currentRowsRaw)
+    const rows = currentRowsRaw.map((item, index) => ({
+        no: indexOfFirstItem + index + 1, // [MODIFIKASI] Nomor urut absolut
         tanggal: (
             <span className="font-medium text-gray-700">
                 {item.tanggal_formatted}
@@ -316,8 +166,227 @@ export default function SesiOscePage({
         ),
     }));
 
+    // [BARU] Helper untuk generate struktur link pagination agar kompatibel dengan OsPagination
+    const generatePaginationLinks = () => {
+        const links = [];
+        // Prev button
+        links.push({
+            url: currentPage > 1 ? "prev" : null,
+            label: "&laquo; Previous",
+            active: false,
+            pageNumber: currentPage - 1,
+        });
+
+        // Page numbers
+        for (let i = 1; i <= totalPages; i++) {
+            // Simple logic: show all or create ellipsis logic here if needed
+            // Untuk simple client side, kita tampilkan semua atau batasi range
+            if (
+                totalPages <= 7 ||
+                i === 1 ||
+                i === totalPages ||
+                (i >= currentPage - 1 && i <= currentPage + 1)
+            ) {
+                links.push({
+                    url: "page",
+                    label: i.toString(),
+                    active: i === currentPage,
+                    pageNumber: i,
+                });
+            } else if (links[links.length - 1].label !== "...") {
+                links.push({ url: null, label: "...", active: false });
+            }
+        }
+
+        // Next button
+        links.push({
+            url: currentPage < totalPages ? "next" : null,
+            label: "Next &raquo;",
+            active: false,
+            pageNumber: currentPage + 1,
+        });
+
+        return links;
+    };
+
+    const clientPaginationLinks = generatePaginationLinks();
+
+    // --- STATE UI STANDAR & MODAL (Sama seperti kode asli) ---
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedSesi, setSelectedSesi] = useState(null);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [detailData, setDetailData] = useState({
+        stase_data: [],
+        mahasiswa_data: [],
+    });
+    const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+
+    // --- STATE WIZARD (Sama) ---
+    const [isStepOpen, setIsStepOpen] = useState(false);
+    const [currentStep, setCurrentStep] = useState(0);
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
+
+    // Wizard Data & Filter Logic (Sama)
+    const [wizardData, setWizardData] = useState({
+        stase_objs: [],
+        stase_ids: [],
+        tanggal: "",
+        jam_mulai: "",
+        durasi: "60",
+        id_ruang: "",
+        penguji_map: {},
+        filter_angkatan: "",
+        mahasiswa_ids: [],
+    });
+    const [isLoadingCheck, setIsLoadingCheck] = useState(false);
+    const [availRooms, setAvailRooms] = useState([]);
+    const [availPenguji, setAvailPenguji] = useState([]);
+    const [listAngkatan, setListAngkatan] = useState([]);
+    const [availableMahasiswa, setAvailableMahasiswa] = useState([]);
+    const [isLoadingMhs, setIsLoadingMhs] = useState(false);
+    const [mhsSearchTerm, setMhsSearchTerm] = useState("");
+
+    // Effects (Sama)
+    useEffect(() => {
+        if (currentStep === 2 && wizardData.tanggal && wizardData.jam_mulai)
+            checkAvailability();
+    }, [currentStep]);
+
+    useEffect(() => {
+        if (currentStep === 4) fetchMahasiswa(wizardData.filter_angkatan);
+    }, [currentStep, wizardData.filter_angkatan]);
+
+    const filteredMahasiswaList = useMemo(() => {
+        if (!mhsSearchTerm) return availableMahasiswa;
+        const lowerSearch = mhsSearchTerm.toLowerCase();
+        return availableMahasiswa.filter((mhs) =>
+            mhs.label.toLowerCase().includes(lowerSearch)
+        );
+    }, [availableMahasiswa, mhsSearchTerm]);
+
+    // --- API CALLS (Sama) ---
+    const checkAvailability = async () => {
+        /* ... kode lama ... */
+        setIsLoadingCheck(true);
+        try {
+            const res = await axios.post("/admin/osce/check-availability", {
+                tanggal: wizardData.tanggal,
+                jam_mulai: wizardData.jam_mulai,
+                durasi: wizardData.durasi,
+            });
+            setAvailRooms(res.data.rooms);
+            setAvailPenguji(res.data.penguji);
+        } catch (err) {
+            console.error(err);
+            alert("Gagal mengecek ketersediaan jadwal.");
+        } finally {
+            setIsLoadingCheck(false);
+        }
+    };
+
+    const fetchMahasiswa = async (angkatan = "") => {
+        /* ... kode lama ... */
+        setIsLoadingMhs(true);
+        try {
+            const res = await axios.post("/admin/osce/get-mahasiswa", {
+                angkatan: angkatan,
+                id_osce: osce.id_osce,
+            });
+            setAvailableMahasiswa(res.data.mahasiswa);
+            if (res.data.list_angkatan && listAngkatan.length === 0) {
+                setListAngkatan(
+                    res.data.list_angkatan.map((th) => ({
+                        value: th,
+                        label: `Tahun Akademik ${th}`,
+                    }))
+                );
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoadingMhs(false);
+        }
+    };
+
+    const fetchSessionDetail = async (item) => {
+        /* ... kode lama ... */
+        setIsLoadingDetail(true);
+        setSelectedSesi(item);
+        try {
+            const res = await axios.post(
+                `/admin/osce/${osce.id_osce}/get-session-detail`,
+                {
+                    tanggal: item.tanggal,
+                    jam_mulai: item.jam_mulai,
+                }
+            );
+            setDetailData(res.data);
+            setIsDetailModalOpen(true);
+        } catch (err) {
+            console.error(err);
+            alert("Gagal mengambil detail sesi.");
+        } finally {
+            setIsLoadingDetail(false);
+        }
+    };
+
+    const handleWizardSubmit = () => {
+        /* ... kode lama ... */
+        router.post(`/admin/osce/${osce.id_osce}/jadwal`, wizardData, {
+            onSuccess: () => {
+                setIsStepOpen(false);
+                setCurrentStep(0);
+                setMhsSearchTerm("");
+                setWizardData({
+                    stase_objs: [],
+                    stase_ids: [],
+                    tanggal: "",
+                    jam_mulai: "",
+                    durasi: "60",
+                    id_ruang: "",
+                    penguji_map: {},
+                    filter_angkatan: "",
+                    mahasiswa_ids: [],
+                });
+            },
+            preserveScroll: true,
+            onError: (errors) => {
+                console.log("Validation Errors:", errors);
+            },
+        });
+    };
+
+    // [MODIFIKASI] handleSearch sekarang hanya handle state client side, tidak hit server
+    function handleSearch(e) {
+        // e.preventDefault(); // Tidak perlu prevent default jika hanya ketik
+        // State searchTerm otomatis mentrigger useMemo filteredSesi
+    }
+
+    // Modal helpers
+    function openDeleteModal(item) {
+        setSelectedSesi(item);
+        setIsModalOpen(true);
+    }
+    function confirmDelete() {
+        /* ... kode lama ... */
+        if (!selectedSesi) return;
+        const jamMulaiClean = selectedSesi.jam_mulai.substring(0, 5);
+        const uniqueSesiId = `${selectedSesi.tanggal}_${jamMulaiClean}`;
+        router.delete(`/admin/osce/${osce.id_osce}/jadwal/${uniqueSesiId}`, {
+            onSuccess: () => {
+                setIsModalOpen(false);
+                setSelectedSesi(null);
+            },
+            preserveScroll: true,
+        });
+    }
+    const handleDeleteSesi = (item) => openDeleteModal(item);
+
     const calculateEndTime = () => {
+        /* ... kode lama ... */
         if (!wizardData.jam_mulai || !wizardData.durasi) return "";
+        // ... logic hitung jam selesai ...
         const staseCount = wizardData.stase_ids.length;
         if (staseCount === 0) return "";
         const [hours, minutes] = wizardData.jam_mulai.split(":").map(Number);
@@ -329,7 +398,6 @@ export default function SesiOscePage({
             date.getMinutes()
         ).padStart(2, "0")}`;
     };
-
     const jamSelesaiOtomatis = calculateEndTime();
 
     return (
