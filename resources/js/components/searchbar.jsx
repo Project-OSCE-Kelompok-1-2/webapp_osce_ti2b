@@ -2,32 +2,56 @@ import React from "react";
 import { Search, X } from "lucide-react";
 
 /**
- * Komponen Search Bar Minimalis & Modern.
- * - Menggunakan 'div' untuk tombol 'X' agar tidak konflik dengan style global.
- * - Styling input yang lebih bersih dengan efek fokus yang halus.
+ * Komponen Search Bar Minimalis & Modern dengan Varian.
  */
-const OsSearchBar = ({ search, setSearch, placeholder = "Cari data..." }) => {
+const OsSearchBar = ({ search, setSearch, placeholder = "Cari data...", variant = "admin" }) => {
+
+    const isPenguji = variant === "penguji";
+
+    // Tentukan kelas warna dinamis
+    // Jika 'penguji', gunakan kelas oranye, jika tidak, gunakan kelas biru/default.
+
+    // 1. Warna Fokus (Border dan Ring) + Warna Ikon Saat Fokus
+    // Default: blue-500
+    // Penguji: os-focus-orange (Ganti dengan kelas oranye Anda, contoh: focus:border-amber-500)
+    const focusColorClass = isPenguji
+        ? "focus:border-orange-500 focus:ring-orange-500 group-focus-within:text-orange-500"
+        : "focus:border-blue-500 focus:ring-blue-500 group-focus-within:text-blue-500";
+
+    // 2. Warna Border Default (Tambahkan jika Anda ingin border non-fokus juga oranye)
+    // Default: border-gray-200
+    // Penguji: border-os-border-orange-default (Ganti dengan kelas oranye border Anda)
+    const defaultBorderClass = isPenguji
+        ? "border-gray-200"
+        : "border-gray-200";
+
     return (
         // Tambahkan class 'group' di container untuk efek hover/fokus gabungan
         <div className="relative w-full mb-2 h-[46px] group">
             {/* Ikon Kaca Pembesar (Kiri) */}
-            {/* group-focus-within:text-blue-500 membuat ikon jadi biru saat input difokuskan */}
+            {/* Menggunakan kelas dinamis untuk warna fokus ikon */}
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                <Search className="h-5 w-5 text-gray-400 group-focus-within:text-blue-500 transition-colors duration-200" />
+                <Search
+                    // Sisakan kelas warna default ikon (gray-400) dan tambahkan warna fokus kondisional
+                    className={`h-5 w-5 text-gray-400 transition-colors duration-200 ${
+                        isPenguji ? "group-focus-within:text-os-focus-orange" : "group-focus-within:text-blue-500"
+                    }`}
+                />
             </div>
 
             {/* Input Field */}
             <input
                 type="text"
-                className="block w-full h-full pl-10 pr-10 rounded-lg border border-os-primary border-gray-200 !bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200 shadow-sm"
+                className={`block w-full h-full pl-10 pr-10 rounded-lg border border-os-primary !bg-white text-gray-900 placeholder-gray-400 focus:outline-none transition-all duration-200 shadow-sm
+                    ${defaultBorderClass}
+                    ${focusColorClass}`}
                 placeholder={placeholder}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
             />
 
-            {/* Tombol Clear 'X' (Kanan) - Hanya muncul jika ada teks */}
+            {/* Tombol Clear 'X' (Kanan) - Tidak perlu perubahan warna, tetap abu-abu/hover abu-abu */}
             {search && (
-                // Menggunakan 'div' dengan role='button' untuk menghindari konflik style
                 <div
                     role="button"
                     tabIndex={0}

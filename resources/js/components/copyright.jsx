@@ -19,7 +19,7 @@ export default function OsCopyright({ children, className = "", variant = "admin
             <div className="relative self-stretch w-full">
                 <div className="w-full h-full flex">
                     <div className="flex-1 flex items-center">
-                        <p className={`${textClasses} opacity-os-alpha-75 text-base tracking-[0] leading-[normal] whitespace-nowrap`}>
+                        <p className={`${textClasses} text-os-paragraph opacity-os-alpha-75 text-base tracking-[0] leading-[normal] whitespace-nowrap`}>
                             Copyright Porem ipsum dolor sit amet
                         </p>
                     </div>
