@@ -235,82 +235,88 @@ export default function PengujiOsceList() {
                 onToggle={handleSidebarToggle}
             />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader
-                    backLink="/penguji/dashboard"
-                    onMenuClick={handleSidebarToggle}
-                />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader
+                        backLink="/penguji/dashboard"
+                        onMenuClick={handleSidebarToggle}
+                    />
 
-                <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-1">
-                        Menu Jadwal OSCE
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Pilih OSCE untuk melihat jadwal, detail sesi, dan daftar
-                        mahasiswa.
-                    </p>
+                    <div className="flex-1 overflow-auto">
+                        <h2 className="font-semibold text-lg mb-1">
+                            Menu Jadwal OSCE
+                        </h2>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                            Pilih OSCE untuk melihat jadwal, detail sesi, dan
+                            daftar mahasiswa.
+                        </p>
 
-                    {/* Filter Bar */}
-                    <div className="flex flex-col md:flex-row w-full items-stretch md:items-center gap-4 mb-5">
-                        <input
-                            type="text"
-                            placeholder="Cari data OSCE..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="block w-full md:flex-1 pl-4 pr-4 py-2 h-[46px] border border-os-primary rounded-lg"
-                        />
-
-                        <div className="flex w-full md:w-auto items-stretch md:items-center gap-3">
-                            <select
-                                value={tahun}
-                                onChange={(e) => setTahun(e.target.value)} // Instant Update
-                                className="border border-gray-700 rounded-lg h-[46px] w-full md:w-40 bg-white"
-                            >
-                                {tahunList.map((t) => (
-                                    <option key={t.value} value={t.value}>
-                                        {t.label}
-                                    </option>
-                                ))}
-                            </select>
-                            {/* Tombol Cari dihapus atau dijadikan dummy karena instant search */}
-                        </div>
-                    </div>
-
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Daftar OSCE
-                    </h2>
-
-                    {/* Tabel Data */}
-                    <div className="overflow-x-auto">
-                        <div className="min-w-[900px]">
-                            {mappedData.length > 0 ? (
-                                <>
-                                    <OsTableHeader columns={osceColumns} />
-                                    <OsTableBody
-                                        data={mappedData}
-                                        columns={osceColumns}
-                                    />
-                                </>
-                            ) : (
-                                <div className="p-10 text-center border rounded-xl bg-white text-gray-500">
-                                    Tidak ada data OSCE ditemukan.
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                        <div className="mt-8">
-                            <OsPagination
-                                links={generatedLinks}
-                                onPageChange={(page) => setCurrentPage(page)}
+                        {/* Filter Bar */}
+                        <div className="flex flex-col md:flex-row w-full items-stretch md:items-center gap-4 mb-5">
+                            <input
+                                type="text"
+                                placeholder="Cari data OSCE..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="block w-full md:flex-1 pl-4 pr-4 py-2 h-[46px] border border-os-primary rounded-lg"
                             />
+
+                            <div className="flex w-full md:w-auto items-stretch md:items-center gap-3">
+                                <select
+                                    value={tahun}
+                                    onChange={(e) => setTahun(e.target.value)} // Instant Update
+                                    className="border border-gray-700 rounded-lg h-[46px] w-full md:w-40 bg-white"
+                                >
+                                    {tahunList.map((t) => (
+                                        <option key={t.value} value={t.value}>
+                                            {t.label}
+                                        </option>
+                                    ))}
+                                </select>
+                                {/* Tombol Cari dihapus atau dijadikan dummy karena instant search */}
+                            </div>
                         </div>
-                    )}
+
+                        <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                            Daftar OSCE
+                        </h2>
+
+                        {/* Tabel Data */}
+                        <div className="overflow-x-auto">
+                            <div className="min-w-[900px]">
+                                {mappedData.length > 0 ? (
+                                    <>
+                                        <OsTableHeader columns={osceColumns} />
+                                        <OsTableBody
+                                            data={mappedData}
+                                            columns={osceColumns}
+                                        />
+                                    </>
+                                ) : (
+                                    <div className="p-10 text-center border rounded-xl bg-white text-gray-500">
+                                        Tidak ada data OSCE ditemukan.
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="mt-8">
+                                <OsPagination
+                                    links={generatedLinks}
+                                    onPageChange={(page) =>
+                                        setCurrentPage(page)
+                                    }
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
 
-                <OsCopyright />
+                <div className="mt-8">
+                    <OsCopyright />
+                </div>
             </main>
         </div>
     );

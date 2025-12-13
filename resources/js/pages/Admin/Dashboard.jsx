@@ -129,102 +129,109 @@ export default function Dashboard() {
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader onMenuClick={handleSidebarToggle} />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader onMenuClick={handleSidebarToggle} />
 
-                {/* MAIN */}
-                <div className="">
-                    <p className=" text-gray-600 text-os-regular">
-                        Selamat Datang,
-                    </p>
-                    <h1 className="font-bold text-os-title text-gray-900">
-                        {/* {nama_penguji} */}
-                        USERNAME
-                    </h1>
-                    <p className="text-gray-500 text-sm">
-                        Berikut adalah ringkasan aktivitas pengujian Anda.
-                    </p>
+                    {/* MAIN */}
+                    <div className="">
+                        <p className=" text-gray-600 text-os-regular">
+                            Selamat Datang,
+                        </p>
+                        <h1 className="font-bold text-os-title text-gray-900">
+                            {/* {nama_penguji} */}
+                            USERNAME
+                        </h1>
+                        <p className="text-gray-500 text-sm">
+                            Berikut adalah ringkasan aktivitas pengujian Anda.
+                        </p>
+                    </div>
+
+                    <hr className="border-1 border-os-primary" />
+
+                    {/* Statistika */}
+                    <section className="mb-2">
+                        <div className="flex gap-os-8 items-center justify-start mb-2">
+                            <OsIcon name={"stat"} className="h-[15px]" />
+                            <h2 className="font-bold text-os-regular text-gray-900">
+                                Statistika
+                            </h2>
+                        </div>
+
+                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                            {/* [UBAH] Tambahkan prop 'href' di sini */}
+                            <StatCard
+                                title="Total OSCE"
+                                description="Jumlah total OSCE yang terdaftar"
+                                value={totalOsce}
+                                icon={
+                                    <ClipboardList
+                                        size={22}
+                                        className="text-blue-700"
+                                    />
+                                }
+                                colorClass="bg-blue-400 border-blue-300"
+                                href="/admin/osce" // <-- Tautan ke menu OSCE
+                            />
+                            {/* [UBAH] Tambahkan prop 'href' di sini */}
+                            <StatCard
+                                title="Total Mahasiswa"
+                                description="Jumlah total mahasiswa terdaftar"
+                                value={totalMahasiswa}
+                                icon={
+                                    <Users
+                                        size={22}
+                                        className="text-gray-700"
+                                    />
+                                }
+                                colorClass="bg-red-400 border-blue-300"
+                                href="/admin/mahasiswa" // <-- Tautan ke menu Mahasiswa
+                            />
+                            {/* [UBAH] Tambahkan prop 'href' di sini */}
+                            <StatCard
+                                title="Total Penguji"
+                                description="Jumlah total penguji terdaftar"
+                                value={totalPenguji}
+                                icon={
+                                    <UserCheck
+                                        size={22}
+                                        className="text-gray-700"
+                                    />
+                                }
+                                colorClass="bg-lime-500 border-blue-300"
+                                href="/admin/dosen" // <-- Tautan ke menu Dosen (Asumsi Penguji = Dosen)
+                            />
+                        </div>
+                    </section>
+
+                    <hr className="border-1 border-os-primary" />
+
+                    {/* Notifikasi */}
+                    <section>
+                        <div className="flex gap-os-8 items-center justify-start mb-2">
+                            <Bell size={18} />
+                            <h2 className="font-bold text-os-regular text-gray-900">
+                                Notifikasi
+                            </h2>
+                        </div>
+
+                        <div className="flex flex-col gap-3">
+                            {notifikasi && notifikasi.length > 0 ? (
+                                notifikasi.map((item, idx) => (
+                                    <NotificationItem
+                                        key={item.id_stase ?? idx}
+                                        stase={item}
+                                        index={idx + 1}
+                                    />
+                                ))
+                            ) : (
+                                <p className="text-sm text-blue-800 text-center py-4 bg-os-tertiary border-os-primary border rounded-lg">
+                                    Tidak ada notifikasi.
+                                </p>
+                            )}
+                        </div>
+                    </section>
                 </div>
-
-                <hr className="border-1 border-os-primary" />
-
-                {/* Statistika */}
-                <section className="mb-2">
-                    <div className="flex gap-os-8 items-center justify-start mb-2">
-                        <OsIcon name={"stat"} className="h-[15px]" />
-                        <h2 className="font-bold text-os-regular text-gray-900">
-                            Statistika
-                        </h2>
-                    </div>
-
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        {/* [UBAH] Tambahkan prop 'href' di sini */}
-                        <StatCard
-                            title="Total OSCE"
-                            description="Jumlah total OSCE yang terdaftar"
-                            value={totalOsce}
-                            icon={
-                                <ClipboardList
-                                    size={22}
-                                    className="text-blue-700"
-                                />
-                            }
-                            colorClass="bg-blue-400 border-blue-300"
-                            href="/admin/osce" // <-- Tautan ke menu OSCE
-                        />
-                        {/* [UBAH] Tambahkan prop 'href' di sini */}
-                        <StatCard
-                            title="Total Mahasiswa"
-                            description="Jumlah total mahasiswa terdaftar"
-                            value={totalMahasiswa}
-                            icon={<Users size={22} className="text-gray-700" />}
-                            colorClass="bg-red-400 border-blue-300"
-                            href="/admin/mahasiswa" // <-- Tautan ke menu Mahasiswa
-                        />
-                        {/* [UBAH] Tambahkan prop 'href' di sini */}
-                        <StatCard
-                            title="Total Penguji"
-                            description="Jumlah total penguji terdaftar"
-                            value={totalPenguji}
-                            icon={
-                                <UserCheck
-                                    size={22}
-                                    className="text-gray-700"
-                                />
-                            }
-                            colorClass="bg-lime-500 border-blue-300"
-                            href="/admin/dosen" // <-- Tautan ke menu Dosen (Asumsi Penguji = Dosen)
-                        />
-                    </div>
-                </section>
-
-                <hr className="border-1 border-os-primary" />
-
-                {/* Notifikasi */}
-                <section>
-                    <div className="flex gap-os-8 items-center justify-start mb-2">
-                        <Bell size={18} />
-                        <h2 className="font-bold text-os-regular text-gray-900">
-                            Notifikasi
-                        </h2>
-                    </div>
-
-                    <div className="flex flex-col gap-3">
-                        {notifikasi && notifikasi.length > 0 ? (
-                            notifikasi.map((item, idx) => (
-                                <NotificationItem
-                                    key={item.id_stase ?? idx}
-                                    stase={item}
-                                    index={idx + 1}
-                                />
-                            ))
-                        ) : (
-                            <p className="text-sm text-blue-800 text-center py-4 bg-os-tertiary border-os-primary border rounded-lg">
-                                Tidak ada notifikasi.
-                            </p>
-                        )}
-                    </div>
-                </section>
 
                 {/* Footer */}
                 <div className="mt-8">
@@ -233,5 +240,4 @@ export default function Dashboard() {
             </main>
         </div>
     );
-
 }
