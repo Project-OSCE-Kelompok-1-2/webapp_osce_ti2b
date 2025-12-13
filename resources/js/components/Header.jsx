@@ -1,27 +1,25 @@
 import React from "react";
-import { Home, ArrowLeft, Menu, Undo2} from "lucide-react";
+import { Home, Menu, Undo2 } from "lucide-react";
 import { usePage } from "@inertiajs/react";
-import Sidebar from "./Sidebar";
 
 export default function OsHeader({
     className = "",
-    variant = "default", // 'default' | 'goback'
+    variant = "admin", // 'admin' | 'penguji' | 'goback'
     backLink = "/",
-    onMenuClick = () => {}
+    onMenuClick = () => {},
 }) {
-    // Ambil URL dari Inertia atau window
+    // Ambil URL dari Inertia / window
     const { url } = usePage() || {};
-
     const fullUrl =
         url ||
         (typeof window !== "undefined"
             ? window.location.pathname + window.location.search
             : "/");
 
-    // ❗ Hilangkan query params → contoh: "?search=123"
+    // Hilangkan query params
     const pathname = fullUrl.split("?")[0];
 
-    // Buat title → "Admin / Stase"
+    // Generate title dari URL
     const title =
         pathname
             .split("/")
@@ -33,54 +31,79 @@ export default function OsHeader({
             )
             .join(" / ") || "Dashboard";
 
+    // ===============================
+    // THEME VARIANT
+    // ===============================
+    const isPenguji = variant === "penguji";
+
+    const theme = {
+        bg: isPenguji ? "bg-orange-600" : "bg-blue-900",
+        hover: isPenguji ? "hover:bg-orange-500" : "hover:bg-blue-700",
+        border: isPenguji ? "border-orange-600" : "border-blue-900",
+        text: isPenguji ? "text-orange-600" : "text-blue-900",
+    };
+
     return (
         <header
-            className={`relative row-[1_/_2] col-[1_/_2] w-full flex flex-col items-start gap-os-12 ${className} fixed`}
+            className={`relative row-[1_/_2] col-[1_/_2] w-full flex flex-col gap-os-12 ${className}`}
         >
-            <div className="flex items-center justify-between relative self-stretch w-full gap-os-12">
-                {/* 🔹 LOGIKA TOMBOL HOME / GO BACK / MENU */}
+            <div className="flex items-center justify-between w-full gap-os-12">
+                {/* ===============================
+                    BUTTON AREA
+                =============================== */}
                 {variant === "goback" ? (
-                    // Tampilkan Tombol Go Back. Di mobile/default dia akan flex, di desktop dia juga flex
                     <a
                         href={backLink}
-                        className="flex w-[46px] h-[46px] items-center justify-center relative text-blue-900 rounded-xl border border-solid border-blue-900 aspect-[1] transition"
+                        className={`flex w-[46px] h-[46px] items-center justify-center rounded-xl border transition
+                            ${theme.border} ${theme.text}`}
                         aria-label="Go Back"
                     >
-                        <Undo2 size={30} />
+                        <Undo2 size={28} />
                     </a>
                 ) : (
                     <>
-                        {/* Tampilkan Tombol Home di desktop */}
+                        {/* HOME - Desktop */}
                         <a
                             href="/admin/dashboard"
-                            className="lg:flex w-[46px] h-[46px] hidden items-center justify-center relative bg-blue-900 text-white rounded-xl border border-solid  aspect-[1] hover:bg-blue-700 transition"
+                            className={`hidden lg:flex w-[46px] h-[46px] items-center justify-center rounded-xl text-white border aspect-[1] transition
+                                ${theme.bg} ${theme.hover}`}
                             aria-label="Home"
                         >
-                            <Home size={28} />
+                            <Home size={26} />
                         </a>
-                        {/* Tampilkan Tombol Menu di mobile */}
+
+                        {/* MENU - Mobile */}
                         <button
                             onClick={onMenuClick}
-                            className="flex lg:hidden w-[46px] h-[46px] items-center justify-center relative bg-blue-900 text-white rounded-xl border border-solid border-blue-700 aspect-[1] hover:bg-blue-700 transition"
+                            className={`flex lg:hidden w-[46px] h-[46px] items-center justify-center rounded-xl text-white border aspect-[1] transition
+                                ${theme.bg} ${theme.hover}`}
                             aria-label="Menu"
                         >
-                            <Menu size={28} />
+                            <Menu size={26} />
                         </button>
                     </>
                 )}
-                {/* 🔹 AKHIR LOGIKA TOMBOL */}
 
-                {/* 🔹 Kotak judul utama */}
+                {/* ===============================
+                    TITLE
+                =============================== */}
                 <div className="relative flex-1 h-[46px]">
-                    <div className="w-full bg-white h-full flex items-center rounded-xl overflow-hidden border border-os-primary ">
-                        <h1 className="ml-5 text-os-regular text-black tracking-[0] leading-normal whitespace-nowrap">
+                    <div
+                        className={`w-full h-full flex items-center rounded-xl overflow-hidden border bg-white ${theme.border}`}
+                    >
+                        <h1
+                            className={`ml-5 text-os-regular tracking-normal whitespace-nowrap ${theme.text}`}
+                        >
                             {title}
                         </h1>
                     </div>
                 </div>
             </div>
 
-            <hr className="relative w-full border-os-primary" />
+            {/* ===============================
+                DIVIDER
+            =============================== */}
+            <hr className={`w-full ${theme.border}`} />
         </header>
     );
 }

@@ -140,7 +140,7 @@ export default function PengujiDashboard() {
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-orange-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar
                 isOpen={isSidebarOpen}
                 type="penguji"
@@ -148,7 +148,7 @@ export default function PengujiDashboard() {
             />
 
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader onMenuClick={handleSidebarToggle} />
+                <OsHeader onMenuClick={handleSidebarToggle} variant="penguji"/>
 
                 {/* WELCOME SECTION */}
                 <div className="">
