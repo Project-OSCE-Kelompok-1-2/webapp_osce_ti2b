@@ -76,6 +76,17 @@ class DashboardController extends Controller
                     $status = 'mendatang';
                 }
 
+                $staseTanggal = $stase->tanggal->toDateString();
+                $staseJamMulai = substr($stase->jam_mulai, 0, 5);
+
+                $jumlahMahasiswaSesi = $osce->enrollmentOsce
+                    ->filter(function ($enrollment) use ($staseTanggal, $staseJamMulai) {
+                        $enrollmentTanggal = Carbon::parse($enrollment->tanggal_sesi)->toDateString();
+                        $enrollmentJam = substr($enrollment->jam_sesi, 0, 5); 
+                        return $enrollmentTanggal === $staseTanggal && $enrollmentJam === $staseJamMulai;
+                    })
+                    ->count();
+
                 return [
                     'id_osce'        => $osce->id_osce,
                     'id_osce_stase'  => $stase->id_osce_stase,
@@ -83,7 +94,7 @@ class DashboardController extends Controller
                     'hari'           => $stase->tanggal->format('d'),
                     'bulan'          => $stase->tanggal->format('M'),
                     'sesi'           => substr($stase->jam_mulai, 0, 5),
-                    'jumlah_mahasiswa' => $osce->enrollmentOsce->count(),
+                    'jumlah_mahasiswa' => $jumlahMahasiswaSesi,
                     'status'         => $status,
                 ];
             });

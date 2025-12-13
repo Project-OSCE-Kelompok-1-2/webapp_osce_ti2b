@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import { usePage, router, useForm } from "@inertiajs/react";
-import { Edit2, Trash2, X, AlertCircle } from "lucide-react";
+import { Edit2, Trash2, X, AlertCircle } from "lucide-react"; // Import AlertCircle & X
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
@@ -9,12 +9,12 @@ import OsCopyright from "../../components/Copyright.jsx";
 import OsIcon from "../../components/icons";
 import OsTableHeader from "../../components/tableheader";
 import OsSearchBar from "../../components/searchbar";
-import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
 import OsModal from "../../components/Modal.jsx";
 import OsInput from "../../components/input.jsx";
 import Modals from "../../components/Modals.jsx";
+import OsPagination from "../../components/pagination.jsx"; // Cukup satu kali import
 
 const staseColumns = [
     {
@@ -44,16 +44,92 @@ const staseColumns = [
 ];
 
 export default function Stase() {
-    const { stase, filters, mataKuliah, tujuanPembelajaran } = usePage().props;
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    // 1. Ambil data full (Array)
+    const { stase, mataKuliah, tujuanPembelajaran } = usePage().props;
+    const allStaseData = Array.isArray(stase) ? stase : stase?.data || [];
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
+
+    // 2. State untuk Client-Side Logic
+    const [search, setSearch] = useState("");
+    const [currentPage, setCurrentPage] = useState(1);
+    const itemsPerPage = 10;
+
+    // 3. Filter Data Instan
+    // [PERBAIKAN] Gunakan useEffect untuk reset page, useMemo murni untuk filter
+    React.useEffect(() => {
+        if (search) setCurrentPage(1);
+    }, [search]);
+
+    const filteredData = useMemo(() => {
+        return allStaseData.filter((item) => {
+            const term = search.toLowerCase();
+            return (
+                item.nama_stase?.toLowerCase().includes(term) ||
+                item.deskripsi?.toLowerCase().includes(term)
+            );
+        });
+    }, [search, allStaseData]);
+
+    // 4. Pagination Data (Potong Array)
+    const totalItems = filteredData.length;
+    const totalPages = Math.ceil(totalItems / itemsPerPage);
+    const paginatedData = filteredData.slice(
+        (currentPage - 1) * itemsPerPage,
+        currentPage * itemsPerPage
+    );
+
+    // --- 5. GENERATOR LINKS UTAMA ---
+    const generatedLinks = useMemo(() => {
+        if (totalPages <= 1) return []; // Return empty array if only 1 page
+
+        const links = [];
+
+        // A. Tombol Previous
+        links.push({
+            url: currentPage > 1 ? "#" : null,
+            label: "&laquo; Previous",
+            active: false,
+            pageNumber: currentPage - 1,
+        });
+
+        // B. Tombol Angka (1, 2, 3...)
+        for (let i = 1; i <= totalPages; i++) {
+            if (
+                i === 1 ||
+                i === totalPages ||
+                (i >= currentPage - 1 && i <= currentPage + 1)
+            ) {
+                links.push({
+                    url: "#",
+                    label: i.toString(),
+                    active: i === currentPage,
+                    pageNumber: i,
+                });
+            } else if (
+                (i === currentPage - 2 && i > 1) ||
+                (i === currentPage + 2 && i < totalPages)
+            ) {
+                links.push({ url: null, label: "...", active: false });
+            }
+        }
+
+        // C. Tombol Next
+        links.push({
+            url: currentPage < totalPages ? "#" : null,
+            label: "Next &raquo;",
+            active: false,
+            pageNumber: currentPage + 1,
+        });
+
+        return links;
+    }, [currentPage, totalPages]);
 
     // --- Suggestion Lists ---
     const suggestMataKuliah =
         mataKuliah?.map((m) => m.nama_mata_kuliah).filter(Boolean) || [];
 
-    // Ambil SEMUA kemungkinan tujuan unik dari database
     const allSuggestTujuan =
         [
             ...new Set(
@@ -67,6 +143,7 @@ export default function Stase() {
         post,
         put,
         delete: destroy,
+        processing,
         errors,
         reset,
         clearErrors,
@@ -75,8 +152,10 @@ export default function Stase() {
         nama_stase: "",
         deskripsi: "",
         id_mata_kuliah: "",
+        // id_tujuan_pembelajaran: "", // Hapus jika tidak dipakai langsung (diganti array string)
         display_mata_kuliah: "",
-        tujuan_pembelajaran: [],
+        tujuan_pembelajaran: [], // Array string untuk menampung tujuan yang dipilih
+        // display_tujuan: "", // Tidak perlu di state form utama jika hanya untuk input helper
     });
 
     // Filter saran agar yang SUDAH DIPILIH tidak muncul lagi di dropdown
@@ -88,54 +167,28 @@ export default function Stase() {
     const [tujuanInput, setTujuanInput] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState("add");
-    const [search, setSearch] = useState(filters.search || "");
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
     const [selectedId, setSelectedId] = useState(null);
     const [selectedName, setSelectedName] = useState("");
-
-    const handleSearch = () => {
-        router.get(
-            "/admin/stase",
-            { search },
-            { preserveState: true, replace: true }
-        );
-    };
-
-    const openDeleteModal = (id, name) => {
-        setSelectedId(id);
-        setSelectedName(name);
-        setIsDeleteOpen(true);
-    };
-
-    const handleConfirmDelete = () => {
-        if (!selectedId) return;
-        destroy(`/admin/stase/${selectedId}`, {
-            preserveScroll: true,
-            onSuccess: () => setIsDeleteOpen(false),
-        });
-    };
 
     // --- HANDLE FORM LOGIC ---
 
     const handleMataKuliahChange = (e) => {
         const val = e?.target ? e.target.value : e;
-        const selectedObj = mataKuliah.find((m) => m.nama_mata_kuliah === val);
-
+        const s = mataKuliah.find((m) => m.nama_mata_kuliah === val);
         setData((prev) => ({
             ...prev,
             display_mata_kuliah: val,
-            id_mata_kuliah: selectedObj ? selectedObj.id_mata_kuliah : "",
+            id_mata_kuliah: s?.id_mata_kuliah || "",
         }));
     };
 
     // --- LOGIC MULTI SELECT TUJUAN ---
-
     const MAX_TUJUAN = 5;
 
     const handleAddTujuan = (val) => {
         const valueToAdd = val || tujuanInput;
 
-        // 1. Cek Limit Max
         if (data.tujuan_pembelajaran.length >= MAX_TUJUAN) {
             alert(
                 `Maksimal hanya boleh menambahkan ${MAX_TUJUAN} Tujuan Pembelajaran.`
@@ -145,6 +198,7 @@ export default function Stase() {
 
         if (valueToAdd && valueToAdd.trim() !== "") {
             if (!data.tujuan_pembelajaran.includes(valueToAdd)) {
+                // Update array tujuan_pembelajaran
                 setData("tujuan_pembelajaran", [
                     ...data.tujuan_pembelajaran,
                     valueToAdd,
@@ -168,8 +222,6 @@ export default function Stase() {
         setTujuanInput(val);
     };
 
-    // --- MODAL CONTROLS ---
-
     const openAddModal = () => {
         setModalMode("add");
         clearErrors();
@@ -183,26 +235,20 @@ export default function Stase() {
         clearErrors();
         setTujuanInput("");
 
-        // Debugging: Cek di console browser apakah data lengkap
-        console.log("Data Item Edit:", item);
-
         const currentMK = mataKuliah.find(
             (m) => m.id_mata_kuliah === item.id_mata_kuliah
         );
 
-        // Pastikan backend mengirim 'tujuan_pembelajaran' (camelCase atau snake_case tergantung settingan Laravel)
-        // Biasanya Laravel mengirim snake_case 'tujuan_pembelajaran' jika toArray() dipanggil,
-        // tapi jika menggunakan resource bisa jadi beda. Kita cek keduanya untuk keamanan.
+        // Ambil data tujuan dari item (sesuaikan dengan format dari backend, misal array of objects)
         const rawTujuan = item.tujuan_pembelajaran || item.tujuanPembelajaran;
-
-        const currentTujuanList = rawTujuan
-            ? rawTujuan.map((t) => t.tujuan)
+        const currentTujuanList = Array.isArray(rawTujuan)
+            ? rawTujuan.map((t) => (typeof t === "string" ? t : t.tujuan)) // Handle jika string atau object
             : [];
 
         setData({
             id: item.id_stase,
-            nama_stase: item.nama_stase || "",
-            deskripsi: item.deskripsi || "",
+            nama_stase: item.nama_stase,
+            deskripsi: item.deskripsi,
             id_mata_kuliah: item.id_mata_kuliah,
             display_mata_kuliah: currentMK ? currentMK.nama_mata_kuliah : "",
             tujuan_pembelajaran: currentTujuanList,
@@ -229,23 +275,44 @@ export default function Stase() {
             onSuccess: () => {
                 setShowModal(false);
                 reset();
+                setTujuanInput("");
             },
             preserveScroll: true,
         };
 
-        if (modalMode === "edit") {
-            put(`/admin/stase/${data.id}`, options);
-        } else {
-            post("/admin/stase", options);
-        }
+        modalMode === "edit"
+            ? put(`/admin/stase/${data.id}`, options)
+            : post("/admin/stase", options);
     };
 
-    const tableData = stase.data.map((item, index) => ({
-        no: (stase.from || 1) + index,
+    const openDeleteModal = (id, name) => {
+        setSelectedId(id);
+        setSelectedName(name);
+        setIsDeleteOpen(true);
+    };
+
+    // [PERBAIKAN TYPO] handleConfirmDelete
+    const handleConfirmDelete = () => {
+        if (!selectedId) return;
+        destroy(`/admin/stase/${selectedId}`, {
+            preserveScroll: true,
+            onSuccess: () => setIsDeleteOpen(false),
+        });
+    };
+
+    // Format Data Tabel dari 'paginatedData'
+    // Format Data Tabel dari 'paginatedData'
+    const tableData = paginatedData.map((item, index) => ({
+        // Hitung nomor urut berdasarkan halaman saat ini
+        no: (currentPage - 1) * itemsPerPage + index + 1,
+
         nama_stase: item.nama_stase,
-        jumlah_aspek: item.jumlah_aspek || 0,
+        // Pastikan properti ini sesuai dengan respon JSON backend
+        jumlah_aspek: item.aspek_penilaian_count || item.jumlah_aspek || 0,
+
         action: (
             <div className="flex items-center justify-center space-x-3">
+                {/* ... tombol aksi tetap sama ... */}
                 <OsButton
                     name="primary"
                     onClick={() =>
@@ -302,11 +369,11 @@ export default function Stase() {
                         Tambah Stase
                     </OsButton>
 
+                    {/* SEARCHBAR INSTAN */}
                     <OsSearchBar
                         search={search}
                         setSearch={setSearch}
-                        onSearchClick={handleSearch}
-                        placeholder="Cari stase..."
+                        placeholder="Cari stase secara instan..."
                     />
 
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
@@ -320,23 +387,30 @@ export default function Stase() {
                                 data={tableData}
                                 columns={staseColumns}
                             />
-                            {stase.data.length === 0 && (
+                            {filteredData.length === 0 && (
                                 <div className="flex items-center border-t border-gray-400">
                                     <p className="w-full text-center text-sm py-os-48 text-gray-500">
-                                        Data stase tidak ditemukan.
+                                        Data tidak ditemukan.
                                     </p>
                                 </div>
                             )}
                         </div>
                     </div>
-                    {stase.links?.length > 0 && (
-                        <OsPagination links={stase.links} />
+
+                    {/* --- PAGINATION --- */}
+                    {totalPages > 1 && (
+                        <div className="mt-2">
+                            <OsPagination
+                                links={generatedLinks}
+                                onPageChange={(page) => setCurrentPage(page)}
+                            />
+                        </div>
                     )}
                 </div>
                 <OsCopyright />
             </main>
 
-            {/* MODAL ADD/EDIT STASE */}
+            {/* Modal Components */}
             <OsModal
                 show={showModal}
                 onClose={() => setShowModal(false)}
@@ -344,13 +418,16 @@ export default function Stase() {
                 onClear={() => {
                     reset();
                     setTujuanInput("");
+                    clearErrors();
                 }}
                 onSubmit={handleSubmit}
-                title={modalMode === "edit" ? " Stase" : "Tambah Stase Baru"}
+                title={
+                    modalMode === "edit" ? "Edit Stase" : "Tambah Stase Baru"
+                }
                 subtitle={
                     modalMode === "edit"
-                        ? `Ubah data stase: ${data.nama_stase}`
-                        : "Isi form di bawah untuk menambahkan stase baru."
+                        ? "Ubah data stase"
+                        : "Isi form di bawah"
                 }
             >
                 <div className="space-y-4">
@@ -410,7 +487,7 @@ export default function Stase() {
                             </span>
                         </div>
 
-                        {/* LIST ITEMS (BOX STYLE) - Kode sama seperti sebelumnya */}
+                        {/* LIST ITEMS (BOX STYLE) */}
                         {data.tujuan_pembelajaran.length > 0 && (
                             <div className="flex flex-col gap-2 mb-2 max-h-60 overflow-y-auto pr-1">
                                 {data.tujuan_pembelajaran.map((item, idx) => (
@@ -500,25 +577,15 @@ export default function Stase() {
                         name="nama_stase"
                         value={data.nama_stase}
                         onChange={(e) => setData("nama_stase", e.target.value)}
-                        placeholder="Masukkan Nama Stase..."
                         required
                     />
-
                     <OsInput
                         label="Deskripsi"
                         type="textarea"
                         name="deskripsi"
                         value={data.deskripsi}
                         onChange={(e) => setData("deskripsi", e.target.value)}
-                        placeholder="Masukkan Deskripsi..."
                     />
-
-                    {(errors.nama_stase || errors.deskripsi) && (
-                        <div className="text-red-600 text-xs space-y-1">
-                            {errors.nama_stase && <p>{errors.nama_stase}</p>}
-                            {errors.deskripsi && <p>{errors.deskripsi}</p>}
-                        </div>
-                    )}
                 </div>
             </OsModal>
 
@@ -528,11 +595,9 @@ export default function Stase() {
                 onConfirm={handleConfirmDelete}
                 variant="delete"
                 title="Hapus Stase?"
-                message="Apakah Anda yakin ingin menghapus stase ini?"
+                message="Yakin ingin menghapus?"
                 confirmText="Hapus"
-                dataToDelete={[
-                    { key: "Nama Stase", value: selectedName || "-" },
-                ]}
+                dataToDelete={[{ key: "Nama", value: selectedName }]}
             />
         </div>
     );

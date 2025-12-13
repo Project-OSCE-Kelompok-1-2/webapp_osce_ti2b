@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react"; // [MODIFIKASI] Tambah useMemo
 import { Link, usePage } from "@inertiajs/react";
 import { router } from "@inertiajs/react";
 import axios from "axios";
@@ -12,10 +12,10 @@ import {
     Plus,
     Edit,
     Edit2,
-    Info, // [BARU] Import Icon Info
-    X, // [BARU] Import Icon Close
+    Info,
+    X,
+    Users, // [MODIFIKASI] Pastikan Users terimport
     Clock,
-    Users,
 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
@@ -32,7 +32,6 @@ import OsInput from "../../components/input.jsx";
 import OsButton from "../../components/button.jsx";
 import OsHeader from "../../components/Header.jsx";
 
-// [MODIFIKASI] Update lebar dan padding kolom agar lebih lega
 const jadwalColumns = [
     {
         key: "no",
@@ -73,7 +72,7 @@ const jadwalColumns = [
     {
         key: "action",
         content: "Action",
-        width: "w-32 shrink-0", // [UBAH] Diperlebar untuk 2 tombol
+        width: "w-32 shrink-0",
         classes: "justify-center items-center",
     },
 ];
@@ -91,7 +90,7 @@ export default function SesiOscePage({
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSesi, setSelectedSesi] = useState(null);
 
-    // [BARU] State untuk Detail Modal
+    // State untuk Detail Modal
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [detailData, setDetailData] = useState({
         stase_data: [],
@@ -104,10 +103,7 @@ export default function SesiOscePage({
     const [currentStep, setCurrentStep] = useState(0);
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    const handleSidebarToggle = () => {
-        setIsSidebarOpen((prev) => !prev);
-    };
+    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
     // Menyimpan data input wizard
     const [wizardData, setWizardData] = useState({
@@ -118,7 +114,6 @@ export default function SesiOscePage({
         durasi: "60",
         id_ruang: "",
         penguji_map: {},
-        // Data Mahasiswa
         filter_angkatan: "",
         mahasiswa_ids: [],
     });
@@ -133,6 +128,9 @@ export default function SesiOscePage({
     const [availableMahasiswa, setAvailableMahasiswa] = useState([]);
     const [isLoadingMhs, setIsLoadingMhs] = useState(false);
 
+    // [BARU] State untuk Auto Complete / Pencarian Mahasiswa di Modal
+    const [mhsSearchTerm, setMhsSearchTerm] = useState("");
+
     // --- LOGIC FILTER DINAMIS ---
     useEffect(() => {
         if (currentStep === 2 && wizardData.tanggal && wizardData.jam_mulai) {
@@ -140,12 +138,20 @@ export default function SesiOscePage({
         }
     }, [currentStep]);
 
-    // Trigger fetch saat masuk step 4 (index array 4) -> Step Mahasiswa
     useEffect(() => {
         if (currentStep === 4) {
             fetchMahasiswa(wizardData.filter_angkatan);
         }
     }, [currentStep, wizardData.filter_angkatan]);
+
+    // [BARU] Logic Filtering Real-time Mahasiswa
+    const filteredMahasiswaList = useMemo(() => {
+        if (!mhsSearchTerm) return availableMahasiswa;
+        const lowerSearch = mhsSearchTerm.toLowerCase();
+        return availableMahasiswa.filter((mhs) =>
+            mhs.label.toLowerCase().includes(lowerSearch)
+        );
+    }, [availableMahasiswa, mhsSearchTerm]);
 
     const checkAvailability = async () => {
         setIsLoadingCheck(true);
@@ -165,7 +171,6 @@ export default function SesiOscePage({
         }
     };
 
-    // Fetch Data Mahasiswa
     const fetchMahasiswa = async (angkatan = "") => {
         setIsLoadingMhs(true);
         try {
@@ -190,19 +195,15 @@ export default function SesiOscePage({
         }
     };
 
-    // [BARU] Function Fetch Detail Sesi
     const fetchSessionDetail = async (item) => {
         setIsLoadingDetail(true);
-        // Simpan data sesi yang dipilih untuk judul modal
         setSelectedSesi(item);
-
         try {
-            // Pastikan route ini ada di web.php: Route::post('/osce/{id}/get-session-detail', ...)
             const res = await axios.post(
                 `/admin/osce/${osce.id_osce}/get-session-detail`,
                 {
-                    tanggal: item.tanggal, // kirim raw date
-                    jam_mulai: item.jam_mulai, // kirim raw time
+                    tanggal: item.tanggal,
+                    jam_mulai: item.jam_mulai,
                 }
             );
             setDetailData(res.data);
@@ -215,16 +216,12 @@ export default function SesiOscePage({
         }
     };
 
-    // --- SUBMIT FINAL WIZARD ---
     const handleWizardSubmit = () => {
-        if (wizardData.mahasiswa_ids.length !== wizardData.stase_ids.length) {
-            // Optional Validation
-        }
-
         router.post(`/admin/osce/${osce.id_osce}/jadwal`, wizardData, {
             onSuccess: () => {
                 setIsStepOpen(false);
                 setCurrentStep(0);
+                setMhsSearchTerm(""); // Reset pencarian
                 setWizardData({
                     stase_objs: [],
                     stase_ids: [],
@@ -253,7 +250,6 @@ export default function SesiOscePage({
         );
     }
 
-    // --- DELETE LOGIC ---
     function openDeleteModal(item) {
         setSelectedSesi(item);
         setIsModalOpen(true);
@@ -261,7 +257,6 @@ export default function SesiOscePage({
 
     function confirmDelete() {
         if (!selectedSesi) return;
-
         const jamMulaiClean = selectedSesi.jam_mulai.substring(0, 5);
         const uniqueSesiId = `${selectedSesi.tanggal}_${jamMulaiClean}`;
 
@@ -276,40 +271,29 @@ export default function SesiOscePage({
 
     const handleDeleteSesi = (item) => openDeleteModal(item);
 
-    // Update mapping rows untuk data tabel
     const rows = sesi.data.map((item, index) => ({
         no: sesi.from + index,
-
-        // Hanya menampilkan Tanggal
         tanggal: (
             <span className="font-medium text-gray-700">
                 {item.tanggal_formatted}
             </span>
         ),
-
-        // Menampilkan Jam Mulai
         jam_mulai: (
             <span className="text-sm bg-green-50 text-green-700 px-2 py-1 rounded border border-green-200">
                 {item.jam_mulai_formatted}
             </span>
         ),
-
-        // Menampilkan Jam Selesai
         jam_selesai: (
             <span className="text-sm bg-red-50 text-red-700 px-2 py-1 rounded border border-red-200">
                 {item.jam_selesai_formatted}
             </span>
         ),
-
         ruangan: item.nama_ruang || "-",
-
         jumlah_mahasiswa: (
             <span className="text-sm">{item.jumlah_mahasiswa} Mahasiswa</span>
         ),
-
         action: (
             <div className="flex items-center justify-center w-full px-2 gap-2">
-                {/* [BARU] Tombol Info */}
                 <OsButton
                     name="secondary"
                     onClick={() => fetchSessionDetail(item)}
@@ -318,7 +302,6 @@ export default function SesiOscePage({
                 >
                     <Info size={18} />
                 </OsButton>
-
                 <OsButton
                     name="warning"
                     onClick={() => handleDeleteSesi(item)}
@@ -333,21 +316,16 @@ export default function SesiOscePage({
 
     const calculateEndTime = () => {
         if (!wizardData.jam_mulai || !wizardData.durasi) return "";
-
         const staseCount = wizardData.stase_ids.length;
         if (staseCount === 0) return "";
-
         const [hours, minutes] = wizardData.jam_mulai.split(":").map(Number);
         const totalDurationMinutes = parseInt(wizardData.durasi) * staseCount;
-
         const date = new Date();
         date.setHours(hours);
         date.setMinutes(minutes + totalDurationMinutes);
-
-        const endHours = String(date.getHours()).padStart(2, "0");
-        const endMinutes = String(date.getMinutes()).padStart(2, "0");
-
-        return `${endHours}:${endMinutes}`;
+        return `${String(date.getHours()).padStart(2, "0")}:${String(
+            date.getMinutes()
+        ).padStart(2, "0")}`;
     };
 
     const jamSelesaiOtomatis = calculateEndTime();
@@ -364,7 +342,6 @@ export default function SesiOscePage({
                         <h2 className="text-lg font-semibold mb-1">
                             {osce.nama_osce || "Detail Jadwal OSCE"}
                         </h2>
-
                         <div className="text-sm text-gray-500 mb-4 max-w-lg">
                             <p>
                                 Halaman ini digunakan untuk mengelola{" "}
@@ -457,18 +434,14 @@ export default function SesiOscePage({
                 confirmText="Hapus"
             />
 
-            {/* [BARU] DETAIL MODAL */}
+            {/* DETAIL MODAL */}
             {isDetailModalOpen && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
-                    {/* Backdrop dengan blur */}
                     <div
                         className="absolute inset-0 bg-gray-900/60 backdrop-blur-sm transition-opacity"
                         onClick={() => setIsDetailModalOpen(false)}
                     ></div>
-
-                    {/* Modal Container */}
                     <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden transform transition-all scale-100">
-                        {/* 1. Header dengan Gradient Modern */}
                         <div className="flex justify-between items-start px-8 py-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md z-10">
                             <div>
                                 <h3 className="text-xl font-bold flex items-center gap-2">
@@ -504,24 +477,20 @@ export default function SesiOscePage({
                             </div>
                             <button
                                 onClick={() => setIsDetailModalOpen(false)}
-                                className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors text-white focus:outline-none focus:ring-2 focus:ring-white/50"
+                                className="p-2 bg-white/10 hover:bg-white/20 rounded-full transition-colors text-white focus:outline-none"
                             >
                                 <X size={24} />
                             </button>
                         </div>
 
-                        {/* Modal Body */}
                         <div className="flex-1 overflow-y-auto bg-gray-50/50 p-6 lg:p-8">
                             {isLoadingDetail ? (
                                 <div className="flex flex-col items-center justify-center h-64 gap-4 text-gray-400">
                                     <div className="animate-spin rounded-full h-10 w-10 border-4 border-indigo-500 border-t-transparent"></div>
-                                    <p className="font-medium text-gray-500">
-                                        Mengambil data sesi...
-                                    </p>
+                                    <p>Mengambil data sesi...</p>
                                 </div>
                             ) : (
                                 <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 h-full">
-                                    {/* 2. Kolom Kiri: Konfigurasi Stase (Lebih Lebar: 3/5) */}
                                     <div className="lg:col-span-3 flex flex-col gap-4 h-full">
                                         <div className="flex items-center gap-2 mb-1">
                                             <div className="p-1.5 bg-indigo-100 text-indigo-600 rounded-lg">
@@ -531,7 +500,6 @@ export default function SesiOscePage({
                                                 Konfigurasi Stase
                                             </h4>
                                         </div>
-
                                         <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex-1">
                                             <div className="overflow-x-auto">
                                                 <table className="w-full text-sm text-left">
@@ -557,10 +525,10 @@ export default function SesiOscePage({
                                                                         key={
                                                                             idx
                                                                         }
-                                                                        className=" transition-colors group"
+                                                                        className="hover:bg-blue-50/50 transition-colors group"
                                                                     >
                                                                         <td className="px-5 py-4 align-top">
-                                                                            <div className="font-semibold text-gray-800  transition-colors">
+                                                                            <div className="font-semibold text-gray-800">
                                                                                 {
                                                                                     ds.stase
                                                                                 }
@@ -568,26 +536,6 @@ export default function SesiOscePage({
                                                                         </td>
                                                                         <td className="px-5 py-4 align-top">
                                                                             <div className="flex items-start gap-2 text-gray-600">
-                                                                                <div className="mt-0.5 shrink-0 text-gray-400">
-                                                                                    <svg
-                                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                                        width="14"
-                                                                                        height="14"
-                                                                                        viewBox="0 0 24 24"
-                                                                                        fill="none"
-                                                                                        stroke="currentColor"
-                                                                                        strokeWidth="2"
-                                                                                        strokeLinecap="round"
-                                                                                        strokeLinejoin="round"
-                                                                                    >
-                                                                                        <path d="M20 10c0 6-9 13-9 13s-9-7-9-13a9 9 0 0 1 18 0z" />
-                                                                                        <circle
-                                                                                            cx="12"
-                                                                                            cy="10"
-                                                                                            r="3"
-                                                                                        />
-                                                                                    </svg>
-                                                                                </div>
                                                                                 <span>
                                                                                     {
                                                                                         ds.ruang
@@ -597,26 +545,6 @@ export default function SesiOscePage({
                                                                         </td>
                                                                         <td className="px-5 py-4 align-top">
                                                                             <div className="flex items-start gap-2 text-gray-600 bg-gray-50 px-3 py-2 rounded-lg border border-gray-100">
-                                                                                <div className="mt-0.5 shrink-0 text-blue-500">
-                                                                                    <svg
-                                                                                        xmlns="http://www.w3.org/2000/svg"
-                                                                                        width="14"
-                                                                                        height="14"
-                                                                                        viewBox="0 0 24 24"
-                                                                                        fill="none"
-                                                                                        stroke="currentColor"
-                                                                                        strokeWidth="2"
-                                                                                        strokeLinecap="round"
-                                                                                        strokeLinejoin="round"
-                                                                                    >
-                                                                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
-                                                                                        <circle
-                                                                                            cx="12"
-                                                                                            cy="7"
-                                                                                            r="4"
-                                                                                        />
-                                                                                    </svg>
-                                                                                </div>
                                                                                 <span className="font-medium text-xs leading-snug">
                                                                                     {
                                                                                         ds.penguji
@@ -644,8 +572,6 @@ export default function SesiOscePage({
                                             </div>
                                         </div>
                                     </div>
-
-                                    {/* 3. Kolom Kanan: Mahasiswa (Lebih Ramping: 2/5) */}
                                     <div className="lg:col-span-2 flex flex-col gap-4 h-full">
                                         <div className="flex justify-between items-center mb-1">
                                             <div className="flex items-center gap-2">
@@ -664,71 +590,57 @@ export default function SesiOscePage({
                                                 Orang
                                             </span>
                                         </div>
-
-                                        {/* List Mahasiswa dengan Scroll */}
                                         <div className="bg-white border border-gray-200 rounded-xl shadow-sm flex-1 overflow-hidden flex flex-col">
                                             <div className="overflow-y-auto flex-1 p-2 max-h-[500px]">
                                                 {detailData.mahasiswa_data
                                                     .length > 0 ? (
                                                     <ul className="flex flex-col gap-2">
                                                         {detailData.mahasiswa_data.map(
-                                                            (mhs, idx) => {
-                                                                // Membuat inisial nama
-                                                                const initials =
-                                                                    mhs.nama
-                                                                        .split(
-                                                                            " "
-                                                                        )
-                                                                        .map(
-                                                                            (
-                                                                                n
-                                                                            ) =>
-                                                                                n[0]
-                                                                        )
-                                                                        .slice(
-                                                                            0,
-                                                                            2
-                                                                        )
-                                                                        .join(
-                                                                            ""
-                                                                        )
-                                                                        .toUpperCase();
-
-                                                                return (
-                                                                    <li
-                                                                        key={
-                                                                            idx
-                                                                        }
-                                                                        className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 transition-all group"
-                                                                    >
-                                                                        {/* Avatar Inisial */}
-                                                                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 text-indigo-600 flex items-center justify-center text-sm font-bold shadow-sm shrink-0 border border-white">
+                                                            (mhs, idx) => (
+                                                                <li
+                                                                    key={idx}
+                                                                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-100"
+                                                                >
+                                                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 text-indigo-600 flex items-center justify-center text-sm font-bold shadow-sm shrink-0 border border-white">
+                                                                        {mhs.nama
+                                                                            .split(
+                                                                                " "
+                                                                            )
+                                                                            .map(
+                                                                                (
+                                                                                    n
+                                                                                ) =>
+                                                                                    n[0]
+                                                                            )
+                                                                            .slice(
+                                                                                0,
+                                                                                2
+                                                                            )
+                                                                            .join(
+                                                                                ""
+                                                                            )
+                                                                            .toUpperCase()}
+                                                                    </div>
+                                                                    <div className="flex flex-col min-w-0">
+                                                                        <span className="text-sm font-semibold text-gray-800 truncate">
                                                                             {
-                                                                                initials
+                                                                                mhs.nama
                                                                             }
-                                                                        </div>
-
-                                                                        <div className="flex flex-col min-w-0">
-                                                                            <span className="text-sm font-semibold text-gray-800 truncate transition-colors">
+                                                                        </span>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="text-xs text-gray-500 font-mono bg-gray-100 px-1.5 py-0.5 rounded">
                                                                                 {
-                                                                                    mhs.nama
+                                                                                    mhs.nim
                                                                                 }
                                                                             </span>
-                                                                            <div className="flex items-center gap-2">
-                                                                                <span className="text-xs text-gray-500 font-mono bg-gray-100 px-1.5 py-0.5 rounded">
-                                                                                    {
-                                                                                        mhs.nim
-                                                                                    }
-                                                                                </span>
-                                                                                <span className="w-1 h-1 rounded-full bg-gray-300"></span>
-                                                                                <span className="text-[10px] text-green-600 font-medium uppercase tracking-wide">
-                                                                                    Terdaftar
-                                                                                </span>
-                                                                            </div>
+                                                                            <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                                                                            <span className="text-[10px] text-green-600 font-medium uppercase tracking-wide">
+                                                                                Terdaftar
+                                                                            </span>
                                                                         </div>
-                                                                    </li>
-                                                                );
-                                                            }
+                                                                    </div>
+                                                                </li>
+                                                            )
                                                         )}
                                                     </ul>
                                                 ) : (
@@ -751,14 +663,11 @@ export default function SesiOscePage({
                                 </div>
                             )}
                         </div>
-
-                        {/* Footer */}
                         <div className="px-8 py-5 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 z-10"></div>
                     </div>
                 </div>
             )}
 
-            {/* === STEP MODAL DINAMIS === */}
             <OsStepModal
                 show={isStepOpen}
                 onClose={() => setIsStepOpen(false)}
