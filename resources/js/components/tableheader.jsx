@@ -9,12 +9,12 @@ import React from 'react';
 
 const OsTableHeader = ({ columns = [] }) => {
   return (
-    <div className="flex text-sm h-[48px] text-os-regular border-os-1 border-os-primary bg-os-tertiary text text-blue-950 rounded-lg py-os-8">
+    <div className="flex text-sm h-[48px] text-os-regular bg-os-primary-dark text text-white rounded-lg py-os-8">
       {columns.map((column, index) => (
         <div
           key={index}
           className={`${column.width || 'flex-1'} flex ${column.classes || 'justify-center items-center'}
-            ${index < columns.length - 1 ? 'border-r-os-1 border-os-primary' : ''} text-center`}
+            ${index < columns.length - 1 ? 'border-r-os-1 border-os-white' : ''} text-center`}
         >
           {column.content}
         </div>
