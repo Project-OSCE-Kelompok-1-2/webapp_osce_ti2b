@@ -14,7 +14,7 @@ import {
 
 import SidebarPenguji from "../../components/SidebarPenguji.jsx"; // Sesuaikan path jika perlu
 import OsHeader from "../../components/Header.jsx";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import OsIcon from "../../components/icons";
 import Calendar from "../../components/Calendar"; // Calendar tidak diubah
 import Sidebar from "../../components/Sidebar.jsx";
@@ -277,7 +277,7 @@ export default function PengujiDashboard() {
 
                 {/* FOOTER */}
                 <div className="mt-4 lg:mt-12">
-                    <OsCopyright  />
+                    <OsCopyright variant="penguji"  />
                 </div>
             </main>
         </div>
