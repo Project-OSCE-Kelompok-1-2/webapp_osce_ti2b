@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react"; // [MODIFIKASI] Tambah useMemo
+import React, { useState, useEffect, useMemo } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { router } from "@inertiajs/react";
 import axios from "axios";
@@ -14,10 +14,8 @@ import {
     Edit2,
     Info,
     X,
-    Users, // [MODIFIKASI] Pastikan Users terimport
+    Users,
     Clock,
-    FileText,
-    Table2,
 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
@@ -85,7 +83,8 @@ export default function SesiOscePage({
     filters,
     master_stase = [],
 }) {
-    const { errors } = usePage().props;
+    // [MODIFIKASI 1] Ambil prop 'flash' dari Inertia
+    const { errors, flash } = usePage().props;
 
     // State UI Standar
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
@@ -130,8 +129,13 @@ export default function SesiOscePage({
     const [availableMahasiswa, setAvailableMahasiswa] = useState([]);
     const [isLoadingMhs, setIsLoadingMhs] = useState(false);
 
-    // [BARU] State untuk Auto Complete / Pencarian Mahasiswa di Modal
-    const [mhsSearchTerm, setMhsSearchTerm] = useState("");
+    // [MODIFIKASI 2] Efek untuk menampilkan Alert ketika Flash Error muncul
+    useEffect(() => {
+        if (flash.error) {
+            // Anda bisa mengganti ini dengan Toast Component (misal: react-hot-toast)
+            alert(flash.error);
+        }
+    }, [flash]);
 
     // --- LOGIC FILTER DINAMIS ---
     useEffect(() => {
@@ -145,15 +149,6 @@ export default function SesiOscePage({
             fetchMahasiswa(wizardData.filter_angkatan);
         }
     }, [currentStep, wizardData.filter_angkatan]);
-
-    // [BARU] Logic Filtering Real-time Mahasiswa
-    const filteredMahasiswaList = useMemo(() => {
-        if (!mhsSearchTerm) return availableMahasiswa;
-        const lowerSearch = mhsSearchTerm.toLowerCase();
-        return availableMahasiswa.filter((mhs) =>
-            mhs.label.toLowerCase().includes(lowerSearch)
-        );
-    }, [availableMahasiswa, mhsSearchTerm]);
 
     const checkAvailability = async () => {
         setIsLoadingCheck(true);
@@ -218,12 +213,22 @@ export default function SesiOscePage({
         }
     };
 
+    // [MODIFIKASI 3] Update Logic Submit untuk Handle Flash Error
     const handleWizardSubmit = () => {
         router.post(`/admin/osce/${osce.id_osce}/jadwal`, wizardData, {
-            onSuccess: () => {
+            // Menerima parameter 'page' untuk mengecek props terbaru dari server
+            onSuccess: (page) => {
+                // Cek apakah ada flash error dari Controller
+                if (page.props.flash?.error) {
+                    // JANGAN tutup modal, biarkan user memperbaiki
+                    // Optional: Kembali ke step 2 (Jadwal) jika error terkait tanggal
+                    // setCurrentStep(1);
+                    return;
+                }
+
+                // Jika SUKSES (tidak ada flash error), baru tutup modal
                 setIsStepOpen(false);
                 setCurrentStep(0);
-                setMhsSearchTerm(""); // Reset pencarian
                 setWizardData({
                     stase_objs: [],
                     stase_ids: [],
@@ -239,6 +244,7 @@ export default function SesiOscePage({
             preserveScroll: true,
             onError: (errors) => {
                 console.log("Validation Errors:", errors);
+                // Jangan tutup modal jika ada error validasi
             },
         });
     };
@@ -332,39 +338,64 @@ export default function SesiOscePage({
 
     const jamSelesaiOtomatis = calculateEndTime();
 
+    // ===============================================
+    // KONVERSI TANGGAL UNTUK INPUT HTML (Tetap dipertahankan)
+    // ===============================================
+
+    const convertDateForInput = (dateString) => {
+        if (!dateString) return undefined;
+        const parts = dateString.split("-");
+        if (parts.length !== 3) return undefined;
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    };
+
+    const minDateISO = useMemo(
+        () => convertDateForInput(osce.tanggal_mulai),
+        [osce.tanggal_mulai]
+    );
+    const maxDateISO = useMemo(
+        () => convertDateForInput(osce.tanggal_selesai),
+        [osce.tanggal_selesai]
+    );
+
     return (
-        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader variant="goback" backLink="/admin/osce/" />
 
                 <div className="flex-1 overflow-auto ">
-                    <section className="mb-4">
-                        {/* <h2 className="text-lg font-semibold mb-1">
-                            {osce.nama_osce || "Detail Jadwal OSCE"}
-                        </h2> */}
-                        <div className="flex gap-1 items-center justify-start my-2">
-                            <FileText size={18} />
-                            <h2 className="font-semibold text-lg">
-                                {osce.nama_osce || "Detail Jadwal OSCE"}
-                            </h2>
+                    {/* --- [OPSIONAL] Tampilkan Flash Message di Layout Utama --- */}
+                    {flash.error && (
+                        <div className="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+                            <p className="font-bold">Error</p>
+                            <p>{flash.error}</p>
                         </div>
-                        <div className="text-sm text-gray-500 mb-2 max-w-lg">
-                            {osce.tanggal_mulai && (
-                                <div className="border border-os-primary flex w-8/12 justify-start items-center p-1 my-2 rounded-full bg-os-tertiary">
-                                    <Clock size={18} className="text-os-primary" />
-                                    <p className="ml-2 text-sm text-os-primary-dark">
-                                        Pelaksanaan: {osce.tanggal_mulai} s/d{" "}
-                                        {osce.tanggal_selesai}
-                                    </p>
-                                </div>
-                            )}
+                    )}
+                    {flash.success && (
+                        <div className="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700">
+                            <p className="font-bold">Sukses</p>
+                            <p>{flash.success}</p>
+                        </div>
+                    )}
+
+                    <section className="mb-6">
+                        <h2 className="text-lg font-semibold mb-1">
+                            {osce.nama_osce || "Detail Jadwal OSCE"}
+                        </h2>
+                        <div className="text-sm text-gray-500 mb-4 max-w-lg">
                             <p>
                                 Halaman ini digunakan untuk mengelola{" "}
                                 <strong>Jadwal Sesi</strong> pada ujian{" "}
                                 <strong>{osce.nama_osce}</strong>.
                             </p>
+                            {osce.tanggal_mulai && (
+                                <p className="mt-1 text-xs text-gray-400">
+                                    Pelaksanaan: {osce.tanggal_mulai} s/d{" "}
+                                    {osce.tanggal_selesai}
+                                </p>
+                            )}
                         </div>
                         <OsButton
                             name="primary"
@@ -387,20 +418,16 @@ export default function SesiOscePage({
                             search={searchTerm}
                             setSearch={setSearchTerm}
                             onSearchClick={handleSearch}
-                            placeholder="Cari sesi secara instan..."
+                            placeholder="Cari sesi..."
                         />
                     </section>
 
-                    {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Sesi
-                    </h2> */}
-                    <div className="flex gap-1 items-center justify-start my-2">
-                        <Table2 size={18} />
-                        <h2 className="font-semibold text-lg">Table Stase</h2>
-                    </div>
+                    </h2>
 
-                    <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
-                        <div className="min-w-max">
+                    <div className="w-full overflow-x-auto pb-4">
+                        <div className="min-w-max border rounded-lg overflow-hidden">
                             <OsTableHeader columns={jadwalColumns} />
                             {rows.length > 0 ? (
                                 <OsTableBody
@@ -415,7 +442,7 @@ export default function SesiOscePage({
                                 </div>
                             )}
                         </div>
-                    </section>
+                    </div>
                     <OsPagination links={sesi?.links} />
                 </div>
 
@@ -751,6 +778,8 @@ export default function SesiOscePage({
                                     type="date"
                                     label="Tanggal Mulai"
                                     value={wizardData.tanggal}
+                                    min={minDateISO}
+                                    max={maxDateISO}
                                     onChange={(e) =>
                                         setWizardData({
                                             ...wizardData,
@@ -758,6 +787,11 @@ export default function SesiOscePage({
                                         })
                                     }
                                 />
+                                <p className="text-xs text-blue-600 -mt-3">
+                                    Rentang jadwal yang diperbolehkan: <br />
+                                    <b>{osce.tanggal_mulai}</b> s.d.{" "}
+                                    <b>{osce.tanggal_selesai}</b>
+                                </p>
                                 <div>
                                     <OsInput
                                         type="number"
