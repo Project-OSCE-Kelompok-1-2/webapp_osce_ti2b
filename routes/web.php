@@ -83,7 +83,7 @@ Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')
 });
 
 // =========================
-// === RUTE UNTUK ADMIN ===
+// === RUTE UNTUK ADMIN ====
 // =========================
 Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->group(function () {
 
