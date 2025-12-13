@@ -16,6 +16,8 @@ import {
     X,
     Users, // [MODIFIKASI] Pastikan Users terimport
     Clock,
+    FileText,
+    Table2,
 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
@@ -331,29 +333,38 @@ export default function SesiOscePage({
     const jamSelesaiOtomatis = calculateEndTime();
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader variant="goback" backLink="/admin/osce/" />
 
                 <div className="flex-1 overflow-auto ">
-                    <section className="mb-6">
-                        <h2 className="text-lg font-semibold mb-1">
+                    <section className="mb-4">
+                        {/* <h2 className="text-lg font-semibold mb-1">
                             {osce.nama_osce || "Detail Jadwal OSCE"}
-                        </h2>
-                        <div className="text-sm text-gray-500 mb-4 max-w-lg">
+                        </h2> */}
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <FileText size={18} />
+                            <h2 className="font-semibold text-lg">
+                                {osce.nama_osce || "Detail Jadwal OSCE"}
+                            </h2>
+                        </div>
+                        <div className="text-sm text-gray-500 mb-2 max-w-lg">
+                            {osce.tanggal_mulai && (
+                                <div className="border border-os-primary flex w-8/12 justify-start items-center p-1 my-2 rounded-full bg-os-tertiary">
+                                    <Clock size={18} className="text-os-primary" />
+                                    <p className="ml-2 text-sm text-os-primary-dark">
+                                        Pelaksanaan: {osce.tanggal_mulai} s/d{" "}
+                                        {osce.tanggal_selesai}
+                                    </p>
+                                </div>
+                            )}
                             <p>
                                 Halaman ini digunakan untuk mengelola{" "}
                                 <strong>Jadwal Sesi</strong> pada ujian{" "}
                                 <strong>{osce.nama_osce}</strong>.
                             </p>
-                            {osce.tanggal_mulai && (
-                                <p className="mt-1 text-xs text-gray-400">
-                                    Pelaksanaan: {osce.tanggal_mulai} s/d{" "}
-                                    {osce.tanggal_selesai}
-                                </p>
-                            )}
                         </div>
                         <OsButton
                             name="primary"
@@ -376,16 +387,20 @@ export default function SesiOscePage({
                             search={searchTerm}
                             setSearch={setSearchTerm}
                             onSearchClick={handleSearch}
-                            placeholder="Cari sesi..."
+                            placeholder="Cari sesi secara instan..."
                         />
                     </section>
 
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                    {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Sesi
-                    </h2>
+                    </h2> */}
+                    <div className="flex gap-1 items-center justify-start my-2">
+                        <Table2 size={18} />
+                        <h2 className="font-semibold text-lg">Table Stase</h2>
+                    </div>
 
-                    <div className="w-full overflow-x-auto pb-4">
-                        <div className="min-w-max border rounded-lg overflow-hidden">
+                    <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                        <div className="min-w-max">
                             <OsTableHeader columns={jadwalColumns} />
                             {rows.length > 0 ? (
                                 <OsTableBody
@@ -400,7 +415,7 @@ export default function SesiOscePage({
                                 </div>
                             )}
                         </div>
-                    </div>
+                    </section>
                     <OsPagination links={sesi?.links} />
                 </div>
 

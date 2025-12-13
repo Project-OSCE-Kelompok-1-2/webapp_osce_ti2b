@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react"; // Tambah useMemo
 import { router, usePage, useForm } from "@inertiajs/react";
-import { Trash2, Edit2 } from "lucide-react";
+import { Trash2, Edit2, UserCheck, Table2 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
@@ -217,7 +217,7 @@ export default function PengujiPage() {
     }));
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar
                 isOpen={isSidebarOpen}
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -229,7 +229,10 @@ export default function PengujiPage() {
                 />
 
                 <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-1">Menu Penguji</h2>
+                    <div className="flex gap-1 items-center justify-start my-2">
+                        <UserCheck size={18} />
+                        <h2 className="font-semibold text-lg">Menu Penguji</h2>
+                    </div>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
                         Menu Penguji (Dosen) digunakan untuk mengelola proses
                         penilaian.
@@ -268,14 +271,23 @@ export default function PengujiPage() {
                     </div>
 
                     <section>
-                        <h2 className="font-semibold text-lg mb-2">
+                        {/* <h2 className="font-semibold text-lg mb-2">
                             Tabel Penguji
                             <span className="text-sm font-normal text-gray-500 ml-2">
                                 (Total: {totalItems} data)
                             </span>
-                        </h2>
+                        </h2> */}
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Tabel Penguji{" "}
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
+                        </div>
 
-                        <div className="w-full overflow-x-auto pb-4">
+                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
                             <div className="min-w-max">
                                 <OsTableHeader columns={pengujiColumns} />
                                 {tableDisplayData.length > 0 ? (
@@ -291,7 +303,7 @@ export default function PengujiPage() {
                                     </div>
                                 )}
                             </div>
-                        </div>
+                        </section>
 
                         {/* Pagination Client Side */}
                         {totalPages > 1 && (

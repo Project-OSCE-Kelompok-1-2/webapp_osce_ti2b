@@ -378,9 +378,6 @@ export default function Stase() {
 
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Stase
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
                     </h2>
 
                     <div className="w-full overflow-x-auto pb-4">
