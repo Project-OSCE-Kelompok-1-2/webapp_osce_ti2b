@@ -110,6 +110,7 @@ export default function Dashboard() {
     const {
         stats = { total_osce: 0, total_mahasiswa: 0, total_penguji: 0 },
         notifikasi = [],
+        user,
     } = usePage().props || {};
 
     // format angka (2 digit seperti mock)
@@ -138,8 +139,7 @@ export default function Dashboard() {
                         Selamat Datang,
                     </p>
                     <h1 className="font-bold text-os-title text-gray-900">
-                        {/* {nama_penguji} */}
-                        USERNAME
+                        {user?.name || user?.username || user?.nama_penguji || "User"}
                     </h1>
                     <p className="text-gray-500 text-sm">
                         Berikut adalah ringkasan aktivitas pengujian Anda.
