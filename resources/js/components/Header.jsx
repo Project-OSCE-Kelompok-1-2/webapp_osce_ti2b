@@ -53,7 +53,7 @@ export default function OsHeader({
                         {/* Tampilkan Tombol Home di desktop */}
                         <a
                             href="/admin/dashboard"
-                            className="lg:flex w-[46px] h-[46px] hidden items-center justify-center relative bg-blue-600 text-white rounded-xl border border-solid border-blue-700 aspect-[1] hover:bg-blue-700 transition"
+                            className="lg:flex w-[46px] h-[46px] hidden items-center justify-center relative bg-blue-900 text-white rounded-xl border border-solid  aspect-[1] hover:bg-blue-700 transition"
                             aria-label="Home"
                         >
                             <Home className="relative w-[30px] h-[26px]" />
@@ -61,7 +61,7 @@ export default function OsHeader({
                         {/* Tampilkan Tombol Menu di mobile */}
                         <button
                             onClick={onMenuClick}
-                            className="flex lg:hidden w-[46px] h-[46px] items-center justify-center relative bg-blue-600 text-white rounded-xl border border-solid border-blue-700 aspect-[1] hover:bg-blue-700 transition"
+                            className="flex lg:hidden w-[46px] h-[46px] items-center justify-center relative bg-blue-900 text-white rounded-xl border border-solid border-blue-700 aspect-[1] hover:bg-blue-700 transition"
                             aria-label="Menu"
                         >
                             <Menu className="relative w-[30px] h-[26px]" />
@@ -72,7 +72,7 @@ export default function OsHeader({
 
                 {/* 🔹 Kotak judul utama */}
                 <div className="relative flex-1 h-[46px]">
-                    <div className="w-full bg-os-tertiary h-full flex items-center rounded-xl overflow-hidden border border-os-primary ">
+                    <div className="w-full bg-white h-full flex items-center rounded-xl overflow-hidden border border-os-primary ">
                         <h1 className="ml-5 text-os-regular text-black tracking-[0] leading-normal whitespace-nowrap">
                             {title}
                         </h1>

@@ -38,7 +38,7 @@ const staseColumns = [
     {
         key: "action",
         content: "Aksi",
-        width: "w-48 min-w-[300px] shrink-0",
+        width: "w-52 min-w-[350px] shrink-0",
         classes: "justify-center items-center px-4",
     },
 ];
@@ -344,46 +344,43 @@ export default function Stase() {
         data.display_mata_kuliah && !data.id_mata_kuliah;
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="flex flex-col w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20 items-center justify-center">
+            <main className="flex flex-col w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader onMenuClick={handleSidebarToggle} />
 
-                <section className="lg:w-10/12 w-full" >
-                    <div className="flex-1 overflow-auto">
-                        <h2 className="font-semibold text-lg mb-1">
-                            Menu Stase
-                        </h2>
-                        <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                            Kelola konten Stase secara menyeluruh, termasuk
-                            daftar kompetensi inti dan aspek penilaian.
-                        </p>
+                <div className="flex-1 overflow-auto">
+                    <h2 className="font-semibold text-lg mb-1">Menu Stase</h2>
+                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                        Kelola konten Stase secara menyeluruh, termasuk daftar
+                        kompetensi inti dan aspek penilaian.
+                    </p>
 
-                        <OsButton
-                            name="primary"
-                            onClick={openAddModal}
-                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
-                        >
-                            <OsIcon
-                                name="add"
-                                className="h-os-20 os-icon-light mr-os-8"
-                            />
-                            Tambah Stase
-                        </OsButton>
-
-                        {/* SEARCHBAR INSTAN */}
-                        <OsSearchBar
-                            search={search}
-                            setSearch={setSearch}
-                            placeholder="Cari stase secara instan..."
+                    <OsButton
+                        name="primary"
+                        onClick={openAddModal}
+                        className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
+                    >
+                        <OsIcon
+                            name="add"
+                            className="h-os-20 os-icon-light mr-os-8"
                         />
+                        Tambah Stase
+                    </OsButton>
 
-                        <h2 className="font-semibold text-lg mb-2">
-                            Table Stase
-                        </h2>
+                    {/* SEARCHBAR INSTAN */}
+                    <OsSearchBar
+                        search={search}
+                        setSearch={setSearch}
+                        placeholder="Cari stase secara instan..."
 
-                        <div className="w-full overflow-x-auto pb-2">
+                    />
+
+                    <h2 className="font-semibold text-lg mb-2">Table Stase</h2>
+
+                    <section className="bg-white p-5 border border-os-primary rounded-xl shadow-sm" >
+                        <div className="w-full overflow-x-auto border-b border-os-primary pb-2">
                             <div className="min-w-max">
                                 <OsTableHeader columns={staseColumns} />
                                 <OsTableBody
@@ -399,24 +396,21 @@ export default function Stase() {
                                 )}
                             </div>
                         </div>
+                    </section>
 
-                    <hr className="border-1 border-os-primary my-2" />
+                    {/* <hr className="border-1 border-os-primary my-2" /> */}
 
-
-                        {/* --- PAGINATION --- */}
-                        {totalPages > 1 && (
-                            <div className="mt-2">
-                                <OsPagination
-                                    links={generatedLinks}
-                                    onPageChange={(page) =>
-                                        setCurrentPage(page)
-                                    }
-                                />
-                            </div>
-                        )}
-                    </div>
-                    <OsCopyright/>
-                </section>
+                    {/* --- PAGINATION --- */}
+                    {totalPages > 1 && (
+                        <div className="mt-2">
+                            <OsPagination
+                                links={generatedLinks}
+                                onPageChange={(page) => setCurrentPage(page)}
+                            />
+                        </div>
+                    )}
+                </div>
+                <OsCopyright />
             </main>
 
             {/* Modal Components */}

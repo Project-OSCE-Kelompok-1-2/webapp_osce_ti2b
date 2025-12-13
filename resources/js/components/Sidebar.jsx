@@ -168,7 +168,7 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
 
             <aside
                 // Menentukan lebar untuk mobile dan desktop (sm:)
-                className={`fixed top-0 left-0 h-full bg-os-secondary text-gray-900  transition-all duration-300 z-50 flex flex-col
+                className={`fixed top-0 left-0 h-full bg-blue-900 text-gray-900  transition-all duration-300 z-50 flex flex-col
                 ${isOpen ? "w-64" : "w-0 lg:w-20"}`}
                 // PERBAIKAN 2: Menghentikan Propagasi Klik di dalam Sidebar.
                 // Ini mencegah klik di dalam sidebar menutupnya via Overlay div di mobile.

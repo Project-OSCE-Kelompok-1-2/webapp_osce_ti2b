@@ -290,7 +290,7 @@ export default function MenuAspekPenilaian() {
                         {totalBobot == 100 ? (
                             <OsButton
                                 name="secondary"
-                                className="flex h-[46px] items-center !bg-white !text-os-secondary text-sm py-2 px-4 rounded-lg mb-5 hover:bg-gray-700 !scale-100 !pointer-events-none"
+                                className="flex h-[46px] items-center !bg-white border border-os-primary !text-os-secondary text-sm py-2 px-4 rounded-lg mb-5 hover:bg-gray-700 !scale-100 !pointer-events-none"
                             >
                                 Bobot sudah penuh
                             </OsButton>
