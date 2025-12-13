@@ -9,7 +9,7 @@ import { Search, X } from "lucide-react";
 const OsSearchBar = ({ search, setSearch, placeholder = "Cari data..." }) => {
     return (
         // Tambahkan class 'group' di container untuk efek hover/fokus gabungan
-        <div className="relative w-full mb-5 h-[46px] group">
+        <div className="relative w-full mb-2 h-[46px] group">
             {/* Ikon Kaca Pembesar (Kiri) */}
             {/* group-focus-within:text-blue-500 membuat ikon jadi biru saat input difokuskan */}
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">

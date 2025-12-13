@@ -347,67 +347,76 @@ export default function Stase() {
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="flex flex-col w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20 items-center justify-center">
                 <OsHeader onMenuClick={handleSidebarToggle} />
 
-                <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-1">Menu Stase</h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                        Kelola konten Stase secara menyeluruh, termasuk daftar
-                        kompetensi inti dan aspek penilaian.
-                    </p>
+                <section className="lg:w-10/12 w-full" >
+                    <div className="flex-1 overflow-auto">
+                        <h2 className="font-semibold text-lg mb-1">
+                            Menu Stase
+                        </h2>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                            Kelola konten Stase secara menyeluruh, termasuk
+                            daftar kompetensi inti dan aspek penilaian.
+                        </p>
 
-                    <OsButton
-                        name="primary"
-                        onClick={openAddModal}
-                        className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
-                    >
-                        <OsIcon
-                            name="add"
-                            className="h-os-20 os-icon-light mr-os-8"
+                        <OsButton
+                            name="primary"
+                            onClick={openAddModal}
+                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
+                        >
+                            <OsIcon
+                                name="add"
+                                className="h-os-20 os-icon-light mr-os-8"
+                            />
+                            Tambah Stase
+                        </OsButton>
+
+                        {/* SEARCHBAR INSTAN */}
+                        <OsSearchBar
+                            search={search}
+                            setSearch={setSearch}
+                            placeholder="Cari stase secara instan..."
                         />
-                        Tambah Stase
-                    </OsButton>
 
-                    {/* SEARCHBAR INSTAN */}
-                    <OsSearchBar
-                        search={search}
-                        setSearch={setSearch}
-                        placeholder="Cari stase secara instan..."
-                    />
+                        <h2 className="font-semibold text-lg mb-2">
+                            Table Stase
+                        </h2>
 
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table Stase
-                    </h2>
-
-                    <div className="w-full overflow-x-auto pb-4">
-                        <div className="min-w-max">
-                            <OsTableHeader columns={staseColumns} />
-                            <OsTableBody
-                                data={tableData}
-                                columns={staseColumns}
-                            />
-                            {filteredData.length === 0 && (
-                                <div className="flex items-center border-t border-gray-400">
-                                    <p className="w-full text-center text-sm py-os-48 text-gray-500">
-                                        Data tidak ditemukan.
-                                    </p>
-                                </div>
-                            )}
+                        <div className="w-full overflow-x-auto pb-2">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={staseColumns} />
+                                <OsTableBody
+                                    data={tableData}
+                                    columns={staseColumns}
+                                />
+                                {filteredData.length === 0 && (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                            Data tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
+
+                    <hr className="border-1 border-os-primary my-2" />
+
+
+                        {/* --- PAGINATION --- */}
+                        {totalPages > 1 && (
+                            <div className="mt-2">
+                                <OsPagination
+                                    links={generatedLinks}
+                                    onPageChange={(page) =>
+                                        setCurrentPage(page)
+                                    }
+                                />
+                            </div>
+                        )}
                     </div>
-
-                    {/* --- PAGINATION --- */}
-                    {totalPages > 1 && (
-                        <div className="mt-2">
-                            <OsPagination
-                                links={generatedLinks}
-                                onPageChange={(page) => setCurrentPage(page)}
-                            />
-                        </div>
-                    )}
-                </div>
-                <OsCopyright />
+                    <OsCopyright/>
+                </section>
             </main>
 
             {/* Modal Components */}
