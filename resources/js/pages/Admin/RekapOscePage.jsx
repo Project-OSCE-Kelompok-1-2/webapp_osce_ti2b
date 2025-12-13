@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react"; // [1] Tambah useEffect & useMemo
+import React, { useState, useEffect, useMemo } from "react";
 import { Link, usePage, router, Head } from "@inertiajs/react";
 import { Search } from "lucide-react";
 
@@ -60,6 +60,7 @@ export default function RekapOscePage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
+    // Siapkan list opsi tahun
     const tahunList = [
         { value: "", label: "Semua Tahun" },
         ...(Array.isArray(tahunAkademikOptions) ? tahunAkademikOptions : []),
@@ -78,14 +79,11 @@ export default function RekapOscePage() {
     };
 
     const formatRentang = (rawString) => {
-        // Jika data dari backend sudah diformat (misal "2024-01-01 - 2024-01-02"), kita bisa memprosesnya
-        // Atau jika data berupa object (startDate, endDate)
         if (!rawString) return "-";
         if (typeof rawString === "string" && rawString.includes(" - ")) {
             const [start, end] = rawString.split(" - ");
             return `${formatDateIndo(start)} - ${formatDateIndo(end)}`;
         }
-        // Jika rawString adalah string tanggal biasa
         return formatDateIndo(rawString);
     };
 
@@ -100,14 +98,13 @@ export default function RekapOscePage() {
     const filteredData = useMemo(() => {
         return allData.filter((item) => {
             // Filter Search (Nama OSCE)
-            // Note: Pastikan field di database adalah 'nama_osce'
             const term = search.toLowerCase();
             const matchSearch = item.nama_osce?.toLowerCase().includes(term);
 
             // Filter Tahun (ID Tahun Akademik)
             let matchTahun = true;
             if (tahun) {
-                // Konversi ke string agar aman saat membandingkan "1" == 1
+                // Bandingkan sebagai string untuk keamanan tipe data
                 matchTahun = String(item.id_tahun_akademik) === String(tahun);
             }
 
@@ -161,7 +158,7 @@ export default function RekapOscePage() {
         return links;
     }, [currentPage, totalPages]);
 
-    // --- TABLE ROWS MAPPING (Dari Paginated Data) ---
+    // --- TABLE ROWS MAPPING ---
     const tableData = paginatedData.map((item, index) => ({
         no: (currentPage - 1) * itemsPerPage + index + 1,
         nama_osce: (
@@ -170,14 +167,12 @@ export default function RekapOscePage() {
                     {item.nama_osce}
                 </div>
                 <div className="text-sm text-gray-500">
-                    {/* Render detail jika ada, handle null safety */}
                     {item.detail_mahasiswa || ""}
                     {item.detail_mahasiswa && item.detail_sesi && " | "}
                     {item.detail_sesi || ""}
                 </div>
             </div>
         ),
-        // Handle logic rentang tanggal (asumsi item punya tanggal_mulai & tanggal_selesai)
         rentang_tanggal: (
             <span className="text-sm text-gray-700 whitespace-nowrap">
                 {item.rentang_tanggal
@@ -189,7 +184,7 @@ export default function RekapOscePage() {
                     : "-"}
             </span>
         ),
-        // Handle nama tahun akademik (relasi atau attribute)
+        // Handle tampilan tahun akademik (Object Relasi atau String)
         tahun_akademik: item.tahun_akademik?.tahun
             ? `${item.tahun_akademik.tahun} - ${item.tahun_akademik.semester}`
             : item.tahun_akademik || "-",
@@ -235,31 +230,30 @@ export default function RekapOscePage() {
                         nilai mahasiswa.
                     </p>
 
-                    {/* SEARCH & FILTER */}
-                    <OsSearchBar
-                        search={search}
-                        setSearch={setSearch} // Instant Update State
-                        placeholder="Cari data OSCE..."
-                    >
-                        <OsInput
-                            type="select"
-                            value={tahun}
-                            onChange={(e) => {
-                                const val = e.target.value;
-                                // Handle potential [object Object] bug from library
-                                if (
-                                    typeof val === "string" &&
-                                    val.includes("[object")
-                                ) {
-                                    setTahun("");
-                                } else {
+                    {/* SEARCH & FILTER SECTION (UPDATED) */}
+                    <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                        <div className="flex-grow">
+                            <OsSearchBar
+                                search={search}
+                                setSearch={setSearch}
+                                placeholder="Cari data OSCE..."
+                            />
+                        </div>
+
+                        {/* Dropdown Filter Tahun Akademik */}
+                        <div className="w-full sm:w-64 shrink-0">
+                            <OsInput
+                                type="select"
+                                value={tahun}
+                                onChange={(e) => {
+                                    const val = e.target ? e.target.value : e;
                                     setTahun(val);
-                                }
-                            }}
-                            options={tahunList}
-                            className="w-[180px]"
-                        />
-                    </OsSearchBar>
+                                }}
+                                options={tahunList}
+                                className="h-[46px]"
+                            />
+                        </div>
+                    </div>
 
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table OSCE
@@ -287,7 +281,7 @@ export default function RekapOscePage() {
                         </div>
                     </div>
 
-                    {/* PAGINATION CLIENT-SIDE */}
+                    {/* PAGINATION */}
                     {totalPages > 1 && (
                         <div className="mt-8">
                             <OsPagination
