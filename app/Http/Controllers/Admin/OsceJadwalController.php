@@ -199,7 +199,7 @@ class OsceJadwalController extends Controller
      */
     public function store(Request $request, $id_osce)
     {
-        // [TAMBAHAN 1] Ambil Data OSCE untuk cek rentang tanggal
+        // [TAMBAHAN 1] Ambil Data OSCE untuk cek rentang tanggal yang ada
         $osce = Osce::findOrFail($id_osce);
 
         // ... (Validasi input awal tetap sama) ...
