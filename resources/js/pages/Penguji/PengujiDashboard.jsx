@@ -14,7 +14,7 @@ import {
 
 import SidebarPenguji from "../../components/SidebarPenguji.jsx"; // Sesuaikan path jika perlu
 import OsHeader from "../../components/Header.jsx";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import OsIcon from "../../components/icons";
 import Calendar from "../../components/Calendar"; // Calendar tidak diubah
 import Sidebar from "../../components/Sidebar.jsx";
@@ -28,7 +28,7 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
             className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass}`}
         >
             <div>
-                <div className="flex justify-between items-start mb-2">
+                <div className="flex justify-between items-start mb-3">
                     <div>
                         <h3 className="font-medium text-sm text-white">
                             {title}
@@ -64,7 +64,7 @@ const JadwalCard = ({ item }) => {
         <div className="bg-white border rounded-xl shadow-sm px-4 py-4 flex items-center justify-between hover:shadow-md transition-shadow">
             <div className="flex items-center gap-3">
                 {/* Kolom Tanggal */}
-                <div className="flex flex-col items-center justify-center w-12 h-12 bg-red-500 rounded-xl text-white shadow-sm">
+                <div className="flex flex-col items-center justify-center w-12 h-12 bg-orange-500 rounded-xl text-white shadow-sm">
                     <span className="font-bold text-xl leading-none">
                         {item.hari}
                     </span>
@@ -75,7 +75,7 @@ const JadwalCard = ({ item }) => {
 
                 {/* Kolom Info */}
                 <div>
-                    <h4 className="font-bold text-blue-700 text-sm line-clamp-1">
+                    <h4 className="font-bold text-orange-700 text-sm line-clamp-1">
                         {item.nama_osce}
                     </h4>
                     <p className="text-xs text-gray-500 mt-0.5">
@@ -140,7 +140,7 @@ export default function PengujiDashboard() {
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-orange-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar
                 isOpen={isSidebarOpen}
                 type="penguji"
@@ -148,7 +148,7 @@ export default function PengujiDashboard() {
             />
 
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader onMenuClick={handleSidebarToggle} />
+                <OsHeader onMenuClick={handleSidebarToggle} variant="penguji"/>
 
                 {/* WELCOME SECTION */}
                 <div className="">
@@ -163,7 +163,7 @@ export default function PengujiDashboard() {
                     </p>
                 </div>
 
-                <hr className="border-1 border-os-primary" />
+                <hr className="border-1 border-os-primary-pj" />
 
                 {/* STATISTIK GRID */}
                 <section className="mb-2">
@@ -181,10 +181,10 @@ export default function PengujiDashboard() {
                             icon={
                                 <ClipboardList
                                     size={22}
-                                    className="text-blue-700"
+                                    className="text-orange-700"
                                 />
                             }
-                            colorClass="bg-blue-400 border-blue-300"
+                            colorClass="bg-orange-400 border-orange-300"
                             href="/penguji/osce"
                         />
                         <StatCard
@@ -192,7 +192,7 @@ export default function PengujiDashboard() {
                             description="Ujian sedang berlangsung"
                             value={statistik?.osce_edit_nilai ?? 0}
                             icon={<Users size={22} className="text-gray-700" />}
-                            colorClass="bg-red-400 border-blue-300"
+                            colorClass="bg-red-400 border-orange-300"
                             href="/penguji/osce"
                         />
                         <StatCard
@@ -205,13 +205,13 @@ export default function PengujiDashboard() {
                                     className="text-gray-700"
                                 />
                             }
-                            colorClass="bg-lime-500 border-blue-300"
+                            colorClass="bg-lime-500 border-orange-300"
                             href="/penguji/riwayat"
                         />
                     </div>
                 </section>
 
-                <hr className="border-1 border-os-primary" />
+                <hr className="border-1 border-os-primary-pj" />
 
                 {/* JADWAL + CALENDAR GRID */}
                 <section className="flex flex-col lg:flex-row">
@@ -232,7 +232,7 @@ export default function PengujiDashboard() {
                             </div>
                             <Link
                                 href="/penguji/osce"
-                                className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1"
+                                className="text-orange-600 text-sm font-medium hover:underline flex items-center gap-1"
                             >
                                 Lihat Semua
                                 <ArrowRight size={16} />
@@ -277,7 +277,7 @@ export default function PengujiDashboard() {
 
                 {/* FOOTER */}
                 <div className="mt-4 lg:mt-12">
-                    <OsCopyright />
+                    <OsCopyright variant="penguji"  />
                 </div>
             </main>
         </div>

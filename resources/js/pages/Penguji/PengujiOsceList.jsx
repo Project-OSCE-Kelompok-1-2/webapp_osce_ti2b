@@ -249,6 +249,7 @@ export default function PengujiOsceList() {
                 <OsHeader
                     backLink="/penguji/dashboard"
                     onMenuClick={handleSidebarToggle}
+                    variant="penguji"
                 />
 
                 <div className="flex-1 overflow-auto">

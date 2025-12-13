@@ -61,7 +61,7 @@ const roleData = {
     penguji: {
         name: "Dr. Budi Santoso",
         email: "budi.santoso@kampus.edu",
-        imageBg: "bg-green-600",
+        imageBg: "bg-orange-400",
         menu: [
             {
                 label: "Beranda",
@@ -152,6 +152,13 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
         }
     };
 
+    // Variabel untuk menentukan warna utama
+    const sidebarColorClass = currentRole === "penguji" ? "bg-orange-600" : "bg-blue-900";
+    const toggleColorClass = currentRole === "penguji" ? "text-orange-600" : "text-blue-900";
+    const menuHoverBgClass = currentRole === "penguji" ? "hover:bg-orange-500" : "hover:bg-blue-700";
+    const activeTextColorClass = currentRole === "penguji" ? "text-orange-700" : "text-blue-700";
+    const menuHoverTextClass = currentRole === "penguji" ? "hover:text-white" : "hover:text-white";
+
     return (
         <>
             {/* PERBAIKAN 1: Div Overlay HANYA untuk Mode Mobile/Layar Kecil (sm:hidden) */}
@@ -168,7 +175,8 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
 
             <aside
                 // Menentukan lebar untuk mobile dan desktop (sm:)
-                className={`fixed top-0 left-0 h-full bg-blue-900 text-gray-900  transition-all duration-300 z-50 flex flex-col
+                // PERBAIKAN LOGIKA: Menggunakan variabel sidebarColorClass
+                className={`fixed top-0 left-0 h-full ${sidebarColorClass} text-gray-900  transition-all duration-300 z-50 flex flex-col
                 ${isOpen ? "w-64" : "w-0 lg:w-20"}`}
                 // PERBAIKAN 2: Menghentikan Propagasi Klik di dalam Sidebar.
                 // Ini mencegah klik di dalam sidebar menutupnya via Overlay div di mobile.
@@ -179,7 +187,8 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                 {/* Tombol toggle sidebar (Hanya terlihat di desktop: sm:block) */}
                 <button
                     onClick={onToggle}
-                    className="hidden lg:block absolute -right-4 top-9 z-50 bg-white text-blue-700 border border-ospr p-1 rounded-full hover:bg-white transition focus:outline-none shadow-md"
+                    // PERBAIKAN LOGIKA: Menggunakan variabel toggleColorClass
+                    className={`hidden lg:block absolute -right-4 top-9 z-50 bg-white ${toggleColorClass} border border-ospr p-1 rounded-full hover:bg-white transition focus:outline-none shadow-md`}
                     aria-label={isOpen ? "Tutup Sidebar" : "Buka Sidebar"}
                 >
                     {isOpen ? (
@@ -238,8 +247,8 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                                     ${!isOpen ? "justify-center" : "px-4"}
                                     ${
                                         isActive
-                                            ? "bg-white text-blue-700 font-semibold shadow-sm"
-                                            : "text-white hover:bg-blue-700 hover:text-white"
+                                            ? `bg-white ${activeTextColorClass} font-semibold shadow-sm` // Menggunakan activeTextColorClass
+                                            : `text-white ${menuHoverBgClass} ${menuHoverTextClass}` // Menggunakan menuHoverBgClass dan menuHoverTextClass
                                     }
                                     opacity-${item.opacity}
                                 `}
@@ -275,8 +284,8 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                             activePath.startsWith(
                                 `/${currentRole}/pengaturan-akun`
                             )
-                                ? "bg-white text-blue-700 font-semibold shadow-sm"
-                                : "text-white hover:bg-blue-700 hover:text-white"
+                                ? `bg-white ${activeTextColorClass} font-semibold shadow-sm` // Menggunakan activeTextColorClass
+                                : `text-white ${menuHoverBgClass} ${menuHoverTextClass}` // Menggunakan menuHoverBgClass dan menuHoverTextClass
                         }
                     `}
                     >
