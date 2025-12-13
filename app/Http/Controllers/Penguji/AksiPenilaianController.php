@@ -183,7 +183,7 @@ class AksiPenilaianController extends Controller
      * HALAMAN KONFIRMASI SELESAI (GET)
      * Menampilkan list mahasiswa sebelum submit final.
      */
-    public function submitRubrik($id_osce, $id_osce_stase)
+    public function halamanKonfirmasi($id_osce, $id_osce_stase)
     {
         $user = Auth::user();
 

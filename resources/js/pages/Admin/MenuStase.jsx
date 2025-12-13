@@ -353,9 +353,7 @@ export default function Stase() {
                 <div className="flex-1 overflow-auto">
                     <div className="flex gap-1 items-center justify-start my-2">
                         <FileText size={18} />
-                        <h2 className="font-semibold text-lg">
-                            Menu Stase
-                        </h2>
+                        <h2 className="font-semibold text-lg">Menu Stase</h2>
                     </div>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
                         Kelola konten Stase secara menyeluruh, termasuk daftar
@@ -383,9 +381,10 @@ export default function Stase() {
 
                     <div className="flex gap-1 items-center justify-start my-2">
                         <Table2 size={18} />
-                        <h2 className="font-semibold text-lg">
-                            Table Stase
-                        </h2>
+                        <h2 className="font-semibold text-lg">Table Stase</h2>
+                        <span className="text-sm font-normal text-gray-500 ml-2">
+                            (Total: {totalItems} data)
+                        </span>
                     </div>
 
                     <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
