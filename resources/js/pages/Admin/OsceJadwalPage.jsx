@@ -1,5 +1,6 @@
-import React, { useState, useEffect, useMemo } from "react";
-import { Link, usePage, router } from "@inertiajs/react";
+import React, { useState, useEffect, useMemo } from "react"; // [MODIFIKASI] Tambah useMemo
+import { Link, usePage } from "@inertiajs/react";
+import { router } from "@inertiajs/react";
 import axios from "axios";
 import {
     Search,
@@ -13,8 +14,8 @@ import {
     Edit2,
     Info,
     X,
+    Users, // [MODIFIKASI] Pastikan Users terimport
     Clock,
-    Users,
 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
@@ -26,6 +27,7 @@ import OsSearchBar from "../../components/searchbar.jsx";
 import Modals from "../../components/Modals.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsStepModal from "../../components/StepModal.jsx";
+
 import OsInput from "../../components/input.jsx";
 import OsButton from "../../components/button.jsx";
 import OsHeader from "../../components/Header.jsx";
@@ -83,109 +85,27 @@ export default function SesiOscePage({
 }) {
     const { errors } = usePage().props;
 
-    // 1. Ambil Data Full & Pastikan Array
-    const allSesiData = useMemo(() => {
-        return Array.isArray(sesi) ? sesi : sesi?.data || [];
-    }, [sesi]);
-
-    // 2. State Filter & Pagination
-    const [searchTerm, setSearchTerm] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
-
-    // --- INSTANT FILTER LOGIC ---
-
-    // A. Reset Page ke 1 saat search berubah
-    useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm]);
-
-    // B. Filter Data (Client Side)
-    const filteredData = useMemo(() => {
-        if (!searchTerm) return allSesiData; // Jika kosong, kembalikan semua
-
-        const term = searchTerm.toLowerCase();
-        return allSesiData.filter((item) => {
-            // Pastikan properti ada sebelum di-lowercase untuk menghindari error
-            const tanggal = item.tanggal_formatted?.toLowerCase() || "";
-            const ruang = item.nama_ruang?.toLowerCase() || "";
-            const jam = item.jam_mulai?.toLowerCase() || "";
-
-            return (
-                tanggal.includes(term) ||
-                ruang.includes(term) ||
-                jam.includes(term)
-            );
-        });
-    }, [searchTerm, allSesiData]);
-
-    // C. Pagination Slicing
-    const totalItems = filteredData.length;
-    const totalPages = Math.ceil(totalItems / itemsPerPage);
-    const paginatedData = filteredData.slice(
-        (currentPage - 1) * itemsPerPage,
-        currentPage * itemsPerPage
-    );
-
-    // D. Generate Pagination Links
-    const generatedLinks = useMemo(() => {
-        if (totalPages <= 1) return [];
-        const links = [];
-        links.push({
-            url: currentPage > 1 ? "#" : null,
-            label: "&laquo; Previous",
-            active: false,
-            pageNumber: currentPage - 1,
-        });
-
-        for (let i = 1; i <= totalPages; i++) {
-            // Logic ellipsis sederhana: Tampilkan halaman pertama, terakhir, dan sekitar current page
-            if (
-                i === 1 ||
-                i === totalPages ||
-                (i >= currentPage - 1 && i <= currentPage + 1)
-            ) {
-                links.push({
-                    url: "#",
-                    label: i.toString(),
-                    active: i === currentPage,
-                    pageNumber: i,
-                });
-            } else if (
-                (i === currentPage - 2 && i > 1) ||
-                (i === currentPage + 2 && i < totalPages)
-            ) {
-                // Hindari duplikasi ellipsis
-                if (links[links.length - 1].label !== "...") {
-                    links.push({ url: null, label: "...", active: false });
-                }
-            }
-        }
-
-        links.push({
-            url: currentPage < totalPages ? "#" : null,
-            label: "Next &raquo;",
-            active: false,
-            pageNumber: currentPage + 1,
-        });
-        return links;
-    }, [currentPage, totalPages]);
-
-    // --- STATE UI LAINNYA (TETAP SAMA) ---
+    // State UI Standar
+    const [searchTerm, setSearchTerm] = useState(filters?.search || "");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSesi, setSelectedSesi] = useState(null);
+
+    // State untuk Detail Modal
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [detailData, setDetailData] = useState({
         stase_data: [],
         mahasiswa_data: [],
     });
     const [isLoadingDetail, setIsLoadingDetail] = useState(false);
+
+    // --- STATE KHUSUS WIZARD (STEP MODAL) ---
     const [isStepOpen, setIsStepOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
+
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-    // --- WIZARD STATE (TETAP SAMA) ---
+    // Menyimpan data input wizard
     const [wizardData, setWizardData] = useState({
         stase_objs: [],
         stase_ids: [],
@@ -197,22 +117,41 @@ export default function SesiOscePage({
         filter_angkatan: "",
         mahasiswa_ids: [],
     });
+
+    // Menyimpan data dinamis (hasil filter API)
     const [isLoadingCheck, setIsLoadingCheck] = useState(false);
     const [availRooms, setAvailRooms] = useState([]);
     const [availPenguji, setAvailPenguji] = useState([]);
+
+    // State untuk Step 5 (Mahasiswa)
     const [listAngkatan, setListAngkatan] = useState([]);
     const [availableMahasiswa, setAvailableMahasiswa] = useState([]);
     const [isLoadingMhs, setIsLoadingMhs] = useState(false);
 
-    // --- EFFECTS & HANDLERS (TETAP SAMA) ---
+    // [BARU] State untuk Auto Complete / Pencarian Mahasiswa di Modal
+    const [mhsSearchTerm, setMhsSearchTerm] = useState("");
+
+    // --- LOGIC FILTER DINAMIS ---
     useEffect(() => {
-        if (currentStep === 2 && wizardData.tanggal && wizardData.jam_mulai)
+        if (currentStep === 2 && wizardData.tanggal && wizardData.jam_mulai) {
             checkAvailability();
+        }
     }, [currentStep]);
 
     useEffect(() => {
-        if (currentStep === 4) fetchMahasiswa(wizardData.filter_angkatan);
+        if (currentStep === 4) {
+            fetchMahasiswa(wizardData.filter_angkatan);
+        }
     }, [currentStep, wizardData.filter_angkatan]);
+
+    // [BARU] Logic Filtering Real-time Mahasiswa
+    const filteredMahasiswaList = useMemo(() => {
+        if (!mhsSearchTerm) return availableMahasiswa;
+        const lowerSearch = mhsSearchTerm.toLowerCase();
+        return availableMahasiswa.filter((mhs) =>
+            mhs.label.toLowerCase().includes(lowerSearch)
+        );
+    }, [availableMahasiswa, mhsSearchTerm]);
 
     const checkAvailability = async () => {
         setIsLoadingCheck(true);
@@ -239,14 +178,15 @@ export default function SesiOscePage({
                 angkatan: angkatan,
                 id_osce: osce.id_osce,
             });
+
             setAvailableMahasiswa(res.data.mahasiswa);
+
             if (res.data.list_angkatan && listAngkatan.length === 0) {
-                setListAngkatan(
-                    res.data.list_angkatan.map((th) => ({
-                        value: th,
-                        label: `Tahun Akademik ${th}`,
-                    }))
-                );
+                const optionsRaw = res.data.list_angkatan.map((th) => ({
+                    value: th,
+                    label: `Tahun Akademik ${th}`,
+                }));
+                setListAngkatan(optionsRaw);
             }
         } catch (err) {
             console.error(err);
@@ -264,7 +204,6 @@ export default function SesiOscePage({
                 {
                     tanggal: item.tanggal,
                     jam_mulai: item.jam_mulai,
-                    id_osce_stase: item.id_osce_stase, // Kirim ID untuk akurasi
                 }
             );
             setDetailData(res.data);
@@ -282,6 +221,7 @@ export default function SesiOscePage({
             onSuccess: () => {
                 setIsStepOpen(false);
                 setCurrentStep(0);
+                setMhsSearchTerm(""); // Reset pencarian
                 setWizardData({
                     stase_objs: [],
                     stase_ids: [],
@@ -295,9 +235,20 @@ export default function SesiOscePage({
                 });
             },
             preserveScroll: true,
-            onError: (errors) => console.log("Validation Errors:", errors),
+            onError: (errors) => {
+                console.log("Validation Errors:", errors);
+            },
         });
     };
+
+    function handleSearch(e) {
+        e.preventDefault();
+        router.get(
+            `/admin/osce/${osce.id_osce}/sesi`,
+            { search: searchTerm },
+            { preserveState: true, replace: true }
+        );
+    }
 
     function openDeleteModal(item) {
         setSelectedSesi(item);
@@ -308,6 +259,7 @@ export default function SesiOscePage({
         if (!selectedSesi) return;
         const jamMulaiClean = selectedSesi.jam_mulai.substring(0, 5);
         const uniqueSesiId = `${selectedSesi.tanggal}_${jamMulaiClean}`;
+
         router.delete(`/admin/osce/${osce.id_osce}/jadwal/${uniqueSesiId}`, {
             onSuccess: () => {
                 setIsModalOpen(false);
@@ -319,9 +271,8 @@ export default function SesiOscePage({
 
     const handleDeleteSesi = (item) => openDeleteModal(item);
 
-    // --- TABLE ROWS MAPPING (Gunakan 'paginatedData') ---
-    const rows = paginatedData.map((item, index) => ({
-        no: (currentPage - 1) * itemsPerPage + index + 1,
+    const rows = sesi.data.map((item, index) => ({
+        no: sesi.from + index,
         tanggal: (
             <span className="font-medium text-gray-700">
                 {item.tanggal_formatted}
@@ -376,6 +327,7 @@ export default function SesiOscePage({
             date.getMinutes()
         ).padStart(2, "0")}`;
     };
+
     const jamSelesaiOtomatis = calculateEndTime();
 
     return (
@@ -385,7 +337,7 @@ export default function SesiOscePage({
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader variant="goback" backLink="/admin/osce/" />
 
-                <div className="flex-1 overflow-auto">
+                <div className="flex-1 overflow-auto ">
                     <section className="mb-6">
                         <h2 className="text-lg font-semibold mb-1">
                             {osce.nama_osce || "Detail Jadwal OSCE"}
@@ -414,25 +366,22 @@ export default function SesiOscePage({
                             <OsIcon
                                 name="add"
                                 className="h-os-20 os-icon-light mr-os-8"
-                            />{" "}
+                            />
                             Tambah Sesi
                         </OsButton>
                     </section>
 
-                    {/* SEARCH INSTANT */}
                     <section className="rounded-lg w-full">
                         <OsSearchBar
                             search={searchTerm}
-                            setSearch={setSearchTerm} // Pastikan ini mengupdate state
+                            setSearch={setSearchTerm}
+                            onSearchClick={handleSearch}
                             placeholder="Cari sesi..."
                         />
                     </section>
 
                     <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Sesi
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
                     </h2>
 
                     <div className="w-full overflow-x-auto pb-4">
@@ -452,16 +401,7 @@ export default function SesiOscePage({
                             )}
                         </div>
                     </div>
-
-                    {/* PAGINATION */}
-                    {totalPages > 1 && (
-                        <div className="mt-2">
-                            <OsPagination
-                                links={generatedLinks}
-                                onPageChange={(page) => setCurrentPage(page)}
-                            />
-                        </div>
-                    )}
+                    <OsPagination links={sesi?.links} />
                 </div>
 
                 <footer>
@@ -476,7 +416,7 @@ export default function SesiOscePage({
                 onConfirm={confirmDelete}
                 variant="delete"
                 title="Hapus Sesi?"
-                message="Apakah Anda yakin ingin menghapus seluruh jadwal sesi ini?"
+                message="Apakah Anda yakin ingin menghapus seluruh jadwal sesi ini? Semua stase pada jam ini akan terhapus."
                 dataToDelete={
                     selectedSesi
                         ? [
@@ -494,7 +434,7 @@ export default function SesiOscePage({
                 confirmText="Hapus"
             />
 
-            {/* DETAIL MODAL - Sama seperti sebelumnya */}
+            {/* DETAIL MODAL */}
             {isDetailModalOpen && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
                     <div
@@ -502,14 +442,13 @@ export default function SesiOscePage({
                         onClick={() => setIsDetailModalOpen(false)}
                     ></div>
                     <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden transform transition-all scale-100">
-                        {/* Header Modal */}
                         <div className="flex justify-between items-start px-8 py-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md z-10">
                             <div>
                                 <h3 className="text-xl font-bold flex items-center gap-2">
                                     <ClipboardList
                                         className="text-blue-200"
                                         size={24}
-                                    />{" "}
+                                    />
                                     Detail Sesi OSCE
                                 </h3>
                                 {selectedSesi && (
@@ -543,7 +482,7 @@ export default function SesiOscePage({
                                 <X size={24} />
                             </button>
                         </div>
-                        {/* Body Modal */}
+
                         <div className="flex-1 overflow-y-auto bg-gray-50/50 p-6 lg:p-8">
                             {isLoadingDetail ? (
                                 <div className="flex flex-col items-center justify-center h-64 gap-4 text-gray-400">
@@ -586,7 +525,7 @@ export default function SesiOscePage({
                                                                         key={
                                                                             idx
                                                                         }
-                                                                        className="transition-colors group"
+                                                                        className="hover:bg-blue-50/50 transition-colors group"
                                                                     >
                                                                         <td className="px-5 py-4 align-top">
                                                                             <div className="font-semibold text-gray-800">
@@ -660,7 +599,7 @@ export default function SesiOscePage({
                                                             (mhs, idx) => (
                                                                 <li
                                                                     key={idx}
-                                                                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-100 transition-all group"
+                                                                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-100"
                                                                 >
                                                                     <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 text-indigo-600 flex items-center justify-center text-sm font-bold shadow-sm shrink-0 border border-white">
                                                                         {mhs.nama
@@ -683,7 +622,7 @@ export default function SesiOscePage({
                                                                             .toUpperCase()}
                                                                     </div>
                                                                     <div className="flex flex-col min-w-0">
-                                                                        <span className="text-sm font-semibold text-gray-800 truncate transition-colors">
+                                                                        <span className="text-sm font-semibold text-gray-800 truncate">
                                                                             {
                                                                                 mhs.nama
                                                                             }
@@ -724,11 +663,11 @@ export default function SesiOscePage({
                                 </div>
                             )}
                         </div>
+                        <div className="px-8 py-5 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 z-10"></div>
                     </div>
                 </div>
             )}
 
-            {/* STEP MODAL WIZARD (Tetap Sama) */}
             <OsStepModal
                 show={isStepOpen}
                 onClose={() => setIsStepOpen(false)}
@@ -736,6 +675,7 @@ export default function SesiOscePage({
                 setCurrentStep={setCurrentStep}
                 onSubmit={handleWizardSubmit}
                 steps={[
+                    // STEP 1: Pilih Stase
                     {
                         title: "Pilih Stase",
                         content: (
@@ -749,15 +689,35 @@ export default function SesiOscePage({
                                     options={master_stase}
                                     value={wizardData.stase_ids}
                                     onChange={(e) => {
-                                        const raw = Array.isArray(
-                                            e.target.value
+                                        const selected = e.target.value;
+                                        const rawValues = Array.isArray(
+                                            selected
                                         )
-                                            ? e.target.value
+                                            ? selected
                                             : [];
+                                        let newIds = [];
+                                        let newObjs = [];
+
+                                        if (
+                                            rawValues.length > 0 &&
+                                            typeof rawValues[0] === "object"
+                                        ) {
+                                            newObjs = rawValues;
+                                            newIds = rawValues.map(
+                                                (item) => item.value
+                                            );
+                                        } else {
+                                            newIds = rawValues;
+                                            newObjs = master_stase.filter(
+                                                (ms) =>
+                                                    rawValues.includes(ms.value)
+                                            );
+                                        }
+
                                         setWizardData({
                                             ...wizardData,
-                                            stase_ids: raw.map((i) => i.value),
-                                            stase_objs: raw,
+                                            stase_ids: newIds,
+                                            stase_objs: newObjs,
                                         });
                                     }}
                                 />
@@ -767,6 +727,7 @@ export default function SesiOscePage({
                             </div>
                         ),
                     },
+                    // STEP 2: Jadwal & Durasi
                     {
                         title: "Jadwal & Durasi",
                         content: (
@@ -785,7 +746,7 @@ export default function SesiOscePage({
                                 <div>
                                     <OsInput
                                         type="number"
-                                        label="Durasi per Stase (Menit)"
+                                        label={`Durasi per Stase (Menit)`}
                                         placeholder="Contoh: 15"
                                         value={wizardData.durasi}
                                         onChange={(e) =>
@@ -834,6 +795,7 @@ export default function SesiOscePage({
                             </div>
                         ),
                     },
+                    // STEP 3: Pilih Sirkuit
                     {
                         title: "Pilih Sirkuit",
                         content: (
@@ -854,12 +816,14 @@ export default function SesiOscePage({
                                             placeholder="Pilih Sirkuit"
                                             options={availRooms}
                                             value={wizardData.id_ruang}
-                                            onChange={(e) =>
+                                            onChange={(e) => {
+                                                const selectedId =
+                                                    e.target.value;
                                                 setWizardData({
                                                     ...wizardData,
-                                                    id_ruang: e.target.value,
-                                                })
-                                            }
+                                                    id_ruang: selectedId,
+                                                });
+                                            }}
                                         />
                                         {availRooms.length === 0 && (
                                             <p className="text-red-500 text-xs mt-1">
@@ -871,6 +835,7 @@ export default function SesiOscePage({
                             </div>
                         ),
                     },
+                    // STEP 4: Pilih Penguji
                     {
                         title: "Pilih Penguji",
                         content: (
@@ -894,15 +859,22 @@ export default function SesiOscePage({
                                                 wizardData.penguji_map[
                                                     stase.value
                                                 ];
+
                                             const filteredOptions =
-                                                availPenguji.filter(
-                                                    (p) =>
-                                                        !allSelectedIds.includes(
+                                                availPenguji.filter((p) => {
+                                                    const isSelectedElsewhere =
+                                                        allSelectedIds.includes(
                                                             p.value
-                                                        ) ||
+                                                        );
+                                                    const isSelectedHere =
                                                         p.value ===
-                                                            currentSelectedId
-                                                );
+                                                        currentSelectedId;
+                                                    return (
+                                                        !isSelectedElsewhere ||
+                                                        isSelectedHere
+                                                    );
+                                                });
+
                                             return (
                                                 <div
                                                     key={stase.value}
@@ -923,7 +895,7 @@ export default function SesiOscePage({
                                                                 stase.value
                                                             ]
                                                         }
-                                                        onChange={(e) =>
+                                                        onChange={(e) => {
                                                             setWizardData(
                                                                 (prev) => ({
                                                                     ...prev,
@@ -936,8 +908,8 @@ export default function SesiOscePage({
                                                                                     .value,
                                                                         },
                                                                 })
-                                                            )
-                                                        }
+                                                            );
+                                                        }}
                                                     />
                                                 </div>
                                             );
@@ -952,6 +924,7 @@ export default function SesiOscePage({
                             </div>
                         ),
                     },
+                    // STEP 5: Enrollment Mahasiswa
                     {
                         title: "Enrollment Mahasiswa",
                         content: (
@@ -962,6 +935,8 @@ export default function SesiOscePage({
                                         <div>{errors.mahasiswa_ids}</div>
                                     </div>
                                 )}
+
+                                {/* Filter Angkatan Dropdown Saja */}
                                 <div className="w-full bg-gray-50 p-3 rounded-lg border border-gray-200">
                                     <OsInput
                                         type="single-select"
@@ -978,11 +953,14 @@ export default function SesiOscePage({
                                         className="w-full bg-white"
                                     />
                                 </div>
+
+                                {/* Container List Mahasiswa */}
                                 <div className="border rounded-lg flex-1 flex flex-col overflow-hidden bg-white shadow-sm">
                                     <div className="flex justify-between items-center p-3 border-b bg-gray-50">
                                         <label className="text-sm font-bold text-gray-700">
                                             Daftar Mahasiswa
                                         </label>
+
                                         <span
                                             className={`text-xs font-bold px-3 py-1 rounded-full border transition-colors ${
                                                 wizardData.mahasiswa_ids
@@ -997,6 +975,7 @@ export default function SesiOscePage({
                                             Dipilih
                                         </span>
                                     </div>
+
                                     <div className="flex-1 overflow-y-auto p-2">
                                         {isLoadingMhs ? (
                                             <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2">
@@ -1020,25 +999,29 @@ export default function SesiOscePage({
                                                             wizardData.mahasiswa_ids.includes(
                                                                 mhs.value
                                                             );
+
                                                         const isAlreadyEnrolled =
                                                             mhs.already_enrolled ===
                                                             true;
+
                                                         const isMaxReached =
                                                             wizardData
                                                                 .mahasiswa_ids
                                                                 .length >=
                                                             wizardData.stase_ids
                                                                 .length;
+
                                                         const isDisabled =
                                                             (isMaxReached &&
                                                                 !isSelected) ||
                                                             isAlreadyEnrolled;
+
                                                         return (
                                                             <label
                                                                 key={mhs.value}
                                                                 className={`group flex items-center p-3 rounded-lg border transition-all duration-200 ${
                                                                     isDisabled
-                                                                        ? "bg-gray-100 border-gray-200 opacity-70 cursor-not-allowed"
+                                                                        ? "bg-gray-100 border-gray-200 opacity-70 cursor-not-allowed" // Style disabled lebih gelap
                                                                         : "cursor-pointer hover:border-blue-300 hover:shadow-sm"
                                                                 } ${
                                                                     isSelected
@@ -1079,10 +1062,11 @@ export default function SesiOscePage({
                                                                                     wizardData
                                                                                         .stase_ids
                                                                                         .length
-                                                                                )
+                                                                                ) {
                                                                                     newIds.push(
                                                                                         mhs.value
                                                                                     );
+                                                                                }
                                                                             } else {
                                                                                 newIds =
                                                                                     newIds.filter(
@@ -1113,7 +1097,7 @@ export default function SesiOscePage({
                                                                             isAlreadyEnrolled
                                                                                 ? "text-gray-500 line-through decoration-gray-400"
                                                                                 : ""
-                                                                        }`}
+                                                                        }`} // Coret nama jika sudah ada
                                                                     >
                                                                         {
                                                                             mhs.label
