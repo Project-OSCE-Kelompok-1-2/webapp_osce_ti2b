@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from "react";
 import { usePage, router, useForm } from "@inertiajs/react";
-import { Edit2, Trash2, X, AlertCircle } from "lucide-react"; // Import AlertCircle & X
+import { Edit2, Trash2, X, AlertCircle, FileText, Table2 } from "lucide-react"; // Import AlertCircle & X
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
@@ -351,7 +351,12 @@ export default function Stase() {
                 <OsHeader onMenuClick={handleSidebarToggle} />
 
                 <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-1">Menu Stase</h2>
+                    <div className="flex gap-1 items-center justify-start my-2">
+                        <FileText size={18} />
+                        <h2 className="font-semibold text-lg">
+                            Menu Stase
+                        </h2>
+                    </div>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
                         Kelola konten Stase secara menyeluruh, termasuk daftar
                         kompetensi inti dan aspek penilaian.
@@ -374,27 +379,29 @@ export default function Stase() {
                         search={search}
                         setSearch={setSearch}
                         placeholder="Cari stase secara instan..."
-
                     />
 
-                    <h2 className="font-semibold text-lg mb-2">Table Stase</h2>
+                    <div className="flex gap-1 items-center justify-start my-2">
+                        <Table2 size={18} />
+                        <h2 className="font-semibold text-lg">
+                            Table Stase
+                        </h2>
+                    </div>
 
-                    <section className="bg-white p-5 border border-os-primary rounded-xl shadow-sm" >
-                        <div className="w-full overflow-x-auto border-b border-os-primary pb-2">
-                            <div className="min-w-max">
-                                <OsTableHeader columns={staseColumns} />
-                                <OsTableBody
-                                    data={tableData}
-                                    columns={staseColumns}
-                                />
-                                {filteredData.length === 0 && (
-                                    <div className="flex items-center border-t border-gray-400">
-                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
-                                            Data tidak ditemukan.
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
+                    <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                        <div className="min-w-max">
+                            <OsTableHeader columns={staseColumns} />
+                            <OsTableBody
+                                data={tableData}
+                                columns={staseColumns}
+                            />
+                            {filteredData.length === 0 && (
+                                <div className="flex items-center border-t border-gray-400">
+                                    <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                        Data tidak ditemukan.
+                                    </p>
+                                </div>
+                            )}
                         </div>
                     </section>
 

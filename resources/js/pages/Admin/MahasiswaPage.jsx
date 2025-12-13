@@ -1,6 +1,6 @@
 import React, { useState, useRef, useMemo } from "react";
 import { router, usePage, useForm } from "@inertiajs/react";
-import { Edit2, Trash2, AlertTriangle, X } from "lucide-react";
+import { Edit2, Trash2, AlertTriangle, X, Users, Table2 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
@@ -285,7 +285,7 @@ export default function MahasiswaPage() {
     }));
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar
                 isOpen={isSidebarOpen}
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -295,9 +295,12 @@ export default function MahasiswaPage() {
                     onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 />
                 <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-1">
-                        Menu Mahasiswa
-                    </h2>
+                    <div className="flex gap-1 items-center justify-start my-2">
+                        <Users size={18} />
+                        <h2 className="font-semibold text-lg">
+                            Menu Mahasiswa
+                        </h2>
+                    </div>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
                         Kelola data mahasiswa.
                     </p>
@@ -344,7 +347,7 @@ export default function MahasiswaPage() {
 
                     {/* --- SEARCH BAR & FILTER ANGKATAN --- */}
                     {/* Menggunakan Flexbox agar sejajar */}
-                    <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                    <div className="flex flex-col sm:flex-row gap-3 mb-2">
                         <div className="flex-grow">
                             <OsSearchBar
                                 search={search}
@@ -373,13 +376,16 @@ export default function MahasiswaPage() {
                     </div>
 
                     <section>
-                        <h2 className="font-semibold text-lg mb-2">
-                            Tabel Mahasiswa{" "}
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Tabel Mahasiswa{" "}
+                            </h2>
                             <span className="text-sm font-normal text-gray-500 ml-2">
                                 (Total: {totalItems} data)
                             </span>
-                        </h2>
-                        <div className="w-full overflow-x-auto pb-4">
+                        </div>
+                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
                             <div className="min-w-max">
                                 <OsTableHeader columns={mahasiswaColumns} />
                                 <OsTableBody
@@ -387,7 +393,7 @@ export default function MahasiswaPage() {
                                     columns={mahasiswaColumns}
                                 />
                             </div>
-                        </div>
+                        </section>
                         {totalPages > 1 && (
                             <div className="mt-2">
                                 <OsPagination

@@ -126,13 +126,13 @@ export default function Dashboard() {
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="flex flex-col w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20 items-center justify-center">
                 <OsHeader onMenuClick={handleSidebarToggle} />
 
-                <section className="lg:w-10/12 w-full" >
+                <section className=" w-full" >
                     {/* MAIN */}
                     <div className="">
                         <p className=" text-gray-600 text-os-regular">
@@ -225,7 +225,7 @@ export default function Dashboard() {
                                     />
                                 ))
                             ) : (
-                                <p className="text-sm text-blue-800 text-center py-4 bg-os-tertiary border-os-primary border rounded-lg">
+                                <p className="py-6 mt-2 text-center text-gray-500">
                                     Tidak ada notifikasi.
                                 </p>
                             )}
