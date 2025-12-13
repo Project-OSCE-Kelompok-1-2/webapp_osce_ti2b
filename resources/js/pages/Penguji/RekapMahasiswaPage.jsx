@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react"; // Tambahkan useMemo
-import { Link, usePage, } from "@inertiajs/react";
+import { Link, usePage } from "@inertiajs/react";
 import {
     ArrowLeft,
     Download,
@@ -10,7 +10,7 @@ import {
     Clock,
     UserCheck,
     Table2,
-    Info
+    Info,
 } from "lucide-react";
 
 // --- Import Komponen ---
@@ -67,8 +67,8 @@ const generatePaginationLinks = (currentPage, totalPages, totalItems) => {
 
     // Tombol Previous
     links.push({
-        url: '#',
-        label: 'Previous',
+        url: "#",
+        label: "Previous",
         active: false,
         pageNumber: currentPage > 1 ? currentPage - 1 : null,
     });
@@ -84,15 +84,15 @@ const generatePaginationLinks = (currentPage, totalPages, totalItems) => {
 
     // Add first page and ellipsis if needed
     if (startPage > 1) {
-        links.push({ url: '#', label: '1', active: false, pageNumber: 1 });
+        links.push({ url: "#", label: "1", active: false, pageNumber: 1 });
         if (startPage > 2) {
-            links.push({ url: null, label: '...', active: false });
+            links.push({ url: null, label: "...", active: false });
         }
     }
 
     for (let i = startPage; i <= endPage; i++) {
         links.push({
-            url: '#',
+            url: "#",
             label: String(i),
             active: i === currentPage,
             pageNumber: i,
@@ -102,28 +102,32 @@ const generatePaginationLinks = (currentPage, totalPages, totalItems) => {
     // Add ellipsis and last page if needed
     if (endPage < totalPages) {
         if (endPage < totalPages - 1) {
-            links.push({ url: null, label: '...', active: false });
+            links.push({ url: null, label: "...", active: false });
         }
-        links.push({ url: '#', label: String(totalPages), active: false, pageNumber: totalPages });
+        links.push({
+            url: "#",
+            label: String(totalPages),
+            active: false,
+            pageNumber: totalPages,
+        });
     }
-
 
     // Tombol Next
     links.push({
-        url: '#',
-        label: 'Next',
+        url: "#",
+        label: "Next",
         active: false,
         pageNumber: currentPage < totalPages ? currentPage + 1 : null,
     });
 
     // Menyesuaikan url null untuk tombol panah
-    links[0].url = links[0].pageNumber === null ? null : '#';
-    links[links.length - 1].url = links[links.length - 1].pageNumber === null ? null : '#';
+    links[0].url = links[0].pageNumber === null ? null : "#";
+    links[links.length - 1].url =
+        links[links.length - 1].pageNumber === null ? null : "#";
 
     return links;
 };
 // --- END LOGIC PAGINATION UTILITY ---
-
 
 export default function RekapMahasiswaPage() {
     // 1. AMBIL PROPS DARI BACKEND
@@ -176,16 +180,19 @@ export default function RekapMahasiswaPage() {
     // 6. HANDLER PERPINDAHAN HALAMAN
     const handlePageChange = (pageNumber) => {
         // Pastikan pageNumber adalah angka valid
-        if (typeof pageNumber === 'number' && pageNumber >= 1 && pageNumber <= totalPages) {
+        if (
+            typeof pageNumber === "number" &&
+            pageNumber >= 1 &&
+            pageNumber <= totalPages
+        ) {
             setCurrentPage(pageNumber);
-        } else if (pageNumber === 'Previous' && currentPage > 1) {
+        } else if (pageNumber === "Previous" && currentPage > 1) {
             setCurrentPage(currentPage - 1);
-        } else if (pageNumber === 'Next' && currentPage < totalPages) {
+        } else if (pageNumber === "Next" && currentPage < totalPages) {
             setCurrentPage(currentPage + 1);
         }
     };
     // --- END LOGIC CLIENT-SIDE PAGINATION ---
-
 
     // 7. MAPPING DATA UNTUK OsTableBody (Menggunakan data yang sudah dipaginasi)
     const tableData = paginatedStudents.map((mhs, index) => ({
@@ -209,7 +216,7 @@ export default function RekapMahasiswaPage() {
                     // Mengganti router.get karena 'router' belum didefinisikan di sini.
                     // Idealnya, Anda menggunakan Inertia.get atau link Inertia.
                     // Untuk sementara, kita pakai window.location (hanya jika memang harus ada aksi)
-                    window.location.href = `/penguji/penilaian/${mhs.id_enrollment_osce}/view`
+                    (window.location.href = `/penguji/penilaian/${mhs.id_enrollment_osce}/view`)
                 }
                 className="flex items-center justify-center gap-2 bg-[#1447E6] text-white text-xs font-medium px-6 py-2.5 rounded-lg hover:bg-blue-700 transition "
             >
@@ -219,11 +226,14 @@ export default function RekapMahasiswaPage() {
         ),
     }));
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
+
     return (
         <div className="relative bg-orange-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar
-                isOpen={sidebarOpen}
-                setIsOpen={setSidebarOpen}
+                isOpen={isSidebarOpen}
+                onToggle={handleSidebarToggle}
                 type={"penguji"}
             />
 
@@ -234,6 +244,7 @@ export default function RekapMahasiswaPage() {
                     title={`OSCE / ${safeOsceInfo.nama_osce} / Rekap Nilai`}
                     icon={<ArrowLeft className="w-5 h-5" />}
                     variant="penguji"
+                    onMenuClick={handleSidebarToggle}
                 />
 
                 <div className="flex-1 overflow-auto">
@@ -431,7 +442,6 @@ export default function RekapMahasiswaPage() {
                             variant="penguji"
                         />
                     )}
-
                 </div>
                 <OsCopyright variant="penguji" />
             </main>

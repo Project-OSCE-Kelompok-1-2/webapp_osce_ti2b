@@ -14,7 +14,7 @@ import {
 
 import SidebarPenguji from "../../components/SidebarPenguji.jsx"; // Sesuaikan path jika perlu
 import OsHeader from "../../components/Header.jsx";
-import OsCopyright from "../../components/copyright";
+import OsCopyright from "../../components/Copyright";
 import OsIcon from "../../components/icons";
 import Calendar from "../../components/Calendar"; // Calendar tidak diubah
 import Sidebar from "../../components/Sidebar.jsx";

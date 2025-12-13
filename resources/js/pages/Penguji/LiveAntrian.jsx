@@ -8,8 +8,18 @@ import {
     AlertCircle,
     Play,
     MapPin,
+    ArrowLeft,
+    Download,
+    Search,
+    ExternalLink,
+    UserCheck,
+    Table2,
+    Info,
 } from "lucide-react";
 import OsStepModal from "../../components/StepModal.jsx";
+import OsHeader from "../../components/Header.jsx";
+import Sidebar from "../../components/Sidebar.jsx";
+import OsCopyright from "../../components/Copyright.jsx";
 
 export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
     console.log(osce_detail);
@@ -154,13 +164,22 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
         },
     ];
 
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [search, setSearch] = useState("");
+
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
+
     return (
         <>
-            <Head title={safeOsce.nama_osce} />
-
-            <div className="min-h-screen bg-gray-50 flex flex-col font-sans text-sm">
+            <div className="relative bg-orange-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+                <Sidebar
+                    isOpen={isSidebarOpen}
+                    onToggle={handleSidebarToggle}
+                    type={"penguji"}
+                />
                 {/* Compact Header */}
-                <header className="bg-white border-b sticky top-0 z-30 shadow-sm">
+                {/* <header className="bg-white border-b sticky top-0 z-30 shadow-sm">
                     <div className="mx-auto max-w-5xl flex items-center gap-3 px-4 py-2">
                         <button
                             onClick={handleBack}
@@ -177,109 +196,157 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                             </span>
                         </div>
                     </div>
-                </header>
+                </header> */}
+                <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 lg:ml-20">
+                    <OsHeader
+                        className="fixed"
+                        title={`OSCE / ${safeOsce.nama_osce} / Rekap Nilai`}
+                        icon={<ArrowLeft className="w-5 h-5" />}
+                        variant="goback"
+                        onMenuClick={handleSidebarToggle}
+                    />
 
-                <main className="flex-1 py-5 px-3">
-                    <div className="mx-auto max-w-4xl">
-                        <div className="overflow-hidden rounded-xl bg-white shadow border border-gray-200">
-                            {/* Compact Blue Banner */}
-                            <div className="bg-blue-600 px-4 py-5 text-center text-white relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-full bg-white opacity-5 transform -skew-y-6 scale-150 origin-top-left pointer-events-none"></div>
-                                <h1 className="text-lg font-bold relative z-10">
-                                    {safeOsce.nama_osce}
-                                </h1>
-                                <p className="text-xs text-blue-100 relative z-10 font-medium opacity-90 mt-0.5">
-                                    {safeOsce.nama_stase}
-                                </p>
-                            </div>
+                    <main className="flex-1 overflow-auto">
+                        <div className="w-full rounded-xl overflow-hidden border border-orange-600 mb-4 shadow-sm">
+                            <div className="overflow-hidden rounded-xl bg-white shadow border border-gray-200">
+                                {/* Compact Blue Banner */}
+                                {/* <div className="bg-blue-600 px-4 py-5 text-center text-white relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-full h-full bg-white opacity-5 transform -skew-y-6 scale-150 origin-top-left pointer-events-none">
+                                    <h1 className="text-lg font-bold relative z-10">
+                                        {safeOsce.nama_osce}
+                                    </h1>
+                                    <p className="text-xs text-blue-100 relative z-10 font-medium opacity-90 mt-0.5">
+                                        {safeOsce.nama_stase}
+                                    </p>
+                                    </div>
+                                </div> */}
 
-                            <div className="px-4 py-4">
-                                <div className="flex items-center justify-between mb-3">
-                                    <h2 className="text-sm font-bold text-gray-800">
-                                        Detail Informasi
-                                    </h2>
-                                    <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-100 font-medium">
-                                        Semester Genap 2024
-                                    </span>
+                                <div className="bg-os-primary-pj-dark text-white text-center py-6">
+                                    <h1 className="text-2xl font-bold mb-1">
+                                        Detail OSCE
+                                    </h1>
+                                    <p className="text-sm opacity-90">
+                                        {safeOsce.nama_osce}
+                                        {safeOsce.nama_stase}
+                                    </p>
                                 </div>
 
-                                {/* Compact Stats Grid */}
-                                <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                                    {/* CARD STASIUN - LEBIH LEBAR & COMPACT */}
-                                    <div className="bg-white border rounded-lg p-2.5 flex flex-row items-center gap-3 shadow-sm relative overflow-hidden group">
-                                        <div className="absolute right-0 top-0 h-full w-1/3 bg-blue-50 -skew-x-12 opacity-50 group-hover:w-1/2 transition-all duration-500"></div>
-                                        {/* Background Color Diperlebar (W-16) */}
-                                        <div className="h-10 w-16 bg-blue-600 text-white rounded-md flex items-center justify-center text-lg font-bold shadow-sm z-10 shrink-0">
-                                            {safeOsce.nomor_stasiun}
-                                        </div>
-                                        <div className="z-10 overflow-hidden">
-                                            <p className="text-[10px] text-gray-500 uppercase tracking-wide font-semibold">
-                                                Stasiun
-                                            </p>
-                                            <p
-                                                className="text-xs font-bold text-gray-900 truncate"
-                                                title={safeOsce.nama_stase}
-                                            >
-                                                {safeOsce.nama_stase}
-                                            </p>
-                                        </div>
+                                <div className="px-4 py-4">
+                                    <div className="flex items-center justify-between mb-3">
+                                        <h2 className="text-sm font-bold text-gray-800">
+                                            Detail Informasi
+                                        </h2>
+                                        <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-100 font-medium">
+                                            Semester Genap 2024
+                                        </span>
                                     </div>
 
-                                    {/* Durasi */}
-                                    <div className="bg-white border rounded-lg p-2.5 flex flex-col justify-center shadow-sm">
-                                        <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-0.5">
-                                            Waktu/Stase
-                                        </p>
-                                        <div className="flex items-center gap-1.5">
-                                            <Clock
-                                                size={14}
-                                                className="text-gray-400"
-                                            />
-                                            <p className="text-sm font-bold text-gray-900">
-                                                {safeOsce.durasi_per_mahasiswa}{" "}
-                                                <span className="text-[10px] font-normal text-gray-500">
-                                                    Menit
+                                    {/* Compact Stats Grid */}
+
+                                    <div className="bg-white">
+                                        <div className="flex flex-col lg:flex-row border border-gray-400 rounded-xl divide-y lg:divide-y-0 lg:divide-x divide-gray-400">
+                                            {/* Stasiun */}
+                                            <div className="p-4 flex flex-col w-full lg:w-auto min-w-[120px]">
+                                                <span className="text-xs text-gray-600 mb-2">
+                                                    Nomor Stasiun
                                                 </span>
-                                            </p>
-                                        </div>
-                                    </div>
+                                                <div className="bg-os-secondary-pj text-white w-16 h-16 rounded-xl flex items-center justify-center text-3xl font-bold shadow-md">
+                                                    {safeOsce.nomor_stasiun}
+                                                </div>
+                                            </div>
 
-                                    {/* Enrollment */}
-                                    <div className="bg-white border rounded-lg p-2.5 flex flex-col justify-center shadow-sm">
-                                        <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-0.5">
-                                            Enrollment
-                                        </p>
-                                        <div className="flex items-center gap-1.5">
-                                            <User
-                                                size={14}
-                                                className="text-gray-400"
-                                            />
-                                            <p className="text-sm font-bold text-gray-900">
-                                                {safeOsce.total_mahasiswa}{" "}
-                                                <span className="text-[10px] font-normal text-gray-500">
-                                                    Mhs
-                                                </span>
-                                            </p>
-                                        </div>
-                                    </div>
+                                            {/* Rubrik */}
+                                            <div className="p-4 flex-1 flex flex-col-reverse justify-between">
+                                                <div>
+                                                    <span className="text-xs text-gray-600 block">
+                                                        Stasiun
+                                                    </span>
+                                                    <p
+                                                        className=" font-bold"
+                                                        title={
+                                                            safeOsce.nama_stase
+                                                        }
+                                                    >
+                                                        {safeOsce.nama_stase}
+                                                    </p>
+                                                </div>
+                                                <div className="p-2 bg-os-secondary-pj w-min rounded-full">
+                                                    <FileText
+                                                        size={18}
+                                                        className="text-white"
+                                                    />
+                                                </div>
+                                            </div>
 
-                                    {/* Status */}
-                                    <div className="bg-white border rounded-lg p-2.5 flex flex-col justify-center shadow-sm">
-                                        <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-0.5">
-                                            Status
-                                        </p>
-                                        <div className="flex items-center gap-1.5">
-                                            <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
-                                            <p className="text-xs font-bold text-green-600">
-                                                Aktif
-                                            </p>
+                                            {/* Waktu */}
+                                            <div className="p-4 flex-1 flex flex-col-reverse justify-between">
+                                                <div>
+                                                    <span className="text-xs text-gray-600 block">
+                                                        Waktu per Stase
+                                                    </span>
+                                                    <p className="text-sm font-bold text-gray-900">
+                                                        {
+                                                            safeOsce.durasi_per_mahasiswa
+                                                        }{" "}
+                                                        Menit
+                                                    </p>
+                                                </div>
+                                                <div className="p-2 bg-os-secondary-pj w-min rounded-full">
+                                                    <Clock
+                                                        size={18}
+                                                        className="text-white"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Enrollment */}
+                                            <div className="p-4 flex-1 flex flex-col-reverse justify-between">
+                                                <div>
+                                                    <span className="text-xs text-gray-600 block">
+                                                        Enrollment Mahasiswa
+                                                    </span>
+                                                    <span className="text-sm font-bold block">
+                                                        {
+                                                            safeOsce.total_mahasiswa
+                                                        }{" "}
+                                                        Mahasiswa
+                                                    </span>
+                                                </div>
+                                                <div className="p-2 bg-os-secondary-pj w-min rounded-full">
+                                                    <User
+                                                        size={18}
+                                                        className="text-white"
+                                                    />
+                                                </div>
+                                            </div>
+
+                                            {/* Penguji */}
+                                            <div className="p-4 flex-[1.5] flex flex-col-reverse justify-between">
+                                                <div>
+                                                    <span className="text-xs text-gray-600 block">
+                                                        Status
+                                                    </span>
+                                                    <div className="flex items-center gap-1.5">
+                                                        <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
+                                                        <p className="text-xs font-bold text-green-600">
+                                                            Aktif
+                                                        </p>
+                                                    </div>
+                                                </div>
+                                                <div className="p-2 bg-os-secondary-pj w-min rounded-full">
+                                                    <UserCheck
+                                                        size={18}
+                                                        className="text-white"
+                                                    />
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
+                            {/* List Mahasiswa - Compact Table */}
                         </div>
-
-                        {/* List Mahasiswa - Compact Table */}
                         <div className="mt-5 bg-white rounded-xl border shadow-sm overflow-hidden">
                             <div className="px-4 py-3 border-b flex flex-row justify-between items-center bg-gray-50/50 gap-3">
                                 <div>
@@ -364,12 +431,10 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                 </table>
                             </div>
                         </div>
-                    </div>
-                </main>
+                    </main>
 
-                <footer className="py-3 text-center text-[10px] text-gray-400">
-                    &copy; {new Date().getFullYear()} OSCE System.
-                </footer>
+                    <OsCopyright variant="penguji" />
+                </main>
             </div>
 
             <OsStepModal
