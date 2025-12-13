@@ -9,9 +9,6 @@ use Carbon\Carbon;
 
 class JadwalMahasiswaService
 {
-    /**
-     * Mendapatkan ID Mahasiswa dari User Login
-     */
     public function getCurrentMahasiswaId()
     {
         $user = Auth::user();
@@ -19,117 +16,91 @@ class JadwalMahasiswaService
     }
 
     /**
-     * Mendapatkan List Tanggal Ujian yang diikuti Mahasiswa
+     * Mengambil daftar tanggal sesi dari tabel enrollment_osce.
+     * Tidak mempedulikan ID OSCE, pokoknya ambil semua tanggal dimana mahasiswa terdaftar.
      */
     public function getEnrollmentDates($idMahasiswa)
     {
         return EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
-            ->whereHas('osce', function ($q) {
-                $q->whereDate('tanggal_selesai', '>=', Carbon::now()->startOfDay());
-            })
+            ->whereNotNull('tanggal_sesi') // Pastikan tanggal sudah di-set admin
+            ->join('osce', 'enrollment_osce.id_osce', '=', 'osce.id_osce') // Join untuk ambil data OSCE jika perlu sorting/filter tambahan
+            ->select('enrollment_osce.tanggal_sesi', 'osce.nama_osce') // Select tanggal
+            ->orderBy('enrollment_osce.tanggal_sesi', 'asc')
             ->get()
-            ->map(function ($enrollment) {
-                $tanggalObj = $enrollment->tanggal_sesi
-                    ? Carbon::parse($enrollment->tanggal_sesi)
-                    : optional($enrollment->osce)->tanggal_mulai;
-
-                if (!$tanggalObj) return null;
-
-                $carbonDate = Carbon::parse($tanggalObj);
-
+            ->map(function ($item) {
+                $carbonDate = Carbon::parse($item->tanggal_sesi);
                 return [
                     'date_raw'    => $carbonDate->format('Y-m-d'),
-                    'date_label'  => $carbonDate->translatedFormat('d F Y'),
+                    'date_label'  => $carbonDate->translatedFormat('d F Y'), // Tampilan: 13 Desember 2025
+                    // Opsional: Jika mau menampilkan nama OSCE di dropdown biar lebih jelas
+                    // 'date_label' => $carbonDate->translatedFormat('d F Y') . ' (' . $item->nama_osce . ')', 
                     'is_selected' => false,
                 ];
             })
-            ->filter()
+            // Unique berdasarkan tanggal, karena 1 mahasiswa bisa punya 1 row enrollment per ujian
             ->unique('date_raw')
-            ->values()
-            ->sortBy('date_raw')
             ->values();
     }
 
     /**
-     * Mengambil Data Header (Info Ujian Aktif & Countdown)
+     * Logic Utama Dinamis:
+     * Cari Enrollment berdasarkan Tanggal -> Dapat ID OSCE & Nama OSCE yang benar.
      */
-    public function getActiveExamInfo($idMahasiswa, $selectedDate = null)
+    public function getActiveExamInfo($idMahasiswa, $selectedDate)
     {
-        $query = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
-            ->whereHas('osce', function ($q) {
-                $q->whereDate('tanggal_selesai', '>=', Carbon::now()->startOfDay());
-            })
-            ->with(['osce.osceStase']);
+        // 1. Cari Enrollment spesifik milik user pada tanggal tersebut
+        // Ini akan otomatis menemukan Enrollment ID 9 (OSCE 2) jika tanggalnya 2025-12-08
+        // Atau Enrollment ID 1 (OSCE 1) jika tanggalnya 2025-12-13
+        $enrollment = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
+            ->whereDate('tanggal_sesi', $selectedDate)
+            ->with(['osce', 'osce.osceStase']) // Load relasi OSCE
+            ->first();
 
-        if ($selectedDate) {
-            $query->whereDate('tanggal_sesi', $selectedDate);
-        }
-
-        $enrollment = $query->first();
-
+        // Validasi: Jika tidak ada jadwal di tanggal itu
         if (!$enrollment || !$enrollment->osce) {
             return null;
         }
 
+        // 2. Ambil Data OSCE dari hasil pencarian di atas
         $osce = $enrollment->osce;
 
-        // --- PENTING: SETTING TIMEZONE ---
-        $timezone = 'Asia/Jakarta'; // Paksa ke WIB
+        // --- Mulai Hitung Waktu & Countdown ---
+        $timezone = 'Asia/Jakarta';
 
-        // 1. Ambil Jam Mulai (String)
+        // Ambil jam sesi langsung dari enrollment (sesuai ERD dan screenshot)
         $jamMulaiStr = $enrollment->jam_sesi ? $enrollment->jam_sesi : '08:00:00';
         $jamMulai = substr($jamMulaiStr, 0, 5);
 
-        // 2. Hitung Waktu Selesai (Hanya untuk display)
+        // Hitung estimasi selesai berdasarkan jumlah durasi stase di OSCE tersebut
         $totalDurasiMenit = $osce->osceStase->sum('durasi_per_mahasiswa');
         $waktuSelesai = Carbon::parse($jamMulaiStr, $timezone)
             ->addMinutes($totalDurasiMenit)
             ->format('H:i');
 
-        // 3. Tentukan Tanggal Fix
-        $tanggalRaw = $enrollment->tanggal_sesi ?? $osce->tanggal_mulai;
-        // Parse tanggal dengan timezone yang benar
-        $tanggalObj = Carbon::parse($tanggalRaw)->timezone($timezone);
-
-        // 4. Buat Target Waktu Lengkap (Tanggal + Jam + Timezone)
-        // Format Y-m-d H:i:s dibutuhkan agar Carbon bisa membuat objek waktu yang akurat
-        $targetDateTime = Carbon::createFromFormat(
-            'Y-m-d H:i:s',
-            $tanggalObj->format('Y-m-d') . ' ' . $jamMulaiStr,
-            $timezone
-        );
-
+        // Buat Target Waktu untuk Countdown
+        $targetDateTime = Carbon::parse($selectedDate . ' ' . $jamMulaiStr, $timezone);
         $now = Carbon::now($timezone);
 
-        // 5. Hitung status awal
         $isFinished = true;
-        $countdownSnapshot = [
-            'days' => 0,
-            'hours' => 0,
-            'minutes' => 0,
-            'seconds' => 0
-        ];
+        $countdownSnapshot = ['days' => '00', 'hours' => '00', 'minutes' => '00', 'seconds' => '00'];
 
         if ($targetDateTime->greaterThan($now)) {
             $isFinished = false;
-            // Snapshot awal (untuk SSR/Render pertama sebelum JS jalan)
             $diff = $targetDateTime->diff($now);
             $countdownSnapshot = [
-                'days'    => $diff->days,
-                'hours'   => $diff->h,
-                'minutes' => $diff->i,
-                'seconds' => $diff->s,
+                'days'    => str_pad($diff->days, 2, '0', STR_PAD_LEFT),
+                'hours'   => str_pad($diff->h, 2, '0', STR_PAD_LEFT),
+                'minutes' => str_pad($diff->i, 2, '0', STR_PAD_LEFT),
+                'seconds' => str_pad($diff->s, 2, '0', STR_PAD_LEFT),
             ];
         }
 
         return [
-            'id_osce'           => $osce->id_osce,
-            'judul'             => $osce->nama_osce,
-            'tanggal_formatted' => $tanggalObj->translatedFormat('d F Y'),
+            'id_osce'           => $osce->id_osce,   // ID OSCE Dinamis
+            'judul'             => $osce->nama_osce, // Nama OSCE Dinamis
+            'tanggal_formatted' => Carbon::parse($selectedDate)->translatedFormat('d F Y'),
             'waktu_mulai'       => $jamMulai,
             'waktu_selesai'     => $waktuSelesai,
-            // PENTING: Kirim format ISO 8601 (e.g., 2025-12-14T08:00:00+07:00)
-            // Ini kunci agar React tahu persis kapan waktu targetnya
             'countdown_target'  => $targetDateTime->toIso8601String(),
             'countdown'         => $countdownSnapshot,
             'is_finished'       => $isFinished,
@@ -137,24 +108,31 @@ class JadwalMahasiswaService
     }
 
     /**
-     * Mengambil List Jadwal Per Stase
+     * Mengambil Tabel Stase
+     * Menggunakan ID OSCE yang didapat dari fungsi getActiveExamInfo sebelumnya
      */
     public function getJadwalStase($idOsce, $selectedDate)
     {
+        // Ambil stase-stase yang milik ID OSCE tersebut
+        // Relasi: osce_stase -> fk id_osce
         $query = OsceStase::with(['stase', 'ruang', 'penguji.pengguna'])
             ->where('id_osce', $idOsce)
+            // Pastikan stase yang diambil adalah stase yang dijadwalkan pada tanggal/jam sesi tersebut
+            // Sesuai ERD, osce_stase juga punya kolom 'tanggal' dan 'jam_mulai'
+            // Kita harus mencocokkan tanggal stase dengan tanggal sesi yang dipilih mahasiswa
+            ->whereDate('tanggal', $selectedDate)
             ->orderBy('jam_mulai', 'asc');
 
         $now = Carbon::now();
         $targetDate = Carbon::parse($selectedDate);
 
-        // Logika filter: Hanya tampilkan jika waktu stase SUDAH LEWAT
+        // Logic Filter History (Sama seperti sebelumnya)
         if ($targetDate->isToday()) {
+            // Jika hari ini, sembunyikan yang sudah lewat jamnya
             $query->whereRaw("CONCAT(?, ' ', jam_selesai) < ?", [$targetDate->toDateString(), $now->toDateTimeString()]);
-        } else if ($targetDate->lessThan($now->startOfDay())) {
-            // Tanggal kemarin/lampau: Tampilkan semua
-        } else {
-            // Tanggal masa depan: Jangan tampilkan apapun (karena belum lewat)
+        } else if ($targetDate->gt($now->startOfDay())) {
+            // Jika tanggal masa depan, jangan tampilkan tabelnya (belum mulai)
+            // Atau bisa dihilangkan else ini jika ingin tetap menampilkan rundown jadwal masa depan
             $query->whereRaw('1 = 0');
         }
 

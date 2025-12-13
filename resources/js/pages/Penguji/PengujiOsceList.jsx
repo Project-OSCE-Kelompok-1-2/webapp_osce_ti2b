@@ -1,5 +1,5 @@
 import { Head, usePage, router, Link } from "@inertiajs/react";
-import React, { useState, useEffect, useMemo } from "react"; // [1] Import Hooks
+import React, { useState, useEffect, useMemo } from "react";
 
 // Sidebar khusus Penguji
 import Sidebar from "../../components/Sidebar";
@@ -51,31 +51,27 @@ const osceColumns = [
     },
 ];
 
-// Button Style Logic
+// Button Style Logic (Label dihapus karena ambil dari backend)
 const getButtonStyle = (status) => {
     switch (status) {
         case "Aktif":
             return {
-                label: "Mulai Ujian",
                 className: "bg-blue-600 hover:bg-blue-700 text-white",
             };
-        case "Tidak Aktif":
+        case "Telah Dinilai":
             return {
-                label: "Ajukan Edit Nilai",
-                className: "bg-blue-400 hover:bg-blue-500 text-white",
+                className: "bg-indigo-500 hover:bg-indigo-600 text-white", // Warna pembeda untuk Telah Dinilai
             };
         case "Selesai":
             return {
-                label: "Lihat Rekap Nilai",
-                className: "bg-blue-700 hover:bg-blue-800 text-white",
+                className: "bg-blue-800 hover:bg-blue-900 text-white",
             };
         case "Belum Dimulai":
             return {
-                label: "Lihat",
                 className: "bg-gray-400 hover:bg-gray-500 text-white",
             };
         default:
-            return { label: "Detail", className: "bg-blue-500 text-white" };
+            return { className: "bg-blue-500 text-white" };
     }
 };
 
@@ -117,9 +113,9 @@ export default function PengujiOsceList() {
 
             let matchTahun = true;
             if (tahun) {
-                // Asumsi: item.tahun_akademik dikirim dari controller
-                // Filter "contains" agar lebih fleksibel (misal "2024" cocok dengan "2024/2025")
-                matchTahun = item.tahun_akademik?.toString().includes(tahun);
+                // Asumsi: item.tahun_akademik dikirim dari controller atau query
+                // Menggunakan optional chaining guarding
+                matchTahun = item.tahun_akademik?.toString().includes(tahun) ?? true;
             }
 
             return matchSearch && matchTahun;
@@ -176,10 +172,17 @@ export default function PengujiOsceList() {
     const mappedData = paginatedData.map((item, index) => {
         const btn = getButtonStyle(item.status);
         let linkHref;
+
+        // --- LOGIKA UTAMA DIRECT LINK ---
         if (item.status === "Aktif") {
+            // Arahkan ke halaman penilaian
             linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}`;
+        } else if (item.status === "Telah Dinilai") {
+            // "Edit Nilai" diarahkan ke halaman Rekap (sesuai request)
+            linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}/submitrubrik`;
         } else if (item.status === "Selesai") {
-            linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}/rekap`;
+            // "Lihat Rekap Nilai" sementara tidak diarahkan kemana-mana
+            linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}/rekap`; 
         }
 
         return {
@@ -201,6 +204,10 @@ export default function PengujiOsceList() {
                             ? "bg-green-100 text-green-800"
                             : item.status === "Belum Dimulai"
                             ? "bg-yellow-100 text-yellow-800"
+                            : item.status === "Telah Dinilai"
+                            ? "bg-indigo-100 text-indigo-800" // Warna Indigo
+                            : item.status === "Selesai"
+                            ? "bg-red-100 text-red-800"       // Warna Merah
                             : "bg-gray-100 text-gray-800"
                     }`}
                 >
@@ -211,16 +218,19 @@ export default function PengujiOsceList() {
                 <Link
                     href={linkHref || "#"}
                     as="button"
+                    // Matikan tombol jika 'Belum Dimulai' ATAU 'Selesai'
+                    disabled={item.status === "Belum Dimulai"}
                     className={`${
                         btn.className
                     } h-[38px] w-full max-w-[140px] rounded-lg text-sm font-medium transition-colors flex items-center justify-center ${
-                        item.status === "Belum Dimulai"
+                        // Berikan efek transparan jika disabled
+                        (item.status === "Belum Dimulai")
                             ? "cursor-not-allowed opacity-50"
                             : ""
                     }`}
-                    disabled={item.status === "Belum Dimulai"}
                 >
-                    {btn.label}
+                    {/* Label diambil langsung dari Backend */}
+                    {item.tombol_label}
                 </Link>
             ),
         };
@@ -264,7 +274,7 @@ export default function PengujiOsceList() {
                         <div className="flex w-full md:w-auto items-stretch md:items-center gap-3">
                             <select
                                 value={tahun}
-                                onChange={(e) => setTahun(e.target.value)} // Instant Update
+                                onChange={(e) => setTahun(e.target.value)}
                                 className="border border-gray-700 rounded-lg h-[46px] w-full md:w-40 bg-white"
                             >
                                 {tahunList.map((t) => (
@@ -273,7 +283,6 @@ export default function PengujiOsceList() {
                                     </option>
                                 ))}
                             </select>
-                            {/* Tombol Cari dihapus atau dijadikan dummy karena instant search */}
                         </div>
                     </div>
 

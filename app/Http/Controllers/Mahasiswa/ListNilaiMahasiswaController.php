@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\EnrollmentOsce;
-use App\Models\Mahasiswa; 
+use App\Models\Mahasiswa;
 use Illuminate\Support\Facades\Auth; // Wajib import Auth
 use Illuminate\Support\Facades\DB;
 
@@ -36,15 +36,16 @@ class ListNilaiMahasiswaController extends Controller
 
         // 3. AMBIL SEMUA DATA NILAI (Client-Side Pagination)
         // Kita hapus filter search/tahun/semester di sini agar frontend dapat semua data
-        
+
         $ujian = EnrollmentOsce::query()
             ->where('enrollment_osce.id_mahasiswa', $mahasiswa->id_mahasiswa)
             ->join('osce', 'osce.id_osce', '=', 'enrollment_osce.id_osce')
             ->leftJoin('tahun_akademik', 'tahun_akademik.id_tahun_akademik', '=', 'osce.id_tahun_akademik')
-            ->addSelect(['nilai_total' => DB::table('nilai_osce')
-                ->selectRaw('COALESCE(SUM(nilai), 0)')
-                ->whereColumn('id_enrollment_osce', 'enrollment_osce.id_enrollment_osce')
-                ->limit(1)
+            ->addSelect([
+                'nilai_total' => DB::table('nilai_osce')
+                    ->selectRaw('COALESCE(SUM(nilai), 0)')
+                    ->whereColumn('id_enrollment_osce', 'enrollment_osce.id_enrollment_osce')
+                    ->limit(1)
             ])
             // [HAPUS] Filter search, tahun, semester di level database
             ->select([
@@ -59,18 +60,18 @@ class ListNilaiMahasiswaController extends Controller
 
         // 4. LOGIKA TAMBAHAN (Formatting)
         // Asumsi tahun masuk statis untuk contoh, sebaiknya ambil dari $mahasiswa->angkatan
-        $tahunMasuk = (int)date('Y') - 2; 
+        $tahunMasuk = (int)date('Y') - 2;
 
         // Karena get() mengembalikan Collection, kita pakai map()
         $ujianData = $ujian->map(function ($item) use ($tahunMasuk) {
-            $tahunAkademik = $item->tahun_akademik ?? date('Y') . "/" . (date('Y')+1);
+            $tahunAkademik = $item->tahun_akademik ?? date('Y') . "/" . (date('Y') + 1);
             $semLabel = $item->semester_label ?? 'Ganjil';
-            
+
             // Hitung semester angka
             $tahunUjian = (int) substr($tahunAkademik, 0, 4);
             $selisih = $tahunUjian - $tahunMasuk;
             $semAngka = ($selisih * 2) + ($semLabel === 'Ganjil' ? 1 : 2);
-            if($semAngka < 1) $semAngka = 1;
+            if ($semAngka < 1) $semAngka = 1;
 
             return [
                 'id' => $item->id,
@@ -84,6 +85,7 @@ class ListNilaiMahasiswaController extends Controller
             ];
         });
 
+        // mengembalikan halaman
         return Inertia::render('Mahasiswa/NilaiIndex', [
             'mahasiswa' => [
                 'nama'   => $mahasiswa->nama,
