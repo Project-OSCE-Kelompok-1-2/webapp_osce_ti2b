@@ -59,29 +59,29 @@ class MahasiswaController extends Controller
      * Menyimpan mahasiswa baru (Form Submit)
      */
     public function store(Request $request)
-    {
-        $validated = $request->validate([
-            'nim'   => [
-                'required',
-                'string',
-                'max:20',
-                'unique:mahasiswa,nim',
-                function ($attribute, $value, $fail) {
-                    if (Pengguna::where('username', $value)->exists()) {
-                        $fail('NIM ini sudah digunakan sebagai username di tabel pengguna.');
-                    }
-                },
-            ],
-            'nama'  => 'required|string|max:255',
-            'kelas' => 'required|string|max:50',
-            'prodi' => 'required|string|max:100',
-        ]);
+{
+    $validated = $request->validate([
+        'nim'   => [
+            'required', 'string', 'max:20', 'unique:mahasiswa,nim',
+            function ($attribute, $value, $fail) {
+                if (Pengguna::where('username', $value)->exists()) {
+                    $fail('NIM ini sudah digunakan sebagai username.');
+                }
+            },
+        ],
+        'nama'  => 'required|string|max:255',
+        'kelas' => 'required|string|max:50',
+        'prodi' => 'required|string|max:100',
+        
+        // TAMBAHKAN BARIS INI AGAR DATA TAHUN DITERIMA
+        'angkatan' => 'required|string', 
+    ]);
 
-        $this->service->store($validated);
+    $this->service->store($validated);
 
-        return Redirect::route('admin.mahasiswa.index')
-            ->with('success', 'Mahasiswa baru berhasil ditambahkan.');
-    }
+    return Redirect::route('admin.mahasiswa.index')
+        ->with('success', 'Mahasiswa baru berhasil ditambahkan.');
+}
 
     /**
      * Menampilkan halaman form untuk mengedit mahasiswa
@@ -119,6 +119,7 @@ class MahasiswaController extends Controller
             'nama'  => 'required|string|max:255',
             'kelas' => 'required|string|max:50',
             'prodi' => 'required|string|max:100',
+            'angkatan' => 'required|string',
         ]);
 
         $this->service->update($validated, $mahasiswa);

@@ -18,99 +18,87 @@ class MahasiswaService
     /**
      * Mengambil daftar mahasiswa dengan filter dan paginasi.
      */
-    public function getAll($search = null, $angkatan = null, $tanggal_mulai = null, $tanggal_selesai = null)
-    {
-        // 1. Inisialisasi query Mahasiswa
-        $mahasiswaQuery = Mahasiswa::query();
+    public function getAll($search = null, $angkatan = null)
+{
+    // 1. Tambahkan 'with' agar query lebih ringan (Eager Loading)
+    $mahasiswaQuery = Mahasiswa::query()->with(['enrollment.tahunAkademik']);
 
-        // 2. Filter berdasarkan NIM atau Nama ($search)
-        $mahasiswaQuery->when($search, function ($query, $search) {
-            $query->where(function ($q) use ($search) {
-                $q->where('nim', 'like', "%{$search}%")
-                    ->orWhere('nama', 'like', "%{$search}%");
+    // ... (Logic Filter Search & Angkatan BIARKAN SAMA SEPERTI SEBELUMNYA) ...
+    $mahasiswaQuery->when($search, function ($query, $search) {
+        $query->where(function ($q) use ($search) {
+            $q->where('nim', 'like', "%{$search}%")
+                ->orWhere('nama', 'like', "%{$search}%");
+        });
+    });
+
+    if ($angkatan && $angkatan !== 'SEMUA') {
+        $mahasiswaQuery->whereHas('enrollment', function ($qEnroll) use ($angkatan) {
+            $qEnroll->whereHas('tahunAkademik', function ($qTahun) use ($angkatan) {
+                $qTahun->where('tahun', $angkatan);
             });
         });
-
-        // 3. Filter berdasarkan Angkatan/Tahun Akademik ($angkatan) dan Tanggal
-        if ($angkatan) {
-            // Cari Tahun Akademik berdasarkan tahun angkatan
-            $tahun_akademik = TahunAkademik::where("tahun", $angkatan)->first();
-
-            if ($tahun_akademik) {
-                // A. Filter Mahasiswa berdasarkan Enrollment dari Tahun Akademik
-                // Kita mendapatkan semua ID Mahasiswa yang terdaftar (enrolled) pada Tahun Akademik ini
-                $enrolled_mahasiswa_ids = $tahun_akademik->enrollment()
-                    ->pluck('id_mahasiswa');
-
-                $mahasiswaQuery->whereIn('id_mahasiswa', $enrolled_mahasiswa_ids);
-
-                // B. Filter berdasarkan Rentang Tanggal yang dikirimkan
-                // Asumsi model TahunAkademik memiliki kolom 'tanggal_mulai' dan 'tanggal_selesai'
-                // Kita perlu mengambil data mahasiswa berdasarkan tanggal yang dikirim dari kueri parameter.
-                // Jika filter tanggal berlaku, kita perlu memastikan hanya mahasiswa yang terdaftar 
-                // di tahun akademik yang tanggalnya cocok yang terpilih.
-
-                if ($tanggal_mulai && $tanggal_selesai) {
-                    // Di sini Anda perlu menentukan logika tanggal. Jika tanggalnya merujuk ke field di TahunAkademik, 
-                    // maka filter ini agak redundant karena $tahun_akademik sudah spesifik.
-                    // Jika $tanggal_mulai dan $tanggal_selesai merujuk pada tanggal pendaftaran (di tabel Enrollment), 
-                    // maka filter harus diterapkan pada tabel Enrollment.
-
-                    // Opsi 1: Filter Mahasiswa yang terdaftar (Enrollment) pada Tahun Akademik DAN Tanggal tertentu
-                    $enrollment_filtered_ids = $tahun_akademik->enrollment()
-                        ->whereBetween('tanggal_pendaftaran', [$tanggal_mulai, $tanggal_selesai])
-                        ->pluck('id_mahasiswa');
-
-                    // Gabungkan filter ID Mahasiswa yang sudah ada dengan ID Mahasiswa yang difilter tanggal
-                    $mahasiswaQuery->whereIn('id_mahasiswa', $enrollment_filtered_ids);
-
-                    // Catatan: Jika Anda tidak punya kolom 'tanggal_pendaftaran' di tabel Enrollment, 
-                    // Anda mungkin perlu menyesuaikan di mana tanggal tersebut disimpan.
-                }
-            } else {
-                // Jika Tahun Akademik tidak ditemukan, kembalikan hasil kosong agar tidak memuat semua mahasiswa.
-                $mahasiswaQuery->whereRaw('1 = 0'); // Trik untuk menghasilkan set hasil kosong
-            }
-        }
-
-        // 4. Eksekusi Query dan Pagination
-        $mahasiswa = $mahasiswaQuery
-            ->orderBy('id_mahasiswa', 'desc')
-            ->paginate(10)
-            ->withQueryString()
-            ->through(fn($mhs) => [
-                'id_mahasiswa' => $mhs->id_mahasiswa,
-                'nim' => $mhs->nim,
-                'nama' => $mhs->nama,
-                'kelas' => $mhs->kelas, // Asumsi 'kelas' adalah field di tabel Mahasiswa
-                'prodi' => $mhs->prodi, // Asumsi 'prodi' adalah field di tabel Mahasiswa
-            ]);
-
-        return $mahasiswa;
     }
+    // ... (Akhir Logic Filter) ...
+
+    $mahasiswa = $mahasiswaQuery
+        ->orderBy('nama', 'asc')
+        ->paginate(10)
+        ->withQueryString()
+        ->through(fn($mhs) => [
+            'id_mahasiswa' => $mhs->id_mahasiswa,
+            'nim' => $mhs->nim,
+            'nama' => $mhs->nama,
+            'kelas' => $mhs->kelas, // Ini mengambil data dari kolom kelas
+            'prodi' => $mhs->prodi,
+            
+            // [PERBAIKAN UTAMA ADA DISINI]
+            // Ambil tahun dari tabel enrollment -> tahun_akademik
+            'angkatan' => $mhs->enrollment->first()?->tahunAkademik?->tahun ?? "",
+        ]);
+
+    return $mahasiswa;
+}
 
     /**
      * Logika validasi dan penyimpanan mahasiswa baru (Transaction).
      */
     public function store($validated)
-    {
-        return DB::transaction(function () use ($validated) {
-            $pengguna = Pengguna::create([
-                'username' => $validated['nim'],
-                'password' => $validated['nim'], // Default password = NIM
-                'jenis_role' => 'mahasiswa',
-            ]);
+{
+    return DB::transaction(function () use ($validated) {
+        // 1. Buat User
+        $pengguna = Pengguna::create([
+            'username' => $validated['nim'],
+            'password' => bcrypt($validated['nim']),
+            'jenis_role' => 'mahasiswa',
+        ]);
 
-            return Mahasiswa::create([
-                'id_pengguna' => $pengguna->id_pengguna,
-                'nim'   => $validated['nim'],
-                'nama'  => $validated['nama'],
-                'kelas' => $validated['kelas'],
-                'prodi' => $validated['prodi'],
-                'status' => 'aktif',
+        // 2. Buat Mahasiswa (Simpan Kelas A/B/C)
+        $mahasiswa = Mahasiswa::create([
+            'id_pengguna' => $pengguna->id_pengguna,
+            'nim'   => $validated['nim'],
+            'nama'  => $validated['nama'],
+            'kelas' => $validated['kelas'], // Ini sekarang menyimpan "A", "B", dst.
+            'prodi' => $validated['prodi'],
+            'status' => 'aktif',
+        ]);
+
+        // 3. LOGIKA ENROLLMENT (PERBAIKAN DI SINI)
+        // Gunakan 'angkatan' (2025/2026), JANGAN 'kelas'
+        $tahunString = $validated['angkatan']; 
+        
+        $tahunAkademik = TahunAkademik::where('tahun', $tahunString)->first();
+
+        if ($tahunAkademik) {
+            Enrollment::create([
+                'id_mahasiswa' => $mahasiswa->id_mahasiswa,
+                'id_tahun_akademik' => $tahunAkademik->id_tahun_akademik,
+                'tanggal_daftar' => now(),
             ]);
-        });
-    }
+        }
+
+        return $mahasiswa;
+    });
+}
 
     /**
      * Mengambil data satu mahasiswa (format sesuai kebutuhan edit).
@@ -130,24 +118,48 @@ class MahasiswaService
      * Logika validasi dan update mahasiswa (Transaction).
      */
     public function update($validated, Mahasiswa $mahasiswa)
-    {
-        DB::transaction(function () use ($validated, $mahasiswa) {
-            $mahasiswa->update([
-                'nim'   => $validated['nim'],
-                'nama'  => $validated['nama'],
-                'kelas' => $validated['kelas'],
-                'prodi' => $validated['prodi'],
-            ]);
+{
+    return DB::transaction(function () use ($validated, $mahasiswa) {
+        // 1. Update Data Mahasiswa
+        $mahasiswa->update([
+            'nim'   => $validated['nim'],
+            'nama'  => $validated['nama'],
+            'kelas' => $validated['kelas'],
+            'prodi' => $validated['prodi'],
+        ]);
 
-            if ($mahasiswa->pengguna) {
-                $mahasiswa->pengguna->update([
-                    'username' => $validated['nim'],
-                ]);
+        // 2. Update Username (jika perlu)
+        if ($mahasiswa->pengguna) {
+            $mahasiswa->pengguna->update(['username' => $validated['nim']]);
+        }
+
+        // 3. [BARU] Update Enrollment (Pindah Angkatan)
+        if (isset($validated['angkatan'])) {
+            $tahunBaru = TahunAkademik::where('tahun', $validated['angkatan'])->first();
+
+            if ($tahunBaru) {
+                // Cek enrollment lama
+                $enrollment = $mahasiswa->enrollment()->first();
+
+                if ($enrollment) {
+                    // Update enrollment yang ada
+                    $enrollment->update([
+                        'id_tahun_akademik' => $tahunBaru->id_tahun_akademik
+                    ]);
+                } else {
+                    // Jika belum punya enrollment (kasus data lama rusak), buat baru
+                    Enrollment::create([
+                        'id_mahasiswa' => $mahasiswa->id_mahasiswa,
+                        'id_tahun_akademik' => $tahunBaru->id_tahun_akademik,
+                        'tanggal_daftar' => now(),
+                    ]);
+                }
             }
-        });
+        }
 
         return $mahasiswa->refresh();
-    }
+    });
+}
 
     /**
      * Logika hapus mahasiswa (Transaction).
