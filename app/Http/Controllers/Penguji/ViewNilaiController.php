@@ -15,20 +15,21 @@ class ViewNilaiController extends Controller
     public function __invoke($id_enrollment_osce)
     {
         // 1. Ambil Data Enrollment & Mahasiswa
-        $enrollment = EnrollmentOsce::with(['mahasiswa', 'osce']) // Load OSCE juga untuk judul jika perlu
+        // HAPUS '.prodi' karena Mahasiswa Model tidak punya relasi prodi
+        $enrollment = EnrollmentOsce::with(['mahasiswa', 'osce'])
             ->findOrFail($id_enrollment_osce);
 
-        // --- VALIDASI AKSES  ---
-        $penguji = Auth::user(); 
-        $penguji = $user->penguji;
+        // --- PERBAIKAN BUG: Gunakan $pengguna secara konsisten ---
+        $pengguna = Auth::user(); 
         
-        // Pastikan user punya profil penguji
-        if (!$user->penguji) {
-            abort(403, 'Akun tidak valid.');
+        // Pastikan pengguna punya profil penguji
+        if (!$pengguna->penguji) {
+            abort(403, 'Akun tidak valid: Anda bukan penguji.');
         }
 
+        // --- VALIDASI AKSES ---
         $isAuthorized = OsceStase::where('id_osce', $enrollment->id_osce)
-            ->where('id_penguji', $user->penguji->id_penguji)
+            ->where('id_penguji', $pengguna->penguji->id_penguji)
             ->exists();
 
         if (!$isAuthorized) {
@@ -36,13 +37,12 @@ class ViewNilaiController extends Controller
         }
 
         // 3. Cari satu sampel nilai untuk menentukan Stase mana yang dinilai
-        // Kita load nested relation sampai ke aspek penilaian untuk dapat ID Stase
         $sampleNilai = NilaiOsce::with('poinAspekPenilaian.aspekPenilaian')
             ->where('id_enrollment_osce', $id_enrollment_osce)
             ->first();
 
         if (!$sampleNilai) {
-            abort(404, 'Data nilai belum ditemukan (Mahasiswa belum dinilai).');
+            abort(404, 'Data nilai belum ditemukan (Mahasiswa belum dinilai oleh penguji stase ini).');
         }
 
         $idStase = $sampleNilai->poinAspekPenilaian->aspekPenilaian->id_stase;
@@ -55,7 +55,7 @@ class ViewNilaiController extends Controller
         // 5. Ambil SEMUA Nilai untuk enrollment ini
         $nilaiTersimpan = NilaiOsce::where('id_enrollment_osce', $id_enrollment_osce)
             ->get()
-            ->keyBy('id_poin_aspek_penilaian'); // Key array pakai ID agar akses cepat
+            ->keyBy('id_poin_aspek_penilaian');
 
         $totalNilaiAspek = 0;
 
@@ -66,9 +66,9 @@ class ViewNilaiController extends Controller
                 
                 $nilaiEntry = $nilaiTersimpan->get($poin->id_poin_aspek_penilaian);
                 
-                // Pastikan skor angka (int/float)
-                $skor = $nilaiEntry ? (float) $nilaiEntry->nilai : 0;
+                $skor = $nilaiEntry ? (float) $nilaiEntry->nilai : 0.0; 
                 $bobot = (float) $poin->bobot;
+                
                 $nilaiKompetensi = $skor * $bobot;
 
                 $totalNilaiAspek += $nilaiKompetensi;
@@ -76,28 +76,31 @@ class ViewNilaiController extends Controller
                 return [
                     'id_poin_aspek_penilaian' => $poin->id_poin_aspek_penilaian,
                     'deskripsi'        => $poin->kompetensi,
-                    'skor'             => $skor,             // Raw score (skala penguji)
+                    'skor'             => $skor,       
                     'bobot'            => $bobot,
-                    'nilai_kompetensi' => $nilaiKompetensi,  // Score * Bobot
+                    'nilai_kompetensi' => $nilaiKompetensi,  
                 ];
             });
 
             return [
-                'aspek' => $aspek->aspek, // Nama Aspek (Judul Kategori)
+                'aspek' => $aspek->aspek, 
                 'kompetensi' => $kompetensiTerisi,
             ];
         });
+
+        // Catatan: Asumsi kolom 'catatan' ada di tabel EnrollmentOsce
+        $feedback = $enrollment->catatan ?? '';
 
         return Inertia::render('Penguji/ViewNilaiDetail', [
             'mahasiswa' => [
                 'nama'    => $enrollment->mahasiswa->nama,
                 'nim'     => $enrollment->mahasiswa->nim,
-                // Gunakan null coalescing operator (??) jika relasi prodi belum tentu ada
-                'jurusan' => $enrollment->mahasiswa->prodi ?? '-', 
+                // PERBAIKAN: Akses kolom 'prodi' (string) langsung dari Model Mahasiswa
+                'jurusan' => $enrollment->mahasiswa->prodi ?? 'Prodi Tidak Tersedia', 
             ],
             'rubrik_terisi'     => $rubrikTerisi,
             'total_nilai_aspek' => $totalNilaiAspek,
-            'feedback'          => $enrollment->catatan ?? '',
+            'feedback'          => $feedback,
         ]);
     }
 }
