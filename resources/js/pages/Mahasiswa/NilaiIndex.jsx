@@ -3,11 +3,11 @@ import { Head, Link, usePage, router } from "@inertiajs/react";
 import { ChevronRight, FileText, User } from "lucide-react";
 
 // --- IMPORT KOMPONEN ---
-import Sidebar from "@/Components/Sidebar";
+import Sidebar from "../../components/Sidebar";
 import OsPagination from "../../components/pagination";
-import OsSearchBar from "@/Components/searchbar";
-import OsHeader from "@/Components/Header";
-import OsCopyright from "@/Components/Copyright";
+import OsSearchBar from "../../components/searchbar";
+import OsHeader from "../../components/Header";
+import OsCopyright from "../../components/Copyright";
 import OsTableBody from "../../components/tablecontain"; // Asumsi ada OsTableBody, jika tidak pakai table biasa
 
 export default function NilaiIndex() {
