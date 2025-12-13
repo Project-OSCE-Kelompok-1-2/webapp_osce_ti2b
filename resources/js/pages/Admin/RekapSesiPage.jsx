@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react"; // [1] Tambah Import Hooks
 import { Link, usePage, router, Head } from "@inertiajs/react";
-import { Search, ArrowLeft } from "lucide-react";
+import { Search, ArrowLeft, Bookmark, Table2, Info  } from "lucide-react";
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
