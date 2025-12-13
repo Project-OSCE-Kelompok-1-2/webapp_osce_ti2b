@@ -126,10 +126,13 @@ class RekapNilaiService
     public function getMahasiswaPerSesi($id_osce, $id_sesi)
     {
         // 1. Pecah ID Sesi
+        // ID Sesi formatnya: YYYY-MM-DD_HHmm (contoh: 2025-12-12_1432)
         $parts = explode('_', $id_sesi);
         $sesi_tanggal = $parts[0];
         $sesi_jam_raw = isset($parts[1]) ? $parts[1] : '';
 
+        // Format ulang jam agar sesuai format DB (HH:mm)
+        // Dari "1432" menjadi "14:32"
         $sesi_jam_display = '';
         if (strlen($sesi_jam_raw) == 4) {
             $sesi_jam_display = substr($sesi_jam_raw, 0, 2) . ':' . substr($sesi_jam_raw, 2, 2);
@@ -138,20 +141,35 @@ class RekapNilaiService
         $osce = Osce::findOrFail($id_osce);
 
         // 2. Ambil ID mahasiswa yang ter-enroll di SESI INI
+        // [FIX]: Mengaktifkan filter 'jam_sesi' menggunakan LIKE
         $enrolled_ids = EnrollmentOsce::where('id_osce', $id_osce)
             ->where('tanggal_sesi', $sesi_tanggal)
-            // Jika perlu filter jam: ->where('jam_sesi', 'LIKE', $sesi_jam_display . '%')
+            // Menggunakan LIKE agar match dengan format H:i:s atau H:i di database
+            ->where('jam_sesi', 'LIKE', $sesi_jam_display . '%') 
             ->pluck('id_mahasiswa');
 
-        // 3. Query Mahasiswa (Ambil SEMUA tanpa filter search/angkatan)
-        $mahasiswa_list = Mahasiswa::whereIn('id_mahasiswa', $enrolled_ids)
-            ->orderBy('nama', 'asc')
-            ->get() // [PENTING] Gunakan get()
+        // 3. Query Mahasiswa
+        // Ambil data mahasiswa berdasarkan ID yang didapat dari filter di atas
+        $query = Mahasiswa::whereIn('id_mahasiswa', $enrolled_ids);
+
+        // [OPSIONAL] Filter Search server-side (jika dibutuhkan selain client-side)
+        // if ($search) {
+        //    $query->where('nama', 'like', "%{$search}%")
+        //          ->orWhere('nim', 'like', "%{$search}%");
+        // }
+
+        // [OPSIONAL] Filter Angkatan server-side
+        // if ($angkatan) {
+        //    $query->where('kelas', $angkatan);
+        // }
+
+        $mahasiswa_list = $query->orderBy('nama', 'asc')
+            ->get()
             ->map(fn($mhs) => [
                 'id_mahasiswa' => $mhs->id_mahasiswa,
                 'nim' => $mhs->nim,
                 'nama' => $mhs->nama,
-                'kelas' => $mhs->kelas, // Tambahkan ini agar bisa difilter angkatan di frontend
+                'kelas' => $mhs->kelas,
             ]);
 
         return [
@@ -160,9 +178,9 @@ class RekapNilaiService
                 'id' => $id_sesi,
                 'tanggal' => $sesi_tanggal,
                 'tanggal_formatted' => (new \DateTime($sesi_tanggal))->format('d M Y'),
-                'jam' => $sesi_jam_display,
+                'jam' => $sesi_jam_display, // Jam yang sudah diformat (14:32)
             ],
-            'mahasiswa_list' => $mahasiswa_list // Array Full
+            'mahasiswa_list' => $mahasiswa_list 
         ];
     }
 
