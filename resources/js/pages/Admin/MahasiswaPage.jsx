@@ -347,7 +347,7 @@ export default function MahasiswaPage() {
 
                     {/* --- SEARCH BAR & FILTER ANGKATAN --- */}
                     {/* Menggunakan Flexbox agar sejajar */}
-                    <div className="flex flex-col sm:flex-row gap-3 mb-2">
+                    <div className="flex flex-col sm:flex-row gap-3">
                         <div className="flex-grow">
                             <OsSearchBar
                                 search={search}
@@ -376,7 +376,7 @@ export default function MahasiswaPage() {
                     </div>
 
                     <section>
-                        <div className="flex gap-1 items-center justify-start my-2">
+                        <div className="flex gap-1 items-center justify-start mb-2">
                             <Table2 size={18} />
                             <h2 className="font-semibold text-lg">
                                 Tabel Mahasiswa{" "}

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { router, usePage } from "@inertiajs/react";
-import { Edit2, Trash2 } from "lucide-react";
+import { Edit2, Trash2, FileText, Table2 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header";
@@ -270,14 +270,18 @@ export default function OsceListPage({
     }));
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader onMenuClick={handleSidebarToggle} />
 
                 <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-1">Menu OSCE</h2>
+                    {/* <h2 className="font-semibold text-lg mb-1">Menu OSCE</h2> */}
+                    <div className="flex gap-1 items-center justify-start my-2">
+                        <FileText size={18} />
+                        <h2 className="font-semibold text-lg">Menu OSCE</h2>
+                    </div>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
                         Halaman OSCE digunakan untuk mengelola daftar OSCE.
                     </p>
@@ -299,12 +303,12 @@ export default function OsceListPage({
 
                     <section>
                         {/* --- SEARCH BAR & FILTER (DIMODIFIKASI) --- */}
-                        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                        <div className="flex flex-col sm:flex-row gap-3">
                             <div className="flex-grow">
                                 <OsSearchBar
                                     search={search}
                                     setSearch={setSearch}
-                                    placeholder="Cari data OSCE..."
+                                    placeholder="Cari data OSCE secara instan..."
                                 />
                             </div>
 
@@ -331,19 +335,28 @@ export default function OsceListPage({
                             </div>
                         </div>
 
-                        <h2 className="text-lg font-semibold mb-2">
+                        {/* <h2 className="text-lg font-semibold mb-2">
                             Table OSCE
                             <span className="text-sm font-normal text-gray-500 ml-2">
                                 (Total: {totalItems} data)
                             </span>
-                        </h2>
+                        </h2> */}
+                        <div className="flex gap-1 items-center justify-start mb-2">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Table OSCE
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
+                        </div>
 
-                        <div className="w-full overflow-x-auto pb-4">
+                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
                             <div className="min-w-max">
                                 <OsTableHeader columns={columns} />
                                 <OsTableBody data={rows} columns={columns} />
                             </div>
-                        </div>
+                        </section>
 
                         {totalPages > 1 && (
                             <div className="mt-8">

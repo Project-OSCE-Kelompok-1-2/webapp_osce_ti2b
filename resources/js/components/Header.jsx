@@ -1,5 +1,5 @@
 import React from "react";
-import { Home, ArrowLeft, Menu } from "lucide-react";
+import { Home, ArrowLeft, Menu, Undo2} from "lucide-react";
 import { usePage } from "@inertiajs/react";
 import Sidebar from "./Sidebar";
 
@@ -43,10 +43,10 @@ export default function OsHeader({
                     // Tampilkan Tombol Go Back. Di mobile/default dia akan flex, di desktop dia juga flex
                     <a
                         href={backLink}
-                        className="flex w-[46px] h-[46px] items-center justify-center relative bg-gray-600 text-white rounded-xl border border-solid border-gray-700 aspect-[1] hover:bg-gray-700 transition"
+                        className="flex w-[46px] h-[46px] items-center justify-center relative text-blue-900 rounded-xl border border-solid border-blue-900 aspect-[1] transition"
                         aria-label="Go Back"
                     >
-                        <ArrowLeft className="relative w-[28px] h-[24px]" />
+                        <Undo2 size={30} />
                     </a>
                 ) : (
                     <>
@@ -56,7 +56,7 @@ export default function OsHeader({
                             className="lg:flex w-[46px] h-[46px] hidden items-center justify-center relative bg-blue-900 text-white rounded-xl border border-solid  aspect-[1] hover:bg-blue-700 transition"
                             aria-label="Home"
                         >
-                            <Home className="relative w-[30px] h-[26px]" />
+                            <Home size={28} />
                         </a>
                         {/* Tampilkan Tombol Menu di mobile */}
                         <button
@@ -64,7 +64,7 @@ export default function OsHeader({
                             className="flex lg:hidden w-[46px] h-[46px] items-center justify-center relative bg-blue-900 text-white rounded-xl border border-solid border-blue-700 aspect-[1] hover:bg-blue-700 transition"
                             aria-label="Menu"
                         >
-                            <Menu className="relative w-[30px] h-[26px]" />
+                            <Menu size={28} />
                         </button>
                     </>
                 )}
