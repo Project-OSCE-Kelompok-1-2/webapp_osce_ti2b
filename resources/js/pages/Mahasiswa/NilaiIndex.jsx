@@ -1,19 +1,21 @@
-import React, { useState, useEffect, useMemo } from "react"; // [1] Import Hooks
-import { Head, Link, usePage, router } from "@inertiajs/react";
-import { ChevronRight, FileText, User } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { Head, Link, usePage } from "@inertiajs/react";
+import { FileText, User } from "lucide-react";
 
-// --- IMPORT KOMPONEN ---
 import Sidebar from "@/Components/Sidebar";
 import OsPagination from "../../components/pagination";
 import OsSearchBar from "@/Components/searchbar";
 import OsHeader from "@/Components/Header";
 import OsCopyright from "@/Components/Copyright";
-import OsTableBody from "../../components/tablecontain"; // Asumsi ada OsTableBody, jika tidak pakai table biasa
 
 export default function NilaiIndex() {
-    // 1. Ambil Data Full
+    // 1. Ambil Data Full termasuk filters dari backend
     const { mahasiswa, ujian, filters } = usePage().props;
     const allUjianData = Array.isArray(ujian) ? ujian : ujian?.data || [];
+
+    // Ambil opsi filter dari props (fallback ke array kosong jika undefined)
+    const semesterOptions = filters?.semesters || [];
+    const yearOptions = filters?.years || [];
 
     // 2. State Filter & Pagination
     const [search, setSearch] = useState("");
@@ -25,37 +27,26 @@ export default function NilaiIndex() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // --- INSTANT FILTER LOGIC ---
-
-    // A. Reset halaman saat filter berubah
     useEffect(() => {
         setCurrentPage(1);
     }, [search, filterSemester, filterTahun]);
 
-    // B. Filter Data
     const filteredData = useMemo(() => {
         return allUjianData.filter((item) => {
             const term = search.toLowerCase();
 
-            // Filter Search (Nama Ujian atau Dosen)
+            // Filter Search
             const matchSearch =
                 item.nama_ujian?.toLowerCase().includes(term) ||
                 item.dosen_penguji?.toLowerCase().includes(term);
 
-            // Filter Semester (Ganjil/Genap label atau Angka Semester)
-            // Di controller kita kirim 'semester_label' (Ganjil/Genap) dan 'semester' (1, 2, 3...)
+            // Filter Semester (String Match)
             let matchSemester = true;
             if (filterSemester) {
-                // Jika filterSemester berisi "Ganjil"/"Genap", cek semester_label
-                // Jika berisi angka, cek semester
-                if (filterSemester === "Ganjil" || filterSemester === "Genap") {
-                    matchSemester = item.semester_label === filterSemester;
-                } else {
-                    // Jika filter angka (opsional jika dropdown punya angka)
-                    matchSemester = item.semester === filterSemester;
-                }
+                matchSemester = item.semester_label === filterSemester;
             }
 
-            // Filter Tahun
+            // Filter Tahun (String Match)
             let matchTahun = true;
             if (filterTahun) {
                 matchTahun = item.tahun_ujian === filterTahun;
@@ -65,7 +56,7 @@ export default function NilaiIndex() {
         });
     }, [search, filterSemester, filterTahun, allUjianData]);
 
-    // C. Slice Pagination
+    // Pagination Logic
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -73,7 +64,7 @@ export default function NilaiIndex() {
         currentPage * itemsPerPage
     );
 
-    // D. Generate Links
+    // Generate Pagination Links
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];
@@ -139,13 +130,12 @@ export default function NilaiIndex() {
                         </div>
                     </div>
 
-                    {/* Card Info Mahasiswa (SAMA) */}
+                    {/* Card Info Mahasiswa (Tidak Berubah) */}
                     <div className="relative mb-8 overflow-hidden rounded-2xl bg-blue-600 p-6 text-white shadow-xl shadow-blue-100">
                         <div className="absolute right-0 top-0 h-64 w-64 translate-x-16 -translate-y-16 rounded-full bg-white/10 blur-3xl"></div>
                         <div className="absolute left-0 bottom-0 h-40 w-40 -translate-x-10 translate-y-10 rounded-full bg-blue-400/30 blur-2xl"></div>
 
                         <div className="relative z-10 grid grid-cols-1 gap-8 lg:grid-cols-12">
-                            {/* Kiri: Profil */}
                             <div className="lg:col-span-7 flex flex-col justify-center space-y-6">
                                 <div className="flex items-start gap-5">
                                     <div className="mt-1 flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
@@ -182,9 +172,10 @@ export default function NilaiIndex() {
                                 </div>
                             </div>
 
-                            {/* Kanan: Filter Panel */}
+                            {/* Kanan: Filter Panel Dinamis */}
                             <div className="lg:col-span-5 flex flex-col justify-center rounded-xl bg-blue-700/40 p-5 backdrop-blur-md border border-white/10">
                                 <div className="space-y-4">
+                                    {/* Filter Semester */}
                                     <div className="space-y-1">
                                         <label className="text-xs font-semibold text-blue-100 uppercase tracking-wider">
                                             Semester
@@ -195,7 +186,7 @@ export default function NilaiIndex() {
                                                 setFilterSemester(
                                                     e.target.value
                                                 )
-                                            } // Update state langsung
+                                            }
                                             className="w-full rounded-lg border-0 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-blue-200 focus:ring-2 focus:ring-white/50 transition cursor-pointer hover:bg-white/20"
                                         >
                                             <option
@@ -204,20 +195,21 @@ export default function NilaiIndex() {
                                             >
                                                 Semua Semester
                                             </option>
-                                            <option
-                                                value="Ganjil"
-                                                className="text-gray-800"
-                                            >
-                                                Ganjil
-                                            </option>
-                                            <option
-                                                value="Genap"
-                                                className="text-gray-800"
-                                            >
-                                                Genap
-                                            </option>
+                                            {semesterOptions.map(
+                                                (sem, index) => (
+                                                    <option
+                                                        key={index}
+                                                        value={sem}
+                                                        className="text-gray-800"
+                                                    >
+                                                        {sem}
+                                                    </option>
+                                                )
+                                            )}
                                         </select>
                                     </div>
+
+                                    {/* Filter Tahun Ujian */}
                                     <div className="space-y-1">
                                         <label className="text-xs font-semibold text-blue-100 uppercase tracking-wider">
                                             Tahun Ujian
@@ -226,7 +218,7 @@ export default function NilaiIndex() {
                                             value={filterTahun}
                                             onChange={(e) =>
                                                 setFilterTahun(e.target.value)
-                                            } // Update state langsung
+                                            }
                                             className="w-full rounded-lg border-0 bg-white/10 px-4 py-2.5 text-sm text-white placeholder-blue-200 focus:ring-2 focus:ring-white/50 transition cursor-pointer hover:bg-white/20"
                                         >
                                             <option
@@ -235,26 +227,18 @@ export default function NilaiIndex() {
                                             >
                                                 Semua Tahun
                                             </option>
-                                            <option
-                                                value="2024/2025"
-                                                className="text-gray-800"
-                                            >
-                                                2024/2025
-                                            </option>
-                                            <option
-                                                value="2025/2026"
-                                                className="text-gray-800"
-                                            >
-                                                2025/2026
-                                            </option>
-                                            <option
-                                                value="2026/2027"
-                                                className="text-gray-800"
-                                            >
-                                                2026/2027
-                                            </option>
+                                            {yearOptions.map((year, index) => (
+                                                <option
+                                                    key={index}
+                                                    value={year}
+                                                    className="text-gray-800"
+                                                >
+                                                    {year}
+                                                </option>
+                                            ))}
                                         </select>
                                     </div>
+
                                     <div className="mt-5 flex items-center justify-between border-t border-white/20 pt-4">
                                         <span className="text-sm font-medium text-blue-100">
                                             Status Akademik
@@ -272,7 +256,7 @@ export default function NilaiIndex() {
                     <div className="mb-2">
                         <OsSearchBar
                             search={search}
-                            setSearch={setSearch} // Instant Update
+                            setSearch={setSearch}
                             placeholder="Cari nama ujian atau dosen..."
                         />
                     </div>
@@ -299,9 +283,7 @@ export default function NilaiIndex() {
                                         <th className="px-6 py-4">
                                             Nama Ujian
                                         </th>
-                                        <th className="px-6 py-4">
-                                            Dosen Penguji
-                                        </th>
+
                                         <th className="px-6 py-4 text-center">
                                             Semester
                                         </th>
@@ -333,9 +315,7 @@ export default function NilaiIndex() {
                                                         {item.tahun_ujian}
                                                     </div>
                                                 </td>
-                                                <td className="px-6 py-4 text-gray-500">
-                                                    {item.dosen_penguji || "-"}
-                                                </td>
+
                                                 <td className="px-6 py-4 text-center font-medium">
                                                     {item.semester}
                                                 </td>
@@ -386,7 +366,6 @@ export default function NilaiIndex() {
                         </div>
                     </div>
 
-                    {/* PAGINATION */}
                     <div className="mt-6">
                         {totalPages > 1 && (
                             <OsPagination

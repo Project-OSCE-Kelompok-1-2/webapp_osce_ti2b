@@ -29,7 +29,7 @@ class NilaiMahasiswaController extends Controller
             'osce.osceStase.stase',
             'nilaiOsce.poinAspekPenilaian.aspekPenilaian',
         ])->findOrFail($id);
-        
+
         // ---------------------------------------------------------------------
         // 2. MEMBANGUN DATA HEADER UNTUK FRONTEND
         //    (Nama mahasiswa, mata kuliah/OSCE, tahun akademik)
@@ -63,9 +63,10 @@ class NilaiMahasiswaController extends Controller
 
         // Mengumpulkan seluruh poin aspek yang sudah dinilai
         // NilaiOsce mengandung poinAspekPenilaian (setiap aspek)
+        dd($enrollment->nilaiOsce);
         $allPoinAspek = collect($enrollment->nilaiOsce ?? [])->flatMap(function ($nilai) {
-    return collect($nilai->poinAspekPenilaian);
-});
+            return collect($nilai->poinAspekPenilaian);
+        });
 
         // ---------------------------------------------------------------------
         // 4. MEMBANGUN daftarNilai BARIS PER STASE / KOMPETENSI
@@ -75,12 +76,12 @@ class NilaiMahasiswaController extends Controller
 
             // Ambil ID stase (identitas setiap kompetensi)
             $staseId = $osceStase->stase->id ?? null;
-            
+
             if (!$staseId) {
                 // Jika tidak ada ID stase, lewati saja
                 continue;
             }
-            
+
             // -----------------------------------------------------------------
             // FILTER: Mengambil poin aspek yang hanya milik stase ini saja
             // (Setiap stase punya aspek penilaian masing-masing)
@@ -88,7 +89,7 @@ class NilaiMahasiswaController extends Controller
             $poinAspekPerStase = $allPoinAspek->filter(function ($poin) use ($staseId) {
                 return optional($poin->aspekPenilaian)->id_stase === $staseId;
             });
-            
+
             if ($poinAspekPerStase->isEmpty()) {
                 // Jika stase ini belum dinilai sama sekali, skip
                 continue;
