@@ -19,7 +19,7 @@ import OsIcon from "../../components/icons.jsx";
 import OsButton from "../../components/button.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
 
-// ⭐ UPDATE 1: Modifikasi CustomInput untuk handle Disabled State (Background Gray)
+// CustomInput (Sama seperti sebelumnya)
 const CustomInput = ({
     label,
     type = "text",
@@ -35,10 +35,8 @@ const CustomInput = ({
         <label className="relative self-stretch mt-[-1.00px] font-sans font-normal text-black text-xs tracking-[0] leading-[normal]">
             {label}
         </label>
-        {/* Tambahkan logika warna background berdasarkan props disabled */}
         <div
-            className={`flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full
-            rounded-xl border border-solid border-black ${
+            className={`flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full rounded-xl border border-solid border-black ${
                 disabled ? "bg-gray-200" : "bg-white"
             }`}
         >
@@ -47,19 +45,16 @@ const CustomInput = ({
                     {icon}
                 </div>
             )}
-
             <input
                 type={type}
                 value={value}
                 onChange={onChange}
                 disabled={disabled}
                 placeholder={placeholder}
-                // Tambahkan style text-gray-600 & cursor saat disabled
                 className={`relative flex-1 font-sans font-normal text-[15.4px] tracking-[0] leading-[normal] bg-transparent border-none outline-none w-full placeholder:text-gray-400 ${
                     disabled ? "text-gray-600 cursor-not-allowed" : "text-black"
                 }`}
             />
-
             {iconRight && (
                 <div className="!relative !w-5 !h-5 !aspect-[1] flex items-center justify-center cursor-pointer">
                     {iconRight}
@@ -74,14 +69,12 @@ export default function MahasiswaAccountSettings() {
     const { user, errors, flash } = usePage().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // ⭐ UPDATE 2: State untuk Toggle Password
+    // State untuk Toggle Password
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    const [profileImage, setProfileImage] = useState(
-        "https://via.placeholder.com/177?text=U"
-    );
+    const [profileImage, setProfileImage] = useState(null);
 
     const { data, setData, post, processing, reset } = useForm({
         username: user.username || "",
@@ -94,13 +87,26 @@ export default function MahasiswaAccountSettings() {
         new_password_confirmation: "",
     });
 
+    // ⭐ FUNGSI GENERATE AVATAR HIJAU (Helper)
+    const getGreenAvatar = (name) => {
+        // background=16A34A (Green-600 Tailwind)
+        // color=fff (Putih)
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+            name
+        )}&background=16A34A&color=fff&bold=true&size=177`;
+    };
+
+    // ⭐ UPDATE 1: Init Foto Profil
     useEffect(() => {
         if (user.path_gambar) {
             setProfileImage(`/${user.path_gambar}`);
         } else {
-            setProfileImage("https://via.placeholder.com/177?text=U");
+            // Gunakan Nama Mahasiswa atau Username
+            const displayName =
+                user.mahasiswa?.nama || user.username || "Mahasiswa";
+            setProfileImage(getGreenAvatar(displayName));
         }
-    }, [user.path_gambar]);
+    }, [user.path_gambar, user.mahasiswa, user.username]);
 
     const handleProfileImageUpload = (event) => {
         const file = event.target.files?.[0];
@@ -114,13 +120,17 @@ export default function MahasiswaAccountSettings() {
         }
     };
 
+    // ⭐ UPDATE 2: Reset ke Avatar Hijau saat dihapus
     const handleDeleteProfileImage = () => {
         setData({
             ...data,
             foto: null,
             delete_foto: true,
         });
-        setProfileImage("https://via.placeholder.com/177?text=U");
+
+        const displayName =
+            user.mahasiswa?.nama || user.username || "Mahasiswa";
+        setProfileImage(getGreenAvatar(displayName));
     };
 
     const handleSaveChanges = (e) => {
@@ -151,6 +161,7 @@ export default function MahasiswaAccountSettings() {
                 type="mahasiswa"
                 isOpen={sidebarOpen}
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
+                user={user} // ⭐ JANGAN LUPA: Kirim prop user agar Sidebar langsung update
             />
 
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
@@ -179,14 +190,14 @@ export default function MahasiswaAccountSettings() {
 
                     <div className="flex flex-col lg:flex-row items-start gap-5 relative w-full">
                         {/* --- KOLOM KIRI: FOTO PROFIL --- */}
-                        <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5 rounded-xl border border-os-primary shadow-sm">
+                        <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5 rounded-xl border border-os-primary shadow-sm bg-white">
                             <div className="relative self-stretch w-full h-[29px]">
                                 <h2 className="text-xl">Gambar Profil</h2>
                                 <hr className="mt-1 border-os-primary" />
                             </div>
 
                             <div
-                                className="w-[177px] h-[177px] rounded-full bg-[#3a2323] border border-black bg-cover bg-center"
+                                className="w-[177px] h-[177px] rounded-full bg-gray-100 border border-black bg-cover bg-center"
                                 style={{
                                     backgroundImage: `url(${profileImage})`,
                                 }}
@@ -235,7 +246,7 @@ export default function MahasiswaAccountSettings() {
                         </aside>
 
                         {/* --- KOLOM KANAN: FORM DATA --- */}
-                        <section className="flex flex-col items-start gap-[15px] p-5 relative flex-1 grow rounded-xl border border-os-primary shadow-sm">
+                        <section className="flex flex-col items-start gap-[15px] p-5 relative flex-1 grow rounded-xl border border-os-primary shadow-sm bg-white">
                             <div className="relative self-stretch w-full h-[29px]">
                                 <h2 className="absolute top-[calc(50%_-_14px)] left-0 font-sans font-normal text-black text-xl">
                                     Akun
@@ -251,11 +262,11 @@ export default function MahasiswaAccountSettings() {
                                 <CustomInput
                                     label="Nama pengguna"
                                     value={data.username}
-                                    disabled // Otomatis jadi bg-gray-200 karena update komponen CustomInput
+                                    disabled
                                     icon={
                                         <OsIcon
                                             name="User"
-                                            className="w-4 h-4"
+                                            className="w-4 h-4 opacity-50"
                                         />
                                     }
                                 />
@@ -274,15 +285,13 @@ export default function MahasiswaAccountSettings() {
                                     icon={
                                         <OsIcon
                                             name="Book"
-                                            className="w-5 h-5"
+                                            className="w-5 h-5 opacity-50"
                                         />
                                     }
                                     disabled
                                 />
 
                                 <hr className="w-full border-os-primary my-2" />
-
-                                {/* ⭐ UPDATE 3: PASSWORD FIELDS DENGAN TOMBOL ABU-ABU */}
 
                                 {/* PASSWORD LAMA */}
                                 <div className="flex flex-col gap-[3px] w-full">
@@ -339,9 +348,9 @@ export default function MahasiswaAccountSettings() {
                                     )}
                                 </div>
 
-                                {/* WRAPPER: PASSWORD BARU & KONFIRMASI (SEJAJAR) */}
+                                {/* WRAPPER: PASSWORD BARU & KONFIRMASI */}
                                 <div className="flex flex-col md:flex-row gap-[15px] w-full">
-                                    {/* KOLOM KIRI: PASSWORD BARU */}
+                                    {/* PASSWORD BARU */}
                                     <div className="flex flex-col gap-[3px] w-full">
                                         <label className="text-xs">
                                             Password baru
@@ -396,7 +405,7 @@ export default function MahasiswaAccountSettings() {
                                         )}
                                     </div>
 
-                                    {/* KOLOM KANAN: KONFIRMASI PASSWORD */}
+                                    {/* KONFIRMASI PASSWORD */}
                                     <div className="flex flex-col gap-[3px] w-full">
                                         <label className="text-xs">
                                             Konfirmasi password baru

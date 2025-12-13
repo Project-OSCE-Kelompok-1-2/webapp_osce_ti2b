@@ -51,11 +51,22 @@ export default function AdminSettingAkun({ user }) {
         if (user.path_gambar) {
             setProfileImage(`/${user.path_gambar}`);
         } else {
-            setProfileImage(
-                "https://via.placeholder.com/177/3a2323/FFFFFF?text=P"
-            );
+            // 🆕 LOGIKA BARU: Gunakan UI Avatars untuk inisial
+            // Ambil nama dari user.username (atau user.name jika ada)
+            const name = user.username || "User";
+
+            // Generate URL Avatar
+            // background=random : Warna background acak (biar warna-warni)
+            // color=fff : Warna teks putih
+            // bold=true : Teks tebal
+            // size=177 : Ukuran resolusi (sesuai container kamu)
+            const initialAvatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+                name
+            )}&background=3B82F6&color=fff&bold=true&size=177`;
+
+            setProfileImage(initialAvatarUrl);
         }
-    }, [user.path_gambar]);
+    }, [user.path_gambar, user.username]);
 
     useEffect(() => {
         if (wasSuccessful) {
@@ -79,7 +90,14 @@ export default function AdminSettingAkun({ user }) {
     // ⭐ KONFIRMASI HAPUS FOTO
     const confirmDeletePhoto = () => {
         setData({ ...data, foto: null, delete_foto: true });
-        setProfileImage("https://via.placeholder.com/177/3a2323/FFFFFF?text=P");
+
+        // 🆕 LOGIKA BARU: Reset ke Inisial Nama
+        const name = user.username || "User";
+        const initialAvatarUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+            name
+        )}&background=3B82F6&color=fff&bold=true&size=177`;
+
+        setProfileImage(initialAvatarUrl);
         setIsDeleteModalOpen(false);
     };
 
@@ -111,6 +129,7 @@ export default function AdminSettingAkun({ user }) {
                 isOpen={isSidebarOpen}
                 type="admin"
                 onToggle={handleSidebarToggle}
+                user={user}
             />
 
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">

@@ -94,13 +94,25 @@ export default function PengujiProfil() {
         new_password_confirmation: "",
     });
 
+    const getOrangeAvatar = (name) => {
+        // background=EA580C (Orange-600 Tailwind)
+        // color=fff (Putih)
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+            name
+        )}&background=EA580C&color=fff&bold=true&size=177`;
+    };
+
+    // ⭐ UPDATE 1: Init Foto Profil dengan Warna Orange
     useEffect(() => {
         if (user.path_gambar) {
             setProfileImage(`/${user.path_gambar}`);
         } else {
-            setProfileImage("https://via.placeholder.com/177?text=U");
+            // Gunakan Nama Penguji atau Username sebagai basis inisial
+            const displayName =
+                user.penguji?.nama || user.username || "Penguji";
+            setProfileImage(getOrangeAvatar(displayName));
         }
-    }, [user.path_gambar]);
+    }, [user.path_gambar, user.penguji, user.username]);
 
     const handleProfileImageUpload = (event) => {
         const file = event.target.files?.[0];
@@ -110,9 +122,12 @@ export default function PengujiProfil() {
         }
     };
 
+    // ⭐ UPDATE 2: Reset Foto ke Avatar Orange saat dihapus
     const handleDeleteProfileImage = () => {
         setData((prev) => ({ ...prev, foto: null, delete_foto: true }));
-        setProfileImage("https://via.placeholder.com/177?text=U");
+
+        const displayName = user.penguji?.nama || user.username || "Penguji";
+        setProfileImage(getOrangeAvatar(displayName));
     };
 
     const handleSaveChanges = (e) => {
@@ -145,6 +160,7 @@ export default function PengujiProfil() {
                 isOpen={isSidebarOpen}
                 type="penguji"
                 onToggle={handleSidebarToggle}
+                user={user}
             />
 
             <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
