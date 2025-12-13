@@ -60,6 +60,11 @@ export default function LivePenilaian() {
     const [waktu, setWaktu] = useState(sisa_waktu_detik);
     const dataRubrik = rubrik.length > 0 ? rubrik : [];
 
+    // variabel untuk validasi nilai kosong
+    let jumlahKompetensi = 0;
+    for (const aspek of rubrik) jumlahKompetensi += aspek.kompetensi.length;
+    const jumlahKompetensiDinilai = Object.keys(nilaiMap).length;
+
     // --- LOGIKA TIMER BARU (YANG ANDA TANYAKAN) ---
     useEffect(() => {
         // Jika waktu awal sudah 0 (atau mode edit), jangan jalankan interval sama sekali
@@ -103,7 +108,6 @@ export default function LivePenilaian() {
         return skor * bobot;
     };
 
-    // Hitung Total Realtime di Frontend (Hanya Preview)
     const totalNilaiMentah = dataRubrik.reduce((total, group) => {
         return (
             total +
@@ -125,6 +129,10 @@ export default function LivePenilaian() {
             id_poin_aspek_penilaian: Number(id_poin),
             skor,
         }));
+
+        if (jumlahKompetensiDinilai < jumlahKompetensi) {
+            return;
+        }
 
         router.post(`/penguji/penilaian/${id_enrollment_osce}`, {
             nilai,
@@ -407,7 +415,17 @@ export default function LivePenilaian() {
 
                                 <button
                                     type="submit"
-                                    className="col-span-2 w-full h-[70px] rounded-xl bg-blue-600 hover:bg-blue-700 transition text-white font-semibold flex items-center justify-center text-lg"
+                                    className={`col-span-2 w-full h-[70px] rounded-xl transition text-white font-semibold flex items-center justify-center text-lg 
+                                    ${
+                                        jumlahKompetensiDinilai <
+                                        jumlahKompetensi
+                                            ? "bg-gray-500 hover:bg-gray-500/80"
+                                            : "bg-blue-600"
+                                    }`}
+                                    disabled={
+                                        jumlahKompetensiDinilai <
+                                        jumlahKompetensi
+                                    }
                                 >
                                     SIMPAN PENILAIAN
                                 </button>
