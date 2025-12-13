@@ -65,6 +65,7 @@ export default function EditNilaiForm() {
                     icon={<ArrowLeft className="w-5 h-5" />} // Menambahkan ikon panah kembali
                     onMenuClick={handleSidebarToggle}
                     backLink="/penguji/dashboard"
+                    variant="penguji"
                 />
 
                 {/* DETAIL OSCE */}

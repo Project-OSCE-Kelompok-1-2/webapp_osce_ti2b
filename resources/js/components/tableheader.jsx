@@ -10,7 +10,7 @@ const OsTableHeader = ({ columns = [], variant = "admin" }) => {
     // Jika 'penguji', gunakan kelas yang menghasilkan warna oranye.
     // Jika 'admin' (default), gunakan kelas default: bg-os-primary-dark
     const backgroundClass = isPenguji
-        ? 'bg-os-primary-pj' // Ganti dengan kelas oranye yang sudah Anda definisikan (misalnya: bg-amber-600)
+        ? 'bg-os-primary-pj-dark' // Ganti dengan kelas oranye yang sudah Anda definisikan (misalnya: bg-amber-600)
         : 'bg-os-primary-dark';
 
     // Kelas Border

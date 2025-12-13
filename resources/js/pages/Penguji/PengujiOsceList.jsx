@@ -66,7 +66,7 @@ const getButtonStyle = (status) => {
             };
         case "Selesai":
             return {
-                className: "bg-blue-800 hover:bg-blue-900 text-white",
+                className: "bg-os-primary-pj hover:bg-os-primary-pj-dark text-white",
             };
         case "Belum Dimulai":
             return {
@@ -272,20 +272,21 @@ export default function PengujiOsceList() {
 
                     {/* Filter Bar */}
                     <div className="flex flex-col md:flex-row w-full items-stretch md:items-center gap-4 mb-5">
-                        {/* <input
+                        <input
                             type="text"
                             placeholder="Cari data OSCE secara instan..."
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                             className="block w-full md:flex-1 pl-4 pr-4 py-2 h-[46px] border border-os-primary-pj rounded-lg"
-                        /> */}
+                        />
 
-                        <OsSearchBar
+                        {/* <OsSearchBar
                             search={search}
                             setSearch={setSearch}
                             placeholder="Cari stase secara instan..."
                             variant="penguji"
-                        />
+                            className="md:flex-1"
+                        /> */}
 
                         <div className="flex w-full md:w-auto items-stretch md:items-center gap-3">
                             <select

@@ -15,8 +15,8 @@ const OsSearchBar = ({ search, setSearch, placeholder = "Cari data...", variant 
     // Default: blue-500
     // Penguji: os-focus-orange (Ganti dengan kelas oranye Anda, contoh: focus:border-amber-500)
     const focusColorClass = isPenguji
-        ? "focus:border-orange-500 focus:ring-orange-500 group-focus-within:text-orange-500"
-        : "focus:border-blue-500 focus:ring-blue-500 group-focus-within:text-blue-500";
+        ? "border-orange-500 focus:ring-orange-500 group-focus-within:text-orange-500"
+        : "border-blue-500 focus:ring-blue-500 group-focus-within:text-blue-500";
 
     // 2. Warna Border Default (Tambahkan jika Anda ingin border non-fokus juga oranye)
     // Default: border-gray-200
@@ -42,7 +42,7 @@ const OsSearchBar = ({ search, setSearch, placeholder = "Cari data...", variant 
             {/* Input Field */}
             <input
                 type="text"
-                className={`block w-full h-full pl-10 pr-10 rounded-lg border border-os-primary !bg-white text-gray-900 placeholder-gray-400 focus:outline-none transition-all duration-200 shadow-sm
+                className={`block w-full h-full pl-10 pr-10 rounded-lg border !bg-white text-gray-900 placeholder-gray-400 focus:outline-none transition-all duration-200 shadow-sm
                     ${defaultBorderClass}
                     ${focusColorClass}`}
                 placeholder={placeholder}

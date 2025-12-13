@@ -23,6 +23,7 @@
         /* Digunakan untuk styling tombol */
         --os-primary-light: #4d73f0;
         --os-primary-dark: #0f36b3;
+        --os-primary-pj-dark: #e27c00;
 
         /* FONT FAMILY */
         --os-font-family: "Inter", "Manrope", sans-serif;

@@ -22,6 +22,7 @@ export default {
                 'os-secondary' : 'var(--os-secondary)',
                 'os-tertiary' : 'var(--os-tertiary)',
                 'os-primary-pj' : 'var(--os-primary-pj)',
+                'os-primary-pj-dark' : 'var(--os-primary-pj-dark)',
                 'os-secondary-pj' : 'var(--os-secondary-pj)',
                 'os-tertiary-pj' : 'var(--os-tertiary-pj)',
                 'os-black' : 'var(--os-black)',
