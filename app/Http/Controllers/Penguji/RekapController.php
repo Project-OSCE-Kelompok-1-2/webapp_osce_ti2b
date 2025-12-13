@@ -26,7 +26,7 @@ class RekapController extends Controller
     private function getData($id_osce, $id_osce_stase, $mode)
     {
         $user = Auth::user();
-        
+
         // [FIX 1] Validasi User & Relasi Penguji
         if (!$user->penguji) {
             abort(403, 'Akun Anda tidak memiliki profil Penguji.');
@@ -78,14 +78,13 @@ class RekapController extends Controller
             'id_osce_stase'    => $id_osce_stase,
             'nama_osce'        => $osceStase->osce->nama_osce,
             'nama_stase'       => $osceStase->stase->nama_stase,
-            'waktu_per_rubrik' => $osceStase->durasi_per_mahasiswa . ' Menit',
+            'durasi_per_mahasiswa' => $osceStase->durasi_per_mahasiswa . ' Menit',
             'total_mahasiswa'  => $mahasiswaList->count(),
             'nama_penguji'     => $user->penguji->nama,
         ];
 
         // Tentukan View berdasarkan mode request
         $view = $mode === 'edit' ? 'Penguji/EditNilaiForm' : 'Penguji/SubmitRubrik';
-
         return Inertia::render($view, [
             'osce_detail'    => $osce_detail,
             'mahasiswa_list' => $mahasiswaList

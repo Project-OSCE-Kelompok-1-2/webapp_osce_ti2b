@@ -55,12 +55,37 @@ class DashboardMahasiswaController extends Controller
         $enrolledOsceIds = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
             ->pluck('id_osce'); // Hasil: [1, 3, 5] misalnya
 
-        // Langkah 2: Ambil SEMUA Stase yang ID OSCE-nya ada di daftar di atas
-        // Logika: Mahasiswa ikut rotasi stase di OSCE yang dia daftar
-        $rawSchedules = OsceStase::with(['osce', 'ruang'])
-            ->whereIn('id_osce', $enrolledOsceIds) // Filter berdasarkan OSCE yang diikuti
-            ->whereDate('tanggal', '>=', $today->format('Y-m-d')) // Hanya jadwal masa depan
-            ->orderBy('tanggal', 'asc')
+        // Langkah 2: Base Query
+        $baseQuery = OsceStase::with(['osce', 'ruang'])
+            ->whereIn('id_osce', $enrolledOsceIds);
+
+        // A. Query Khusus Kalender (Ambil SEMUA tanggal unik untuk dots)
+        // Kita clone agar tidak terpengaruh filter di bawah
+        // Gunakan get() lalu map() untuk memastikan format tanggal Y-m-d string
+        $kalenderEvent = (clone $baseQuery)
+            ->get()
+            ->pluck('tanggal')
+            ->map(function ($date) {
+                // Karena ada cast 'date' di model, $date bisa jadi Carbon instance
+                return $date instanceof \Carbon\Carbon 
+                    ? $date->format('Y-m-d') 
+                    : \Carbon\Carbon::parse($date)->format('Y-m-d');
+            })
+            ->unique()
+            ->values();
+
+        // B. Query Khusus List Jadwal (Dipengaruhi Filter)
+        $listQuery = clone $baseQuery;
+
+        // Filter Tanggal (Jika ada request date dari kalender)
+        if ($request->has('date') && $request->date) {
+            $listQuery->whereDate('tanggal', $request->date);
+        } else {
+            // Default: Tampilkan jadwal hari ini ke depan
+            $listQuery->whereDate('tanggal', '>=', $today->format('Y-m-d'));
+        }
+
+        $rawSchedules = $listQuery->orderBy('tanggal', 'asc')
             ->orderBy('jam_mulai', 'asc')
             ->get();
 
@@ -68,7 +93,10 @@ class DashboardMahasiswaController extends Controller
         // 3. MAPPING DATA KE FRONTEND
         // ---------------------------------------------------------
 
-        $jadwalPenting = $rawSchedules->take(3)->map(function ($stase) use ($today) {
+        // Jika ada filter tanggal, ambil semua. Jika tidak, ambil 3 terdekat.
+        $limit = $request->has('date') ? $rawSchedules->count() : 3;
+
+        $jadwalPenting = $rawSchedules->take($limit)->map(function ($stase) use ($today) {
             $tanggalUjian = Carbon::parse($stase->tanggal);
             $selisihHari = $today->diffInDays($tanggalUjian, false); // false = return negatif jika lewat
 
@@ -85,11 +113,6 @@ class DashboardMahasiswaController extends Controller
         })->values();
 
         // ---------------------------------------------------------
-        // 4. KALENDER EVENT
-        // ---------------------------------------------------------
-        $kalenderEvent = $rawSchedules->pluck('tanggal')->unique()->values();
-
-        // ---------------------------------------------------------
         // 5. RETURN
         // ---------------------------------------------------------
         return Inertia::render('Mahasiswa/Dashboard', [
@@ -100,6 +123,7 @@ class DashboardMahasiswaController extends Controller
             ],
             'jadwal_penting' => $jadwalPenting,
             'kalender_event' => $kalenderEvent,
+            'selected_date'  => $request->date, // Kirim balik tanggal yang dipilih
         ]);
     }
 }

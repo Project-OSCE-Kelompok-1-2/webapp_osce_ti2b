@@ -12,11 +12,12 @@ import {
 import OsStepModal from "../../components/StepModal.jsx";
 
 export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
+    console.log(osce_detail);
     // --- 1. State Management ---
     const [showModal, setShowModal] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
 
-    // Fallback data
+    // Fallback data dari backend
     const safeOsce = osce_detail || {
         nama_osce: "-",
         nama_stase: "-",
@@ -84,21 +85,20 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                 <div className="space-y-3">
                     <div>
                         <h3 className="text-xs font-bold text-gray-700 mb-1.5">
-                            Deskripsi Aspek Penilaian
+                            Tujuan Pembelajaran
                         </h3>
                         <div className="border rounded-lg bg-white overflow-hidden">
-                            {["Nilai 1", "Nilai 2", "Nilai 3"].map(
-                                (val, idx) => (
+                            {osce_detail.tujuan_pembelajaran.map(
+                                (item, idx) => (
                                     <div
-                                        key={idx}
+                                        key={item.id_tujuan_pembelajaran}
                                         className="p-2.5 border-b last:border-0 hover:bg-gray-50"
                                     >
-                                        <p className="text-[10px] font-bold text-gray-800">
-                                            {val}
+                                        <p className="font-medium">
+                                            Tujuan {idx + 1}
                                         </p>
-                                        <p className="text-[10px] text-gray-500 mt-0.5 truncate">
-                                            Deskripsi singkat untuk kriteria
-                                            penilaian {val}...
+                                        <p className="text-[10px] text-gray-800">
+                                            {item.tujuan}
                                         </p>
                                     </div>
                                 )
@@ -228,7 +228,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                     {/* Durasi */}
                                     <div className="bg-white border rounded-lg p-2.5 flex flex-col justify-center shadow-sm">
                                         <p className="text-[10px] text-gray-500 uppercase tracking-wide mb-0.5">
-                                            Waktu/Rubrik
+                                            Waktu/Stase
                                         </p>
                                         <div className="flex items-center gap-1.5">
                                             <Clock

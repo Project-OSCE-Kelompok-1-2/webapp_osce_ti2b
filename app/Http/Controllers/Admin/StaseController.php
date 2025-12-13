@@ -24,10 +24,14 @@ class StaseController extends Controller
     public function index(Request $request)
     {
         $search = $request->query("search");
+
+        // Data sekarang berupa Collection (semua data), bukan Paginator
         $stase = $this->service->getAll($search);
 
         return Inertia::render('Admin/MenuStase', [
-            'stase' => $stase['data'],
+            // Langsung passing variable $stase
+            'stase' => $stase,
+
             'filters' => $request->only(['search']),
             'mataKuliah' => MataKuliah::all(),
             'tujuanPembelajaran' => TujuanPembelajaran::all()
@@ -45,12 +49,13 @@ class StaseController extends Controller
 
     public function store(Request $request)
     {
-        // [UBAH] Tambahkan validasi untuk field baru
         $validated = $request->validate([
             'nama_stase' => 'required|string|max:255|unique:stase,nama_stase',
             'id_mata_kuliah' => 'required|exists:mata_kuliah,id_mata_kuliah',
-            'id_tujuan_pembelajaran' => 'required|exists:tujuan_pembelajaran,id_tujuan_pembelajaran', // <-- [BARU]
-            'deskripsi' => 'nullable|string', // <-- [BARU]
+            'deskripsi' => 'nullable|string',
+            // UBAH DISINI: Menerima array string
+            'tujuan_pembelajaran' => 'required|array|min:1|max:5',
+            'tujuan_pembelajaran.*' => 'string',
         ]);
 
         $this->service->store($validated);
@@ -70,7 +75,6 @@ class StaseController extends Controller
     public function update(Request $request, Stase $stase)
     {
         $validated = $request->validate([
-            // [UBAH] Aturan unique diubah agar mengabaikan data stase saat ini
             'nama_stase' => [
                 'required',
                 'string',
@@ -78,12 +82,13 @@ class StaseController extends Controller
                 Rule::unique('stase', 'nama_stase')->ignore($stase->id_stase, 'id_stase'),
             ],
             'id_mata_kuliah' => 'required|exists:mata_kuliah,id_mata_kuliah',
-            'id_tujuan_pembelajaran' => 'required|exists:tujuan_pembelajaran,id_tujuan_pembelajaran',
             'deskripsi' => 'nullable|string',
+            // UBAH DISINI: Menerima array string
+            'tujuan_pembelajaran' => 'required|array|min:1|max:5',
+            'tujuan_pembelajaran.*' => 'string',
         ]);
 
         $this->service->update($validated, $stase->id_stase);
-
         return Redirect::route('admin.stase.index')->with('success', 'Stase berhasil diperbarui.');
     }
 

@@ -12,28 +12,41 @@ use Maatwebsite\Excel\Concerns\WithHeadingRow;
 class MahasiswaImport implements ToCollection, WithHeadingRow
 {
     /**
+     * [PENTING]
+     * Menentukan posisi baris Header.
+     * Kita set ke 2, karena baris 1 berisi teks instruksi/peringatan.
+     */
+    public function headingRow(): int
+    {
+        return 2;
+    }
+
+    /**
      * @param Collection $rows
-     * Format header Excel:
+     * Format header Excel (di baris 2):
      * nim | nama | kelas | prodi
      */
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
-            if (!isset($row['nim']) || !isset($row['nama'])) continue;
+            // Validasi sederhana: Pastikan NIM dan Nama ada
+            if (!isset($row['nim']) || !isset($row['nama'])) {
+                continue;
+            }
 
-            // Cegah duplikasi NIM
+            // Cegah duplikasi NIM jika mahasiswa sudah ada
             if (Mahasiswa::where('nim', $row['nim'])->exists()) {
                 continue;
             }
 
-            // Buat pengguna
+            // 1. Buat Pengguna
             $pengguna = Pengguna::create([
                 'username'   => $row['nim'],
-                'password'   => $row['nim'],
+                'password'   => ($row['nim']),
                 'jenis_role' => 'mahasiswa',
             ]);
 
-            // Buat mahasiswa
+            // 2. Buat Mahasiswa
             Mahasiswa::create([
                 'id_pengguna' => $pengguna->id_pengguna,
                 'nim'         => $row['nim'],

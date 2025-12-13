@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useForm, usePage, Link } from "@inertiajs/react";
+import { useForm, usePage, Link, router } from "@inertiajs/react";
 import {
     User,
     Mail,
@@ -20,6 +20,7 @@ import OsHeader from "../../components/Header.jsx";
 import Modals from "../../components/Modals.jsx"; // 🆕 Tambahkan ini
 import OsButton from "../../components/button.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
+import OsIcon from "../../components/icons.jsx";
 
 const Component1 = ({ className }) => <Eye className={className} />;
 const Icon1 = ({ className }) => <Save className={className} />;
@@ -120,6 +121,10 @@ export default function AdminSettingAkun({ user }) {
         setIsSidebarOpen((prev) => !prev);
     };
 
+    const handleLogout = () => {
+        router.post("/logout");
+    };
+
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar
@@ -156,16 +161,16 @@ export default function AdminSettingAkun({ user }) {
                             {/* CONTENT */}
                             <div className="flex flex-col lg:flex-row gap-4 w-full">
                                 {/* ASIDE */}
-                                <aside className="flex flex-col w-full lg:w-[403px] gap-[17px] p-5 bg-white rounded-xl border border-black justify-center items-center">
+                                <aside className="flex flex-col w-full lg:w-[403px] gap-[17px] p-5 bg-white rounded-xl border border-os-primary justify-center items-center">
                                     <div className="w-full">
                                         <h2 className="text-xl">
                                             Gambar Profil
                                         </h2>
-                                        <hr className="mt-1 border-black" />
+                                        <hr className="mt-1 border-os-primary" />
                                     </div>
 
                                     <div
-                                        className="w-[177px] h-[177px] rounded-full bg-[#3a2323] border border-black bg-cover bg-center"
+                                        className="w-[177px] h-[177px] rounded-full bg-[#3a2323] border border-os-primary bg-cover bg-center"
                                         style={{
                                             backgroundImage: `url(${profileImage})`,
                                         }}
@@ -208,18 +213,18 @@ export default function AdminSettingAkun({ user }) {
                                             name="warning"
                                             type="button"
                                             onClick={openDeletePhotoModal}
-                                            className="w-12 h-12 bg-red-600 text-white rounded-xl flex items-center justify-center"
+                                            className=" bg-red-600 text-white rounded-xl flex items-center justify-center"
                                         >
-                                            <Trash2 className="w-[20px]" />
+                                            <Trash2 size={18} />
                                         </OsButton>
                                     </div>
                                 </aside>
 
                                 {/* FORM */}
-                                <section className="flex-1 flex flex-col gap-[15px] p-5 bg-white rounded-xl border border-black">
+                                <section className="flex-1 flex flex-col gap-[15px] p-5 bg-white rounded-xl border border-os-primary">
                                     <div>
                                         <h2 className="text-xl">Akun</h2>
-                                        <hr className="mt-1 border-black" />
+                                        <hr className="mt-1 border-os-primary" />
                                     </div>
 
                                     <form
@@ -232,7 +237,7 @@ export default function AdminSettingAkun({ user }) {
                                                 Nama pengguna
                                             </label>
                                             <div className="flex items-center gap-[13px] p-3 bg-white rounded-xl border border-black">
-                                                <User className="w-4 opacity-45" />
+                                                <User size={18} opacity={0.5} />
                                                 <input
                                                     disabled
                                                     value={data.username}
@@ -241,13 +246,15 @@ export default function AdminSettingAkun({ user }) {
                                             </div>
                                         </div>
 
+                                        <hr className="w-full border-os-primary my-2" />
+
                                         {/* PASSWORD LAMA */}
                                         <div className="flex flex-col gap-[3px]">
                                             <label className="text-xs">
                                                 Password lama
                                             </label>
                                             <div className="flex items-center p-3 bg-white rounded-xl border border-black">
-                                                <Lock className="w-[19px]" />
+                                                <Lock size={16} opacity={0.5} />
                                                 <input
                                                     type="password"
                                                     value={data.old_password}
@@ -270,7 +277,10 @@ export default function AdminSettingAkun({ user }) {
                                                     Password baru
                                                 </label>
                                                 <div className="flex items-center p-3 bg-white rounded-xl border border-black">
-                                                    <Lock className="w-5" />
+                                                    <Lock
+                                                        size={16}
+                                                        opacity={0.5}
+                                                    />
                                                     <input
                                                         type="password"
                                                         value={
@@ -293,7 +303,10 @@ export default function AdminSettingAkun({ user }) {
                                                     Konfirmasi password baru
                                                 </label>
                                                 <div className="flex items-center p-3 bg-white rounded-xl border border-black">
-                                                    <Lock className="w-5" />
+                                                    <Lock
+                                                        size={16}
+                                                        opacity={0.5}
+                                                    />
                                                     <input
                                                         type="password"
                                                         value={
@@ -312,22 +325,37 @@ export default function AdminSettingAkun({ user }) {
                                             </div>
                                         </div>
 
+                                        <div className="w-full flex justify-between gap-3">
+                                            <OsButton
+                                                name="primary"
+                                                type="submit"
+                                                disabled={processing}
+                                                className="sm:w-[223px] w-6/12  bg-blue-600 text-white flex items-center gap-[13px] p-3 border border-black"
+                                            >
+                                                <Save className="w-[17px]" />
+                                                {processing
+                                                    ? "Menyimpan..."
+                                                    : "Simpan"}
+                                            </OsButton>
+
+                                            <OsButton
+                                                name="warning"
+                                                className="sm:w-[223px] w-6/12 !bg-white !text-red-600 !border-red-600  flex items-center justify-start gap-[13px] !border-os-2"
+                                                onClick={() => {
+                                                    console.log("dsajdsaldka");
+                                                    handleLogout();
+                                                }}
+                                                type="button"
+                                            >
+                                                <LogOut size={17} />
+                                                <span>Logout</span>
+                                            </OsButton>
+                                        </div>
                                         {/* SAVE */}
-                                        <OsButton
-                                            name="primary"
-                                            type="submit"
-                                            disabled={processing}
-                                            className="sm:w-[223px] bg-blue-600 text-white flex items-center w-full gap-[13px] p-3 rounded-xl border border-black"
-                                        >
-                                            <Save className="w-[17px]" />
-                                            {processing
-                                                ? "Menyimpan..."
-                                                : "Simpan"}
-                                        </OsButton>
 
                                         <a
                                             href="#contact-admin"
-                                            className="underline text-xs"
+                                            className="underline text-xs text-os-primary"
                                         >
                                             Ada masalah? hubungi admin
                                         </a>
@@ -338,20 +366,11 @@ export default function AdminSettingAkun({ user }) {
 
                         {/* FOOTER */}
                     </div>
-                    <Link
-                        as="button"
-                        method="post"
-                        href="/logout"
-                        className="border-2 bg-white border-red-600 max-w-[120px] inline-flex items-center gap-[13px] p-3 rounded-xl text-red-600 opacity-75 text-sm"
-                    >
-                        <LogOut className="w-[23px] h-[21px]" />
-                        Log Out
-                    </Link>
                     <OsCopyright />
                 </div>
 
                 {/* ============================
-                MODAL DELETE FOTO PROFIL
+                MODAL UNTUK DELETE FOTO PROFIL
             ============================ */}
                 <Modals
                     isOpen={isDeleteModalOpen}
