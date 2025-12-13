@@ -24,7 +24,7 @@ export default function LiveRotasi() {
         if (isFinished) {
             // Jika habis, tutup sesi
             router.get(
-                `/penguji/osce/${safeOsce.id_osce}/stase/${safeOsce.id_osce_stase}/rekap`
+                `/penguji/osce/${safeOsce.id_osce}/stase/${safeOsce.id_osce_stase}/submitrubrik`
             );
         } else {
             // Jika ada, lanjut nilai
@@ -44,7 +44,7 @@ export default function LiveRotasi() {
     };
 
     return (
-        < >
+        <>
             <Head title="Rotasi Mahasiswa" />
 
             <div className="min-h-screen bg-white flex flex-col font-sans">
