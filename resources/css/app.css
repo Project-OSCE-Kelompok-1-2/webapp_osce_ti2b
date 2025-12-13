@@ -10,6 +10,9 @@
         --os-primary: #1447e6;
         --os-secondary: #2b7fff;
         --os-tertiary: #e8f1ff;
+        --os-primary-pj: #ff8c00; /* Oranye Terang/Tangerine */
+        --os-secondary-pj: #ffac33; /* Oranye lebih terang */
+        --os-tertiary-pj: #fff4e5; /* Latar belakang Oranye Sangat Muda */
         --os-black: #000000;
         --os-white: #ffffff;
         --os-warning: #ee4f4f;
