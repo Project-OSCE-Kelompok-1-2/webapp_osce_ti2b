@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react"; // Tambahkan useMemo
-import { Link, usePage } from "@inertiajs/react";
+import { Link, usePage, } from "@inertiajs/react";
 import {
     ArrowLeft,
     Download,
@@ -10,6 +10,7 @@ import {
     Clock,
     UserCheck,
     Table2,
+    Info
 } from "lucide-react";
 
 // --- Import Komponen ---
@@ -39,19 +40,19 @@ const columns = [
     },
     {
         content: "NIM",
-        width: "w-[25%]",
+        width: "w-32 shrink-0",
         classes: "justify-center items-center",
         key: "nim",
     },
     {
         content: "Nilai",
-        width: "w-[25%] shrink-0",
+        width: "w-32 shrink-0",
         classes: "justify-center items-center",
         key: "nilai",
     },
     {
         content: "Aksi",
-        width: "w-[15%] shrink-0",
+        width: "shrink-0 min-w-[200px]",
         classes: "justify-center items-center",
         key: "action",
     },
@@ -210,8 +211,9 @@ export default function RekapMahasiswaPage() {
                     // Untuk sementara, kita pakai window.location (hanya jika memang harus ada aksi)
                     window.location.href = `/penguji/penilaian/${mhs.id_enrollment_osce}/view`
                 }
-                className="inline-block bg-[#1447E6] text-white text-xs font-medium px-6 py-2.5 rounded-lg hover:bg-blue-700 transition"
+                className="flex items-center justify-center gap-2 bg-[#1447E6] text-white text-xs font-medium px-6 py-2.5 rounded-lg hover:bg-blue-700 transition "
             >
+                <Info size={18} />
                 Lihat Penilaian
             </OsButton>
         ),
@@ -426,6 +428,7 @@ export default function RekapMahasiswaPage() {
                         <OsPagination
                             links={paginationLinks}
                             onPageChange={handlePageChange}
+                            variant="penguji"
                         />
                     )}
 
