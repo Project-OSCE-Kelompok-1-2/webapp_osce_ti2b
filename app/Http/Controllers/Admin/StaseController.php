@@ -24,10 +24,14 @@ class StaseController extends Controller
     public function index(Request $request)
     {
         $search = $request->query("search");
+
+        // Data sekarang berupa Collection (semua data), bukan Paginator
         $stase = $this->service->getAll($search);
 
         return Inertia::render('Admin/MenuStase', [
-            'stase' => $stase['data'],
+            // Langsung passing variable $stase
+            'stase' => $stase,
+
             'filters' => $request->only(['search']),
             'mataKuliah' => MataKuliah::all(),
             'tujuanPembelajaran' => TujuanPembelajaran::all()
