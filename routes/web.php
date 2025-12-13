@@ -70,8 +70,6 @@ Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')
     Route::get('/penilaian/{id_enrollment_osce}', [HalamanPenilaianController::class, 'showPenilaian'])->name('penilaian.show');
     Route::post('/penilaian/{id_enrollment_osce}', [AksiPenilaianController::class, 'store'])->name('penilaian.store');
     Route::get('/penilaian/{id_enrollment_osce}/nilai', [AksiPenilaianController::class, 'getNilai'])->name('penilaian.getNilai');
-    Route::get('/osce/{id_osce}/stase/{id_osce_stase}/submitrubrik', [AksiPenilaianController::class, 'submitRubrik'])->name('penilaian.submitrubrik');
-
 
     // --- ALUR PASCA UJIAN / REKAP (PENGUJI) ---
     Route::get('/osce/{id_osce}/stase/{id_osce_stase}/rekap', [RekapController::class, 'rekap'])->name('rekap.list');

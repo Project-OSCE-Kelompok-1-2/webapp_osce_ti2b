@@ -23,71 +23,70 @@ class OsceJadwalController extends Controller
      * Menampilkan daftar Sesi (Jadwal) yang sudah di-grup
      */
     public function index(Request $request, $id_osce)
-    {
-        $osce = Osce::findOrFail($id_osce);
-        // Note: Kita tidak menggunakan $request->query('search') untuk filter database
-        // karena pencarian akan dilakukan di Client Side.
+{
+    $osce = Osce::findOrFail($id_osce);
+    $search = $request->query('search');
 
-        $sesi_virtual_query = DB::table('osce_stase')
-            ->where('id_osce', $id_osce)
-            ->whereNotNull('tanggal')
-            ->select('tanggal', 'jam_mulai', 'jam_selesai', DB::raw('MIN(id_osce_stase) as id_osce_stase'))
-            ->groupBy('tanggal', 'jam_mulai', 'jam_selesai')
-            ->orderBy('tanggal', 'asc')
-            ->orderBy('jam_mulai', 'asc');
+    $sesi_virtual_query = DB::table('osce_stase')
+        ->where('id_osce', $id_osce)
+        ->whereNotNull('tanggal')
+        // [UBAH 1] Tambahkan jam_selesai di select
+        ->select('tanggal', 'jam_mulai', 'jam_selesai', DB::raw('MIN(id_osce_stase) as id_osce_stase'))
+        // [UBAH 2] Tambahkan jam_selesai di groupBy agar data konsisten
+        ->groupBy('tanggal', 'jam_mulai', 'jam_selesai')
+        ->orderBy('tanggal', 'asc')
+        ->orderBy('jam_mulai', 'asc');
 
-        // [MODIFIKASI] Mengambil semua data tanpa pagination database
-        $sesi_raw = $sesi_virtual_query->get();
-
-        // [MODIFIKASI] Mapping data menggunakan Collection map
-        $sesi_data = $sesi_raw->map(function ($sesi) use ($id_osce) {
-            // 1. Hitung jumlah mahasiswa
-            $sesi->jumlah_mahasiswa = EnrollmentOsce::where('id_osce', $id_osce)
-                ->where('tanggal_sesi', $sesi->tanggal)
-                ->where('jam_sesi', $sesi->jam_mulai)
-                ->count();
-
-            // 2. Ambil Data Ruangan
-            $info_ruang = DB::table('osce_stase')
-                ->join('ruang', 'osce_stase.id_ruang', '=', 'ruang.id_ruang')
-                ->where('id_osce', $id_osce)
-                ->where('tanggal', $sesi->tanggal)
-                ->where('jam_mulai', $sesi->jam_mulai)
-                ->select('ruang.nomor_ruangan', 'ruang.lokasi')
-                ->first();
-
-            $sesi->nama_ruang = $info_ruang 
-                ? $info_ruang->nomor_ruangan . ' - ' . $info_ruang->lokasi 
-                : '-';
-
-            // 3. Formatting
-            $sesi->tanggal_formatted = (new \DateTime($sesi->tanggal))->format('d M Y');
-            $sesi->jam_mulai_formatted = substr($sesi->jam_mulai, 0, 5);
-            $sesi->jam_selesai_formatted = substr($sesi->jam_selesai, 0, 5);
-
-            // [TAMBAHAN] String gabungan untuk memudahkan pencarian client-side
-            $sesi->search_string = strtolower(
-                $sesi->tanggal_formatted . ' ' . 
-                $sesi->jam_mulai_formatted . ' ' . 
-                $sesi->jam_selesai_formatted . ' ' . 
-                $sesi->nama_ruang
-            );
-
-            return $sesi;
-        });
-
-        $master_stase = Stase::select('id_stase', 'nama_stase')->get()->map(fn($item) => [
-            'value' => $item->id_stase,
-            'label' => $item->nama_stase
-        ]);
-
-        return Inertia::render('Admin/OsceJadwalPage', [
-            'osce' => $osce,
-            'sesi' => $sesi_data, // Mengirim Array penuh, bukan Object Paginator
-            'filters' => [], // Tidak perlu filter server side
-            'master_stase' => $master_stase,
-        ]);
+    if ($search) {
+        $sesi_virtual_query->where('tanggal', 'like', "%{$search}%");
     }
+
+    $sesi_paginated = $sesi_virtual_query->paginate(10)->withQueryString();
+
+    $sesi_data = $sesi_paginated->through(function ($sesi) use ($id_osce) {
+        // 1. Hitung jumlah mahasiswa
+        $sesi->jumlah_mahasiswa = EnrollmentOsce::where('id_osce', $id_osce)
+            ->where('tanggal_sesi', $sesi->tanggal)
+            ->where('jam_sesi', $sesi->jam_mulai)
+            ->count();
+
+        // 2. Ambil Data Ruangan
+        $info_ruang = DB::table('osce_stase')
+            ->join('ruang', 'osce_stase.id_ruang', '=', 'ruang.id_ruang')
+            ->where('id_osce', $id_osce)
+            ->where('tanggal', $sesi->tanggal)
+            ->where('jam_mulai', $sesi->jam_mulai)
+            ->select('ruang.nomor_ruangan', 'ruang.lokasi')
+            ->first();
+
+        if ($info_ruang) {
+            $sesi->nama_ruang = $info_ruang->nomor_ruangan . ' - ' . $info_ruang->lokasi;
+        } else {
+            $sesi->nama_ruang = '-';
+        }
+
+        // 3. Formatting
+        $sesi->tanggal_formatted = (new \DateTime($sesi->tanggal))->format('d M Y');
+        $sesi->jam_mulai_formatted = substr($sesi->jam_mulai, 0, 5);
+        // [UBAH 3] Format Jam Selesai
+        $sesi->jam_selesai_formatted = substr($sesi->jam_selesai, 0, 5);
+
+        return $sesi;
+    });
+
+    // ... sisa code return Inertia sama ...
+    $master_stase = Stase::select('id_stase', 'nama_stase')->get()->map(fn($item) => [
+        'value' => $item->id_stase,
+        'label' => $item->nama_stase
+    ]);
+
+    return Inertia::render('Admin/OsceJadwalPage', [
+        'osce' => $osce,
+        'sesi' => $sesi_data,
+        'filters' => ['search' => $search],
+        'master_stase' => $master_stase,
+    ]);
+}
 
     public function checkAvailability(Request $request)
     {
