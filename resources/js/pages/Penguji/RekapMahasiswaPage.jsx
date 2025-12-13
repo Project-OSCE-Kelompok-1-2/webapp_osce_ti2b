@@ -192,8 +192,30 @@ export default function RekapMahasiswaPage() {
             setCurrentPage(currentPage + 1);
         }
     };
+
     // --- END LOGIC CLIENT-SIDE PAGINATION ---
 
+    // --- BARU: Logic Handle Download ---
+    const handleDownload = (type) => {
+        const osceId = safeOsceInfo.id_osce;
+        const osceStaseId = safeOsceInfo.id_osce_stase; // Ambil ID Stase
+
+        if (!osceId || !osceStaseId) {
+            alert("ID OSCE atau ID OSCE Stase tidak ditemukan.");
+            return;
+        }
+
+        const queryParams = new URLSearchParams({
+            search: search,
+        }).toString();
+
+        // UBAH URL INI AGAR SESUAI DENGAN ROUTE LARAVEL:
+        // Route Laravel: /osce/{id_osce}/stase/{id_osce_stase}/export/{type}
+        const downloadUrl = `/penguji/osce/${osceId}/stase/${osceStaseId}/export/${type}?${queryParams}`;
+
+        // Redirect window location untuk memicu download browser
+        window.location.href = downloadUrl;
+    };
     // 7. MAPPING DATA UNTUK OsTableBody (Menggunakan data yang sudah dipaginasi)
     const tableData = paginatedStudents.map((mhs, index) => ({
         // Index dihitung berdasarkan urutan global, bukan hanya di halaman ini
@@ -350,13 +372,22 @@ export default function RekapMahasiswaPage() {
                     </div>
 
                     {/* 3. Navigasi Download */}
-                    <div className="mb-4">
+                    <div className="mb-4 flex gap-4">
                         <OsButton
                             name="primary-pj"
-                            className="text-sm font-medium shadow-sm px-4 py-2.5 flex items-center justify-start"
+                            onClick={() => handleDownload("excel")}
+                            className="text-sm font-medium shadow-sm px-4 py-2.5 flex items-center justify-start cursor-pointer hover:bg-green-600 transition-colors"
                         >
                             <Download className="w-4 h-4 mr-2" />
-                            Unduh Rekap Nilai
+                            Unduh Rekap Nilai (Excel)
+                        </OsButton>
+                        <OsButton
+                            name="primary-pj"
+                            onClick={() => handleDownload("pdf")}
+                            className="text-sm font-medium shadow-sm px-4 py-2.5 flex items-center justify-start cursor-pointer hover:bg-red-600 transition-colors"
+                        >
+                            <Download className="w-4 h-4 mr-2" />
+                            Unduh Rekap Nilai (PDF)
                         </OsButton>
                     </div>
 
