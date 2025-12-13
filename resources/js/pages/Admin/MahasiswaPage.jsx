@@ -290,117 +290,126 @@ export default function MahasiswaPage() {
                 isOpen={isSidebarOpen}
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             />
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader
-                    onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                />
-                <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-1">
-                        Menu Mahasiswa
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                        Kelola data mahasiswa.
-                    </p>
-
-                    <div className="flex items-center gap-3 mb-5">
-                        <OsButton
-                            name="primary"
-                            onClick={openAddModal}
-                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
-                        >
-                            <OsIcon
-                                name="add"
-                                className="h-os-20 os-icon-light mr-os-8"
-                            />{" "}
-                            Tambah Mahasiswa via Form
-                        </OsButton>
-                        <OsButton
-                            name="primary"
-                            onClick={() => setShowExcelModal(true)}
-                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
-                        >
-                            <OsIcon
-                                name="Download (2)"
-                                className="h-os-20 os-icon-light mr-os-8"
-                            />{" "}
-                            Tambah Mahasiswa via Excel
-                        </OsButton>
-                    </div>
-
-                    {flash.success && (
-                        <div className="mb-4 p-4 bg-green-100 text-green-800 rounded-lg">
-                            {flash.success}
-                        </div>
-                    )}
-                    {Object.keys(errors).length > 0 && (
-                        <div className="mb-4 p-4 bg-red-100 text-red-800 rounded-lg">
-                            <ul className="list-disc pl-4 text-sm">
-                                {Object.values(errors).map((err, i) => (
-                                    <li key={i}>{err}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
-
-                    {/* --- SEARCH BAR & FILTER ANGKATAN --- */}
-                    {/* Menggunakan Flexbox agar sejajar */}
-                    <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                        <div className="flex-grow">
-                            <OsSearchBar
-                                search={search}
-                                setSearch={setSearch}
-                                placeholder="Cari nama atau NIM..."
-                            />
-                        </div>
-
-                        {/* DROPDOWN FILTER ANGKATAN (Client Side) */}
-                        <div className="w-full sm:w-48 shrink-0">
-                            <OsInput
-                                type="select"
-                                value={angkatanFilter}
-                                onChange={(e) => {
-                                    // Handle event change dari select native atau custom component
-                                    const val = e.target ? e.target.value : e;
-                                    setAngkatanFilter(val);
-                                }}
-                                options={[
-                                    { value: "SEMUA", label: "Semua Angkatan" },
-                                    ...angkatanListOptions,
-                                ]}
-                                className="h-[46px]" // Sesuaikan tinggi dengan searchbar jika perlu
-                            />
-                        </div>
-                    </div>
-
-                    <section>
-                        <h2 className="font-semibold text-lg mb-2">
-                            Tabel Mahasiswa{" "}
-                            <span className="text-sm font-normal text-gray-500 ml-2">
-                                (Total: {totalItems} data)
-                            </span>
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader
+                        onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    />
+                    <div className="flex-1 overflow-auto">
+                        <h2 className="font-semibold text-lg mb-1">
+                            Menu Mahasiswa
                         </h2>
-                        <div className="w-full overflow-x-auto pb-4">
-                            <div className="min-w-max">
-                                <OsTableHeader columns={mahasiswaColumns} />
-                                <OsTableBody
-                                    data={tableDisplayData}
-                                    columns={mahasiswaColumns}
-                                />
-                            </div>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                            Kelola data mahasiswa.
+                        </p>
+
+                        <div className="flex items-center gap-3 mb-5">
+                            <OsButton
+                                name="primary"
+                                onClick={openAddModal}
+                                className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
+                            >
+                                <OsIcon
+                                    name="add"
+                                    className="h-os-20 os-icon-light mr-os-8"
+                                />{" "}
+                                Tambah Mahasiswa via Form
+                            </OsButton>
+                            <OsButton
+                                name="primary"
+                                onClick={() => setShowExcelModal(true)}
+                                className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
+                            >
+                                <OsIcon
+                                    name="Download (2)"
+                                    className="h-os-20 os-icon-light mr-os-8"
+                                />{" "}
+                                Tambah Mahasiswa via Excel
+                            </OsButton>
                         </div>
-                        {totalPages > 1 && (
-                            <div className="mt-2">
-                                <OsPagination
-                                    links={generatedLinks}
-                                    onPageChange={(page) =>
-                                        setCurrentPage(page)
-                                    }
-                                />
+
+                        {flash.success && (
+                            <div className="mb-4 p-4 bg-green-100 text-green-800 rounded-lg">
+                                {flash.success}
                             </div>
                         )}
-                    </section>
+                        {Object.keys(errors).length > 0 && (
+                            <div className="mb-4 p-4 bg-red-100 text-red-800 rounded-lg">
+                                <ul className="list-disc pl-4 text-sm">
+                                    {Object.values(errors).map((err, i) => (
+                                        <li key={i}>{err}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        )}
+
+                        {/* --- SEARCH BAR & FILTER ANGKATAN --- */}
+                        {/* Menggunakan Flexbox agar sejajar */}
+                        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                            <div className="flex-grow">
+                                <OsSearchBar
+                                    search={search}
+                                    setSearch={setSearch}
+                                    placeholder="Cari nama atau NIM..."
+                                />
+                            </div>
+
+                            {/* DROPDOWN FILTER ANGKATAN (Client Side) */}
+                            <div className="w-full sm:w-48 shrink-0">
+                                <OsInput
+                                    type="select"
+                                    value={angkatanFilter}
+                                    onChange={(e) => {
+                                        // Handle event change dari select native atau custom component
+                                        const val = e.target
+                                            ? e.target.value
+                                            : e;
+                                        setAngkatanFilter(val);
+                                    }}
+                                    options={[
+                                        {
+                                            value: "SEMUA",
+                                            label: "Semua Angkatan",
+                                        },
+                                        ...angkatanListOptions,
+                                    ]}
+                                    className="h-[46px]" // Sesuaikan tinggi dengan searchbar jika perlu
+                                />
+                            </div>
+                        </div>
+
+                        <section>
+                            <h2 className="font-semibold text-lg mb-2">
+                                Tabel Mahasiswa{" "}
+                                <span className="text-sm font-normal text-gray-500 ml-2">
+                                    (Total: {totalItems} data)
+                                </span>
+                            </h2>
+                            <div className="w-full overflow-x-auto pb-4">
+                                <div className="min-w-max">
+                                    <OsTableHeader columns={mahasiswaColumns} />
+                                    <OsTableBody
+                                        data={tableDisplayData}
+                                        columns={mahasiswaColumns}
+                                    />
+                                </div>
+                            </div>
+                            {totalPages > 1 && (
+                                <div className="mt-2">
+                                    <OsPagination
+                                        links={generatedLinks}
+                                        onPageChange={(page) =>
+                                            setCurrentPage(page)
+                                        }
+                                    />
+                                </div>
+                            )}
+                        </section>
+                    </div>
                 </div>
-                <OsCopyright />
+                <div className="mt-8">
+                    <OsCopyright />
+                </div>
             </main>
 
             {/* --- MODAL TAMBAH --- */}

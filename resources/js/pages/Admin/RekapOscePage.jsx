@@ -206,93 +206,101 @@ export default function RekapOscePage() {
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader onMenuClick={handleSidebarToggle} />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader onMenuClick={handleSidebarToggle} />
 
-                <div className="flex-1 overflow-auto">
-                    {/* Notifikasi */}
-                    {flash.success && (
-                        <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
-                            {flash.success}
-                        </div>
-                    )}
-                    {flash.error && (
-                        <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
-                            {flash.error}
-                        </div>
-                    )}
+                    <div className="flex-1 overflow-auto">
+                        {/* Notifikasi */}
+                        {flash.success && (
+                            <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
+                                {flash.success}
+                            </div>
+                        )}
+                        {flash.error && (
+                            <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
+                                {flash.error}
+                            </div>
+                        )}
 
-                    <h2 className="font-semibold text-lg mb-1">
-                        Menu Rekap Nilai
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Pilih OSCE yang telah selesai untuk melihat rekapitulasi
-                        nilai mahasiswa.
-                    </p>
+                        <h2 className="font-semibold text-lg mb-1">
+                            Menu Rekap Nilai
+                        </h2>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                            Pilih OSCE yang telah selesai untuk melihat
+                            rekapitulasi nilai mahasiswa.
+                        </p>
 
-                    {/* SEARCH & FILTER SECTION (UPDATED) */}
-                    <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                        <div className="flex-grow">
-                            <OsSearchBar
-                                search={search}
-                                setSearch={setSearch}
-                                placeholder="Cari data OSCE..."
-                            />
-                        </div>
-
-                        {/* Dropdown Filter Tahun Akademik */}
-                        <div className="w-full sm:w-64 shrink-0">
-                            <OsInput
-                                type="select"
-                                value={tahun}
-                                onChange={(e) => {
-                                    const val = e.target ? e.target.value : e;
-                                    setTahun(val);
-                                }}
-                                options={tahunList}
-                                className="h-[46px]"
-                            />
-                        </div>
-                    </div>
-
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table OSCE
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
-                    </h2>
-
-                    {/* TABEL */}
-                    <div className="w-full overflow-x-auto pb-4">
-                        <div className="min-w-max">
-                            <OsTableHeader columns={rekapColumns} />
-                            {filteredData.length > 0 ? (
-                                <OsTableBody
-                                    data={tableData}
-                                    columns={rekapColumns}
+                        {/* SEARCH & FILTER SECTION (UPDATED) */}
+                        <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                            <div className="flex-grow">
+                                <OsSearchBar
+                                    search={search}
+                                    setSearch={setSearch}
+                                    placeholder="Cari data OSCE..."
                                 />
-                            ) : (
-                                <div className="flex items-center border-t border-gray-400">
-                                    <p className="w-full text-center text-sm py-4 text-gray-500">
-                                        Data rekap nilai tidak ditemukan.
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                            </div>
 
-                    {/* PAGINATION */}
-                    {totalPages > 1 && (
-                        <div className="mt-8">
-                            <OsPagination
-                                links={generatedLinks}
-                                onPageChange={(page) => setCurrentPage(page)}
-                            />
+                            {/* Dropdown Filter Tahun Akademik */}
+                            <div className="w-full sm:w-64 shrink-0">
+                                <OsInput
+                                    type="select"
+                                    value={tahun}
+                                    onChange={(e) => {
+                                        const val = e.target
+                                            ? e.target.value
+                                            : e;
+                                        setTahun(val);
+                                    }}
+                                    options={tahunList}
+                                    className="h-[46px]"
+                                />
+                            </div>
                         </div>
-                    )}
+
+                        <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                            Table OSCE
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
+                        </h2>
+
+                        {/* TABEL */}
+                        <div className="w-full overflow-x-auto pb-4">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={rekapColumns} />
+                                {filteredData.length > 0 ? (
+                                    <OsTableBody
+                                        data={tableData}
+                                        columns={rekapColumns}
+                                    />
+                                ) : (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-4 text-gray-500">
+                                            Data rekap nilai tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+
+                        {/* PAGINATION */}
+                        {totalPages > 1 && (
+                            <div className="mt-8">
+                                <OsPagination
+                                    links={generatedLinks}
+                                    onPageChange={(page) =>
+                                        setCurrentPage(page)
+                                    }
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
 
-                <OsCopyright />
+                <div className="mt-8">
+                    <OsCopyright />
+                </div>
             </main>
         </div>
     );

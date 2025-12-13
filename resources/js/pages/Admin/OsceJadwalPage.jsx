@@ -334,79 +334,80 @@ export default function SesiOscePage({
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader variant="goback" backLink="/admin/osce/" />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader variant="goback" backLink="/admin/osce/" />
 
-                <div className="flex-1 overflow-auto ">
-                    <section className="mb-6">
-                        <h2 className="text-lg font-semibold mb-1">
-                            {osce.nama_osce || "Detail Jadwal OSCE"}
-                        </h2>
-                        <div className="text-sm text-gray-500 mb-4 max-w-lg">
-                            <p>
-                                Halaman ini digunakan untuk mengelola{" "}
-                                <strong>Jadwal Sesi</strong> pada ujian{" "}
-                                <strong>{osce.nama_osce}</strong>.
-                            </p>
-                            {osce.tanggal_mulai && (
-                                <p className="mt-1 text-xs text-gray-400">
-                                    Pelaksanaan: {osce.tanggal_mulai} s/d{" "}
-                                    {osce.tanggal_selesai}
+                    <div className="flex-1 overflow-auto ">
+                        <section className="mb-6">
+                            <h2 className="text-lg font-semibold mb-1">
+                                {osce.nama_osce || "Detail Jadwal OSCE"}
+                            </h2>
+                            <div className="text-sm text-gray-500 mb-4 max-w-lg">
+                                <p>
+                                    Halaman ini digunakan untuk mengelola{" "}
+                                    <strong>Jadwal Sesi</strong> pada ujian{" "}
+                                    <strong>{osce.nama_osce}</strong>.
                                 </p>
-                            )}
-                        </div>
-                        <OsButton
-                            name="primary"
-                            onClick={() => {
-                                setCurrentStep(0);
-                                setIsStepOpen(true);
-                            }}
-                            className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-                        >
-                            <OsIcon
-                                name="add"
-                                className="h-os-20 os-icon-light mr-os-8"
-                            />
-                            Tambah Sesi
-                        </OsButton>
-                    </section>
-
-                    <section className="rounded-lg w-full">
-                        <OsSearchBar
-                            search={searchTerm}
-                            setSearch={setSearchTerm}
-                            onSearchClick={handleSearch}
-                            placeholder="Cari sesi..."
-                        />
-                    </section>
-
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table Sesi
-                    </h2>
-
-                    <div className="w-full overflow-x-auto pb-4">
-                        <div className="min-w-max border rounded-lg overflow-hidden">
-                            <OsTableHeader columns={jadwalColumns} />
-                            {rows.length > 0 ? (
-                                <OsTableBody
-                                    data={rows}
-                                    columns={jadwalColumns}
-                                />
-                            ) : (
-                                <div className="flex items-center justify-center border-t border-gray-200">
-                                    <p className="w-full text-center text-sm py-4 text-gray-500">
-                                        Data sesi tidak ditemukan.
+                                {osce.tanggal_mulai && (
+                                    <p className="mt-1 text-xs text-gray-400">
+                                        Pelaksanaan: {osce.tanggal_mulai} s/d{" "}
+                                        {osce.tanggal_selesai}
                                     </p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    <OsPagination links={sesi?.links} />
-                </div>
+                                )}
+                            </div>
+                            <OsButton
+                                name="primary"
+                                onClick={() => {
+                                    setCurrentStep(0);
+                                    setIsStepOpen(true);
+                                }}
+                                className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                            >
+                                <OsIcon
+                                    name="add"
+                                    className="h-os-20 os-icon-light mr-os-8"
+                                />
+                                Tambah Sesi
+                            </OsButton>
+                        </section>
 
-                <footer>
+                        <section className="rounded-lg w-full">
+                            <OsSearchBar
+                                search={searchTerm}
+                                setSearch={setSearchTerm}
+                                onSearchClick={handleSearch}
+                                placeholder="Cari sesi..."
+                            />
+                        </section>
+
+                        <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                            Table Sesi
+                        </h2>
+
+                        <div className="w-full overflow-x-auto pb-4">
+                            <div className="min-w-max border rounded-lg overflow-hidden">
+                                <OsTableHeader columns={jadwalColumns} />
+                                {rows.length > 0 ? (
+                                    <OsTableBody
+                                        data={rows}
+                                        columns={jadwalColumns}
+                                    />
+                                ) : (
+                                    <div className="flex items-center justify-center border-t border-gray-200">
+                                        <p className="w-full text-center text-sm py-4 text-gray-500">
+                                            Data sesi tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <OsPagination links={sesi?.links} />
+                    </div>
+                </div>
+                <div className="mt-8">
                     <OsCopyright />
-                </footer>
+                </div>
             </main>
 
             {/* DELETE MODAL */}

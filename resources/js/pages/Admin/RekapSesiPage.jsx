@@ -149,74 +149,80 @@ export default function RekapSesiPage() {
             <Head title={`Rekap Sesi - ${osce.nama_osce}`} />
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader variant="goback" backLink="/admin/rekap-nilai" />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader variant="goback" backLink="/admin/rekap-nilai" />
 
-                <div className="flex-1 overflow-auto">
-                    {/* Notifikasi */}
-                    {flash.success && (
-                        <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
-                            {flash.success}
+                    <div className="flex-1 overflow-auto">
+                        {/* Notifikasi */}
+                        {flash.success && (
+                            <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
+                                {flash.success}
+                            </div>
+                        )}
+                        {flash.error && (
+                            <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
+                                {flash.error}
+                            </div>
+                        )}
+
+                        <h2 className="font-semibold text-lg mb-1">
+                            Menu Rekap Nilai
+                        </h2>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                            Pilih salah satu sesi (berdasarkan tanggal dan
+                            waktu) untuk melihat daftar mahasiswa.
+                        </p>
+
+                        {/* SEARCH INSTANT */}
+                        <OsSearchBar
+                            search={searchTerm}
+                            setSearch={setSearchTerm} // Instant update
+                            placeholder="Cari tanggal atau jam..."
+                        />
+
+                        <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                            Table Sesi
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
+                        </h2>
+
+                        <div className="w-full overflow-x-auto pb-4">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={sesiColumns} />
+                                {filteredData.length > 0 ? (
+                                    <OsTableBody
+                                        data={sesiRows}
+                                        columns={sesiColumns}
+                                    />
+                                ) : (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-4 text-gray-500">
+                                            Data sesi tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
-                    )}
-                    {flash.error && (
-                        <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
-                            {flash.error}
-                        </div>
-                    )}
 
-                    <h2 className="font-semibold text-lg mb-1">
-                        Menu Rekap Nilai
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Pilih salah satu sesi (berdasarkan tanggal dan waktu)
-                        untuk melihat daftar mahasiswa.
-                    </p>
-
-                    {/* SEARCH INSTANT */}
-                    <OsSearchBar
-                        search={searchTerm}
-                        setSearch={setSearchTerm} // Instant update
-                        placeholder="Cari tanggal atau jam..."
-                    />
-
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table Sesi
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
-                    </h2>
-
-                    <div className="w-full overflow-x-auto pb-4">
-                        <div className="min-w-max">
-                            <OsTableHeader columns={sesiColumns} />
-                            {filteredData.length > 0 ? (
-                                <OsTableBody
-                                    data={sesiRows}
-                                    columns={sesiColumns}
+                        {/* PAGINATION CLIENT-SIDE */}
+                        {totalPages > 1 && (
+                            <div className="mt-8">
+                                <OsPagination
+                                    links={generatedLinks}
+                                    onPageChange={(page) =>
+                                        setCurrentPage(page)
+                                    }
                                 />
-                            ) : (
-                                <div className="flex items-center border-t border-gray-400">
-                                    <p className="w-full text-center text-sm py-4 text-gray-500">
-                                        Data sesi tidak ditemukan.
-                                    </p>
-                                </div>
-                            )}
-                        </div>
+                            </div>
+                        )}
                     </div>
-
-                    {/* PAGINATION CLIENT-SIDE */}
-                    {totalPages > 1 && (
-                        <div className="mt-8">
-                            <OsPagination
-                                links={generatedLinks}
-                                onPageChange={(page) => setCurrentPage(page)}
-                            />
-                        </div>
-                    )}
                 </div>
 
-                <OsCopyright />
+                <div className="mt-8">
+                    <OsCopyright />
+                </div>
             </main>
         </div>
     );

@@ -270,130 +270,138 @@ export default function MenuAspekPenilaian() {
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader
-                    variant="goback"
-                    backLink="/admin/stase"
-                    onMenuClick={handleSidebarToggle}
-                />
-
-                <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-1">
-                        {stase.nama_stase}
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                        Halaman ini didedikasikan untuk mengatur seluruh Aspek
-                        Penilaian...
-                    </p>
-
-                    {totalBobot == 100 ? (
-                        <OsButton
-                            name="secondary"
-                            className="flex h-[46px] items-center bg-gray-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-gray-700 !scale-100 !pointer-events-none"
-                        >
-                            Bobot sudah penuh
-                        </OsButton>
-                    ) : (
-                        <OsButton
-                            name="primary"
-                            onClick={openAddModal}
-                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
-                        >
-                            <OsIcon
-                                name="add"
-                                className="h-os-20 os-icon-light mr-os-8"
-                            />{" "}
-                            Tambah Aspek Penilaian
-                        </OsButton>
-                    )}
-
-                    {/* SEARCH INSTANT */}
-                    <OsSearchBar
-                        search={search}
-                        setSearch={setSearch}
-                        placeholder="Cari aspek penilaian..."
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader
+                        variant="goback"
+                        backLink="/admin/stase"
+                        onMenuClick={handleSidebarToggle}
                     />
 
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table Aspek Penilaian
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
-                    </h2>
+                    <div className="flex-1 overflow-auto">
+                        <h2 className="font-semibold text-lg mb-1">
+                            {stase.nama_stase}
+                        </h2>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                            Halaman ini didedikasikan untuk mengatur seluruh
+                            Aspek Penilaian...
+                        </p>
 
-                    <div className="w-full overflow-x-auto pb-4">
-                        <div className="min-w-max">
-                            <OsTableHeader columns={columns} />
-                            {tableDisplayData.length > 0 ? (
-                                <OsTableBody
-                                    data={tableDisplayData}
-                                    columns={columns}
-                                />
-                            ) : (
-                                <div className="py-6 text-center text-gray-500">
-                                    Belum ada aspek penilaian untuk stase ini.
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                        {totalBobot == 100 ? (
+                            <OsButton
+                                name="secondary"
+                                className="flex h-[46px] items-center bg-gray-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-gray-700 !scale-100 !pointer-events-none"
+                            >
+                                Bobot sudah penuh
+                            </OsButton>
+                        ) : (
+                            <OsButton
+                                name="primary"
+                                onClick={openAddModal}
+                                className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
+                            >
+                                <OsIcon
+                                    name="add"
+                                    className="h-os-20 os-icon-light mr-os-8"
+                                />{" "}
+                                Tambah Aspek Penilaian
+                            </OsButton>
+                        )}
 
-                    {/* PAGINATION */}
-                    {totalPages > 1 && (
-                        <div className="mt-2">
-                            <OsPagination
-                                links={generatedLinks}
-                                onPageChange={(page) => setCurrentPage(page)}
-                            />
-                        </div>
-                    )}
+                        {/* SEARCH INSTANT */}
+                        <OsSearchBar
+                            search={search}
+                            setSearch={setSearch}
+                            placeholder="Cari aspek penilaian..."
+                        />
 
-                    {/* FOOTER TOTAL BOBOT */}
-                    <div className="bg-os-white rounded-lg overflow-hidden border-os-1 border-os-black mt-3 h-[56px]">
-                        <table className="w-full h-[56px]">
-                            <tfoot>
-                                <tr className="w-full h-full flex justify-between p-2">
-                                    <td className="flex text-start items-center pl-2 flex-1">
-                                        Total Bobot
-                                    </td>
-                                    <td className="flex px-3 text-center w-32 items-center justify-center">
-                                        <span className="text-sm">Bobot:</span>
-                                        <span className="text-black font-bold pl-1.5">
-                                            {totalBobot}
-                                        </span>
-                                    </td>
-                                    <td className=" px-2 hidden md:flex text-center justify-end md:w-[290px] ">
-                                        {totalBobot == 100 ? (
-                                            <div className="bg-green-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
-                                                Point Seimbang (100%)
-                                            </div>
-                                        ) : (
-                                            totalBobot > 0 && (
-                                                <div className="bg-red-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
-                                                    Point Tidak Seimbang! (
-                                                    {totalBobot}%)
-                                                </div>
-                                            )
-                                        )}
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                    {/* Mobile Footer Indicator */}
-                    {totalBobot == 100 ? (
-                        <div className="bg-green-600 text-white w-full text-sm px-3 py-4 mt-3 rounded-lg inline-block md:hidden">
-                            Point Seimbang (100%)
-                        </div>
-                    ) : (
-                        totalBobot > 0 && (
-                            <div className="bg-red-600 text-white w-full text-sm px-3 py-4 mt-3 rounded-lg inline-block md:hidden">
-                                Point Tidak Seimbang! ({totalBobot}%)
+                        <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                            Table Aspek Penilaian
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
+                        </h2>
+
+                        <div className="w-full overflow-x-auto pb-4">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={columns} />
+                                {tableDisplayData.length > 0 ? (
+                                    <OsTableBody
+                                        data={tableDisplayData}
+                                        columns={columns}
+                                    />
+                                ) : (
+                                    <div className="py-6 text-center text-gray-500">
+                                        Belum ada aspek penilaian untuk stase
+                                        ini.
+                                    </div>
+                                )}
                             </div>
-                        )
-                    )}
-                </div>
+                        </div>
 
-                <OsCopyright />
+                        {/* PAGINATION */}
+                        {totalPages > 1 && (
+                            <div className="mt-2">
+                                <OsPagination
+                                    links={generatedLinks}
+                                    onPageChange={(page) =>
+                                        setCurrentPage(page)
+                                    }
+                                />
+                            </div>
+                        )}
+
+                        {/* FOOTER TOTAL BOBOT */}
+                        <div className="bg-os-white rounded-lg overflow-hidden border-os-1 border-os-black mt-3 h-[56px]">
+                            <table className="w-full h-[56px]">
+                                <tfoot>
+                                    <tr className="w-full h-full flex justify-between p-2">
+                                        <td className="flex text-start items-center pl-2 flex-1">
+                                            Total Bobot
+                                        </td>
+                                        <td className="flex px-3 text-center w-32 items-center justify-center">
+                                            <span className="text-sm">
+                                                Bobot:
+                                            </span>
+                                            <span className="text-black font-bold pl-1.5">
+                                                {totalBobot}
+                                            </span>
+                                        </td>
+                                        <td className=" px-2 hidden md:flex text-center justify-end md:w-[290px] ">
+                                            {totalBobot == 100 ? (
+                                                <div className="bg-green-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
+                                                    Point Seimbang (100%)
+                                                </div>
+                                            ) : (
+                                                totalBobot > 0 && (
+                                                    <div className="bg-red-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
+                                                        Point Tidak Seimbang! (
+                                                        {totalBobot}%)
+                                                    </div>
+                                                )
+                                            )}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        {/* Mobile Footer Indicator */}
+                        {totalBobot == 100 ? (
+                            <div className="bg-green-600 text-white w-full text-sm px-3 py-4 mt-3 rounded-lg inline-block md:hidden">
+                                Point Seimbang (100%)
+                            </div>
+                        ) : (
+                            totalBobot > 0 && (
+                                <div className="bg-red-600 text-white w-full text-sm px-3 py-4 mt-3 rounded-lg inline-block md:hidden">
+                                    Point Tidak Seimbang! ({totalBobot}%)
+                                </div>
+                            )
+                        )}
+                    </div>
+                </div>
+                <div className="mt-8">
+                    <OsCopyright />
+                </div>
             </main>
 
             {/* MODALS */}

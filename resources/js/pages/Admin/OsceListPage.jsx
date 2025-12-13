@@ -273,92 +273,100 @@ export default function OsceListPage({
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader onMenuClick={handleSidebarToggle} />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader onMenuClick={handleSidebarToggle} />
 
-                <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-1">Menu OSCE</h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Halaman OSCE digunakan untuk mengelola daftar OSCE.
-                    </p>
-
-                    <OsButton
-                        name="primary"
-                        onClick={() => {
-                            setFormData(initialFormState);
-                            setIsAddOpen(true);
-                        }}
-                        className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
-                    >
-                        <OsIcon
-                            name="add"
-                            className="h-os-20 os-icon-light mr-os-8"
-                        />
-                        Tambah OSCE
-                    </OsButton>
-
-                    <section>
-                        {/* --- SEARCH BAR & FILTER (DIMODIFIKASI) --- */}
-                        <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                            <div className="flex-grow">
-                                <OsSearchBar
-                                    search={search}
-                                    setSearch={setSearch}
-                                    placeholder="Cari data OSCE..."
-                                />
-                            </div>
-
-                            {/* [BARU] Dropdown Filter Angkatan */}
-                            <div className="w-full sm:w-64 shrink-0">
-                                <OsInput
-                                    type="select"
-                                    value={tahunFilter}
-                                    onChange={(e) => {
-                                        const val = e.target
-                                            ? e.target.value
-                                            : e;
-                                        setTahunFilter(val);
-                                    }}
-                                    options={[
-                                        {
-                                            label: "Semua Angkatan",
-                                            value: "SEMUA",
-                                        },
-                                        ...(tahunAkademikOptions || []), // Menggunakan props dari Controller
-                                    ]}
-                                    className="h-[46px]"
-                                />
-                            </div>
-                        </div>
-
-                        <h2 className="text-lg font-semibold mb-2">
-                            Table OSCE
-                            <span className="text-sm font-normal text-gray-500 ml-2">
-                                (Total: {totalItems} data)
-                            </span>
+                    <div className="flex-1 overflow-auto">
+                        <h2 className="font-semibold text-lg mb-1">
+                            Menu OSCE
                         </h2>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                            Halaman OSCE digunakan untuk mengelola daftar OSCE.
+                        </p>
 
-                        <div className="w-full overflow-x-auto pb-4">
-                            <div className="min-w-max">
-                                <OsTableHeader columns={columns} />
-                                <OsTableBody data={rows} columns={columns} />
-                            </div>
-                        </div>
+                        <OsButton
+                            name="primary"
+                            onClick={() => {
+                                setFormData(initialFormState);
+                                setIsAddOpen(true);
+                            }}
+                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
+                        >
+                            <OsIcon
+                                name="add"
+                                className="h-os-20 os-icon-light mr-os-8"
+                            />
+                            Tambah OSCE
+                        </OsButton>
 
-                        {totalPages > 1 && (
-                            <div className="mt-8">
-                                <OsPagination
-                                    links={generatedLinks}
-                                    onPageChange={(page) =>
-                                        setCurrentPage(page)
-                                    }
-                                />
+                        <section>
+                            {/* --- SEARCH BAR & FILTER (DIMODIFIKASI) --- */}
+                            <div className="flex flex-col sm:flex-row gap-3 mb-4">
+                                <div className="flex-grow">
+                                    <OsSearchBar
+                                        search={search}
+                                        setSearch={setSearch}
+                                        placeholder="Cari data OSCE..."
+                                    />
+                                </div>
+
+                                {/* [BARU] Dropdown Filter Angkatan */}
+                                <div className="w-full sm:w-64 shrink-0">
+                                    <OsInput
+                                        type="select"
+                                        value={tahunFilter}
+                                        onChange={(e) => {
+                                            const val = e.target
+                                                ? e.target.value
+                                                : e;
+                                            setTahunFilter(val);
+                                        }}
+                                        options={[
+                                            {
+                                                label: "Semua Angkatan",
+                                                value: "SEMUA",
+                                            },
+                                            ...(tahunAkademikOptions || []), // Menggunakan props dari Controller
+                                        ]}
+                                        className="h-[46px]"
+                                    />
+                                </div>
                             </div>
-                        )}
-                    </section>
+
+                            <h2 className="text-lg font-semibold mb-2">
+                                Table OSCE
+                                <span className="text-sm font-normal text-gray-500 ml-2">
+                                    (Total: {totalItems} data)
+                                </span>
+                            </h2>
+
+                            <div className="w-full overflow-x-auto pb-4">
+                                <div className="min-w-max">
+                                    <OsTableHeader columns={columns} />
+                                    <OsTableBody
+                                        data={rows}
+                                        columns={columns}
+                                    />
+                                </div>
+                            </div>
+
+                            {totalPages > 1 && (
+                                <div className="mt-8">
+                                    <OsPagination
+                                        links={generatedLinks}
+                                        onPageChange={(page) =>
+                                            setCurrentPage(page)
+                                        }
+                                    />
+                                </div>
+                            )}
+                        </section>
+                    </div>
                 </div>
-
-                <OsCopyright />
+                <div className="mt-8">
+                    <OsCopyright />
+                </div>
             </main>
 
             {/* --- MODAL DELETE --- */}
