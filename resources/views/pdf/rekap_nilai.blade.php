@@ -1,249 +1,286 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
-    <title>Hasil Nilai OSCE</title>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>Laporan Hasil OSCE - {{ $mahasiswa['nim'] }}</title>
     <style>
+        /* GLOBAL STYLES */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Helvetica', 'Arial', sans-serif;
+            color: #333;
+            font-size: 11pt; /* Ukuran standar surat resmi */
+            line-height: 1.4;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+        }
+
+        /* UTILITIES */
+        .text-center { text-align: center; }
+        .text-right { text-align: right; }
+        .text-bold { font-weight: bold; }
+        .uppercase { text-transform: uppercase; }
+        .mb-20 { margin-bottom: 20px; }
+        .mt-10 { margin-top: 10px; }
+        
+        /* HEADER SECTION */
+        .header-container {
+            border-bottom: 2px solid #2c3e50; /* Garis tebal di bawah header */
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .header-table {
+            width: 100%;
+        }
+
+        .title-text {
+            font-size: 18pt;
+            font-weight: bold;
+            color: #2c3e50;
+            margin: 0;
+        }
+
+        .subtitle-text {
+            font-size: 10pt;
+            color: #7f8c8d;
+            margin: 5px 0 0 0;
+        }
+
+        /* STUDENT INFO & SCORE TABLE */
+        .info-table {
+            width: 100%;
+            margin-top: 15px;
+            border-collapse: collapse;
+        }
+        
+        .info-label {
+            width: 120px;
+            color: #7f8c8d;
+            font-size: 10pt;
+        }
+        
+        .info-value {
+            font-weight: bold;
+            font-size: 11pt;
+            color: #2c3e50;
+        }
+
+        /* KOTAK NILAI AKHIR (Clean Box) */
+        .score-box {
+            border: 2px solid #2c3e50;
+            padding: 10px 20px;
+            text-align: center;
+            display: inline-block;
+        }
+        
+        .score-label {
+            font-size: 9pt;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #7f8c8d;
+        }
+        
+        .score-val {
+            font-size: 28pt;
+            font-weight: 900;
+            color: #2c3e50;
+            line-height: 1;
+            margin: 5px 0;
+        }
+        
+        .score-year {
+            font-size: 9pt;
+            color: #95a5a6;
+        }
+
+        /* STASE SECTION */
+        .stase-wrapper {
+            margin-bottom: 30px;
+            page-break-inside: avoid; /* Mencegah tabel terpotong */
+        }
+
+        .stase-header {
+            background-color: #ecf0f1; /* Abu-abu muda */
+            border-left: 5px solid #2c3e50; /* Aksen biru tua di kiri */
+            padding: 10px 15px;
+            margin-bottom: 10px;
+        }
+
+        .stase-name {
+            font-size: 12pt;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+
+        .stase-examiner {
+            font-size: 9pt;
+            color: #7f8c8d;
+            margin-top: 2px;
+        }
+
+        /* DATA TABLE STYLE */
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 10pt;
+        }
+
+        .data-table th {
+            background-color: #2c3e50;
+            color: #ffffff;
+            padding: 8px;
+            text-align: left;
+            font-size: 9pt;
+            text-transform: uppercase;
+        }
+
+        .data-table td {
+            border-bottom: 1px solid #bdc3c7;
+            padding: 8px;
+            vertical-align: middle;
+        }
+
+        /* Kolom Spesifik */
+        .col-skor {
+            background-color: #f9f9f9;
+            font-weight: bold;
             color: #333;
         }
         
-        /* Header Judul */
-        .page-title {
-            text-align: center;
-            font-size: 24px;
+        .col-nilai {
+            background-color: #eaf2f8; /* Biru sangat muda */
+            color: #2980b9;
             font-weight: bold;
-            margin-bottom: 20px;
-        }
-        .divider {
-            border-bottom: 2px solid #ccc;
-            margin-bottom: 20px;
         }
 
-        /* Profil Section */
-        .profile-container {
-            width: 100%;
-            margin-bottom: 30px;
-        }
-        .profile-table td {
-            vertical-align: top;
-            padding: 5px;
-        }
-        .avatar-circle {
-            width: 80px;
-            height: 80px;
-            background-color: #ddd;
-            border-radius: 50%;
-            display: inline-block; /* Dompdf support */
-            text-align: center;
-            line-height: 80px;
-            font-weight: bold;
-            color: #666;
-            font-size: 24px;
-        }
-
-        /* Stase Card (Blue Header) */
-        .stase-card {
-            margin-bottom: 30px;
-            width: 100%;
-        }
-        .stase-header {
-            background-color: #63a4ff; /* Warna Biru sesuai gambar */
-            color: white;
-            padding: 15px 20px;
-            border-top-left-radius: 10px;
-            border-top-right-radius: 10px;
-            position: relative;
-            height: 60px; /* Fixed height agar layout rapi */
-        }
-        .stase-title {
-            font-size: 20px;
-            font-weight: bold;
-            margin: 0;
-            margin-bottom: 5px;
-        }
-        .stase-penguji {
-            font-size: 12px;
-            opacity: 0.9;
+        .aspek-row {
+            background-color: #f2f2f2;
         }
         
-        /* Kotak Nilai Total di Kanan Atas */
-        .total-box {
-            position: absolute;
-            top: 10px;
-            right: 20px;
-            background-color: white;
-            color: #63a4ff;
-            padding: 5px 15px;
-            border-radius: 8px;
-            text-align: center;
-            width: 60px;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        .total-label {
-            font-size: 8px;
+        .aspek-title {
             font-weight: bold;
+            font-size: 9pt;
             text-transform: uppercase;
-            display: block;
-        }
-        .total-value {
-            font-size: 24px;
-            font-weight: bold;
-            display: block;
+            color: #555;
         }
 
-        /* Tabel Penilaian */
-        .assessment-table {
-            width: 100%;
-            border-collapse: separate;
-            border-spacing: 0 10px; /* Jarak antar baris seperti di gambar */
-        }
-        
-        /* Header Abu-abu (Aspek) */
-        .aspect-header {
-            background-color: #c4c4c4; /* Warna Abu sesuai gambar */
-            font-weight: bold;
-            padding: 10px 15px;
-            font-size: 12px;
-            border: 1px solid #999;
-            border-radius: 5px;
+        /* Footer Table */
+        .total-row td {
+            border-top: 2px solid #2c3e50;
+            background-color: #ffffff;
+            padding: 12px 8px;
         }
 
-        /* Baris Kompetensi (Rounded Border) */
-        .row-item td {
-            border: 1px solid #999;
-            padding: 10px 15px;
-            background-color: white;
-            font-size: 12px;
-        }
-        /* Trik membuat border radius pada tabel row di PDF (workaround) */
-        .row-item td:first-child {
-            border-top-left-radius: 8px;
-            border-bottom-left-radius: 8px;
-            border-right: none;
-        }
-        .row-item td:last-child {
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 8px;
-            border-left: 1px solid #999;
-            text-align: center;
-            font-weight: bold;
-            width: 150px;
-        }
-
-        /* Baris Total Bawah */
-        .row-total td {
-            border: 1px solid #999;
-            padding: 10px 15px;
-            background-color: white;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        .row-total td:first-child {
-            border-top-left-radius: 8px;
-            border-bottom-left-radius: 8px;
-            border-right: none;
-            text-align: center;
-        }
-        .row-total td:last-child {
-            border-top-right-radius: 8px;
-            border-bottom-right-radius: 8px;
-            border-left: 1px solid #999;
-            text-align: center;
-        }
-
-        /* Page Break Prevention */
-        .stase-card {
-            page-break-inside: avoid;
-        }
     </style>
 </head>
 <body>
 
-    <div class="page-title">Hasil Nilai OSCE {{ $tahun }}</div>
-    <div class="divider"></div>
-
-    <div class="profile-container">
-        <table class="profile-table" width="100%">
+    <div class="header-container">
+        <table class="header-table">
             <tr>
-                <td width="100">
-                    <div class="avatar-circle">
-                        {{ substr($mahasiswa['nama'], 0, 1) }}
-                    </div>
-                </td>
-                <td>
-                    <table width="100%">
+                <td width="65%" valign="top">
+                    <h1 class="title-text">Laporan Hasil OSCE</h1>
+                    <p class="subtitle-text">Detail penilaian berbasis kompetensi mahasiswa.</p>
+                    
+                    <table class="info-table">
                         <tr>
-                            <td style="font-weight: bold; width: 60px;">Nama</td>
-                            <td style="width: 10px;">:</td>
-                            <td>{{ $mahasiswa['nama'] }}</td>
+                            <td class="info-label">Nama Mahasiswa</td>
+                            <td class="info-value">: {{ $mahasiswa['nama'] ?? '-' }}</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: bold;">NIM</td>
-                            <td>:</td>
-                            <td>{{ $mahasiswa['nim'] }}</td>
+                            <td class="info-label">NIM</td>
+                            <td class="info-value">: {{ $mahasiswa['nim'] ?? '-' }}</td>
                         </tr>
                         <tr>
-                            <td style="font-weight: bold;">Jurusan</td>
-                            <td>:</td>
-                            <td>Kedokteran Umum</td> 
+                            <td class="info-label">Ujian</td>
+                            <td class="info-value">: {{ $osce['nama_osce'] ?? 'Ujian OSCE' }}</td>
                         </tr>
                     </table>
+                </td>
+
+                <td width="35%" valign="top" align="right">
+                    <div class="score-box">
+                        <div class="score-label">Total Nilai Akhir</div>
+                        <div class="score-val">{{ number_format((float)($nilai_total_osce ?? 0), 2) }}</div>
+                        <div class="score-year">Tahun Akademik {{ $tahun }}</div>
+                    </div>
                 </td>
             </tr>
         </table>
     </div>
-    <div class="divider"></div>
 
-    @foreach($nilai_per_stase as $stase)
-    <div class="stase-card">
-        <div class="stase-header">
-            <div class="stase-title">{{ $stase['nama_stase'] }}</div>
-            <div class="stase-penguji">Penguji : {{ $stase['nama_penguji'] }}</div>
-            
-            <div class="total-box">
-                <span class="total-label">Total Nilai</span>
-                <span class="total-value">{{ number_format($stase['nilai_akhir_stase'], 0) }}</span>
-            </div>
-        </div>
-
-        <table class="assessment-table">
-            @foreach($stase['aspek_penilaian'] as $index => $aspek)
-                <tr>
-                    <td colspan="2" class="aspect-header">
-                        {{ chr(65 + $index) }}. {{ $aspek['aspek'] }} (Bobot Default)
-                    </td>
-                </tr>
-
-                @php $subTotal = 0; @endphp
-                @foreach($aspek['kompetensi'] as $komp)
-                    @php 
-                        $subTotal += $komp['nilai']; 
-                        // Helper Predikat Sederhana
-                        $predikat = match((int)$komp['skor']) {
-                            3 => 'Sangat Baik',
-                            2 => 'Baik',
-                            1 => 'Cukup',
-                            0 => 'Kurang',
-                            default => '-'
-                        };
-                    @endphp
-                    <tr class="row-item">
-                        <td>{{ $komp['kompetensi'] }}</td>
-                        <td>{{ $komp['skor'] }} ({{ $predikat }})</td>
-                    </tr>
-                @endforeach
+    @if(count($nilai_per_stase) > 0)
+        @foreach($nilai_per_stase as $index => $stase)
+            <div class="stase-wrapper">
                 
-                <tr class="row-total">
-                    <td>Total</td>
-                    <td>{{ $subTotal }}</td>
-                </tr>
-            @endforeach
-        </table>
-    </div>
-    @endforeach
+                <table width="100%" class="stase-header">
+                    <tr>
+                        <td>
+                            <div class="stase-name">
+                                {{ $index + 1 }}. {{ $stase['nama_stase'] }}
+                            </div>
+                            <div class="stase-examiner">
+                                Penguji: <strong>{{ $stase['nama_penguji'] ?? '-' }}</strong>
+                            </div>
+                        </td>
+                        <td align="right" valign="middle">
+                            <span style="font-size: 9pt; color: #7f8c8d;">Nilai Stase:</span>
+                            <span style="font-size: 14pt; font-weight: bold; color: #2c3e50; margin-left: 5px;">
+                                {{ number_format((float)($stase['nilai_akhir_stase'] ?? 0), 2) }}
+                            </span>
+                        </td>
+                    </tr>
+                </table>
+
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th width="5%" class="text-center">No</th>
+                            <th width="55%">Aspek & Kompetensi</th>
+                            <th width="10%" class="text-center">Skor</th>
+                            <th width="10%" class="text-center">Bobot</th>
+                            <th width="15%" class="text-center">Nilai</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach(($stase['aspek_penilaian'] ?? []) as $aspek)
+                            <tr class="aspek-row">
+                                <td colspan="5" class="aspek-title">
+                                    {{ $aspek['aspek'] }}
+                                </td>
+                            </tr>
+
+                            @foreach(($aspek['kompetensi'] ?? []) as $kIndex => $komp)
+                                <tr>
+                                    <td class="text-center" style="color: #7f8c8d;">{{ $kIndex + 1 }}</td>
+                                    <td>{{ $komp['kompetensi'] }}</td>
+                                    <td class="text-center col-skor">{{ $komp['skor'] }}</td>
+                                    <td class="text-center">{{ $komp['bobot'] }}</td>
+                                    <td class="text-center col-nilai">
+                                        {{ number_format((float)($komp['nilai'] ?? 0), 0) }}
+                                    </td>
+                                </tr>
+                            @endforeach
+                        @endforeach
+                        
+                        <tr class="total-row">
+                            <td colspan="3" class="text-right text-bold" style="color: #2c3e50;">
+                                JUMLAH NILAI BOBOT
+                            </td>
+                            <td colspan="2" class="text-center text-bold" style="background-color: #2c3e50; color: #fff;">
+                                {{ number_format((float)($stase['total_skor_bobot'] ?? 0), 0) }}
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        @endforeach
+    @else
+        <div style="text-align: center; padding: 50px; border: 1px solid #ccc; background-color: #f9f9f9; color: #777;">
+            <p>Data penilaian tidak tersedia.</p>
+        </div>
+    @endif
 
 </body>
 </html>
