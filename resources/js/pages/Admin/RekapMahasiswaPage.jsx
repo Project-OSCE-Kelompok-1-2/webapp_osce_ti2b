@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react"; // [1] Import Hooks
 import { Link, usePage, router, Head } from "@inertiajs/react";
-import { Search, ArrowLeft } from "lucide-react";
+import { Search, ArrowLeft, Bookmark, Table2, Info } from "lucide-react";
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
@@ -149,15 +149,16 @@ export default function RekapMahasiswaPage() {
                         `/admin/rekap-nilai/mahasiswa/${item.id_mahasiswa}/osce/${osce.id_osce}`
                     )
                 }
-                className="bg-blue-600 h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md hover:bg-blue-700 flex items-center justify-center"
+                className="bg-os-primary h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
             >
-                Lihat Nilai
+                <Info size={18} />
+                Detail
             </button>
         ),
     }));
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head
                 title={`Mahasiswa Sesi ${sesi.tanggal_formatted} - ${osce.nama_osce}`}
             />
@@ -182,9 +183,15 @@ export default function RekapMahasiswaPage() {
                         </div>
                     )}
 
-                    <h2 className="font-semibold text-lg mb-1">
+                    {/* <h2 className="font-semibold text-lg mb-1">
                         Menu Nilai Mahasiswa
-                    </h2>
+                    </h2> */}
+                    <div className="flex gap-1 items-center justify-start my-2">
+                        <Bookmark size={18} />
+                        <h2 className="font-semibold text-lg">
+                            Menu Nilai Mahasiswa
+                        </h2>
+                    </div>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
                         Daftar mahasiswa yang ter-enroll di sesi tanggal{" "}
                         {sesi.tanggal_formatted}.
@@ -205,14 +212,23 @@ export default function RekapMahasiswaPage() {
                         />
                     </OsSearchBar>
 
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                    {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Mahasiswa
                         <span className="text-sm font-normal text-gray-500 ml-2">
                             (Total: {totalItems} data)
                         </span>
-                    </h2>
+                    </h2> */}
+                    <div className="flex gap-1 items-center justify-start mb-2">
+                        <Table2 size={18} />
+                        <h2 className="font-semibold text-lg">
+                            Table Mahasiswa
+                        </h2>
+                        <span className="text-sm font-normal text-gray-500 ml-2">
+                            (Total: {totalItems} data)
+                        </span>
+                    </div>
 
-                    <div className="w-full overflow-x-auto pb-4">
+                    <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
                         <div className="min-w-max">
                             <OsTableHeader columns={mahasiswaColumns} />
                             {filteredData.length > 0 ? (
@@ -228,7 +244,7 @@ export default function RekapMahasiswaPage() {
                                 </div>
                             )}
                         </div>
-                    </div>
+                    </section>
 
                     {/* PAGINATION CLIENT-SIDE */}
                     {totalPages > 1 && (

@@ -196,7 +196,7 @@ export default function RekapOscePage() {
                 onClick={() =>
                     router.visit(`/admin/rekap-nilai/${item.id_osce}/sesi`)
                 }
-                className="bg-blue-800 text-white min-w-[100px] px-2 py-2 rounded-md hover:bg-gray-700 transition-colors duration-200 flex items-center justify-center gap-2"
+                className="bg-os-primary h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
             >
                 <Info size={18} />
                 Detail
