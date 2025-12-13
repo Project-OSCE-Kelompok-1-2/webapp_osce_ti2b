@@ -9,7 +9,7 @@ import { Search, X } from "lucide-react";
 const OsSearchBar = ({ search, setSearch, placeholder = "Cari data..." }) => {
     return (
         // Tambahkan class 'group' di container untuk efek hover/fokus gabungan
-        <div className="relative w-full mb-5 h-[46px] group">
+        <div className="relative w-full mb-2 h-[46px] group">
             {/* Ikon Kaca Pembesar (Kiri) */}
             {/* group-focus-within:text-blue-500 membuat ikon jadi biru saat input difokuskan */}
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
@@ -19,7 +19,7 @@ const OsSearchBar = ({ search, setSearch, placeholder = "Cari data..." }) => {
             {/* Input Field */}
             <input
                 type="text"
-                className="block w-full h-full pl-10 pr-10 rounded-lg border border-gray-200 bg-gray-50 text-gray-900 placeholder-gray-400 focus:outline-none focus:bg-white focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200 shadow-sm"
+                className="block w-full h-full pl-10 pr-10 rounded-lg border border-os-primary border-gray-200 !bg-white text-gray-900 placeholder-gray-400 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-all duration-200 shadow-sm"
                 placeholder={placeholder}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
