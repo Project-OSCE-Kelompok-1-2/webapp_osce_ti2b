@@ -2,13 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Head, Link, usePage } from "@inertiajs/react";
 import { FileText, User } from "lucide-react";
 
-<<<<<<< HEAD
-import Sidebar from "@/Components/Sidebar";
-import OsPagination from "../../components/pagination";
-import OsSearchBar from "@/Components/searchbar";
-import OsHeader from "@/Components/Header";
-import OsCopyright from "@/Components/Copyright";
-=======
 // --- IMPORT KOMPONEN ---
 import Sidebar from "../../components/Sidebar";
 import OsPagination from "../../components/pagination";
@@ -16,7 +9,6 @@ import OsSearchBar from "../../components/searchbar";
 import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/Copyright";
 import OsTableBody from "../../components/tablecontain"; // Asumsi ada OsTableBody, jika tidak pakai table biasa
->>>>>>> c572a15fddfb1f4f7a4ab72a399293642e2e7cfc
 
 export default function NilaiIndex() {
     // 1. Ambil Data Full termasuk filters dari backend
