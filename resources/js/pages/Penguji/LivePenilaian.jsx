@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { usePage, router } from "@inertiajs/react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, User, FileText } from "lucide-react";
 import OsCopyright from "../../components/Copyright";
 
 // import Sidebar from "../../components/SidebarPenguji";
 import Sidebar from "../../components/Sidebar";
 import OsTableHeader from "../../components/tableheader";
+import OsHeader from "../../components/Header";
 
 // Header Tabel Rubrik (Tidak Berubah)
 const rubrikColumns = [
@@ -141,21 +142,27 @@ export default function LivePenilaian() {
         });
     };
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
+
     // =========================================================================
     // 2. BAGIAN TAMPILAN (JSX)
     // =========================================================================
     return (
-        <div className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
+        <div className="relative bg-orange-50 w-full min-h-screen flex justify-start font-sans overflow-hidden">
             {/* <Sidebar onToggle={setSidebarOpen} /> */}
             <Sidebar
                 isOpen={sidebarOpen}
-                setIsOpen={setSidebarOpen}
+                setIsOpen={handleSidebarToggle}
                 type={"penguji"}
             />
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* HEADER */}
-                <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-300">
+                {/* <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-300">
                     <button
                         onClick={() => router.visit("/penguji/dashboard")}
                         className="flex w-[46px] h-[46px] items-center justify-center relative bg-gray-600 text-white rounded-xl border border-solid border-gray-700 aspect-[1] hover:bg-gray-700 transition"
@@ -166,11 +173,18 @@ export default function LivePenilaian() {
                         OSCE / {info_ujian?.nama_osce} /{" "}
                         {info_ujian?.nama_stase}
                     </div>
-                </div>
+                </div> */}
+                <OsHeader onMenuClick={handleSidebarToggle} variant="penguji" />
 
                 <div className="flex-1 overflow-auto px-8 pb-8">
                     {/* INFO MAHASISWA */}
-                    <div className="flex items-center gap-4 border border-gray-300 rounded-xl px-6 py-5 bg-gray-50 mt-4 mb-6">
+                    <div className="flex gap-1 items-center justify-start my-2 text-black">
+                        <User size={18} />
+                        <h2 className="font-semibold text-lg ">
+                            Biodata Mahasiswa
+                        </h2>
+                    </div>
+                    <div className="flex items-center gap-4 border border-os-primary-pj rounded-xl px-6 py-5 bg-gray-50 mb-6">
                         <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-400 bg-gray-200">
                             {mahasiswa?.foto_url ? (
                                 <img
@@ -186,22 +200,28 @@ export default function LivePenilaian() {
                             <p className="font-semibold text-lg">
                                 Nama : {mahasiswa?.nama}
                             </p>
-                            <p className="text-sm text-gray-700">
+                            <p className="text-sm text-orange-700">
                                 NIM : {mahasiswa?.nim}
                             </p>
-                            <p className="text-sm text-gray-700">
+                            <p className="text-sm text-orange-700">
                                 Prodi : {mahasiswa?.prodi}
                             </p>
                         </div>
                     </div>
 
-                    <h2 className="font-semibold text-lg mb-3">
+                    {/* <h2 className="font-semibold text-lg mb-3">
                         Rubrik Penilaian
-                    </h2>
+                    </h2> */}
+                    <div className="flex gap-1 items-center justify-start my-2 text-black">
+                        <FileText size={18} />
+                        <h2 className="font-semibold text-lg ">
+                            Rubrik Penilaian
+                        </h2>
+                    </div>
 
                     {/* ================= DESKTOP VIEW ================= */}
-                    <div className="hidden lg:block border rounded-xl">
-                        <OsTableHeader columns={rubrikColumns} />
+                    <div className="hidden bg-white lg:block border rounded-xl p-2">
+                        <OsTableHeader columns={rubrikColumns} variant="penguji" />
 
                         <div className="max-h-[450px] overflow-y-auto">
                             {dataRubrik.map((group, gIndex) => (
@@ -416,7 +436,7 @@ export default function LivePenilaian() {
 
                                 <button
                                     type="submit"
-                                    className={`col-span-2 w-full h-[70px] rounded-xl transition text-white font-semibold flex items-center justify-center text-lg 
+                                    className={`col-span-2 w-full h-[70px] rounded-xl transition text-white font-semibold flex items-center justify-center text-lg
                                     ${
                                         jumlahKompetensiDinilai <
                                         jumlahKompetensi
