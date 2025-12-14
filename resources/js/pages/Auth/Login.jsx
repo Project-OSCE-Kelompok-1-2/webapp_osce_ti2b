@@ -95,14 +95,14 @@ export default function LoginMosaicPage() {
 
                                 type="button"
                                 onClick={() => setShowPwd((v) => !v)}
-                                className="w-[48px] h-[48px] mt-5 flex items-center justify-center border rounded-xl bg-os-primary text-white hover:bg-gray-600"
+                                className="w-[48px] h-[48px] mt-5 flex items-center justify-center border rounded-xl bg-os-primary text-white hover:bg-os-primary-dark hover:scale-105"
                             >
                                 {showPwd ? (
                                     // <EyeOff className="h-os-36" />
-                                    <OsIcon name="EyeCrossed" className="h-4 os-icon-light " />
+                                    <OsIcon name="EyeCrossed" className="h-[19px] os-icon-light " />
 
                                 ) : (
-                                    <OsIcon name="Eye" className="h-4 os-icon-light " />
+                                    <OsIcon name="Eye" className="h-[16px] os-icon-light " />
                                 )}
                             </button>
                         </div>
