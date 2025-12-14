@@ -248,11 +248,14 @@ export default function RekapMahasiswaPage() {
         ),
     }));
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
+
     return (
         <div className="relative bg-orange-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar
-                isOpen={sidebarOpen}
-                setIsOpen={setSidebarOpen}
+                isOpen={isSidebarOpen}
+                onToggle={handleSidebarToggle}
                 type={"penguji"}
             />
 

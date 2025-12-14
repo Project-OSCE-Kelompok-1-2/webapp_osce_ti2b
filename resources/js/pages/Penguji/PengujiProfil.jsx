@@ -2,14 +2,20 @@ import React, { useState, useEffect } from "react";
 // Import hook Inertia
 import { useForm, usePage, Link, router } from "@inertiajs/react";
 import {
+    User,
+    Mail,
+    Lock,
     Eye,
     EyeOff,
     UploadCloud,
-    LogOut,
-    Lock,
-    Save,
     Trash2,
     AlertCircle,
+    LogOut,
+    BookUser,
+    LogIn,
+    ArrowLeft,
+    Save,
+    Image,
 } from "lucide-react";
 
 // Import Komponen Custom Sesuai Desain
@@ -155,7 +161,7 @@ export default function PengujiProfil() {
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-orange-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar
                 isOpen={isSidebarOpen}
                 type="penguji"

@@ -408,54 +408,54 @@ export default function SesiOscePage({
                 <div className="flex flex-col gap-os-8">
                     <OsHeader variant="goback" backLink="/admin/osce/" />
 
-                <div className="flex-1 overflow-auto ">
-                    {/* Flash Message di Layout Utama */}
-                    {flash.error && (
-                        <div className="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
-                            <p className="font-bold">Error</p>
-                            <p>{flash.error}</p>
-                        </div>
-                    )}
-                    {flash.success && (
-                        <div className="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700">
-                            <p className="font-bold">Sukses</p>
-                            <p>{flash.success}</p>
-                        </div>
-                    )}
+                    <div className="flex-1 overflow-auto ">
+                        {/* Flash Message di Layout Utama */}
+                        {flash.error && (
+                            <div className="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+                                <p className="font-bold">Error</p>
+                                <p>{flash.error}</p>
+                            </div>
+                        )}
+                        {flash.success && (
+                            <div className="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700">
+                                <p className="font-bold">Sukses</p>
+                                <p>{flash.success}</p>
+                            </div>
+                        )}
 
-                    <section className="mb-6">
-                        <h2 className="text-lg font-semibold mb-1">
-                            {osce.nama_osce || "Detail Jadwal OSCE"}
-                        </h2>
-                        <div className="text-sm text-gray-500 mb-4 max-w-lg">
-                            <p>
-                                Halaman ini digunakan untuk mengelola{" "}
-                                <strong>Jadwal Sesi</strong> pada ujian{" "}
-                                <strong>{osce.nama_osce}</strong>.
-                            </p>
-                            {osce.tanggal_mulai && (
-                                <p className="mt-1 text-xs text-gray-400">
-                                    Pelaksanaan: {osce.tanggal_mulai} s/d{" "}
-                                    {osce.tanggal_selesai}
+                        <section className="mb-6">
+                            <h2 className="text-lg font-semibold mb-1">
+                                {osce.nama_osce || "Detail Jadwal OSCE"}
+                            </h2>
+                            <div className="text-sm text-gray-500 mb-4 max-w-lg">
+                                <p>
+                                    Halaman ini digunakan untuk mengelola{" "}
+                                    <strong>Jadwal Sesi</strong> pada ujian{" "}
+                                    <strong>{osce.nama_osce}</strong>.
                                 </p>
-                            )}
-                        </div>
-                        <OsButton
-                            name="primary"
-                            onClick={() => {
-                                setCurrentStep(0);
-                                setIsStepOpen(true);
-                                setValidationError(null); // Reset error saat buka modal
-                            }}
-                            className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-                        >
-                            <OsIcon
-                                name="add"
-                                className="h-os-20 os-icon-light mr-os-8"
-                            />
-                            Tambah Sesi
-                        </OsButton>
-                    </section>
+                                {osce.tanggal_mulai && (
+                                    <p className="mt-1 text-xs text-gray-400">
+                                        Pelaksanaan: {osce.tanggal_mulai} s/d{" "}
+                                        {osce.tanggal_selesai}
+                                    </p>
+                                )}
+                            </div>
+                            <OsButton
+                                name="primary"
+                                onClick={() => {
+                                    setCurrentStep(0);
+                                    setIsStepOpen(true);
+                                    setValidationError(null); // Reset error saat buka modal
+                                }}
+                                className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                            >
+                                <OsIcon
+                                    name="add"
+                                    className="h-os-20 os-icon-light mr-os-8"
+                                />
+                                Tambah Sesi
+                            </OsButton>
+                        </section>
 
                         <section className="rounded-lg w-full">
                             <OsSearchBar
@@ -521,6 +521,7 @@ export default function SesiOscePage({
             />
 
             {/* DETAIL MODAL */}
+            {/* DETAIL MODAL */}
             {isDetailModalOpen && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
                     <div
@@ -528,7 +529,6 @@ export default function SesiOscePage({
                         onClick={() => setIsDetailModalOpen(false)}
                     ></div>
                     <div className="relative bg-white rounded-2xl shadow-2xl w-full max-w-5xl max-h-[90vh] flex flex-col overflow-hidden transform transition-all scale-100">
-                        {/* ... (Detail Modal Content Sama Seperti Sebelumnya) ... */}
                         <div className="flex justify-between items-start px-8 py-6 bg-gradient-to-r from-blue-600 to-indigo-700 text-white shadow-md z-10">
                             <div>
                                 <h3 className="text-xl font-bold flex items-center gap-2">
@@ -569,20 +569,188 @@ export default function SesiOscePage({
                                 <X size={24} />
                             </button>
                         </div>
-                        {/* ... (Isi detail modal - disingkat agar fit) ... */}
+
                         <div className="flex-1 overflow-y-auto bg-gray-50/50 p-6 lg:p-8">
-                            {/* ... Konten tabel detail ... */}
                             {isLoadingDetail ? (
-                                <p className="text-center p-4">Loading...</p>
+                                <div className="flex flex-col items-center justify-center h-64 gap-4 text-gray-400">
+                                    <div className="animate-spin rounded-full h-10 w-10 border-4 border-indigo-500 border-t-transparent"></div>
+                                    <p>Mengambil data sesi...</p>
+                                </div>
                             ) : (
-                                <div className="p-4 bg-white rounded shadow-sm">
-                                    {/* (Copy paste bagian detail tabel dari kode sebelumnya jika perlu, logika tidak berubah) */}
-                                    <p className="text-gray-500 italic text-center">
-                                        Data detail berhasil dimuat.
-                                    </p>
+                                <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 h-full">
+                                    <div className="lg:col-span-3 flex flex-col gap-4 h-full">
+                                        <div className="flex items-center gap-2 mb-1">
+                                            <div className="p-1.5 bg-indigo-100 text-indigo-600 rounded-lg">
+                                                <ClipboardList size={20} />
+                                            </div>
+                                            <h4 className="font-bold text-gray-800 text-lg">
+                                                Konfigurasi Stase
+                                            </h4>
+                                        </div>
+                                        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden flex-1">
+                                            <div className="overflow-x-auto">
+                                                <table className="w-full text-sm text-left">
+                                                    <thead className="bg-gray-50 border-b border-gray-100">
+                                                        <tr>
+                                                            <th className="px-5 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs">
+                                                                Nama Stase
+                                                            </th>
+                                                            <th className="px-5 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs w-1/4">
+                                                                Lokasi
+                                                            </th>
+                                                            <th className="px-5 py-4 font-semibold text-gray-500 uppercase tracking-wider text-xs w-1/3">
+                                                                Penguji
+                                                            </th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody className="divide-y divide-gray-100">
+                                                        {detailData.stase_data
+                                                            .length > 0 ? (
+                                                            detailData.stase_data.map(
+                                                                (ds, idx) => (
+                                                                    <tr
+                                                                        key={
+                                                                            idx
+                                                                        }
+                                                                        className="hover:bg-blue-50/50 transition-colors group"
+                                                                    >
+                                                                        <td className="px-5 py-4 align-top">
+                                                                            <div className="font-semibold text-gray-800">
+                                                                                {
+                                                                                    ds.stase
+                                                                                }
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="px-5 py-4 align-top">
+                                                                            <div className="flex items-start gap-2 text-gray-600">
+                                                                                <span>
+                                                                                    {
+                                                                                        ds.ruang
+                                                                                    }
+                                                                                </span>
+                                                                            </div>
+                                                                        </td>
+                                                                        <td className="px-5 py-4 align-top">
+                                                                            <div className="flex items-start gap-2 text-gray-600 bg-gray-50 px-3 py-2 rounded-lg border border-gray-100">
+                                                                                <span className="font-medium text-xs leading-snug">
+                                                                                    {
+                                                                                        ds.penguji
+                                                                                    }
+                                                                                </span>
+                                                                            </div>
+                                                                        </td>
+                                                                    </tr>
+                                                                )
+                                                            )
+                                                        ) : (
+                                                            <tr>
+                                                                <td
+                                                                    colSpan="3"
+                                                                    className="px-6 py-8 text-center text-gray-400 bg-gray-50 italic"
+                                                                >
+                                                                    Tidak ada
+                                                                    konfigurasi
+                                                                    stase.
+                                                                </td>
+                                                            </tr>
+                                                        )}
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div className="lg:col-span-2 flex flex-col gap-4 h-full">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <div className="flex items-center gap-2">
+                                                <div className="p-1.5 bg-green-100 text-green-600 rounded-lg">
+                                                    <Users size={20} />
+                                                </div>
+                                                <h4 className="font-bold text-gray-800 text-lg">
+                                                    Mahasiswa
+                                                </h4>
+                                            </div>
+                                            <span className="text-xs font-bold bg-green-100 text-green-700 px-3 py-1 rounded-full border border-green-200 shadow-sm">
+                                                {
+                                                    detailData.mahasiswa_data
+                                                        .length
+                                                }{" "}
+                                                Orang
+                                            </span>
+                                        </div>
+                                        <div className="bg-white border border-gray-200 rounded-xl shadow-sm flex-1 overflow-hidden flex flex-col">
+                                            <div className="overflow-y-auto flex-1 p-2 max-h-[500px]">
+                                                {detailData.mahasiswa_data
+                                                    .length > 0 ? (
+                                                    <ul className="flex flex-col gap-2">
+                                                        {detailData.mahasiswa_data.map(
+                                                            (mhs, idx) => (
+                                                                <li
+                                                                    key={idx}
+                                                                    className="flex items-center gap-3 p-3 rounded-lg border border-gray-100"
+                                                                >
+                                                                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-blue-100 to-indigo-100 text-indigo-600 flex items-center justify-center text-sm font-bold shadow-sm shrink-0 border border-white">
+                                                                        {mhs.nama
+                                                                            .split(
+                                                                                " "
+                                                                            )
+                                                                            .map(
+                                                                                (
+                                                                                    n
+                                                                                ) =>
+                                                                                    n[0]
+                                                                            )
+                                                                            .slice(
+                                                                                0,
+                                                                                2
+                                                                            )
+                                                                            .join(
+                                                                                ""
+                                                                            )
+                                                                            .toUpperCase()}
+                                                                    </div>
+                                                                    <div className="flex flex-col min-w-0">
+                                                                        <span className="text-sm font-semibold text-gray-800 truncate">
+                                                                            {
+                                                                                mhs.nama
+                                                                            }
+                                                                        </span>
+                                                                        <div className="flex items-center gap-2">
+                                                                            <span className="text-xs text-gray-500 font-mono bg-gray-100 px-1.5 py-0.5 rounded">
+                                                                                {
+                                                                                    mhs.nim
+                                                                                }
+                                                                            </span>
+                                                                            <span className="w-1 h-1 rounded-full bg-gray-300"></span>
+                                                                            <span className="text-[10px] text-green-600 font-medium uppercase tracking-wide">
+                                                                                Terdaftar
+                                                                            </span>
+                                                                        </div>
+                                                                    </div>
+                                                                </li>
+                                                            )
+                                                        )}
+                                                    </ul>
+                                                ) : (
+                                                    <div className="h-full flex flex-col items-center justify-center text-gray-400 p-8 text-center">
+                                                        <div className="bg-gray-50 p-4 rounded-full mb-3">
+                                                            <Users
+                                                                size={32}
+                                                                className="text-gray-300"
+                                                            />
+                                                        </div>
+                                                        <p className="text-sm">
+                                                            Belum ada mahasiswa
+                                                            terdaftar.
+                                                        </p>
+                                                    </div>
+                                                )}
+                                            </div>
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>
+                        <div className="px-8 py-5 bg-gray-50 border-t border-gray-200 flex justify-end gap-3 z-10"></div>
                     </div>
                 </div>
             )}
