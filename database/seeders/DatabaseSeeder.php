@@ -64,31 +64,31 @@ class DatabaseSeeder extends Seeder
 
         // KELOMPOK 1 (Sesi 1)
         $angkatan22_klp1 = [
-            ['niu' => '202201001', 'nama' => 'Dini Afiana'],
-            ['niu' => '202201002', 'nama' => 'Arrifa Ilyana Cholarin'],
-            ['niu' => '202201003', 'nama' => 'Merlina Dwi Wahyuni'],
-            ['niu' => '202201004', 'nama' => 'Rahmatika Nuha Syafura'],
-            ['niu' => '202201005', 'nama' => 'Petra Angelina G.P.'],
-            ['niu' => '202201006', 'nama' => 'Melvia Dinda C.D.'],
-            ['niu' => '202201007', 'nama' => 'Christine Chintia T.'],
+            ['niu' => '202201001', 'nama' => 'Hafizh Iman Wicaksono'],
+            ['niu' => '202201002', 'nama' => 'Kencana Ikhsanun Nadja'],
+            ['niu' => '202201003', 'nama' => 'Khansa Intanio Utomo'],
+            ['niu' => '202201004', 'nama' => 'MI Aulia Kurnia Widyarani'],
+            ['niu' => '202201005', 'nama' => 'Muhammad Asdif Afada'],
+            ['niu' => '202201006', 'nama' => 'Muhammad Bintang Satrio Utomo'],
+            ['niu' => '202201007', 'nama' => 'Muhammad Ilham Rijal Thariq'],
         ];
 
         // KELOMPOK 2 (Sesi 2)
         $angkatan22_klp2 = [
-            ['niu' => '202201008', 'nama' => 'Shelly Yolanda Putri'],
-            ['niu' => '202201009', 'nama' => 'Alya Ramdhani'],
-            ['niu' => '202201010', 'nama' => 'Nuriyatul Aini Sa\'diyah'],
-            ['niu' => '202201011', 'nama' => 'Nadia Rizky Aliffia C.'],
-            ['niu' => '202201012', 'nama' => 'Ratri Azzahra Utami'],
-            ['niu' => '202201013', 'nama' => 'Ismi Maulfi Rahma'],
-            ['niu' => '202201014', 'nama' => 'Herawati Kahartan'],
+            ['niu' => '202201008', 'nama' => 'Muhammad Mumtaza Al Afkar'],
+            ['niu' => '202201009', 'nama' => 'Najwa Rahma Hapsari'],
+            ['niu' => '202201010', 'nama' => 'Pandu Setya Nugraha'],
+            ['niu' => '202201011', 'nama' => 'Putri Levina Agatha'],
+            ['niu' => '202201012', 'nama' => 'Raul Haryo Fauzian'],
+            ['niu' => '202201013', 'nama' => 'Ray Egans Pramudya'],
+            ['niu' => '202201014', 'nama' => 'Riko Aditya Zaki'],
         ];
 
         // KELOMPOK 3 (Sesi 3)
         $angkatan22_klp3 = [
-            ['niu' => '202201015', 'nama' => 'Alifa Cahya Nugraha'],
-            ['niu' => '202201016', 'nama' => 'Syafira Nur Rosyida'],
-            ['niu' => '202201017', 'nama' => 'Annisa Zulkha Avivah'],
+            ['niu' => '202201015', 'nama' => 'Sendy Prasetyo'],
+            ['niu' => '202201016', 'nama' => 'Septia Isnaeni Salsabila'],
+            ['niu' => '202201017', 'nama' => 'Yusuf Fadhlih Firmansyah'],
             ['niu' => '202201018', 'nama' => 'Latifa Hanum Sabrina'],
             ['niu' => '202201019', 'nama' => 'Lolita Ayu Maharani'],
             ['niu' => '202201020', 'nama' => 'Velysia Irgi Novitasari'],

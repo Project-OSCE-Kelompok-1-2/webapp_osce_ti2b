@@ -125,6 +125,9 @@ export default function KompetensiPage() {
         0
     );
 
+    // Ambil bobot maksimum dari aspek (default 100 jika tidak ada)
+    const maxBobot = Number(aspek.bobot_maksimum || 100);
+
     // --- SETUP URL BACK BUTTON ---
     const backUrl = aspek.id_stase
         ? `/admin/stase/${aspek.id_stase}/aspek-penilaian`
@@ -149,18 +152,20 @@ export default function KompetensiPage() {
     const [modalOpen, setModalOpen] = useState(false);
     const [selected, setSelected] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [showFullWeightWarning, setShowFullWeightWarning] = useState(false);
 
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
     // --- HANDLERS ---
     const openAddModal = () => {
-        if (totalBobot >= 100) {
-            alert(
-                "Total bobot sudah mencapai 100%. Tidak dapat menambah kompetensi lagi."
-            );
+        if (totalBobot >= maxBobot) {
+            setShowFullWeightWarning(true);
             return;
         }
+        setShowFullWeightWarning(false);
         setModalType("add");
+        setErrorMessage("");
         setData({
             id: null,
             kompetensi: "",
@@ -173,6 +178,7 @@ export default function KompetensiPage() {
     const openEditModal = (item) => {
         setSelected(item);
         setModalType("edit");
+        setErrorMessage("");
         setData({
             id: item.id_poin_aspek_penilaian,
             kompetensi: item.kompetensi,
@@ -193,14 +199,17 @@ export default function KompetensiPage() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setErrorMessage("");
         const inputBobot = Number(data.bobot);
 
         if (modalType === "add") {
-            if (totalBobot + inputBobot > 100) {
-                alert(
+            if (totalBobot + inputBobot > maxBobot) {
+                setErrorMessage(
                     `Gagal! Total bobot akan menjadi ${
                         totalBobot + inputBobot
-                    }%. Maksimal adalah 100%. Sisa bobot: ${100 - totalBobot}`
+                    }. Maksimal adalah ${maxBobot}. Sisa bobot: ${
+                        maxBobot - totalBobot
+                    }`
                 );
                 return;
             }
@@ -216,9 +225,9 @@ export default function KompetensiPage() {
         } else if (modalType === "edit") {
             const oldBobot = selected ? Number(selected.bobot) : 0;
             const projectedTotal = totalBobot - oldBobot + inputBobot;
-            if (projectedTotal > 100) {
-                alert(
-                    `Gagal! Total bobot akan menjadi ${projectedTotal}%. Maksimal adalah 100%.`
+            if (projectedTotal > maxBobot) {
+                setErrorMessage(
+                    `Gagal! Total bobot akan menjadi ${projectedTotal}. Maksimal adalah ${maxBobot}.`
                 );
                 return;
             }
@@ -284,6 +293,38 @@ export default function KompetensiPage() {
                     />
 
                     <div className="flex-1 overflow-auto">
+                        {showFullWeightWarning && (
+                            <div
+                                className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+                                role="alert"
+                            >
+                                <strong className="font-bold">
+                                    Perhatian!
+                                </strong>
+                                <span className="block sm:inline">
+                                    {" "}
+                                    Total bobot sudah mencapai batas maksimum (
+                                    {maxBobot}). Tidak dapat menambah kompetensi
+                                    lagi.
+                                </span>
+                                <span
+                                    className="absolute top-0 bottom-0 right-0 px-4 py-3"
+                                    onClick={() =>
+                                        setShowFullWeightWarning(false)
+                                    }
+                                >
+                                    <svg
+                                        className="fill-current h-6 w-6 text-red-500"
+                                        role="button"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                    >
+                                        <title>Close</title>
+                                        <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
+                                    </svg>
+                                </span>
+                            </div>
+                        )}
                         <div className="flex gap-1 items-center justify-start my-2">
                             <FileText size={18} />
                             <h2 className="font-semibold text-lg">
@@ -300,18 +341,17 @@ export default function KompetensiPage() {
                             name="primary"
                             onClick={openAddModal}
                             className={`flex h-[46px] items-center text-white text-sm py-2 px-4 rounded-lg mb-5 ${
-                                totalBobot >= 100
-                                    ? "bg-gray-400 cursor-not-allowed hover:bg-gray-400"
+                                totalBobot >= maxBobot
+                                    ? "bg-gray-400 hover:bg-gray-500"
                                     : "bg-blue-600 hover:bg-blue-700"
                             }`}
-                            disabled={totalBobot >= 100}
                         >
                             <OsIcon
                                 name="add"
                                 className="h-os-20 os-icon-light mr-os-8"
                             />
-                            {totalBobot >= 100
-                                ? "Bobot Penuh (100%)"
+                            {totalBobot >= maxBobot
+                                ? "Bobot Penuh"
                                 : "Tambah Kompetensi"}
                         </OsButton>
 
@@ -405,16 +445,43 @@ export default function KompetensiPage() {
                         onChange={(e) => setData("bobot", e.target.value)}
                         required
                     />
-                    <div className="text-xs text-gray-500">
-                        Sisa bobot yang tersedia:{" "}
-                        <span className="font-bold">
-                            {100 -
-                                (modalType === "edit"
-                                    ? totalBobot -
-                                      (selected ? selected.bobot : 0)
-                                    : totalBobot)}
-                        </span>
-                    </div>
+                    {errorMessage && (
+                        <div className="text-xs text-red-600 font-bold bg-red-50 p-2 rounded border border-red-200">
+                            {errorMessage}
+                        </div>
+                    )}
+                    {(() => {
+                        const inputVal = Number(data.bobot) || 0;
+                        const currentUsed =
+                            modalType === "edit"
+                                ? totalBobot -
+                                  (selected ? Number(selected.bobot) : 0)
+                                : totalBobot;
+                        const sisa = maxBobot - (currentUsed + inputVal);
+
+                        return (
+                            <div
+                                className={`text-xs ${
+                                    sisa < 0
+                                        ? "text-red-600 font-bold"
+                                        : "text-gray-500"
+                                }`}
+                            >
+                                {sisa < 0 ? (
+                                    <span>
+                                        Melebihi batas maksimum! (Sisa: {sisa})
+                                    </span>
+                                ) : (
+                                    <>
+                                        Sisa bobot yang tersedia:{" "}
+                                        <span className="font-bold">
+                                            {sisa}
+                                        </span>
+                                    </>
+                                )}
+                            </div>
+                        );
+                    })()}
                 </div>
             </OsModal>
 

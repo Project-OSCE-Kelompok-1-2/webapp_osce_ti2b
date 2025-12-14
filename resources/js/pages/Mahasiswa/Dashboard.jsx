@@ -239,11 +239,12 @@ export default function DashboardMahasiswa() {
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
-            <main className="w-full p-4 md:p-8 lg:p-12 min-h-screen flex flex-col justify-between gap-8 transition-all duration-300 lg:ml-20">
+            <main className="w-full p-2 lg:p-8 min-h-screen flex flex-col justify-between gap-8 transition-all duration-300 lg:ml-20">
                 <div className="flex flex-col gap-8">
                     {/* Header */}
                     <OsHeader
                         onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+                        variant="mahasiswa"
                     />
 
                     <div className="">
@@ -288,10 +289,10 @@ export default function DashboardMahasiswa() {
                                 icon={
                                     <BookOpen
                                         size={24}
-                                        className="text-blue-950"
+                                        className="text-red-950"
                                     />
                                 }
-                                colorClass="bg-blue-400 border-blue-300"
+                                colorClass="bg-red-400 border-red-500"
                                 // href="/penguji/osce"
                             />
                             <StatCard
@@ -301,10 +302,10 @@ export default function DashboardMahasiswa() {
                                 icon={
                                     <CheckCircle
                                         size={24}
-                                        className="text-red-950"
+                                        className="text-green-950"
                                     />
                                 }
-                                colorClass="bg-red-400 border-red-300"
+                                colorClass="bg-green-500 border-green-300"
                                 href="/penguji/osce"
                             />
                             <StatCard
@@ -378,6 +379,7 @@ export default function DashboardMahasiswa() {
                                     <Calendar
                                         events={kalender_event}
                                         onDateSelect={handleDateSelect}
+                                        variant="mahasiswa"
                                     />
                                 </div>
                             </div>
@@ -387,7 +389,7 @@ export default function DashboardMahasiswa() {
 
                 {/* Footer */}
                 <div className="mt-12">
-                    <OsCopyright />
+                    <OsCopyright variant="mahasiswa" />
                 </div>
             </main>
         </div>

@@ -4,17 +4,43 @@ import React from "react";
 const OsTableBody = ({ data = [], columns = [], variant = "admin" }) => {
 
     const isPenguji = variant === "penguji";
+    const isMahasiswa = variant === "mahasiswa"; // Tambahkan varian mahasiswa
 
     // --- Definisi Kelas Warna Kondisional ---
 
     // Kelas latar belakang untuk baris ganjil (rowIndex % 2 !== 0)
-    const oddBgClass = isPenguji ? "bg-orange-50" : "bg-blue-50";
+    const oddBgClass = (() => {
+        if (isMahasiswa) {
+            // Mahasiswa: Hijau Pudar (Tersier)
+            // Menggunakan variabel CSS kustom Anda
+            return "bg-green-50";
+        }
+        if (isPenguji) {
+            // Penguji: Oranye Pudar (Tertiary/50)
+            return "bg-orange-50";
+        }
+        // Admin: Biru Pudar (Tertiary/50)
+        return "bg-blue-50";
+    })();
+
 
     // Kelas latar belakang untuk baris genap (rowIndex % 2 === 0)
-    const evenBgClass = isPenguji ? "bg-os-white" : "bg-b";
+    const evenBgClass = isMahasiswa ? "bg-white" : isPenguji ? "bg-os-white" : "bg-white"; // asumsi "bg-b" seharusnya "bg-white"
 
-    // Kelas untuk garis pemisah vertikal antar kolom
-    const dividerClass = isPenguji ? "bg-orange-500" : "bg-blue-500";
+
+    // Kelas untuk garis pemisah vertikal antar kolom (menggunakan warna Primary)
+    const dividerClass = (() => {
+        if (isMahasiswa) {
+            // Mahasiswa: Hijau Primary
+            return "bg-green-500";
+        }
+        if (isPenguji) {
+            // Penguji: Oranye Primary
+            return "bg-orange-500";
+        }
+        // Admin: Biru Primary
+        return "bg-blue-500";
+    })();
 
     return (
         <div className="flex flex-col rounded-lg overflow-hidden">

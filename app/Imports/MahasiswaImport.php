@@ -4,17 +4,17 @@ namespace App\Imports;
 
 use App\Models\Mahasiswa;
 use App\Models\Pengguna;
-use Illuminate\Support\Facades\Hash;
-use Maatwebsite\Excel\Concerns\ToCollection;
+use App\Models\Enrollment;     // Tambahkan Model Enrollment
+use App\Models\TahunAkademik;  // Tambahkan Model TahunAkademik
 use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Illuminate\Support\Facades\DB; // Gunakan DB Transaction agar aman
 
 class MahasiswaImport implements ToCollection, WithHeadingRow
 {
     /**
-     * [PENTING]
-     * Menentukan posisi baris Header.
-     * Kita set ke 2, karena baris 1 berisi teks instruksi/peringatan.
+     * Menentukan posisi baris Header (Baris 2).
      */
     public function headingRow(): int
     {
@@ -23,13 +23,11 @@ class MahasiswaImport implements ToCollection, WithHeadingRow
 
     /**
      * @param Collection $rows
-     * Format header Excel (di baris 2):
-     * nim | nama | kelas | prodi
      */
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
-            // Validasi sederhana: Pastikan NIM dan Nama ada
+            // 1. Validasi Dasar
             if (!isset($row['nim']) || !isset($row['nama'])) {
                 continue;
             }
@@ -39,22 +37,49 @@ class MahasiswaImport implements ToCollection, WithHeadingRow
                 continue;
             }
 
-            // 1. Buat Pengguna
-            $pengguna = Pengguna::create([
-                'username'   => $row['nim'],
-                'password'   => ($row['nim']),
-                'jenis_role' => 'mahasiswa',
-            ]);
+            // Gunakan Transaction agar jika Enrollment gagal, Mahasiswa tidak terbuat
+            DB::transaction(function () use ($row) {
 
-            // 2. Buat Mahasiswa
-            Mahasiswa::create([
-                'id_pengguna' => $pengguna->id_pengguna,
-                'nim'         => $row['nim'],
-                'nama'        => $row['nama'],
-                'kelas'       => $row['kelas'] ?? '',
-                'prodi'       => $row['prodi'] ?? '',
-                'status'      => 'aktif',
-            ]);
+                // --- A. LOGIK TAHUN AKADEMIK (ANGKATAN) ---
+                // Kita cari ID Tahun Akademik berdasarkan string di Excel (misal: "2023/2024")
+                // Jika tidak ada, kita buat baru (FirstOrCreate)
+                $angkatanString = $row['angkatan'] ?? date('Y') . '/' . (date('Y') + 1); // Default tahun sekarang jika kosong
+
+                $tahunAkademik = TahunAkademik::firstOrCreate(
+                    ['tahun' => $angkatanString], // Kunci pencarian
+                    [
+                        // Data default jika membuat baru
+                        'semester' => 'Ganjil',
+                        'status' => 'non-aktif'
+                    ]
+                );
+
+                // --- B. BUAT PENGGUNA ---
+                $pengguna = Pengguna::create([
+                    'username'   => $row['nim'],
+                    'password'   => $row['nim'], // Sebaiknya di-hash: Hash::make($row['nim'])
+                    'jenis_role' => 'mahasiswa',
+                ]);
+
+                // --- C. BUAT MAHASISWA ---
+                $mahasiswa = Mahasiswa::create([
+                    'id_pengguna' => $pengguna->id_pengguna,
+                    'nim'         => $row['nim'],
+                    'nama'        => $row['nama'],
+                    'kelas'       => $row['kelas'] ?? '',
+                    'prodi'       => $row['prodi'] ?? '',
+                    // 'angkatan' => dihapus karena tidak disimpan di tabel mahasiswa langsung
+                    'status'      => 'aktif',
+                ]);
+
+                // --- D. BUAT ENROLLMENT (SOLUSI BUG) ---
+                // Ini yang menghubungkan Mahasiswa dengan Tahun Akademik (Angkatan)
+                Enrollment::create([
+                    'id_mahasiswa'      => $mahasiswa->id_mahasiswa,
+                    'id_tahun_akademik' => $tahunAkademik->id_tahun_akademik,
+                    'tanggal_daftar'    => now(),
+                ]);
+            });
         }
     }
 }

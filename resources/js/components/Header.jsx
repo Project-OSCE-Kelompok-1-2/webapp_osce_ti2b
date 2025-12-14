@@ -4,7 +4,8 @@ import { usePage } from "@inertiajs/react";
 
 export default function OsHeader({
     className = "",
-    variant = "admin", // 'admin' | 'penguji' | 'goback'
+    // Tambahkan 'mahasiswa' ke dalam varian
+    variant = "admin", // 'admin' | 'penguji' | 'mahasiswa' | 'goback'
     backLink = "/",
     onMenuClick = () => {},
 }) {
@@ -35,13 +36,42 @@ export default function OsHeader({
     // THEME VARIANT
     // ===============================
     const isPenguji = variant === "penguji";
+    // Logika baru untuk varian Mahasiswa
+    const isMahasiswa = variant === "mahasiswa";
 
-    const theme = {
-        bg: isPenguji ? "bg-orange-600" : "bg-blue-900",
-        hover: isPenguji ? "hover:bg-orange-500" : "hover:bg-blue-700",
-        border: isPenguji ? "border-orange-600" : "border-blue-900",
-        text: isPenguji ? "text-orange-600" : "text-blue-900",
+    // Fungsi utilitas untuk mendapatkan kelas Tailwind dari variabel CSS
+    const getThemeClass = () => {
+        if (isMahasiswa) {
+            return {
+                // Menggunakan warna hijau dari variabel --os-primary-mhs
+                // Catatan: Anda harus memastikan Tailwind CSS Anda dikonfigurasi untuk mengenal variabel ini.
+                bg: "bg-[var(--os-primary-mhs)]",
+                hover: "hover:bg-[var(--os-primary-mhs-dark)]",
+                border: "border-[var(--os-primary-mhs)]",
+                text: "text-[var(--os-primary-mhs)]",
+            };
+        }
+
+        if (isPenguji) {
+            // Varian Penguji (Oranye)
+            return {
+                bg: "bg-[var(--os-primary-pj)]", // Asumsi Anda punya variabel untuk pj
+                hover: "hover:bg-[var(--os-primary-pj-dark)]",
+                border: "border-[var(--os-primary-pj)]",
+                text: "text-[var(--os-primary-pj)]",
+            };
+        }
+
+        // Varian Admin (Default / Biru)
+        return {
+            bg: "bg-[var(--os-primary)]",
+            hover: "hover:bg-[var(--os-primary-dark)]",
+            border: "border-[var(--os-primary)]",
+            text: "text-[var(--os-primary)]",
+        };
     };
+
+    const theme = getThemeClass();
 
     return (
         <header
@@ -64,7 +94,7 @@ export default function OsHeader({
                     <>
                         {/* HOME - Desktop */}
                         <a
-                            href="/admin/dashboard"
+                            href={isMahasiswa ? "/mhs/dashboard" : "/admin/dashboard"} // Mengarahkan ke dashboard mhs
                             className={`hidden lg:flex w-[46px] h-[46px] items-center justify-center rounded-xl text-white border aspect-[1] transition
                                 ${theme.bg} ${theme.hover}`}
                             aria-label="Home"
