@@ -488,6 +488,7 @@ export default function AdminSettingAkun({ user }) {
                     title="Hapus Foto Profil"
                     message="Apakah Anda yakin ingin menghapus foto profil Anda?"
                     confirmText="Hapus"
+                    showDataDetails={false}
                 />
             </main>
         </div>
