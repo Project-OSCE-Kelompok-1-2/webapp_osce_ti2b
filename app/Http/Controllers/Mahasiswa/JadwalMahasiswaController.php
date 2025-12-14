@@ -26,11 +26,10 @@ class JadwalMahasiswaController extends Controller
                 ->with('error', 'Data profil mahasiswa tidak ditemukan.');
         }
 
-        // 1. Ambil Semua Tanggal Ujian Mahasiswa (Untuk opsi dropdown)
+        // 1. Ambil Semua Tanggal Ujian Mahasiswa
         $enrollmentDates = $this->jadwalService->getEnrollmentDates($idMahasiswa);
 
         // 2. Tentukan Tanggal Terpilih
-        // Prioritas: 1. Dari Request URL (?date=...) -> 2. Hari Ini (jika ada ujian) -> 3. Tanggal Pertama di list
         $selectedDate = $request->input('date');
 
         if (!$selectedDate && $enrollmentDates->isNotEmpty()) {
@@ -50,7 +49,6 @@ class JadwalMahasiswaController extends Controller
             return $item;
         })->values();
 
-        // Jika tidak ada tanggal sama sekali (mahasiswa belum daftar apapun)
         if (!$selectedDate) {
             return Inertia::render('Mahasiswa/JadwalOscePage', [
                 'enrollmentDates' => $enrollmentDates,
@@ -59,8 +57,7 @@ class JadwalMahasiswaController extends Controller
             ]);
         }
 
-        // 3. Ambil Info Header (Judul OSCE, Waktu, Countdown) berdasarkan TANGGAL TERPILIH
-        // Di sini nama OSCE akan berubah sesuai tanggalnya
+        // 3. Ambil Info Header
         $examInfo = $this->jadwalService->getActiveExamInfo($idMahasiswa, $selectedDate);
 
         if (!$examInfo) {
@@ -71,19 +68,32 @@ class JadwalMahasiswaController extends Controller
             ]);
         }
 
-        // 4. Ambil Data Jadwal Stase (Tabel bawah)
-        // Menggunakan ID OSCE yang didapat dari $examInfo (agar sinkron dengan header)
-        $staseCollection = $this->jadwalService->getJadwalStase($examInfo['id_osce'], $selectedDate);
+        // 4. Ambil Data Jadwal Stase
+        // [PERBAIKAN] Tambahkan parameter ke-3 yaitu ID SESI dari $examInfo
+        $staseCollection = $this->jadwalService->getJadwalStase(
+            $examInfo['id_osce'], 
+            $selectedDate, 
+            $examInfo['jam_sesi_raw'] // Ini berisi '08:00:00' atau sejenisnya
+        );
 
         $mappedStase = $staseCollection->map(function ($item) {
-            $namaPenguji = '-';
+            // ... (mapping logic sama seperti sebelumnya) ...
+             $namaPenguji = '-';
             if ($item->penguji) {
-                $namaPenguji = $item->penguji->nama_gelar
-                    ?? optional($item->penguji->pengguna)->username
-                    ?? 'Penguji';
+                $namaPenguji = $item->penguji->nama ?? 'Penguji';
             }
 
-            $namaRuangan = $item->ruang ? $item->ruang->nomor_ruangan : '-';
+            $namaRuangan = '-';
+            if ($item->ruang) {
+                $nomor = $item->ruang->nomor_ruangan;
+                $lokasi = $item->ruang->lokasi;
+                if (!empty($lokasi)) {
+                    $namaRuangan = "$nomor - $lokasi";
+                } else {
+                    $namaRuangan = $nomor;
+                }
+            }
+
             $jamMulai = substr($item->jam_mulai, 0, 5);
             $jamSelesai = substr($item->jam_selesai, 0, 5);
 
