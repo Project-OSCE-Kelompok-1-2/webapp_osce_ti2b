@@ -147,14 +147,14 @@ export default function RekapSesiPage() {
 
     return (
         <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Head title={`Rekap Sesi - ${osce.nama_osce}`} />
+            {/* <Head title={`Rekap Sesi - ${osce.nama_osce}`} /> */}
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 <div className="flex flex-col gap-os-8">
                     <OsHeader variant="goback" backLink="/admin/rekap-nilai" />
 
-                    <div className="flex-1 overflow-auto">
+                    <div className="flex-1 overflow-auto p-1">
                         {/* Notifikasi */}
                         {flash.success && (
                             <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
@@ -167,19 +167,24 @@ export default function RekapSesiPage() {
                             </div>
                         )}
 
-                    {/* <h2 className="font-semibold text-lg mb-1">
+                        {/* <h2 className="font-semibold text-lg mb-1">
                         Menu Rekap Nilai
                     </h2> */}
-                    <div className="flex gap-1 items-center justify-start my-2">
-                        <Bookmark size={18} />
-                        <h2 className="font-semibold text-lg">
-                            Menu Rekap Nilai
-                        </h2>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Pilih salah satu sesi (berdasarkan tanggal dan waktu)
-                        untuk melihat daftar mahasiswa.
-                    </p>
+                        {/* <div className="flex gap-1 items-center justify-start my-2">
+                            <Bookmark size={18} />
+                            <h2 className="font-semibold text-lg p-1">
+                                Menu Rekap Sesi
+                            </h2>
+                        </div> */}
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Bookmark size={18} />
+                            <h2 className="font-semibold text-lg">Menu Rekap Sesi</h2>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                            Pilih salah satu sesi (berdasarkan tanggal dan
+                            waktu) <br />
+                            untuk melihat daftar mahasiswa.
+                        </p>
 
                         {/* SEARCH INSTANT */}
                         <OsSearchBar
@@ -188,37 +193,39 @@ export default function RekapSesiPage() {
                             placeholder="Cari tanggal atau jam..."
                         />
 
-                    {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Sesi
                         <span className="text-sm font-normal text-gray-500 ml-2">
                             (Total: {totalItems} data)
                         </span>
                     </h2> */}
-                    <div className="flex gap-1 items-center justify-start mb-2">
-                        <Table2 size={18} />
-                        <h2 className="font-semibold text-lg">Table Sesi</h2>
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
-                    </div>
-
-                    <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
-                        <div className="min-w-max">
-                            <OsTableHeader columns={sesiColumns} />
-                            {filteredData.length > 0 ? (
-                                <OsTableBody
-                                    data={sesiRows}
-                                    columns={sesiColumns}
-                                />
-                            ) : (
-                                <div className="flex items-center border-t border-gray-400">
-                                    <p className="w-full text-center text-sm py-4 text-gray-500">
-                                        Data sesi tidak ditemukan.
-                                    </p>
-                                </div>
-                            )}
+                        <div className="flex gap-1 items-center justify-start mb-2 mt-4">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Table Sesi
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
                         </div>
-                    </section>
+
+                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={sesiColumns} />
+                                {filteredData.length > 0 ? (
+                                    <OsTableBody
+                                        data={sesiRows}
+                                        columns={sesiColumns}
+                                    />
+                                ) : (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-4 text-gray-500">
+                                            Data sesi tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
 
                         {/* PAGINATION CLIENT-SIDE */}
                         {totalPages > 1 && (
@@ -234,7 +241,7 @@ export default function RekapSesiPage() {
                     </div>
                 </div>
 
-                <div className="mt-8">
+                <div className="">
                     <OsCopyright />
                 </div>
             </main>

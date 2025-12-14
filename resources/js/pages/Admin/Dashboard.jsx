@@ -1,3 +1,5 @@
+// === FINISHED ===
+
 import React, { useState } from "react";
 import { usePage, Link } from "@inertiajs/react";
 import {
@@ -40,7 +42,7 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
                     </div>
                     <Link
                         href={href}
-                        className="mt-2 inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border text-white border-yellow-200 hover:bg-blue-200 transition-colors"
+                        className={`mt-2 inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border text-white ${colorClass} hover:scale-105 transition`}
                     >
                         <ClipboardList size={14} />
                         <span>Tampilkan lebih</span>
@@ -191,7 +193,7 @@ export default function Dashboard() {
                                             className="text-blue-700"
                                         />
                                     }
-                                    colorClass="bg-blue-400 border-blue-300"
+                                    colorClass="bg-blue-400 border-blue-600"
                                     href="/admin/osce"
                                 />
                                 <StatCard
@@ -204,7 +206,7 @@ export default function Dashboard() {
                                             className="text-gray-700"
                                         />
                                     }
-                                    colorClass="bg-red-400 border-blue-300"
+                                    colorClass="bg-red-400 border-red-600"
                                     href="/admin/mahasiswa"
                                 />
                                 <StatCard
@@ -217,7 +219,7 @@ export default function Dashboard() {
                                             className="text-gray-700"
                                         />
                                     }
-                                    colorClass="bg-lime-500 border-blue-300"
+                                    colorClass="bg-lime-500 border-lime-600"
                                     href="/admin/dosen"
                                 />
                             </div>
@@ -264,7 +266,7 @@ export default function Dashboard() {
                     </section>
                 </div>
 
-                <div className="mt-8">
+                <div className="">
                     <OsCopyright />
                 </div>
             </main>

@@ -298,7 +298,7 @@ export default function MenuAspekPenilaian() {
                     }
                     className="h-[38px] text-os-small w-full flex justify-between items-center gap-3"
                 >
-                    <OsIcon name={"add"} className="os-icon-light h-[20px]" />{" "}
+                    <OsIcon name={"add"} className="os-icon-light h-[18px]" />{" "}
                     Edit Kompetensi
                 </OsButton>
                 <OsButton
@@ -322,7 +322,7 @@ export default function MenuAspekPenilaian() {
     }));
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
@@ -333,7 +333,7 @@ export default function MenuAspekPenilaian() {
                         onMenuClick={handleSidebarToggle}
                     />
 
-                    <div className="flex-1 overflow-auto">
+                    <div className="flex-1 overflow-auto p-1">
                         {showFullWeightWarning && (
                             <div
                                 className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
@@ -372,7 +372,7 @@ export default function MenuAspekPenilaian() {
                             </h2>
                         </div>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                            Halaman ini didedikasikan untuk mengatur seluruh
+                            Halaman ini didedikasikan untuk mengatur seluruh <br/>
                             Aspek Penilaian...
                         </p>
 
@@ -387,7 +387,7 @@ export default function MenuAspekPenilaian() {
                         >
                             <OsIcon
                                 name="add"
-                                className="h-os-20 os-icon-light mr-os-8"
+                                className="h-[18px] os-icon-light mr-os-8"
                             />{" "}
                             {totalBobot >= 100
                                 ? "Bobot Penuh"
@@ -443,7 +443,7 @@ export default function MenuAspekPenilaian() {
                         )}
 
                         {/* FOOTER TOTAL BOBOT */}
-                        <div className="bg-os-white rounded-lg overflow-hidden border-os-1 border-os-black mt-3 h-[56px]">
+                        <div className="bg-os-white rounded-lg overflow-hidden border-os-1 border-os-primary mt-3 h-[56px]">
                             <table className="w-full h-[56px]">
                                 <tfoot>
                                     <tr className="w-full h-full flex justify-between p-2">
@@ -491,7 +491,7 @@ export default function MenuAspekPenilaian() {
                     </div>
                 </div>
 
-                <div className="mt-8">
+                <div className="8">
                     <OsCopyright />
                 </div>
             </main>

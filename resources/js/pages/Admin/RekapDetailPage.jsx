@@ -1,6 +1,13 @@
 import React, { useState } from "react";
 import { usePage, Head } from "@inertiajs/react";
-import { Download, User, BookOpen, AlertCircle, Award } from "lucide-react";
+import {
+    Download,
+    User,
+    BookOpen,
+    AlertCircle,
+    Award,
+    FileText,
+} from "lucide-react";
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
@@ -122,43 +129,44 @@ export default function RekapDetailPage() {
     };
 
     return (
-        <div className="relative bg-gray-50/80 w-full min-h-screen flex justify-start font-sans">
-            <Head title={`Detail Nilai - ${mahasiswa.nama || "Mahasiswa"}`} />
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            {/* <Head title={`Detail Nilai - ${mahasiswa.nama || "Mahasiswa"}`} /> */}
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 <div className="flex flex-col gap-os-8">
-                    <div className="px-4 pt-4 lg:px-8 lg:pt-6">
-                        <OsHeader
-                            variant="goback"
-                            backLink={`/admin/rekap-nilai/${osce.id_osce}/sesi/${id_sesi_kembali}/mahasiswa`}
-                            onMenuClick={handleSidebarToggle}
-                        />
-                    </div>
+                    <OsHeader
+                        variant="goback"
+                        backLink={`/admin/rekap-nilai/${osce.id_osce}/sesi/${id_sesi_kembali}/mahasiswa`}
+                        onMenuClick={handleSidebarToggle}
+                    />
 
-                    <div className="flex-1 px-4 lg:px-8 py-6">
-                        <div className="mb-8">
-                            <h2 className="text-2xl font-bold text-gray-800 tracking-tight">
+                    <div className="flex-1 overflow-auto p-1">
+                        {/* <h2 className="text-2xl font-bold text-gray-800 tracking-tight">
+                                Detail Penilaian Mahasiswa
+                            </h2> */}
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <FileText size={18} />
+                            <h2 className="font-semibold text-lg">
                                 Detail Penilaian Mahasiswa
                             </h2>
-                            <p className="text-sm text-gray-500 mt-1">
-                                Rincian lengkap performa mahasiswa per stase dan
-                                kompetensi.
-                            </p>
                         </div>
+                        <p className="text-sm text-gray-500 mt-1 mb-4">
+                            Rincian lengkap performa mahasiswa per stase dan <br/>
+                            kompetensi.
+                        </p>
 
                         {/* Cards */}
-                        <div className="grid grid-cols-1 lg:grid-cols-3 gap-2 mb-10">
-                            <div className="lg:col-span-2 rounded-2xl max-w-[860px] w-full p-6 shadow-sm border border-gray-100 relative overflow-hidden group flex items-center">
-                                <div className="absolute top-0 left-0 w-22 h-22 bg-blue-50 rounded-bl-full -mr-8 -mt-8 transition-transform group-hover:scale-110 h-full flex justify-center "></div>
-                                <div className="relative z-10 flex flex-col sm:flex-row items-center justify-center gap-6">
+                        <div className="grid grid-cols-1 lg:grid-cols-3 border border-os-primary gap-2 mb-4 p-4 bg-white rounded-xl">
+                            <div className="lg:col-span-2 rounded-2xl max-w-[860px] w-full shadow-sm border-gray-100 relative overflow-hidden group flex items-center">
+                                <div className="relative z-10 flex flex-row items-center justify-center gap-6 ">
                                     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-3xl shadow-lg shadow-blue-200">
                                         {mahasiswa.nama
                                             ? mahasiswa.nama.charAt(0)
                                             : "M"}
                                     </div>
                                     <div className="flex-1">
-                                        <h3 className="font-bold text-gray-900 text-xl mb-1">
+                                        <h3 className="font-bold text-blue-950 text-xl mb-1">
                                             {mahasiswa.nama ||
                                                 "Nama Tidak Diketahui"}
                                         </h3>
@@ -187,7 +195,7 @@ export default function RekapDetailPage() {
                                 </div>
                             </div>
 
-                            <div className="bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 shadow-lg text-white flex flex-col justify-between relative overflow-hidden">
+                            <div className=" bg-blue-950 rounded-2xl p-6 shadow-lg text-white flex flex-col justify-between relative overflow-hidden">
                                 <div className="absolute top-0 right-0 p-4 opacity-10">
                                     <Award size={80} />
                                 </div>
@@ -215,12 +223,12 @@ export default function RekapDetailPage() {
                         </div>
 
                         {/* Navigasi Halaman */}
-                        <div className="flex items-center gap-4 mb-8">
+                        <div className="flex items-center gap-4 mb-4">
                             <div className="h-px flex-1 bg-gray-200"></div>
-                            <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+                            <div className="text-xs font-semibold text-blue-700 uppercase tracking-widest">
                                 Rincian Stase (Hal {currentPage} dari{" "}
                                 {totalPages})
-                            </span>
+                            </div>
                             <div className="h-px flex-1 bg-gray-200"></div>
                         </div>
 
@@ -304,10 +312,10 @@ export default function RekapDetailPage() {
                                     return (
                                         <div
                                             key={index}
-                                            className="bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden px-6 transition-all hover:shadow-md"
+                                            className="bg-white rounded-2xl shadow-sm border border-os-primary border-gray-200 overflow-hidden p-4 transition-all hover:shadow-md"
                                         >
                                             {/* Header Card Stase */}
-                                            <div className="p-6 border-b border-gray-100 bg-gray-50/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+                                            <div className=" border-b border-gray-100 bg-gray-50/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                                 <div className="flex items-start gap-4">
                                                     <div className="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg shrink-0 shadow-blue-200 shadow-md">
                                                         {realIndex}
@@ -342,7 +350,7 @@ export default function RekapDetailPage() {
                                             </div>
 
                                             {/* Table */}
-                                            <div className="px-6 py-6 overflow-x-auto">
+                                            <div className="mt-4 overflow-x-auto">
                                                 <div className="min-w-[700px]">
                                                     <OsTableHeader
                                                         columns={detailColumns}
@@ -363,8 +371,8 @@ export default function RekapDetailPage() {
                                                         </div>
                                                     )}
 
-                                                    <div className="flex text-sm border-t border-gray-200 bg-gray-50 text-gray-800">
-                                                        <div className="flex-1 py-3 px-6 text-right font-semibold text-gray-500 text-xs uppercase tracking-wider flex items-center justify-end">
+                                                    <div className="flex text-sm justify-end border-t mt-2 border-gray-200 bg-gray-50 text-gray-800">
+                                                        <div className="py-3 px-6 text-right font-semibold text-blue-950 text-xs uppercase tracking-wider flex items-center justify-end">
                                                             Jumlah Nilai Bobot
                                                             Tahap Kerja
                                                         </div>
@@ -401,7 +409,7 @@ export default function RekapDetailPage() {
 
                         {/* Pagination */}
                         {nilai_per_stase.length > itemsPerPage && (
-                            <div className="mt-8 flex justify-center">
+                            <div className=" flex justify-center">
                                 <OsPagination
                                     links={generatePaginationLinks()}
                                     onPageChange={handlePageChange}

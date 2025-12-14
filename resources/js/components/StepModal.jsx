@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { X, FilePlus } from "lucide-react";
+import { X, FilePlus, CircleArrowRight, CircleArrowLeft } from "lucide-react";
 
 export default function OsStepModal({
     show,
@@ -16,10 +16,10 @@ export default function OsStepModal({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <form
                 className="relative bg-white rounded-2xl border-os1 border-os-black
-                w-full max-w-md text-os-paragraph max-h-[85vh] flex flex-col overflow-hidden"
+                w-full max-w-md text-os-paragraph min-h-[85vh] max-h-[85vh] flex flex-col overflow-hidden"
             >
                 {/* HEADER */}
-                <header className="bg-gray-900 text-white text-center p-4 pt-8 flex-none relative">
+                <header className="bg-blue-950 text-white text-center p-4 pt-8 flex-none relative">
                     {/* ---- TITLE ---- */}
                     <h2 className="text-os-subtitle font-semibold">
                         {steps[currentStep].title}
@@ -32,7 +32,7 @@ export default function OsStepModal({
 
                     <div className="relative flex items-center justify-between mt-4 px-6 w-full">
                         {/* GARIS PUTIH */}
-                        <div className="absolute top-2 left-16 right-16 h-[2px] bg-white opacity-50"></div>
+                        <div className="absolute top-2 left-16 right-16 h-[2px] bg-white opacity-50"/>
 
                         {steps.map((s, idx) => (
                             <div
@@ -48,20 +48,20 @@ export default function OsStepModal({
                                         ${
                                             idx === currentStep
                                                 ? "bg-blue-500"
-                                                : "bg-gray-700"
+                                                : "bg-white"
                                         }
                                     `}
                                 />
 
                                 {/* LABEL */}
                                 <p
-                                    className={`text-xs mt-1 ${
+                                    className={`text-xs mt-1 w-15 ${
                                         idx === currentStep
                                             ? "text-white font-semibold"
                                             : "text-white/50"
                                     }`}
                                 >
-                                    {s.title}
+                                    {/* {s.title} */}
                                 </p>
                             </div>
                         ))}
@@ -78,21 +78,22 @@ export default function OsStepModal({
                 </header>
 
                 {/* BODY */}
-                <main className="flex flex-col gap-3 min-h-[55vh] overflow-y-auto p-os-20">
+                <main className="flex flex-col gap-3 flex-1 overflow-y-auto p-os-20">
                     {steps[currentStep].content}
                 </main>
 
                 {/* FOOTER */}
-                <footer className="p-os-20 pt-3 flex-none">
+                <footer className="p-os-20 flex-none">
                     <div className="flex items-start justify-between gap-os-14 ">
                         <button
                             type="button"
                             disabled={currentStep === 0}
                             onClick={() => setCurrentStep(currentStep - 1)}
-                            className="flex w-full justify-center items-center gap-2 h-[48px]
-                            bg-gray-300 text-gray-800 px-4 py-2 rounded-lg disabled:opacity-40"
+                            className="flex flex-row-reverse w-full justify-center items-center gap-2 h-[48px]
+                            bg-os-tertiary text-blue-800 px-4 py-2 rounded-lg disabled:opacity-40"
                         >
                             Prev
+                            <CircleArrowLeft size={18}/>
                         </button>
 
                         {!isLastStep ? (
@@ -103,6 +104,7 @@ export default function OsStepModal({
                                 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
                             >
                                 Next
+                                <CircleArrowRight size={18}/>
                             </button>
                         ) : (
                             <button

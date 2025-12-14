@@ -1,3 +1,5 @@
+// === FINISHED ===
+
 import React, { useState } from "react";
 import { Eye, EyeOff, User, KeyRound } from "lucide-react";
 // [UBAH] Impor hook yang diperlukan dari Inertia

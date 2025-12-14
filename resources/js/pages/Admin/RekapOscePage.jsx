@@ -212,7 +212,7 @@ export default function RekapOscePage() {
                 <div className="flex flex-col gap-os-8">
                     <OsHeader onMenuClick={handleSidebarToggle} />
 
-                    <div className="flex-1 overflow-auto">
+                    <div className="flex-1 overflow-auto p-1">
                         {/* Notifikasi */}
                         {flash.success && (
                             <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
@@ -235,7 +235,7 @@ export default function RekapOscePage() {
                         </h2>
                     </div>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Pilih OSCE yang telah selesai untuk melihat rekapitulasi
+                        Pilih OSCE yang telah selesai untuk melihat rekapitulasi <br/>
                         nilai mahasiswa.
                     </p>
 
@@ -313,7 +313,7 @@ export default function RekapOscePage() {
                     </div>
                 </div>
 
-                <div className="mt-8">
+                <div className="">
                     <OsCopyright />
                 </div>
             </main>
