@@ -15,24 +15,24 @@ class ViewNilaiController extends Controller
     public function __invoke($id_enrollment_osce)
     {
         // 1. Ambil Data Enrollment & Mahasiswa
-        // HAPUS '.prodi' karena Mahasiswa Model tidak punya relasi prodi
         $enrollment = EnrollmentOsce::with(['mahasiswa', 'osce'])
             ->findOrFail($id_enrollment_osce);
 
-        // --- PERBAIKAN BUG: Gunakan $pengguna secara konsisten ---
-        $pengguna = Auth::user(); 
-        
+        $pengguna = Auth::user();
+
         // Pastikan pengguna punya profil penguji
         if (!$pengguna->penguji) {
             abort(403, 'Akun tidak valid: Anda bukan penguji.');
         }
 
-        // --- VALIDASI AKSES ---
-        $isAuthorized = OsceStase::where('id_osce', $enrollment->id_osce)
+        // --- [MODIFIKASI 1] AMBIL DATA OSCE STASE (UNTUK NAVIGASI KEMBALI) ---
+        // Kita ubah dari exists() menjadi first() agar kita dapat ID-nya
+        $osceStase = OsceStase::where('id_osce', $enrollment->id_osce)
             ->where('id_penguji', $pengguna->penguji->id_penguji)
-            ->exists();
+            ->first();
 
-        if (!$isAuthorized) {
+        // Validasi Akses
+        if (!$osceStase) {
             abort(403, 'Anda tidak memiliki akses ke penilaian ini.');
         }
 
@@ -61,14 +61,14 @@ class ViewNilaiController extends Controller
 
         // 6. Mapping Data (Gabungkan Struktur Rubrik + Nilai)
         $rubrikTerisi = $aspekList->map(function ($aspek) use ($nilaiTersimpan, &$totalNilaiAspek) {
-            
+
             $kompetensiTerisi = $aspek->poinAspekPenilaian->map(function ($poin) use ($nilaiTersimpan, &$totalNilaiAspek) {
-                
+
                 $nilaiEntry = $nilaiTersimpan->get($poin->id_poin_aspek_penilaian);
-                
-                $skor = $nilaiEntry ? (float) $nilaiEntry->nilai : 0.0; 
+
+                $skor = $nilaiEntry ? (float) $nilaiEntry->nilai : 0.0;
                 $bobot = (float) $poin->bobot;
-                
+
                 $nilaiKompetensi = $skor * $bobot;
 
                 $totalNilaiAspek += $nilaiKompetensi;
@@ -76,31 +76,36 @@ class ViewNilaiController extends Controller
                 return [
                     'id_poin_aspek_penilaian' => $poin->id_poin_aspek_penilaian,
                     'deskripsi'        => $poin->kompetensi,
-                    'skor'             => $skor,       
+                    'skor'             => $skor,
                     'bobot'            => $bobot,
-                    'nilai_kompetensi' => $nilaiKompetensi,  
+                    'nilai_kompetensi' => $nilaiKompetensi,
                 ];
             });
 
             return [
-                'aspek' => $aspek->aspek, 
+                'aspek' => $aspek->aspek,
                 'kompetensi' => $kompetensiTerisi,
             ];
         });
 
-        // Catatan: Asumsi kolom 'catatan' ada di tabel EnrollmentOsce
         $feedback = $enrollment->catatan ?? '';
 
         return Inertia::render('Penguji/ViewNilaiDetail', [
             'mahasiswa' => [
                 'nama'    => $enrollment->mahasiswa->nama,
                 'nim'     => $enrollment->mahasiswa->nim,
-                // PERBAIKAN: Akses kolom 'prodi' (string) langsung dari Model Mahasiswa
-                'jurusan' => $enrollment->mahasiswa->prodi ?? 'Prodi Tidak Tersedia', 
+                'jurusan' => $enrollment->mahasiswa->prodi ?? 'Prodi Tidak Tersedia',
             ],
             'rubrik_terisi'     => $rubrikTerisi,
-            'total_nilai_aspek' => $totalNilaiAspek,
+            // rumus nilai total dibagi 4
+            'total_nilai_aspek' => $totalNilaiAspek / 4,
             'feedback'          => $feedback,
+
+            // --- [MODIFIKASI 2] KIRIM DATA NAVIGASI KE FRONTEND ---
+            'info_ujian' => [
+                'id_osce'       => $enrollment->id_osce,
+                'id_osce_stase' => $osceStase->id_osce_stase,
+            ],
         ]);
     }
 }
