@@ -20,6 +20,7 @@ import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright";
 import Calendar from "../../components/Calendar";
+import OsIcon from "../../components/icons.jsx";
 
 /* -------------------------------------------------
    COMPONENT: STATISTIC CARD (Gaya Mahasiswa)
@@ -105,7 +106,6 @@ const UrgentJadwalCard = ({ jadwal }) => {
     return (
         <div className="w-full bg-blue-500 rounded-xl p-5 text-white shadow-lg mb-6 relative overflow-hidden">
             {/* Abstract circle decoration */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-10 rounded-full -mr-10 -mt-10"></div>
 
             <div className="flex items-start gap-4 relative z-10">
                 <div className="bg-red-500 p-3 rounded-xl shadow-md">
@@ -231,7 +231,7 @@ export default function DashboardMahasiswa() {
     );
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             {/* Sidebar Universal */}
             <Sidebar
                 type="mahasiswa"
@@ -239,8 +239,8 @@ export default function DashboardMahasiswa() {
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
-            <main className="w-full p-2 lg:p-8 min-h-screen flex flex-col justify-between gap-8 transition-all duration-300 lg:ml-20">
-                <div className="flex flex-col gap-8">
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
                     {/* Header */}
                     <OsHeader
                         onMenuClick={() => setSidebarOpen(!sidebarOpen)}
@@ -249,7 +249,7 @@ export default function DashboardMahasiswa() {
 
                     <div className="">
                         {/* WELCOME SECTION */}
-                        <div className="mb-8">
+                        <div className="mb-2">
                             <p className="text-gray-500 text-sm font-medium mb-1">
                                 Selamat Datang!
                             </p>
@@ -262,8 +262,17 @@ export default function DashboardMahasiswa() {
                             </p>
                         </div>
 
+                        <hr className="border-1 border-os-primary-mhs my-2" />
+
+                        <div className="flex gap-os-8 items-center justify-start mb-2">
+                            <OsIcon name={"stat"} className="h-[15px]" />
+                            <h2 className="font-bold text-os-regular text-gray-900">
+                                Statistika
+                            </h2>
+                        </div>
+
                         {/* STATS GRID */}
-                        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
                             {/* <StatCard
                                 title="Ujian OSCE Terdaftar"
                                 description="Jumlah Ujian OSCE yang terdaftar"
@@ -323,15 +332,17 @@ export default function DashboardMahasiswa() {
                             />
                         </section>
 
+                        <hr className="border-1 border-os-primary-mhs my-2" />
+
                         {/* CONTENT SPLIT: JADWAL & KALENDER */}
                         <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                             {/* LEFT: JADWAL PENTING */}
                             <div className="lg:col-span-2">
-                                <div className="flex items-center justify-between mb-6">
+                                <div className="flex items-center justify-between mb-2">
                                     <div className="flex gap-os-8 items-center justify-start">
                                         <CalendarRange size={18} />
                                         <div className="flex items-center gap-2">
-                                            <h2 className="font-bold text-xl text-gray-900">
+                                            <h2 className="font-bold text-os-regular text-gray-900">
                                                 {selected_date
                                                     ? `Jadwal Tanggal: ${selected_date}`
                                                     : "Jadwal Penting"}
