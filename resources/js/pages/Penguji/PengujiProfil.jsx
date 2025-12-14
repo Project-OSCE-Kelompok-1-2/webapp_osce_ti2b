@@ -178,18 +178,18 @@ export default function PengujiProfil() {
 
                     <div className="flex-1 overflow-auto">
                         {/* MAIN CONTENT WRAPPER */}
-                        <div className="bg-white w-full min-h-screen flex justify-center p-0 font-sans transition-all duration-300">
+                        <div className=" w-full min-h-screen flex justify-center p-0 font-sans transition-all duration-300">
                             <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14">
                                 {/* KONTEN UTAMA (DUA KOLOM) */}
                                 <div className="flex flex-col gap-5 w-full">
                                     <div className="flex flex-col lg:flex-row items-start gap-5 relative w-full">
                                         {/* --- KOLOM KIRI: FOTO PROFIL --- */}
-                                        <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5 bg-white rounded-xl border border-os-primary shadow-sm">
+                                        <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5 bg-white rounded-xl border border-os-primary-pj shadow-sm">
                                             <div className="w-full">
                                                 <h2 className="text-xl">
                                                     Gambar Profil
                                                 </h2>
-                                                <hr className="mt-1 border-os-primary" />
+                                                <hr className="mt-1 border-os-primary-pj" />
                                             </div>
 
                                             {/* Lingkaran Foto */}
@@ -223,7 +223,7 @@ export default function PengujiProfil() {
 
                                             {/* Tombol Upload & Delete */}
                                             <div className="flex items-center gap-[15px] relative self-stretch w-full">
-                                                <label className="flex items-center justify-center gap-2.5 px-3 py-3 relative flex-1 bg-blue-600 text-white rounded-xl cursor-pointer hover:bg-blue-700 transition">
+                                                <label className="flex items-center justify-center gap-2.5 px-3 py-3 relative flex-1 bg-orange-500 text-white rounded-xl cursor-pointer hover:bg-orange-700 transition">
                                                     <input
                                                         type="file"
                                                         accept=".png,.jpg,.jpeg,.gif"
@@ -251,12 +251,12 @@ export default function PengujiProfil() {
                                         </aside>
 
                                         {/* --- KOLOM KANAN: FORM DATA --- */}
-                                        <section className="flex flex-col items-start gap-[15px] p-5 relative w-full lg:flex-1 bg-white rounded-xl border border-os-primary shadow-sm">
+                                        <section className="flex flex-col items-start gap-[15px] p-5 relative w-full lg:flex-1 bg-white rounded-xl border border-os-primary-pj shadow-sm">
                                             <div className="w-full">
                                                 <h2 className="text-xl">
                                                     Akun
                                                 </h2>
-                                                <hr className="mt-1 border-os-primary" />
+                                                <hr className="mt-1 border-os-primary-pj" />
                                             </div>
 
                                             <form
@@ -296,7 +296,7 @@ export default function PengujiProfil() {
                                                     }
                                                 />
 
-                                                <hr className="w-full border-os-primary my-2" />
+                                                <hr className="w-full border-os-primary-pj my-2" />
 
                                                 {/* ⭐ UPDATE 3: PASSWORD SECTION */}
 
@@ -507,7 +507,7 @@ export default function PengujiProfil() {
                                                 {/* BUTTONS */}
                                                 <div className="w-full flex justify-between gap-3 mt-2">
                                                     <OsButton
-                                                        name="primary"
+                                                        name="primary-pj"
                                                         className="w-[223px] flex items-center justify-start gap-[13px] border border-black"
                                                         onClick={
                                                             handleSaveChanges
@@ -552,8 +552,8 @@ export default function PengujiProfil() {
                 </div>
 
                 {/* FOOTER */}
-                <div className="mt-8">
-                    <OsCopyright />
+                <div className="">
+                    <OsCopyright variant="penguji" />
                 </div>
             </main>
         </div>
