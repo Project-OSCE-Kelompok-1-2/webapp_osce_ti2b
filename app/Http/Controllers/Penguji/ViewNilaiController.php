@@ -25,47 +25,42 @@ class ViewNilaiController extends Controller
             abort(403, 'Akun tidak valid: Anda bukan penguji.');
         }
 
-        // --- [MODIFIKASI 1] AMBIL DATA OSCE STASE (UNTUK NAVIGASI KEMBALI) ---
-        // Kita ubah dari exists() menjadi first() agar kita dapat ID-nya
+        // 2. AMBIL DATA OSCE STASE & Validasi Akses
         $osceStase = OsceStase::where('id_osce', $enrollment->id_osce)
             ->where('id_penguji', $pengguna->penguji->id_penguji)
             ->first();
 
-        // Validasi Akses
         if (!$osceStase) {
             abort(403, 'Anda tidak memiliki akses ke penilaian ini.');
         }
 
-        // 3. Cari satu sampel nilai untuk menentukan Stase mana yang dinilai
-        $sampleNilai = NilaiOsce::with('poinAspekPenilaian.aspekPenilaian')
-            ->where('id_enrollment_osce', $id_enrollment_osce)
-            ->first();
+        // [PERBAIKAN UTAMA DISINI]
+        // Kita tidak butuh sampleNilai untuk menentukan ID Stase.
+        // Kita bisa ambil langsung dari $osceStase.
+        $idStase = $osceStase->id_stase; 
 
-        if (!$sampleNilai) {
-            abort(404, 'Data nilai belum ditemukan (Mahasiswa belum dinilai oleh penguji stase ini).');
-        }
-
-        $idStase = $sampleNilai->poinAspekPenilaian->aspekPenilaian->id_stase;
-
-        // 4. Ambil Struktur Rubrik (Aspek & Kompetensi)
-        $aspekList = AspekPenilaian::with('poinAspekPenilaian')
-            ->where('id_stase', $idStase)
-            ->get();
-
-        // 5. Ambil SEMUA Nilai untuk enrollment ini
+        // 3. Ambil Nilai (Jika ada). Hapus abort(404).
+        // Kita tidak perlu sampleNilai lagi untuk logika, cukup ambil semua nilai tersimpan.
         $nilaiTersimpan = NilaiOsce::where('id_enrollment_osce', $id_enrollment_osce)
             ->get()
             ->keyBy('id_poin_aspek_penilaian');
 
+        // 4. Ambil Struktur Rubrik (Aspek & Kompetensi) berdasarkan id_stase dari OsceStase
+        $aspekList = AspekPenilaian::with('poinAspekPenilaian')
+            ->where('id_stase', $idStase)
+            ->get();
+
         $totalNilaiAspek = 0;
 
-        // 6. Mapping Data (Gabungkan Struktur Rubrik + Nilai)
+        // 5. Mapping Data (Gabungkan Struktur Rubrik + Nilai)
         $rubrikTerisi = $aspekList->map(function ($aspek) use ($nilaiTersimpan, &$totalNilaiAspek) {
             
             $kompetensiTerisi = $aspek->poinAspekPenilaian->map(function ($poin) use ($nilaiTersimpan, &$totalNilaiAspek) {
                 
+                // Cek apakah ada nilai tersimpan untuk poin ini
                 $nilaiEntry = $nilaiTersimpan->get($poin->id_poin_aspek_penilaian);
                 
+                // Jika nilai belum ada (null), set otomatis ke 0
                 $skor = $nilaiEntry ? (float) $nilaiEntry->nilai : 0.0; 
                 $bobot = (float) $poin->bobot;
                 
@@ -96,11 +91,10 @@ class ViewNilaiController extends Controller
                 'nim'     => $enrollment->mahasiswa->nim,
                 'jurusan' => $enrollment->mahasiswa->prodi ?? 'Prodi Tidak Tersedia', 
             ],
-            'rubrik_terisi'     => $rubrikTerisi,
+            // Jika belum dinilai, rubrik terisi akan muncul dengan skor 0 semua
+            'rubrik_terisi'     => $rubrikTerisi, 
             'total_nilai_aspek' => $totalNilaiAspek,
             'feedback'          => $feedback,
-            
-            // --- [MODIFIKASI 2] KIRIM DATA NAVIGASI KE FRONTEND ---
             'info_ujian' => [
                 'id_osce'       => $enrollment->id_osce,
                 'id_osce_stase' => $osceStase->id_osce_stase,

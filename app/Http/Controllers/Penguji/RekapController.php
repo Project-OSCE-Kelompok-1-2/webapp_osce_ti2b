@@ -135,7 +135,10 @@ class RekapController extends Controller
                 'id_enrollment_osce' => $item->id_enrollment_osce,
                 'nama'        => $item->mahasiswa->nama ?? '-',
                 'nim'         => $item->mahasiswa->nim ?? '-',
-                'nilai_total' => $item->nilai_total ? round((float)$item->nilai_total, 2) : 0,
+                
+                // [PERBAIKAN] Cek apakah null secara spesifik.
+                // Jika tidak null (termasuk 0), format angkanya. Jika null, biarkan null.
+                'nilai_total' => $item->nilai_total !== null ? round((float)$item->nilai_total, 2) : null,
             ];
         });
 
