@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Penguji;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request; // [TAMBAHKAN INI]
+use Illuminate\Http\Request;
 use App\Models\EnrollmentOsce;
 use App\Models\NilaiOsce;
 use App\Models\AspekPenilaian;
@@ -23,13 +23,13 @@ class ViewNilaiController extends Controller
         $pengguna = Auth::user();
 
         // Pastikan pengguna punya profil penguji
-        
+
         if (!$pengguna->penguji) {
             abort(403, 'Akun tidak valid: Anda bukan penguji.');
         }
 
         // --- [PERBAIKAN LOGIKA PENGAMBILAN STASE] ---
-        
+
         // Ambil parameter 'return_stase' dari URL (dikirim dari frontend)
         $targetOsceStaseId = $request->query('return_stase');
 
@@ -48,7 +48,7 @@ class ViewNilaiController extends Controller
             abort(403, 'Anda tidak memiliki akses ke penilaian stase ini.');
         }
 
-        $idStase = $osceStase->id_stase; 
+        $idStase = $osceStase->id_stase;
 
         // 3. Ambil Nilai (Jika ada)
         $nilaiTersimpan = NilaiOsce::where('id_enrollment_osce', $id_enrollment_osce)
@@ -70,7 +70,7 @@ class ViewNilaiController extends Controller
                 $nilaiEntry = $nilaiTersimpan->get($poin->id_poin_aspek_penilaian);
 
                 $skor = $nilaiEntry ? (float) $nilaiEntry->nilai : 0.0;
-                $skor = $nilaiEntry ? (float) $nilaiEntry->nilai : 0.0; 
+                $skor = $nilaiEntry ? (float) $nilaiEntry->nilai : 0.0;
                 $bobot = (float) $poin->bobot;
 
                 $nilaiKompetensi = $skor * $bobot;
@@ -102,15 +102,12 @@ class ViewNilaiController extends Controller
             'rubrik_terisi'     => $rubrikTerisi,
             // rumus nilai total dibagi 4
             'total_nilai_aspek' => $totalNilaiAspek / 4,
-            'rubrik_terisi'     => $rubrikTerisi, 
-            'total_nilai_aspek' => $totalNilaiAspek,
             'feedback'          => $feedback,
-
             // --- [MODIFIKASI 2] KIRIM DATA NAVIGASI KE FRONTEND ---
-            // Data ini sekarang PASTI BENAR karena $osceStase diambil berdasarkan ID spesifik
+            // Data ini sekarang PASTI BENAR karena $osceStase diambil berdasarkan ID spesifik betulan
             'info_ujian' => [
                 'id_osce'       => $enrollment->id_osce,
-                'id_osce_stase' => $osceStase->id_osce_stase, 
+                'id_osce_stase' => $osceStase->id_osce_stase,
             ],
         ]);
     }
