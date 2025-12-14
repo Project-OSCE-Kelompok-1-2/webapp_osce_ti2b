@@ -20,70 +20,102 @@ class DashboardController extends Controller
         // 1. Ambil Data Penguji
         $penguji = Penguji::where('id_pengguna', $user->id_pengguna)->firstOrFail();
 
-        $now = Carbon::now();
+        // Gunakan Timezone Jakarta untuk konsistensi
+        $now = Carbon::now('Asia/Jakarta');
 
-        // 2. Statistik Query (Tetap sama, tidak terpengaruh filter kalender)
-        $baseOsceQuery = Osce::whereHas('osceStase', function ($q) use ($penguji) {
-            $q->where('id_penguji', $penguji->id_penguji);
-        });
+        // 2. Statistik Query
+        $baseStaseQuery = OsceStase::where('id_penguji', $penguji->id_penguji);
 
         $statistik = [
-            'osce_mendatang'  => (clone $baseOsceQuery)->whereDate('tanggal_mulai', '>', $now)->count(),
-            'osce_edit_nilai' => (clone $baseOsceQuery)
-                ->whereDate('tanggal_mulai', '<=', $now)
-                ->whereDate('tanggal_selesai', '>=', $now)
+            // MENDATANG:
+            // Tanggalnya besok/lusa dst...
+            // ATAU Hari ini tapi jam mulainya belum lewat
+            'osce_mendatang' => (clone $baseStaseQuery)
+                ->where(function ($q) use ($now) {
+                    $q->whereDate('tanggal', '>', $now)
+                      ->orWhere(function ($sub) use ($now) {
+                          $sub->whereDate('tanggal', $now)
+                              ->whereTime('jam_mulai', '>', $now);
+                      });
+                })->count(),
+
+            // MASA PENILAIAN (SEDANG BERLANGSUNG):
+            // Hari ini, jam sekarang ada di antara jam mulai dan selesai
+            'osce_edit_nilai' => (clone $baseStaseQuery)
+                ->whereDate('tanggal', $now)
+                ->whereTime('jam_mulai', '<=', $now)
+                ->whereTime('jam_selesai', '>=', $now)
                 ->count(),
-            'osce_selesai'    => (clone $baseOsceQuery)->whereDate('tanggal_selesai', '<', $now)->count(),
+
+            // SELESAI:
+            // Tanggalnya kemarin dst...
+            // ATAU Hari ini tapi jam selesainya sudah lewat
+            'osce_selesai' => (clone $baseStaseQuery)
+                ->where(function ($q) use ($now) {
+                    $q->whereDate('tanggal', '<', $now)
+                      ->orWhere(function ($sub) use ($now) {
+                          $sub->whereDate('tanggal', $now)
+                              ->whereTime('jam_selesai', '<', $now);
+                      });
+                })->count(),
         ];
 
-        // 3. LOGIKA JADWAL (Dimodifikasi untuk Filter)
+        // 3. LOGIKA JADWAL
         $jadwalQuery = OsceStase::with(['osce.enrollmentOsce'])
             ->where('id_penguji', $penguji->id_penguji);
 
-        // [MODIFIKASI] Cek apakah ada parameter 'date' dari frontend
         if ($request->has('date') && $request->date) {
-            // Jika user memilih tanggal di kalender, cari jadwal HANYA di tanggal itu
+            // Filter Tanggal Spesifik
             $filterDate = Carbon::parse($request->date);
             $jadwalQuery->whereDate('tanggal', $filterDate);
-
-            // Urutkan berdasarkan jam
             $jadwalQuery->orderBy('jam_mulai', 'asc');
         } else {
-            // LOGIKA DEFAULT (Jika tidak ada tanggal dipilih)
-            // Tampilkan jadwal dari hari ini sampai 30 hari ke depan, limit 5
+            // DEFAULT: Tampilkan jadwal hari ini s/d 30 hari ke depan
+            // CATATAN: Hapus 'take(5)' dari sini agar kita bisa filter dulu di PHP
             $jadwalQuery->whereDate('tanggal', '>=', $now)
                 ->whereDate('tanggal', '<=', $now->copy()->addDays(30))
                 ->orderBy('tanggal', 'asc')
-                ->orderBy('jam_mulai', 'asc')
-                ->take(5);
+                ->orderBy('jam_mulai', 'asc');
         }
 
-        // Eksekusi Query dan Formatting Data
+        // 4. Eksekusi, Mapping, Filtering
         $jadwalMendatang = $jadwalQuery->get()
-            ->map(function ($stase) use ($now) {
+            ->map(function ($stase) {
                 $osce = $stase->osce;
+                
+                // Gunakan Timezone Jakarta saat parsing
+                $now = Carbon::now('Asia/Jakarta');
 
-                $staseStart = Carbon::parse($stase->tanggal->format('Y-m-d') . ' ' . $stase->jam_mulai);
-                $eventEnd = Carbon::parse($osce->tanggal_selesai)->endOfDay();
+                $tglStaseStr = $stase->tanggal instanceof \DateTime 
+                    ? $stase->tanggal->format('Y-m-d') 
+                    : $stase->tanggal;
 
+                $staseStart = Carbon::parse($tglStaseStr . ' ' . $stase->jam_mulai, 'Asia/Jakarta');
+
+                // Tentukan Jam Selesai Sesi
+                if (!empty($stase->jam_selesai)) {
+                    $staseEnd = Carbon::parse($tglStaseStr . ' ' . $stase->jam_selesai, 'Asia/Jakarta');
+                } else {
+                    $staseEnd = Carbon::parse($osce->tanggal_selesai, 'Asia/Jakarta')->endOfDay();
+                }
+
+                // Logika Status
                 $status = 'mendatang';
-
-                if ($now->gt($eventEnd)) {
+                if ($now->greaterThan($staseEnd)) {
                     $status = 'selesai';
-                } elseif ($now->gte($staseStart) && $now->lte($eventEnd)) {
+                } elseif ($now->greaterThanOrEqualTo($staseStart) && $now->lessThanOrEqualTo($staseEnd)) {
                     $status = 'edit';
                 } else {
                     $status = 'mendatang';
                 }
 
-                $staseTanggal = $stase->tanggal->toDateString();
                 $staseJamMulai = substr($stase->jam_mulai, 0, 5);
 
                 $jumlahMahasiswaSesi = $osce->enrollmentOsce
-                    ->filter(function ($enrollment) use ($staseTanggal, $staseJamMulai) {
-                        $enrollmentTanggal = Carbon::parse($enrollment->tanggal_sesi)->toDateString();
+                    ->filter(function ($enrollment) use ($tglStaseStr, $staseJamMulai) {
+                        $enrollmentTanggal = Carbon::parse($enrollment->tanggal_sesi)->format('Y-m-d');
                         $enrollmentJam = substr($enrollment->jam_sesi, 0, 5); 
-                        return $enrollmentTanggal === $staseTanggal && $enrollmentJam === $staseJamMulai;
+                        return $enrollmentTanggal === $tglStaseStr && $enrollmentJam === $staseJamMulai;
                     })
                     ->count();
 
@@ -91,20 +123,28 @@ class DashboardController extends Controller
                     'id_osce'        => $osce->id_osce,
                     'id_osce_stase'  => $stase->id_osce_stase,
                     'nama_osce'      => $osce->nama_osce,
-                    'hari'           => $stase->tanggal->format('d'),
-                    'bulan'          => $stase->tanggal->format('M'),
+                    'hari'           => Carbon::parse($tglStaseStr)->format('d'),
+                    'bulan'          => Carbon::parse($tglStaseStr)->format('M'),
                     'sesi'           => substr($stase->jam_mulai, 0, 5),
                     'jumlah_mahasiswa' => $jumlahMahasiswaSesi,
                     'status'         => $status,
                 ];
-            });
+            })
+            // --- FILTER: HANYA TAMPILKAN YANG BELUM SELESAI ---
+            ->filter(function ($item) {
+                // Return true untuk menyimpan item, false untuk membuang
+                return $item['status'] !== 'selesai'; 
+            })
+            // --- LIMIT: AMBIL 5 TERATAS SETELAH DIFILTER ---
+            ->take(5)
+            // --- VALUES: RESET INDEX ARRAY (Agar JSON rapi [0,1,2]) ---
+            ->values();
 
         return Inertia::render('Penguji/PengujiDashboard', [
-            'nama_penguji'     => $penguji->nama,
-            'statistik'        => $statistik,
+            'nama_penguji'   => $penguji->nama,
+            'statistik'      => $statistik,
             'jadwal_mendatang' => $jadwalMendatang,
-            // Opsional: Balikin tanggal yang dipilih biar UI tahu
-            'selected_date'    => $request->date ?? null
+            'selected_date'  => $request->date ?? null
         ]);
     }
 }

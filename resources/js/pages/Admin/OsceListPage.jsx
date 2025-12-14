@@ -220,9 +220,9 @@ export default function OsceListPage({
                 </div>
                 <div className="text-xs text-gray-500 leading-tight">
                     {/* Menggunakan Optional Chaining untuk properti yang mungkin belum ada */}
-                    {item.detail_stase || 0} Stase |{" "}
-                    {item.detail_mahasiswa || 0} Mahasiswa |{" "}
-                    {item.detail_sesi || 0} Sesi
+                    {item.detail_stase || 0} {" "}
+                    {item.detail_mahasiswa || 0} {" "}
+                    {item.detail_sesi || 0}
                 </div>
             </div>
         ),
