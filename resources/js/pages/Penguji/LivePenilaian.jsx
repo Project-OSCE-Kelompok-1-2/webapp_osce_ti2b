@@ -3,41 +3,20 @@ import { usePage, router } from "@inertiajs/react";
 import { ArrowLeft } from "lucide-react";
 import OsCopyright from "../../components/Copyright";
 
-// import Sidebar from "../../components/SidebarPenguji";
-import Sidebar from "../../components/Sidebar";
+// Pastikan path import ini sesuai dengan struktur project Anda
+import Sidebar from "../../components/Sidebar"; 
 import OsTableHeader from "../../components/tableheader";
 
 // Header Tabel Rubrik (Tidak Berubah)
 const rubrikColumns = [
-    { content: "No", width: "w-16", classes: "justify-center items-center" },
-    {
-        content: "Aspek Penilaian",
-        width: "flex-1",
-        classes: "justify-start items-center px-4",
-    },
-    {
-        content: "Skor",
-        width: "w-[260px]",
-        classes: "justify-center items-center px-4",
-    },
-    {
-        content: "Bobot",
-        width: "w-20",
-        classes: "justify-center items-center px-4",
-    },
-    {
-        content: "Nilai",
-        width: "w-20",
-        classes: "justify-center items-center px-4",
-    },
+// ... (rubrikColumns definition)
 ];
 
 export default function LivePenilaian() {
     // =========================================================================
-    // 1. BAGIAN LOGIC (LETALKAN DI ATAS SINI)
+    // 1. BAGIAN LOGIC
     // =========================================================================
 
-    // Ambil Props dari Controller (Backend)
     const {
         mahasiswa,
         rubrik = [],
@@ -45,61 +24,112 @@ export default function LivePenilaian() {
         info_ujian,
         id_enrollment_osce,
         existing_feedback = "",
-        saved_scores = {}, // <--- Data Nilai Lama (Untuk Radio Button)
-        mode_edit = false, // <--- Status apakah sedang Edit atau Ujian Baru
+        saved_scores = {}, 
+        mode_edit = false, 
     } = usePage().props;
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // State Form
-    const [feedback, setFeedback] = useState(existing_feedback);
-
-    // State Nilai: Inisialisasi dengan saved_scores agar Radio Button terisi otomatis
-    const [nilaiMap, setNilaiMap] = useState(saved_scores || {});
-
-    // State Waktu
+    // KEY STORAGE UNTUK DRAFT
+    const DRAFT_KEY = `osce_draft_${id_enrollment_osce}`;
+    const TIMER_KEY = `osce_timer_end_${id_enrollment_osce}`;
+    
+    // --- STATE DEFINITIONS ---
+    // Diinisialisasi kosong (akan diisi di useEffect)
+    const [feedback, setFeedback] = useState("");
+    const [nilaiMap, setNilaiMap] = useState({});
     const [waktu, setWaktu] = useState(sisa_waktu_detik);
+
     const dataRubrik = rubrik.length > 0 ? rubrik : [];
 
-    // variabel untuk validasi nilai kosong
     let jumlahKompetensi = 0;
     for (const aspek of rubrik) jumlahKompetensi += aspek.kompetensi.length;
     const jumlahKompetensiDinilai = Object.keys(nilaiMap).length;
 
-    // --- LOGIKA TIMER BARU (YANG ANDA TANYAKAN) ---
+    // --- FIX 1: LOGIKA MUAT DRAFT & TIMER (ANTI-RESET) ---
     useEffect(() => {
-        // Jika waktu awal sudah 0 (atau mode edit), jangan jalankan interval sama sekali
+        // Cek apakah ada draft yang tersimpan untuk ID ini
+        const savedDraft = localStorage.getItem(DRAFT_KEY);
+
+        if (savedDraft) {
+            // Jika ada draft (setelah refresh / navigasi balik)
+            const draft = JSON.parse(savedDraft);
+            setNilaiMap(draft.nilai || {});
+            setFeedback(draft.feedback || "");
+        } else {
+            // Jika tidak ada draft, gunakan data dari Backend (nilai lama/kosong)
+            setNilaiMap(saved_scores || {});
+            setFeedback(existing_feedback || "");
+        }
+
+        // --- Logika Timer Pintar ---
+        const savedEndTime = localStorage.getItem(TIMER_KEY);
+        const now = Date.now();
+
+        if (mode_edit) {
+            setWaktu(0);
+        } else if (savedEndTime) {
+            // Lanjutkan hitungan
+            const sisaInSeconds = Math.ceil((parseInt(savedEndTime) - now) / 1000);
+            setWaktu(sisaInSeconds > 0 ? sisaInSeconds : 0);
+        } else {
+            // Mulai timer baru dan simpan target waktu
+            setWaktu(sisa_waktu_detik);
+            if (sisa_waktu_detik > 0) {
+                const targetTime = now + (sisa_waktu_detik * 1000);
+                localStorage.setItem(TIMER_KEY, targetTime.toString());
+            }
+        }
+
+    }, [id_enrollment_osce, sisa_waktu_detik, saved_scores, existing_feedback, mode_edit]);
+
+
+    // --- FIX 2: SIMPAN DRAFT SETIAP KALI NILAI BERUBAH ---
+    useEffect(() => {
+        if (mode_edit) return; // Tidak perlu simpan draft jika sedang edit nilai yang sudah final
+        
+        // Simpan state nilai dan feedback ke localStorage
+        const draftData = {
+            nilai: nilaiMap,
+            feedback: feedback,
+        };
+        localStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
+
+    }, [nilaiMap, feedback, mode_edit, DRAFT_KEY]);
+
+
+    // --- FIX 3: INTERVAL TIMER (Sama seperti sebelumnya) ---
+    useEffect(() => {
         if (waktu <= 0) return;
 
         const timer = setInterval(() => {
             setWaktu((prev) => {
                 if (prev <= 1) {
-                    clearInterval(timer); // Hentikan timer jika mencapai 0
+                    clearInterval(timer); 
                     return 0;
                 }
                 return prev - 1;
             });
         }, 1000);
 
-        // Cleanup function (penting agar tidak memory leak)
         return () => clearInterval(timer);
-    }, []); // Dependency array kosong agar run sekali saat mount
+    }, [waktu]); 
 
     // --- HELPER FORMAT WAKTU ---
     const formatWaktu = () => {
-        if (waktu <= 0) return "00:00:00"; // Paksa tampil nol jika habis
-
-        const h = Math.floor(waktu / 3600);
-        const m = Math.floor((waktu % 3600) / 60);
-        const s = waktu % 60;
+        const safeWaktu = waktu < 0 ? 0 : waktu;
+        
+        const h = Math.floor(safeWaktu / 3600);
+        const m = Math.floor((safeWaktu % 3600) / 60);
+        const s = safeWaktu % 60;
 
         return `${String(h).padStart(2, "0")}:${String(m).padStart(
             2,
             "0"
         )}:${String(s).padStart(2, "0")}`;
     };
-    // ----------------------------------------------
 
+    // --- LOGIKA HITUNG SKOR ---
     const handleSkorChange = (poinId, skor) => {
         setNilaiMap((prev) => ({ ...prev, [poinId]: skor }));
     };
@@ -124,6 +154,7 @@ export default function LivePenilaian() {
     const SKALA_MAKSIMAL = 4;
     const totalNilai = totalNilaiMentah / SKALA_MAKSIMAL;
 
+    // --- SUBMIT ---
     const handleSubmit = (e) => {
         e.preventDefault();
         const nilai = Object.entries(nilaiMap).map(([id_poin, skor]) => ({
@@ -132,8 +163,14 @@ export default function LivePenilaian() {
         }));
 
         if (jumlahKompetensiDinilai < jumlahKompetensi) {
+            alert("Harap lengkapi semua penilaian sebelum menyimpan.");
             return;
         }
+
+        // --- PENTING: Hapus Draft & Timer dari memori browser setelah submit ---
+        localStorage.removeItem(TIMER_KEY);
+        localStorage.removeItem(DRAFT_KEY);
+        // ----------------------------------------------------------------------
 
         router.post(`/penguji/penilaian/${id_enrollment_osce}`, {
             nilai,
@@ -145,8 +182,9 @@ export default function LivePenilaian() {
     // 2. BAGIAN TAMPILAN (JSX)
     // =========================================================================
     return (
-        <div className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
-            {/* <Sidebar onToggle={setSidebarOpen} /> */}
+        <div 
+            key={id_enrollment_osce}
+            className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
             <Sidebar
                 isOpen={sidebarOpen}
                 setIsOpen={setSidebarOpen}
@@ -350,7 +388,7 @@ export default function LivePenilaian() {
                                         {/* BOBOT */}
                                         <div className="text-sm">
                                             <span className="font-medium">
-                                                Bobot:{" "}
+                                                Bobot:
                                             </span>{" "}
                                             {poin.bobot}
                                         </div>
@@ -390,15 +428,14 @@ export default function LivePenilaian() {
                     <form onSubmit={handleSubmit} className="mt-6">
                         <div className="w-full rounded-2xl border border-black shadow-sm p-3 bg-white">
                             <div className="grid grid-cols-3 gap-4">
-                                {/* --- INI BUTTON TIMER YANG BARU (GANTIKAN YANG LAMA) --- */}
-                                <button
-                                    type="button"
-                                    className={`col-span-1 w-full h-[70px] rounded-xl text-white font-semibold flex flex-col items-center justify-center px-2 text-center
-
+                                
+                                {/* KOTAK TIMER (DIV, BUKAN TOMBOL) */}
+                                <div
+                                    className={`col-span-1 w-full h-[70px] rounded-xl text-white font-semibold flex flex-col items-center justify-center px-2 text-center cursor-default
                                         ${
                                             waktu > 0
-                                                ? "bg-red-600" // Merah jika waktu jalan
-                                                : "bg-gray-500" // Abu jika waktu habis / mode edit
+                                                ? "bg-red-600"
+                                                : "bg-gray-500"
                                         }`}
                                 >
                                     <span className="text-sm whitespace-nowrap">
@@ -409,19 +446,21 @@ export default function LivePenilaian() {
                                             : "Waktu Habis"}
                                     </span>
                                     <span className="text-xl font-bold tracking-wider mt-1">
-                                        {mode_edit ? "--:--:--" : formatWaktu()}
+                                        {mode_edit
+                                            ? "--:--:--"
+                                            : formatWaktu()}
                                     </span>
-                                </button>
-                                {/* ----------------------------------------------------- */}
+                                </div>
 
+                                {/* TOMBOL SIMPAN */}
                                 <button
                                     type="submit"
                                     className={`col-span-2 w-full h-[70px] rounded-xl transition text-white font-semibold flex items-center justify-center text-lg 
                                     ${
                                         jumlahKompetensiDinilai <
                                         jumlahKompetensi
-                                            ? "bg-gray-500 hover:bg-gray-500/80"
-                                            : "bg-blue-600"
+                                            ? "bg-gray-500 hover:bg-gray-500/80 cursor-not-allowed"
+                                            : "bg-blue-600 hover:bg-blue-700"
                                     }`}
                                     disabled={
                                         jumlahKompetensiDinilai <

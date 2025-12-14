@@ -195,29 +195,22 @@ class HalamanPenilaianService
         // UPDATE LOGIKA TIMER
         $sisaWaktuDetik = 0;
 
+        // Ambil durasi dalam menit & detik
+        $durasiMenit = $osceStase->durasi_per_mahasiswa ?? 15;
+        if ($durasiMenit == 0) $durasiMenit = 15;
+        $durasiDetikFull = $durasiMenit * 60; // Konversi ke detik untuk patokan max
+
         if ($isEditMode) {
             $sisaWaktuDetik = 0;
-        } elseif ($enrollment->tanggal_sesi && $enrollment->jam_sesi) {
-
-            $tglString = $enrollment->tanggal_sesi instanceof \DateTime
-                ? $enrollment->tanggal_sesi->format('Y-m-d')
-                : $enrollment->tanggal_sesi;
-
-            $jadwalMulai = Carbon::parse($tglString . ' ' . $enrollment->jam_sesi, 'Asia/Jakarta');
-
-            $durasiMenit = $osceStase->durasi_per_mahasiswa ?? 15;
-            if ($durasiMenit == 0) $durasiMenit = 15;
-
-            $jadwalSelesai = $jadwalMulai->copy()->addMinutes($durasiMenit);
-            $waktuSekarang = Carbon::now('Asia/Jakarta');
-
-            if ($waktuSekarang->greaterThanOrEqualTo($jadwalSelesai)) {
-                $sisaWaktuDetik = 0;
-            } else {
-                $sisaWaktuDetik = $waktuSekarang->diffInSeconds($jadwalSelesai, false);
-            }
+        } else {
+            $sisaWaktuDetik = $durasiDetikFull;
         }
-
+        // Safety Cap: Pastikan sisa waktu tidak pernah melebihi durasi asli
+        // Ini mencegah glitch jika ada selisih detik/timezone
+        if ($sisaWaktuDetik > $durasiDetikFull) {
+            $sisaWaktuDetik = $durasiDetikFull;
+        }
+        
         if ($sisaWaktuDetik < 0) $sisaWaktuDetik = 0;
 
         // 9. Perhitungan Nilai Awal (Server Side Preview)
