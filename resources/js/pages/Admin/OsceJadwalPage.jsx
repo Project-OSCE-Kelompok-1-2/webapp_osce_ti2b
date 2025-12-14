@@ -404,8 +404,9 @@ export default function SesiOscePage({
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader variant="goback" backLink="/admin/osce/" />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader variant="goback" backLink="/admin/osce/" />
 
                 <div className="flex-1 overflow-auto ">
                     {/* Flash Message di Layout Utama */}
@@ -456,42 +457,42 @@ export default function SesiOscePage({
                         </OsButton>
                     </section>
 
-                    <section className="rounded-lg w-full">
-                        <OsSearchBar
-                            search={searchTerm}
-                            setSearch={setSearchTerm}
-                            onSearchClick={handleSearch}
-                            placeholder="Cari sesi..."
-                        />
-                    </section>
+                        <section className="rounded-lg w-full">
+                            <OsSearchBar
+                                search={searchTerm}
+                                setSearch={setSearchTerm}
+                                onSearchClick={handleSearch}
+                                placeholder="Cari sesi..."
+                            />
+                        </section>
 
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table Sesi
-                    </h2>
+                        <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                            Table Sesi
+                        </h2>
 
-                    <div className="w-full overflow-x-auto pb-4">
-                        <div className="min-w-max border rounded-lg overflow-hidden">
-                            <OsTableHeader columns={jadwalColumns} />
-                            {rows.length > 0 ? (
-                                <OsTableBody
-                                    data={rows}
-                                    columns={jadwalColumns}
-                                />
-                            ) : (
-                                <div className="flex items-center justify-center border-t border-gray-200">
-                                    <p className="w-full text-center text-sm py-4 text-gray-500">
-                                        Data sesi tidak ditemukan.
-                                    </p>
-                                </div>
-                            )}
+                        <div className="w-full overflow-x-auto pb-4">
+                            <div className="min-w-max border rounded-lg overflow-hidden">
+                                <OsTableHeader columns={jadwalColumns} />
+                                {rows.length > 0 ? (
+                                    <OsTableBody
+                                        data={rows}
+                                        columns={jadwalColumns}
+                                    />
+                                ) : (
+                                    <div className="flex items-center justify-center border-t border-gray-200">
+                                        <p className="w-full text-center text-sm py-4 text-gray-500">
+                                            Data sesi tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
                         </div>
+                        <OsPagination links={sesi?.links} />
                     </div>
-                    <OsPagination links={sesi?.links} />
                 </div>
-
-                <footer>
+                <div className="mt-8">
                     <OsCopyright />
-                </footer>
+                </div>
             </main>
 
             {/* DELETE MODAL */}

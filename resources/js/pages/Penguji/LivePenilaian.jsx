@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { usePage, router } from "@inertiajs/react";
 import { ArrowLeft } from "lucide-react";
+import OsCopyright from "../../components/Copyright";
 
 // import Sidebar from "../../components/SidebarPenguji";
 import Sidebar from "../../components/Sidebar";
@@ -152,7 +153,7 @@ export default function LivePenilaian() {
                 type={"penguji"}
             />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* HEADER */}
                 <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-300">
                     <button
@@ -432,11 +433,9 @@ export default function LivePenilaian() {
                             </div>
                         </div>
                     </form>
-
-                    <div className="w-full border rounded-xl px-4 py-3 text-gray-700 bg-white mt-4 text-sm">
-                        © {new Date().getFullYear()} All rights reserved. |
-                        Polines
-                    </div>
+                </div>
+                <div className="mt-4">
+                    <OsCopyright />
                 </div>
             </main>
         </div>

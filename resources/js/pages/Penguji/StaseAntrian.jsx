@@ -1,5 +1,6 @@
 import React from "react";
 import { Head, router, usePage } from "@inertiajs/react";
+import OsCopyright from "../../components/Copyright";
 
 export default function StaseAntrian() {
     // Ambil props dari backend (gunakan data yang sama dengan DetailOsce)
@@ -56,7 +57,7 @@ export default function StaseAntrian() {
                 </header>
 
                 {/* KONTEN UTAMA */}
-                <main className="flex-1">
+                <main className="w-full min-h-screen flex flex-col justify-between">
                     <div className="mx-auto flex max-w-5xl flex-col gap-8 px-4 py-8 pb-16">
                         {/* CARD DETAIL STASE */}
                         <section className="overflow-hidden rounded-3xl bg-white shadow-md">
@@ -119,11 +120,11 @@ export default function StaseAntrian() {
                             </div>
                         </section>
                     </div>
-                </main>
 
-                <footer className="border-t bg-white py-3 text-center text-xs text-gray-600">
-                    © {new Date().getFullYear()} OSCE System
-                </footer>
+                    <div className="mt-4">
+                        <OsCopyright />
+                    </div>
+                </main>
             </div>
         </>
     );

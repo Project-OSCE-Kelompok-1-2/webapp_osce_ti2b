@@ -10,6 +10,7 @@ import {
     MapPin,
 } from "lucide-react";
 import OsStepModal from "../../components/StepModal.jsx";
+import OsCopyright from "../../components/Copyright";
 
 export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
     console.log(osce_detail);
@@ -179,8 +180,8 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                     </div>
                 </header>
 
-                <main className="flex-1 py-5 px-3">
-                    <div className="mx-auto max-w-4xl">
+                <main className="flex-1 py-5 px-3 flex flex-col justify-between">
+                    <div className="mx-auto max-w-4xl w-full">
                         <div className="overflow-hidden rounded-xl bg-white shadow border border-gray-200">
                             {/* Compact Blue Banner */}
                             <div className="bg-blue-600 px-4 py-5 text-center text-white relative overflow-hidden">
@@ -365,11 +366,11 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                             </div>
                         </div>
                     </div>
-                </main>
 
-                <footer className="py-3 text-center text-[10px] text-gray-400">
-                    &copy; {new Date().getFullYear()} OSCE System.
-                </footer>
+                    <div className="mt-8">
+                        <OsCopyright />
+                    </div>
+                </main>
             </div>
 
             <OsStepModal
