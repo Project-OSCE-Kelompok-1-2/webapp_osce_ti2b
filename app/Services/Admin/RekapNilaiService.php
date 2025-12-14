@@ -73,17 +73,17 @@ class RekapNilaiService
             ->whereNotNull('tanggal');
 
         // [HAPUS] if ($search) { $query->where(...) }
-        
+
         // Ambil SEMUA data yang sudah di-group
         $sesi_virtual = $query->select(
             'tanggal',
             'jam_mulai',
             DB::raw('COUNT(*) as stase_count')
         )
-        ->groupBy('tanggal', 'jam_mulai')
-        ->orderBy('tanggal', 'asc')
-        ->orderBy('jam_mulai', 'asc')
-        ->get(); // Gunakan GET(), bukan paginate()
+            ->groupBy('tanggal', 'jam_mulai')
+            ->orderBy('tanggal', 'asc')
+            ->orderBy('jam_mulai', 'asc')
+            ->get(); // Gunakan GET(), bukan paginate()
 
         // Transformasi Data (Map Collection)
         $sesi_data = $sesi_virtual->map(function ($sesi_group) use ($id_osce) {
@@ -104,7 +104,7 @@ class RekapNilaiService
                 'tanggal_sesi_raw' => $sesi_group->tanggal,
                 'jam_sesi_raw' => $jam_formatted,
                 // String gabungan untuk tampilan & pencarian
-                'tampilan_sesi' => $tanggal_indo . ' — Pukul ' . $jam_formatted, 
+                'tampilan_sesi' => $tanggal_indo . ' — Pukul ' . $jam_formatted,
                 'jumlah_mahasiswa' => $jumlah_mahasiswa,
             ];
         });
@@ -145,7 +145,7 @@ class RekapNilaiService
         $enrolled_ids = EnrollmentOsce::where('id_osce', $id_osce)
             ->where('tanggal_sesi', $sesi_tanggal)
             // Menggunakan LIKE agar match dengan format H:i:s atau H:i di database
-            ->where('jam_sesi', 'LIKE', $sesi_jam_display . '%') 
+            ->where('jam_sesi', 'LIKE', $sesi_jam_display . '%')
             ->pluck('id_mahasiswa');
 
         // 3. Query Mahasiswa
@@ -180,7 +180,7 @@ class RekapNilaiService
                 'tanggal_formatted' => (new \DateTime($sesi_tanggal))->format('d M Y'),
                 'jam' => $sesi_jam_display, // Jam yang sudah diformat (14:32)
             ],
-            'mahasiswa_list' => $mahasiswa_list 
+            'mahasiswa_list' => $mahasiswa_list
         ];
     }
 
@@ -211,15 +211,14 @@ class RekapNilaiService
         $nilaiPerStase = [];
 
         foreach ($nilaiOsce as $nilai) {
-            $poin   = $nilai->poinAspekPenilaian;
+            $poin = $nilai->poinAspekPenilaian;
             if (!$poin) continue;
 
-            $aspek  = $poin?->aspekPenilaian;
-            $stase  = $aspek?->stase;
+            $aspek = $poin?->aspekPenilaian;
+            $stase = $aspek?->stase;
 
             if (!$stase) continue;
 
-            // Ambil info penguji
             $osceStase = OsceStase::where('id_osce', $enrollment->id_osce)
                 ->where('id_stase', $stase->id_stase)
                 ->with('penguji')
@@ -258,15 +257,15 @@ class RekapNilaiService
             ];
         }
 
-        // Hitung nilai akhir per stase
         foreach ($nilaiPerStase as $key => $stase) {
             $totalSkorBobot = $stase['total_skor_bobot'] ?? 0;
-            $nilaiPerStase[$key]['nilai_akhir_stase'] = $totalSkorBobot / 4; // Dibagi 4 sesuai aturan Anda
+            $nilaiPerStase[$key]['nilai_akhir_stase'] = $totalSkorBobot / 4;
         }
 
-        $nilai_total_osce = array_sum(array_column($nilaiPerStase, 'nilai_akhir_stase'));
+        $totalNilaiSemuaStase = array_sum(array_column($nilaiPerStase, 'nilai_akhir_stase'));
+        $jumlahStase = count($nilaiPerStase);
+        $nilai_total_osce = $jumlahStase > 0 ? ($totalNilaiSemuaStase / $jumlahStase) : 0;
 
-        // Hitung id_sesi_kembali untuk tombol kembali
         $tgl = $enrollment->tanggal_sesi;
         $jam_raw = substr($enrollment->jam_sesi, 0, 5);
         $jam_clean = str_replace(':', '', $jam_raw);

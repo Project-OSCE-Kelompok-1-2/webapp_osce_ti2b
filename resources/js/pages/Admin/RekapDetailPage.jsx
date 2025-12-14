@@ -168,9 +168,8 @@ export default function RekapDetailPage() {
                                     </p>
                                     <div className="flex items-baseline gap-1">
                                         <span className="text-5xl font-extrabold tracking-tight">
-                                            {parseFloat(
-                                                nilai_total_osce || 0
-                                            ).toFixed(2)}
+                                            {parseFloat(nilai_total_osce || 0) *
+                                                1}
                                         </span>
                                         <span className="text-lg text-gray-400 font-medium">
                                             / 100
@@ -299,10 +298,12 @@ export default function RekapDetailPage() {
                                                         Nilai Akhir Stase
                                                     </span>
                                                     <div className="text-2xl font-black text-gray-800">
-                                                        {parseFloat(
-                                                            stase.nilai_akhir_stase ||
-                                                                0
-                                                        ).toFixed(2)}
+                                                        {
+                                                            +parseFloat(
+                                                                stase.nilai_akhir_stase ||
+                                                                    0
+                                                            ).toFixed(2)
+                                                        }
                                                     </div>
                                                 </div>
                                             </div>
