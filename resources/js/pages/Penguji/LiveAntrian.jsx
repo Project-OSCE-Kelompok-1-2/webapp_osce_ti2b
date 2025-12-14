@@ -20,6 +20,7 @@ import OsStepModal from "../../components/StepModal.jsx";
 import OsHeader from "../../components/Header.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
+import OsButton from "../../components/button.jsx";
 
 export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
     console.log(osce_detail);
@@ -236,7 +237,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                         <h2 className="text-sm font-bold text-gray-800">
                                             Detail Informasi
                                         </h2>
-                                        <span className="text-[10px] bg-blue-50 text-blue-700 px-2 py-0.5 rounded border border-blue-100 font-medium">
+                                        <span className="text-[10px] bg-orange-50 text-orange-700 px-2 py-0.5 rounded border border-blue-100 font-medium">
                                             Semester Genap 2024
                                         </span>
                                     </div>
@@ -347,88 +348,92 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
 
                             {/* List Mahasiswa - Compact Table */}
                         </div>
-                        <div className="mt-5 bg-white rounded-xl border shadow-sm overflow-hidden">
-                            <div className="px-4 py-3 border-b flex flex-row justify-between items-center bg-gray-50/50 gap-3">
-                                <div>
-                                    <h3 className="text-sm font-bold text-gray-900">
+                        <div className="mt-5 bg-white rounded-xl border border-os-primary-pj shadow-sm overflow-hidden">
+                            <div className="px-4 py-3 border-b flex flex-row justify-between items-center bg-orange-100 gap-3">
+                                <div className="flex gap-1 items-center justify-start my-2 text-orange-800">
+                                    <User size={18} />
+                                    <h2 className="font-semibold text-lg ">
                                         Antrian Mahasiswa
-                                    </h3>
+                                    </h2>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <div className="text-[10px] font-medium bg-gray-200 text-gray-700 px-2 py-1 rounded">
+                                    <div className="text-[10px] font-medium bg-orange-50 text-orange-700 border px-2 py-1 rounded">
                                         Total: {safeStudents.length}
                                     </div>
-                                    <button
+                                    <OsButton
+                                        name="primary-pj"
                                         onClick={handleOpenModal}
-                                        className="flex items-center gap-1.5 bg-blue-600 hover:bg-blue-700 text-white px-3 py-1.5 rounded-md font-bold text-xs transition shadow-sm"
+                                        className="flex items-center gap-1.5 px-3 rounded-md font-bold text-xs transition shadow-sm"
                                     >
                                         <Play size={12} fill="currentColor" />
                                         Mulai Ujian
-                                    </button>
+                                    </OsButton>
                                 </div>
                             </div>
 
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left border-collapse">
-                                    <thead>
-                                        <tr className="border-b bg-gray-50 text-[10px] font-bold text-gray-500 uppercase tracking-wider">
-                                            <th className="px-4 py-2 w-1/4">
-                                                NIM
-                                            </th>
-                                            <th className="px-4 py-2 w-1/2">
-                                                Mahasiswa
-                                            </th>
-                                            <th className="px-4 py-2 w-1/4 text-center">
-                                                Status
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100 text-xs">
-                                        {safeStudents.length > 0 ? (
-                                            safeStudents.map(
-                                                (student, index) => (
-                                                    <tr
-                                                        key={
-                                                            student.id_enrollment_osce ||
-                                                            index
-                                                        }
-                                                        className="hover:bg-blue-50/50"
-                                                    >
-                                                        <td className="px-4 py-2.5 text-gray-600 font-mono">
-                                                            {student.nim}
-                                                        </td>
-                                                        <td className="px-4 py-2.5 font-medium text-gray-900">
-                                                            {student.nama}
-                                                        </td>
-                                                        <td className="px-4 py-2.5 text-center">
-                                                            {student.status_penilaian ===
-                                                            "Sudah Dinilai" ? (
-                                                                <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">
-                                                                    Selesai
-                                                                </span>
-                                                            ) : (
-                                                                <span className="text-[10px] text-gray-400 italic">
-                                                                    Menunggu
-                                                                </span>
-                                                            )}
-                                                        </td>
-                                                    </tr>
-                                                )
-                                            )
-                                        ) : (
-                                            <tr>
-                                                <td
-                                                    colSpan="3"
-                                                    className="px-4 py-8 text-center text-gray-400"
-                                                >
-                                                    <p className="text-xs">
-                                                        Belum ada antrian.
-                                                    </p>
-                                                </td>
+                            <div className="overflow-x-auto p-4 ">
+                                <div className="rounded-lg border border-os-primary-pj overflow-clip" >
+                                    <table className="w-full text-left ">
+                                        <thead>
+                                            <tr className="border-b bg-orange-500 text-[12px] font-bold text-white uppercase tracking-wider">
+                                                <th className="px-4 py-4 w-1/4">
+                                                    NIM
+                                                </th>
+                                                <th className="px-4 py-4 w-1/2">
+                                                    Mahasiswa
+                                                </th>
+                                                <th className="px-4 py-4 w-1/4 text-center">
+                                                    Status
+                                                </th>
                                             </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody className="divide-y divide-gray-100 text-xs">
+                                            {safeStudents.length > 0 ? (
+                                                safeStudents.map(
+                                                    (student, index) => (
+                                                        <tr
+                                                            key={
+                                                                student.id_enrollment_osce ||
+                                                                index
+                                                            }
+                                                            className="hover:bg-blue-50/50"
+                                                        >
+                                                            <td className="px-4 py-2.5 text-gray-600 font-mono">
+                                                                {student.nim}
+                                                            </td>
+                                                            <td className="px-4 py-2.5 font-medium text-gray-900">
+                                                                {student.nama}
+                                                            </td>
+                                                            <td className="px-4 py-2.5 text-center">
+                                                                {student.status_penilaian ===
+                                                                "Sudah Dinilai" ? (
+                                                                    <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-bold bg-green-100 text-green-800">
+                                                                        Selesai
+                                                                    </span>
+                                                                ) : (
+                                                                    <span className="text-[10px] text-gray-400 italic">
+                                                                        Menunggu
+                                                                    </span>
+                                                                )}
+                                                            </td>
+                                                        </tr>
+                                                    )
+                                                )
+                                            ) : (
+                                                <tr>
+                                                    <td
+                                                        colSpan="3"
+                                                        className="px-4 py-8 text-center text-gray-400"
+                                                    >
+                                                        <p className="text-xs">
+                                                            Belum ada antrian.
+                                                        </p>
+                                                    </td>
+                                                </tr>
+                                            )}
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
                         </div>
                     </main>
