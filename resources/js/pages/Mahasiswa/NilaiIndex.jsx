@@ -11,17 +11,17 @@ import OsCopyright from "../../components/Copyright";
 
 export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
     // =========================================
-    // 1. LOGIC FILTERING (DARI BACKEND/SERVER)
+    // 1. LOGIC FILTERING (TRIGGER KE BACKEND)
     // =========================================
 
-    // Ambil data dari props yang dikirim backend
+    // Ambil data dari props yang dikirim backend (Sudah difilter di server)
     const allUjianData = Array.isArray(ujian) ? ujian : ujian?.data || [];
 
     // Opsi Filter dari Backend
     const semesterOptions = filters?.semesters || [];
     const yearOptions = filters?.years || [];
 
-    // State Filter (Ambil default dari URL agar tidak reset saat refresh)
+    // State Filter: Ambil default dari URL (queryParams) agar tidak reset saat refresh
     const [search, setSearch] = useState(queryParams?.search || "");
     const [filterSemester, setFilterSemester] = useState(
         queryParams?.semester || ""
@@ -33,9 +33,9 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const itemsPerPage = 10;
 
-    // HANDLER FILTER (Trigger ke Backend Laravel)
+    // HANDLER FILTER: Mengirim request ke Laravel
     const handleFilterChange = (key, value) => {
-        // Update State Lokal
+        // Update State Lokal untuk UI
         if (key === "search") setSearch(value);
         if (key === "semester") setFilterSemester(value);
         if (key === "tahun") setFilterTahun(value);
@@ -54,15 +54,17 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
             preserveState: true,
             preserveScroll: true,
             replace: true,
-            only: ["ujian", "queryParams"], // Hanya update data ujian agar cepat
+            only: ["ujian", "queryParams"], // Hanya update data ujian agar performa cepat
         });
     };
 
     // =========================================
-    // 2. LOGIC PAGINATION (CLIENT SIDE SLICING)
+    // 2. PAGINATION (SLICING DATA YANG SUDAH DIFILTER)
     // =========================================
     const totalItems = allUjianData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+    // Slice data untuk halaman aktif
     const paginatedData = allUjianData.slice(
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
@@ -180,7 +182,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                     </div>
                                 </div>
 
-                                {/* Kanan: Filter Panel (MENGGUNAKAN LOGIC handleFilterChange) */}
+                                {/* Kanan: Filter Panel (Menggunakan handleFilterChange) */}
                                 <div className="lg:col-span-5 flex flex-col justify-center rounded-xl bg-blue-700/40 p-5 backdrop-blur-md border border-white/10">
                                     <div className="space-y-4">
                                         {/* Filter Semester */}
@@ -264,7 +266,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                             </div>
                         </div>
 
-                        {/* Search Bar (Menggunakan handleFilterChange) */}
+                        {/* Search Bar */}
                         <div className="mb-2">
                             <OsSearchBar
                                 search={search}
@@ -275,9 +277,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                             />
                         </div>
 
-                        {/* ======================================================== */}
-                        {/* TABEL DATA (MENGGUNAKAN STRUKTUR KOLOM YANG BENAR) */}
-                        {/* ======================================================== */}
+                        {/* Tabel Data */}
                         <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow duration-300">
                             <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
                                 <h3 className="font-bold text-gray-800 flex items-center gap-2">
@@ -299,7 +299,6 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                             <th className="px-6 py-4">
                                                 Nama Ujian
                                             </th>
-                                            {/* KOLOM DOSEN PENGUJI (SESUAI PERMINTAAN) */}
                                             <th className="px-6 py-4">
                                                 Dosen Penguji
                                             </th>
@@ -321,15 +320,12 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                                     key={item.id}
                                                     className="group hover:bg-blue-50/30 transition-colors"
                                                 >
-                                                    {/* NO */}
                                                     <td className="px-6 py-4 text-center font-medium text-gray-400 group-hover:text-blue-600 transition-colors">
                                                         {(currentPage - 1) *
                                                             itemsPerPage +
                                                             index +
                                                             1}
                                                     </td>
-
-                                                    {/* NAMA UJIAN */}
                                                     <td className="px-6 py-4 font-semibold text-gray-800">
                                                         {item.nama_ujian}
                                                         <div className="text-[10px] text-gray-400 font-normal mt-0.5">
@@ -337,29 +333,23 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                                             • {item.tahun_ujian}
                                                         </div>
                                                     </td>
-
-                                                    {/* DOSEN PENGUJI */}
                                                     <td className="px-6 py-4 text-gray-500">
                                                         {item.dosen_penguji ||
                                                             "-"}
                                                     </td>
-
-                                                    {/* SEMESTER */}
                                                     <td className="px-6 py-4 text-center font-medium">
-                                                        {item.semester}
+                                                        {item.semester_label}{" "}
+                                                        (Smtr{" "}
+                                                        {item.semester_angka})
                                                     </td>
-
-                                                    {/* AKSI (BUTTON) */}
                                                     <td className="px-6 py-4 text-center">
                                                         <Link
-                                                            href={`/mahasiswa/nilai/${item.id}`} // Pastikan slash di depan
+                                                            href={`/mahasiswa/nilai/${item.id}`} // Route Detail
                                                             className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
                                                         >
                                                             Lihat Nilai
                                                         </Link>
                                                     </td>
-
-                                                    {/* STATUS */}
                                                     <td className="px-6 py-4 text-center">
                                                         <span
                                                             className={`inline-flex items-center justify-center w-24 rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase shadow-sm ${
@@ -387,9 +377,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                                         </div>
                                                         <p>
                                                             Data ujian tidak
-                                                            ditemukan untuk
-                                                            filter atau kata
-                                                            kunci ini.
+                                                            ditemukan.
                                                         </p>
                                                     </div>
                                                 </td>
@@ -400,7 +388,6 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                             </div>
                         </div>
 
-                        {/* Pagination Component */}
                         <div className="mt-6">
                             {totalPages > 1 && (
                                 <OsPagination
