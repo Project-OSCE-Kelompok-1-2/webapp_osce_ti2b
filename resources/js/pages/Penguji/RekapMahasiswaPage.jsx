@@ -1,158 +1,80 @@
-import React, { useState, useMemo } from "react"; // Tambahkan useMemo
-import { Link, usePage } from "@inertiajs/react";
+import React, { useState, useMemo } from "react";
+import { usePage, router } from "@inertiajs/react"; // [FIX] Tambahkan router
 import {
     ArrowLeft,
     Download,
-    Search,
-    ExternalLink,
-    FileText,
-    User,
-    Clock,
-    UserCheck,
     Table2,
     Info,
+    FileText,
+    Clock,
+    User,
+    UserCheck
 } from "lucide-react";
 
 // --- Import Komponen ---
-import SidebarUniversal from "../../components/SidebarUniversal";
+import Sidebar from "../../components/Sidebar";
 import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/Copyright";
-import Sidebar from "../../components/Sidebar";
 import OsButton from "../../components/button.jsx";
 import OsSearchBar from "../../components/searchbar";
 import OsTableHeader from "../../components/tableheader";
 import OsTableBody from "../../components/tablecontain.jsx";
-import OsPagination from "../../components/pagination.jsx"; // [V] Import Pagination
+import OsPagination from "../../components/pagination.jsx";
 
 // 1. Definisikan Struktur Kolom
 const columns = [
-    {
-        content: "No",
-        width: "w-16 shrink-0",
-        classes: "justify-center items-center",
-        key: "no",
-    },
-    {
-        content: "Nama Mahasiswa",
-        width: "w-[500px] flex-1 shrink-0",
-        classes: "justify-start items-center px-4",
-        key: "nama",
-    },
-    {
-        content: "NIM",
-        width: "w-32 shrink-0",
-        classes: "justify-center items-center",
-        key: "nim",
-    },
-    {
-        content: "Nilai",
-        width: "w-32 shrink-0",
-        classes: "justify-center items-center",
-        key: "nilai",
-    },
-    {
-        content: "Aksi",
-        width: "shrink-0 min-w-[200px]",
-        classes: "justify-center items-center",
-        key: "action",
-    },
+    { content: "No", width: "w-16 shrink-0", classes: "justify-center items-center", key: "no" },
+    { content: "Nama Mahasiswa", width: "w-[500px] flex-1 shrink-0", classes: "justify-start items-center px-4", key: "nama" },
+    { content: "NIM", width: "w-32 shrink-0", classes: "justify-center items-center", key: "nim" },
+    { content: "Nilai", width: "w-32 shrink-0", classes: "justify-center items-center", key: "nilai" },
+    { content: "Aksi", width: "shrink-0 min-w-[200px]", classes: "justify-center items-center", key: "action" },
 ];
 
 // --- LOGIC PAGINATION UTILITY ---
-// Fungsi bantuan untuk membuat tautan pagination ala Laravel
 const generatePaginationLinks = (currentPage, totalPages, totalItems) => {
     if (totalPages <= 1) return [];
-
     const links = [];
+    links.push({ url: "#", label: "Previous", active: false, pageNumber: currentPage > 1 ? currentPage - 1 : null });
 
-    // Tombol Previous
-    links.push({
-        url: "#",
-        label: "Previous",
-        active: false,
-        pageNumber: currentPage > 1 ? currentPage - 1 : null,
-    });
-
-    // Tautan Angka Halaman
-    const maxVisiblePages = 5; // Jumlah maksimal tombol angka yang terlihat (misal: 1, 2, 3, 4, 5)
+    const maxVisiblePages = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
-
     if (endPage - startPage + 1 < maxVisiblePages) {
         startPage = Math.max(1, endPage - maxVisiblePages + 1);
     }
-
-    // Add first page and ellipsis if needed
     if (startPage > 1) {
         links.push({ url: "#", label: "1", active: false, pageNumber: 1 });
-        if (startPage > 2) {
-            links.push({ url: null, label: "...", active: false });
-        }
+        if (startPage > 2) links.push({ url: null, label: "...", active: false });
     }
-
     for (let i = startPage; i <= endPage; i++) {
-        links.push({
-            url: "#",
-            label: String(i),
-            active: i === currentPage,
-            pageNumber: i,
-        });
+        links.push({ url: "#", label: String(i), active: i === currentPage, pageNumber: i });
     }
-
-    // Add ellipsis and last page if needed
     if (endPage < totalPages) {
-        if (endPage < totalPages - 1) {
-            links.push({ url: null, label: "...", active: false });
-        }
-        links.push({
-            url: "#",
-            label: String(totalPages),
-            active: false,
-            pageNumber: totalPages,
-        });
+        if (endPage < totalPages - 1) links.push({ url: null, label: "...", active: false });
+        links.push({ url: "#", label: String(totalPages), active: false, pageNumber: totalPages });
     }
+    links.push({ url: "#", label: "Next", active: false, pageNumber: currentPage < totalPages ? currentPage + 1 : null });
 
-    // Tombol Next
-    links.push({
-        url: "#",
-        label: "Next",
-        active: false,
-        pageNumber: currentPage < totalPages ? currentPage + 1 : null,
-    });
-
-    // Menyesuaikan url null untuk tombol panah
     links[0].url = links[0].pageNumber === null ? null : "#";
-    links[links.length - 1].url =
-        links[links.length - 1].pageNumber === null ? null : "#";
-
+    links[links.length - 1].url = links[links.length - 1].pageNumber === null ? null : "#";
     return links;
 };
-// --- END LOGIC PAGINATION UTILITY ---
 
 export default function RekapMahasiswaPage() {
     // 1. AMBIL PROPS DARI BACKEND
     const { osce_detail, mahasiswa_list } = usePage().props;
-    const [sidebarOpen, setSidebarOpen] = useState(false);
     const [search, setSearch] = useState("");
 
-    // Fallback agar tidak crash jika data kosong
     const safeOsceInfo = osce_detail || {
-        nama_osce: "-",
-        nama_stase: "-",
-        durasi_per_mahasiswa: "-",
-        total_mahasiswa: 0,
-        nama_penguji: "-",
+        nama_osce: "-", nama_stase: "-", durasi_per_mahasiswa: "-", total_mahasiswa: 0, nama_penguji: "-", id_osce: null, id_osce_stase: null
     };
-
     const safeStudents = mahasiswa_list || [];
 
     // --- LOGIC CLIENT-SIDE PAGINATION ---
     const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10; // Definisikan jumlah data per halaman
+    const itemsPerPage = 10;
 
-    // 2. FILTER CLIENT-SIDE (Menggunakan useMemo agar filtering hanya berjalan saat search/safeStudents berubah)
     const filteredStudents = useMemo(() => {
-        // Reset halaman ke 1 setiap kali filter berubah
         setCurrentPage(1);
         return safeStudents.filter(
             (mhs) =>
@@ -161,30 +83,16 @@ export default function RekapMahasiswaPage() {
         );
     }, [safeStudents, search]);
 
-    // 3. HITUNG NILAI PAGINATION
     const totalItems = filteredStudents.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const startIndex = (currentPage - 1) * itemsPerPage;
     const endIndex = startIndex + itemsPerPage;
-
-    // 4. DATA YANG AKAN DITAMPILKAN
     const paginatedStudents = filteredStudents.slice(startIndex, endIndex);
 
-    // 5. GENERATE LINKS UNTUK KOMPONEN PAGINATION
-    const paginationLinks = generatePaginationLinks(
-        currentPage,
-        totalPages,
-        totalItems
-    );
+    const paginationLinks = generatePaginationLinks(currentPage, totalPages, totalItems);
 
-    // 6. HANDLER PERPINDAHAN HALAMAN
     const handlePageChange = (pageNumber) => {
-        // Pastikan pageNumber adalah angka valid
-        if (
-            typeof pageNumber === "number" &&
-            pageNumber >= 1 &&
-            pageNumber <= totalPages
-        ) {
+        if (typeof pageNumber === "number" && pageNumber >= 1 && pageNumber <= totalPages) {
             setCurrentPage(pageNumber);
         } else if (pageNumber === "Previous" && currentPage > 1) {
             setCurrentPage(currentPage - 1);
@@ -193,75 +101,73 @@ export default function RekapMahasiswaPage() {
         }
     };
 
-    // --- END LOGIC CLIENT-SIDE PAGINATION ---
-
-    // --- BARU: Logic Handle Download ---
+    // --- LOGIC DOWNLOAD ---
     const handleDownload = (type) => {
-        const osceId = safeOsceInfo.id_osce;
-        const osceStaseId = safeOsceInfo.id_osce_stase; // Ambil ID Stase
-
-        if (!osceId || !osceStaseId) {
+        const { id_osce, id_osce_stase } = safeOsceInfo;
+        if (!id_osce || !id_osce_stase) {
             alert("ID OSCE atau ID OSCE Stase tidak ditemukan.");
             return;
         }
-
-        const queryParams = new URLSearchParams({
-            search: search,
-        }).toString();
-
-        // UBAH URL INI AGAR SESUAI DENGAN ROUTE LARAVEL:
-        // Route Laravel: /osce/{id_osce}/stase/{id_osce_stase}/export/{type}
-        const downloadUrl = `/penguji/osce/${osceId}/stase/${osceStaseId}/export/${type}?${queryParams}`;
-
-        // Redirect window location untuk memicu download browser
-        window.location.href = downloadUrl;
+        const queryParams = new URLSearchParams({ search: search }).toString();
+        // Menggunakan window.location agar download file berjalan normal (bukan request Inertia)
+        window.location.href = `/penguji/osce/${id_osce}/stase/${id_osce_stase}/export/${type}?${queryParams}`;
     };
-    // 7. MAPPING DATA UNTUK OsTableBody (Menggunakan data yang sudah dipaginasi)
-    const tableData = paginatedStudents.map((mhs, index) => ({
-        // Index dihitung berdasarkan urutan global, bukan hanya di halaman ini
-        no: startIndex + index + 1,
-        nama: mhs.nama,
-        nim: mhs.nim,
-        nilai:
-            mhs.nilai_total !== null ? (
-                mhs.nilai_total
+
+    // 7. MAPPING DATA UNTUK TABEL
+    const tableData = paginatedStudents.map((mhs, index) => {
+        // [FIX LOGIC] Anggap "Sudah Dinilai" hanya jika nilainya TIDAK NULL.
+        // Angka 0 tetap dianggap sudah dinilai.
+        const isSudahDinilai = mhs.nilai_total !== null;
+
+        return {
+            no: startIndex + index + 1,
+            nama: mhs.nama,
+            nim: mhs.nim,
+            nilai: isSudahDinilai ? (
+                // Tampilkan nilai (termasuk 0)
+                <span className={mhs.nilai_total === 0 ? "text-red-600 font-bold" : ""}>
+                    {mhs.nilai_total}
+                </span>
             ) : (
-                <span className="text-red-500 italic text-xs">
+                // Tampilkan placeholder jika null
+                <span className="text-gray-400 italic text-xs">
                     Belum Dinilai
                 </span>
             ),
-        action: (
-            <OsButton
-                name="primary-pj"
-                // Mengganti 'router.get' dengan Link atau memastikan 'router' diimpor
-                onClick={() =>
-                    // Mengganti router.get karena 'router' belum didefinisikan di sini.
-                    // Idealnya, Anda menggunakan Inertia.get atau link Inertia.
-                    // Untuk sementara, kita pakai window.location (hanya jika memang harus ada aksi)
-                    (window.location.href = `/penguji/penilaian/${mhs.id_enrollment_osce}/view`)
-                }
-                className="flex items-center justify-center gap-2 bg-[#1447E6] text-white text-xs font-medium px-6 py-2.5 rounded-lg hover:bg-blue-700 transition "
-            >
-                <Info size={18} />
-                Lihat Penilaian
-            </OsButton>
-        ),
-    }));
+            action: (
+                <OsButton
+                    name="primary-pj"
+                    // [FIX] Matikan fungsi klik jika belum dinilai
+                    onClick={() => {
+                        if (isSudahDinilai) {
+                            // [FIX] Kirim parameter 'return_stase' agar tombol Back di halaman selanjutnya tahu harus kemana
+                            router.get(`/penguji/penilaian/${mhs.id_enrollment_osce}/view?return_stase=${safeOsceInfo.id_osce_stase}`);
+                        }
+                    }}
+                    // [FIX] Styling Disabled vs Active
+                    className={`flex items-center justify-center gap-2 text-xs font-medium px-6 py-2.5 rounded-lg transition 
+                        ${isSudahDinilai
+                            ? "bg-[#1447E6] text-white hover:bg-blue-700 cursor-pointer"
+                            : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-70"
+                        }`}
+                    disabled={!isSudahDinilai}
+                >
+                    <Info size={18} />
+                    Lihat Penilaian
+                </OsButton>
+            ),
+        };
+    });
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
     return (
         <div className="relative bg-orange-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar
-                isOpen={isSidebarOpen}
-                onToggle={handleSidebarToggle}
-                type={"penguji"}
-            />
+            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} type={"penguji"} />
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 <div className="flex flex-col gap-os-8">
-                    {/* 1. Header */}
                     <OsHeader
                         className="fixed"
                         title={`OSCE / ${safeOsceInfo.nama_osce} / Rekap Nilai`}
@@ -270,216 +176,84 @@ export default function RekapMahasiswaPage() {
                     />
 
                     <div className="flex-1 overflow-auto">
-                        {/* 2. Header Biru Besar (Detail OSCE) - KODE TETAP SAMA */}
+                        {/* Header Biru Besar (Detail OSCE) */}
                         <div className="w-full rounded-xl overflow-hidden border border-orange-600 mb-4 shadow-sm">
-                            {/* Header Biru */}
                             <div className="bg-os-primary-pj-dark text-white text-center py-6">
-                                <h1 className="text-2xl font-bold mb-1">
-                                    Detail OSCE
-                                </h1>
-                                <p className="text-sm opacity-90">
-                                    {safeOsceInfo.nama_osce}
-                                </p>
+                                <h1 className="text-2xl font-bold mb-1">Detail OSCE</h1>
+                                <p className="text-sm opacity-90">{safeOsceInfo.nama_osce}</p>
                             </div>
-
-                            {/* Info Grid */}
                             <div className="bg-white p-4">
                                 <div className="flex flex-col lg:flex-row border border-gray-400 rounded-xl divide-y lg:divide-y-0 lg:divide-x divide-gray-400">
-                                    {/* Stasiun */}
                                     <div className="p-4 flex flex-col w-full lg:w-auto min-w-[120px]">
-                                        <span className="text-xs text-gray-600 mb-2">
-                                            Stasiun
-                                        </span>
-                                        <div className="bg-os-secondary-pj text-white w-16 h-16 rounded-xl flex items-center justify-center text-3xl font-bold shadow-md">
-                                            01
-                                        </div>
+                                        <span className="text-xs text-gray-600 mb-2">Stasiun</span>
+                                        <div className="bg-os-secondary-pj text-white w-16 h-16 rounded-xl flex items-center justify-center text-3xl font-bold shadow-md">01</div>
                                     </div>
-
-                                    {/* Rubrik */}
                                     <div className="p-4 flex-1 flex flex-col-reverse justify-between">
-                                        <div>
-                                            <span className="text-xs text-gray-600 block">
-                                                Nama Stase
-                                            </span>
-                                            <span className="text-sm font-bold block">
-                                                {safeOsceInfo.nama_stase}
-                                            </span>
-                                        </div>
-                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full">
-                                            <FileText
-                                                size={18}
-                                                className="text-white"
-                                            />
-                                        </div>
+                                        <div><span className="text-xs text-gray-600 block">Nama Stase</span><span className="text-sm font-bold block">{safeOsceInfo.nama_stase}</span></div>
+                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full"><FileText size={18} className="text-white" /></div>
                                     </div>
-
-                                    {/* Waktu */}
                                     <div className="p-4 flex-1 flex flex-col-reverse justify-between">
-                                        <div>
-                                            <span className="text-xs text-gray-600 block">
-                                                Durasi per mahasiswa
-                                            </span>
-                                            <span className="text-sm font-bold block">
-                                                {
-                                                    safeOsceInfo.durasi_per_mahasiswa
-                                                }
-                                            </span>
-                                        </div>
-                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full">
-                                            <Clock
-                                                size={18}
-                                                className="text-white"
-                                            />
-                                        </div>
+                                        <div><span className="text-xs text-gray-600 block">Durasi per mahasiswa</span><span className="text-sm font-bold block">{safeOsceInfo.durasi_per_mahasiswa}</span></div>
+                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full"><Clock size={18} className="text-white" /></div>
                                     </div>
-
-                                    {/* Enrollment */}
                                     <div className="p-4 flex-1 flex flex-col-reverse justify-between">
-                                        <div>
-                                            <span className="text-xs text-gray-600 block">
-                                                Enrollment Mahasiswa
-                                            </span>
-                                            <span className="text-sm font-bold block">
-                                                {safeOsceInfo.total_mahasiswa}{" "}
-                                                Mahasiswa
-                                            </span>
-                                        </div>
-                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full">
-                                            <User
-                                                size={18}
-                                                className="text-white"
-                                            />
-                                        </div>
+                                        <div><span className="text-xs text-gray-600 block">Enrollment Mahasiswa</span><span className="text-sm font-bold block">{safeOsceInfo.total_mahasiswa} Mahasiswa</span></div>
+                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full"><User size={18} className="text-white" /></div>
                                     </div>
-
-                                    {/* Penguji */}
                                     <div className="p-4 flex-[1.5] flex flex-col-reverse justify-between">
-                                        <div>
-                                            <span className="text-xs text-gray-600 block">
-                                                Penguji
-                                            </span>
-                                            <span className="text-sm font-bold block">
-                                                {safeOsceInfo.nama_penguji}
-                                            </span>
-                                        </div>
-                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full">
-                                            <UserCheck
-                                                size={18}
-                                                className="text-white"
-                                            />
-                                        </div>
+                                        <div><span className="text-xs text-gray-600 block">Penguji</span><span className="text-sm font-bold block">{safeOsceInfo.nama_penguji}</span></div>
+                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full"><UserCheck size={18} className="text-white" /></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* 3. Navigasi Download */}
+                        {/* Tombol Download */}
                         <div className="mb-4 flex gap-4">
-                            <OsButton
-                                name="primary-pj"
-                                onClick={() => handleDownload("excel")}
-                                className="text-sm font-medium shadow-sm px-4 py-2.5 flex items-center justify-start cursor-pointer hover:bg-green-600 transition-colors"
-                            >
-                                <Download className="w-4 h-4 mr-2" />
-                                Unduh Rekap Nilai (Excel)
+                            <OsButton name="primary-pj" onClick={() => handleDownload("excel")} className="text-sm font-medium shadow-sm px-4 py-2.5 flex items-center justify-start cursor-pointer hover:bg-green-600 transition-colors">
+                                <Download className="w-4 h-4 mr-2" /> Unduh Rekap Nilai (Excel)
                             </OsButton>
-                            <OsButton
-                                name="primary-pj"
-                                onClick={() => handleDownload("pdf")}
-                                className="text-sm font-medium shadow-sm px-4 py-2.5 flex items-center justify-start cursor-pointer hover:bg-red-600 transition-colors"
-                            >
-                                <Download className="w-4 h-4 mr-2" />
-                                Unduh Rekap Nilai (PDF)
+                            <OsButton name="primary-pj" onClick={() => handleDownload("pdf")} className="text-sm font-medium shadow-sm px-4 py-2.5 flex items-center justify-start cursor-pointer hover:bg-red-600 transition-colors">
+                                <Download className="w-4 h-4 mr-2" /> Unduh Rekap Nilai (PDF)
                             </OsButton>
                         </div>
 
-                        {/* 4. Search Bar */}
+                        {/* Search Bar */}
                         <div className="flex gap-4 mb-2">
                             <div className="relative flex-1">
-                                <OsSearchBar
-                                    search={search}
-                                    setSearch={setSearch}
-                                    placeholder="Cari nama atau NIM mahasiswa secara instan..."
-                                    variant="penguji"
-                                />
+                                <OsSearchBar search={search} setSearch={setSearch} placeholder="Cari nama atau NIM mahasiswa secara instan..." variant="penguji" />
                             </div>
                         </div>
 
-                        {/* 5. Info Count */}
+                        {/* Info Count */}
                         <div className="flex gap-1 items-center justify-start my-2">
                             <Table2 size={18} />
-                            <h2 className="font-semibold text-lg">
-                                Tabel Mahasiswa{" "}
-                            </h2>
-                            <span className="text-sm font-normal text-gray-500 ml-2">
-                                {/* Menampilkan total dari data yang sudah difilter */}
-                                (Total: {filteredStudents.length} data)
-                            </span>
+                            <h2 className="font-semibold text-lg">Tabel Mahasiswa</h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">(Total: {filteredStudents.length} data)</span>
                         </div>
 
-                        {/* Divider Line */}
-
-                        {/* 6. Tabel Mahasiswa (Menggunakan Komponen Reusable) */}
+                        {/* Tabel Mahasiswa */}
                         <section className="bg-white p-5 border border-os-primary-pj overflow-x-auto rounded-xl shadow-sm">
                             <table className="min-w-full text-left border-collapse bg-white">
-                                <OsTableHeader
-                                    variant="penguji"
-                                    columns={columns}
-                                    headerClass="py-4 px-6 text-sm font-medium text-gray-700 border-r border-gray-400"
-                                />
-
+                                <OsTableHeader variant="penguji" columns={columns} headerClass="py-4 px-6 text-sm font-medium text-gray-700 border-r border-gray-400" />
                                 {tableData.length > 0 ? (
-                                    <OsTableBody
-                                        variant="penguji"
-                                        data={tableData}
-                                        columns={columns}
-                                        rowClass={(index) =>
-                                            `border-b border-gray-300 last:border-b-0 ${
-                                                index % 2 === 1
-                                                    ? "bg-gray-200"
-                                                    : "bg-white"
-                                            }`
-                                        }
-                                        cellClass={(key) =>
-                                            `py-6 px-6 text-gray-700 text-sm ${
-                                                key === "nama"
-                                                    ? "font-bold text-gray-900"
-                                                    : ""
-                                            } ${
-                                                key !== "action"
-                                                    ? "border-r border-gray-400"
-                                                    : ""
-                                            }`
-                                        }
+                                    <OsTableBody variant="penguji" data={tableData} columns={columns}
+                                        rowClass={(index) => `border-b border-gray-300 last:border-b-0 ${index % 2 === 1 ? "bg-gray-200" : "bg-white"}`}
+                                        cellClass={(key) => `py-6 px-6 text-gray-700 text-sm ${key === "nama" ? "font-bold text-gray-900" : ""} ${key !== "action" ? "border-r border-gray-400" : ""}`}
                                     />
                                 ) : (
-                                    <tbody>
-                                        <tr>
-                                            <td
-                                                colSpan={columns.length}
-                                                className="py-8 text-center text-gray-500 italic"
-                                            >
-                                                Data mahasiswa tidak ditemukan
-                                            </td>
-                                        </tr>
-                                    </tbody>
+                                    <tbody><tr><td colSpan={columns.length} className="py-8 text-center text-gray-500 italic">Data mahasiswa tidak ditemukan</td></tr></tbody>
                                 )}
                             </table>
                         </section>
 
-                        {/* 7. Pagination Component */}
+                        {/* Pagination */}
                         {totalItems > itemsPerPage && (
-                            <OsPagination
-                                links={paginationLinks}
-                                onPageChange={handlePageChange}
-                                variant="penguji"
-                            />
+                            <OsPagination links={paginationLinks} onPageChange={handlePageChange} variant="penguji" />
                         )}
                     </div>
                 </div>
-                <div className="mt-8">
-                    <OsCopyright variant="penguji" />
-                </div>
+                <div className="mt-8"><OsCopyright variant="penguji" /></div>
             </main>
         </div>
     );
