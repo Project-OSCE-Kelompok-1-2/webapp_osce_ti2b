@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from "react"; // [1] Import Hooks
-import { Head, Link, usePage, router } from "@inertiajs/react";
-import { ChevronRight, FileText, User } from "lucide-react";
+import React, { useState, useEffect, useMemo } from "react";
+import { Head, Link, usePage } from "@inertiajs/react";
+import { FileText, User } from "lucide-react";
 
 // --- IMPORT KOMPONEN ---
 import Sidebar from "../../components/Sidebar";
@@ -11,9 +11,13 @@ import OsCopyright from "../../components/Copyright";
 import OsTableBody from "../../components/tablecontain"; // Asumsi ada OsTableBody, jika tidak pakai table biasa
 
 export default function NilaiIndex() {
-    // 1. Ambil Data Full
+    // 1. Ambil Data Full termasuk filters dari backend
     const { mahasiswa, ujian, filters } = usePage().props;
     const allUjianData = Array.isArray(ujian) ? ujian : ujian?.data || [];
+
+    // Ambil opsi filter dari props (fallback ke array kosong jika undefined)
+    const semesterOptions = filters?.semesters || [];
+    const yearOptions = filters?.years || [];
 
     // 2. State Filter & Pagination
     const [search, setSearch] = useState("");
@@ -25,37 +29,26 @@ export default function NilaiIndex() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // --- INSTANT FILTER LOGIC ---
-
-    // A. Reset halaman saat filter berubah
     useEffect(() => {
         setCurrentPage(1);
     }, [search, filterSemester, filterTahun]);
 
-    // B. Filter Data
     const filteredData = useMemo(() => {
         return allUjianData.filter((item) => {
             const term = search.toLowerCase();
 
-            // Filter Search (Nama Ujian atau Dosen)
+            // Filter Search
             const matchSearch =
                 item.nama_ujian?.toLowerCase().includes(term) ||
                 item.dosen_penguji?.toLowerCase().includes(term);
 
-            // Filter Semester (Ganjil/Genap label atau Angka Semester)
-            // Di controller kita kirim 'semester_label' (Ganjil/Genap) dan 'semester' (1, 2, 3...)
+            // Filter Semester (String Match)
             let matchSemester = true;
             if (filterSemester) {
-                // Jika filterSemester berisi "Ganjil"/"Genap", cek semester_label
-                // Jika berisi angka, cek semester
-                if (filterSemester === "Ganjil" || filterSemester === "Genap") {
-                    matchSemester = item.semester_label === filterSemester;
-                } else {
-                    // Jika filter angka (opsional jika dropdown punya angka)
-                    matchSemester = item.semester === filterSemester;
-                }
+                matchSemester = item.semester_label === filterSemester;
             }
 
-            // Filter Tahun
+            // Filter Tahun (String Match)
             let matchTahun = true;
             if (filterTahun) {
                 matchTahun = item.tahun_ujian === filterTahun;
@@ -65,7 +58,7 @@ export default function NilaiIndex() {
         });
     }, [search, filterSemester, filterTahun, allUjianData]);
 
-    // C. Slice Pagination
+    // Pagination Logic
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -73,7 +66,7 @@ export default function NilaiIndex() {
         currentPage * itemsPerPage
     );
 
-    // D. Generate Links
+    // Generate Pagination Links
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];

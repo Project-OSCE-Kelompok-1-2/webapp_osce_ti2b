@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { Link, usePage, router } from "@inertiajs/react"; // [FIX] Tambahkan import router
+import { usePage, router } from "@inertiajs/react"; // [FIX] Tambahkan router
 import {
     ArrowLeft,
     Download,
@@ -30,12 +30,12 @@ const columns = [
     { content: "Aksi", width: "shrink-0 min-w-[200px]", classes: "justify-center items-center", key: "action" },
 ];
 
-// --- LOGIC PAGINATION UTILITY (Sama seperti sebelumnya) ---
+// --- LOGIC PAGINATION UTILITY ---
 const generatePaginationLinks = (currentPage, totalPages, totalItems) => {
     if (totalPages <= 1) return [];
     const links = [];
     links.push({ url: "#", label: "Previous", active: false, pageNumber: currentPage > 1 ? currentPage - 1 : null });
-    
+
     const maxVisiblePages = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
     let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
@@ -54,7 +54,7 @@ const generatePaginationLinks = (currentPage, totalPages, totalItems) => {
         links.push({ url: "#", label: String(totalPages), active: false, pageNumber: totalPages });
     }
     links.push({ url: "#", label: "Next", active: false, pageNumber: currentPage < totalPages ? currentPage + 1 : null });
-    
+
     links[0].url = links[0].pageNumber === null ? null : "#";
     links[links.length - 1].url = links[links.length - 1].pageNumber === null ? null : "#";
     return links;
@@ -101,7 +101,7 @@ export default function RekapMahasiswaPage() {
         }
     };
 
-    // Logic Download
+    // --- LOGIC DOWNLOAD ---
     const handleDownload = (type) => {
         const { id_osce, id_osce_stase } = safeOsceInfo;
         if (!id_osce || !id_osce_stase) {
@@ -109,14 +109,14 @@ export default function RekapMahasiswaPage() {
             return;
         }
         const queryParams = new URLSearchParams({ search: search }).toString();
-        // Menggunakan window.location untuk download file (non-Inertia request)
+        // Menggunakan window.location agar download file berjalan normal (bukan request Inertia)
         window.location.href = `/penguji/osce/${id_osce}/stase/${id_osce_stase}/export/${type}?${queryParams}`;
     };
 
-    // 7. MAPPING DATA (DIPERBAIKI)
+    // 7. MAPPING DATA UNTUK TABEL
     const tableData = paginatedStudents.map((mhs, index) => {
-        // Logika: Mahasiswa dianggap "Sudah Dinilai" jika nilai_total BUKAN null.
-        // Angka 0 tetap dianggap "Sudah Dinilai" (true).
+        // [FIX LOGIC] Anggap "Sudah Dinilai" hanya jika nilainya TIDAK NULL.
+        // Angka 0 tetap dianggap sudah dinilai.
         const isSudahDinilai = mhs.nilai_total !== null;
 
         return {
@@ -124,12 +124,12 @@ export default function RekapMahasiswaPage() {
             nama: mhs.nama,
             nim: mhs.nim,
             nilai: isSudahDinilai ? (
-                // Tampilkan nilai (termasuk jika 0)
+                // Tampilkan nilai (termasuk 0)
                 <span className={mhs.nilai_total === 0 ? "text-red-600 font-bold" : ""}>
                     {mhs.nilai_total}
                 </span>
             ) : (
-                // Tampilkan teks Belum Dinilai
+                // Tampilkan placeholder jika null
                 <span className="text-gray-400 italic text-xs">
                     Belum Dinilai
                 </span>
@@ -137,20 +137,19 @@ export default function RekapMahasiswaPage() {
             action: (
                 <OsButton
                     name="primary-pj"
-                    // Matikan fungsi klik jika belum dinilai
+                    // [FIX] Matikan fungsi klik jika belum dinilai
                     onClick={() => {
                         if (isSudahDinilai) {
-                            router.get(`/penguji/penilaian/${mhs.id_enrollment_osce}/view`);
+                            // [FIX] Kirim parameter 'return_stase' agar tombol Back di halaman selanjutnya tahu harus kemana
+                            router.get(`/penguji/penilaian/${mhs.id_enrollment_osce}/view?return_stase=${safeOsceInfo.id_osce_stase}`);
                         }
                     }}
-                    // Jika belum dinilai, tombol jadi abu-abu (disabled look) dan cursor not-allowed
-                    // Jika sudah dinilai (termasuk 0), tombol biru
+                    // [FIX] Styling Disabled vs Active
                     className={`flex items-center justify-center gap-2 text-xs font-medium px-6 py-2.5 rounded-lg transition 
-                        ${isSudahDinilai 
-                            ? "bg-[#1447E6] text-white hover:bg-blue-700 cursor-pointer" 
+                        ${isSudahDinilai
+                            ? "bg-[#1447E6] text-white hover:bg-blue-700 cursor-pointer"
                             : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-70"
                         }`}
-                    // Tambahkan prop disabled html native juga
                     disabled={!isSudahDinilai}
                 >
                     <Info size={18} />
@@ -177,7 +176,7 @@ export default function RekapMahasiswaPage() {
                     />
 
                     <div className="flex-1 overflow-auto">
-                        {/* Header Biru Besar */}
+                        {/* Header Biru Besar (Detail OSCE) */}
                         <div className="w-full rounded-xl overflow-hidden border border-orange-600 mb-4 shadow-sm">
                             <div className="bg-os-primary-pj-dark text-white text-center py-6">
                                 <h1 className="text-2xl font-bold mb-1">Detail OSCE</h1>
@@ -233,7 +232,7 @@ export default function RekapMahasiswaPage() {
                             <span className="text-sm font-normal text-gray-500 ml-2">(Total: {filteredStudents.length} data)</span>
                         </div>
 
-                        {/* Tabel */}
+                        {/* Tabel Mahasiswa */}
                         <section className="bg-white p-5 border border-os-primary-pj overflow-x-auto rounded-xl shadow-sm">
                             <table className="min-w-full text-left border-collapse bg-white">
                                 <OsTableHeader variant="penguji" columns={columns} headerClass="py-4 px-6 text-sm font-medium text-gray-700 border-r border-gray-400" />
