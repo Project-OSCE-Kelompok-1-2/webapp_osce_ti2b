@@ -91,19 +91,25 @@ export default function LivePenilaian() {
             setWaktu(0);
         } else if (savedEndTime) {
             // Lanjutkan hitungan
-            const sisaInSeconds = Math.ceil((parseInt(savedEndTime) - now) / 1000);
+            const sisaInSeconds = Math.ceil(
+                (parseInt(savedEndTime) - now) / 1000
+            );
             setWaktu(sisaInSeconds > 0 ? sisaInSeconds : 0);
         } else {
             // Mulai timer baru dan simpan target waktu
             setWaktu(sisa_waktu_detik);
             if (sisa_waktu_detik > 0) {
-                const targetTime = now + (sisa_waktu_detik * 1000);
+                const targetTime = now + sisa_waktu_detik * 1000;
                 localStorage.setItem(TIMER_KEY, targetTime.toString());
             }
         }
-
-    }, [id_enrollment_osce, sisa_waktu_detik, saved_scores, existing_feedback, mode_edit]);
-
+    }, [
+        id_enrollment_osce,
+        sisa_waktu_detik,
+        saved_scores,
+        existing_feedback,
+        mode_edit,
+    ]);
 
     // --- FIX 2: SIMPAN DRAFT SETIAP KALI NILAI BERUBAH ---
     useEffect(() => {
@@ -115,9 +121,7 @@ export default function LivePenilaian() {
             feedback: feedback,
         };
         localStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
-
     }, [nilaiMap, feedback, mode_edit, DRAFT_KEY]);
-
 
     // --- FIX 3: INTERVAL TIMER (Sama seperti sebelumnya) ---
     useEffect(() => {
@@ -211,7 +215,28 @@ export default function LivePenilaian() {
     return (
         <div
             key={id_enrollment_osce}
-            className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
+            className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden"
+        >
+            {/* ========================================================= */}
+            {/* KOTAK TIMER FIXED DI POJOK KANAN ATAS */}
+            {/* ========================================================= */}
+            <div
+                className={`fixed z-50 top-4 right-4 w-[150px] h-[70px] rounded-xl text-white  flex flex-col items-center justify-center px-2 text-center shadow-lg transition-colors
+                    ${waktu > 0 ? "bg-red-600" : "bg-gray-500"}`}
+            >
+                <span className="text-[12px] whitespace-nowrap">
+                    {mode_edit
+                        ? "Mode Edit"
+                        : waktu > 0
+                        ? "Sisa Waktu"
+                        : "Waktu Habis"}
+                </span>
+                <span className="text-lg font-bold tracking-wider">
+                    {mode_edit ? "--:--:--" : formatWaktu()}
+                </span>
+            </div>
+            {/* ========================================================= */}
+
             <Sidebar
                 isOpen={sidebarOpen}
                 setIsOpen={handleSidebarToggle}
@@ -220,18 +245,6 @@ export default function LivePenilaian() {
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* HEADER */}
-                {/* <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-300">
-					<button
-						onClick={() => router.visit("/penguji/dashboard")}
-						className="flex w-[46px] h-[46px] items-center justify-center relative bg-gray-600 text-white rounded-xl border border-solid border-gray-700 aspect-[1] hover:bg-gray-700 transition"
-					>
-						<ArrowLeft className="relative w-[28px] h-[24px]" />
-					</button>
-					<div className="flex-1 border rounded-lg px-4 py-2 text-sm">
-						OSCE / {info_ujian?.nama_osce} /{" "}
-						{info_ujian?.nama_stase}
-					</div>
-				</div> */}
                 <OsHeader onMenuClick={handleSidebarToggle} variant="penguji" />
 
                 <div className="flex-1 overflow-auto pb-8 p-1">
@@ -242,7 +255,7 @@ export default function LivePenilaian() {
                             Biodata Mahasiswa
                         </h2>
                     </div>
-                    <div className="flex items-center gap-4 border border-os-primary-pj rounded-xl px-6 py-5 bg-gray-50 mb-6">
+                    <div className="flex items-center gap-4 border border-os-primary-pj rounded-xl px-6 py-5 bg-gray-50 mb-2">
                         <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-400 bg-gray-200">
                             {mahasiswa?.foto_url ? (
                                 <img
@@ -267,9 +280,6 @@ export default function LivePenilaian() {
                         </div>
                     </div>
 
-                    {/* <h2 className="font-semibold text-lg mb-3">
-						Rubrik Penilaian
-					</h2> */}
                     <div className="flex gap-1 items-center justify-start my-2 text-black">
                         <FileText size={18} />
                         <h2 className="font-semibold text-lg ">
@@ -338,15 +348,16 @@ export default function LivePenilaian() {
                                                                         )
                                                                     }
                                                                     className={`w-5 h-5 p-[3px] rounded-full !border-2 !border-black bg-white flex items-center justify-center hover:bg-white
-                                                                    ${
-                                                                        // DIKOREKSI: Pastikan border dan background tombol aktif hanya hitam/putih.
-                                                                        nilaiMap[
-                                                                            poin
-                                                                                .id_poin_aspek_penilaian
-                                                                        ] === v
-                                                                            ? "border-black border-2 bg-white"
-                                                                            : "border-black border-2 hover:border-black" // DIKOREKSI: Menghilangkan hover biru
-                                                                    }`}
+                                                                        ${
+                                                                            // DIKOREKSI: Pastikan border dan background tombol aktif hanya hitam/putih.
+                                                                            nilaiMap[
+                                                                                poin
+                                                                                    .id_poin_aspek_penilaian
+                                                                            ] ===
+                                                                            v
+                                                                                ? "border-black border-2 bg-white"
+                                                                                : "border-black border-2 hover:border-black" // DIKOREKSI: Menghilangkan hover biru
+                                                                        }`}
                                                                 >
                                                                     {nilaiMap[
                                                                         poin
@@ -463,15 +474,9 @@ export default function LivePenilaian() {
                         </div>
                     </div>
 
-                    {/* <h2 className="font-semibold text-lg mt-6 mb-2">
-                        Feedback
-                    </h2> */}
-                    <div className="flex gap-1 items-center justify-start my-2 text-black">
+                    <div className="flex gap-1 items-center justify-start my-2 mt-4 text-black">
                         <Bookmark size={18} />
-                        <h2 className="font-semibold text-lg ">
-                        Feedback
-
-                        </h2>
+                        <h2 className="font-semibold text-lg ">Feedback</h2>
                     </div>
                     <textarea
                         className="w-full border border-os-primary-pj rounded-xl p-3 min-h-[120px] focus:ring-1 focus:ring-orange-500 outline-none"
@@ -481,56 +486,32 @@ export default function LivePenilaian() {
                     />
 
                     {/* FORM SUBMIT */}
-                    <form onSubmit={handleSubmit} className="mt-6">
-                        <div className="w-full rounded-2xl !border !border-black shadow-sm p-3 bg-white">
-                            <div className="grid grid-cols-3 gap-4">
+                    <form onSubmit={handleSubmit} className="mt-2">
+                        <div className="flex justify-start">
+                            {/* KOTAK PENGGANTI TIMER (Dibuat hidden di layar besar agar layout tidak bergeser) */}
 
-                                {/* KOTAK TIMER (DIV, BUKAN TOMBOL) */}
-                                <div
-                                    className={`col-span-1 w-full h-[70px] rounded-xl text-white font-semibold flex flex-col items-center justify-center px-2 text-center cursor-default
-                                        ${
-                                            waktu > 0
-                                                ? "bg-red-600"
-                                                : "bg-gray-500"
-                                        }`}
-                                >
-                                    <span className="text-sm whitespace-nowrap">
-                                        {mode_edit
-                                            ? "Mode Edit"
-                                            : waktu > 0
-                                            ? "Sisa Waktu"
-                                            : "Waktu Habis"}
-                                    </span>
-                                    <span className="text-xl font-bold tracking-wider mt-1">
-                                        {mode_edit
-                                            ? "--:--:--"
-                                            : formatWaktu()}
-                                    </span>
-                                </div>
-
-                                {/* TOMBOL SIMPAN */}
-                                <button
-                                    type="submit"
-                                    className={`col-span-2 w-full h-[70px] rounded-xl transition text-white font-semibold flex items-center justify-center text-lg
+                            {/* TOMBOL SIMPAN */}
+                            <button
+                                type="submit"
+                                // col-span-3 untuk mobile penuh, col-span-2 untuk desktop/tablet agar sejajar dengan div kosong di sampingnya
+                                className={`col-span-3 sm:col-span-2 w-[250px] h-[46px] rounded-xl transition text-white font-semibold flex items-center justify-center text-sm
                                     ${
                                         jumlahKompetensiDinilai <
                                         jumlahKompetensi
                                             ? "bg-gray-500 hover:bg-gray-500/80 cursor-not-allowed"
-                                            : "bg-blue-600 hover:bg-blue-700"
+                                            : "bg-orange-500 hover:bg-orange-600"
                                     }`}
-                                    disabled={
-                                        jumlahKompetensiDinilai <
-                                        jumlahKompetensi
-                                    }
-                                >
-                                    SIMPAN PENILAIAN
-                                </button>
-                            </div>
+                                disabled={
+                                    jumlahKompetensiDinilai < jumlahKompetensi
+                                }
+                            >
+                                Simpan Penilaian & Feedback
+                            </button>
                         </div>
                     </form>
                 </div>
-                <div className="mt-4">
-                    <OsCopyright />
+                <div>
+                    <OsCopyright variant="penguji" />
                 </div>
             </main>
         </div>
