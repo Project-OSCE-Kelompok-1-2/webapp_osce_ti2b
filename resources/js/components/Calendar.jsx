@@ -148,10 +148,10 @@ export default function Calendar({ onDateSelect, events = [] }) {
                                     h-9 w-9 mx-auto flex flex-col items-center justify-center rounded-lg transition relative
                                     ${
                                         isSelected
-                                            ? "bg-blue-600 text-white shadow-md" // Jika dipilih (Prioritas Utama)
+                                            ? "bg-orange-600 text-white shadow-md" // Jika dipilih (Prioritas Utama)
                                             : isToday
-                                            ? "text-blue-800 font-bold border hover:bg-blue-100 bg-blue-200" // Jika HARI INI (Prioritas Kedua)
-                                            : "bg-white hover:bg-blue-50 text-gray-800" // Normal
+                                            ? "text-orange-800 font-bold border hover:bg-orange-100 bg-orange-200" // Jika HARI INI (Prioritas Kedua)
+                                            : "bg-white hover:bg-orange-50 text-gray-800" // Normal
                                     }
                                 `}
                             >

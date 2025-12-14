@@ -239,128 +239,150 @@ export default function DashboardMahasiswa() {
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
-            <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-8 transition-all duration-300 lg:ml-20">
-                {/* Header */}
-                <OsHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+            <main className="w-full p-4 md:p-8 lg:p-12 min-h-screen flex flex-col justify-between gap-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-8">
+                    {/* Header */}
+                    <OsHeader
+                        onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+                    />
 
-                <div className="">
-                    {/* WELCOME SECTION */}
-                    <div className="mb-8">
-                        <p className="text-gray-500 text-sm font-medium mb-1">
-                            Selamat Datang!
-                        </p>
-                        <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                            {auth.user.name}
-                        </h1>
-                        <p className="text-gray-500">
-                            Lihat dan kelola semua progres Ujian OSCE Anda di
-                            sini.
-                        </p>
-                    </div>
+                    <div className="">
+                        {/* WELCOME SECTION */}
+                        <div className="mb-8">
+                            <p className="text-gray-500 text-sm font-medium mb-1">
+                                Selamat Datang!
+                            </p>
+                            <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                                {auth.user.name}
+                            </h1>
+                            <p className="text-gray-500">
+                                Lihat dan kelola semua progres Ujian OSCE Anda
+                                di sini.
+                            </p>
+                        </div>
 
-                    {/* STATS GRID */}
-                    <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
-                        {/* <StatCard
-                            title="Ujian OSCE Terdaftar"
-                            description="Jumlah Ujian OSCE yang terdaftar"
-                            value={statistik?.terdaftar || 0}
-                            icon={<BookOpen size={24} />}
-                        />
-                        <StatCard
-                            title="Ujian OSCE Selesai"
-                            description="Jumlah Total Ujian OSCE selesai"
-                            value={statistik?.selesai || 0}
-                            icon={<CheckCircle size={24} />}
-                        />
-                        <StatCard
-                            title="Nilai Akhir"
-                            description="Rata-rata hasil nilai akhir"
-                            value={statistik?.nilai_akhir || "-"}
-                            icon={<Award size={24} />}
-                        /> */}
-                        <StatCard
-                            title="Ujian OSCE Terdaftar"
-                            description="Jumlah Ujian OSCE yang terdaftar"
-                            value={statistik?.terdaftar || 0}
-                            icon={<BookOpen size={24} className="text-blue-950" />}
-                            colorClass="bg-blue-400 border-blue-300"
-                            // href="/penguji/osce"
-                        />
-                        <StatCard
-                            title="Ujian OSCE Selesai"
-                            description="Jumlah Total Ujian OSCE selesai"
-                            value={statistik?.selesai || 0}
-                            icon={<CheckCircle size={24} className="text-red-950"/>}
-                            colorClass="bg-red-400 border-red-300"
-                            href="/penguji/osce"
-                        />
-                        <StatCard
-                            title="Nilai Akhir"
-                            description="Rata-rata hasil nilai akhir"
-                            value={statistik?.nilai_akhir || "-"}
-                            icon={<Award size={24} className="text-lime-950" />}
-                            colorClass="bg-lime-500 border-lime-300"
-                            href="/penguji/riwayat"
-                        />
-                    </section>
+                        {/* STATS GRID */}
+                        <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-10">
+                            {/* <StatCard
+                                title="Ujian OSCE Terdaftar"
+                                description="Jumlah Ujian OSCE yang terdaftar"
+                                value={statistik?.terdaftar || 0}
+                                icon={<BookOpen size={24} />}
+                            />
+                            <StatCard
+                                title="Ujian OSCE Selesai"
+                                description="Jumlah Total Ujian OSCE selesai"
+                                value={statistik?.selesai || 0}
+                                icon={<CheckCircle size={24} />}
+                            />
+                            <StatCard
+                                title="Nilai Akhir"
+                                description="Rata-rata hasil nilai akhir"
+                                value={statistik?.nilai_akhir || "-"}
+                                icon={<Award size={24} />}
+                            /> */}
+                            <StatCard
+                                title="Ujian OSCE Terdaftar"
+                                description="Jumlah Ujian OSCE yang terdaftar"
+                                value={statistik?.terdaftar || 0}
+                                icon={
+                                    <BookOpen
+                                        size={24}
+                                        className="text-blue-950"
+                                    />
+                                }
+                                colorClass="bg-blue-400 border-blue-300"
+                                // href="/penguji/osce"
+                            />
+                            <StatCard
+                                title="Ujian OSCE Selesai"
+                                description="Jumlah Total Ujian OSCE selesai"
+                                value={statistik?.selesai || 0}
+                                icon={
+                                    <CheckCircle
+                                        size={24}
+                                        className="text-red-950"
+                                    />
+                                }
+                                colorClass="bg-red-400 border-red-300"
+                                href="/penguji/osce"
+                            />
+                            <StatCard
+                                title="Nilai Akhir"
+                                description="Rata-rata hasil nilai akhir"
+                                value={statistik?.nilai_akhir || "-"}
+                                icon={
+                                    <Award
+                                        size={24}
+                                        className="text-lime-950"
+                                    />
+                                }
+                                colorClass="bg-lime-500 border-lime-300"
+                                href="/penguji/riwayat"
+                            />
+                        </section>
 
-                    {/* CONTENT SPLIT: JADWAL & KALENDER */}
-                    <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-                        {/* LEFT: JADWAL PENTING */}
-                        <div className="lg:col-span-2">
-                            <div className="flex items-center justify-between mb-6">
-                                <div className="flex gap-os-8 items-center justify-start">
-                                    <CalendarRange size={18} />
-                                    <div className="flex items-center gap-2">
-                                        <h2 className="font-bold text-xl text-gray-900">
-                                            {selected_date
-                                                ? `Jadwal Tanggal: ${selected_date}`
-                                                : "Jadwal Penting"}
-                                        </h2>
+                        {/* CONTENT SPLIT: JADWAL & KALENDER */}
+                        <section className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                            {/* LEFT: JADWAL PENTING */}
+                            <div className="lg:col-span-2">
+                                <div className="flex items-center justify-between mb-6">
+                                    <div className="flex gap-os-8 items-center justify-start">
+                                        <CalendarRange size={18} />
+                                        <div className="flex items-center gap-2">
+                                            <h2 className="font-bold text-xl text-gray-900">
+                                                {selected_date
+                                                    ? `Jadwal Tanggal: ${selected_date}`
+                                                    : "Jadwal Penting"}
+                                            </h2>
+                                        </div>
                                     </div>
+                                    <Link
+                                        href="/mahasiswa/jadwal"
+                                        className="text-blue-500 text-sm hover:underline flex items-center gap-1"
+                                    >
+                                        Lihat Jadwal Lengkap{" "}
+                                        <ArrowRight size={14} />
+                                    </Link>
                                 </div>
-                                <Link
-                                    href="/mahasiswa/jadwal"
-                                    className="text-blue-500 text-sm hover:underline flex items-center gap-1"
-                                >
-                                    Lihat Jadwal Lengkap{" "}
-                                    <ArrowRight size={14} />
-                                </Link>
+
+                                {/* Alert Logic: Jika ada ujian H-1 / Hari H */}
+                                {urgentJadwal && (
+                                    <UrgentJadwalCard jadwal={urgentJadwal} />
+                                )}
+
+                                <div className="space-y-4">
+                                    <h3 className="text-sm font-medium text-gray-500 mb-2">
+                                        Mendatang
+                                    </h3>
+                                    {normalJadwal && normalJadwal.length > 0 ? (
+                                        normalJadwal.map((item, index) => (
+                                            <JadwalItem
+                                                key={index}
+                                                jadwal={item}
+                                            />
+                                        ))
+                                    ) : !urgentJadwal ? (
+                                        <div className="p-6 text-center border border-dashed rounded-xl text-gray-400">
+                                            {selected_date
+                                                ? "Tidak ada jadwal ujian pada tanggal ini."
+                                                : "Belum ada jadwal ujian mendatang."}
+                                        </div>
+                                    ) : null}
+                                </div>
                             </div>
 
-                            {/* Alert Logic: Jika ada ujian H-1 / Hari H */}
-                            {urgentJadwal && (
-                                <UrgentJadwalCard jadwal={urgentJadwal} />
-                            )}
-
-                            <div className="space-y-4">
-                                <h3 className="text-sm font-medium text-gray-500 mb-2">
-                                    Mendatang
-                                </h3>
-                                {normalJadwal && normalJadwal.length > 0 ? (
-                                    normalJadwal.map((item, index) => (
-                                        <JadwalItem key={index} jadwal={item} />
-                                    ))
-                                ) : !urgentJadwal ? (
-                                    <div className="p-6 text-center border border-dashed rounded-xl text-gray-400">
-                                        {selected_date
-                                            ? "Tidak ada jadwal ujian pada tanggal ini."
-                                            : "Belum ada jadwal ujian mendatang."}
-                                    </div>
-                                ) : null}
+                            {/* RIGHT: KALENDER */}
+                            <div className="lg:col-span-1">
+                                <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
+                                    <Calendar
+                                        events={kalender_event}
+                                        onDateSelect={handleDateSelect}
+                                    />
+                                </div>
                             </div>
-                        </div>
-
-                        {/* RIGHT: KALENDER */}
-                        <div className="lg:col-span-1">
-                            <div className="bg-white rounded-xl border border-gray-100 shadow-sm p-4">
-                                <Calendar
-                                    events={kalender_event}
-                                    onDateSelect={handleDateSelect}
-                                />
-                            </div>
-                        </div>
-                    </section>
+                        </section>
+                    </div>
                 </div>
 
                 {/* Footer */}

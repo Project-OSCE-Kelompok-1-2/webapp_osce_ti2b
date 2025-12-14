@@ -150,21 +150,22 @@ export default function RekapSesiPage() {
             <Head title={`Rekap Sesi - ${osce.nama_osce}`} />
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader variant="goback" backLink="/admin/rekap-nilai" />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader variant="goback" backLink="/admin/rekap-nilai" />
 
-                <div className="flex-1 overflow-auto">
-                    {/* Notifikasi */}
-                    {flash.success && (
-                        <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
-                            {flash.success}
-                        </div>
-                    )}
-                    {flash.error && (
-                        <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
-                            {flash.error}
-                        </div>
-                    )}
+                    <div className="flex-1 overflow-auto">
+                        {/* Notifikasi */}
+                        {flash.success && (
+                            <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
+                                {flash.success}
+                            </div>
+                        )}
+                        {flash.error && (
+                            <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
+                                {flash.error}
+                            </div>
+                        )}
 
                     {/* <h2 className="font-semibold text-lg mb-1">
                         Menu Rekap Nilai
@@ -180,12 +181,12 @@ export default function RekapSesiPage() {
                         untuk melihat daftar mahasiswa.
                     </p>
 
-                    {/* SEARCH INSTANT */}
-                    <OsSearchBar
-                        search={searchTerm}
-                        setSearch={setSearchTerm} // Instant update
-                        placeholder="Cari tanggal atau jam..."
-                    />
+                        {/* SEARCH INSTANT */}
+                        <OsSearchBar
+                            search={searchTerm}
+                            setSearch={setSearchTerm} // Instant update
+                            placeholder="Cari tanggal atau jam..."
+                        />
 
                     {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Sesi
@@ -219,18 +220,23 @@ export default function RekapSesiPage() {
                         </div>
                     </section>
 
-                    {/* PAGINATION CLIENT-SIDE */}
-                    {totalPages > 1 && (
-                        <div className="mt-8">
-                            <OsPagination
-                                links={generatedLinks}
-                                onPageChange={(page) => setCurrentPage(page)}
-                            />
-                        </div>
-                    )}
+                        {/* PAGINATION CLIENT-SIDE */}
+                        {totalPages > 1 && (
+                            <div className="mt-8">
+                                <OsPagination
+                                    links={generatedLinks}
+                                    onPageChange={(page) =>
+                                        setCurrentPage(page)
+                                    }
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
 
-                <OsCopyright />
+                <div className="mt-8">
+                    <OsCopyright />
+                </div>
             </main>
         </div>
     );

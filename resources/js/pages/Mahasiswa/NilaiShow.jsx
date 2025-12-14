@@ -52,26 +52,43 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
         {
             key: "id",
             content: "No",
-            width: "w-[80px]",
-            classes: "justify-center font-bold",
+            width: "w-[40px] md:w-[80px]",
+            classes: "justify-center items-center font-bold",
         },
         {
             key: "kompetensi",
-            content: "Stase / Keterampilan Klinik",
+            content: (
+                <>
+                    <span className="hidden md:inline">
+                        Stase / Keterampilan Klinik
+                    </span>
+                    {/* Ukuran text-xs (12px) agar terbaca, dan rata tengah secara default */}
+                    <span className="md:hidden text-xs">
+                        Stase / Keterampilan Klinik
+                    </span>
+                </>
+            ),
             width: "flex-1",
-            classes: "justify-start px-6 font-bold text-left",
+            // Mobile: Center, Desktop: Left-aligned
+            classes:
+                "justify-center md:justify-start items-center px-2 md:px-6 font-bold text-center md:text-left",
         },
         {
             key: "nilai",
             content: "Nilai",
-            width: "w-[150px]",
-            classes: "justify-center",
+            width: "w-[60px] md:w-[150px]",
+            classes: "justify-center items-center",
         },
         {
             key: "keterangan",
-            content: "Keterangan",
-            width: "w-[200px]",
-            classes: "justify-start px-6",
+            content: (
+                <>
+                    <span className="hidden md:inline">Keterangan</span>
+                    <span className="md:hidden">Ket.</span>
+                </>
+            ),
+            width: "w-[80px] md:w-[200px]",
+            classes: "justify-center items-center px-3 md:px-6",
         },
     ];
 
@@ -101,104 +118,106 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             />
 
-            <main className="grid w-full p-4 md:p-8 lg:p-12 flex-1 grid-cols-1 grid-rows-[auto_1fr_auto] gap-2 md:gap-4 transition-all duration-300 lg:ml-20">
-                {/* 1. HEADER ATAS */}
-                <OsHeader
-                    onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                />
+            <main className="w-full p-4 md:p-8 lg:p-12 min-h-screen flex flex-col justify-between gap-2 md:gap-4 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-2 md:gap-4">
+                    {/* 1. HEADER ATAS */}
+                    <OsHeader
+                        onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    />
 
-                {/* 2. AREA KONTEN UTAMA */}
-                <div className="flex flex-col gap-4 md:gap-6 pt-0">
-                    {/* --- KARTU 1: JUDUL HALAMAN --- */}
-                    <div className="w-full flex items-center pl-1">
-                        <div className="flex items-center gap-3">
-                            <FileText className="text-blue-600" size={32} />
-                            <h1 className="font-sans font-bold text-2xl text-black mt-1">
-                                Hasil Penilaian OSCE
-                            </h1>
-                        </div>
-                    </div>
-
-                    {/* --- KARTU 2: DETAIL MAHASISWA (WARNA BIRU) --- */}
-                    <div className="w-full bg-blue-600 rounded-xl border border-black p-6 shadow-sm">
-                        {/* Grid layout: 1 kolom di HP, 2 kolom di Laptop */}
-                        <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-4">
-                            {/* Kolom Kiri */}
-                            <div>
-                                <InfoRow
-                                    label="Nama"
-                                    value={data.mahasiswa.nama}
-                                />
-                                <InfoRow
-                                    label="NIM"
-                                    value={data.mahasiswa.nim}
-                                />
-                                <InfoRow
-                                    label="Program Studi"
-                                    value={data.mahasiswa.prodi}
-                                />
-                                <InfoRow
-                                    label="Stase"
-                                    value={data.ujian.stase}
-                                />
-                            </div>
-                            {/* Kolom Kanan */}
-                            <div>
-                                <InfoRow
-                                    label="Semester"
-                                    value={data.mahasiswa.semester}
-                                />
-                                <InfoRow
-                                    label="Tahun Ujian"
-                                    value={data.ujian.tahun}
-                                />
-                                <InfoRow
-                                    label="Dosen Penguji"
-                                    value={data.ujian.dosen}
-                                />
+                    {/* 2. AREA KONTEN UTAMA */}
+                    <div className="flex flex-col gap-4 md:gap-6 pt-0">
+                        {/* --- KARTU 1: JUDUL HALAMAN --- */}
+                        <div className="w-full flex items-center pl-1">
+                            <div className="flex items-center gap-3">
+                                <FileText className="text-blue-600" size={32} />
+                                <h1 className="font-sans font-bold text-2xl text-black mt-1">
+                                    Hasil Penilaian OSCE
+                                </h1>
                             </div>
                         </div>
-                    </div>
 
-                    {/* --- KARTU 3: TABEL NILAI --- */}
-                    <div className="w-full bg-white rounded-xl shadow-sm border border-black overflow-hidden flex flex-col">
-                        <div className="overflow-x-auto">
-                            <div className="min-w-[600px]">
-                                {/* Bagian Header Tabel */}
-                                <div className="bg-white">
-                                    <OsTableHeader columns={tableColumns} />
+                        {/* --- KARTU 2: DETAIL MAHASISWA (WARNA BIRU) --- */}
+                        <div className="w-full bg-blue-600 rounded-xl border border-black p-6 shadow-sm">
+                            {/* Grid layout: 1 kolom di HP, 2 kolom di Laptop */}
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-4">
+                                {/* Kolom Kiri */}
+                                <div>
+                                    <InfoRow
+                                        label="Nama"
+                                        value={data.mahasiswa.nama}
+                                    />
+                                    <InfoRow
+                                        label="NIM"
+                                        value={data.mahasiswa.nim}
+                                    />
+                                    <InfoRow
+                                        label="Program Studi"
+                                        value={data.mahasiswa.prodi}
+                                    />
+                                    <InfoRow
+                                        label="Stase"
+                                        value={data.ujian.stase}
+                                    />
                                 </div>
-                                {/* Bagian Isi/Body Tabel */}
-                                <div className="w-full">
-                                    <OsTableBody
-                                        data={data.daftarNilai}
-                                        columns={tableColumns}
+                                {/* Kolom Kanan */}
+                                <div>
+                                    <InfoRow
+                                        label="Semester"
+                                        value={data.mahasiswa.semester}
+                                    />
+                                    <InfoRow
+                                        label="Tahun Ujian"
+                                        value={data.ujian.tahun}
+                                    />
+                                    <InfoRow
+                                        label="Dosen Penguji"
+                                        value={data.ujian.dosen}
                                     />
                                 </div>
                             </div>
                         </div>
-                    </div>
 
-                    {/* --- BAGIAN FOOTER KONTEN --- */}
-                    <div className="w-full flex flex-col gap-4">
-                        {/* 1. PAGINATION (Dihilangkan karena detail nilai biasanya satu halaman) */}
-                        {/* <div className="ml-1">
+                        {/* --- KARTU 3: TABEL NILAI --- */}
+                        <div className="w-full bg-white rounded-xl shadow-sm border border-black overflow-hidden flex flex-col">
+                            <div className="overflow-x-auto">
+                                <div className="min-w-full">
+                                    {/* Bagian Header Tabel */}
+                                    <div className="bg-white">
+                                        <OsTableHeader columns={tableColumns} />
+                                    </div>
+                                    {/* Bagian Isi/Body Tabel */}
+                                    <div className="w-full">
+                                        <OsTableBody
+                                            data={data.daftarNilai}
+                                            columns={tableColumns}
+                                        />
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* --- BAGIAN FOOTER KONTEN --- */}
+                        <div className="w-full flex flex-col gap-4">
+                            {/* 1. PAGINATION (Dihilangkan karena detail nilai biasanya satu halaman) */}
+                            {/* <div className="ml-1">
                             <OsPagination links={data.links} />
                         </div> */}
 
-                        {/* 2. KOTAK TOTAL NILAI & STATUS */}
-                        <div className="w-full flex flex-col sm:flex-row bg-white rounded-xl border border-black h-auto sm:h-[60px] overflow-hidden items-center shadow-sm">
-                            {/* Label Total */}
-                            <div className="w-full sm:flex-1 h-[50px] sm:h-full flex items-center justify-center font-bold text-black border-b sm:border-b-0 sm:border-r border-black bg-gray-50 sm:bg-white">
-                                Total / Rata - rata
-                            </div>
-                            {/* Angka Nilai */}
-                            <div className="w-full sm:w-[150px] h-[50px] sm:h-full flex items-center justify-center font-extrabold text-xl text-black border-b sm:border-b-0 sm:border-r border-black">
-                                {data.totalNilai}
-                            </div>
-                            {/* Status LULUS/TIDAK */}
-                            <div className="w-full sm:w-[200px] h-[50px] sm:h-full flex items-center justify-center font-extrabold text-black text-lg uppercase tracking-wide bg-gray-50">
-                                {data.statusKelulusan}
+                            {/* 2. KOTAK TOTAL NILAI & STATUS */}
+                            <div className="w-full flex flex-col sm:flex-row bg-white rounded-xl border border-black h-auto sm:h-[60px] overflow-hidden items-center shadow-sm">
+                                {/* Label Total */}
+                                <div className="w-full sm:flex-1 h-[50px] sm:h-full flex items-center justify-center font-bold text-black border-b sm:border-b-0 sm:border-r border-black bg-gray-50 sm:bg-white">
+                                    Total / Rata - rata
+                                </div>
+                                {/* Angka Nilai */}
+                                <div className="w-full sm:w-[150px] h-[50px] sm:h-full flex items-center justify-center font-extrabold text-xl text-black border-b sm:border-b-0 sm:border-r border-black">
+                                    {data.totalNilai}
+                                </div>
+                                {/* Status LULUS/TIDAK */}
+                                <div className="w-full sm:w-[200px] h-[50px] sm:h-full flex items-center justify-center font-extrabold text-black text-lg uppercase tracking-wide bg-gray-50">
+                                    {data.statusKelulusan}
+                                </div>
                             </div>
                         </div>
                     </div>

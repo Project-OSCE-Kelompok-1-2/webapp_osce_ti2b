@@ -28,7 +28,7 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
             className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass}`}
         >
             <div>
-                <div className="flex justify-between items-start mb-2">
+                <div className="flex justify-between items-start mb-3">
                     <div>
                         <h3 className="font-medium text-sm text-white">
                             {title}
@@ -64,7 +64,7 @@ const JadwalCard = ({ item }) => {
         <div className="bg-white border rounded-xl shadow-sm px-4 py-4 flex items-center justify-between hover:shadow-md transition-shadow">
             <div className="flex items-center gap-3">
                 {/* Kolom Tanggal */}
-                <div className="flex flex-col items-center justify-center w-12 h-12 bg-red-500 rounded-xl text-white shadow-sm">
+                <div className="flex flex-col items-center justify-center w-12 h-12 bg-orange-500 rounded-xl text-white shadow-sm">
                     <span className="font-bold text-xl leading-none">
                         {item.hari}
                     </span>
@@ -75,7 +75,7 @@ const JadwalCard = ({ item }) => {
 
                 {/* Kolom Info */}
                 <div>
-                    <h4 className="font-bold text-blue-700 text-sm line-clamp-1">
+                    <h4 className="font-bold text-orange-700 text-sm line-clamp-1">
                         {item.nama_osce}
                     </h4>
                     <p className="text-xs text-gray-500 mt-0.5">
@@ -140,144 +140,158 @@ export default function PengujiDashboard() {
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-orange-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar
                 isOpen={isSidebarOpen}
                 type="penguji"
                 onToggle={handleSidebarToggle}
             />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader onMenuClick={handleSidebarToggle} />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader
+                        onMenuClick={handleSidebarToggle}
+                        variant="penguji"
+                    />
 
-                {/* WELCOME SECTION */}
-                <div className="">
-                    <p className=" text-gray-600 text-os-regular">
-                        Selamat Datang,
-                    </p>
-                    <h1 className="font-bold text-os-title text-gray-900">
-                        {nama_penguji}
-                    </h1>
-                    <p className="text-gray-500 text-sm">
-                        Berikut adalah ringkasan aktivitas pengujian Anda.
-                    </p>
-                </div>
-
-                <hr className="border-1 border-os-primary" />
-
-                {/* STATISTIK GRID */}
-                <section className="mb-2">
-                    <div className="flex gap-os-8 items-center justify-start mb-2">
-                        <OsIcon name={"stat"} className="h-[15px]" />
-                        <h2 className="font-bold text-os-regular text-gray-900">
-                            Statistika
-                        </h2>
-                    </div>
-                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                        <StatCard
-                            title="OSCE Mendatang"
-                            description="Jadwal ujian akan datang"
-                            value={statistik?.osce_mendatang ?? 0}
-                            icon={
-                                <ClipboardList
-                                    size={22}
-                                    className="text-blue-700"
-                                />
-                            }
-                            colorClass="bg-blue-400 border-blue-300"
-                            href="/penguji/osce"
-                        />
-                        <StatCard
-                            title="Masa Penilaian"
-                            description="Ujian sedang berlangsung"
-                            value={statistik?.osce_edit_nilai ?? 0}
-                            icon={<Users size={22} className="text-gray-700" />}
-                            colorClass="bg-red-400 border-blue-300"
-                            href="/penguji/osce"
-                        />
-                        <StatCard
-                            title="OSCE Selesai"
-                            description="Riwayat ujian selesai"
-                            value={statistik?.osce_selesai ?? 0}
-                            icon={
-                                <UserCheck
-                                    size={22}
-                                    className="text-gray-700"
-                                />
-                            }
-                            colorClass="bg-lime-500 border-blue-300"
-                            href="/penguji/riwayat"
-                        />
-                    </div>
-                </section>
-
-                <hr className="border-1 border-os-primary" />
-
-                {/* JADWAL + CALENDAR GRID */}
-                <section className="flex flex-col lg:flex-row">
-                    {/* LEFT SIDE: Jadwal Penting */}
-                    <div className="w-full lg:w-8/12 lg:mr-5 mb-4 lg:mb-0">
-                        <div className="flex justify-between items-center mb-4">
-                            <div className="flex gap-os-8 items-center justify-start">
-                                <CalendarRange size={18} />
-                                <div className="flex items-center gap-2">
-                                    <h2 className="font-bold text-os-regular text-gray-900">
-                                        {selected_date
-                                            ? `Jadwal Tanggal: ${selected_date}`
-                                            : "Jadwal Mendatang"}
-                                    </h2>
-
-                                    {/* Tombol Reset Filter jika tanggal dipilih */}
-                                </div>
-                            </div>
-                            <Link
-                                href="/penguji/osce"
-                                className="text-blue-600 text-sm font-medium hover:underline flex items-center gap-1"
-                            >
-                                Lihat Semua
-                                <ArrowRight size={16} />
-                            </Link>
+                    <div className="flex-1 overflow-auto">
+                        {/* WELCOME SECTION */}
+                        <div className="">
+                            <p className=" text-gray-600 text-os-regular">
+                                Selamat Datang,
+                            </p>
+                            <h1 className="font-bold text-os-title text-gray-900">
+                                {nama_penguji}
+                            </h1>
+                            <p className="text-gray-500 text-sm">
+                                Berikut adalah ringkasan aktivitas pengujian
+                                Anda.
+                            </p>
                         </div>
 
-                        {/* List Jadwal */}
-                        <div className="flex flex-col gap-3">
-                            {jadwal_mendatang && jadwal_mendatang.length > 0 ? (
-                                jadwal_mendatang.map((item, idx) => (
-                                    <JadwalCard
-                                        key={item.id_osce_stase || idx}
-                                        item={item}
-                                    />
-                                ))
-                            ) : (
-                                <div className="p-5 text-center bg-white border rounded-xl text-gray-500">
-                                    {selected_date
-                                        ? "Tidak ada jadwal ujian pada tanggal ini."
-                                        : "Tidak ada jadwal ujian dalam waktu dekat."}
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                        <hr className="border-1 border-os-primary-pj" />
 
-                    <hr className="border-1 block lg:hidden border-os-black opacity-os-alpha-25 mb-4" />
-
-                    {/* RIGHT SIDE: Calendar */}
-                    <div className="w-full lg:w-4/12">
-                        <div className="bg-white p-4 rounded-xl border shadow-sm sticky top-5">
+                        {/* STATISTIK GRID */}
+                        <section className="mb-2">
                             <div className="flex gap-os-8 items-center justify-start mb-2">
-                                <CalendarDays size={18} />
+                                <OsIcon name={"stat"} className="h-[15px]" />
                                 <h2 className="font-bold text-os-regular text-gray-900">
-                                    Kalender
+                                    Statistika
                                 </h2>
                             </div>
-                            {/* [PENTING] Pass handler ke props onDateSelect */}
-                            <Calendar onDateSelect={handleDateSelect} />
-                        </div>
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                                <StatCard
+                                    title="OSCE Mendatang"
+                                    description="Jadwal ujian akan datang"
+                                    value={statistik?.osce_mendatang ?? 0}
+                                    icon={
+                                        <ClipboardList
+                                            size={22}
+                                            className="text-orange-700"
+                                        />
+                                    }
+                                    colorClass="bg-orange-400 border-orange-300"
+                                    href="/penguji/osce"
+                                />
+                                <StatCard
+                                    title="Masa Penilaian"
+                                    description="Ujian sedang berlangsung"
+                                    value={statistik?.osce_edit_nilai ?? 0}
+                                    icon={
+                                        <Users
+                                            size={22}
+                                            className="text-gray-700"
+                                        />
+                                    }
+                                    colorClass="bg-red-400 border-orange-300"
+                                    href="/penguji/osce"
+                                />
+                                <StatCard
+                                    title="OSCE Selesai"
+                                    description="Riwayat ujian selesai"
+                                    value={statistik?.osce_selesai ?? 0}
+                                    icon={
+                                        <UserCheck
+                                            size={22}
+                                            className="text-gray-700"
+                                        />
+                                    }
+                                    colorClass="bg-lime-500 border-orange-300"
+                                    href="/penguji/riwayat"
+                                />
+                            </div>
+                        </section>
+
+                        <hr className="border-1 border-os-primary-pj" />
+
+                        {/* JADWAL + CALENDAR GRID */}
+                        <section className="flex flex-col lg:flex-row">
+                            {/* LEFT SIDE: Jadwal Penting */}
+                            <div className="w-full lg:w-8/12 lg:mr-5 mb-4 lg:mb-0">
+                                <div className="flex justify-between items-center mb-4">
+                                    <div className="flex gap-os-8 items-center justify-start">
+                                        <CalendarRange size={18} />
+                                        <div className="flex items-center gap-2">
+                                            <h2 className="font-bold text-os-regular text-gray-900">
+                                                {selected_date
+                                                    ? `Jadwal Tanggal: ${selected_date}`
+                                                    : "Jadwal Mendatang"}
+                                            </h2>
+
+                                            {/* Tombol Reset Filter jika tanggal dipilih */}
+                                        </div>
+                                    </div>
+                                    <Link
+                                        href="/penguji/osce"
+                                        className="text-orange-600 text-sm font-medium hover:underline flex items-center gap-1"
+                                    >
+                                        Lihat Semua
+                                        <ArrowRight size={16} />
+                                    </Link>
+                                </div>
+
+                                {/* List Jadwal */}
+                                <div className="flex flex-col gap-3">
+                                    {jadwal_mendatang &&
+                                    jadwal_mendatang.length > 0 ? (
+                                        jadwal_mendatang.map((item, idx) => (
+                                            <JadwalCard
+                                                key={item.id_osce_stase || idx}
+                                                item={item}
+                                            />
+                                        ))
+                                    ) : (
+                                        <div className="p-5 text-center bg-white border rounded-xl text-gray-500">
+                                            {selected_date
+                                                ? "Tidak ada jadwal ujian pada tanggal ini."
+                                                : "Tidak ada jadwal ujian dalam waktu dekat."}
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+
+                            <hr className="border-1 block lg:hidden border-os-black opacity-os-alpha-25 mb-4" />
+
+                            {/* RIGHT SIDE: Calendar */}
+                            <div className="w-full lg:w-4/12">
+                                <div className="bg-white p-4 rounded-xl border shadow-sm sticky top-5">
+                                    <div className="flex gap-os-8 items-center justify-start mb-2">
+                                        <CalendarDays size={18} />
+                                        <h2 className="font-bold text-os-regular text-gray-900">
+                                            Kalender
+                                        </h2>
+                                    </div>
+                                    {/* [PENTING] Pass handler ke props onDateSelect */}
+                                    <Calendar onDateSelect={handleDateSelect} />
+                                </div>
+                            </div>
+                        </section>
                     </div>
-                </section>
+                </div>
 
                 {/* FOOTER */}
                 <div className="mt-4 lg:mt-12">
-                    <OsCopyright />
+                    <OsCopyright variant="penguji" />
                 </div>
             </main>
         </div>

@@ -275,95 +275,102 @@ export default function KompetensiPage() {
         <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <div className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader
-                    variant="goback"
-                    backLink={backUrl}
-                    onMenuClick={handleSidebarToggle}
-                />
-
-                <div className="flex-1 overflow-auto">
-                    <div className="flex gap-1 items-center justify-start my-2">
-                        <FileText size={18} />
-                        <h2 className="font-semibold text-lg">{aspek.aspek}</h2>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                        Kelola dan definisikan poin-poin kompetensi
-                        (sub-kriteria) yang spesifik dan terukur untuk Aspek
-                        Penilaian.
-                    </p>
-
-                    <OsButton
-                        name="primary"
-                        onClick={openAddModal}
-                        className={`flex h-[46px] items-center text-white text-sm py-2 px-4 rounded-lg mb-5 ${
-                            totalBobot >= 100
-                                ? "bg-gray-400 cursor-not-allowed hover:bg-gray-400"
-                                : "bg-blue-600 hover:bg-blue-700"
-                        }`}
-                        disabled={totalBobot >= 100}
-                    >
-                        <OsIcon
-                            name="add"
-                            className="h-os-20 os-icon-light mr-os-8"
-                        />
-                        {totalBobot >= 100
-                            ? "Bobot Penuh (100%)"
-                            : "Tambah Kompetensi"}
-                    </OsButton>
-
-                    {/* SEARCH INSTANT */}
-                    <OsSearchBar
-                        search={search}
-                        setSearch={setSearch}
-                        placeholder="Cari kompetensi secara instan..."
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader
+                        variant="goback"
+                        backLink={backUrl}
+                        onMenuClick={handleSidebarToggle}
                     />
 
-                    {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                    <div className="flex-1 overflow-auto">
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <FileText size={18} />
+                            <h2 className="font-semibold text-lg">
+                                {aspek.aspek}
+                            </h2>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                            Kelola dan definisikan poin-poin kompetensi
+                            (sub-kriteria) yang spesifik dan terukur untuk Aspek
+                            Penilaian.
+                        </p>
+
+                        <OsButton
+                            name="primary"
+                            onClick={openAddModal}
+                            className={`flex h-[46px] items-center text-white text-sm py-2 px-4 rounded-lg mb-5 ${
+                                totalBobot >= 100
+                                    ? "bg-gray-400 cursor-not-allowed hover:bg-gray-400"
+                                    : "bg-blue-600 hover:bg-blue-700"
+                            }`}
+                            disabled={totalBobot >= 100}
+                        >
+                            <OsIcon
+                                name="add"
+                                className="h-os-20 os-icon-light mr-os-8"
+                            />
+                            {totalBobot >= 100
+                                ? "Bobot Penuh (100%)"
+                                : "Tambah Kompetensi"}
+                        </OsButton>
+
+                        {/* SEARCH INSTANT */}
+                        <OsSearchBar
+                            search={search}
+                            setSearch={setSearch}
+                            placeholder="Cari kompetensi secara instan..."
+                        />
+
+                        {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Kompetensi
                         <span className="text-sm font-normal text-gray-500 ml-2">
                             (Total: {totalItems} data)
                         </span>
                     </h2> */}
-                    <div className="flex gap-1 items-center justify-start my-2">
-                        <Table2 size={18} />
-                        <h2 className="font-semibold text-lg">
-                            Tabel Kompetensi{" "}
-                        </h2>
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
-                    </div>
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Tabel Kompetensi{" "}
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
+                        </div>
 
-                    <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
-                        <div className="min-w-max">
-                            <OsTableHeader columns={columns} />
-                            {tableData.length > 0 ? (
-                                <OsTableBody
-                                    data={tableData}
-                                    columns={columns}
+                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={columns} />
+                                {tableData.length > 0 ? (
+                                    <OsTableBody
+                                        data={tableData}
+                                        columns={columns}
+                                    />
+                                ) : (
+                                    <div className="py-6 text-center text-gray-500 border-b">
+                                        Belum ada kompetensi untuk aspek ini.
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+
+                        {/* PAGINATION */}
+                        {totalPages > 1 && (
+                            <div className="mt-2">
+                                <OsPagination
+                                    links={generatedLinks}
+                                    onPageChange={(page) =>
+                                        setCurrentPage(page)
+                                    }
                                 />
-                            ) : (
-                                <div className="py-6 text-center text-gray-500 border-b">
-                                    Belum ada kompetensi untuk aspek ini.
-                                </div>
-                            )}
-                        </div>
-                    </section>
-
-                    {/* PAGINATION */}
-                    {totalPages > 1 && (
-                        <div className="mt-2">
-                            <OsPagination
-                                links={generatedLinks}
-                                onPageChange={(page) => setCurrentPage(page)}
-                            />
-                        </div>
-                    )}
+                            </div>
+                        )}
+                    </div>
                 </div>
-
-                <OsCopyright />
-            </div>
+                <div className="mt-8">
+                    <OsCopyright />
+                </div>
+            </main>
 
             {/* MODAL FORM */}
             <OsModal

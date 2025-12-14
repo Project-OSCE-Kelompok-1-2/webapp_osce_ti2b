@@ -270,14 +270,14 @@ export default function MenuAspekPenilaian() {
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="flex flex-col w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 items-center justify-center  lg:ml-20">
-                <OsHeader
-                    variant="goback"
-                    backLink="/admin/stase"
-                    onMenuClick={handleSidebarToggle}
-                />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader
+                        variant="goback"
+                        backLink="/admin/stase"
+                        onMenuClick={handleSidebarToggle}
+                    />
 
-                <section className="lg:w-10/12 w-full">
                     <div className="flex-1 overflow-auto">
                         <div className="flex gap-1 items-center justify-start my-2">
                             <FileText size={18} />
@@ -414,11 +414,11 @@ export default function MenuAspekPenilaian() {
                             )
                         )}
                     </div>
+                </div>
 
-                    <div className="mt-2">
-                        <OsCopyright />
-                    </div>
-                </section>
+                <div className="mt-8">
+                    <OsCopyright />
+                </div>
             </main>
 
             {/* MODALS */}

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react"; // BARU: Import Hooks
 import { Head, router, usePage } from "@inertiajs/react";
+import OsCopyright from "../../components/Copyright";
 
 export default function LiveRotasi() {
     // 1. AMBIL PROPS DARI BACKEND
@@ -89,7 +90,7 @@ export default function LiveRotasi() {
                 </header>
 
                 {/* MAIN */}
-                <main className="flex-1 h-[200px]">
+                <main className="w-full min-h-screen flex flex-col justify-between">
                     <div className="mx-auto max-w-4xl px-4 py-8">
                         <div className="flex justify-center items-center">
                             {/* Card Rotasi */}
@@ -193,11 +194,11 @@ export default function LiveRotasi() {
                             </div>
                         </div>
                     </div>
-                </main>
 
-                <footer className="border-t py-3 text-center text-xs text-gray-500">
-                    © 2025 OSCE System
-                </footer>
+                    <div className="mt-4">
+                        <OsCopyright />
+                    </div>
+                </main>
             </div>
         </>
     );

@@ -14,10 +14,10 @@ import {
 } from "lucide-react";
 
 // --- Data Konfigurasi Multi-Role ---
+// Note: Email statis dihapus dari sini karena sudah menggunakan data dinamis
 const roleData = {
     admin: {
         name: "Admin Fakultas",
-        email: "admin.fakultas@kampus.edu",
         imageBg: "bg-blue-600",
         menu: [
             {
@@ -59,9 +59,8 @@ const roleData = {
         ],
     },
     penguji: {
-        name: "Dr. Budi Santoso",
-        email: "budi.santoso@kampus.edu",
-        imageBg: "bg-green-600",
+        name: "Dosen Penguji",
+        imageBg: "bg-orange-400",
         menu: [
             {
                 label: "Beranda",
@@ -78,8 +77,7 @@ const roleData = {
         ],
     },
     mahasiswa: {
-        name: "Alya Putri",
-        email: "alya.putri@kampus.edu",
+        name: "Mahasiswa",
         imageBg: "bg-yellow-600",
         menu: [
             {
@@ -104,9 +102,11 @@ const roleData = {
     },
 };
 
-const Sidebar = ({ type, isOpen, onToggle }) => {
+const Sidebar = ({ type, isOpen, onToggle, user: propUser }) => {
     const { auth } = usePage().props;
-    const user = auth?.user;
+
+    // Prioritas: Gunakan user dari props jika ada, jika tidak pakai dari auth global
+    const user = propUser || auth?.user;
 
     const initialRole = roleData[type] ? type : "admin";
     const [currentRole, setCurrentRole] = useState(initialRole);
@@ -114,23 +114,52 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
 
     const { imageBg, menu } = roleData[currentRole];
 
-    // --- LOGIKA DINAMIS USERNAME & EMAIL ---
-    let displayName = roleData[currentRole].name; // Default fallback
-    let displayEmail = roleData[currentRole].email; // Default fallback
+    // --- LOGIKA DINAMIS USERNAME & ID (NIM/NIP) ---
+    let displayName = roleData[currentRole].name;
+    let displayId = ""; // Default kosong (untuk admin atau jika data tidak ada)
 
     if (user) {
-        displayEmail = user.email || displayEmail;
-
         if (currentRole === "mahasiswa" && user.mahasiswa) {
             displayName = user.mahasiswa.nama;
-        } else if (currentRole === "penguji" && user.dosen) {
-            displayName = user.dosen.nama_gelar || user.dosen.nama;
-        } else if (currentRole === "admin" && user.admin) {
-            displayName = user.admin.nama;
+            // Tampilkan NIM untuk Mahasiswa
+            displayId = user.mahasiswa.nim || "";
+        } else if (currentRole === "penguji") {
+            // Cek data dosen/penguji
+            const pengujiData = user.penguji || user.dosen;
+            if (pengujiData) {
+                displayName = pengujiData.nama_gelar || pengujiData.nama;
+                // Tampilkan NIP untuk Penguji
+                displayId = pengujiData.nip || "";
+            }
+        } else if (currentRole === "admin") {
+            // Untuk admin, pakai user.name (yang sudah berisi username dari backend jika nama kosong)
+            // Dan biarkan displayId kosong (menghilangkan email statis)
+            displayName = user.name || user.username;
+            displayId = "";
         } else {
-            // Fallback umum jika relasi spesifik tidak ada
+            // Fallback umum
             displayName = user.name || user.username || displayName;
         }
+    }
+
+    // LOGIKA WARNA AVATAR BERDASARKAN ROLE
+    let avatarBgColor;
+    if (currentRole === "mahasiswa") {
+        avatarBgColor = "16A34A"; // Hijau (Green-600)
+    } else if (currentRole === "penguji") {
+        avatarBgColor = "EA580C"; // Orange (Orange-600)
+    } else {
+        avatarBgColor = "2563EB"; // Biru (Blue-600 - Default Admin)
+    }
+
+    // LOGIKA GAMBAR PROFIL
+    let profileImageUrl;
+    if (user && user.path_gambar) {
+        profileImageUrl = `/${user.path_gambar}`;
+    } else {
+        profileImageUrl = `https://ui-avatars.com/api/?name=${encodeURIComponent(
+            displayName
+        )}&background=${avatarBgColor}&color=fff&bold=true&size=128`;
     }
 
     useEffect(() => {
@@ -145,41 +174,66 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
         return () => window.removeEventListener("keydown", handleEscape);
     }, [isOpen, onToggle]);
 
-    // Fungsi untuk menutup sidebar saat mengklik overlay (hanya di mode mobile)
     const handleOverlayClick = () => {
         if (isOpen) {
             onToggle();
         }
     };
 
+    // --- LOGIKA WARNA TEMA BERDASARKAN ROLE ---
+    const sidebarColorClass =
+        currentRole === "mahasiswa"
+            ? "bg-green-700"
+            : currentRole === "penguji"
+            ? "bg-orange-600"
+            : "bg-blue-900";
+
+    const toggleColorClass =
+        currentRole === "mahasiswa"
+            ? "text-green-700"
+            : currentRole === "penguji"
+            ? "text-orange-600"
+            : "text-blue-900";
+
+    const menuHoverBgClass =
+        currentRole === "mahasiswa"
+            ? "hover:bg-green-600"
+            : currentRole === "penguji"
+            ? "hover:bg-orange-500"
+            : "hover:bg-blue-700";
+
+    const activeTextColorClass =
+        currentRole === "mahasiswa"
+            ? "text-green-800"
+            : currentRole === "penguji"
+            ? "text-orange-700"
+            : "text-blue-700";
+
+    const menuHoverTextClass = "hover:text-white";
+
     return (
         <>
-            {/* PERBAIKAN 1: Div Overlay HANYA untuk Mode Mobile/Layar Kecil (sm:hidden) */}
             <div
                 className={`fixed inset-0 bg-black z-40 transition-opacity duration-300
                     ${
                         isOpen
                             ? "bg-opacity-50 pointer-events-auto"
                             : "bg-opacity-0 pointer-events-none"
-                    }`}
+                    } sm:hidden`}
                 onClick={handleOverlayClick}
                 aria-hidden={!isOpen}
             ></div>
 
             <aside
-                // Menentukan lebar untuk mobile dan desktop (sm:)
-                className={`fixed top-0 left-0 h-full bg-blue-900 text-gray-900  transition-all duration-300 z-50 flex flex-col
+                className={`fixed top-0 left-0 h-full ${sidebarColorClass} text-gray-900  transition-all duration-300 z-50 flex flex-col
                 ${isOpen ? "w-64" : "w-0 lg:w-20"}`}
-                // PERBAIKAN 2: Menghentikan Propagasi Klik di dalam Sidebar.
-                // Ini mencegah klik di dalam sidebar menutupnya via Overlay div di mobile.
                 onClick={(e) => e.stopPropagation()}
                 role="complementary"
                 aria-label="Menu Utama Navigasi"
             >
-                {/* Tombol toggle sidebar (Hanya terlihat di desktop: sm:block) */}
                 <button
                     onClick={onToggle}
-                    className="hidden lg:block absolute -right-4 top-9 z-50 bg-white text-blue-700 border border-ospr p-1 rounded-full hover:bg-white transition focus:outline-none shadow-md"
+                    className={`hidden lg:block absolute -right-4 top-9 z-50 bg-white ${toggleColorClass} border border-ospr p-1 rounded-full hover:bg-white transition focus:outline-none shadow-md`}
                     aria-label={isOpen ? "Tutup Sidebar" : "Buka Sidebar"}
                 >
                     {isOpen ? (
@@ -191,19 +245,23 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
 
                 {/* Bagian profil */}
                 <div className="flex-shrink-0">
-                    <div className={`flex items-center gap-3 p-4  ${isOpen ? "border-b" : "border-none"} h-[100px]`}>
+                    <div
+                        className={`flex items-center gap-3 p-4  ${
+                            isOpen ? "border-b border-white/20" : "border-none"
+                        } h-[100px]`}
+                    >
+                        {/* Avatar Image */}
+                        <img
+                            src={profileImageUrl}
+                            alt="Profile"
+                            className={`w-12 h-12 rounded-full object-cover border-2 border-white/20 bg-gray-300 ${
+                                isOpen ? "block" : "hidden lg:block"
+                            } flex-shrink-0`}
+                        />
+
+                        {/* Konten profil (Nama & ID) */}
                         <div
-                            // PERBAIKAN 3: Menghapus 'sm:flex hidden' yang menyebabkan avatar hilang.
-                            // Avatar harus selalu terlihat saat sidebar dilipat/dibuka.
-                            className={`w-12 h-12 rounded-full ${imageBg} ${
-                                isOpen ? "flex" : "hidden lg:flex"
-                            } flex-shrink-0 items-center justify-center text-white font-bold text-xl`}
-                        >
-                            {displayName.charAt(0)}
-                        </div>
-                        {/* Konten profil hanya ditampilkan jika isOpen */}
-                        <div
-                            className={`overflow-hidden transition-opacity duration-300
+                            className={`overflow-hidden transition-opacity duration-300 flex flex-col justify-center
                             ${
                                 isOpen
                                     ? "opacity-100 w-auto"
@@ -213,10 +271,16 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                             <p className="font-semibold text-white truncate sm:max-w-28">
                                 {displayName}
                             </p>
-                            <p className="text-sm text-white truncate lg:max-w-28">
-                                {displayEmail}
-                            </p>
-                            <p className="text-xs font-medium text-white uppercase mt-1">
+
+                            {/* Hanya tampilkan baris kedua jika displayId (NIM/NIP) ada.
+                                Untuk Admin, displayId kosong, jadi baris ini tidak dirender. */}
+                            {displayId && (
+                                <p className="text-sm text-white truncate lg:max-w-28 opacity-90">
+                                    {displayId}
+                                </p>
+                            )}
+
+                            <p className="text-xs font-medium text-white uppercase mt-1 opacity-70">
                                 {currentRole}
                             </p>
                         </div>
@@ -238,8 +302,8 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                                     ${!isOpen ? "justify-center" : "px-4"}
                                     ${
                                         isActive
-                                            ? "bg-white text-blue-700 font-semibold shadow-sm"
-                                            : "text-white hover:bg-blue-700 hover:text-white"
+                                            ? `bg-white ${activeTextColorClass} font-semibold shadow-sm`
+                                            : `text-white ${menuHoverBgClass} ${menuHoverTextClass}`
                                     }
                                     opacity-${item.opacity}
                                 `}
@@ -247,7 +311,6 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                                     <div className="flex-shrink-0 w-6 h-6">
                                         {item.icon}
                                     </div>
-                                    {/* Label menu dikontrol visibility-nya */}
                                     <span
                                         className={`text-sm whitespace-nowrap transition-opacity duration-300
                                         ${
@@ -265,7 +328,13 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                 </nav>
 
                 {/* Bagian pengaturan di bawah */}
-                <div className={`flex-shrink-0 ${isOpen ? "border-t block" : "border-none lg:block hidden"} p-3`}>
+                <div
+                    className={`flex-shrink-0 ${
+                        isOpen
+                            ? "border-t border-white/20 block"
+                            : "border-none lg:block hidden"
+                    } p-3`}
+                >
                     <a
                         href={`/${currentRole}/pengaturan-akun`}
                         role="link"
@@ -275,15 +344,14 @@ const Sidebar = ({ type, isOpen, onToggle }) => {
                             activePath.startsWith(
                                 `/${currentRole}/pengaturan-akun`
                             )
-                                ? "bg-white text-blue-700 font-semibold shadow-sm"
-                                : "text-white hover:bg-blue-700 hover:text-white"
+                                ? `bg-white ${activeTextColorClass} font-semibold shadow-sm`
+                                : `text-white ${menuHoverBgClass} ${menuHoverTextClass}`
                         }
                     `}
                     >
                         <div className="flex-shrink-0 w-6 h-6">
                             <Settings size={24} />
                         </div>
-                        {/* Label Pengaturan dikontrol visibility-nya */}
                         <span
                             className={`whitespace-nowrap text-sm transition-opacity duration-300
                             ${isOpen ? "opacity-100" : "opacity-0 lg:hidden"}`}
