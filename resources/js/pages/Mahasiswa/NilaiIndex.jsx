@@ -301,10 +301,10 @@ export default function NilaiIndex() {
                                                 No
                                             </th>
                                             <th className="px-6 py-4">
-                                                Nama Ujian
+                                                Nama Ujian OSCE
                                             </th>
                                             <th className="px-6 py-4">
-                                                Dosen Penguji
+                                                Tahun Akademik
                                             </th>
                                             <th className="px-6 py-4 text-center">
                                                 Semester
@@ -338,11 +338,10 @@ export default function NilaiIndex() {
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-gray-500">
-                                                        {item.dosen_penguji ||
-                                                            "-"}
+                                                        {item.tahun_ujian}
                                                     </td>
                                                     <td className="px-6 py-4 text-center font-medium">
-                                                        {item.semester}
+                                                        {item.semester_label}
                                                     </td>
                                                     <td className="px-6 py-4 text-center">
                                                         <Link
