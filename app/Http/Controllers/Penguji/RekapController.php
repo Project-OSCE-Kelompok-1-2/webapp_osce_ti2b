@@ -163,7 +163,8 @@ class RekapController extends Controller
                 'nama'        => $item->mahasiswa->nama ?? '-',
                 'nim'         => $item->mahasiswa->nim ?? '-',
                 'prodi'       => $item->mahasiswa->prodi ?? '-',
-                'nilai_total' => $item->nilai_total ? round((float)$item->nilai_total, 2) : 0,
+                // rumus nilai total dibagi 4
+                'nilai_total' => $item->nilai_total ? round((float)$item->nilai_total, 2) / 4 : 0,
             ];
         })->values();
 
