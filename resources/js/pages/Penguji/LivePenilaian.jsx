@@ -49,14 +49,18 @@ export default function LivePenilaian() {
         mode_edit = false,
     } = usePage().props;
 
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    // [FIX 1] STATE SIDEBAR DISATUKAN (Hapus duplikasi 'sidebarOpen')
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
 
     // KEY STORAGE UNTUK DRAFT
     const DRAFT_KEY = `osce_draft_${id_enrollment_osce}`;
     const TIMER_KEY = `osce_timer_end_${id_enrollment_osce}`;
 
     // --- STATE DEFINITIONS ---
-    // Diinisialisasi kosong (akan diisi di useEffect)
     const [feedback, setFeedback] = useState("");
     const [nilaiMap, setNilaiMap] = useState({});
     const [waktu, setWaktu] = useState(sisa_waktu_detik);
@@ -67,36 +71,30 @@ export default function LivePenilaian() {
     for (const aspek of rubrik) jumlahKompetensi += aspek.kompetensi.length;
     const jumlahKompetensiDinilai = Object.keys(nilaiMap).length;
 
-    // --- FIX 1: LOGIKA MUAT DRAFT & TIMER (ANTI-RESET) ---
+    // --- LOGIKA MUAT DRAFT & TIMER ---
     useEffect(() => {
-        // Cek apakah ada draft yang tersimpan untuk ID ini
         const savedDraft = localStorage.getItem(DRAFT_KEY);
 
         if (savedDraft) {
-            // Jika ada draft (setelah refresh / navigasi balik)
             const draft = JSON.parse(savedDraft);
             setNilaiMap(draft.nilai || {});
             setFeedback(draft.feedback || "");
         } else {
-            // Jika tidak ada draft, gunakan data dari Backend (nilai lama/kosong)
             setNilaiMap(saved_scores || {});
             setFeedback(existing_feedback || "");
         }
 
-        // --- Logika Timer Pintar ---
         const savedEndTime = localStorage.getItem(TIMER_KEY);
         const now = Date.now();
 
         if (mode_edit) {
             setWaktu(0);
         } else if (savedEndTime) {
-            // Lanjutkan hitungan
             const sisaInSeconds = Math.ceil(
                 (parseInt(savedEndTime) - now) / 1000
             );
             setWaktu(sisaInSeconds > 0 ? sisaInSeconds : 0);
         } else {
-            // Mulai timer baru dan simpan target waktu
             setWaktu(sisa_waktu_detik);
             if (sisa_waktu_detik > 0) {
                 const targetTime = now + sisa_waktu_detik * 1000;
@@ -111,11 +109,9 @@ export default function LivePenilaian() {
         mode_edit,
     ]);
 
-    // --- FIX 2: SIMPAN DRAFT SETIAP KALI NILAI BERUBAH ---
+    // --- SIMPAN DRAFT ---
     useEffect(() => {
-        if (mode_edit) return; // Tidak perlu simpan draft jika sedang edit nilai yang sudah final
-
-        // Simpan state nilai dan feedback ke localStorage
+        if (mode_edit) return;
         const draftData = {
             nilai: nilaiMap,
             feedback: feedback,
@@ -123,10 +119,9 @@ export default function LivePenilaian() {
         localStorage.setItem(DRAFT_KEY, JSON.stringify(draftData));
     }, [nilaiMap, feedback, mode_edit, DRAFT_KEY]);
 
-    // --- FIX 3: INTERVAL TIMER (Sama seperti sebelumnya) ---
+    // --- INTERVAL TIMER ---
     useEffect(() => {
         if (waktu <= 0) return;
-
         const timer = setInterval(() => {
             setWaktu((prev) => {
                 if (prev <= 1) {
@@ -136,22 +131,16 @@ export default function LivePenilaian() {
                 return prev - 1;
             });
         }, 1000);
-
         return () => clearInterval(timer);
     }, [waktu]);
 
     // --- HELPER FORMAT WAKTU ---
     const formatWaktu = () => {
         const safeWaktu = waktu < 0 ? 0 : waktu;
-
         const h = Math.floor(safeWaktu / 3600);
         const m = Math.floor((safeWaktu % 3600) / 60);
         const s = safeWaktu % 60;
-
-        return `${String(h).padStart(2, "0")}:${String(m).padStart(
-            2,
-            "0"
-        )}:${String(s).padStart(2, "0")}`;
+        return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
     };
 
     // --- LOGIKA HITUNG SKOR ---
@@ -192,21 +181,13 @@ export default function LivePenilaian() {
             return;
         }
 
-        // --- PENTING: Hapus Draft & Timer dari memori browser setelah submit ---
         localStorage.removeItem(TIMER_KEY);
         localStorage.removeItem(DRAFT_KEY);
-        // ----------------------------------------------------------------------
 
         router.post(`/penguji/penilaian/${id_enrollment_osce}`, {
             nilai,
             feedback,
         });
-    };
-
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    const handleSidebarToggle = () => {
-        setIsSidebarOpen((prev) => !prev);
     };
 
     // =========================================================================
@@ -217,9 +198,7 @@ export default function LivePenilaian() {
             key={id_enrollment_osce}
             className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden"
         >
-            {/* ========================================================= */}
-            {/* KOTAK TIMER FIXED DI POJOK KANAN ATAS */}
-            {/* ========================================================= */}
+            {/* KOTAK TIMER FIXED */}
             <div
                 className={`fixed z-50 top-4 right-4 w-[150px] h-[70px] rounded-xl text-white  flex flex-col items-center justify-center px-2 text-center shadow-lg transition-colors
                     ${waktu > 0 ? "bg-red-600" : "bg-gray-500"}`}
@@ -235,15 +214,17 @@ export default function LivePenilaian() {
                     {mode_edit ? "--:--:--" : formatWaktu()}
                 </span>
             </div>
-            {/* ========================================================= */}
 
+            {/* [FIX 2] PERBAIKAN SIDEBAR: Gunakan 'isSidebarOpen' dan 'onToggle' */}
             <Sidebar
-                isOpen={sidebarOpen}
-                setIsOpen={handleSidebarToggle}
+                isOpen={isSidebarOpen}
+                onToggle={handleSidebarToggle}
                 type={"penguji"}
             />
 
+            {/* [FIX 3] MAIN CONTENT: Tetap statis (lg:ml-20) sesuai request */}
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                
                 {/* HEADER */}
                 <OsHeader onMenuClick={handleSidebarToggle} variant="penguji" />
 
@@ -304,14 +285,7 @@ export default function LivePenilaian() {
                                     {group.kompetensi.map((poin, index) => (
                                         <div
                                             key={poin.id_poin_aspek_penilaian}
-                                            className={`flex items-center min-h-[70px] border-t ${
-                                                // DIKOREKSI: Menghilangkan warna latar belakang biru pada baris yang sudah dinilai
-                                                nilaiMap[
-                                                    poin.id_poin_aspek_penilaian
-                                                ] !== undefined
-                                                    ? "bg-white"
-                                                    : "bg-white"
-                                            }`}
+                                            className="flex items-center min-h-[70px] border-t bg-white"
                                         >
                                             <div className="w-16 text-center">
                                                 {index + 1}
@@ -337,9 +311,8 @@ export default function LivePenilaian() {
                                                 <div className="flex justify-between w-full px-6">
                                                     {[0, 1, 2, 3, 4].map(
                                                         (v) => (
-                                                            <div className="border border-black rounded-full">
+                                                            <div className="border border-black rounded-full" key={v}>
                                                                 <button
-                                                                    key={v}
                                                                     type="button"
                                                                     onClick={() =>
                                                                         handleSkorChange(
@@ -349,21 +322,13 @@ export default function LivePenilaian() {
                                                                     }
                                                                     className={`w-5 h-5 p-[3px] rounded-full !border-2 !border-black bg-white flex items-center justify-center hover:bg-white
                                                                         ${
-                                                                            // DIKOREKSI: Pastikan border dan background tombol aktif hanya hitam/putih.
-                                                                            nilaiMap[
-                                                                                poin
-                                                                                    .id_poin_aspek_penilaian
-                                                                            ] ===
-                                                                            v
+                                                                            nilaiMap[poin.id_poin_aspek_penilaian] === v
                                                                                 ? "border-black border-2 bg-white"
-                                                                                : "border-black border-2 hover:border-black" // DIKOREKSI: Menghilangkan hover biru
+                                                                                : "border-black border-2 hover:border-black"
                                                                         }`}
                                                                 >
-                                                                    {nilaiMap[
-                                                                        poin
-                                                                            .id_poin_aspek_penilaian
-                                                                    ] === v && (
-                                                                        <span className="w-full h-full rounded-full bg-os-primary-pj" /> // Bullet di dalam tombol: Hitam
+                                                                    {nilaiMap[poin.id_poin_aspek_penilaian] === v && (
+                                                                        <span className="w-full h-full rounded-full bg-os-primary-pj" />
                                                                     )}
                                                                 </button>
                                                             </div>
@@ -377,10 +342,7 @@ export default function LivePenilaian() {
                                             </div>
                                             <div className="w-20 text-center border-l font-bold">
                                                 {hitungNilai(
-                                                    nilaiMap[
-                                                        poin
-                                                            .id_poin_aspek_penilaian
-                                                    ],
+                                                    nilaiMap[poin.id_poin_aspek_penilaian],
                                                     poin.bobot
                                                 ).toFixed(0)}
                                             </div>
@@ -430,13 +392,9 @@ export default function LivePenilaian() {
                                                             )
                                                         }
                                                         className={`w-12 sm:w-14 aspect-square rounded-full border flex items-center justify-center text-lg ${
-                                                            // DIKOREKSI: Menghilangkan warna biru pada tombol aktif di mobile
-                                                            nilaiMap[
-                                                                poin
-                                                                    .id_poin_aspek_penilaian
-                                                            ] === v
+                                                            nilaiMap[poin.id_poin_aspek_penilaian] === v
                                                                 ? "border-black border-2 bg-white text-black"
-                                                                : "border-gray-400 text-gray-700 hover:border-black" // DIKOREKSI: Menghilangkan hover biru
+                                                                : "border-gray-400 text-gray-700 hover:border-black"
                                                         }`}
                                                     >
                                                         {v}
@@ -457,9 +415,7 @@ export default function LivePenilaian() {
                                         <div className="text-sm font-semibold">
                                             Nilai:{" "}
                                             {hitungNilai(
-                                                nilaiMap[
-                                                    poin.id_poin_aspek_penilaian
-                                                ],
+                                                nilaiMap[poin.id_poin_aspek_penilaian],
                                                 poin.bobot
                                             ).toFixed(0)}
                                         </div>
@@ -488,12 +444,8 @@ export default function LivePenilaian() {
                     {/* FORM SUBMIT */}
                     <form onSubmit={handleSubmit} className="mt-2">
                         <div className="flex justify-start">
-                            {/* KOTAK PENGGANTI TIMER (Dibuat hidden di layar besar agar layout tidak bergeser) */}
-
-                            {/* TOMBOL SIMPAN */}
                             <button
                                 type="submit"
-                                // col-span-3 untuk mobile penuh, col-span-2 untuk desktop/tablet agar sejajar dengan div kosong di sampingnya
                                 className={`col-span-3 sm:col-span-2 w-[250px] h-[46px] rounded-xl transition text-white font-semibold flex items-center justify-center text-sm
                                     ${
                                         jumlahKompetensiDinilai <

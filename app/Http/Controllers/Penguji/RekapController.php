@@ -158,12 +158,21 @@ class RekapController extends Controller
         // E. Formatting Data List Mahasiswa (Mapping dari hasil Filter)
         // Gunakan ->values() untuk mereset index array (0, 1, 2...) agar JSON rapi
         $mahasiswaList = $mahasiswaFiltered->map(function ($item) {
+            
+            // --- LOGIKA NILAI (FIXED) ---
+            $nilaiFinal = null;
+            if ($item->nilai_total !== null) {
+                // Jika sudah ada nilai: Bulatkan lalu bagi 4 (Sesuai request conflict merge)
+                $nilaiFinal = round((float)$item->nilai_total, 2) / 4;
+            }
+
             return [
                 'id_enrollment_osce' => $item->id_enrollment_osce,
                 'nama'        => $item->mahasiswa->nama ?? '-',
                 'nim'         => $item->mahasiswa->nim ?? '-',
                 'prodi'       => $item->mahasiswa->prodi ?? '-',
-                'nilai_total' => $item->nilai_total ? round((float)$item->nilai_total, 2) : 0,
+                // rumus nilai total dibagi 4
+                'nilai_total' => $nilaiFinal,
             ];
         })->values();
 
