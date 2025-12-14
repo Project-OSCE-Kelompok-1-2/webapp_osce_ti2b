@@ -354,6 +354,7 @@ export default function MahasiswaPage() {
                                     search={search}
                                     setSearch={setSearch}
                                     placeholder="Cari nama atau NIM..."
+                                    
                                 />
                             </div>
 
@@ -407,6 +408,7 @@ export default function MahasiswaPage() {
                                         onPageChange={(page) =>
                                             setCurrentPage(page)
                                         }
+
                                     />
                                 </div>
                             )}

@@ -5,19 +5,26 @@ import React from 'react';
 const OsTableHeader = ({ columns = [], variant = "admin" }) => {
 
     const isPenguji = variant === "penguji";
+    const isMahasiswa = variant === "mahasiswa"; // Tambahkan varian mahasiswa
 
-    // Kelas Latar Belakang
-    // Jika 'penguji', gunakan kelas yang menghasilkan warna oranye.
-    // Jika 'admin' (default), gunakan kelas default: bg-os-primary-dark
-    const backgroundClass = isPenguji
-        ? 'bg-os-primary-pj-dark' // Ganti dengan kelas oranye yang sudah Anda definisikan (misalnya: bg-amber-600)
-        : 'bg-os-primary-dark';
+    // --- Definisi Kelas Warna Kondisional ---
 
-    // Kelas Border
-    // Jika 'penguji', Anda mungkin ingin border-nya juga berubah
-    const borderColorClass = isPenguji
-        ? 'border-os-white' // Ganti dengan kelas warna border oranye yang sesuai
-        : 'border-os-white';
+    // Kelas Latar Belakang (Menggunakan warna Dark dari Primary)
+    const backgroundClass = (() => {
+        if (isMahasiswa) {
+            // Mahasiswa: Hijau Primary Dark
+            return 'bg-[var(--os-primary-mhs-dark)]';
+        }
+        if (isPenguji) {
+            // Penguji: Oranye Primary Dark
+            return 'bg-[var(--os-primary-pj-dark)]';
+        }
+        // Admin: Biru Primary Dark (Default)
+        return 'bg-os-primary-dark';
+    })();
+
+    // Kelas Border (Biasanya Putih atau warna kontras terang)
+    const borderColorClass = 'border-os-white'; // Tetap Putih untuk semua varian agar kontras dengan latar belakang gelap
 
     return (
         // Mengganti kelas latar belakang secara keseluruhan
@@ -35,4 +42,4 @@ const OsTableHeader = ({ columns = [], variant = "admin" }) => {
     );
 };
 
-export default OsTableHeader;
+export default OsTableHeader;   

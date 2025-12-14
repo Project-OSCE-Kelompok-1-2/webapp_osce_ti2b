@@ -7,34 +7,39 @@ import { Search, X } from "lucide-react";
 const OsSearchBar = ({ search, setSearch, placeholder = "Cari data...", variant = "admin" }) => {
 
     const isPenguji = variant === "penguji";
+    const isMahasiswa = variant === "mahasiswa"; // Tambahkan varian mahasiswa (Hijau)
 
-    // Tentukan kelas warna dinamis
-    // Jika 'penguji', gunakan kelas oranye, jika tidak, gunakan kelas biru/default.
+    // Tentukan warna fokus (Hijau/Oranye/Biru)
+    const focusColor = (() => {
+        if (isMahasiswa) {
+            // Hijau Mahasiswa
+            return "var(--os-primary-mhs)";
+        }
+        if (isPenguji) {
+            // Oranye Penguji
+            return "var(--os-primary-pj)";
+        }
+        // Biru Admin (Default)
+        return "var(--os-primary)";
+    })();
 
-    // 1. Warna Fokus (Border dan Ring) + Warna Ikon Saat Fokus
-    // Default: blue-500
-    // Penguji: os-focus-orange (Ganti dengan kelas oranye Anda, contoh: focus:border-amber-500)
-    const focusColorClass = isPenguji
-        ? "border-orange-500 focus:ring-orange-500 group-focus-within:text-orange-500"
-        : "border-blue-500 focus:ring-blue-500 group-focus-within:text-blue-500";
+    // 1. Kelas Fokus (Border dan Ring) + Warna Ikon Saat Fokus
+    // Menggunakan sintaks arbitrary values untuk variabel CSS
+    const focusColorClass = `focus:border-[${focusColor}] focus:ring-[${focusColor}] group-focus-within:text-[${focusColor}]`;
 
-    // 2. Warna Border Default (Tambahkan jika Anda ingin border non-fokus juga oranye)
-    // Default: border-gray-200
-    // Penguji: border-os-border-orange-default (Ganti dengan kelas oranye border Anda)
-    const defaultBorderClass = isPenguji
-        ? "border-gray-200"
-        : "border-gray-200";
+    // 2. Warna Border Default (Tetap abu-abu agar terlihat bersih)
+    const defaultBorderClass = "border-gray-200";
 
     return (
         // Tambahkan class 'group' di container untuk efek hover/fokus gabungan
         <div className="relative w-full mb-2 h-[46px] group">
             {/* Ikon Kaca Pembesar (Kiri) */}
-            {/* Menggunakan kelas dinamis untuk warna fokus ikon */}
             <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <Search
                     // Sisakan kelas warna default ikon (gray-400) dan tambahkan warna fokus kondisional
+                    // Menggunakan fokus color yang sudah didefinisikan
                     className={`h-5 w-5 text-gray-400 transition-colors duration-200 ${
-                        isPenguji ? "group-focus-within:text-os-focus-orange" : "group-focus-within:text-blue-500"
+                        `group-focus-within:text-[${focusColor}]`
                     }`}
                 />
             </div>
@@ -44,13 +49,13 @@ const OsSearchBar = ({ search, setSearch, placeholder = "Cari data...", variant 
                 type="text"
                 className={`block w-full h-full pl-10 pr-10 rounded-lg border !bg-white text-gray-900 placeholder-gray-400 focus:outline-none transition-all duration-200 shadow-sm
                     ${defaultBorderClass}
-                    ${focusColorClass}`}
+                    ${focusColorClass}`} // Menggunakan kelas fokus yang dinamis
                 placeholder={placeholder}
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
             />
 
-            {/* Tombol Clear 'X' (Kanan) - Tidak perlu perubahan warna, tetap abu-abu/hover abu-abu */}
+            {/* Tombol Clear 'X' (Kanan) */}
             {search && (
                 <div
                     role="button"
@@ -69,4 +74,4 @@ const OsSearchBar = ({ search, setSearch, placeholder = "Cari data...", variant 
     );
 };
 
-export default OsSearchBar;
+export default OsSearchBar
