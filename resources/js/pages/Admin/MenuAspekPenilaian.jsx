@@ -137,15 +137,25 @@ export default function MenuAspekPenilaian() {
 
     const [modalMode, setModalMode] = useState("add");
     const [showModal, setShowModal] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [dataToDelete, setDataToDelete] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [errorMessage, setErrorMessage] = useState("");
+    const [showFullWeightWarning, setShowFullWeightWarning] = useState(false);
 
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
     // --- HANDLERS ---
     const openAddModal = () => {
+        if (totalBobot >= 100) {
+            setShowFullWeightWarning(true);
+            return;
+        }
+        setShowFullWeightWarning(false);
         setModalMode("add");
+        setSelectedItem(null);
+        setErrorMessage("");
         setData({
             id: null,
             aspek: "",
@@ -157,6 +167,8 @@ export default function MenuAspekPenilaian() {
 
     const openEditModal = (item) => {
         setModalMode("edit");
+        setSelectedItem(item);
+        setErrorMessage("");
         setData({
             id: item.id_aspek_penilaian,
             aspek: item.aspek,
@@ -168,6 +180,31 @@ export default function MenuAspekPenilaian() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        setErrorMessage("");
+        const inputBobot = Number(data.bobot_maksimum);
+
+        if (modalMode === "add") {
+            if (totalBobot + inputBobot > 100) {
+                setErrorMessage(
+                    `Gagal! Total bobot akan menjadi ${
+                        totalBobot + inputBobot
+                    }. Maksimal adalah 100. Sisa bobot: ${100 - totalBobot}`
+                );
+                return;
+            }
+        } else if (modalMode === "edit") {
+            const oldBobot = selectedItem
+                ? Number(selectedItem.bobot_maksimum)
+                : 0;
+            const projectedTotal = totalBobot - oldBobot + inputBobot;
+            if (projectedTotal > 100) {
+                setErrorMessage(
+                    `Gagal! Total bobot akan menjadi ${projectedTotal}. Maksimal adalah 100.`
+                );
+                return;
+            }
+        }
+
         const options = {
             onSuccess: () => {
                 setShowModal(false);
@@ -279,6 +316,38 @@ export default function MenuAspekPenilaian() {
                     />
 
                     <div className="flex-1 overflow-auto">
+                        {showFullWeightWarning && (
+                            <div
+                                className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+                                role="alert"
+                            >
+                                <strong className="font-bold">
+                                    Perhatian!
+                                </strong>
+                                <span className="block sm:inline">
+                                    {" "}
+                                    Total bobot sudah mencapai batas maksimum
+                                    (100). Tidak dapat menambah aspek penilaian
+                                    lagi.
+                                </span>
+                                <span
+                                    className="absolute top-0 bottom-0 right-0 px-4 py-3"
+                                    onClick={() =>
+                                        setShowFullWeightWarning(false)
+                                    }
+                                >
+                                    <svg
+                                        className="fill-current h-6 w-6 text-red-500"
+                                        role="button"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                    >
+                                        <title>Close</title>
+                                        <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
+                                    </svg>
+                                </span>
+                            </div>
+                        )}
                         <div className="flex gap-1 items-center justify-start my-2">
                             <FileText size={18} />
                             <h2 className="font-semibold text-lg">
@@ -290,26 +359,23 @@ export default function MenuAspekPenilaian() {
                             Aspek Penilaian...
                         </p>
 
-                        {totalBobot == 100 ? (
-                            <OsButton
-                                name="secondary"
-                                className="flex h-[46px] items-center !bg-white border border-os-primary !text-os-secondary text-sm py-2 px-4 rounded-lg mb-5 hover:bg-gray-700 !scale-100 !pointer-events-none"
-                            >
-                                Bobot sudah penuh
-                            </OsButton>
-                        ) : (
-                            <OsButton
-                                name="primary"
-                                onClick={openAddModal}
-                                className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
-                            >
-                                <OsIcon
-                                    name="add"
-                                    className="h-os-20 os-icon-light mr-os-8"
-                                />{" "}
-                                Tambah Aspek Penilaian
-                            </OsButton>
-                        )}
+                        <OsButton
+                            name="primary"
+                            onClick={openAddModal}
+                            className={`flex h-[46px] items-center text-white text-sm py-2 px-4 rounded-lg mb-5 ${
+                                totalBobot >= 100
+                                    ? "bg-gray-400 hover:bg-gray-500"
+                                    : "bg-blue-600 hover:bg-blue-700"
+                            }`}
+                        >
+                            <OsIcon
+                                name="add"
+                                className="h-os-20 os-icon-light mr-os-8"
+                            />{" "}
+                            {totalBobot >= 100
+                                ? "Bobot Penuh"
+                                : "Tambah Aspek Penilaian"}
+                        </OsButton>
 
                         {/* SEARCH INSTANT */}
                         <OsSearchBar
@@ -461,6 +527,45 @@ export default function MenuAspekPenilaian() {
                         placeholder="Masukkan bobot..."
                         required
                     />
+                    {errorMessage && (
+                        <div className="text-xs text-red-600 font-bold bg-red-50 p-2 rounded border border-red-200">
+                            {errorMessage}
+                        </div>
+                    )}
+                    {(() => {
+                        const inputVal = Number(data.bobot_maksimum) || 0;
+                        const currentUsed =
+                            modalMode === "edit"
+                                ? totalBobot -
+                                  (selectedItem
+                                      ? Number(selectedItem.bobot_maksimum)
+                                      : 0)
+                                : totalBobot;
+                        const sisa = 100 - (currentUsed + inputVal);
+
+                        return (
+                            <div
+                                className={`text-xs ${
+                                    sisa < 0
+                                        ? "text-red-600 font-bold"
+                                        : "text-gray-500"
+                                }`}
+                            >
+                                {sisa < 0 ? (
+                                    <span>
+                                        Melebihi batas maksimum! (Sisa: {sisa})
+                                    </span>
+                                ) : (
+                                    <>
+                                        Sisa bobot yang tersedia:{" "}
+                                        <span className="font-bold">
+                                            {sisa}
+                                        </span>
+                                    </>
+                                )}
+                            </div>
+                        );
+                    })()}
                 </div>
             </OsModal>
 
