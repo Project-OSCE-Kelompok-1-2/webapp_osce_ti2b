@@ -21,58 +21,57 @@ class OsceController extends Controller
         $search = $request->input('search');
         $tahun  = $request->input('tahun');
 
-        // Ini aman, cuma select data tahun saja, tidak mengganggu query utama
         $tahunOptions = TahunAkademik::select('tahun')
             ->distinct()
             ->orderBy('tahun', 'desc')
             ->get();
 
-        // Load relasi yang dibutuhkan
         $query = OsceStase::with([
             'osce.enrollmentOsce.nilaiOsce',
             'osce.tahunAkademik'
         ])
             ->where('id_penguji', $penguji->id_penguji);
 
-        // Filter Search (Berdasarkan Nama OSCE)
         if ($search) {
             $query->whereHas('osce', function ($q) use ($search) {
                 $q->where('nama_osce', 'like', "%{$search}%");
             });
         }
 
-        // Filter Tahun Akademik
         if ($tahun) {
             $query->whereHas('osce.tahunAkademik', function ($q) use ($tahun) {
                 $q->where('tahun', 'like', "%{$tahun}%");
             });
         }
 
-        // Pagination & Sorting
         $assignments = $query->orderBy('tanggal', 'desc')
             ->orderBy('jam_mulai', 'asc')
             ->paginate(10)
             ->withQueryString();
 
-        // Transformasi Data
         $osceList = $assignments->through(function ($stase) {
             $osce = $stase->osce;
 
-            // [PERBAIKAN 1] Gunakan Waktu Real-time Server
+            // 1. Waktu Sekarang
             $now = Carbon::now('Asia/Jakarta');
 
-            // [PERBAIKAN 2] Parse Jadwal dengan Timezone Jakarta
+            // 2. Waktu Event
             $tgl = $stase->tanggal->format('Y-m-d');
-
-            // Menggabungkan tanggal dengan jam mulai/selesai
+            
             $startEvent = Carbon::parse($tgl . ' ' . $stase->jam_mulai, 'Asia/Jakarta');
-            $endEvent   = Carbon::parse($tgl . ' ' . $stase->jam_selesai, 'Asia/Jakarta');
+            
+            // [MODIFIKASI DI SINI] 
+            // Kita tetap butuh jam selesai asli untuk data, tapi untuk logika 'Selesai', kita pakai Akhir Hari.
+            // $endEvent adalah jam selesai sesi (misal 10:00)
+            $endEvent = Carbon::parse($tgl . ' ' . $stase->jam_selesai, 'Asia/Jakarta');
+            
+            // $endOfDay adalah jam 23:59:59 pada tanggal ujian
+            $endOfDay = Carbon::parse($tgl, 'Asia/Jakarta')->endOfDay();
 
-            // --- 1. LOGIKA FILTER PESERTA ---
+            // --- LOGIKA FILTER PESERTA ---
             $staseTanggal = $stase->tanggal->toDateString();
             $staseJamMulai = substr($stase->jam_mulai, 0, 5);
 
-            // Filter hanya mahasiswa yang dijadwalkan di sesi ini
             $pesertaSesi = $osce->enrollmentOsce
                 ->filter(function ($enrollment) use ($staseTanggal, $staseJamMulai) {
                     $enrollmentTanggal = (string) Carbon::parse($enrollment->tanggal_sesi)->toDateString();
@@ -82,16 +81,17 @@ class OsceController extends Controller
 
             $jumlahMahasiswa = $pesertaSesi->count();
 
-            // --- 2. HITUNG YANG SUDAH DINILAI ---
+            // --- HITUNG YANG SUDAH DINILAI ---
             $jumlahDinilai = $pesertaSesi->filter(function ($mhs) {
                 return $mhs->nilaiOsce !== null;
             })->count();
 
-            // --- 3. LOGIKA STATUS ---
-            $status = 'Aktif'; // Default initialization
+            // --- LOGIKA STATUS ---
+            $status = 'Aktif'; 
 
-            // Prioritas 1: Cek apakah waktu sudah habis? (MUTLAK)
-            if ($now->greaterThan($endEvent)) {
+            // Prioritas 1: Cek apakah HARI ini sudah berakhir?
+            // Menggunakan $endOfDay alih-alih $endEvent
+            if ($now->greaterThan($endOfDay)) {
                 $status = 'Selesai';
             }
             // Prioritas 2: Cek apakah semua mahasiswa sudah dinilai?
@@ -102,13 +102,13 @@ class OsceController extends Controller
             elseif ($now->lessThan($startEvent)) {
                 $status = 'Belum Dimulai';
             }
-            // Prioritas 4: Sedang berlangsung
+            // Prioritas 4: Sedang berlangsung (atau lewat jam sesi tapi masih hari yang sama)
             else {
                 $status = 'Aktif';
             }
 
-            // --- 4. TENTUKAN LABEL TOMBOL ---
-            $tombolAction = 'Lihat'; // Default
+            // --- TENTUKAN LABEL TOMBOL ---
+            $tombolAction = 'Lihat'; 
 
             if ($status === 'Aktif') {
                 $tombolAction = 'Mulai Ujian';
@@ -126,11 +126,8 @@ class OsceController extends Controller
                 'nama'             => $osce->nama_osce,
                 'tanggal_mulai'    => $osce->tanggal_mulai->format('d F Y'),
                 'tanggal_akhir'    => $osce->tanggal_selesai->format('d F Y'),
-
-                // Data untuk Logika Frontend
                 'status'           => $status,
                 'tombol_label'     => $tombolAction,
-
                 'jumlah_mahasiswa' => $jumlahMahasiswa,
                 'jumlah_dinilai'   => $jumlahDinilai,
                 'sesi'             => substr($stase->jam_mulai, 0, 5) . ' - ' . substr($stase->jam_selesai, 0, 5),
