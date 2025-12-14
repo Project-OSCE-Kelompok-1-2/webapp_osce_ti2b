@@ -79,7 +79,7 @@ export default function OsInput({
         return (
             <div className={`flex flex-col ${className}`}>
                 {label && (
-                    <label className="mb-1 text-sm font-semibold text-gray-700">
+                    <label className="mb-1 text-sm text-gray-700">
                         {label}{" "}
                         {required && <span className="text-red-500">*</span>}
                     </label>
