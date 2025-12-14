@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers\Mahasiswa;
 
+use Inertia\Inertia;
 use Inertia\Controller;
 use Illuminate\Http\Request;
 use App\Models\EnrollmentOsce;
@@ -18,136 +19,97 @@ class NilaiMahasiswaController extends Controller
 
     public function show($id)
     {
-        // ---------------------------------------------------------------------
-        // 1. EAGER LOADING DATA SECARA MENYELURUH
-        //    Mengambil data mahasiswa, osce, stase, nilai, aspek penilaian
-        //    agar query tidak berulang-ulang (lebih efisien dan cepat)
-        // ---------------------------------------------------------------------
+        // 1. EAGER LOADING
+        // Load semua relasi yang dibutuhkan untuk perhitungan
         $enrollment = EnrollmentOsce::with([
             'mahasiswa',
             'osce.tahunAkademik',
             'osce.osceStase.stase',
+            // PENTING: Load poinAspekPenilaian untuk ambil bobot
             'nilaiOsce.poinAspekPenilaian.aspekPenilaian',
         ])->findOrFail($id);
 
-        dd($enrollment->toArray());
-
-        // ---------------------------------------------------------------------
-        // 2. MEMBANGUN DATA HEADER UNTUK FRONTEND
-        //    (Nama mahasiswa, mata kuliah/OSCE, tahun akademik)
-        //    - Mata kuliah dipersingkat: hanya tampilkan nama OSCE
-        // ---------------------------------------------------------------------
+        // 2. HEADER DATA
         $header = [
             'mahasiswa' => [
                 'nama'  => $enrollment->mahasiswa->nama ?? '-',
                 'nim'   => $enrollment->mahasiswa->nim ?? '-',
                 'prodi' => $enrollment->mahasiswa->prodi ?? '-',
             ],
-
-            // Komponen ini dikoreksi: hanya nama OSCE, tanpa kode
             'mata_kuliah' => [
                 'nama' => $enrollment->osce->nama_osce ?? 'OSCE',
             ],
-
             'tahun_akademik' => [
                 'semester'  => $enrollment->osce->tahunAkademik->semester ?? '-',
                 'tahun'     => $enrollment->osce->tahunAkademik->tahun ?? '-',
             ],
         ];
 
-        // ---------------------------------------------------------------------
-        // 3. PERSIAPAN DATA NILAI
-        //    - Ambil semua stase OSCE
-        //    - Ambil seluruh poin aspek penilaian dari mahasiswa ini
-        // ---------------------------------------------------------------------
+        // 3. LOGIKA BUILD DATA
         $daftarNilai = [];
-        $staseList = $enrollment->osce->osceStase;
 
-        // Mengumpulkan seluruh poin aspek yang sudah dinilai
-        // NilaiOsce mengandung poinAspekPenilaian (setiap aspek)
-        dd($enrollment);
-        $allPoinAspek = collect($enrollment->nilaiOsce ?? [])->flatMap(function ($nilai) {
-            return collect($nilai->poinAspekPenilaian);
+        // A. AMBIL SEMUA STASE YANG ADA DI OSCE INI
+        $semuaJadwalStase = $enrollment->osce->osceStase ?? collect([]);
+        $listStaseUnik = $semuaJadwalStase->unique('id_stase');
+
+        // B. KELOMPOKKAN SEMUA NILAI MAHASISWA BERDASARKAN STASE
+        // Caranya: ambil id_stase dari chain relasi
+        $nilaiByStase = collect($enrollment->nilaiOsce)->groupBy(function ($nilai) {
+            // Chain: nilaiOsce -> poinAspekPenilaian -> aspekPenilaian -> id_stase
+            return $nilai->poinAspekPenilaian?->aspekPenilaian?->id_stase ?? 'undefined';
         });
-        // ---------------------------------------------------------------------
-        // 4. MEMBANGUN daftarNilai BARIS PER STASE / KOMPETENSI
-        //    (Setiap stase akan menghasilkan 1 baris nilai)
-        // ---------------------------------------------------------------------
-        foreach ($staseList as $index => $osceStase) {
 
-            // Ambil ID stase (identitas setiap kompetensi)
-            $staseId = $osceStase->stase->id ?? null;
+        // C. LOOPING SETIAP STASE
+        foreach ($listStaseUnik as $osceStase) {
+            $staseData = $osceStase->stase;
+            $staseId   = $staseData->id_stase ?? null;
 
-            if (!$staseId) {
-                // Jika tidak ada ID stase, lewati saja
-                continue;
+            if (!$staseId) continue;
+
+            $namaStase = $staseData->nama_stase ?? 'Stase Tanpa Nama';
+
+            // D. AMBIL SEMUA NILAI UNTUK STASE INI
+            $kumpulanNilai = $nilaiByStase->get($staseId);
+
+            $nilaiAkhir = 0;
+            $predikat   = 'BELUM DINILAI';
+
+            // E. HITUNG NILAI JIKA ADA DATA
+            if ($kumpulanNilai && $kumpulanNilai->isNotEmpty()) {
+
+                // Kirim collection NilaiOsce ke calculator
+                // Calculator akan mengambil:
+                // - skor dari nilai_osce.nilai (0-4)
+                // - bobot dari poin_aspek_penilaian.bobot
+                // - lalu hitung: Σ(skor × bobot) / 4
+                $calc = $this->calculator->calculateFinalGrade($kumpulanNilai);
+
+                $nilaiAkhir = $calc['final_score'];
+                $predikat   = $calc['predicate'];
             }
 
-            // -----------------------------------------------------------------
-            // FILTER: Mengambil poin aspek yang hanya milik stase ini saja
-            // (Setiap stase punya aspek penilaian masing-masing)
-            // -----------------------------------------------------------------
-            $poinAspekPerStase = $allPoinAspek->filter(function ($poin) use ($staseId) {
-                return optional($poin->aspekPenilaian)->id_stase === $staseId;
-            });
-
-            if ($poinAspekPerStase->isEmpty()) {
-                // Jika stase ini belum dinilai sama sekali, skip
-                continue;
-            }
-
-            // -----------------------------------------------------------------
-            // 5. MEMBANGUN DATA ASPEK PENILAIAN (NESTED) UNTUK FRONTEND
-            //    FE meminta key: 'kompetensi', 'bobot', 'skor'
-            // -----------------------------------------------------------------
-            $aspekPenilaian = $poinAspekPerStase->map(function ($poin) {
-                return [
-                    'aspek_id'    => $poin->aspekPenilaian->id_aspek_penilaian ?? null,
-                    'kompetensi'  => $poin->aspekPenilaian->aspek ?? '-',
-                    'bobot'       => $poin->aspekPenilaian->bobot_maksimum ?? 0,
-                    'skor'        => $poin->skor ?? 0,
-                ];
-            })->toArray();
-
-            // -----------------------------------------------------------------
-            // 6. MENGHITUNG NILAI AKHIR PER STASE
-            //    Bagian ini memanggil Service Najwa (logika perhitungan murni)
-            //    - final_score (angka)
-            //    - predicate (Sangat Baik, Baik, dll)
-            // -----------------------------------------------------------------
-            $calc = $this->calculator->calculateFinalGrade($poinAspekPerStase);
-
-            // -----------------------------------------------------------------
-            // 7. MEMBANGUN OUTPUT JSON BARIS UTAMA UNTUK TABEL (Level 1)
-            //    Mengikuti spesifikasi FE:
-            //    id, kompetensi, nilai, keterangan
-            // -----------------------------------------------------------------
+            // F. MASUKKAN KE ARRAY HASIL
             $daftarNilai[] = [
-                'id'         => $index + 1, // nomor urut
-                'kompetensi' => $osceStase->stase->nama_stase ?? '-',
-                'nilai'      => $calc['final_score'],
-                'keterangan' => $calc['predicate'],
+                'id'         => $staseId,
+                'nama_stase' => $namaStase,
+                'nilai'      => $nilaiAkhir,
+                'keterangan' => $predikat,
             ];
         }
 
-        // ---------------------------------------------------------------------
-        // 8. FOOTER: TOTAL NILAI + STATUS KELULUSAN
-        //    Menggunakan service kalkulator yang sama (Najwa)
-        // ---------------------------------------------------------------------
+        // Reset index array
+        $daftarNilai = array_values($daftarNilai);
+
+        // 4. FOOTER - Hitung rata-rata keseluruhan
         $footerCalc = $this->calculator->calculateOverallResult($daftarNilai);
 
         $footer = [
-            'total_nilai_akhir' => $footerCalc['overall_score'],
-            'status_kelulusan'  => $footerCalc['status'],
+            'total_nilai_akhir' => $footerCalc['overall_score'] ?? 0,
+            'status_kelulusan'  => $footerCalc['status'] ?? 'BELUM LENGKAP',
         ];
 
-        // ---------------------------------------------------------------------
-        // 9. KIRIM RESPONSE INERTIA KE FRONTEND
-        //    - header_detail
-        //    - daftar_nilai
-        //    - footer
-        // ---------------------------------------------------------------------
-        return inertia('Mahasiswa/NilaiShow', [
+        // 5. RETURN KE VIEW
+        return Inertia::render('Mahasiswa/NilaiShow', [
             'header_detail' => $header,
             'daftar_nilai'  => $daftarNilai,
             'footer'        => $footer,
