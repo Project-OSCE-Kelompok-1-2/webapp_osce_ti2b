@@ -244,6 +244,7 @@ export default function DashboardMahasiswa() {
                     {/* Header */}
                     <OsHeader
                         onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+                        variant="mahasiswa"
                     />
 
                     <div className="">
@@ -378,6 +379,7 @@ export default function DashboardMahasiswa() {
                                     <Calendar
                                         events={kalender_event}
                                         onDateSelect={handleDateSelect}
+                                        variant="mahasiswa"
                                     />
                                 </div>
                             </div>
@@ -387,7 +389,7 @@ export default function DashboardMahasiswa() {
 
                 {/* Footer */}
                 <div className="mt-12">
-                    <OsCopyright />
+                    <OsCopyright variant="mahasiswa" />
                 </div>
             </main>
         </div>

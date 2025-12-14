@@ -1,14 +1,38 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function Calendar({ onDateSelect, events = [] }) {
+// Tambahkan 'variant' ke props
+export default function Calendar({ onDateSelect, events = [], variant = "admin" }) {
     const today = new Date();
 
     const [currentMonth, setCurrentMonth] = useState(today.getMonth());
     const [currentYear, setCurrentYear] = useState(today.getFullYear());
 
-    // PERBAIKAN 1: State ini sekarang akan menyimpan objek Date lengkap, bukan cuma angka
+    // State ini akan menyimpan objek Date lengkap
     const [selectedDate, setSelectedDate] = useState(null);
+
+    // --- LOGIKA VARIAN WARNA ---
+    const isMahasiswa = variant === "mahasiswa";
+    const isPenguji = variant === "penguji";
+
+    const getThemeColor = (type) => {
+        if (isMahasiswa) {
+            // Hijau
+            if (type === 'primary') return 'var(--os-primary-mhs)';
+            if (type === 'secondary') return 'var(--os-secondary-mhs)';
+            if (type === 'light') return 'var(--os-tertiary-mhs)';
+        }
+        if (isPenguji) {
+            // Oranye
+            if (type === 'primary') return 'var(--os-primary-pj)';
+            if (type === 'secondary') return 'var(--os-secondary-pj)';
+            if (type === 'light') return 'var(--os-tertiary-pj)';
+        }
+        // Admin (Biru)
+        if (type === 'primary') return 'var(--os-primary)';
+        if (type === 'secondary') return 'var(--os-secondary)';
+        if (type === 'light') return 'var(--os-tertiary)';
+    };
 
     const monthNames = [
         "January",
@@ -47,13 +71,14 @@ export default function Calendar({ onDateSelect, events = [] }) {
 
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    // Mengubah 0 (Minggu) menjadi 6, lainnya -1 agar Senin menjadi hari pertama (0)
     const offset = firstDay === 0 ? 6 : firstDay - 1;
 
     const handleSelect = (day) => {
         // Membuat objek date lengkap
         const fullDate = new Date(currentYear, currentMonth, day);
 
-        // PERBAIKAN 2: Simpan full date ke state, bukan cuma 'day'
+        // Simpan full date ke state
         setSelectedDate(fullDate);
 
         if (onDateSelect) onDateSelect(fullDate);
@@ -123,22 +148,34 @@ export default function Calendar({ onDateSelect, events = [] }) {
                             day
                         );
 
-                        // PERBAIKAN 3: Cek kesamaan tanggal menggunakan helper isSameDay
-                        // Ini untuk memastikan misal: tanggal 25 Januari != 25 Februari
+                        // Cek apakah tanggal ini dipilih
                         const isSelected = isSameDay(
                             selectedDate,
                             dateToRender
                         );
 
-                        // Logic Cek Hari Ini (Real-time)
-                        // Menggunakan helper isSameDay membandingkan 'today' vs tanggal render
+                        // Cek Hari Ini (Real-time)
                         const isToday = isSameDay(today, dateToRender);
 
-                        // Logic Dot / Penanda
+                        // Logic Dot / Penanda Event
                         const dateStr = `${currentYear}-${String(
                             currentMonth + 1
                         ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                         const hasEvent = events && events.includes(dateStr);
+
+                        // Penentuan Kelas Warna
+                        let dayClasses = "bg-white hover:bg-gray-50 text-gray-800"; // Normal Default
+
+                        if (isSelected) {
+                            // Jika dipilih (Prioritas Utama)
+                            dayClasses = `bg-[${getThemeColor('primary')}] text-white shadow-md`;
+                        } else if (isToday) {
+                            // Jika HARI INI (Prioritas Kedua)
+                            dayClasses = `text-[${getThemeColor('secondary')}] font-bold border border-[${getThemeColor('secondary')}] hover:bg-[${getThemeColor('light')}] bg-[${getThemeColor('light')}]`;
+                        } else {
+                            // Normal
+                            dayClasses = "bg-white hover:bg-[var(--os-tertiary)] text-gray-800"; // Bisa tetap menggunakan warna abu/biru muda default untuk hover normal
+                        }
 
                         return (
                             <button
@@ -146,13 +183,7 @@ export default function Calendar({ onDateSelect, events = [] }) {
                                 onClick={() => handleSelect(day)}
                                 className={`
                                     h-9 w-9 mx-auto flex flex-col items-center justify-center rounded-lg transition relative
-                                    ${
-                                        isSelected
-                                            ? "bg-orange-600 text-white shadow-md" // Jika dipilih (Prioritas Utama)
-                                            : isToday
-                                            ? "text-orange-800 font-bold border hover:bg-orange-100 bg-orange-200" // Jika HARI INI (Prioritas Kedua)
-                                            : "bg-white hover:bg-orange-50 text-gray-800" // Normal
-                                    }
+                                    ${dayClasses}
                                 `}
                             >
                                 <span className="text-sm font-medium leading-none">
@@ -164,7 +195,7 @@ export default function Calendar({ onDateSelect, events = [] }) {
                                         className={`absolute bottom-1 w-1 h-1 rounded-full ${
                                             isSelected
                                                 ? "bg-white"
-                                                : "bg-red-500"
+                                                : "bg-red-500" // Tetap Merah untuk event/warning
                                         }`}
                                     ></span>
                                 )}
