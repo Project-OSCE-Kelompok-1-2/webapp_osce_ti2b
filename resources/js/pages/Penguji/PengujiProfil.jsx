@@ -25,6 +25,8 @@ import OsCopyright from "../../components/Copyright.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsButton from "../../components/button.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
+// ⭐ Import Modals
+import Modals from "../../components/Modals.jsx";
 
 // CustomInput Handle Disabled State (Background Gray)
 const CustomInput = ({
@@ -78,13 +80,16 @@ const CustomInput = ({
 );
 
 export default function PengujiProfil() {
-    // ⭐ UPDATE: Ambil prop 'flash' dari Inertia
+    // ⭐ Ambil prop 'flash' dari Inertia
     const { user, errors, flash } = usePage().props;
 
     // State Password Lengkap
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    // ⭐ State Modal Hapus
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const [profileImage, setProfileImage] = useState(
         "https://via.placeholder.com/177?text=U"
@@ -129,12 +134,21 @@ export default function PengujiProfil() {
         }
     };
 
-    // Reset Foto ke Avatar Orange saat dihapus
-    const handleDeleteProfileImage = () => {
+    // ⭐ Logika Hapus Gambar dipisah (Open Modal & Confirm Action)
+    
+    // 1. Fungsi Buka Modal
+    const openDeletePhotoModal = () => {
+        setIsDeleteModalOpen(true);
+    };
+
+    // 2. Fungsi Eksekusi Hapus (Dipanggil saat tombol "Hapus" di modal ditekan)
+    const confirmDeletePhoto = () => {
         setData((prev) => ({ ...prev, foto: null, delete_foto: true }));
 
         const displayName = user.penguji?.nama || user.username || "Penguji";
         setProfileImage(getOrangeAvatar(displayName));
+        
+        setIsDeleteModalOpen(false); // Tutup modal setelah hapus
     };
 
     const handleSaveChanges = (e) => {
@@ -183,7 +197,7 @@ export default function PengujiProfil() {
                             <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14">
                                 {/* KONTEN UTAMA */}
                                 <div className="flex flex-col gap-5 w-full">
-                                    {/* ⭐ UPDATE: FLASH MESSAGES AREA */}
+                                    {/* ⭐ FLASH MESSAGES AREA */}
                                     {flash?.success && (
                                         <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
                                             <strong className="font-bold">
@@ -263,11 +277,13 @@ export default function PengujiProfil() {
                                                         Upload
                                                     </span>
                                                 </label>
+                                                
+                                                {/* ⭐ Button trigger openDeletePhotoModal */}
                                                 <OsButton
                                                     name="warning"
                                                     type="button"
                                                     onClick={
-                                                        handleDeleteProfileImage
+                                                        openDeletePhotoModal
                                                     }
                                                     className=" bg-red-600 text-white rounded-xl flex items-center justify-center"
                                                 >
@@ -581,6 +597,18 @@ export default function PengujiProfil() {
                 <div className="">
                     <OsCopyright variant="penguji" />
                 </div>
+
+                {/* ⭐ UPDATE: MODAL UNTUK DELETE FOTO PROFIL (DISAMAKAN DENGAN ADMIN) */}
+                <Modals
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={confirmDeletePhoto}
+                    variant="delete"
+                    title="Hapus Foto Profil"
+                    message="Apakah Anda yakin ingin menghapus foto profil Anda?"
+                    confirmText="Hapus"
+                    showDataDetails={false} // <--- INI TAMBAHANNYA
+                />
             </main>
         </div>
     );

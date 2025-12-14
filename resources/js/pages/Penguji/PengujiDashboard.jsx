@@ -17,13 +17,14 @@ import Calendar from "../../components/Calendar";
 import Sidebar from "../../components/Sidebar.jsx";
 
 /* -------------------------------------------------
-   CARD STATISTIK
+   CARD STATISTIK (DIPERBAIKI: BUKAN TOMBOL LAGI)
 ---------------------------------------------------*/
-const StatCard = ({ title, value, description, icon, colorClass, href }) => {
+const StatCard = ({ title, value, description, icon, colorClass }) => {
     return (
-        <Link 
-            href={href}
-            className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass} hover:shadow-lg transition-shadow cursor-pointer`}
+        // Menggunakan 'article' biasa, bukan 'Link'
+        // Menghapus 'hover:shadow-lg' dan 'cursor-pointer'
+        <article 
+            className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass}`}
         >
             <div>
                 <div className="flex justify-between items-start mb-3">
@@ -44,7 +45,7 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
                     {icon}
                 </div>
             </div>
-        </Link>
+        </article>
     );
 };
 
@@ -53,7 +54,7 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
 ---------------------------------------------------*/
 const JadwalCard = ({ item }) => {
     // Tentukan Warna Badge Status
-    let statusClass = "bg-gray-100 text-gray-600 border-gray-200"; // Default (Selesai/Lainnya)
+    let statusClass = "bg-gray-100 text-gray-600 border-gray-200"; // Default
 
     switch (item.status) {
         case "Aktif":
@@ -66,7 +67,6 @@ const JadwalCard = ({ item }) => {
             statusClass = "bg-indigo-100 text-indigo-800 border-indigo-200";
             break;
         case "Belum Dinilai":
-            // Status jika sesi sudah lewat tapi belum selesai dinilai (Mendesak)
             statusClass = "bg-red-100 text-red-800 border-red-200";
             break;
         default:
@@ -74,7 +74,6 @@ const JadwalCard = ({ item }) => {
     }
 
     return (
-        // Link wrapper: Klik dimana saja di kotak untuk pergi ke list dengan filter nama
         <Link 
             href={`/penguji/osce?search=${encodeURIComponent(item.nama_osce)}`}
             className="block group"
@@ -98,7 +97,7 @@ const JadwalCard = ({ item }) => {
                     </div>
                 </div>
 
-                {/* Kolom Status (Badge Rapi) */}
+                {/* Kolom Status */}
                 <div>
                     <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${statusClass}`}>
                         {item.status}
@@ -120,7 +119,6 @@ export default function PengujiDashboard() {
         setIsSidebarOpen((prev) => !prev);
     };
 
-    // Handler saat tanggal kalender diklik
     const handleDateSelect = (dateObj) => {
         const year = dateObj.getFullYear();
         const month = String(dateObj.getMonth() + 1).padStart(2, "0");
@@ -159,13 +157,13 @@ export default function PengujiDashboard() {
                                 <h2 className="font-bold text-os-regular text-gray-900">Statistika</h2>
                             </div>
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+                                {/* Prop 'href' dihapus karena StatCard bukan lagi link */}
                                 <StatCard
                                     title="OSCE Mendatang"
                                     description="Jadwal ujian akan datang"
                                     value={statistik?.osce_mendatang ?? 0}
                                     icon={<ClipboardList size={22} className="text-orange-700" />}
                                     colorClass="bg-orange-400 border-orange-300"
-                                    href="/penguji/osce"
                                 />
                                 <StatCard
                                     title="Masa Penilaian"
@@ -173,7 +171,6 @@ export default function PengujiDashboard() {
                                     value={statistik?.osce_edit_nilai ?? 0}
                                     icon={<Users size={22} className="text-gray-700" />}
                                     colorClass="bg-red-400 border-orange-300"
-                                    href="/penguji/osce"
                                 />
                                 <StatCard
                                     title="OSCE Selesai"
@@ -181,7 +178,6 @@ export default function PengujiDashboard() {
                                     value={statistik?.osce_selesai ?? 0}
                                     icon={<UserCheck size={22} className="text-gray-700" />}
                                     colorClass="bg-lime-500 border-orange-300"
-                                    href="/penguji/riwayat"
                                 />
                             </div>
                         </section>
