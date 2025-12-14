@@ -4,6 +4,20 @@ import OsCopyright from "../../components/Copyright";
 import Sidebar from "../../components/Sidebar";
 import OsTableHeader from "../../components/tableheader";
 import OsHeader from "../../components/Header";
+import {
+    ArrowLeft,
+    Download,
+    Search,
+    ExternalLink,
+    FileText,
+    User,
+    Clock,
+    UserCheck,
+    Table2,
+    Info,
+    CircleArrowRight,
+    CircleCheckBig
+} from "lucide-react";
 
 export default function LiveRotasi() {
     // 1. AMBIL PROPS DARI BACKEND
@@ -117,7 +131,7 @@ export default function LiveRotasi() {
                             <div className="w-full mt-20 max-w-md !border-os-primary-pj bg-white rounded-2xl shadow-[0_4px_8px_rgba(0,0,0,0.15)] border py-10 px-10 text-center">
                                 {/* Icon Check / Finish */}
                                 <div className="flex justify-center mb-8">
-                                    <div
+                                    {/* <div
                                         className={`flex items-center justify-center w-[116px] h-[116px] rounded-[22px] border-[6px] ${
                                             isFinished
                                                 ? "border-green-500"
@@ -139,7 +153,8 @@ export default function LiveRotasi() {
                                         >
                                             <polyline points="5 13 9 17 19 7" />
                                         </svg>
-                                    </div>
+                                    </div> */}
+                                    <CircleCheckBig size={100} className="text-orange-400" />
                                 </div>
 
                                 {/* Konten Dinamis */}
@@ -161,7 +176,7 @@ export default function LiveRotasi() {
                                         <div className="border border-os-primary-pj rounded-xl px-4 py-4 flex items-center gap-4 mb-4 text-left">
                                             <div className="w-[70px] h-[70px] rounded-full bg-[#402525]" />
                                             <div className="text-xs sm:text-sm leading-relaxed">
-                                                <p className="font-semibold">
+                                                <p className="font-semibold text-os-primary-pj">
                                                     Nama :{" "}
                                                     <span className="font-normal">
                                                         {
@@ -193,11 +208,12 @@ export default function LiveRotasi() {
                                 {/* Tombol Sisa Waktu + Action */}
                                 <div className="mt-4 flex gap-3">
                                     {!isFinished && (
-                                        <div className="flex-1 flex items-center justify-between rounded-xl border border-black bg-[#E53935] px-4 py-3">
-                                            <span className="text-sm font-medium text-white">
+                                        <div className="flex-1 flex items-center justify-between rounded-xl border border-os-primary-pj bg-os-tertiary-pj px-4 py-3">
+
+                                            <span className="text-sm font-medium text-orange-500">
                                                 Istirahat
                                             </span>
-                                            <span className="text-sm font-bold text-white">
+                                            <span className="text-sm font-bold text-orange-500">
                                                 {/* BARU: Gunakan state timeLeft, bukan props langsung */}
                                                 {formatWaktu(timeLeft)}
                                             </span>
@@ -207,7 +223,7 @@ export default function LiveRotasi() {
                                     <button
                                         type="button"
                                         onClick={handleSubmit}
-                                        className={`flex-1 rounded-xl border border-black px-4 py-3 text-sm font-bold text-white text-center ${
+                                        className={`flex-1 flex justify-between items-center rounded-xl border border-black px-4 py-3 text-sm font-bold text-white text-center ${
                                             isFinished
                                                 ? "bg-green-600 hover:bg-green-700"
                                                 : "bg-orange-400 hover:bg-orange-500"
@@ -216,6 +232,7 @@ export default function LiveRotasi() {
                                         {isFinished
                                             ? "Sesi Selesai"
                                             : "Lanjut Nilai"}
+                                        <CircleArrowRight size={20} />
                                     </button>
                                 </div>
                             </div>
