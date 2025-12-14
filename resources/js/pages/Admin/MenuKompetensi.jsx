@@ -292,7 +292,7 @@ export default function KompetensiPage() {
                         onMenuClick={handleSidebarToggle}
                     />
 
-                    <div className="flex-1 overflow-auto">
+                    <div className="flex-1 overflow-auto p-1">
                         {showFullWeightWarning && (
                             <div
                                 className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
@@ -348,7 +348,7 @@ export default function KompetensiPage() {
                         >
                             <OsIcon
                                 name="add"
-                                className="h-os-20 os-icon-light mr-os-8"
+                                className="h-[18px] os-icon-light mr-os-8"
                             />
                             {totalBobot >= maxBobot
                                 ? "Bobot Penuh"
@@ -407,7 +407,7 @@ export default function KompetensiPage() {
                         )}
                     </div>
                 </div>
-                <div className="mt-8">
+                <div className="">
                     <OsCopyright />
                 </div>
             </main>

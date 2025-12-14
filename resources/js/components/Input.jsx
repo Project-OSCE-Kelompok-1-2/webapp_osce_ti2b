@@ -51,7 +51,7 @@ export default function OsInput({
         return (
             <div className={`flex flex-col ${className}`}>
                 {label && (
-                    <label className="mb-1 text-sm font-semibold text-gray-700">
+                    <label className="mb-1 text-sm text-gray-700">
                         {label}{" "}
                         {required && <span className="text-red-500">*</span>}
                     </label>
@@ -104,7 +104,7 @@ export default function OsInput({
         return (
             <div className={`flex flex-col ${className}`}>
                 {label && (
-                    <label className="mb-1 text-sm font-semibold text-gray-700">
+                    <label className="mb-1 text-sm text-gray-700">
                         {label}{" "}
                         {required && <span className="text-red-500">*</span>}
                     </label>
@@ -133,7 +133,7 @@ export default function OsInput({
         return (
             <div className={`relative flex flex-col ${className}`}>
                 {label && (
-                    <label className="mb-1 text-sm font-semibold text-gray-700">
+                    <label className="mb-1 text-sm text-gray-700">
                         {label}{" "}
                         {required && <span className="text-red-500">*</span>}
                     </label>
@@ -175,7 +175,7 @@ export default function OsInput({
         return (
             <div className={`flex flex-col items-center gap-4 ${className}`}>
                 {label && (
-                    <label className="text-sm font-semibold text-gray-700">
+                    <label className="text-sm text-gray-700">
                         {label}{" "}
                         {required && <span className="text-red-500">*</span>}
                     </label>
@@ -212,7 +212,7 @@ export default function OsInput({
         return (
             <div className={`flex flex-col ${className}`}>
                 {label && (
-                    <label className="mb-1 text-sm font-semibold text-gray-700">
+                    <label className="mb-1 text-sm text-gray-700">
                         {label}{" "}
                         {required && <span className="text-red-500">*</span>}
                     </label>
@@ -245,7 +245,7 @@ export default function OsInput({
         return (
             <div className={`flex flex-col ${className}`}>
                 {label && (
-                    <label className="mb-1 text-sm font-semibold text-gray-700">
+                    <label className="mb-1 text-sm text-gray-700">
                         {label}{" "}
                         {required && <span className="text-red-500">*</span>}
                     </label>
@@ -270,7 +270,7 @@ export default function OsInput({
         return (
             <div className={`flex flex-col ${className}`}>
                 {label && (
-                    <label className="mb-1 text-sm font-semibold text-gray-700">
+                    <label className="mb-1 text-sm text-gray-700">
                         {label}{" "}
                         {required && <span className="text-red-500">*</span>}
                     </label>
@@ -304,7 +304,7 @@ export default function OsInput({
         return (
             <div className={`flex flex-col ${className}`}>
                 {label && (
-                    <label className="text-sm font-semibold text-gray-700">
+                    <label className="text-sm text-gray-700">
                         {label}{" "}
                         {required && <span className="text-red-500">*</span>}
                     </label>
@@ -377,7 +377,7 @@ export default function OsInput({
         return (
             <div className={`flex flex-col ${className}`}>
                 {label && (
-                    <label className="text-sm font-semibold text-gray-700">
+                    <label className="text-sm text-gray-700">
                         {label}{" "}
                         {required && <span className="text-red-500">*</span>}
                     </label>
@@ -452,7 +452,7 @@ export default function OsInput({
         return (
             <div className={`flex flex-col ${className}`}>
                 {label && (
-                    <label className="text-sm font-semibold text-gray-700">
+                    <label className="text-sm text-gray-700">
                         {label}{" "}
                         {required && <span className="text-red-500">*</span>}
                     </label>
@@ -476,7 +476,7 @@ export default function OsInput({
                                     key={idx}
                                     className={`p-2 flex items-center justify-between cursor-pointer hover:bg-gray-100 border-b ${
                                         active
-                                            ? "bg-gray-100 font-semibold"
+                                            ? "bg-gray-100"
                                             : ""
                                     }`}
                                     onClick={() => toggleOption(val)}
@@ -548,7 +548,7 @@ export default function OsInput({
         return (
             <div className={`flex flex-col ${className}`}>
                 {label && (
-                    <label className="text-sm font-semibold text-gray-700">
+                    <label className="text-sm text-gray-700">
                         {label}{" "}
                         {required && <span className="text-red-500">*</span>}
                     </label>

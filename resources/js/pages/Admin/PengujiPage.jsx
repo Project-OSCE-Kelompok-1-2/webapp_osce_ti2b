@@ -229,13 +229,13 @@ export default function PengujiPage() {
                         onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                     />
 
-                <div className="flex-1 overflow-auto">
+                <div className="flex-1 overflow-auto p-1">
                     <div className="flex gap-1 items-center justify-start my-2">
                         <UserCheck size={18} />
                         <h2 className="font-semibold text-lg">Menu Penguji</h2>
                     </div>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                        Menu Penguji (Dosen) digunakan untuk mengelola proses
+                        Menu Penguji (Dosen) digunakan untuk mengelola proses <br/>
                         penilaian.
                     </p>
 
@@ -246,7 +246,7 @@ export default function PengujiPage() {
                         >
                             <OsIcon
                                 name="add"
-                                className="h-os-20 os-icon-light mr-os-8"
+                                className="h-[18px] os-icon-light mr-os-8"
                             />{" "}
                             Tambah Penguji
                         </OsButton>
@@ -320,7 +320,7 @@ export default function PengujiPage() {
                         </section>
                     </div>
                 </div>
-                <div className="mt-8">
+                <div className="">
                     <OsCopyright />
                 </div>
 

@@ -261,7 +261,7 @@ export default function OsceEnrollmentPage({
                             )}
                     </div>
                 </div>
-                <div className="mt-8">
+                <div className="">
                     <OsCopyright />
                 </div>
             </main>

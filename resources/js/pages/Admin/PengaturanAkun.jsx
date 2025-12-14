@@ -124,7 +124,7 @@ export default function AdminSettingAkun({ user }) {
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar
                 isOpen={isSidebarOpen}
                 type="admin"
@@ -154,7 +154,7 @@ export default function AdminSettingAkun({ user }) {
                                         </h2> */}
                                         <div className="flex gap-1 items-center justify-start">
                                             <Image size={18} />
-                                            <h2 className="font-semibold text-lg">
+                                            <h2 className=" text-lg">
                                                 Gambar Profil
                                             </h2>
                                         </div>
@@ -218,7 +218,7 @@ export default function AdminSettingAkun({ user }) {
                                         {/* <h2 className="text-xl">Akun</h2> */}
                                         <div className="flex gap-1 items-center justify-start">
                                             <User size={18} />
-                                            <h2 className="font-semibold text-lg">
+                                            <h2 className=" text-lg">
                                                 Akun
                                             </h2>
                                         </div>
@@ -283,7 +283,7 @@ export default function AdminSettingAkun({ user }) {
                                                         )
                                                     }
                                                     // 👇 WARNA FIX ABU-ABU (Tidak berubah lagi)
-                                                    className="bg-gray-500 hover:bg-gray-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                    className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
                                                     title={
                                                         showOldPassword
                                                             ? "Sembunyikan"
@@ -338,7 +338,7 @@ export default function AdminSettingAkun({ user }) {
                                                             )
                                                         }
                                                         // 👇 WARNA FIX ABU-ABU
-                                                        className="bg-gray-500 hover:bg-gray-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                        className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
                                                         title={
                                                             showNewPassword
                                                                 ? "Sembunyikan"
@@ -391,7 +391,7 @@ export default function AdminSettingAkun({ user }) {
                                                             )
                                                         }
                                                         // 👇 WARNA FIX ABU-ABU
-                                                        className="bg-gray-500 hover:bg-gray-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                        className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
                                                         title={
                                                             showConfirmPassword
                                                                 ? "Sembunyikan"
@@ -453,7 +453,7 @@ export default function AdminSettingAkun({ user }) {
                         </div>
                     </div>
                 </div>
-                <div className="mt-8">
+                <div className="">
                     <OsCopyright />
                 </div>
 

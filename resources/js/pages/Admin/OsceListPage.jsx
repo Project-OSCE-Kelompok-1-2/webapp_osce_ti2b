@@ -248,7 +248,7 @@ export default function OsceListPage({
                     }
                     className="h-[38px] text-os-small w-full flex justify-between items-center gap-3"
                 >
-                    <OsIcon name={"add"} className="os-icon-light h-[20px]" />
+                    <OsIcon name={"add"} className="os-icon-light h-[18px]" />
                     Edit Property
                 </OsButton>
                 <OsButton
@@ -277,14 +277,14 @@ export default function OsceListPage({
                 <div className="flex flex-col gap-os-8">
                     <OsHeader onMenuClick={handleSidebarToggle} />
 
-                <div className="flex-1 overflow-auto">
+                <div className="flex-1 overflow-auto p-1">
                     {/* <h2 className="font-semibold text-lg mb-1">Menu OSCE</h2> */}
                     <div className="flex gap-1 items-center justify-start my-2">
                         <FileText size={18} />
                         <h2 className="font-semibold text-lg">Menu OSCE</h2>
                     </div>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Halaman OSCE digunakan untuk mengelola daftar OSCE.
+                        Halaman OSCE digunakan <br/> untuk mengelola daftar OSCE.
                     </p>
 
                         <OsButton
@@ -297,7 +297,7 @@ export default function OsceListPage({
                         >
                             <OsIcon
                                 name="add"
-                                className="h-os-20 os-icon-light mr-os-8"
+                                className="h-[18px] os-icon-light mr-os-8"
                             />
                             Tambah OSCE
                         </OsButton>
@@ -342,7 +342,7 @@ export default function OsceListPage({
                                 (Total: {totalItems} data)
                             </span>
                         </h2> */}
-                        <div className="flex gap-1 items-center justify-start mb-2">
+                        <div className="flex gap-1 items-center justify-start my-2">
                             <Table2 size={18} />
                             <h2 className="font-semibold text-lg">
                                 Table OSCE
@@ -372,7 +372,7 @@ export default function OsceListPage({
                         </section>
                     </div>
                 </div>
-                <div className="mt-8">
+                <div className="">
                     <OsCopyright />
                 </div>
             </main>

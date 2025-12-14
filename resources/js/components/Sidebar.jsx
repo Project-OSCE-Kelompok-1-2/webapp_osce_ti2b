@@ -1,3 +1,5 @@
+
+
 import React, { useState, useEffect } from "react";
 import { usePage } from "@inertiajs/react";
 import {
@@ -219,7 +221,7 @@ const Sidebar = ({ type, isOpen, onToggle, user: propUser }) => {
                         isOpen
                             ? "bg-opacity-50 pointer-events-auto"
                             : "bg-opacity-0 pointer-events-none"
-                    } sm:hidden`}
+                    } lg:hidden`}
                 onClick={handleOverlayClick}
                 aria-hidden={!isOpen}
             ></div>

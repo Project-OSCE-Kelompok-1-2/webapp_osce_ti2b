@@ -322,7 +322,7 @@ export default function Stase() {
                     }
                     className="h-[38px] text-os-small w-full flex justify-between items-center gap-3"
                 >
-                    <OsIcon name={"add"} className="os-icon-light h-[20px]" />
+                    <OsIcon name={"add"} className="os-icon-light h-[18px]" />
                     Edit Aspek Penilaian
                 </OsButton>
                 <OsButton name="edit" onClick={() => openEditModal(item)}>
@@ -351,7 +351,7 @@ export default function Stase() {
                 <div className="flex flex-col gap-os-8">
                     <OsHeader onMenuClick={handleSidebarToggle} />
 
-                    <div className="flex-1 overflow-auto">
+                    <div className="flex-1 overflow-auto p-1">
                         <div className="flex gap-1 items-center justify-start my-2">
                             <FileText size={18} />
                             <h2 className="font-semibold text-lg">
@@ -359,7 +359,7 @@ export default function Stase() {
                             </h2>
                         </div>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                            Kelola konten Stase secara menyeluruh, termasuk
+                            Kelola konten Stase secara menyeluruh, termasuk <br/>
                             daftar kompetensi inti dan aspek penilaian.
                         </p>
 
@@ -424,7 +424,7 @@ export default function Stase() {
                         )}
                     </div>
                 </div>
-                <div className="mt-8">
+                <div className="">
                     <OsCopyright />
                 </div>
             </main>

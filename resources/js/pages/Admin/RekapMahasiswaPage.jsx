@@ -149,7 +149,7 @@ export default function RekapMahasiswaPage() {
                         `/admin/rekap-nilai/mahasiswa/${item.id_mahasiswa}/osce/${osce.id_osce}`
                     )
                 }
-                className="bg-os-primary h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
+                className="bg-os-primary h-[45px] w-full max-w-[100px] text-white text-os-small rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
             >
                 <Info size={18} />
                 Detail
@@ -159,9 +159,9 @@ export default function RekapMahasiswaPage() {
 
     return (
         <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Head
+            {/* <Head
                 title={`Mahasiswa Sesi ${sesi.tanggal_formatted} - ${osce.nama_osce}`}
-            />
+            /> */}
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
@@ -171,7 +171,7 @@ export default function RekapMahasiswaPage() {
                         backLink={`/admin/rekap-nilai/${osce.id_osce}/sesi`}
                     />
 
-                    <div className="flex-1 overflow-auto">
+                    <div className="flex-1 overflow-auto p-1">
                         {/* Notifikasi */}
                         {flash.success && (
                             <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
@@ -194,7 +194,7 @@ export default function RekapMahasiswaPage() {
                         </h2>
                     </div>
                     <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Daftar mahasiswa yang ter-enroll di sesi tanggal{" "}
+                        Daftar mahasiswa yang ter-enroll di sesi tanggal{" "} <br/>
                         {sesi.tanggal_formatted}.
                     </p>
 
@@ -219,7 +219,7 @@ export default function RekapMahasiswaPage() {
                             (Total: {totalItems} data)
                         </span>
                     </h2> */}
-                    <div className="flex gap-1 items-center justify-start mb-2">
+                    <div className="flex gap-1 items-center justify-start mb-2 mt-4">
                         <Table2 size={18} />
                         <h2 className="font-semibold text-lg">
                             Table Mahasiswa
@@ -261,7 +261,7 @@ export default function RekapMahasiswaPage() {
                     </div>
                 </div>
 
-                <div className="mt-8">
+                <div className="">
                     <OsCopyright />
                 </div>
             </main>

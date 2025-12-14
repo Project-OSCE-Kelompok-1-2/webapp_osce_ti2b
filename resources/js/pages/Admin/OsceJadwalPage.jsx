@@ -16,7 +16,9 @@ import {
     X,
     Users,
     Clock,
-    AlertCircle, // Import icon untuk error
+    AlertCircle,
+    FileText,
+    Table2, // Import icon untuk error
 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
@@ -401,14 +403,14 @@ export default function SesiOscePage({
     };
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 <div className="flex flex-col gap-os-8">
                     <OsHeader variant="goback" backLink="/admin/osce/" />
 
-                    <div className="flex-1 overflow-auto ">
+                    <div className="flex-1 overflow-auto p-1">
                         {/* Flash Message di Layout Utama */}
                         {flash.error && (
                             <div className="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
@@ -424,9 +426,15 @@ export default function SesiOscePage({
                         )}
 
                         <section className="mb-6">
-                            <h2 className="text-lg font-semibold mb-1">
+                            {/* <h2 className="text-lg font-semibold mb-1">
                                 {osce.nama_osce || "Detail Jadwal OSCE"}
-                            </h2>
+                            </h2> */}
+                            <div className="flex gap-1 items-center justify-start my-2">
+                                <FileText size={18} />
+                                <h2 className="font-semibold text-lg">
+                                    {osce.nama_osce || "Detail Jadwal OSCE"}
+                                </h2>
+                            </div>
                             <div className="text-sm text-gray-500 mb-4 max-w-lg">
                                 <p>
                                     Halaman ini digunakan untuk mengelola{" "}
@@ -451,7 +459,7 @@ export default function SesiOscePage({
                             >
                                 <OsIcon
                                     name="add"
-                                    className="h-os-20 os-icon-light mr-os-8"
+                                    className="h-[18px] os-icon-light mr-os-8"
                                 />
                                 Tambah Sesi
                             </OsButton>
@@ -466,11 +474,20 @@ export default function SesiOscePage({
                             />
                         </section>
 
-                        <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
                             Table Sesi
-                        </h2>
+                        </h2> */}
+                        <div className="flex gap-1 items-center justify-start mb-2">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Table OSCE
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: 0000 data)
+                            </span>
+                        </div>
 
-                        <div className="w-full overflow-x-auto pb-4">
+                        <div className="w-full overflow-x-auto bg-white rounded-xl border border-os-primary pb-4 p-4">
                             <div className="min-w-max border rounded-lg overflow-hidden">
                                 <OsTableHeader columns={jadwalColumns} />
                                 {rows.length > 0 ? (
@@ -490,7 +507,7 @@ export default function SesiOscePage({
                         <OsPagination links={sesi?.links} />
                     </div>
                 </div>
-                <div className="mt-8">
+                <div className="">
                     <OsCopyright />
                 </div>
             </main>
@@ -956,7 +973,7 @@ export default function SesiOscePage({
                                         Loading...
                                     </div>
                                 ) : (
-                                    <div className="max-h-[300px] overflow-y-auto pr-2 flex flex-col gap-4">
+                                    <div className="h-full overflow-y-auto pr-2 flex flex-col gap-4">
                                         <div className="bg-blue-50 p-2 rounded text-xs text-blue-700">
                                             Pilih penguji untuk setiap stase.
                                             (Penguji tidak boleh rangkap)
@@ -991,7 +1008,7 @@ export default function SesiOscePage({
                                                     key={stase.value}
                                                     className="border p-3 rounded bg-white"
                                                 >
-                                                    <label className="block text-sm font-bold mb-1">
+                                                    <label className="block text-sm mb-1">
                                                         Stase: {stase.label}
                                                     </label>
                                                     <OsInput

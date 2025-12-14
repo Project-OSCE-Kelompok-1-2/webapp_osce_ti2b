@@ -1,6 +1,7 @@
+// === FINISHED ===
 import React, { useState, useRef, useMemo } from "react";
 import { router, usePage, useForm } from "@inertiajs/react";
-import { Edit2, Trash2, AlertTriangle, X, Users, Table2 } from "lucide-react";
+import { Edit2, Trash2, AlertTriangle, X, Users, Table2, Download, Upload } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
@@ -295,7 +296,7 @@ export default function MahasiswaPage() {
                     <OsHeader
                         onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                     />
-                    <div className="flex-1 overflow-auto">
+                    <div className="flex-1 overflow-auto p-1">
                         <div className="flex gap-1 items-center justify-start my-2">
                             <Users size={18} />
                             <h2 className="font-semibold text-lg">
@@ -303,7 +304,7 @@ export default function MahasiswaPage() {
                             </h2>
                         </div>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                            Kelola data mahasiswa.
+                            Kelola data <br/> mahasiswa.
                         </p>
 
                         <div className="flex items-center gap-3 mb-5">
@@ -314,7 +315,7 @@ export default function MahasiswaPage() {
                             >
                                 <OsIcon
                                     name="add"
-                                    className="h-os-20 os-icon-light mr-os-8"
+                                    className="h-[18px] os-icon-light mr-os-8"
                                 />{" "}
                                 Tambah Mahasiswa via Form
                             </OsButton>
@@ -325,7 +326,7 @@ export default function MahasiswaPage() {
                             >
                                 <OsIcon
                                     name="Download (2)"
-                                    className="h-os-20 os-icon-light mr-os-8"
+                                    className="h-[18px] os-icon-light mr-os-8"
                                 />{" "}
                                 Tambah Mahasiswa via Excel
                             </OsButton>
@@ -354,12 +355,12 @@ export default function MahasiswaPage() {
                                     search={search}
                                     setSearch={setSearch}
                                     placeholder="Cari nama atau NIM..."
-                                    
+
                                 />
                             </div>
 
                             {/* DROPDOWN FILTER ANGKATAN (Client Side) */}
-                            <div className="w-full sm:w-48 shrink-0">
+                            <div className="!min-w-[250px] w-full sm:w-48 shrink-0">
                                 <OsInput
                                     type="select"
                                     value={angkatanFilter}
@@ -377,7 +378,7 @@ export default function MahasiswaPage() {
                                         },
                                         ...angkatanListOptions,
                                     ]}
-                                    className="h-[46px]" // Sesuaikan tinggi dengan searchbar jika perlu
+                                    className="min-h-[46px] mb-2 lg:mb-0" // Sesuaikan tinggi dengan searchbar jika perlu
                                 />
                             </div>
                         </div>
@@ -408,6 +409,7 @@ export default function MahasiswaPage() {
                                         onPageChange={(page) =>
                                             setCurrentPage(page)
                                         }
+                                        variant="admin"
 
                                     />
                                 </div>
@@ -415,7 +417,7 @@ export default function MahasiswaPage() {
                         </section>
                     </div>
                 </div>
-                <div className="mt-8">
+                <div className="">
                     <OsCopyright />
                 </div>
             </main>
@@ -595,7 +597,7 @@ export default function MahasiswaPage() {
                                     className="w-full"
                                 />
                             ) : (
-                                <div className="flex w-full gap-2 items-end">
+                                <div className="flex w-full gap-x-2 items-end  ">
                                     <div className="flex-1">
                                         <OsInput
                                             label="Kelas Manual"
@@ -614,7 +616,7 @@ export default function MahasiswaPage() {
                                             setIsManualKelas(false);
                                             setData("kelas", "");
                                         }}
-                                        className="mb-[10px] p-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-600 transition"
+                                        className="mb-[10px] p-2 bg-red-200 hover:bg-red-300 rounded text-red-600 transition"
                                     >
                                         <X size={18} />
                                     </button>
@@ -672,14 +674,15 @@ export default function MahasiswaPage() {
                         onClick={() =>
                             window.open("/admin/mahasiswa/template", "_blank")
                         }
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg mb-4 transition-colors"
+                        className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg mb-4 transition-colors"
                     >
+                        <Download size={18}/>
                         Download Template Excel
                     </button>
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 flex gap-3 items-start">
-                        <div className="mt-0.5">
+                        <div className="">
                             <AlertTriangle
-                                className="text-yellow-500 fill-yellow-500 stroke-black"
+                                className="text-red-600"
                                 strokeWidth={1.5}
                                 size={20}
                             />
@@ -697,8 +700,9 @@ export default function MahasiswaPage() {
                     <div>
                         <label
                             htmlFor="import-file"
-                            className="w-full border border-blue-600 text-blue-600 bg-white hover:bg-blue-50 font-medium py-3 rounded-lg cursor-pointer text-center block transition-colors"
+                            className="w-full flex items-center gap-2 text-white justify-center border bg-os-primary hover:bg-os-primary-dark font-medium py-3 rounded-lg cursor-pointer text-center transition-colors"
                         >
+                            <Upload size={18}/>
                             {importFile ? importFile.name : "Upload file Excel"}
                         </label>
                         <input
