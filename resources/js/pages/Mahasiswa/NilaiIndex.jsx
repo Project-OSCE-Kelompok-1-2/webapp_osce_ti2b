@@ -137,7 +137,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                             </div>
                         </div>
 
-                        {/* INFO MAHASISWA & FILTER PANEL */}
+                        {/* INFO MAHASISWA & FILTER PANELL */}
                         <div className="relative mb-8 overflow-hidden rounded-2xl bg-blue-600 p-6 text-white shadow-xl shadow-blue-100">
                             {/* Background decoration */}
                             <div className="absolute right-0 top-0 h-64 w-64 translate-x-16 -translate-y-16 rounded-full bg-white/10 blur-3xl"></div>
@@ -297,10 +297,10 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                                 No
                                             </th>
                                             <th className="px-6 py-4">
-                                                Nama Ujian
+                                                Nama Ujian OSCE
                                             </th>
                                             <th className="px-6 py-4">
-                                                Dosen Penguji
+                                                Tahun Akademik
                                             </th>
                                             <th className="px-6 py-4 text-center">
                                                 Semester
@@ -334,13 +334,10 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                                         </div>
                                                     </td>
                                                     <td className="px-6 py-4 text-gray-500">
-                                                        {item.dosen_penguji ||
-                                                            "-"}
+                                                        {item.tahun_ujian}
                                                     </td>
                                                     <td className="px-6 py-4 text-center font-medium">
-                                                        {item.semester_label}{" "}
-                                                        (Smtr{" "}
-                                                        {item.semester_angka})
+                                                        {item.semester_label}
                                                     </td>
                                                     <td className="px-6 py-4 text-center">
                                                         <Link
@@ -366,7 +363,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                                 </tr>
                                             ))
                                         ) : (
-                                            <tr>
+                                            <tr>``
                                                 <td
                                                     colSpan="6"
                                                     className="px-6 py-16 text-center text-gray-400"
