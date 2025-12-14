@@ -25,8 +25,10 @@ import OsCopyright from "../../components/Copyright.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsButton from "../../components/button.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
+// ⭐ Import Modals
+import Modals from "../../components/Modals.jsx";
 
-// ⭐ UPDATE 1: CustomInput Handle Disabled State (Background Gray)
+// CustomInput Handle Disabled State (Background Gray)
 const CustomInput = ({
     label,
     type = "text",
@@ -78,12 +80,16 @@ const CustomInput = ({
 );
 
 export default function PengujiProfil() {
-    const { user, errors } = usePage().props;
+    // ⭐ Ambil prop 'flash' dari Inertia
+    const { user, errors, flash } = usePage().props;
 
-    // ⭐ UPDATE 2: State Password Lengkap
+    // State Password Lengkap
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
+    // ⭐ State Modal Hapus
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const [profileImage, setProfileImage] = useState(
         "https://via.placeholder.com/177?text=U"
@@ -108,7 +114,7 @@ export default function PengujiProfil() {
         )}&background=EA580C&color=fff&bold=true&size=177`;
     };
 
-    // ⭐ UPDATE 1: Init Foto Profil dengan Warna Orange
+    // Init Foto Profil dengan Warna Orange
     useEffect(() => {
         if (user.path_gambar) {
             setProfileImage(`/${user.path_gambar}`);
@@ -128,12 +134,21 @@ export default function PengujiProfil() {
         }
     };
 
-    // ⭐ UPDATE 2: Reset Foto ke Avatar Orange saat dihapus
-    const handleDeleteProfileImage = () => {
+    // ⭐ Logika Hapus Gambar dipisah (Open Modal & Confirm Action)
+    
+    // 1. Fungsi Buka Modal
+    const openDeletePhotoModal = () => {
+        setIsDeleteModalOpen(true);
+    };
+
+    // 2. Fungsi Eksekusi Hapus (Dipanggil saat tombol "Hapus" di modal ditekan)
+    const confirmDeletePhoto = () => {
         setData((prev) => ({ ...prev, foto: null, delete_foto: true }));
 
         const displayName = user.penguji?.nama || user.username || "Penguji";
         setProfileImage(getOrangeAvatar(displayName));
+        
+        setIsDeleteModalOpen(false); // Tutup modal setelah hapus
     };
 
     const handleSaveChanges = (e) => {
@@ -180,8 +195,33 @@ export default function PengujiProfil() {
                         {/* MAIN CONTENT WRAPPER */}
                         <div className=" w-full min-h-screen flex justify-center p-0 font-sans transition-all duration-300">
                             <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14">
-                                {/* KONTEN UTAMA (DUA KOLOM) */}
+                                {/* KONTEN UTAMA */}
                                 <div className="flex flex-col gap-5 w-full">
+                                    {/* ⭐ FLASH MESSAGES AREA */}
+                                    {flash?.success && (
+                                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+                                            <strong className="font-bold">
+                                                Berhasil!
+                                            </strong>
+                                            <span className="block sm:inline">
+                                                {" "}
+                                                {flash.success}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {flash?.error && (
+                                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                                            <strong className="font-bold">
+                                                Error!
+                                            </strong>
+                                            <span className="block sm:inline">
+                                                {" "}
+                                                {flash.error}
+                                            </span>
+                                        </div>
+                                    )}
+                                    {/* END FLASH MESSAGES AREA */}
+
                                     <div className="flex flex-col lg:flex-row items-start gap-5 relative w-full">
                                         {/* --- KOLOM KIRI: FOTO PROFIL --- */}
                                         <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5 bg-white rounded-xl border border-os-primary-pj shadow-sm">
@@ -237,11 +277,13 @@ export default function PengujiProfil() {
                                                         Upload
                                                     </span>
                                                 </label>
+                                                
+                                                {/* ⭐ Button trigger openDeletePhotoModal */}
                                                 <OsButton
                                                     name="warning"
                                                     type="button"
                                                     onClick={
-                                                        handleDeleteProfileImage
+                                                        openDeletePhotoModal
                                                     }
                                                     className=" bg-red-600 text-white rounded-xl flex items-center justify-center"
                                                 >
@@ -298,7 +340,7 @@ export default function PengujiProfil() {
 
                                                 <hr className="w-full border-os-primary-pj my-2" />
 
-                                                {/* ⭐ UPDATE 3: PASSWORD SECTION */}
+                                                {/* PASSWORD SECTION */}
 
                                                 {/* PASSWORD LAMA */}
                                                 <div className="flex flex-col gap-[3px] w-full">
@@ -555,6 +597,18 @@ export default function PengujiProfil() {
                 <div className="">
                     <OsCopyright variant="penguji" />
                 </div>
+
+                {/* ⭐ UPDATE: MODAL UNTUK DELETE FOTO PROFIL (DISAMAKAN DENGAN ADMIN) */}
+                <Modals
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={confirmDeletePhoto}
+                    variant="delete"
+                    title="Hapus Foto Profil"
+                    message="Apakah Anda yakin ingin menghapus foto profil Anda?"
+                    confirmText="Hapus"
+                    showDataDetails={false} // <--- INI TAMBAHANNYA
+                />
             </main>
         </div>
     );

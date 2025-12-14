@@ -1,5 +1,4 @@
-// === FINISEHD ===
-import React, { useState, useEffect, useMemo } from "react"; // [1] Tambah useEffect & useMemo
+import React, { useState, useEffect, useMemo } from "react";
 import { usePage, Link, router, useForm } from "@inertiajs/react";
 import { Trash2, Pencil, FileText, Table2 } from "lucide-react";
 
@@ -14,7 +13,7 @@ import OsInput from "../../components/input.jsx";
 import Modals from "../../components/Modals.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsCopyright from "../../components/Copyright.jsx";
-import OsPagination from "../../components/pagination.jsx"; // Jangan lupa import Pagination
+import OsPagination from "../../components/pagination.jsx";
 
 const columns = [
     {
@@ -45,7 +44,7 @@ const columns = [
 
 export default function MenuAspekPenilaian() {
     // 1. Ambil Data Full
-    const { stase, aspek_penilaian, filters } = usePage().props;
+    const { stase, aspek_penilaian } = usePage().props;
     const allData = Array.isArray(aspek_penilaian)
         ? aspek_penilaian
         : aspek_penilaian?.data || [];
@@ -56,13 +55,10 @@ export default function MenuAspekPenilaian() {
     const itemsPerPage = 10;
 
     // --- INSTANT FILTER LOGIC ---
-
-    // A. Reset Page
     useEffect(() => {
         setCurrentPage(1);
     }, [search]);
 
-    // B. Filter Data
     const filteredData = useMemo(() => {
         return allData.filter((item) => {
             const term = search.toLowerCase();
@@ -73,7 +69,6 @@ export default function MenuAspekPenilaian() {
         });
     }, [search, allData]);
 
-    // C. Slice Pagination
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -119,7 +114,7 @@ export default function MenuAspekPenilaian() {
         return links;
     }, [currentPage, totalPages]);
 
-    // ========= STATE FORM & MODAL (Sama seperti sebelumnya) ========
+    // ========= STATE FORM & MODAL ========
     const {
         data,
         setData,
@@ -129,6 +124,8 @@ export default function MenuAspekPenilaian() {
         delete: destroy,
         processing,
         errors,
+        setError, // <--- 1. Tambah setError
+        clearErrors, // <--- 2. Tambah clearErrors
     } = useForm({
         id: null,
         aspek: "",
@@ -142,8 +139,17 @@ export default function MenuAspekPenilaian() {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [dataToDelete, setDataToDelete] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
+
+    // HAPUS state errorMessage manual
+    // const [errorMessage, setErrorMessage] = useState("");
+
     const [showFullWeightWarning, setShowFullWeightWarning] = useState(false);
+
+    // Hitung Total Bobot saat ini (dari data DB)
+    const totalBobot = allData.reduce(
+        (sum, item) => sum + item.bobot_maksimum,
+        0
+    );
 
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
@@ -156,7 +162,7 @@ export default function MenuAspekPenilaian() {
         setShowFullWeightWarning(false);
         setModalMode("add");
         setSelectedItem(null);
-        setErrorMessage("");
+        clearErrors(); // Bersihkan error lama
         setData({
             id: null,
             aspek: "",
@@ -169,7 +175,7 @@ export default function MenuAspekPenilaian() {
     const openEditModal = (item) => {
         setModalMode("edit");
         setSelectedItem(item);
-        setErrorMessage("");
+        clearErrors(); // Bersihkan error lama
         setData({
             id: item.id_aspek_penilaian,
             aspek: item.aspek,
@@ -179,32 +185,48 @@ export default function MenuAspekPenilaian() {
         setShowModal(true);
     };
 
+    // --- 3. LOGIC HANDLE SUBMIT (VALIDASI INLINE) ---
     const handleSubmit = (e) => {
         e.preventDefault();
-        setErrorMessage("");
-        const inputBobot = Number(data.bobot_maksimum);
+        clearErrors(); // Reset error state
+
+        let isValid = true;
+
+        // A. Validasi Field Kosong
+        if (!data.aspek || data.aspek.trim() === "") {
+            setError("aspek", "Nama Aspek wajib diisi.");
+            isValid = false;
+        }
+        if (!data.bobot_maksimum) {
+            setError("bobot_maksimum", "Bobot wajib diisi.");
+            isValid = false;
+        }
+
+        // B. Validasi Logika Bobot (> 100)
+        const inputBobot = Number(data.bobot_maksimum) || 0;
+        let projectedTotal = 0;
 
         if (modalMode === "add") {
-            if (totalBobot + inputBobot > 100) {
-                setErrorMessage(
-                    `Gagal! Total bobot akan menjadi ${
-                        totalBobot + inputBobot
-                    }. Maksimal adalah 100. Sisa bobot: ${100 - totalBobot}`
-                );
-                return;
-            }
+            projectedTotal = totalBobot + inputBobot;
         } else if (modalMode === "edit") {
             const oldBobot = selectedItem
                 ? Number(selectedItem.bobot_maksimum)
                 : 0;
-            const projectedTotal = totalBobot - oldBobot + inputBobot;
-            if (projectedTotal > 100) {
-                setErrorMessage(
-                    `Gagal! Total bobot akan menjadi ${projectedTotal}. Maksimal adalah 100.`
-                );
-                return;
-            }
+            projectedTotal = totalBobot - oldBobot + inputBobot;
         }
+
+        if (isValid && projectedTotal > 100) {
+            // Cek hanya jika field tidak kosong
+            setError(
+                "bobot_maksimum",
+                `Gagal! Total bobot menjadi ${projectedTotal}. Maksimal 100 (Sisa: ${
+                    100 - (projectedTotal - inputBobot)
+                }).`
+            );
+            isValid = false;
+        }
+
+        if (!isValid) return; // Stop jika ada error
 
         const options = {
             onSuccess: () => {
@@ -252,12 +274,7 @@ export default function MenuAspekPenilaian() {
         });
     };
 
-    // --- TABLE DATA MAPPING (Gunakan 'paginatedData') ---
-    const totalBobot = allData.reduce(
-        (sum, item) => sum + item.bobot_maksimum,
-        0
-    );
-
+    // --- TABLE DATA MAPPING ---
     const tableDisplayData = paginatedData.map((item, index) => ({
         id_aspek_penilaian: item.id_aspek_penilaian,
         no: (currentPage - 1) * itemsPerPage + index + 1,
@@ -328,8 +345,7 @@ export default function MenuAspekPenilaian() {
                                 <span className="block sm:inline">
                                     {" "}
                                     Total bobot sudah mencapai batas maksimum
-                                    (100). Tidak dapat menambah aspek penilaian
-                                    lagi.
+                                    (100).
                                 </span>
                                 <span
                                     className="absolute top-0 bottom-0 right-0 px-4 py-3"
@@ -385,12 +401,6 @@ export default function MenuAspekPenilaian() {
                             placeholder="Cari aspek penilaian secara instan..."
                         />
 
-                        {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                            Table Aspek Penilaian
-                            <span className="text-sm font-normal text-gray-500 ml-2">
-                                (Total: {totalItems} data)
-                            </span>
-                        </h2> */}
                         <div className="flex gap-1 items-center justify-start my-2">
                             <Table2 size={18} />
                             <h2 className="font-semibold text-lg">
@@ -419,8 +429,6 @@ export default function MenuAspekPenilaian() {
                                 </div>
                             </div>
                         </section>
-
-                        {/* <hr className="border-1 border-os-primary my-2" /> */}
 
                         {/* PAGINATION */}
                         {totalPages > 1 && (
@@ -508,31 +516,51 @@ export default function MenuAspekPenilaian() {
                 }
             >
                 <div className="space-y-3">
-                    <OsInput
-                        label="Nama Aspek Penilaian"
-                        type="text"
-                        name="aspek"
-                        value={data.aspek}
-                        onChange={(evt) => setData("aspek", evt.target.value)}
-                        placeholder="Masukkan nama aspek penilaian..."
-                        required
-                    />
-                    <OsInput
-                        label="Bobot Maksimum"
-                        type="number"
-                        name="bobot_maksimum"
-                        value={data.bobot_maksimum}
-                        onChange={(evt) =>
-                            setData("bobot_maksimum", evt.target.value)
-                        }
-                        placeholder="Masukkan bobot..."
-                        required
-                    />
-                    {errorMessage && (
-                        <div className="text-xs text-red-600 font-bold bg-red-50 p-2 rounded border border-red-200">
-                            {errorMessage}
-                        </div>
-                    )}
+                    {/* INPUT NAMA ASPEK */}
+                    <div>
+                        <OsInput
+                            label="Nama Aspek Penilaian"
+                            type="text"
+                            name="aspek"
+                            value={data.aspek}
+                            onChange={(evt) => {
+                                setData("aspek", evt.target.value);
+                                if (errors.aspek) clearErrors("aspek"); // Hilangkan error saat mengetik
+                            }}
+                            placeholder="Masukkan nama aspek penilaian..."
+                            // required <-- Dihapus agar custom validation jalan
+                        />
+                        {errors.aspek && (
+                            <p className="text-red-500 text-xs mt-1">
+                                {errors.aspek}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* INPUT BOBOT MAKSIMUM */}
+                    <div>
+                        <OsInput
+                            label="Bobot Maksimum"
+                            type="number"
+                            name="bobot_maksimum"
+                            value={data.bobot_maksimum}
+                            onChange={(evt) => {
+                                setData("bobot_maksimum", evt.target.value);
+                                if (errors.bobot_maksimum)
+                                    clearErrors("bobot_maksimum");
+                            }}
+                            placeholder="Masukkan bobot..."
+                            // required <-- Dihapus
+                        />
+                        {/* Error Message Disini */}
+                        {errors.bobot_maksimum && (
+                            <p className="text-red-500 text-xs mt-1 font-semibold">
+                                {errors.bobot_maksimum}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* HELPER TEXT UNTUK SISA BOBOT (VISUAL ONLY) */}
                     {(() => {
                         const inputVal = Number(data.bobot_maksimum) || 0;
                         const currentUsed =
@@ -544,17 +572,21 @@ export default function MenuAspekPenilaian() {
                                 : totalBobot;
                         const sisa = 100 - (currentUsed + inputVal);
 
+                        // Kita sembunyikan text helper ini jika sudah ada error merah dari 'errors.bobot_maksimum'
+                        // supaya tidak double pesan, tapi terserah preferensi Anda.
+                        // Di sini saya biarkan agar user tetap tahu matematikanya.
                         return (
                             <div
                                 className={`text-xs ${
                                     sisa < 0
-                                        ? "text-red-600 font-bold"
+                                        ? "text-red-400" // Warna lebih soft karena error utama sudah ada di atas
                                         : "text-gray-500"
                                 }`}
                             >
                                 {sisa < 0 ? (
                                     <span>
-                                        Melebihi batas maksimum! (Sisa: {sisa})
+                                        (Hitungan: Melebihi batas sebesar{" "}
+                                        {Math.abs(sisa)} poin)
                                     </span>
                                 ) : (
                                     <>

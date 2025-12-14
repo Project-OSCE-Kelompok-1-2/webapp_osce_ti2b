@@ -147,6 +147,7 @@ export default function Stase() {
         errors,
         reset,
         clearErrors,
+        setError,
     } = useForm({
         id: null,
         nama_stase: "",
@@ -189,8 +190,11 @@ export default function Stase() {
     const handleAddTujuan = (val) => {
         const valueToAdd = val || tujuanInput;
 
+        // Validasi MAX Item
         if (data.tujuan_pembelajaran.length >= MAX_TUJUAN) {
-            alert(
+            // GANTI ALERT DENGAN INI:
+            setError(
+                "tujuan_pembelajaran",
                 `Maksimal hanya boleh menambahkan ${MAX_TUJUAN} Tujuan Pembelajaran.`
             );
             return;
@@ -204,6 +208,9 @@ export default function Stase() {
                     valueToAdd,
                 ]);
                 setTujuanInput("");
+
+                // Hapus error jika berhasil menambah
+                clearErrors("tujuan_pembelajaran");
             } else {
                 setTujuanInput("");
             }
@@ -211,10 +218,15 @@ export default function Stase() {
     };
 
     const removeTujuan = (indexToRemove) => {
-        setData(
-            "tujuan_pembelajaran",
-            data.tujuan_pembelajaran.filter((_, i) => i !== indexToRemove)
+        const newData = data.tujuan_pembelajaran.filter(
+            (_, i) => i !== indexToRemove
         );
+        setData("tujuan_pembelajaran", newData);
+
+        // Bersihkan error saat user melakukan aksi hapus (karena slot jadi tersedia lagi)
+        if (newData.length < MAX_TUJUAN) {
+            clearErrors("tujuan_pembelajaran");
+        }
     };
 
     const handleTujuanInputChange = (e) => {
@@ -259,17 +271,37 @@ export default function Stase() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        if (!data.id_mata_kuliah) {
-            alert(
-                "Mata Kuliah tidak valid. Harap pilih dari daftar yang tersedia."
-            );
-            return;
+        // 1. Bersihkan error lama
+        clearErrors();
+
+        let isValid = true;
+
+        // --- VALIDASI NAMA STASE (BARU) ---
+        if (!data.nama_stase || data.nama_stase.trim() === "") {
+            setError("nama_stase", "Nama Stase wajib diisi.");
+            isValid = false;
         }
 
-        if (data.tujuan_pembelajaran.length === 0) {
-            alert("Mohon masukkan minimal satu Tujuan Pembelajaran.");
-            return;
+        // --- VALIDASI MATA KULIAH ---
+        if (!data.id_mata_kuliah) {
+            setError(
+                "id_mata_kuliah",
+                "Mata Kuliah tidak valid. Harap pilih dari daftar."
+            );
+            isValid = false;
         }
+
+        // --- VALIDASI TUJUAN PEMBELAJARAN ---
+        if (data.tujuan_pembelajaran.length === 0) {
+            setError(
+                "tujuan_pembelajaran",
+                "Mohon masukkan minimal satu Tujuan Pembelajaran."
+            );
+            isValid = false;
+        }
+
+        // Jika tidak valid, stop di sini
+        if (!isValid) return;
 
         const options = {
             onSuccess: () => {
@@ -590,14 +622,29 @@ export default function Stase() {
                         )}
                     </div>
 
-                    <OsInput
-                        label="Nama Stase"
-                        type="text"
-                        name="nama_stase"
-                        value={data.nama_stase}
-                        onChange={(e) => setData("nama_stase", e.target.value)}
-                        required
-                    />
+                    <div>
+                        <OsInput
+                            label="Nama Stase"
+                            type="text"
+                            name="nama_stase"
+                            value={data.nama_stase}
+                            onChange={(e) => {
+                                setData("nama_stase", e.target.value);
+                                // Opsional: Hilangkan error merah saat user mulai mengetik
+                                if (errors.nama_stase)
+                                    clearErrors("nama_stase");
+                            }}
+                            // Hapus 'required' bawaan browser agar error text kita yang muncul
+                            // required
+                        />
+
+                        {/* Tampilkan Error Text di sini */}
+                        {errors.nama_stase && (
+                            <p className="text-red-500 text-xs mt-1">
+                                {errors.nama_stase}
+                            </p>
+                        )}
+                    </div>
                     <OsInput
                         label="Deskripsi"
                         type="textarea"

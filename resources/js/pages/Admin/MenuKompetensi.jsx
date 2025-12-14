@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react"; // [1] Import useEffect & useMemo
+import React, { useState, useEffect, useMemo } from "react";
 import { usePage, router, useForm } from "@inertiajs/react";
 import { Pencil, Trash2, FileText, Table2 } from "lucide-react";
 
@@ -56,13 +56,10 @@ export default function KompetensiPage() {
     const itemsPerPage = 10;
 
     // --- INSTANT FILTER LOGIC ---
-
-    // A. Reset Page ke 1 saat search berubah
     useEffect(() => {
         setCurrentPage(1);
     }, [search]);
 
-    // B. Filter Data (Client Side)
     const filteredData = useMemo(() => {
         return allData.filter((item) => {
             const term = search.toLowerCase();
@@ -73,7 +70,6 @@ export default function KompetensiPage() {
         });
     }, [search, allData]);
 
-    // C. Slice Pagination
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -81,7 +77,6 @@ export default function KompetensiPage() {
         currentPage * itemsPerPage
     );
 
-    // D. Generate Pagination Links
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];
@@ -141,6 +136,9 @@ export default function KompetensiPage() {
         put,
         delete: destroy,
         reset,
+        errors, // 1. Tambah errors
+        setError, // 2. Tambah setError
+        clearErrors, // 3. Tambah clearErrors
     } = useForm({
         id: null,
         kompetensi: "",
@@ -152,7 +150,9 @@ export default function KompetensiPage() {
     const [modalOpen, setModalOpen] = useState(false);
     const [selected, setSelected] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [errorMessage, setErrorMessage] = useState("");
+    // Hapus manual error message state
+    // const [errorMessage, setErrorMessage] = useState("");
+
     const [showFullWeightWarning, setShowFullWeightWarning] = useState(false);
 
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
@@ -165,7 +165,7 @@ export default function KompetensiPage() {
         }
         setShowFullWeightWarning(false);
         setModalType("add");
-        setErrorMessage("");
+        clearErrors(); // Reset error saat buka modal
         setData({
             id: null,
             kompetensi: "",
@@ -178,7 +178,7 @@ export default function KompetensiPage() {
     const openEditModal = (item) => {
         setSelected(item);
         setModalType("edit");
-        setErrorMessage("");
+        clearErrors(); // Reset error saat buka modal
         setData({
             id: item.id_poin_aspek_penilaian,
             kompetensi: item.kompetensi,
@@ -195,42 +195,60 @@ export default function KompetensiPage() {
             bobot: "",
             id_aspek_penilaian: aspek.id_aspek_penilaian,
         });
+        clearErrors();
     };
 
+    // --- LOGIC VALIDASI & SUBMIT ---
     const handleSubmit = (e) => {
         e.preventDefault();
-        setErrorMessage("");
-        const inputBobot = Number(data.bobot);
+        clearErrors(); // Bersihkan error lama
+
+        let isValid = true;
+
+        // A. Validasi Field Kosong
+        if (!data.kompetensi || data.kompetensi.trim() === "") {
+            setError("kompetensi", "Deskripsi kompetensi wajib diisi.");
+            isValid = false;
+        }
+        if (!data.bobot) {
+            setError("bobot", "Bobot wajib diisi.");
+            isValid = false;
+        }
+
+        // B. Validasi Logic Bobot
+        const inputBobot = Number(data.bobot) || 0;
+        let projectedTotal = 0;
 
         if (modalType === "add") {
-            if (totalBobot + inputBobot > maxBobot) {
-                setErrorMessage(
-                    `Gagal! Total bobot akan menjadi ${
-                        totalBobot + inputBobot
-                    }. Maksimal adalah ${maxBobot}. Sisa bobot: ${
-                        maxBobot - totalBobot
-                    }`
-                );
-                return;
-            }
+            projectedTotal = totalBobot + inputBobot;
+        } else if (modalType === "edit") {
+            const oldBobot = selected ? Number(selected.bobot) : 0;
+            projectedTotal = totalBobot - oldBobot + inputBobot;
+        }
+
+        // Cek hanya jika field bobot tidak kosong
+        if (data.bobot && projectedTotal > maxBobot) {
+            setError(
+                "bobot",
+                `Gagal! Total bobot menjadi ${projectedTotal}. Maksimal ${maxBobot}.`
+            );
+            isValid = false;
+        }
+
+        if (!isValid) return; // Stop jika ada error
+
+        // C. Eksekusi Submit
+        if (modalType === "add") {
             post(
                 `/admin/aspek-penilaian/${aspek.id_aspek_penilaian}/kompetensi`,
                 {
                     onSuccess: () => {
                         setModalOpen(false);
                         reset();
-                    }, // Router reload dihapus karena Inertia auto-reload
+                    },
                 }
             );
         } else if (modalType === "edit") {
-            const oldBobot = selected ? Number(selected.bobot) : 0;
-            const projectedTotal = totalBobot - oldBobot + inputBobot;
-            if (projectedTotal > maxBobot) {
-                setErrorMessage(
-                    `Gagal! Total bobot akan menjadi ${projectedTotal}. Maksimal adalah ${maxBobot}.`
-                );
-                return;
-            }
             put(`/admin/kompetensi/${data.id}`, {
                 onSuccess: () => {
                     setModalOpen(false);
@@ -255,7 +273,7 @@ export default function KompetensiPage() {
         });
     };
 
-    // --- TABLE DATA MAPPING (Use paginatedData) ---
+    // --- TABLE DATA MAPPING ---
     const tableData = paginatedData.map((item, idx) => ({
         no: (currentPage - 1) * itemsPerPage + idx + 1,
         kompetensi: item.kompetensi,
@@ -362,12 +380,6 @@ export default function KompetensiPage() {
                             placeholder="Cari kompetensi secara instan..."
                         />
 
-                        {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table Kompetensi
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
-                    </h2> */}
                         <div className="flex gap-1 items-center justify-start my-2">
                             <Table2 size={18} />
                             <h2 className="font-semibold text-lg">
@@ -427,29 +439,50 @@ export default function KompetensiPage() {
                 subtitle="Isi form berikut"
             >
                 <div className="space-y-3">
-                    <OsInput
-                        label="Deskripsi Kompetensi"
-                        type="textarea"
-                        name="kompetensi"
-                        value={data.kompetensi}
-                        placeholder="Masukkan deskripsi kompetensi..."
-                        onChange={(e) => setData("kompetensi", e.target.value)}
-                        required
-                    />
-                    <OsInput
-                        label="Bobot Kompetensi"
-                        type="number"
-                        name="bobot"
-                        value={data.bobot}
-                        placeholder="Masukkan bobot kompetensi..."
-                        onChange={(e) => setData("bobot", e.target.value)}
-                        required
-                    />
-                    {errorMessage && (
-                        <div className="text-xs text-red-600 font-bold bg-red-50 p-2 rounded border border-red-200">
-                            {errorMessage}
-                        </div>
-                    )}
+                    {/* INPUT DESKRIPSI KOMPETENSI */}
+                    <div>
+                        <OsInput
+                            label="Deskripsi Kompetensi"
+                            type="textarea"
+                            name="kompetensi"
+                            value={data.kompetensi}
+                            placeholder="Masukkan deskripsi kompetensi..."
+                            onChange={(e) => {
+                                setData("kompetensi", e.target.value);
+                                if (errors.kompetensi)
+                                    clearErrors("kompetensi");
+                            }}
+                            // required <-- Hapus agar validasi custom jalan
+                        />
+                        {errors.kompetensi && (
+                            <p className="text-red-500 text-xs mt-1">
+                                {errors.kompetensi}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* INPUT BOBOT */}
+                    <div>
+                        <OsInput
+                            label="Bobot Kompetensi"
+                            type="number"
+                            name="bobot"
+                            value={data.bobot}
+                            placeholder="Masukkan bobot kompetensi..."
+                            onChange={(e) => {
+                                setData("bobot", e.target.value);
+                                if (errors.bobot) clearErrors("bobot");
+                            }}
+                            // required <-- Hapus
+                        />
+                        {errors.bobot && (
+                            <p className="text-red-500 text-xs mt-1 font-semibold">
+                                {errors.bobot}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* HELPER TEXT UNTUK SISA BOBOT */}
                     {(() => {
                         const inputVal = Number(data.bobot) || 0;
                         const currentUsed =
@@ -462,14 +495,13 @@ export default function KompetensiPage() {
                         return (
                             <div
                                 className={`text-xs ${
-                                    sisa < 0
-                                        ? "text-red-600 font-bold"
-                                        : "text-gray-500"
+                                    sisa < 0 ? "text-red-400" : "text-gray-500"
                                 }`}
                             >
                                 {sisa < 0 ? (
                                     <span>
-                                        Melebihi batas maksimum! (Sisa: {sisa})
+                                        (Hitungan: Melebihi batas maksimum
+                                        sebesar {Math.abs(sisa)}!)
                                     </span>
                                 ) : (
                                     <>

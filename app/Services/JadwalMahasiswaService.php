@@ -46,38 +46,35 @@ class JadwalMahasiswaService
      * Logic Utama Dinamis:
      * Cari Enrollment berdasarkan Tanggal -> Dapat ID OSCE & Nama OSCE yang benar.
      */
-    public function getActiveExamInfo($idMahasiswa, $selectedDate)
+   public function getActiveExamInfo($idMahasiswa, $selectedDate)
     {
-        // 1. Cari Enrollment spesifik milik user pada tanggal tersebut
-        // Ini akan otomatis menemukan Enrollment ID 9 (OSCE 2) jika tanggalnya 2025-12-08
-        // Atau Enrollment ID 1 (OSCE 1) jika tanggalnya 2025-12-13
+        // 1. Cari Enrollment spesifik
         $enrollment = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
             ->whereDate('tanggal_sesi', $selectedDate)
-            ->with(['osce', 'osce.osceStase']) // Load relasi OSCE
+            ->with(['osce', 'osce.osceStase']) 
             ->first();
 
-        // Validasi: Jika tidak ada jadwal di tanggal itu
         if (!$enrollment || !$enrollment->osce) {
             return null;
         }
 
-        // 2. Ambil Data OSCE dari hasil pencarian di atas
         $osce = $enrollment->osce;
-
-        // --- Mulai Hitung Waktu & Countdown ---
         $timezone = 'Asia/Jakarta';
 
-        // Ambil jam sesi langsung dari enrollment (sesuai ERD dan screenshot)
-        $jamMulaiStr = $enrollment->jam_sesi ? $enrollment->jam_sesi : '08:00:00';
-        $jamMulai = substr($jamMulaiStr, 0, 5);
+        // Ambil jam sesi langsung dari enrollment
+        // Pastikan formatnya H:i:s agar cocok dengan database
+        $jamMulaiStr = $enrollment->jam_sesi ? $enrollment->jam_sesi : '08:00:00'; 
+        
+        // Parsing jam untuk display (H:i)
+        $jamMulaiDisplay = substr($jamMulaiStr, 0, 5);
 
-        // Hitung estimasi selesai berdasarkan jumlah durasi stase di OSCE tersebut
+        // Hitung estimasi selesai
         $totalDurasiMenit = $osce->osceStase->sum('durasi_per_mahasiswa');
         $waktuSelesai = Carbon::parse($jamMulaiStr, $timezone)
             ->addMinutes($totalDurasiMenit)
             ->format('H:i');
 
-        // Buat Target Waktu untuk Countdown
+        // Buat Target Waktu Countdown
         $targetDateTime = Carbon::parse($selectedDate . ' ' . $jamMulaiStr, $timezone);
         $now = Carbon::now($timezone);
 
@@ -96,10 +93,11 @@ class JadwalMahasiswaService
         }
 
         return [
-            'id_osce'           => $osce->id_osce,   // ID OSCE Dinamis
-            'judul'             => $osce->nama_osce, // Nama OSCE Dinamis
+            'id_osce'           => $osce->id_osce,
+            'jam_sesi_raw'      => $jamMulaiStr, // [PENTING] Ini kunci filternya (misal: 08:00:00)
+            'judul'             => $osce->nama_osce,
             'tanggal_formatted' => Carbon::parse($selectedDate)->translatedFormat('d F Y'),
-            'waktu_mulai'       => $jamMulai,
+            'waktu_mulai'       => $jamMulaiDisplay,
             'waktu_selesai'     => $waktuSelesai,
             'countdown_target'  => $targetDateTime->toIso8601String(),
             'countdown'         => $countdownSnapshot,
@@ -109,32 +107,50 @@ class JadwalMahasiswaService
 
     /**
      * Mengambil Tabel Stase
-     * Menggunakan ID OSCE yang didapat dari fungsi getActiveExamInfo sebelumnya
+     * [UPDATE] Menambahkan parameter $jamSesi untuk filter
      */
-    public function getJadwalStase($idOsce, $selectedDate)
+   public function getJadwalStase($idOsce, $selectedDate, $jamSesi = null)
     {
-        // Ambil stase-stase yang milik ID OSCE tersebut
-        // Relasi: osce_stase -> fk id_osce
+        // 1. Definisikan Waktu
+        $timezone = 'Asia/Jakarta';
+        $now = Carbon::now($timezone);
+        
+        // Gabungkan tanggal dan jam sesi untuk dapat waktu mulai absolut
+        // Jika $jamSesi null, kita asumsikan 00:00 (tapi seharusnya tidak null dari controller)
+        $waktuMulaiUjian = Carbon::parse($selectedDate . ' ' . ($jamSesi ?? '00:00:00'), $timezone);
+
+        // ==========================================================
+        // SECURITY CHECK: UJIAN BELUM DIMULAI
+        // ==========================================================
+        // Jika waktu sekarang KURANG DARI waktu mulai ujian, 
+        // Jangan kembalikan data apapun (return kosong).
+        // Mahasiswa hanya boleh melihat hitung mundur, bukan isi tabel.
+        if ($now->lessThan($waktuMulaiUjian)) {
+            return collect([]); // Kembalikan Collection kosong
+        }
+
+        // ==========================================================
+        // QUERY DATA (Hanya dijalankan jika ujian SUDAH dimulai)
+        // ==========================================================
+        
         $query = OsceStase::with(['stase', 'ruang', 'penguji.pengguna'])
             ->where('id_osce', $idOsce)
-            // Pastikan stase yang diambil adalah stase yang dijadwalkan pada tanggal/jam sesi tersebut
-            // Sesuai ERD, osce_stase juga punya kolom 'tanggal' dan 'jam_mulai'
-            // Kita harus mencocokkan tanggal stase dengan tanggal sesi yang dipilih mahasiswa
-            ->whereDate('tanggal', $selectedDate)
-            ->orderBy('jam_mulai', 'asc');
+            ->whereDate('tanggal', $selectedDate);
 
-        $now = Carbon::now();
-        $targetDate = Carbon::parse($selectedDate);
-
-        // Logic Filter History (Sama seperti sebelumnya)
-        if ($targetDate->isToday()) {
-            // Jika hari ini, sembunyikan yang sudah lewat jamnya
-            $query->whereRaw("CONCAT(?, ' ', jam_selesai) < ?", [$targetDate->toDateString(), $now->toDateTimeString()]);
-        } else if ($targetDate->gt($now->startOfDay())) {
-            // Jika tanggal masa depan, jangan tampilkan tabelnya (belum mulai)
-            // Atau bisa dihilangkan else ini jika ingin tetap menampilkan rundown jadwal masa depan
-            $query->whereRaw('1 = 0');
+        // Filter Sesi Berdasarkan Jam Mulai
+        if ($jamSesi) {
+            $query->where('jam_mulai', $jamSesi);
         }
+
+        $query->orderBy('jam_mulai', 'asc');
+
+        // Logic Opsional: Menyembunyikan stase yang sudah lewat jamnya (History)
+        // Jika user reload halaman saat ujian berlangsung, stase yg sudah lewat tetap aman disembunyikan
+        // atau ditampilkan (tergantung kebijakan). Code di bawah ini menyembunyikan yg lewat.
+        /* if (Carbon::parse($selectedDate)->isToday()) {
+             $query->whereRaw("CONCAT(?, ' ', jam_selesai) > ?", [$selectedDate, $now->toDateTimeString()]);
+        }
+        */
 
         return $query->get();
     }

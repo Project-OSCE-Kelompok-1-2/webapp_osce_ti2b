@@ -31,12 +31,13 @@ class AdminController extends Controller
             'total_penguji' => Penguji::count(),
         ];
 
-        $notifikasi_bobot = $this->service->getDashboardData();
+        // Service sekarang mengembalikan Collection notifikasi yang sudah digabung
+        $notifikasi = $this->service->getDashboardData();
 
         return Inertia::render('Admin/Dashboard', [
             'stats' => $stats,
-            'notifikasi' => $notifikasi_bobot,
-            'user' => Auth::user(), // ← TAMBAHAN AGAR USERNAME TERKIRIM
+            'notifikasi' => $notifikasi, // Kirim data yang sudah distandarisasi
+            'user' => Auth::user(),
         ]);
     }
 
@@ -56,9 +57,26 @@ class AdminController extends Controller
 
         $request->validate([
             'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:1024'],
-            'new_password' => ['nullable', 'string', 'min:6', 'confirmed'],
-            'old_password' => ['nullable', 'string'],
+            
+            // PERBAIKAN: Tambahkan 'required_with'
+            'old_password' => [
+                'nullable', 
+                'string',
+                'required_with:new_password' // Wajib jika new_password ada isinya
+            ],
+            'new_password' => [
+                'nullable', 
+                'string', 
+                'min:6', 
+                'confirmed',
+                'required_with:old_password' // Wajib jika old_password ada isinya
+            ],
+            
             'delete_foto' => ['nullable', 'boolean'],
+        ], [
+            // Custom messages (Opsional)
+            'old_password.required_with' => 'Password lama wajib diisi jika ingin mengganti password.',
+            'new_password.required_with' => 'Password baru wajib diisi.',
         ]);
 
         $this->service->updateAccount($request, $admin);
