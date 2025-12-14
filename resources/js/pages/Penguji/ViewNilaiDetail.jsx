@@ -6,7 +6,6 @@ import { ArrowLeft } from "lucide-react";
 import Sidebar from "../../components/Sidebar";
 import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/Copyright";
-// import Sidebar from "../../components/Sidebar";
 
 // --- Komponen Internal: Lingkaran Skor (0-4) ---
 const ScoreCircle = ({ value, selected }) => {
