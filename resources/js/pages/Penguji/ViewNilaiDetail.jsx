@@ -3,7 +3,7 @@ import { usePage, router } from "@inertiajs/react";
 import { ArrowLeft } from "lucide-react";
 
 // --- Import Komponen ---
-import Sidebar from "../../components/Sidebar"; 
+import Sidebar from "../../components/Sidebar";
 import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/Copyright";
 
@@ -18,13 +18,13 @@ const ScoreCircle = ({ value, selected }) => {
                 className={`w-5 h-5 rounded-full border border-black flex items-center justify-center transition-all
                     ${
                         selected
-                            ? "bg-black border-black"
+                            ? "bg-white border-black"
                             : "bg-white border-gray-400"
                     }
                 `}
             >
                 {selected && (
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
+                    <div className="w-3 h-3 bg-gray-700 rounded-full"></div>
                 )}
             </div>
         </div>
@@ -32,6 +32,11 @@ const ScoreCircle = ({ value, selected }) => {
 };
 
 export default function ViewNilaiDetail() {
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [sidebarOpen, setSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
+
     // 1. AMBIL DATA DARI PROPS BACKEND
     const {
         mahasiswa,
@@ -43,17 +48,14 @@ export default function ViewNilaiDetail() {
 
     console.log("DEBUG INFO UJIAN:", info_ujian);
 
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    const handleSidebarToggle = () => {
-        setIsSidebarOpen((prev) => !prev);
-    };
 
     // 2. FUNGSI NAVIGASI KEMBALI (Dipanggil oleh Header)
     const handleBackToRekap = () => {
         if (info_ujian?.id_osce && info_ujian?.id_osce_stase) {
             // Arahkan ke URL halaman Rekap Mahasiswa
-            router.get(`/penguji/osce/${info_ujian.id_osce}/stase/${info_ujian.id_osce_stase}/rekap`);
+            router.get(
+                `/penguji/osce/${info_ujian.id_osce}/stase/${info_ujian.id_osce_stase}/rekap`
+            );
         } else {
             // Fallback aman
             window.history.back();
@@ -62,27 +64,25 @@ export default function ViewNilaiDetail() {
 
     return (
         <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar 
-                isOpen={isSidebarOpen} 
-                onToggle={handleSidebarToggle} 
-                type="penguji" 
-            />
+            {/* <Sidebar
+                isOpen={isSidebarOpen}
+                onToggle={handleSidebarToggle}
+                type="penguji"
+            /> */}
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* 1. Header dengan Tombol Back Custom */}
                 <OsHeader
                     className="fixed"
-                    variant="goback" 
+                    variant="goback"
                     title="OSCE / Detail OSCE / Penilaian Stase / Lihat Penilaian"
-                    icon={<ArrowLeft className="w-5 h-5" />} 
+                    icon={<ArrowLeft className="w-5 h-5" />}
                     backLink={`/penguji/osce/${info_ujian.id_osce}/stase/${info_ujian.id_osce_stase}/rekap`}
-                    
                     // Hamburger menu tetap aktif
-                    onMenuClick={handleSidebarToggle} 
+                    onMenuClick={handleSidebarToggle}
                 />
 
                 <div className="flex-1 overflow-auto">
-                    
                     {/* 2. Info Mahasiswa */}
                     <div className="flex items-center p-4 border border-black rounded-xl mb-6 bg-white shadow-sm">
                         <div className="w-16 h-16 bg-gray-800 rounded-full mr-6 flex-shrink-0 flex items-center justify-center text-white font-bold text-xl">
@@ -112,10 +112,18 @@ export default function ViewNilaiDetail() {
                     {/* 4. Tabel Penilaian */}
                     <div className="border border-black rounded-xl overflow-hidden mb-6 shadow-sm">
                         <div className="flex border-b border-black bg-gray-50 text-sm font-bold text-gray-900">
-                            <div className="w-16 p-3 text-center border-r border-black">No</div>
-                            <div className="flex-1 p-3 border-r border-black">Aspek Penilaian</div>
-                            <div className="w-64 p-3 text-center border-r border-black">Skor</div>
-                            <div className="w-32 p-3 text-center border-r border-black">Bobot</div>
+                            <div className="w-16 p-3 text-center border-r border-black">
+                                No
+                            </div>
+                            <div className="flex-1 p-3 border-r border-black">
+                                Aspek Penilaian
+                            </div>
+                            <div className="w-64 p-3 text-center border-r border-black">
+                                Skor
+                            </div>
+                            <div className="w-32 p-3 text-center border-r border-black">
+                                Bobot
+                            </div>
                             <div className="w-32 p-3 text-center">Nilai</div>
                         </div>
 
@@ -128,7 +136,9 @@ export default function ViewNilaiDetail() {
                                     <div
                                         key={item.id_poin_aspek_penilaian}
                                         className={`flex border-b border-black ${
-                                            idx % 2 === 0 ? "bg-gray-100" : "bg-white"
+                                            idx % 2 === 0
+                                                ? "bg-gray-100"
+                                                : "bg-white"
                                         }`}
                                     >
                                         <div className="w-16 p-3 text-center border-r border-black flex items-center justify-center font-medium">
@@ -142,7 +152,11 @@ export default function ViewNilaiDetail() {
                                                 <ScoreCircle
                                                     key={score}
                                                     value={score}
-                                                    selected={Math.round(item.skor) === score}
+                                                    selected={
+                                                        Math.round(
+                                                            item.skor
+                                                        ) === score
+                                                    }
                                                 />
                                             ))}
                                         </div>
@@ -150,7 +164,9 @@ export default function ViewNilaiDetail() {
                                             {item.bobot}
                                         </div>
                                         <div className="w-32 p-3 flex items-center justify-center font-bold text-blue-800">
-                                            {Number(item.nilai_kompetensi).toFixed(2).replace(/\.00$/, "")}
+                                            {Number(item.nilai_kompetensi)
+                                                .toFixed(2)
+                                                .replace(/\.00$/, "")}
                                         </div>
                                     </div>
                                 ))}

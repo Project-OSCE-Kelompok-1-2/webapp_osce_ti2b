@@ -1,6 +1,23 @@
 import React, { useState, useEffect } from "react"; // BARU: Import Hooks
 import { Head, router, usePage } from "@inertiajs/react";
 import OsCopyright from "../../components/Copyright";
+import Sidebar from "../../components/Sidebar";
+import OsTableHeader from "../../components/tableheader";
+import OsHeader from "../../components/Header";
+import {
+    ArrowLeft,
+    Download,
+    Search,
+    ExternalLink,
+    FileText,
+    User,
+    Clock,
+    UserCheck,
+    Table2,
+    Info,
+    CircleArrowRight,
+    CircleCheckBig
+} from "lucide-react";
 
 export default function LiveRotasi() {
     // 1. AMBIL PROPS DARI BACKEND
@@ -9,6 +26,8 @@ export default function LiveRotasi() {
         mahasiswa_selanjutnya,
         sisa_waktu_rotasi_detik = 60, // Ini data mentah dari Controller
     } = usePage().props;
+
+    const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // BARU: State lokal untuk timer yang bisa berjalan
     const [timeLeft, setTimeLeft] = useState(sisa_waktu_rotasi_detik);
@@ -36,7 +55,6 @@ export default function LiveRotasi() {
         return () => clearInterval(intervalId);
     }, [timeLeft, isFinished]);
 
-
     const handleBack = () => {
         router.get("/penguji/dashboard");
     };
@@ -63,45 +81,61 @@ export default function LiveRotasi() {
         return `00:${m}:${s}`;
     };
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+
+    const handleSidebarToggle = () => {
+        setIsSidebarOpen((prev) => !prev);
+    };
+
     return (
-        <>
+        <div className="relative bg-orange-50 w-full min-h-screen flex justify-start font-sans overflow-hidden">
             <Head title="Rotasi Mahasiswa" />
 
-            <div className="min-h-screen bg-white flex flex-col font-sans">
-                {/* HEADER */}
-                <header className="border-b">
-                    <div className="mx-auto max-w-6xl flex items-center gap-3 px-4 py-3">
-                        <button
-                            type="button"
-                            onClick={handleBack}
-                            className="inline-flex h-8 w-8 items-center justify-center rounded-full border hover:bg-gray-100"
-                        >
-                            <span className="sr-only">Kembali</span>
-                            <span className="-ml-0.5 text-lg">&larr;</span>
-                        </button>
+            <div className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <Sidebar
+                    isOpen={sidebarOpen}
+                    setIsOpen={handleSidebarToggle}
+                    type={"penguji"}
+                />
+                <div className="flex-1 overflow-hidden pb-8 p-1">
+                    {/* HEADER */}
+                    {/* <header className="border-b">
+                        <div className="mx-auto max-w-6xl flex items-center gap-3 px-4 py-3">
+                            <button
+                                type="button"
+                                onClick={handleBack}
+                                className="inline-flex h-8 w-8 items-center justify-center rounded-full border hover:bg-gray-100"
+                            >
+                                <span className="sr-only">Kembali</span>
+                                <span className="-ml-0.5 text-lg">&larr;</span>
+                            </button>
 
-                        <div className="flex-1 truncate text-sm text-gray-700">
-                            <span className="text-gray-500">
-                                OSCE / {safeOsce.nama_osce} /
-                            </span>{" "}
-                            <span className="font-medium">Rotasi</span>
+                            <div className="flex-1 truncate text-sm text-gray-700">
+                                <span className="text-gray-500">
+                                    OSCE / {safeOsce.nama_osce} /
+                                </span>{" "}
+                                <span className="font-medium">Rotasi</span>
+                            </div>
                         </div>
-                    </div>
-                </header>
+                    </header> */}
+                    <OsHeader
+                        onMenuClick={handleSidebarToggle}
+                        variant="penguji"
+                    />
 
-                {/* MAIN */}
-                <main className="w-full min-h-screen flex flex-col justify-between">
-                    <div className="mx-auto max-w-4xl px-4 py-8">
-                        <div className="flex justify-center items-center">
+                    {/* MAIN */}
+                    <main className="w-full  min-h-[88vh] flex flex-col justify-between">
+                        {/* <div className="mx-auto max-w-4xl px-4 py-8 bg-yellow-300"></div> */}
+                        <div className="flex justify-center items-center ">
                             {/* Card Rotasi */}
-                            <div className="w-full max-w-md bg-white rounded-2xl shadow-[0_4px_8px_rgba(0,0,0,0.15)] border border-black/10 py-10 px-10 text-center">
+                            <div className="w-full mt-20 max-w-md !border-os-primary-pj bg-white rounded-2xl shadow-[0_4px_8px_rgba(0,0,0,0.15)] border py-10 px-10 text-center">
                                 {/* Icon Check / Finish */}
                                 <div className="flex justify-center mb-8">
-                                    <div
+                                    {/* <div
                                         className={`flex items-center justify-center w-[116px] h-[116px] rounded-[22px] border-[6px] ${
                                             isFinished
                                                 ? "border-green-500"
-                                                : "border-[#1E63D9]"
+                                                : "border-orange-400"
                                         }`}
                                     >
                                         <svg
@@ -111,7 +145,7 @@ export default function LiveRotasi() {
                                             stroke={
                                                 isFinished
                                                     ? "#22c55e"
-                                                    : "#1E63D9"
+                                                    : "#22c55e"
                                             }
                                             strokeWidth="2.4"
                                             strokeLinecap="round"
@@ -119,7 +153,8 @@ export default function LiveRotasi() {
                                         >
                                             <polyline points="5 13 9 17 19 7" />
                                         </svg>
-                                    </div>
+                                    </div> */}
+                                    <CircleCheckBig size={100} className="text-orange-400" />
                                 </div>
 
                                 {/* Konten Dinamis */}
@@ -129,7 +164,8 @@ export default function LiveRotasi() {
                                             Seluruh Mahasiswa Telah Dinilai!
                                         </h3>
                                         <p className="text-sm text-gray-500 mb-6">
-                                            Anda dapat menyelesaikan sesi ini sekarang.
+                                            Anda dapat menyelesaikan sesi ini
+                                            sekarang.
                                         </p>
                                     </div>
                                 ) : (
@@ -137,25 +173,31 @@ export default function LiveRotasi() {
                                         <p className="text-sm text-black mb-3">
                                             Rotasi mahasiswa selanjutnya
                                         </p>
-                                        <div className="border border-black rounded-xl px-4 py-4 flex items-center gap-4 mb-4 text-left">
+                                        <div className="border border-os-primary-pj rounded-xl px-4 py-4 flex items-center gap-4 mb-4 text-left">
                                             <div className="w-[70px] h-[70px] rounded-full bg-[#402525]" />
                                             <div className="text-xs sm:text-sm leading-relaxed">
-                                                <p className="font-semibold">
+                                                <p className="font-semibold text-os-primary-pj">
                                                     Nama :{" "}
                                                     <span className="font-normal">
-                                                        {mahasiswa_selanjutnya.nama}
+                                                        {
+                                                            mahasiswa_selanjutnya.nama
+                                                        }
                                                     </span>
                                                 </p>
                                                 <p className="font-semibold mt-1">
                                                     NIM :{" "}
                                                     <span className="font-normal">
-                                                        {mahasiswa_selanjutnya.nim}
+                                                        {
+                                                            mahasiswa_selanjutnya.nim
+                                                        }
                                                     </span>
                                                 </p>
                                                 <p className="font-semibold mt-1">
                                                     Jurusan :{" "}
                                                     <span className="font-normal">
-                                                        {mahasiswa_selanjutnya.prodi}
+                                                        {
+                                                            mahasiswa_selanjutnya.prodi
+                                                        }
                                                     </span>
                                                 </p>
                                             </div>
@@ -166,11 +208,12 @@ export default function LiveRotasi() {
                                 {/* Tombol Sisa Waktu + Action */}
                                 <div className="mt-4 flex gap-3">
                                     {!isFinished && (
-                                        <div className="flex-1 flex items-center justify-between rounded-xl border border-black bg-[#E53935] px-4 py-3">
-                                            <span className="text-sm font-medium text-white">
+                                        <div className="flex-1 flex items-center justify-between rounded-xl border border-os-primary-pj bg-os-tertiary-pj px-4 py-3">
+
+                                            <span className="text-sm font-medium text-orange-500">
                                                 Istirahat
                                             </span>
-                                            <span className="text-sm font-bold text-white">
+                                            <span className="text-sm font-bold text-orange-500">
                                                 {/* BARU: Gunakan state timeLeft, bukan props langsung */}
                                                 {formatWaktu(timeLeft)}
                                             </span>
@@ -180,26 +223,26 @@ export default function LiveRotasi() {
                                     <button
                                         type="button"
                                         onClick={handleSubmit}
-                                        className={`flex-1 rounded-xl border border-black px-4 py-3 text-sm font-bold text-white text-center ${
+                                        className={`flex-1 flex justify-between items-center rounded-xl border border-black px-4 py-3 text-sm font-bold text-white text-center ${
                                             isFinished
                                                 ? "bg-green-600 hover:bg-green-700"
-                                                : "bg-[#0052CC] hover:bg-blue-700"
+                                                : "bg-orange-400 hover:bg-orange-500"
                                         }`}
                                     >
                                         {isFinished
-                                            ? "SELESAI SESI"
-                                            : "LANJUT NILAI"}
+                                            ? "Sesi Selesai"
+                                            : "Lanjut Nilai"}
+                                        <CircleArrowRight size={20} />
                                     </button>
                                 </div>
                             </div>
                         </div>
-                    </div>
-
-                    <div className="mt-4">
-                        <OsCopyright />
-                    </div>
-                </main>
+                        <div className="mt-4">
+                            <OsCopyright variant="penguji" />
+                        </div>
+                    </main>
+                </div>
             </div>
-        </>
+        </div>
     );
 }
