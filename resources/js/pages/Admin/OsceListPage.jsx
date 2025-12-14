@@ -385,16 +385,6 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                     />
                                 </div>
 
-                                <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
-                                    <div className="min-w-max">
-                                        <OsTableHeader columns={columns} />
-                                        <OsTableBody
-                                            data={rows}
-                                            columns={columns}
-                                        />
-                                    </div>
-                                </section>
-
                                 {totalPages > 1 && (
                                     <div className="mt-8">
                                         <OsPagination

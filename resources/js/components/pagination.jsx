@@ -1,4 +1,3 @@
-
 // components/OsPagination.jsx
 import { Link } from "@inertiajs/react";
 import React from "react";
@@ -17,57 +16,38 @@ const OsPagination = ({ links = [], onPageChange, variant = "admin" }) => {
     }
 
     const isPenguji = variant === "penguji";
-    const isMahasiswa = variant === "mahasiswa"; // Tambahkan varian mahasiswa
+    const isMahasiswa = variant === "mahasiswa";
 
     // --- Definisi Kelas Warna Kondisional ---
 
     // 1. Kelas untuk tombol aktif (Halaman saat ini)
     const activeBgClass = (() => {
-        if (isMahasiswa) {
-            // Mahasiswa: Hijau
-            return "bg-[var(--os-primary-mhs)] text-white";
-        }
-        if (isPenguji) {
-            // Penguji: Oranye
-            return "bg-[var(--os-primary-pj)] text-white";
-        }
-        // Admin: Biru (Default)
+        if (isMahasiswa) return "bg-[var(--os-primary-mhs)] text-white";
+        if (isPenguji) return "bg-[var(--os-primary-pj)] text-white";
         return "bg-[var(--os-primary)] text-white";
     })();
 
-    // 2. Kelas untuk tombol Panah (Previous/Next) dan Angka saat aktif (berfungsi)
+    // 2. Kelas untuk tombol Panah & Angka
     const activeThemeClasses = (() => {
         if (isMahasiswa) {
-            // Tema Mahasiswa (Hijau)
             return {
-                // Panah: Border/Teks Hijau, Hover Background Hijau Penuh
                 arrow: "border border-[var(--os-primary-mhs)] text-[var(--os-primary-mhs)] hover:bg-[var(--os-primary-mhs)] hover:text-white",
-                // Angka: Border/Teks Hijau, Hover Background Hijau Tersier (pudar)
                 number: "border border-[var(--os-primary-mhs)] text-[var(--os-primary-mhs)] hover:bg-[var(--os-tertiary-mhs)]",
             };
         }
         if (isPenguji) {
-            // Tema Penguji (Oranye)
             return {
-                // Panah: Border/Teks Oranye, Hover Background Oranye Penuh
                 arrow: "border border-[var(--os-primary-pj)] text-[var(--os-primary-pj)] hover:bg-[var(--os-primary-pj)] hover:text-white",
-                // Angka: Border/Teks Oranye, Hover Background Oranye Tersier (pudar)
                 number: "border border-[var(--os-primary-pj)] text-[var(--os-primary-pj)] hover:bg-[var(--os-tertiary-pj)]",
             };
         }
-        // Tema Admin (Biru/Default)
         return {
-            // Panah: Border/Teks Abu-abu, Hover Background Hitam
             arrow: "border border-gray-400 text-gray-700 hover:bg-black hover:text-white",
-            // Angka: Border/Teks Abu-abu, Hover Background Abu-abu Pudar
             number: "border border-gray-400 text-gray-700 hover:bg-gray-100",
         };
     })();
 
-    // Kelas untuk panah (Prev/Next)
     const arrowActiveClass = activeThemeClasses.arrow;
-
-    // Kelas untuk angka halaman (Page Numbers)
     const numberActiveClass = activeThemeClasses.number;
 
     return (
@@ -102,23 +82,21 @@ const OsPagination = ({ links = [], onPageChange, variant = "admin" }) => {
                     );
                 }
 
-                // --- LOGIKA STYLING KONDISIONAL ---
+                // --- LOGIKA STYLING ---
                 if (link.active) {
-                    // KONDISI 1: Aktif (Gunakan warna primary sesuai varian)
-                    combinedClasses = activeBgClass + " font-semibold cursor-default";
+                    combinedClasses =
+                        activeBgClass + " font-semibold cursor-default";
                 } else if (link.url === null) {
-                    // KONDISI 2: Non-aktif / Disabled (Warna tetap abu-abu)
                     combinedClasses =
                         "bg-white border border-gray-400 text-gray-400 cursor-not-allowed";
                 } else if (isArrow) {
-                    // KONDISI 3: Panah Aktif (berfungsi)
-                    combinedClasses = "bg-white " + arrowActiveClass + " cursor-pointer";
+                    combinedClasses =
+                        "bg-white " + arrowActiveClass + " cursor-pointer";
                 } else {
-                    // KONDISI 4: Angka Halaman Aktif (berfungsi)
-                    combinedClasses = "bg-white " + numberActiveClass + " cursor-pointer";
+                    combinedClasses =
+                        "bg-white " + numberActiveClass + " cursor-pointer";
                 }
 
-                // Tentukan Tag:
                 const Tag =
                     link.url === null ? "span" : onPageChange ? "button" : Link;
 
@@ -129,17 +107,50 @@ const OsPagination = ({ links = [], onPageChange, variant = "admin" }) => {
                         disabled={link.url === null}
                         className={`${baseClasses} ${combinedClasses}`}
                         onClick={(e) => {
+                            // Cegah aksi jika URL null (disabled)
                             if (link.url === null) {
                                 e.preventDefault();
                                 return;
                             }
+
                             if (onPageChange) {
                                 e.preventDefault();
-                                // Mengambil nomor halaman secara heuristik jika label bukan hanya angka
-                                const pageNumMatch = link.url ? link.url.match(/page=(\d+)/) : null;
-                                const pageNumber = pageNumMatch ? parseInt(pageNumMatch[1], 10) : link.label;
 
-                                onPageChange(pageNumber);
+                                // ==========================================
+                                // PERBAIKAN UTAMA DI SINI (TYPE MISMATCH FIX)
+                                // ==========================================
+
+                                let finalPageNumber;
+
+                                // 1. Prioritaskan properti 'pageNumber' (Angka) dari parent
+                                if (
+                                    link.pageNumber !== undefined &&
+                                    link.pageNumber !== null
+                                ) {
+                                    finalPageNumber = link.pageNumber;
+                                }
+                                // 2. Jika tidak ada, coba ambil dari URL regex (Server side case)
+                                else {
+                                    const pageNumMatch = link.url
+                                        ? link.url.match(/page=(\d+)/)
+                                        : null;
+
+                                    if (pageNumMatch) {
+                                        finalPageNumber = parseInt(
+                                            pageNumMatch[1],
+                                            10
+                                        );
+                                    } else {
+                                        // 3. Fallback terakhir: Ambil dari Label dan paksa jadi Integer
+                                        // Ini menangani kasus label "12" (string) menjadi 12 (number)
+                                        finalPageNumber = parseInt(
+                                            link.label,
+                                            10
+                                        );
+                                    }
+                                }
+
+                                onPageChange(finalPageNumber);
                             }
                         }}
                     >
