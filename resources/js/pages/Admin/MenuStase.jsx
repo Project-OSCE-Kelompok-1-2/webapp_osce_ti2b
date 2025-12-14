@@ -347,76 +347,86 @@ export default function Stase() {
         <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="flex flex-col w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader onMenuClick={handleSidebarToggle} />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader onMenuClick={handleSidebarToggle} />
 
-                <div className="flex-1 overflow-auto">
-                    <div className="flex gap-1 items-center justify-start my-2">
-                        <FileText size={18} />
-                        <h2 className="font-semibold text-lg">Menu Stase</h2>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                        Kelola konten Stase secara menyeluruh, termasuk daftar
-                        kompetensi inti dan aspek penilaian.
-                    </p>
+                    <div className="flex-1 overflow-auto">
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <FileText size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Menu Stase
+                            </h2>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                            Kelola konten Stase secara menyeluruh, termasuk
+                            daftar kompetensi inti dan aspek penilaian.
+                        </p>
 
-                    <OsButton
-                        name="primary"
-                        onClick={openAddModal}
-                        className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
-                    >
-                        <OsIcon
-                            name="add"
-                            className="h-os-20 os-icon-light mr-os-8"
+                        <OsButton
+                            name="primary"
+                            onClick={openAddModal}
+                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
+                        >
+                            <OsIcon
+                                name="add"
+                                className="h-os-20 os-icon-light mr-os-8"
+                            />
+                            Tambah Stase
+                        </OsButton>
+
+                        {/* SEARCHBAR INSTAN */}
+                        <OsSearchBar
+                            search={search}
+                            setSearch={setSearch}
+                            placeholder="Cari stase secara instan..."
                         />
-                        Tambah Stase
-                    </OsButton>
 
-                    {/* SEARCHBAR INSTAN */}
-                    <OsSearchBar
-                        search={search}
-                        setSearch={setSearch}
-                        placeholder="Cari stase secara instan..."
-                    />
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Table Stase
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
+                        </div>
 
-                    <div className="flex gap-1 items-center justify-start my-2">
-                        <Table2 size={18} />
-                        <h2 className="font-semibold text-lg">Table Stase</h2>
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
+                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={staseColumns} />
+                                <OsTableBody
+                                    data={tableData}
+                                    columns={staseColumns}
+                                />
+                                {filteredData.length === 0 && (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                            Data tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+
+                        {/* <hr className="border-1 border-os-primary my-2" /> */}
+
+                        {/* --- PAGINATION --- */}
+                        {totalPages > 1 && (
+                            <div className="mt-2">
+                                <OsPagination
+                                    links={generatedLinks}
+                                    onPageChange={(page) =>
+                                        setCurrentPage(page)
+                                    }
+                                />
+                            </div>
+                        )}
                     </div>
-
-                    <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
-                        <div className="min-w-max">
-                            <OsTableHeader columns={staseColumns} />
-                            <OsTableBody
-                                data={tableData}
-                                columns={staseColumns}
-                            />
-                            {filteredData.length === 0 && (
-                                <div className="flex items-center border-t border-gray-400">
-                                    <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
-                                        Data tidak ditemukan.
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    </section>
-
-                    {/* <hr className="border-1 border-os-primary my-2" /> */}
-
-                    {/* --- PAGINATION --- */}
-                    {totalPages > 1 && (
-                        <div className="mt-2">
-                            <OsPagination
-                                links={generatedLinks}
-                                onPageChange={(page) => setCurrentPage(page)}
-                            />
-                        </div>
-                    )}
                 </div>
-                <OsCopyright />
+                <div className="mt-8">
+                    <OsCopyright />
+                </div>
             </main>
 
             {/* Modal Components */}

@@ -207,20 +207,19 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                         onMenuClick={handleSidebarToggle}
                     />
 
-                    <main className="flex-1 overflow-auto">
-                        <div className="w-full rounded-xl overflow-hidden border border-orange-600 mb-4 shadow-sm">
-                            <div className="overflow-hidden rounded-xl bg-white shadow border border-gray-200">
-                                {/* Compact Blue Banner */}
-                                {/* <div className="bg-blue-600 px-4 py-5 text-center text-white relative overflow-hidden">
-                                    <div className="absolute top-0 left-0 w-full h-full bg-white opacity-5 transform -skew-y-6 scale-150 origin-top-left pointer-events-none">
-                                    <h1 className="text-lg font-bold relative z-10">
-                                        {safeOsce.nama_osce}
-                                    </h1>
-                                    <p className="text-xs text-blue-100 relative z-10 font-medium opacity-90 mt-0.5">
-                                        {safeOsce.nama_stase}
-                                    </p>
-                                    </div>
-                                </div> */}
+                <main className="flex-1 py-5 px-3 flex flex-col justify-between">
+                    <div className="mx-auto max-w-4xl w-full">
+                        <div className="overflow-hidden rounded-xl bg-white shadow border border-gray-200">
+                            {/* Compact Blue Banner */}
+                            <div className="bg-blue-600 px-4 py-5 text-center text-white relative overflow-hidden">
+                                <div className="absolute top-0 left-0 w-full h-full bg-white opacity-5 transform -skew-y-6 scale-150 origin-top-left pointer-events-none"></div>
+                                <h1 className="text-lg font-bold relative z-10">
+                                    {safeOsce.nama_osce}
+                                </h1>
+                                <p className="text-xs text-blue-100 relative z-10 font-medium opacity-90 mt-0.5">
+                                    {safeOsce.nama_stase}
+                                </p>
+                            </div>
 
                                 <div className="bg-os-primary-pj-dark text-white text-center py-6">
                                     <h1 className="text-2xl font-bold mb-1">
@@ -437,7 +436,6 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                             </div>
                         </div>
                     </main>
-
                     <OsCopyright variant="penguji" />
                 </main>
             </div>

@@ -66,7 +66,8 @@ const getButtonStyle = (status) => {
             };
         case "Selesai":
             return {
-                className: "bg-os-primary-pj hover:bg-os-primary-pj-dark text-white",
+                className:
+                    "bg-os-primary-pj hover:bg-os-primary-pj-dark text-white",
             };
         case "Belum Dimulai":
             return {
@@ -248,39 +249,40 @@ export default function PengujiOsceList() {
                 onToggle={handleSidebarToggle}
             />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader
-                    backLink="/penguji/dashboard"
-                    onMenuClick={handleSidebarToggle}
-                    variant="penguji"
-                />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader
+                        backLink="/penguji/dashboard"
+                        onMenuClick={handleSidebarToggle}
+                        variant="penguji"
+                    />
 
-                <div className="flex-1 overflow-auto">
-                    {/* <h2 className="font-semibold text-lg mb-1">
+                    <div className="flex-1 overflow-auto">
+                        {/* <h2 className="font-semibold text-lg mb-1">
                         Menu Jadwal OSCE
                     </h2> */}
-                    <div className="flex gap-1 items-center justify-start my-2">
-                        <FileText size={18} />
-                        <h2 className="font-semibold text-lg">
-                            Menu Jadwal OSCE
-                        </h2>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Pilih OSCE untuk melihat jadwal, detail sesi, dan daftar
-                        mahasiswa.
-                    </p>
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <FileText size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Menu Jadwal OSCE
+                            </h2>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                            Pilih OSCE untuk melihat jadwal, detail sesi, dan
+                            daftar mahasiswa.
+                        </p>
 
-                    {/* Filter Bar */}
-                    <div className="flex flex-col md:flex-row w-full items-stretch md:items-center gap-4 mb-5">
-                        <input
-                            type="text"
-                            placeholder="Cari data OSCE secara instan..."
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                            className="block w-full md:flex-1 pl-4 pr-4 py-2 h-[46px] border border-os-primary-pj rounded-lg"
-                        />
+                        {/* Filter Bar */}
+                        <div className="flex flex-col md:flex-row w-full items-stretch md:items-center gap-4 mb-5">
+                            <input
+                                type="text"
+                                placeholder="Cari data OSCE secara instan..."
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                                className="block w-full md:flex-1 pl-4 pr-4 py-2 h-[46px] border border-os-primary-pj rounded-lg"
+                            />
 
-                        {/* <OsSearchBar
+                            {/* <OsSearchBar
                             search={search}
                             setSearch={setSearch}
                             placeholder="Cari stase secara instan..."
@@ -288,67 +290,74 @@ export default function PengujiOsceList() {
                             className="md:flex-1"
                         /> */}
 
-                        <div className="flex w-full md:w-auto items-stretch md:items-center gap-3">
-                            <select
-                                value={tahun}
-                                onChange={(e) => setTahun(e.target.value)}
-                                className="border border-gray-700 rounded-lg h-[46px] w-full md:w-40 bg-white"
-                            >
-                                {tahunList.map((t) => (
-                                    <option key={t.value} value={t.value}>
-                                        {t.label}
-                                    </option>
-                                ))}
-                            </select>
+                            <div className="flex w-full md:w-auto items-stretch md:items-center gap-3">
+                                <select
+                                    value={tahun}
+                                    onChange={(e) => setTahun(e.target.value)}
+                                    className="border border-gray-700 rounded-lg h-[46px] w-full md:w-40 bg-white"
+                                >
+                                    {tahunList.map((t) => (
+                                        <option key={t.value} value={t.value}>
+                                            {t.label}
+                                        </option>
+                                    ))}
+                                </select>
+                            </div>
                         </div>
-                    </div>
 
-                    {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Daftar OSCE
                     </h2> */}
-                    <div className="flex gap-1 items-center justify-start my-2">
-                        <Table2 size={18} />
-                        <h2 className="font-semibold text-lg">Table Stase</h2>
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Table Stase
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
+                        </div>
+
+                        {/* Tabel Data */}
+                        <section className="bg-white p-5 border border-os-primary-pj overflow-x-auto rounded-xl shadow-sm">
+                            <div className="min-w-[900px]">
+                                {mappedData.length > 0 ? (
+                                    <>
+                                        <OsTableHeader
+                                            columns={osceColumns}
+                                            variant="penguji"
+                                        />
+                                        <OsTableBody
+                                            data={mappedData}
+                                            columns={osceColumns}
+                                            variant="penguji"
+                                        />
+                                    </>
+                                ) : (
+                                    <div className="p-10 text-center border rounded-xl bg-white text-gray-500">
+                                        Tidak ada data OSCE ditemukan.
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+
+                        {/* Pagination */}
+                        {totalPages > 1 && (
+                            <div className="mt-8">
+                                <OsPagination
+                                    links={generatedLinks}
+                                    onPageChange={(page) =>
+                                        setCurrentPage(page)
+                                    }
+                                />
+                            </div>
+                        )}
                     </div>
-
-                    {/* Tabel Data */}
-                    <section className="bg-white p-5 border border-os-primary-pj overflow-x-auto rounded-xl shadow-sm">
-                        <div className="min-w-[900px]">
-                            {mappedData.length > 0 ? (
-                                <>
-                                    <OsTableHeader
-                                        columns={osceColumns}
-                                        variant="penguji"
-                                    />
-                                    <OsTableBody
-                                        data={mappedData}
-                                        columns={osceColumns}
-                                        variant="penguji"
-                                    />
-                                </>
-                            ) : (
-                                <div className="p-10 text-center border rounded-xl bg-white text-gray-500">
-                                    Tidak ada data OSCE ditemukan.
-                                </div>
-                            )}
-                        </div>
-                    </section>
-
-                    {/* Pagination */}
-                    {totalPages > 1 && (
-                        <div className="mt-8">
-                            <OsPagination
-                                links={generatedLinks}
-                                onPageChange={(page) => setCurrentPage(page)}
-                            />
-                        </div>
-                    )}
                 </div>
 
-                <OsCopyright variant="penguji" />
+                <div className="mt-8">
+                    <OsCopyright variant="penguji" />
+                </div>
             </main>
         </div>
     );

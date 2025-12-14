@@ -223,10 +223,11 @@ export default function PengujiPage() {
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader
-                    onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader
+                        onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    />
 
                 <div className="flex-1 overflow-auto">
                     <div className="flex gap-1 items-center justify-start my-2">
@@ -238,37 +239,37 @@ export default function PengujiPage() {
                         penilaian.
                     </p>
 
-                    <OsButton
-                        name="primary"
-                        onClick={() => setShowAddModal(true)}
-                        className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
-                    >
-                        <OsIcon
-                            name="add"
-                            className="h-os-20 os-icon-light mr-os-8"
-                        />{" "}
-                        Tambah Penguji
-                    </OsButton>
+                        <OsButton
+                            name="primary"
+                            onClick={() => setShowAddModal(true)}
+                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
+                        >
+                            <OsIcon
+                                name="add"
+                                className="h-os-20 os-icon-light mr-os-8"
+                            />{" "}
+                            Tambah Penguji
+                        </OsButton>
 
-                    {flash.success && (
-                        <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
-                            {flash.success}
-                        </div>
-                    )}
-                    {flash.error && (
-                        <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
-                            {flash.error}
-                        </div>
-                    )}
+                        {flash.success && (
+                            <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
+                                {flash.success}
+                            </div>
+                        )}
+                        {flash.error && (
+                            <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
+                                {flash.error}
+                            </div>
+                        )}
 
-                    {/* INSTANT SEARCH BAR */}
-                    <div className="w-full">
-                        <OsSearchBar
-                            search={search}
-                            setSearch={setSearch} // Trigger useMemo filter
-                            placeholder="Cari NIP atau Nama Penguji secara instan..."
-                        />
-                    </div>
+                        {/* INSTANT SEARCH BAR */}
+                        <div className="w-full">
+                            <OsSearchBar
+                                search={search}
+                                setSearch={setSearch} // Trigger useMemo filter
+                                placeholder="Cari NIP atau Nama Penguji secara instan..."
+                            />
+                        </div>
 
                     <section>
                         {/* <h2 className="font-semibold text-lg mb-2">
@@ -305,21 +306,23 @@ export default function PengujiPage() {
                             </div>
                         </section>
 
-                        {/* Pagination Client Side */}
-                        {totalPages > 1 && (
-                            <div className="mt-8">
-                                <OsPagination
-                                    links={generatedLinks}
-                                    onPageChange={(page) =>
-                                        setCurrentPage(page)
-                                    }
-                                />
-                            </div>
-                        )}
-                    </section>
+                            {/* Pagination Client Side */}
+                            {totalPages > 1 && (
+                                <div className="mt-8">
+                                    <OsPagination
+                                        links={generatedLinks}
+                                        onPageChange={(page) =>
+                                            setCurrentPage(page)
+                                        }
+                                    />
+                                </div>
+                            )}
+                        </section>
+                    </div>
                 </div>
-
-                <OsCopyright />
+                <div className="mt-8">
+                    <OsCopyright />
+                </div>
 
                 {/* MODAL TAMBAH */}
                 <OsModal
