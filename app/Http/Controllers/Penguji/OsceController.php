@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\Penguji;
 use App\Models\OsceStase;
-use App\Models\TahunAkademik; // <--- 1. SAYA CUMA TAMBAH INI (IMPORT MODEL)
+use App\Models\TahunAkademik;
 
 class OsceController extends Controller
 {
@@ -21,41 +21,40 @@ class OsceController extends Controller
         $search = $request->input('search');
         $tahun  = $request->input('tahun');
 
-        // --- 2. SAYA TAMBAH INI UNTUK AMBIL TAHUN UNIK ---
         // Ini aman, cuma select data tahun saja, tidak mengganggu query utama
         $tahunOptions = TahunAkademik::select('tahun')
             ->distinct()
             ->orderBy('tahun', 'desc')
             ->get();
 
-        // Load relasi yang dibutuhkan (LOGIKA ASLI KAMU - TIDAK DIUBAH)
+        // Load relasi yang dibutuhkan
         $query = OsceStase::with([
             'osce.enrollmentOsce.nilaiOsce',
             'osce.tahunAkademik'
         ])
             ->where('id_penguji', $penguji->id_penguji);
 
-        // Filter Search (Berdasarkan Nama OSCE) (LOGIKA ASLI KAMU - TIDAK DIUBAH)
+        // Filter Search (Berdasarkan Nama OSCE)
         if ($search) {
             $query->whereHas('osce', function ($q) use ($search) {
                 $q->where('nama_osce', 'like', "%{$search}%");
             });
         }
 
-        // Filter Tahun Akademik (LOGIKA ASLI KAMU - TIDAK DIUBAH)
+        // Filter Tahun Akademik
         if ($tahun) {
             $query->whereHas('osce.tahunAkademik', function ($q) use ($tahun) {
                 $q->where('tahun', 'like', "%{$tahun}%");
             });
         }
 
-        // Pagination & Sorting (LOGIKA ASLI KAMU - TIDAK DIUBAH)
+        // Pagination & Sorting
         $assignments = $query->orderBy('tanggal', 'desc')
             ->orderBy('jam_mulai', 'asc')
             ->paginate(10)
             ->withQueryString();
 
-        // Transformasi Data (LOGIKA ASLI KAMU - TIDAK DIUBAH)
+        // Transformasi Data
         $osceList = $assignments->through(function ($stase) {
             $osce = $stase->osce;
 

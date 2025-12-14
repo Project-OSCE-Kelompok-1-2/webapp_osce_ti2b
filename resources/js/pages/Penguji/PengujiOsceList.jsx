@@ -10,8 +10,6 @@ import OsCopyright from "../../components/Copyright";
 import OsHeader from "../../components/Header";
 import OsTableHeader from "../../components/tableheader";
 import OsTableBody from "../../components/tablecontain";
-
-// PERBAIKAN DI SINI: Sesuaikan nama file import dengan 'pagination' (huruf kecil)
 import OsPagination from "../../components/pagination";
 
 // Struktur kolom tabel
