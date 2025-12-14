@@ -19,7 +19,7 @@ class ViewNilaiController extends Controller
             ->findOrFail($id_enrollment_osce);
 
         $pengguna = Auth::user();
-        
+
         // Pastikan pengguna punya profil penguji
         if (!$pengguna->penguji) {
             abort(403, 'Akun tidak valid: Anda bukan penguji.');
@@ -61,14 +61,14 @@ class ViewNilaiController extends Controller
 
         // 6. Mapping Data (Gabungkan Struktur Rubrik + Nilai)
         $rubrikTerisi = $aspekList->map(function ($aspek) use ($nilaiTersimpan, &$totalNilaiAspek) {
-            
+
             $kompetensiTerisi = $aspek->poinAspekPenilaian->map(function ($poin) use ($nilaiTersimpan, &$totalNilaiAspek) {
-                
+
                 $nilaiEntry = $nilaiTersimpan->get($poin->id_poin_aspek_penilaian);
-                
-                $skor = $nilaiEntry ? (float) $nilaiEntry->nilai : 0.0; 
+
+                $skor = $nilaiEntry ? (float) $nilaiEntry->nilai : 0.0;
                 $bobot = (float) $poin->bobot;
-                
+
                 $nilaiKompetensi = $skor * $bobot;
 
                 $totalNilaiAspek += $nilaiKompetensi;
@@ -76,14 +76,14 @@ class ViewNilaiController extends Controller
                 return [
                     'id_poin_aspek_penilaian' => $poin->id_poin_aspek_penilaian,
                     'deskripsi'        => $poin->kompetensi,
-                    'skor'             => $skor,       
+                    'skor'             => $skor,
                     'bobot'            => $bobot,
-                    'nilai_kompetensi' => $nilaiKompetensi,  
+                    'nilai_kompetensi' => $nilaiKompetensi,
                 ];
             });
 
             return [
-                'aspek' => $aspek->aspek, 
+                'aspek' => $aspek->aspek,
                 'kompetensi' => $kompetensiTerisi,
             ];
         });
@@ -94,12 +94,13 @@ class ViewNilaiController extends Controller
             'mahasiswa' => [
                 'nama'    => $enrollment->mahasiswa->nama,
                 'nim'     => $enrollment->mahasiswa->nim,
-                'jurusan' => $enrollment->mahasiswa->prodi ?? 'Prodi Tidak Tersedia', 
+                'jurusan' => $enrollment->mahasiswa->prodi ?? 'Prodi Tidak Tersedia',
             ],
             'rubrik_terisi'     => $rubrikTerisi,
-            'total_nilai_aspek' => $totalNilaiAspek,
+            // rumus nilai total dibagi 4
+            'total_nilai_aspek' => $totalNilaiAspek / 4,
             'feedback'          => $feedback,
-            
+
             // --- [MODIFIKASI 2] KIRIM DATA NAVIGASI KE FRONTEND ---
             'info_ujian' => [
                 'id_osce'       => $enrollment->id_osce,
