@@ -1039,7 +1039,7 @@ export default function SesiOscePage({
                     {
                         title: "Enrollment Mahasiswa",
                         content: (
-                            <div className="flex flex-col gap-4 min-h-[400px]">
+                            <div className="flex flex-col gap-4 min-h-[700px]">
                                 {errors.mahasiswa_ids && (
                                     <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm flex items-center gap-2">
                                         <div className="shrink-0">⚠️</div>
