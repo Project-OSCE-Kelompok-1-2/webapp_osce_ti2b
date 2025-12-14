@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// [UBAH] Import router dari inertia
 import { usePage, Link, router } from "@inertiajs/react";
 import {
     ArrowRight,
@@ -9,14 +8,12 @@ import {
     Bookmark,
     CalendarRange,
     CalendarDays,
-    XCircle, // Icon untuk reset filter
 } from "lucide-react";
 
-import SidebarPenguji from "../../components/SidebarPenguji.jsx"; // Sesuaikan path jika perlu
 import OsHeader from "../../components/Header.jsx";
 import OsCopyright from "../../components/Copyright";
 import OsIcon from "../../components/icons";
-import Calendar from "../../components/Calendar"; // Calendar tidak diubah
+import Calendar from "../../components/Calendar"; 
 import Sidebar from "../../components/Sidebar.jsx";
 
 /* -------------------------------------------------
@@ -24,15 +21,14 @@ import Sidebar from "../../components/Sidebar.jsx";
 ---------------------------------------------------*/
 const StatCard = ({ title, value, description, icon, colorClass, href }) => {
     return (
-        <article
-            className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass}`}
+        <Link 
+            href={href}
+            className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass} hover:shadow-lg transition-shadow cursor-pointer`}
         >
             <div>
                 <div className="flex justify-between items-start mb-3">
                     <div>
-                        <h3 className="font-medium text-sm text-white">
-                            {title}
-                        </h3>
+                        <h3 className="font-medium text-sm text-white">{title}</h3>
                         <p className="text-xs text-white mt-1">{description}</p>
                     </div>
                     <div className="p-1 rounded bg-white/60 border">
@@ -40,19 +36,15 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
                     </div>
                 </div>
             </div>
-
             <div className="flex items-end justify-between mt-4">
                 <div>
-                    <div className="text-4xl font-extrabold text-white leading-none">
-                        {value}
-                    </div>
+                    <div className="text-4xl font-extrabold text-white leading-none">{value}</div>
                 </div>
-
                 <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-white/60 border">
                     {icon}
                 </div>
             </div>
-        </article>
+        </Link>
     );
 };
 
@@ -60,46 +52,60 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
    ITEM JADWAL PENTING
 ---------------------------------------------------*/
 const JadwalCard = ({ item }) => {
+    // Tentukan Warna Badge Status
+    let statusClass = "bg-gray-100 text-gray-600 border-gray-200"; // Default (Selesai/Lainnya)
+
+    switch (item.status) {
+        case "Aktif":
+            statusClass = "bg-green-100 text-green-800 border-green-200";
+            break;
+        case "Belum Dimulai":
+            statusClass = "bg-yellow-100 text-yellow-800 border-yellow-200";
+            break;
+        case "Telah Dinilai":
+            statusClass = "bg-indigo-100 text-indigo-800 border-indigo-200";
+            break;
+        case "Belum Dinilai":
+            // Status jika sesi sudah lewat tapi belum selesai dinilai (Mendesak)
+            statusClass = "bg-red-100 text-red-800 border-red-200";
+            break;
+        default:
+            break;
+    }
+
     return (
-        <div className="bg-white border rounded-xl shadow-sm px-4 py-4 flex items-center justify-between hover:shadow-md transition-shadow">
-            <div className="flex items-center gap-3">
-                {/* Kolom Tanggal */}
-                <div className="flex flex-col items-center justify-center w-12 h-12 bg-orange-500 rounded-xl text-white shadow-sm">
-                    <span className="font-bold text-xl leading-none">
-                        {item.hari}
-                    </span>
-                    <span className="text-[10px] uppercase font-medium">
-                        {item.bulan}
-                    </span>
+        // Link wrapper: Klik dimana saja di kotak untuk pergi ke list dengan filter nama
+        <Link 
+            href={`/penguji/osce?search=${encodeURIComponent(item.nama_osce)}`}
+            className="block group"
+        >
+            <div className="bg-white border rounded-xl shadow-sm px-4 py-4 flex items-center justify-between hover:shadow-md transition-all hover:border-orange-300 cursor-pointer">
+                <div className="flex items-center gap-3">
+                    {/* Kolom Tanggal */}
+                    <div className="flex flex-col items-center justify-center w-12 h-12 bg-orange-500 rounded-xl text-white shadow-sm group-hover:bg-orange-600 transition-colors">
+                        <span className="font-bold text-xl leading-none">{item.hari}</span>
+                        <span className="text-[10px] uppercase font-medium">{item.bulan}</span>
+                    </div>
+
+                    {/* Kolom Info */}
+                    <div>
+                        <h4 className="font-bold text-orange-700 text-sm line-clamp-1 group-hover:text-orange-800 transition-colors">
+                            {item.nama_osce}
+                        </h4>
+                        <p className="text-xs text-gray-500 mt-0.5">
+                            {item.jumlah_mahasiswa} Mahasiswa | Jam {item.sesi}
+                        </p>
+                    </div>
                 </div>
 
-                {/* Kolom Info */}
+                {/* Kolom Status (Badge Rapi) */}
                 <div>
-                    <h4 className="font-bold text-orange-700 text-sm line-clamp-1">
-                        {item.nama_osce}
-                    </h4>
-                    <p className="text-xs text-gray-500 mt-0.5">
-                        {item.jumlah_mahasiswa} Mahasiswa | Jam {item.sesi}
-                    </p>
+                    <span className={`px-3 py-1.5 rounded-full text-xs font-medium border ${statusClass}`}>
+                        {item.status}
+                    </span>
                 </div>
             </div>
-
-            {/* Kolom Aksi / Status */}
-            <div>
-                {item.status === "edit" ? (
-                    <Link
-                        href={`/penguji/osce`}
-                        className="px-4 py-2 rounded-full bg-lime-600 text-white text-xs font-semibold border border-lime-700 hover:bg-lime-700 transition"
-                    >
-                        Nilai Sekarang
-                    </Link>
-                ) : (
-                    <span className="px-3 py-1.5 rounded-full bg-gray-100 text-gray-600 text-xs font-medium border">
-                        {item.status === "selesai" ? "Selesai" : "Mendatang"}
-                    </span>
-                )}
-            </div>
-        </div>
+        </Link>
     );
 };
 
@@ -107,66 +113,41 @@ const JadwalCard = ({ item }) => {
    HALAMAN DASHBOARD PENGUJI
 ---------------------------------------------------*/
 export default function PengujiDashboard() {
-    // 1. Ambil Props
-    // 'selected_date' dikirim dari controller (opsional)
-    const { nama_penguji, statistik, jadwal_mendatang, selected_date } =
-        usePage().props;
-    console.log(statistik);
-
+    const { nama_penguji, statistik, jadwal_mendatang, selected_date } = usePage().props;
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const handleSidebarToggle = () => {
         setIsSidebarOpen((prev) => !prev);
     };
 
-    // [BARU] Handler saat tanggal di kalender diklik
+    // Handler saat tanggal kalender diklik
     const handleDateSelect = (dateObj) => {
-        // Format tanggal JS ke 'YYYY-MM-DD' secara manual untuk menghindari masalah timezone
         const year = dateObj.getFullYear();
         const month = String(dateObj.getMonth() + 1).padStart(2, "0");
         const day = String(dateObj.getDate()).padStart(2, "0");
         const dateString = `${year}-${month}-${day}`;
 
-        // Kirim request ke URL yang sama dengan query param ?date=...
         router.get(
-            "/penguji/dashboard", // Pastikan URL ini sesuai rute Anda
+            "/penguji/dashboard",
             { date: dateString },
-            {
-                preserveState: true, // Jangan refresh full page state
-                preserveScroll: true, // Jangan scroll ke atas
-                only: ["jadwal_mendatang", "selected_date"], // Hanya update data ini agar cepat
-            }
+            { preserveState: true, preserveScroll: true, only: ["jadwal_mendatang", "selected_date"] }
         );
     };
 
     return (
         <div className="relative bg-orange-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar
-                isOpen={isSidebarOpen}
-                type="penguji"
-                onToggle={handleSidebarToggle}
-            />
+            <Sidebar isOpen={isSidebarOpen} type="penguji" onToggle={handleSidebarToggle} />
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 <div className="flex flex-col gap-os-8">
-                    <OsHeader
-                        onMenuClick={handleSidebarToggle}
-                        variant="penguji"
-                    />
+                    <OsHeader onMenuClick={handleSidebarToggle} variant="penguji" />
 
                     <div className="flex-1 overflow-auto">
                         {/* WELCOME SECTION */}
                         <div className="">
-                            <p className=" text-gray-600 text-os-regular">
-                                Selamat Datang,
-                            </p>
-                            <h1 className="font-bold text-os-title text-gray-900">
-                                {nama_penguji}
-                            </h1>
-                            <p className="text-gray-500 text-sm">
-                                Berikut adalah ringkasan aktivitas pengujian
-                                Anda.
-                            </p>
+                            <p className=" text-gray-600 text-os-regular">Selamat Datang,</p>
+                            <h1 className="font-bold text-os-title text-gray-900">{nama_penguji}</h1>
+                            <p className="text-gray-500 text-sm">Berikut adalah ringkasan aktivitas pengujian Anda.</p>
                         </div>
 
                         <hr className="border-1 border-os-primary-pj my-2" />
@@ -175,21 +156,14 @@ export default function PengujiDashboard() {
                         <section className="mb-2">
                             <div className="flex gap-os-8 items-center justify-start mb-2">
                                 <OsIcon name={"stat"} className="h-[15px]" />
-                                <h2 className="font-bold text-os-regular text-gray-900">
-                                    Statistika
-                                </h2>
+                                <h2 className="font-bold text-os-regular text-gray-900">Statistika</h2>
                             </div>
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
                                 <StatCard
                                     title="OSCE Mendatang"
                                     description="Jadwal ujian akan datang"
                                     value={statistik?.osce_mendatang ?? 0}
-                                    icon={
-                                        <ClipboardList
-                                            size={22}
-                                            className="text-orange-700"
-                                        />
-                                    }
+                                    icon={<ClipboardList size={22} className="text-orange-700" />}
                                     colorClass="bg-orange-400 border-orange-300"
                                     href="/penguji/osce"
                                 />
@@ -197,12 +171,7 @@ export default function PengujiDashboard() {
                                     title="Masa Penilaian"
                                     description="Ujian sedang berlangsung"
                                     value={statistik?.osce_edit_nilai ?? 0}
-                                    icon={
-                                        <Users
-                                            size={22}
-                                            className="text-gray-700"
-                                        />
-                                    }
+                                    icon={<Users size={22} className="text-gray-700" />}
                                     colorClass="bg-red-400 border-orange-300"
                                     href="/penguji/osce"
                                 />
@@ -210,12 +179,7 @@ export default function PengujiDashboard() {
                                     title="OSCE Selesai"
                                     description="Riwayat ujian selesai"
                                     value={statistik?.osce_selesai ?? 0}
-                                    icon={
-                                        <UserCheck
-                                            size={22}
-                                            className="text-gray-700"
-                                        />
-                                    }
+                                    icon={<UserCheck size={22} className="text-gray-700" />}
                                     colorClass="bg-lime-500 border-orange-300"
                                     href="/penguji/riwayat"
                                 />
@@ -233,38 +197,24 @@ export default function PengujiDashboard() {
                                         <CalendarRange size={18} />
                                         <div className="flex items-center gap-2">
                                             <h2 className="font-bold text-os-regular text-gray-900">
-                                                {selected_date
-                                                    ? `Jadwal Tanggal: ${selected_date}`
-                                                    : "Jadwal Mendatang"}
+                                                {selected_date ? `Jadwal Tanggal: ${selected_date}` : "Jadwal Mendatang"}
                                             </h2>
-
-                                            {/* Tombol Reset Filter jika tanggal dipilih */}
                                         </div>
                                     </div>
-                                    <Link
-                                        href="/penguji/osce"
-                                        className="text-orange-600 text-sm font-medium hover:underline flex items-center gap-1"
-                                    >
-                                        Lihat Semua
-                                        <ArrowRight size={16} />
+                                    <Link href="/penguji/osce" className="text-orange-600 text-sm font-medium hover:underline flex items-center gap-1">
+                                        Lihat Semua <ArrowRight size={16} />
                                     </Link>
                                 </div>
 
                                 {/* List Jadwal */}
                                 <div className="flex flex-col gap-3">
-                                    {jadwal_mendatang &&
-                                    jadwal_mendatang.length > 0 ? (
+                                    {jadwal_mendatang && jadwal_mendatang.length > 0 ? (
                                         jadwal_mendatang.map((item, idx) => (
-                                            <JadwalCard
-                                                key={item.id_osce_stase || idx}
-                                                item={item}
-                                            />
+                                            <JadwalCard key={item.id_osce_stase || idx} item={item} />
                                         ))
                                     ) : (
                                         <div className="p-5 text-center bg-white border rounded-xl text-gray-500">
-                                            {selected_date
-                                                ? "Tidak ada jadwal ujian pada tanggal ini."
-                                                : "Tidak ada jadwal ujian dalam waktu dekat."}
+                                            {selected_date ? "Tidak ada jadwal ujian pada tanggal ini." : "Tidak ada jadwal ujian dalam waktu dekat."}
                                         </div>
                                     )}
                                 </div>
@@ -277,11 +227,8 @@ export default function PengujiDashboard() {
                                 <div className="bg-white p-4 rounded-xl border shadow-sm sticky top-5">
                                     <div className="flex gap-os-8 items-center justify-start mb-2">
                                         <CalendarDays size={18} />
-                                        <h2 className="font-bold text-os-regular text-gray-900">
-                                            Kalender
-                                        </h2>
+                                        <h2 className="font-bold text-os-regular text-gray-900">Kalender</h2>
                                     </div>
-                                    {/* [PENTING] Pass handler ke props onDateSelect */}
                                     <Calendar onDateSelect={handleDateSelect} />
                                 </div>
                             </div>
@@ -289,7 +236,6 @@ export default function PengujiDashboard() {
                     </div>
                 </div>
 
-                {/* FOOTER */}
                 <div className="mt-4 lg:mt-12">
                     <OsCopyright variant="penguji" />
                 </div>

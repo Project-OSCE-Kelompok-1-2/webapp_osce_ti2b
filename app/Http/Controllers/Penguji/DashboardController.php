@@ -15,20 +15,15 @@ class DashboardController extends Controller
     public function __invoke(Request $request)
     {
         $user = Auth::user();
-
-        // 1. Ambil Data Penguji
         $penguji = Penguji::where('id_pengguna', $user->id_pengguna)->firstOrFail();
 
-        // Gunakan Timezone Jakarta untuk konsistensi
         $now = Carbon::now('Asia/Jakarta');
-        $todayStr = $now->toDateString(); // Format Y-m-d
+        $todayStr = $now->toDateString();
 
-        // 2. Statistik Query
+        // 2. Statistik Query (Tidak Berubah)
         $baseStaseQuery = OsceStase::where('id_penguji', $penguji->id_penguji);
 
         $statistik = [
-            // MENDATANG:
-            // Tanggal besok dst... ATAU Hari ini tapi jam mulai belum lewat
             'osce_mendatang' => (clone $baseStaseQuery)
                 ->where(function ($q) use ($now, $todayStr) {
                     $q->whereDate('tanggal', '>', $todayStr)
@@ -38,105 +33,125 @@ class DashboardController extends Controller
                       });
                 })->count(),
 
-            // MASA PENILAIAN (AKTIF):
-            // [UBAH LOGIKA]: Hari ini DAN Jam Mulai sudah lewat.
-            // Tidak peduli jam selesai sesi, pokoknya aktif sampai tengah malam.
             'osce_edit_nilai' => (clone $baseStaseQuery)
                 ->whereDate('tanggal', $todayStr)
                 ->whereTime('jam_mulai', '<=', $now->toTimeString())
                 ->count(),
 
-            // SELESAI:
-            // [UBAH LOGIKA]: Hanya tanggal KEMARIN dan sebelumnya.
-            // Hari ini tidak dianggap selesai meskipun jam sesi berakhir.
             'osce_selesai' => (clone $baseStaseQuery)
                 ->whereDate('tanggal', '<', $todayStr)
                 ->count(),
         ];
 
         // 3. LOGIKA JADWAL
-        $jadwalQuery = OsceStase::with(['osce.enrollmentOsce'])
+        $jadwalQuery = OsceStase::with(['osce.enrollmentOsce.nilaiOsce'])
             ->where('id_penguji', $penguji->id_penguji);
 
         if ($request->has('date') && $request->date) {
-            // Filter Tanggal Spesifik
             $filterDate = Carbon::parse($request->date);
             $jadwalQuery->whereDate('tanggal', $filterDate);
-            $jadwalQuery->orderBy('jam_mulai', 'asc');
         } else {
-            // DEFAULT: Tampilkan jadwal hari ini s/d 30 hari ke depan
             $jadwalQuery->whereDate('tanggal', '>=', $todayStr)
-                ->whereDate('tanggal', '<=', $now->copy()->addDays(30))
-                ->orderBy('tanggal', 'asc')
-                ->orderBy('jam_mulai', 'asc');
+                ->whereDate('tanggal', '<=', $now->copy()->addDays(30));
         }
+        
+        // Sorting awal query
+        $jadwalQuery->orderBy('tanggal', 'asc')->orderBy('jam_mulai', 'asc');
 
-        // 4. Eksekusi, Mapping, Filtering
+        // 4. Eksekusi & Mapping
         $jadwalMendatang = $jadwalQuery->get()
             ->map(function ($stase) {
                 $osce = $stase->osce;
-                
-                // Gunakan Timezone Jakarta saat parsing
                 $now = Carbon::now('Asia/Jakarta');
 
                 $tglStaseStr = $stase->tanggal instanceof \DateTime 
                     ? $stase->tanggal->format('Y-m-d') 
                     : $stase->tanggal;
 
-                // Waktu Mulai Sesi
-                $staseStart = Carbon::parse($tglStaseStr . ' ' . $stase->jam_mulai, 'Asia/Jakarta');
+                // --- DEFINISI WAKTU ---
+                $startEvent = Carbon::parse($tglStaseStr . ' ' . $stase->jam_mulai, 'Asia/Jakarta');
+                $endEvent   = Carbon::parse($tglStaseStr . ' ' . $stase->jam_selesai, 'Asia/Jakarta');
+                $globalEndDate = Carbon::parse($osce->tanggal_selesai, 'Asia/Jakarta')->endOfDay();
 
-                // [PERBAIKAN LOGIKA DISINI]
-                // Batas akhir status "Aktif/Edit" adalah AKHIR HARI (23:59:59), bukan jam selesai sesi.
-                $endOfDay = Carbon::parse($tglStaseStr, 'Asia/Jakarta')->endOfDay();
-
-                // Logika Status Dashboard
-                $status = 'mendatang';
-
-                // Jika sekarang sudah melewati akhir hari ujian => Selesai
-                if ($now->greaterThan($endOfDay)) {
-                    $status = 'selesai';
-                } 
-                // Jika belum lewat akhir hari, tapi sudah lewat jam mulai => Edit (Aktif)
-                elseif ($now->greaterThanOrEqualTo($staseStart)) {
-                    $status = 'edit';
-                } 
-                // Sisanya => Mendatang
-                else {
-                    $status = 'mendatang';
-                }
-
-                // Hitung Mahasiswa Sesi Ini
+                // --- 1. HITUNG MAHASISWA & NILAI ---
                 $staseJamMulai = substr($stase->jam_mulai, 0, 5);
-
-                $jumlahMahasiswaSesi = $osce->enrollmentOsce
+                
+                $pesertaSesi = $osce->enrollmentOsce
                     ->filter(function ($enrollment) use ($tglStaseStr, $staseJamMulai) {
                         $enrollmentTanggal = Carbon::parse($enrollment->tanggal_sesi)->format('Y-m-d');
                         $enrollmentJam = substr($enrollment->jam_sesi, 0, 5); 
                         return $enrollmentTanggal === $tglStaseStr && $enrollmentJam === $staseJamMulai;
-                    })
-                    ->count();
+                    });
+
+                $jumlahMahasiswaSesi = $pesertaSesi->count();
+
+                // Logic check nilai collection
+                $jumlahDinilai = $pesertaSesi->filter(function($mhs) {
+                    if ($mhs->nilaiOsce instanceof \Illuminate\Database\Eloquent\Collection) {
+                        return $mhs->nilaiOsce->isNotEmpty();
+                    }
+                    return $mhs->nilaiOsce !== null;
+                })->count();
+
+                $isFullGraded = ($jumlahMahasiswaSesi > 0 && $jumlahMahasiswaSesi === $jumlahDinilai);
+
+                // --- 2. LOGIKA STATUS ---
+                $status = 'Aktif'; 
+
+                if ($now->greaterThan($globalEndDate)) {
+                    $status = 'Selesai';
+                }
+                elseif ($now->lessThan($startEvent)) {
+                    $status = 'Belum Dimulai';
+                }
+                else {
+                    if ($isFullGraded) {
+                        $status = 'Telah Dinilai';
+                    } else {
+                        if ($now->greaterThan($endEvent)) {
+                            $status = 'Belum Dinilai'; 
+                        } else {
+                            $status = 'Aktif'; 
+                        }
+                    }
+                }
+
+                // --- 3. PRIORITAS SORTING (LOGIKA DIPERBAIKI DISINI) ---
+                $urutanPrioritas = 99;
+                $statusPriority = [
+                    'Aktif'         => 1, // Paling Atas (Sedang berlangsung)
+                    'Belum Dinilai' => 2, // Mendesak (Sudah lewat jam, belum selesai)
+                    'Belum Dimulai' => 3, // Akan Datang (Dibawah Aktif & Mendesak)
+                    'Telah Dinilai' => 4, // Sudah beres (Prioritas rendah)
+                    'Selesai'       => 5, // Sudah lewat hari
+                ];
+                $urutanPrioritas = $statusPriority[$status] ?? 99;
 
                 return [
-                    'id_osce'        => $osce->id_osce,
-                    'id_osce_stase'  => $stase->id_osce_stase,
-                    'nama_osce'      => $osce->nama_osce,
-                    'hari'           => Carbon::parse($tglStaseStr)->format('d'),
-                    'bulan'          => Carbon::parse($tglStaseStr)->format('M'),
-                    'sesi'           => substr($stase->jam_mulai, 0, 5),
+                    'id_osce'          => $osce->id_osce,
+                    'id_osce_stase'    => $stase->id_osce_stase,
+                    'nama_osce'        => $osce->nama_osce,
+                    'hari'             => Carbon::parse($tglStaseStr)->format('d'),
+                    'bulan'            => Carbon::parse($tglStaseStr)->format('M'),
+                    'sesi'             => substr($stase->jam_mulai, 0, 5),
                     'jumlah_mahasiswa' => $jumlahMahasiswaSesi,
-                    'status'         => $status,
+                    'status'           => $status,
+                    
+                    // Data Internal untuk Sorting
+                    'urutan_prioritas' => $urutanPrioritas,
+                    'waktu_mulai_unix' => $startEvent->timestamp
                 ];
             })
-            // --- FILTER: HANYA TAMPILKAN YANG BELUM SELESAI ---
-            // Karena definisi 'selesai' sekarang adalah "Kemarin", maka ujian hari ini 
-            // yang jam sesinya sudah lewat tetap akan muncul di list ini (sebagai status 'edit')
+            // FILTER: Hapus yang 'Selesai'
             ->filter(function ($item) {
-                return $item['status'] !== 'selesai'; 
+                return $item['status'] !== 'Selesai'; 
             })
-            // --- LIMIT: AMBIL 5 TERATAS SETELAH DIFILTER ---
+            // SORTING
+            ->sortBy([
+                ['urutan_prioritas', 'asc'], // Sort berdasarkan status dulu
+                ['waktu_mulai_unix', 'asc'], // Lalu berdasarkan waktu mulai terdekat
+            ])
             ->take(5)
-            // --- VALUES: RESET INDEX ARRAY ---
             ->values();
 
         return Inertia::render('Penguji/PengujiDashboard', [
