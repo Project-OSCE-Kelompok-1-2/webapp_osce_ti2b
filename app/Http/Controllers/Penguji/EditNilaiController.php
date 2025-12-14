@@ -19,50 +19,63 @@ class EditNilaiController extends Controller
      * GET: Halaman Edit Nilai
      */
     public function edit($id_enrollment_osce)
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
-        // 1. Ambil Data & Validasi Akses Penguji
-        $enrollment = EnrollmentOsce::with(['mahasiswa', 'osce'])->findOrFail($id_enrollment_osce);
+    // 1. Ambil Data Enrollment
+    $enrollment = EnrollmentOsce::with(['mahasiswa', 'osce'])->findOrFail($id_enrollment_osce);
 
-        $osceStase = OsceStase::with(['stase', 'osce'])
-            ->where('id_osce', $enrollment->id_osce)
-            ->where('id_penguji', $user->penguji->id_penguji)
-            ->firstOrFail();
+    // 2. Ambil Data Stase & Validasi Penguji
+    $osceStase = OsceStase::with(['stase', 'osce'])
+        ->where('id_osce', $enrollment->id_osce)
+        ->where('id_penguji', $user->penguji->id_penguji)
+        ->firstOrFail();
 
-        // 3. Ambil Struktur Rubrik + Nilai Tersimpan
-        $rubrikStruktur = $osceStase->stase->load([
-            'aspekPenilaian.poinAspekPenilaian.nilai_osce' => function ($query) use ($id_enrollment_osce) {
-                $query->where('id_enrollment_osce', $id_enrollment_osce);
-            }
-        ]);
+    // 3. Ambil Struktur Rubrik + Nilai Tersimpan
+    $rubrikStruktur = $osceStase->stase->load([
+        'aspekPenilaian.poinAspekPenilaian.nilai_osce' => function ($query) use ($id_enrollment_osce) {
+            $query->where('id_enrollment_osce', $id_enrollment_osce);
+        }
+    ]);
 
-        // 4. Format Response untuk Frontend
-        $rubrikTerisi = $rubrikStruktur->aspekPenilaian->map(function ($aspek) {
-            return [
-                'aspek' => $aspek->aspek,
-                'kompetensi' => $aspek->poinAspekPenilaian->map(function ($poin) {
-                    // FIX PEMANGGILAN RELASI
-                    $nilaiDb = $poin->nilai_osce;  
+    // 4. Format Rubrik (Sama seperti kode Anda)
+    $rubrikTerisi = $rubrikStruktur->aspekPenilaian->map(function ($aspek) {
+        return [
+            'aspek' => $aspek->aspek,
+            'kompetensi' => $aspek->poinAspekPenilaian->map(function ($poin) {
+                // Pastikan relasi ini mengambil satu object (hasOne) atau ambil yang pertama dari collection
+                $nilaiDb = $poin->nilai_osce->first() ?? null; 
 
-                    return [
-                        'id_poin_aspek_penilaian' => $poin->id_poin_aspek_penilaian,
-                        'deskripsi'     => $poin->kompetensi,
-                        'bobot'         => $poin->bobot,
-                        'skor_maksimal' => 4, // Asumsi skala 0-4
-                        'skor'          => $nilaiDb ? $nilaiDb->nilai : 0 // Nilai tersimpan
-                    ];
-                })
-            ];
-        });
+                return [
+                    'id_poin_aspek_penilaian' => $poin->id_poin_aspek_penilaian,
+                    'deskripsi'     => $poin->kompetensi,
+                    'bobot'         => $poin->bobot,
+                    'skor_maksimal' => 4,
+                    'skor'          => $nilaiDb ? $nilaiDb->nilai : 0
+                ];
+            })
+        ];
+    });
 
-        return Inertia::render('Penguji/EditNilaiForm', [
-            'mahasiswa' => $enrollment->mahasiswa,
-            'rubrik_terisi' => $rubrikTerisi,
-            'feedback_tersimpan' => $enrollment->catatan,
-            'id_enrollment_osce' => $id_enrollment_osce
-        ]);
-    }
+    // --- PERBAIKAN: Buat Data osce_detail ---
+    $osceDetail = [
+        'id_osce'              => $osceStase->osce->id_osce,
+        'id_osce_stase'        => $osceStase->id_osce_stase,
+        'nama_osce'            => $osceStase->osce->nama, // Sesuaikan nama kolom DB
+        'nama_stase'           => $osceStase->stase->nama,
+        'durasi_per_mahasiswa' => $osceStase->osce->durasi_per_mahasiswa ?? 15,
+        'nama_penguji'         => $user->nama,
+        'total_mahasiswa'      => EnrollmentOsce::where('id_osce', $enrollment->id_osce)->count(),
+    ];
+
+    return Inertia::render('Penguji/EditNilaiForm', [
+        'mahasiswa'          => $enrollment->mahasiswa,
+        'rubrik_terisi'      => $rubrikTerisi,
+        'feedback_tersimpan' => $enrollment->catatan,
+        'id_enrollment_osce' => $id_enrollment_osce,
+        'osce_detail'        => $osceDetail, // <--- INI PENTING DIKIRIM
+    ]);
+}
 
     /**
      * PUT: Simpan Perubahan Nilai yang terjadi
