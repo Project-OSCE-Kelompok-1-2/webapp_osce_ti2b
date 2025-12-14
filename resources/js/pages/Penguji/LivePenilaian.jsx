@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { usePage, router } from "@inertiajs/react";
-import { ArrowLeft, User, FileText } from "lucide-react";
+import { ArrowLeft, User, FileText, Bookmark } from "lucide-react";
 import OsCopyright from "../../components/Copyright";
 
 // import Sidebar from "../../components/SidebarPenguji";
@@ -28,7 +28,7 @@ const rubrikColumns = [
     },
     {
         content: "Nilai",
-        width: "w-20",
+        width: "w-24",
         classes: "justify-center items-center px-4",
     },
 ];
@@ -133,6 +133,7 @@ export default function LivePenilaian() {
         }));
 
         if (jumlahKompetensiDinilai < jumlahKompetensi) {
+            // alert("Mohon lengkapi semua penilaian sebelum menyimpan.");
             return;
         }
 
@@ -163,20 +164,20 @@ export default function LivePenilaian() {
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* HEADER */}
                 {/* <div className="flex items-center gap-3 px-5 py-3 border-b border-gray-300">
-                    <button
-                        onClick={() => router.visit("/penguji/dashboard")}
-                        className="flex w-[46px] h-[46px] items-center justify-center relative bg-gray-600 text-white rounded-xl border border-solid border-gray-700 aspect-[1] hover:bg-gray-700 transition"
-                    >
-                        <ArrowLeft className="relative w-[28px] h-[24px]" />
-                    </button>
-                    <div className="flex-1 border rounded-lg px-4 py-2 text-sm">
-                        OSCE / {info_ujian?.nama_osce} /{" "}
-                        {info_ujian?.nama_stase}
-                    </div>
-                </div> */}
+					<button
+						onClick={() => router.visit("/penguji/dashboard")}
+						className="flex w-[46px] h-[46px] items-center justify-center relative bg-gray-600 text-white rounded-xl border border-solid border-gray-700 aspect-[1] hover:bg-gray-700 transition"
+					>
+						<ArrowLeft className="relative w-[28px] h-[24px]" />
+					</button>
+					<div className="flex-1 border rounded-lg px-4 py-2 text-sm">
+						OSCE / {info_ujian?.nama_osce} /{" "}
+						{info_ujian?.nama_stase}
+					</div>
+				</div> */}
                 <OsHeader onMenuClick={handleSidebarToggle} variant="penguji" />
 
-                <div className="flex-1 overflow-auto px-8 pb-8">
+                <div className="flex-1 overflow-auto pb-8 p-1">
                     {/* INFO MAHASISWA */}
                     <div className="flex gap-1 items-center justify-start my-2 text-black">
                         <User size={18} />
@@ -210,8 +211,8 @@ export default function LivePenilaian() {
                     </div>
 
                     {/* <h2 className="font-semibold text-lg mb-3">
-                        Rubrik Penilaian
-                    </h2> */}
+						Rubrik Penilaian
+					</h2> */}
                     <div className="flex gap-1 items-center justify-start my-2 text-black">
                         <FileText size={18} />
                         <h2 className="font-semibold text-lg ">
@@ -220,13 +221,16 @@ export default function LivePenilaian() {
                     </div>
 
                     {/* ================= DESKTOP VIEW ================= */}
-                    <div className="hidden bg-white lg:block border rounded-xl p-2">
-                        <OsTableHeader columns={rubrikColumns} variant="penguji" />
+                    <div className="hidden bg-white lg:block border rounded-xl p-4 border-os-primary-pj">
+                        <OsTableHeader
+                            columns={rubrikColumns}
+                            variant="penguji"
+                        />
 
                         <div className="max-h-[450px] overflow-y-auto">
                             {dataRubrik.map((group, gIndex) => (
                                 <React.Fragment key={gIndex}>
-                                    <div className="bg-gray-100 px-4 py-2 font-semibold border-t">
+                                    <div className="bg-orange-50 border rounded-lg text-orange-900 border-os-primary-pj my-2 px-4 py-2 font-semibold border-t">
                                         {group.aspek}
                                     </div>
 
@@ -234,10 +238,11 @@ export default function LivePenilaian() {
                                         <div
                                             key={poin.id_poin_aspek_penilaian}
                                             className={`flex items-center min-h-[70px] border-t ${
+                                                // DIKOREKSI: Menghilangkan warna latar belakang biru pada baris yang sudah dinilai
                                                 nilaiMap[
                                                     poin.id_poin_aspek_penilaian
                                                 ] !== undefined
-                                                    ? "bg-blue-50/50"
+                                                    ? "bg-white"
                                                     : "bg-white"
                                             }`}
                                         >
@@ -265,31 +270,35 @@ export default function LivePenilaian() {
                                                 <div className="flex justify-between w-full px-6">
                                                     {[0, 1, 2, 3, 4].map(
                                                         (v) => (
-                                                            <button
-                                                                key={v}
-                                                                type="button"
-                                                                onClick={() =>
-                                                                    handleSkorChange(
-                                                                        poin.id_poin_aspek_penilaian,
-                                                                        v
-                                                                    )
-                                                                }
-                                                                className={`w-5 h-5 rounded-full border flex items-center justify-center ${
-                                                                    nilaiMap[
+                                                            <div className="border border-black rounded-full">
+                                                                <button
+                                                                    key={v}
+                                                                    type="button"
+                                                                    onClick={() =>
+                                                                        handleSkorChange(
+                                                                            poin.id_poin_aspek_penilaian,
+                                                                            v
+                                                                        )
+                                                                    }
+                                                                    className={`w-5 h-5 p-[3px] rounded-full !border-2 !border-black bg-white flex items-center justify-center hover:bg-white
+                                                                    ${
+                                                                        // DIKOREKSI: Pastikan border dan background tombol aktif hanya hitam/putih.
+                                                                        nilaiMap[
+                                                                            poin
+                                                                                .id_poin_aspek_penilaian
+                                                                        ] === v
+                                                                            ? "border-black border-2 bg-white"
+                                                                            : "border-black border-2 hover:border-black" // DIKOREKSI: Menghilangkan hover biru
+                                                                    }`}
+                                                                >
+                                                                    {nilaiMap[
                                                                         poin
                                                                             .id_poin_aspek_penilaian
-                                                                    ] === v
-                                                                        ? "border-black bg-white"
-                                                                        : "border-gray-400 hover:border-blue-500"
-                                                                }`}
-                                                            >
-                                                                {nilaiMap[
-                                                                    poin
-                                                                        .id_poin_aspek_penilaian
-                                                                ] === v && (
-                                                                    <span className="w-3 h-3 rounded-full bg-black" />
-                                                                )}
-                                                            </button>
+                                                                    ] === v && (
+                                                                        <span className="w-full h-full rounded-full bg-os-primary-pj" /> // Bullet di dalam tombol: Hitam
+                                                                    )}
+                                                                </button>
+                                                            </div>
                                                         )
                                                     )}
                                                 </div>
@@ -313,7 +322,7 @@ export default function LivePenilaian() {
                             ))}
                         </div>
 
-                        <div className="flex justify-between px-4 py-3 border-t font-semibold bg-gray-50 rounded-b-xl">
+                        <div className="flex justify-between px-4 pr-8 py-3 border-t font-semibold bg-gray-50 rounded-b-xl">
                             <span>Total Nilai Sementara (Preview)</span>
                             <span>{totalNilai.toFixed(2)}</span>
                         </div>
@@ -353,12 +362,13 @@ export default function LivePenilaian() {
                                                             )
                                                         }
                                                         className={`w-12 sm:w-14 aspect-square rounded-full border flex items-center justify-center text-lg ${
+                                                            // DIKOREKSI: Menghilangkan warna biru pada tombol aktif di mobile
                                                             nilaiMap[
                                                                 poin
                                                                     .id_poin_aspek_penilaian
                                                             ] === v
-                                                                ? "border-black bg-white"
-                                                                : "border-gray-400"
+                                                                ? "border-black border-2 bg-white text-black"
+                                                                : "border-gray-400 text-gray-700 hover:border-black" // DIKOREKSI: Menghilangkan hover biru
                                                         }`}
                                                     >
                                                         {v}
@@ -396,11 +406,18 @@ export default function LivePenilaian() {
                         </div>
                     </div>
 
-                    <h2 className="font-semibold text-lg mt-6 mb-2">
+                    {/* <h2 className="font-semibold text-lg mt-6 mb-2">
                         Feedback
-                    </h2>
+                    </h2> */}
+                    <div className="flex gap-1 items-center justify-start my-2 text-black">
+                        <Bookmark size={18} />
+                        <h2 className="font-semibold text-lg ">
+                        Feedback
+
+                        </h2>
+                    </div>
                     <textarea
-                        className="w-full border rounded-xl p-3 min-h-[120px] focus:ring-2 focus:ring-blue-500 outline-none"
+                        className="w-full border border-os-primary-pj rounded-xl p-3 min-h-[120px] focus:ring-1 focus:ring-orange-500 outline-none"
                         value={feedback}
                         onChange={(e) => setFeedback(e.target.value)}
                         placeholder="Tuliskan catatan untuk mahasiswa..."
@@ -408,14 +425,14 @@ export default function LivePenilaian() {
 
                     {/* FORM SUBMIT */}
                     <form onSubmit={handleSubmit} className="mt-6">
-                        <div className="w-full rounded-2xl border border-black shadow-sm p-3 bg-white">
+                        <div className="w-full rounded-2xl !border !border-black shadow-sm p-3 bg-white">
                             <div className="grid grid-cols-3 gap-4">
                                 {/* --- INI BUTTON TIMER YANG BARU (GANTIKAN YANG LAMA) --- */}
                                 <button
                                     type="button"
                                     className={`col-span-1 w-full h-[70px] rounded-xl text-white font-semibold flex flex-col items-center justify-center px-2 text-center
 
-                                        ${
+										${
                                             waktu > 0
                                                 ? "bg-red-600" // Merah jika waktu jalan
                                                 : "bg-gray-500" // Abu jika waktu habis / mode edit
@@ -437,12 +454,12 @@ export default function LivePenilaian() {
                                 <button
                                     type="submit"
                                     className={`col-span-2 w-full h-[70px] rounded-xl transition text-white font-semibold flex items-center justify-center text-lg
-                                    ${
-                                        jumlahKompetensiDinilai <
-                                        jumlahKompetensi
-                                            ? "bg-gray-500 hover:bg-gray-500/80"
-                                            : "bg-blue-600"
-                                    }`}
+										${
+                                            jumlahKompetensiDinilai <
+                                            jumlahKompetensi
+                                                ? "bg-gray-500 hover:bg-gray-500/80"
+                                                : "bg-blue-600"
+                                        }`}
                                     disabled={
                                         jumlahKompetensiDinilai <
                                         jumlahKompetensi
