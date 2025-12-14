@@ -18,6 +18,8 @@ import OsCopyright from "../../components/Copyright.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsButton from "../../components/button.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
+// ⭐ UPDATE 1: Import Modals
+import Modals from "../../components/Modals.jsx";
 
 // CustomInput (Sama seperti sebelumnya)
 const CustomInput = ({
@@ -74,6 +76,9 @@ export default function MahasiswaAccountSettings() {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+    // ⭐ UPDATE 2: State Modal Hapus
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
     const [profileImage, setProfileImage] = useState(null);
 
     const { data, setData, post, processing, reset } = useForm({
@@ -96,7 +101,7 @@ export default function MahasiswaAccountSettings() {
         )}&background=16A34A&color=fff&bold=true&size=177`;
     };
 
-    // ⭐ UPDATE 1: Init Foto Profil
+    // Init Foto Profil
     useEffect(() => {
         if (user.path_gambar) {
             setProfileImage(`/${user.path_gambar}`);
@@ -120,8 +125,15 @@ export default function MahasiswaAccountSettings() {
         }
     };
 
-    // ⭐ UPDATE 2: Reset ke Avatar Hijau saat dihapus
-    const handleDeleteProfileImage = () => {
+    // ⭐ UPDATE 3: Logika Hapus Gambar dipisah (Open Modal & Confirm Action)
+    
+    // 1. Fungsi Buka Modal
+    const openDeletePhotoModal = () => {
+        setIsDeleteModalOpen(true);
+    };
+
+    // 2. Fungsi Eksekusi Hapus (Dipanggil saat tombol "Hapus" di modal ditekan)
+    const confirmDeletePhoto = () => {
         setData({
             ...data,
             foto: null,
@@ -131,6 +143,8 @@ export default function MahasiswaAccountSettings() {
         const displayName =
             user.mahasiswa?.nama || user.username || "Mahasiswa";
         setProfileImage(getGreenAvatar(displayName));
+        
+        setIsDeleteModalOpen(false); // Tutup modal
     };
 
     const handleSaveChanges = (e) => {
@@ -161,7 +175,7 @@ export default function MahasiswaAccountSettings() {
                 type="mahasiswa"
                 isOpen={sidebarOpen}
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
-                user={user} // ⭐ JANGAN LUPA: Kirim prop user agar Sidebar langsung update
+                user={user} 
             />
 
             <main className="grid w-full p-os-16 lg:p-4 min-h-screen grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
@@ -235,9 +249,10 @@ export default function MahasiswaAccountSettings() {
                                     </span>
                                 </label>
 
+                                {/* ⭐ UPDATE 4: Tombol Trigger Modal */}
                                 <button
                                     type="button"
-                                    onClick={handleDeleteProfileImage}
+                                    onClick={openDeletePhotoModal}
                                     className="flex w-12 h-12 items-center justify-center bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
                                 >
                                     <Trash2 className="w-[20px]" />
@@ -510,6 +525,17 @@ export default function MahasiswaAccountSettings() {
                 <div className="mt-2">
                     <OsCopyright />
                 </div>
+
+                {/* ⭐ UPDATE 5: MODAL UNTUK DELETE FOTO PROFIL */}
+                <Modals
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={confirmDeletePhoto}
+                    variant="delete"
+                    title="Hapus Foto Profil"
+                    message="Apakah Anda yakin ingin menghapus foto profil Anda?"
+                    confirmText="Hapus"
+                />
             </main>
         </div>
     );

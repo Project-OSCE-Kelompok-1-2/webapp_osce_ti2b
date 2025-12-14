@@ -25,6 +25,8 @@ import OsCopyright from "../../components/Copyright.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsButton from "../../components/button.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
+// ⭐ UPDATE 1: Import Modals
+import Modals from "../../components/Modals.jsx";
 
 // CustomInput Handle Disabled State (Background Gray)
 const CustomInput = ({
@@ -86,6 +88,9 @@ export default function PengujiProfil() {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
+    // ⭐ UPDATE 2: State Modal Hapus
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+
     const [profileImage, setProfileImage] = useState(
         "https://via.placeholder.com/177?text=U"
     );
@@ -129,12 +134,21 @@ export default function PengujiProfil() {
         }
     };
 
-    // Reset Foto ke Avatar Orange saat dihapus
-    const handleDeleteProfileImage = () => {
+    // ⭐ UPDATE 3: Logika Hapus Gambar dipisah (Open Modal & Confirm Action)
+    
+    // 1. Fungsi Buka Modal
+    const openDeletePhotoModal = () => {
+        setIsDeleteModalOpen(true);
+    };
+
+    // 2. Fungsi Eksekusi Hapus (Dipanggil saat tombol "Hapus" di modal ditekan)
+    const confirmDeletePhoto = () => {
         setData((prev) => ({ ...prev, foto: null, delete_foto: true }));
 
         const displayName = user.penguji?.nama || user.username || "Penguji";
         setProfileImage(getOrangeAvatar(displayName));
+        
+        setIsDeleteModalOpen(false); // Tutup modal setelah hapus
     };
 
     const handleSaveChanges = (e) => {
@@ -263,11 +277,13 @@ export default function PengujiProfil() {
                                                         Upload
                                                     </span>
                                                 </label>
+                                                
+                                                {/* ⭐ UPDATE 4: Button trigger openDeletePhotoModal */}
                                                 <OsButton
                                                     name="warning"
                                                     type="button"
                                                     onClick={
-                                                        handleDeleteProfileImage
+                                                        openDeletePhotoModal
                                                     }
                                                     className=" bg-red-600 text-white rounded-xl flex items-center justify-center"
                                                 >
@@ -581,6 +597,17 @@ export default function PengujiProfil() {
                 <div className="">
                     <OsCopyright variant="penguji" />
                 </div>
+
+                {/* ⭐ UPDATE 5: MODAL UNTUK DELETE FOTO PROFIL */}
+                <Modals
+                    isOpen={isDeleteModalOpen}
+                    onClose={() => setIsDeleteModalOpen(false)}
+                    onConfirm={confirmDeletePhoto}
+                    variant="delete"
+                    title="Hapus Foto Profil"
+                    message="Apakah Anda yakin ingin menghapus foto profil Anda?"
+                    confirmText="Hapus"
+                />
             </main>
         </div>
     );
