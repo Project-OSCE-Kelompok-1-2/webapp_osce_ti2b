@@ -31,12 +31,13 @@ class AdminController extends Controller
             'total_penguji' => Penguji::count(),
         ];
 
-        $notifikasi_bobot = $this->service->getDashboardData();
+        // Service sekarang mengembalikan Collection notifikasi yang sudah digabung
+        $notifikasi = $this->service->getDashboardData();
 
         return Inertia::render('Admin/Dashboard', [
             'stats' => $stats,
-            'notifikasi' => $notifikasi_bobot,
-            'user' => Auth::user(), // ← TAMBAHAN AGAR USERNAME TERKIRIM
+            'notifikasi' => $notifikasi, // Kirim data yang sudah distandarisasi
+            'user' => Auth::user(),
         ]);
     }
 
