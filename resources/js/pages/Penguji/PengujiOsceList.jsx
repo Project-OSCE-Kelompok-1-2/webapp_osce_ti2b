@@ -12,6 +12,7 @@ import OsTableHeader from "../../components/tableheader";
 import OsTableBody from "../../components/tablecontain";
 import OsPagination from "../../components/pagination";
 
+// ... (Kode Kolom Table & Logic Tombol Tetap Sama) ...
 // Struktur kolom tabel
 const osceColumns = [
     {
@@ -52,23 +53,25 @@ const osceColumns = [
     },
 ];
 
-// Logic Styling Tombol
 const getButtonStyle = (status, label) => {
-    // Styling khusus jika label tombolnya "Edit Nilai" (misal warna Orange/Indigo biar beda)
+    // 1. Jika tombol "Edit Nilai" -> HIJAU
     if (label === "Edit Nilai") {
-        return { className: "bg-indigo-600 hover:bg-indigo-700 text-white" };
+        return { className: "bg-green-600 hover:bg-green-700 text-white" };
     }
 
+    // 2. Jika tombol "Mulai Ujian" -> BIRU
+    if (label === "Mulai Ujian") {
+        return { className: "bg-blue-600 hover:bg-blue-700 text-white" };
+    }
+
+    // 3. Sisanya (Lihat Rekap, Menunggu Jadwal) ikut logic status bawaan
     switch (status) {
-        case "Aktif":
-            return { className: "bg-blue-600 hover:bg-blue-700 text-white" };
-        case "Telah Dinilai":
-            return { className: "bg-indigo-500 hover:bg-indigo-600 text-white" };
-        case "Selesai":
+        case "Selesai": // Biasanya tombol "Lihat Rekap"
             return {
-                className: "bg-os-primary-pj hover:bg-os-primary-pj-dark text-white",
+                className:
+                    "bg-os-primary-pj hover:bg-os-primary-pj-dark text-white",
             };
-        case "Belum Dimulai":
+        case "Belum Dimulai": // Tombol "Menunggu Jadwal" (Disabled)
             return { className: "bg-gray-400 hover:bg-gray-500 text-white" };
         default:
             return { className: "bg-blue-500 text-white" };
@@ -79,23 +82,23 @@ export default function PengujiOsceList() {
     // 1. Ambil Data dari Props (Backend)
     const { osce_list, filters, tahun_options } = usePage().props;
 
-    // Ambil data array dan meta pagination
     const dataItems = osce_list.data || [];
-    const meta = osce_list; // object ini berisi current_page, links, dll.
+    const meta = osce_list;
 
     // 2. State Management
     const [search, setSearch] = useState(filters?.search || "");
     const [tahun, setTahun] = useState(filters?.tahun || "");
+    // Tambah state Status
+    const [status, setStatus] = useState(filters?.status || "");
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // Ref untuk mencegah search jalan saat mount pertama kali
     const isFirstRun = useRef(true);
 
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
     // --- LOGIKA FILTER SERVER-SIDE ---
 
-    // A. Handle Search dengan Delay (Debounce manual)
+    // A. Handle Search dengan Delay (Include tahun & status)
     useEffect(() => {
         if (isFirstRun.current) {
             isFirstRun.current = false;
@@ -105,58 +108,58 @@ export default function PengujiOsceList() {
         const delayDebounceFn = setTimeout(() => {
             router.get(
                 window.location.pathname,
-                { search: search, tahun: tahun },
+                { search: search, tahun: tahun, status: status }, // Include Status
                 { preserveState: true, replace: true, preserveScroll: true }
             );
         }, 500);
 
         return () => clearTimeout(delayDebounceFn);
-    }, [search]);
+    }, [search]); // Hanya trigger search saat search berubah, tapi bawa nilai lain
 
-    // B. Handle Ganti Tahun (Langsung Reload)
+    // B. Handle Ganti Tahun
     const handleTahunChange = (e) => {
         const selectedTahun = e.target.value;
         setTahun(selectedTahun);
-
         router.get(
             window.location.pathname,
-            { search: search, tahun: selectedTahun },
+            { search: search, tahun: selectedTahun, status: status }, // Include Status
+            { preserveState: true, replace: true, preserveScroll: true }
+        );
+    };
+
+    // C. Handle Ganti Status (BARU)
+    const handleStatusChange = (e) => {
+        const selectedStatus = e.target.value;
+        setStatus(selectedStatus);
+        router.get(
+            window.location.pathname,
+            { search: search, tahun: tahun, status: selectedStatus },
             { preserveState: true, replace: true, preserveScroll: true }
         );
     };
 
     // --- MAPPING DATA KE FORMAT TABEL ---
     const mappedData = dataItems.map((item, index) => {
-        // Ambil style tombol
+        // ... (LOGIKA MAPPING DATA TETAP SAMA) ...
         const btn = getButtonStyle(item.status, item.tombol_label);
-        
-        // --- LOGIKA LINK (UPDATE PENTING DISINI) ---
         let linkHref = "#";
-
-        // Prioritaskan 'tipe_halaman' dari backend
         if (item.tipe_halaman === "edit") {
-            // Jika tipe halaman edit (Edit Nilai / Telah Dinilai / Aktif Expired) -> ke SubmitRubrik
             linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}/submitrubrik`;
         } else {
-            // Jika tipe halaman rekap (Mulai Ujian / Lihat Rekap)
             if (item.status === "Selesai") {
-                // Jika Selesai -> ke Rekap View Only
                 linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}/rekap`;
             } else {
-                // Jika Aktif / Belum Dimulai -> ke Halaman Utama Ujian (Mulai)
                 linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}`;
             }
         }
-
         const rowNumber = (meta.current_page - 1) * meta.per_page + index + 1;
-
         return {
             no: rowNumber,
             nama: (
                 <div className="text-left px-2">
                     <div className="font-medium text-gray-900">{item.nama}</div>
                     <div className="text-xs text-gray-500">
-                        {item.jumlah_mahasiswa} Mahasiswa | Sesi {item.sesi}
+                        {item.jumlah_mahasiswa} Mahasiswa | {item.sesi}
                     </div>
                 </div>
             ),
@@ -171,7 +174,9 @@ export default function PengujiOsceList() {
                             ? "bg-yellow-100 text-yellow-800"
                             : item.status === "Telah Dinilai"
                             ? "bg-indigo-100 text-indigo-800"
-                            : "bg-red-100 text-red-800"
+                            : item.status === "Belum Dinilai"
+                            ? "bg-red-100 text-red-800" // Tambah style Belum Dinilai
+                            : "bg-gray-200 text-gray-800" // Default/Selesai
                     }`}
                 >
                     {item.status}
@@ -236,6 +241,7 @@ export default function PengujiOsceList() {
                             />
 
                             <div className="flex w-full md:w-auto items-stretch md:items-center gap-3">
+                                {/* Filter Tahun */}
                                 <select
                                     value={tahun}
                                     onChange={handleTahunChange}
@@ -249,9 +255,30 @@ export default function PengujiOsceList() {
                                             </option>
                                         ))}
                                 </select>
+
+                                {/* Filter Status (BARU) */}
+                                <select
+                                    value={status}
+                                    onChange={handleStatusChange}
+                                    className="border border-gray-700 rounded-lg h-[46px] w-full md:w-40 bg-white focus:outline-none focus:ring-2 focus:ring-orange-500"
+                                >
+                                    <option value="">Semua Status</option>
+                                    <option value="Aktif">Aktif</option>
+                                    <option value="Belum Dinilai">
+                                        Belum Dinilai
+                                    </option>
+                                    <option value="Telah Dinilai">
+                                        Telah Dinilai
+                                    </option>
+                                    <option value="Belum Dimulai">
+                                        Belum Dimulai
+                                    </option>
+                                    <option value="Selesai">Selesai</option>
+                                </select>
                             </div>
                         </div>
 
+                        {/* ... (SISANYA TETAP SAMA) ... */}
                         <div className="flex gap-1 items-center justify-start my-2">
                             <Table2 size={18} />
                             <h2 className="font-semibold text-lg">
@@ -262,7 +289,6 @@ export default function PengujiOsceList() {
                             </span>
                         </div>
 
-                        {/* Tabel Data */}
                         <section className="bg-white p-5 border border-os-primary-pj overflow-x-auto rounded-xl shadow-sm">
                             <div className="min-w-[900px]">
                                 {mappedData.length > 0 ? (
@@ -289,7 +315,6 @@ export default function PengujiOsceList() {
                             </div>
                         </section>
 
-                        {/* Pagination Komponen Baru */}
                         {meta.last_page > 1 && (
                             <div className="mt-8 flex justify-center">
                                 <OsPagination

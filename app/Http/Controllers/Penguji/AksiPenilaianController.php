@@ -187,60 +187,81 @@ class AksiPenilaianController extends Controller
     {
         $user = Auth::user();
 
-        $osceStase = OsceStase::with(['osce', 'stase'])
+        // 1. Ambil Data Stase Lengkap
+        $osceStase = OsceStase::with(['osce', 'stase', 'penguji'])
             ->where('id_osce', $id_osce)
             ->where('id_osce_stase', $id_osce_stase)
             ->where('id_penguji', $user->penguji->id_penguji)
             ->firstOrFail();
 
-        // ============================================================
-        // PERBAIKAN LOGIKA: FILTER HANYA MAHASISWA SESI INI
-        // ============================================================
-        $tglJadwal   = $osceStase->tanggal;
-        $jamMulai    = $osceStase->jam_mulai;
-        $jamSelesai  = $osceStase->jam_selesai;
+        $idStase = $osceStase->id_stase;
 
-        // Ambil rekap singkat status penilaian (HANYA SESI INI)
-        $mahasiswaList = EnrollmentOsce::with('mahasiswa')
+        // 2. Persiapkan Filter Waktu Sesi Ini
+        // Agar jumlah enrollment dinamis sesuai sesi (bukan total seluruh hari)
+        $targetTanggal = $osceStase->tanggal->format('Y-m-d');
+        $targetJam     = substr($osceStase->jam_mulai, 0, 5); // Format H:i
+
+        // 3. Query Enrollment + Hitung Nilai Total (Subquery)
+        // Kita copy logika dari RekapController agar nilainya muncul
+        $query = EnrollmentOsce::with('mahasiswa')
             ->where('id_osce', $id_osce)
-            // Tambahkan Filter Waktu Ini!
-            ->whereDate('tanggal_sesi', $tglJadwal)
-            ->whereTime('jam_sesi', '>=', $jamMulai)
-            ->whereTime('jam_sesi', '<', $jamSelesai)
-            ->orderBy('jam_sesi', 'asc')
-            ->get()
-            ->map(function ($enrollment) use ($osceStase) {
-                $hasNilai = NilaiOsce::where('id_enrollment_osce', $enrollment->id_enrollment_osce)
-                    ->whereHas('poinAspekPenilaian.aspekPenilaian', function ($q) use ($osceStase) {
-                        $q->where('id_stase', $osceStase->id_stase);
-                    })->exists();
+            ->select([
+                'enrollment_osce.*',
+                DB::raw("(
+                    SELECT SUM(no.nilai * pap.bobot) 
+                    FROM nilai_osce AS no
+                    JOIN poin_aspek_penilaian AS pap ON no.id_poin_aspek_penilaian = pap.id_poin_aspek_penilaian
+                    JOIN aspek_penilaian AS ap ON pap.id_aspek_penilaian = ap.id_aspek_penilaian
+                    WHERE no.id_enrollment_osce = enrollment_osce.id_enrollment_osce
+                    AND ap.id_stase = $idStase 
+                ) as nilai_total")
+            ]);
 
-                return [
-                    'nama'   => $enrollment->mahasiswa->nama,
-                    'nim'    => $enrollment->mahasiswa->nim,
-                    'status' => $hasNilai ? 'Sudah Dinilai' : 'Belum Dinilai',
-                ];
-            });
+        // 4. Ambil data & Filter Sesi di PHP Collection
+        $mahasiswaRaw = $query->get();
 
+        $mahasiswaFiltered = $mahasiswaRaw->filter(function ($enrollment) use ($targetTanggal, $targetJam) {
+            $mhsTanggal = \Carbon\Carbon::parse($enrollment->tanggal_sesi)->format('Y-m-d');
+            $mhsJam     = substr((string) $enrollment->jam_sesi, 0, 5);
+            return $mhsTanggal === $targetTanggal && $mhsJam === $targetJam;
+        });
+
+        // 5. Mapping Data untuk Frontend
+        $mahasiswaList = $mahasiswaFiltered->map(function ($item) {
+            return [
+                'id_enrollment_osce' => $item->id_enrollment_osce,
+                'nama'        => $item->mahasiswa->nama,
+                'nim'         => $item->mahasiswa->nim,
+                // Logika pembulatan nilai (dibagi 4 sesuai standar rubrik osce umumnya jika skala 4)
+                'nilai_total' => $item->nilai_total ? round((float)$item->nilai_total, 2) / 4 : 0,
+                // Cek apakah sudah dinilai (jika nilai > 0 dianggap sudah)
+                'status'      => $item->nilai_total ? 'Sudah Dinilai' : 'Belum Dinilai',
+            ];
+        })->values();
+
+        // 6. Return ke Inertia
         return Inertia::render('Penguji/SubmitRubrik', [
             'osce_detail' => [
-                'id_osce'       => $osceStase->id_osce,
-                'id_osce_stase' => $osceStase->id_osce_stase,
-                'nama_osce'     => $osceStase->osce->nama_osce,
-                'nama_stase'    => $osceStase->stase->nama_stase,
+                'id_osce'              => $osceStase->id_osce,
+                'id_osce_stase'        => $osceStase->id_osce_stase,
+                'nama_osce'            => $osceStase->osce->nama_osce,
+                'nama_stase'           => $osceStase->stase->nama_stase,
+                // TAMBAHAN DATA DINAMIS:
+                'durasi_per_mahasiswa' => $osceStase->durasi_per_mahasiswa . ' Menit',
+                'total_mahasiswa'      => $mahasiswaList->count(), // Jumlah dinamis sesi ini
             ],
             'mahasiswa_list' => $mahasiswaList
         ]);
     }
 
-    /**
-     * AKSI SELESAI SESI (POST)
-     * Hanya redirect ke dashboard, karena status dikontrol waktu admin.
-     */
     public function selesai($id_osce, $id_osce_stase)
     {
-        // Tidak ada update DB.
-        return redirect()->route('penguji.dashboard')
-            ->with('success', 'Sesi penilaian telah diselesaikan. Anda akan diarahkan ke Dashboard.');
+        // Logika tambahan jika ada (misal update status stase jadi selesai, dsb)
+        // ...
+
+        // --- PERBAIKAN DISINI ---
+        // Redirect ke route 'penguji.osce.index' (Halaman PengujiOsceList)
+        return redirect()->route('penguji.osce.index')
+            ->with('success', 'Sesi penilaian stase ini telah selesai.');
     }
 }
