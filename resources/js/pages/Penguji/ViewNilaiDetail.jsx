@@ -3,7 +3,7 @@ import { Link, usePage } from "@inertiajs/react";
 import { ArrowLeft } from "lucide-react";
 
 // --- Import Komponen ---
-import SidebarUniversal from "../../components/SidebarUniversal";
+import SidebarUniversal from "../../components/Sidebar";
 import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/Copyright";
 

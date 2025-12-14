@@ -12,68 +12,131 @@ use App\Models\OsceStase;
 
 class OsceController extends Controller
 {
-    // mengembvalikan semua data
     public function index(Request $request)
     {
         $user = Auth::user();
         $penguji = Penguji::where('id_pengguna', $user->id_pengguna)->firstOrFail();
 
-        // [PERUBAHAN] Ambil SEMUA data tanpa filter search/tahun di DB
-        // Eager load relasi yang dibutuhkan
-        $assignments = OsceStase::with(['osce.enrollmentOsce', 'osce.tahunAkademik'])
-            ->where('id_penguji', $penguji->id_penguji)
-            ->orderBy('tanggal', 'desc')
-            ->get(); // Gunakan GET(), bukan paginate()
+        $search = $request->input('search');
+        $tahun  = $request->input('tahun');
+
+        // Load relasi yang dibutuhkan
+        $query = OsceStase::with([
+                'osce.enrollmentOsce.nilaiOsce', 
+                'osce.tahunAkademik'
+            ])
+            ->where('id_penguji', $penguji->id_penguji);
+
+        // Filter Search (Berdasarkan Nama OSCE)
+        if ($search) {
+            $query->whereHas('osce', function ($q) use ($search) {
+                $q->where('nama_osce', 'like', "%{$search}%");
+            });
+        }
+
+        // Filter Tahun Akademik
+        if ($tahun) {
+            $query->whereHas('osce.tahunAkademik', function ($q) use ($tahun) {
+                $q->where('tahun', 'like', "%{$tahun}%");
+            });
+        }
+
+        // Pagination & Sorting (Urutkan dari yang terbaru)
+        $assignments = $query->orderBy('tanggal', 'desc')->paginate(10)->withQueryString();
 
         // Transformasi Data
-        $osceList = $assignments->map(function ($stase) {
+        $osceList = $assignments->through(function ($stase) {
             $osce = $stase->osce;
-            $now = Carbon::now();
 
-            $startEvent = Carbon::parse($osce->tanggal_mulai)->startOfDay();
-            $endEvent   = Carbon::parse($osce->tanggal_selesai)->endOfDay();
+            // [PERBAIKAN 1] Gunakan Waktu Real-time Server (Bukan Hardcoded)
+            $now = Carbon::now('Asia/Jakarta');
 
-            // Logika Status
-            $status = 'Selesai';
-            if ($now->lt($startEvent)) {
-                $status = 'Belum Dimulai';
-            } elseif ($now->between($startEvent, $endEvent)) {
-                $status = 'Aktif';
-            } else {
-                $status = 'Selesai';
-            }
+            // [PERBAIKAN 2] Parse Jadwal dengan Timezone Jakarta
+            $tgl = $stase->tanggal->format('Y-m-d');
             
-            // Format Tahun Akademik untuk filtering di frontend
-            $tahunAkademik = $osce->tahunAkademik->tahun ?? '';
+            // Menggabungkan tanggal dengan jam mulai/selesai
+            $startEvent = Carbon::parse($tgl . ' ' . $stase->jam_mulai, 'Asia/Jakarta');
+            $endEvent   = Carbon::parse($tgl . ' ' . $stase->jam_selesai, 'Asia/Jakarta');
 
+            // --- 1. LOGIKA FILTER PESERTA ---
             $staseTanggal = $stase->tanggal->toDateString();
             $staseJamMulai = substr($stase->jam_mulai, 0, 5);
             
-            $jumlahMahasiswaSesi = $osce->enrollmentOsce
+            // Filter hanya mahasiswa yang dijadwalkan di sesi ini
+            $pesertaSesi = $osce->enrollmentOsce
                 ->filter(function ($enrollment) use ($staseTanggal, $staseJamMulai) {
-                    
-                    $enrollmentTanggal = (string) Carbon::parse($enrollment->tanggal_sesi)->toDateString();                    
+                    $enrollmentTanggal = (string) Carbon::parse($enrollment->tanggal_sesi)->toDateString();
                     $enrollmentJam = substr((string) $enrollment->jam_sesi, 0, 5); 
                     return $enrollmentTanggal === $staseTanggal && $enrollmentJam === $staseJamMulai;
-                })
-                ->count();
+                });
+
+            $jumlahMahasiswa = $pesertaSesi->count();
+
+            // --- 2. HITUNG YANG SUDAH DINILAI ---
+            $jumlahDinilai = $pesertaSesi->filter(function ($mhs) {
+                return $mhs->nilaiOsce !== null;
+            })->count();
+
+            // --- 3. LOGIKA STATUS ---
+            $status = 'Aktif'; // Default initialization
+
+            // Prioritas 1: Cek apakah waktu sudah habis? (MUTLAK)
+            // Logic: Jika waktu sekarang > waktu selesai, status otomatis "Selesai"
+            if ($now->greaterThan($endEvent)) {
+                $status = 'Selesai';
+            } 
+            // Prioritas 2: Cek apakah semua mahasiswa sudah dinilai? (Hanya jika waktu BELUM habis)
+            elseif ($jumlahMahasiswa > 0 && $jumlahMahasiswa === $jumlahDinilai) {
+                $status = 'Telah Dinilai';
+            } 
+            // Prioritas 3: Cek apakah belum dimulai?
+            elseif ($now->lessThan($startEvent)) {
+                $status = 'Belum Dimulai';
+            } 
+            // Prioritas 4: Sedang berlangsung
+            else {
+                $status = 'Aktif';
+            }
+            
+            // --- 4. TENTUKAN LABEL TOMBOL ---
+            $tombolAction = 'Lihat'; // Default
+
+            if ($status === 'Aktif') {
+                $tombolAction = 'Mulai Ujian';
+            } 
+            elseif ($status === 'Telah Dinilai') {
+                $tombolAction = 'Edit Nilai'; 
+            } 
+            elseif ($status === 'Selesai') {
+                $tombolAction = 'Lihat Rekap Nilai';
+            } 
+            elseif ($status === 'Belum Dimulai') {
+                $tombolAction = 'Mulai Ujian'; 
+            }
 
             return [
                 'id_osce'          => $osce->id_osce,
                 'id_osce_stase'    => $stase->id_osce_stase,
-                'nama'             => $osce->nama_osce,
+                'nama'             => $osce->nama_osce, 
                 'tanggal_mulai'    => $osce->tanggal_mulai->format('d F Y'),
                 'tanggal_akhir'    => $osce->tanggal_selesai->format('d F Y'),
+                
+                // Data untuk Logika Frontend
                 'status'           => $status,
-                'jumlah_mahasiswa' => $jumlahMahasiswaSesi,
+                'tombol_label'     => $tombolAction,
+                
+                'jumlah_mahasiswa' => $jumlahMahasiswa,
+                'jumlah_dinilai'   => $jumlahDinilai,
                 'sesi'             => substr($stase->jam_mulai, 0, 5) . ' - ' . substr($stase->jam_selesai, 0, 5),
-                'tahun_akademik'   => $tahunAkademik, // Tambahkan field ini
             ];
         });
 
         return Inertia::render('Penguji/PengujiOsceList', [
-            'osce_list' => $osceList, // Mengirim Array Full
-            'filters'   => [],        // Filter kosong
+            'osce_list' => $osceList,
+            'filters'   => [
+                'search' => $search,
+                'tahun'  => $tahun
+            ]
         ]);
     }
 }

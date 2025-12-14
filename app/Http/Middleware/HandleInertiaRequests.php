@@ -38,8 +38,9 @@ class HandleInertiaRequests extends Middleware
     {
         $user = $request->user();
         $details = null;
-        $fotoUrl = null;
 
+        // 1. Eager Load Relasi
+        // Kita perlu meload relasi agar data seperti NIM/NIP tersedia di sidebar
         if ($user) {
             if ($user->jenis_role === "penguji") {
                 $user->load("penguji");
@@ -47,36 +48,47 @@ class HandleInertiaRequests extends Middleware
             } else if ($user->jenis_role === "mahasiswa") {
                 $user->load("mahasiswa");
                 $details = $user->mahasiswa;
+            } else if ($user->jenis_role === "dosen") {
+                $user->load("dosen");
+                $details = $user->dosen;
+            } else if ($user->jenis_role === "admin") {
+                $user->load("admin");
+                $details = $user->admin;
             }
         }
 
         $tahunAktif = TahunAkademik::where('status', 'Aktif')->first();
 
         return array_merge(parent::share($request), [
-            // mengirimkan data user yang sedang login ke front end
             'auth' => [
-                'user' => [
-                    'id' => $user?->id,
-                    'username' => $user?->username,
-                    'name' => $details?->nama ?? $user?->username,
-                    'foto' => $fotoUrl,
-                    'jenis_role' => $user?->jenis_role,
-                    // details berisi data dari admin / penguji / mahasiswa, tergantung role pengguna
-                    'details' => $details,
-                ]
+                'user' => $user ? [
+                    'id' => $user->id,
+                    'username' => $user->username,
+                    'email' => $user->email, // Penting untuk sidebar
+                    'name' => $details?->nama ?? $user->username, // Fallback nama
+                    
+                    // ⭐ PERBAIKAN UTAMA DI SINI ⭐
+                    // Ambil langsung dari kolom database, jangan biarkan null
+                    'path_gambar' => $user->path_gambar, 
+                    
+                    'jenis_role' => $user->jenis_role,
+                    
+                    // Kirim data relasi lengkap untuk kebutuhan Sidebar (NIM/NIP)
+                    'mahasiswa' => $user->relationLoaded('mahasiswa') ? $user->mahasiswa : null,
+                    'penguji' => $user->relationLoaded('penguji') ? $user->penguji : null,
+                    'dosen' => $user->relationLoaded('dosen') ? $user->dosen : null,
+                    'admin' => $user->relationLoaded('admin') ? $user->admin : null,
+                ] : null
             ],
 
-            // untuk notifikasi error dan sukses yang digunakan di front end
             'flash' => [
                 'success' => fn() => $request->session()->get('success'),
                 'error' => fn() => $request->session()->get('error'),
             ],
 
-            // 3. DATA GLOBAL TAHUN AKADEMIK (UPDATED)
-        // Format: "2024/2025 - Ganjil"
-        'academic_year' => $tahunAktif 
-            ? ($tahunAktif->tahun . ' - ' . $tahunAktif->semester) 
-            : null,
+            'academic_year' => $tahunAktif 
+                ? ($tahunAktif->tahun . ' - ' . $tahunAktif->semester) 
+                : null,
         ]);
     }
 }

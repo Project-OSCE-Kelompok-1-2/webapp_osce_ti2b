@@ -59,17 +59,18 @@ export default function EditNilaiForm() {
             />
 
             <main
-                className={`w-full min-h-screen flex flex-col justify-between gap-6 p-4 md:p-8 transition-all duration-300 ${
+                className={`w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 ${
                     isSidebarOpen ? "md:ml-56" : "md:ml-20"
                 }`}
             >
-                <div className="flex flex-col gap-6">
+                <div className="flex flex-col gap-os-8">
                     {/* [FIX] Gunakan handleSidebarToggle untuk onMenuClick */}
                     <OsHeader
                         title={`OSCE / ${safeOsceInfo.nama_osce} / Edit Nilai`} // Judul yang lebih jelas
                         icon={<ArrowLeft className="w-5 h-5" />} // Menambahkan ikon panah kembali
                         onMenuClick={handleSidebarToggle}
                         backLink="/penguji/dashboard"
+                        variant="penguji"
                     />
 
                     {/* DETAIL OSCE */}

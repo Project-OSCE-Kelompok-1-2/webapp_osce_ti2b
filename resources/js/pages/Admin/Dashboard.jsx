@@ -13,17 +13,13 @@ import OsCopyright from "../../components/Copyright.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
 import OsIcon from "../../components/icons.jsx";
 
-/**
- * props: title, value, description, icon, colorClass, href
- */
-// [UBAH] Tambahkan 'href' sebagai properti
+// ... (Komponen StatCard dan NotificationItem TETAP SAMA, tidak perlu diubah) ...
 const StatCard = ({ title, value, description, icon, colorClass, href }) => {
     return (
         <article
             className={`w-full h-full border rounded-lg p-4 flex flex-col justify-between ${colorClass}`}
         >
             <div>
-                {/* ... (bagian judul dan deskripsi, tidak berubah) ... */}
                 <div className="flex justify-between items-start mb-2">
                     <div>
                         <h3 className="font-medium text-sm text-white">
@@ -43,15 +39,13 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
                         {value}
                     </div>
 
-                    {/* [UBAH] Mengganti <button> menjadi <Link> DAN UBAH STYLE */}
                     <Link
-                        href={href} // Menggunakan href dari props
+                        href={href}
                         className="mt-2 inline-flex items-center gap-2 text-xs px-3 py-1 rounded-full border text-white border-yellow-200 hover:bg-blue-200 transition-colors"
                     >
                         <ClipboardList size={14} />
                         <span>Tampilkan lebih</span>
                     </Link>
-                    {/* [SELESAI UBAH] */}
                 </div>
 
                 <div className="flex items-center justify-center w-16 h-16 rounded-xl bg-white/60 border">
@@ -62,14 +56,9 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
     );
 };
 
-/**
- * NotificationItem: layout sesuai mock
- */
 const NotificationItem = ({ stase, index }) => {
-    // Komponen ini tidak diubah
     return (
-        <div className="flex items-startjustify-between bg-white border rounded-lg  overflow-hidden">
-            {/* Left: number */}
+        <div className="flex items-start justify-between bg-white border rounded-lg  overflow-hidden">
             <div className="flex items-center px-4 py-4 border-r">
                 <div className="w-8 h-8 rounded-full bg-gray-100 flex items-center justify-center text-sm font-semibold text-gray-700">
                     {index}
@@ -77,7 +66,6 @@ const NotificationItem = ({ stase, index }) => {
             </div>
 
             <div className="md:flex md:justify-between w-full gap-5 p-4">
-                {/* Middle: title + subtitle */}
                 <div className="flex-1">
                     <h4 className="font-semibold text-gray-800">
                         {stase.nama_stase}
@@ -87,7 +75,6 @@ const NotificationItem = ({ stase, index }) => {
                     </p>
                 </div>
 
-                {/* Right: pill + external link */}
                 <div className="flex items-center max-w-[300px] gap-3 pt-1 md:pt-0">
                     <div className="px-4 py-2 rounded-full bg-red-100 border border-red-300 text-red-700 text-xs font-semibold">
                         Nilai tidak seimbang ({stase.total_bobot}%)
@@ -106,13 +93,28 @@ const NotificationItem = ({ stase, index }) => {
 };
 
 export default function Dashboard() {
-    // fallback aman jika props belum ada
+    // 1. Ambil 'auth' dari usePage().props
     const {
+        auth, // <-- Data user ada di sini (dari middleware)
         stats = { total_osce: 0, total_mahasiswa: 0, total_penguji: 0 },
         notifikasi = [],
     } = usePage().props || {};
 
-    // format angka (2 digit seperti mock)
+    const user = auth?.user;
+
+    // 2. Logika Penentuan Nama Tampilan (Mirip Sidebar)
+    let displayName = "Pengguna"; // Default fallback
+
+    if (user) {
+        if (user.jenis_role === "admin") {
+            // Untuk admin, pakai 'name' dari backend (yang sudah handle fallback username)
+            displayName = user.name || user.username || "Admin Fakultas";
+        } else {
+            // Fallback umum
+            displayName = user.name || user.username || displayName;
+        }
+    }
+
     const totalOsce = (stats.total_osce ?? 0).toString().padStart(2, "0");
     const totalMahasiswa = (stats.total_mahasiswa ?? 0)
         .toString()
@@ -127,7 +129,12 @@ export default function Dashboard() {
 
     return (
         <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
+            {/* Kirim user ke Sidebar juga agar sinkron */}
+            <Sidebar
+                isOpen={isSidebarOpen}
+                onToggle={handleSidebarToggle}
+                user={user}
+            />
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 <div className="flex flex-col gap-os-8">
@@ -139,9 +146,9 @@ export default function Dashboard() {
                             <p className=" text-gray-600 text-os-regular">
                                 Selamat Datang,
                             </p>
-                            <h1 className="font-bold text-os-title text-gray-900">
-                                {/* {nama_penguji} */}
-                                USERNAME
+                            <h1 className="font-bold text-os-title text-gray-900 capitalize">
+                                {/* 3. Tampilkan Nama Dinamis */}
+                                {displayName}
                             </h1>
                             <p className="text-gray-500 text-sm">
                                 Berikut adalah ringkasan aktivitas pengujian
@@ -151,7 +158,7 @@ export default function Dashboard() {
 
                         <hr className="border-1 border-os-primary my-2" />
 
-                        {/* Statistika */}
+                        {/* ... (Sisa kode Statistika dan Notifikasi TETAP SAMA) ... */}
                         <section className="my-2 mb-4">
                             <div className="flex gap-os-8 items-center justify-start mb-2">
                                 <OsIcon name={"stat"} className="h-[15px]" />
@@ -161,7 +168,6 @@ export default function Dashboard() {
                             </div>
 
                             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
-                                {/* [UBAH] Tambahkan prop 'href' di sini */}
                                 <StatCard
                                     title="Total OSCE"
                                     description="Jumlah total OSCE yang terdaftar"
@@ -173,9 +179,8 @@ export default function Dashboard() {
                                         />
                                     }
                                     colorClass="bg-blue-400 border-blue-300"
-                                    href="/admin/osce" // <-- Tautan ke menu OSCE
+                                    href="/admin/osce"
                                 />
-                                {/* [UBAH] Tambahkan prop 'href' di sini */}
                                 <StatCard
                                     title="Total Mahasiswa"
                                     description="Jumlah total mahasiswa terdaftar"
@@ -187,9 +192,8 @@ export default function Dashboard() {
                                         />
                                     }
                                     colorClass="bg-red-400 border-blue-300"
-                                    href="/admin/mahasiswa" // <-- Tautan ke menu Mahasiswa
+                                    href="/admin/mahasiswa"
                                 />
-                                {/* [UBAH] Tambahkan prop 'href' di sini */}
                                 <StatCard
                                     title="Total Penguji"
                                     description="Jumlah total penguji terdaftar"
@@ -201,14 +205,13 @@ export default function Dashboard() {
                                         />
                                     }
                                     colorClass="bg-lime-500 border-blue-300"
-                                    href="/admin/dosen" // <-- Tautan ke menu Dosen (Asumsi Penguji = Dosen)
+                                    href="/admin/dosen"
                                 />
                             </div>
                         </section>
 
                         <hr className="border-1 border-os-primary my-2" />
 
-                        {/* Notifikasi */}
                         <section>
                             <div className="flex gap-os-8 items-center justify-start my-2">
                                 <Bell size={18} />
@@ -236,7 +239,6 @@ export default function Dashboard() {
                     </section>
                 </div>
 
-                {/* Footer */}
                 <div className="mt-8">
                     <OsCopyright />
                 </div>

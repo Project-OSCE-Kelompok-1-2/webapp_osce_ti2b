@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 // Import hook Inertia
 import { useForm, usePage, router, Head } from "@inertiajs/react";
-// Catatan: 'Home' dihapus dari import karena sudah ditangani di dalam OsHeader (atau tidak dipakai jika mode goback)
 import {
     AlertCircle,
     Eye,
@@ -20,7 +19,7 @@ import OsIcon from "../../components/icons.jsx";
 import OsButton from "../../components/button.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
 
-// Komponen Input Custom (Sesuai Desain)
+// CustomInput (Sama seperti sebelumnya)
 const CustomInput = ({
     label,
     type = "text",
@@ -37,24 +36,25 @@ const CustomInput = ({
             {label}
         </label>
         <div
-            className={`flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full
-            rounded-xl border border-solid border-black`}
+            className={`flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full rounded-xl border border-solid border-black ${
+                disabled ? "bg-gray-200" : "bg-white"
+            }`}
         >
             {icon && (
                 <div className="!relative !w-5 !h-5 !aspect-[1] flex items-center justify-center opacity-45">
                     {icon}
                 </div>
             )}
-
             <input
                 type={type}
                 value={value}
                 onChange={onChange}
                 disabled={disabled}
                 placeholder={placeholder}
-                className="relative flex-1 font-sans font-normal text-black text-[15.4px] tracking-[0] leading-[normal] bg-transparent border-none outline-none w-full placeholder:text-gray-400"
+                className={`relative flex-1 font-sans font-normal text-[15.4px] tracking-[0] leading-[normal] bg-transparent border-none outline-none w-full placeholder:text-gray-400 ${
+                    disabled ? "text-gray-600 cursor-not-allowed" : "text-black"
+                }`}
             />
-
             {iconRight && (
                 <div className="!relative !w-5 !h-5 !aspect-[1] flex items-center justify-center cursor-pointer">
                     {iconRight}
@@ -66,26 +66,20 @@ const CustomInput = ({
 );
 
 export default function MahasiswaAccountSettings() {
-    // 1. AMBIL DATA DARI PROPS (Backend Asdif)
     const { user, errors, flash } = usePage().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
+    // State untuk Toggle Password
     const [showOldPassword, setShowOldPassword] = useState(false);
-    const [showNewPass, setShowNewPass] = useState(false); // Tambahan state untuk new password toggle
+    const [showNewPassword, setShowNewPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // State untuk preview gambar
-    const [profileImage, setProfileImage] = useState(
-        "https://via.placeholder.com/177?text=U"
-    );
+    const [profileImage, setProfileImage] = useState(null);
 
-    // 2. INISIALISASI FORM
     const { data, setData, post, processing, reset } = useForm({
-        // Data Tampilan (Read Only)
         username: user.username || "",
         nama: user.mahasiswa?.nama || "",
         nim: user.mahasiswa?.nim || "",
-
-        // Data Inputan
         foto: null,
         delete_foto: false,
         old_password: "",
@@ -93,16 +87,27 @@ export default function MahasiswaAccountSettings() {
         new_password_confirmation: "",
     });
 
-    // 3. EFFECT: SET PREVIEW GAMBAR
+    // ⭐ FUNGSI GENERATE AVATAR HIJAU (Helper)
+    const getGreenAvatar = (name) => {
+        // background=16A34A (Green-600 Tailwind)
+        // color=fff (Putih)
+        return `https://ui-avatars.com/api/?name=${encodeURIComponent(
+            name
+        )}&background=16A34A&color=fff&bold=true&size=177`;
+    };
+
+    // ⭐ UPDATE 1: Init Foto Profil
     useEffect(() => {
         if (user.path_gambar) {
             setProfileImage(`/${user.path_gambar}`);
         } else {
-            setProfileImage("https://via.placeholder.com/177?text=U");
+            // Gunakan Nama Mahasiswa atau Username
+            const displayName =
+                user.mahasiswa?.nama || user.username || "Mahasiswa";
+            setProfileImage(getGreenAvatar(displayName));
         }
-    }, [user.path_gambar]);
+    }, [user.path_gambar, user.mahasiswa, user.username]);
 
-    // 4. HANDLERS
     const handleProfileImageUpload = (event) => {
         const file = event.target.files?.[0];
         if (file) {
@@ -115,13 +120,17 @@ export default function MahasiswaAccountSettings() {
         }
     };
 
+    // ⭐ UPDATE 2: Reset ke Avatar Hijau saat dihapus
     const handleDeleteProfileImage = () => {
         setData({
             ...data,
             foto: null,
             delete_foto: true,
         });
-        setProfileImage("https://via.placeholder.com/177?text=U");
+
+        const displayName =
+            user.mahasiswa?.nama || user.username || "Mahasiswa";
+        setProfileImage(getGreenAvatar(displayName));
     };
 
     const handleSaveChanges = (e) => {
@@ -148,202 +157,216 @@ export default function MahasiswaAccountSettings() {
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Head title="Pengaturan Akun" />
 
-            {/* SIDEBAR */}
             <Sidebar
                 type="mahasiswa"
                 isOpen={sidebarOpen}
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
+                user={user} // ⭐ JANGAN LUPA: Kirim prop user agar Sidebar langsung update
             />
 
-            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
-                <div className="flex flex-col gap-os-8">
-                    {/* --- IMPLEMENTASI OS HEADER --- */}
-                    <OsHeader
-                        onMenuClick={() => setSidebarOpen(!sidebarOpen)}
-                    />
+            <main className="grid w-full p-os-16 lg:p-4 min-h-screen grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+                <OsHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
-                    {/* KONTEN UTAMA (DUA KOLOM) */}
-                    <div className="flex flex-col gap-5 w-full">
-                        {/* FLASH MESSAGE */}
-                        {flash?.success && (
-                            <div
-                                className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative"
-                                role="alert"
-                            >
-                                <strong className="font-bold">Berhasil!</strong>
-                                <span className="block sm:inline">
-                                    {" "}
-                                    {flash.success}
-                                </span>
-                            </div>
-                        )}
-                        {flash?.error && (
-                            <div
-                                className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-                                role="alert"
-                            >
-                                <strong className="font-bold">Error!</strong>
-                                <span className="block sm:inline">
-                                    {" "}
-                                    {flash.error}
-                                </span>
-                            </div>
-                        )}
+                <div className="flex flex-col gap-5 w-full">
+                    {/* FLASH MESSAGE */}
+                    {flash?.success && (
+                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+                            <strong className="font-bold">Berhasil!</strong>
+                            <span className="block sm:inline">
+                                {" "}
+                                {flash.success}
+                            </span>
+                        </div>
+                    )}
+                    {flash?.error && (
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                            <strong className="font-bold">Error!</strong>
+                            <span className="block sm:inline">
+                                {" "}
+                                {flash.error}
+                            </span>
+                        </div>
+                    )}
 
-                        <div className="flex flex-col lg:flex-row items-start gap-5 relative w-full">
-                            {/* --- KOLOM KIRI: FOTO PROFIL --- */}
-                            <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5  rounded-xl border border-os-primary shadow-sm">
-                                <div className="relative self-stretch w-full h-[29px]">
-                                    <h2 className="text-xl">Gambar Profil</h2>
-                                    <hr className="mt-1 border-os-primary" />
+                    <div className="flex flex-col lg:flex-row items-start gap-5 relative w-full">
+                        {/* --- KOLOM KIRI: FOTO PROFIL --- */}
+                        <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5 rounded-xl border border-os-primary shadow-sm bg-white">
+                            <div className="relative self-stretch w-full h-[29px]">
+                                <h2 className="text-xl">Gambar Profil</h2>
+                                <hr className="mt-1 border-os-primary" />
+                            </div>
+
+                            <div
+                                className="w-[177px] h-[177px] rounded-full bg-gray-100 border border-black bg-cover bg-center"
+                                style={{
+                                    backgroundImage: `url(${profileImage})`,
+                                }}
+                            />
+
+                            <div className="flex flex-col gap-[5px] bg-red-100 p-3 rounded-xl border border-red-400 w-full">
+                                <div className="flex items-center gap-[5px]">
+                                    <AlertCircle className="w-[15px] text-red-500" />
+                                    <p className="text-red-800 font-medium">
+                                        Perhatian!
+                                    </p>
                                 </div>
+                                <p className="text-red-700 text-[13px]">
+                                    Max 1MB, 500x500px. Format: png, jpeg, jpg,
+                                    gif.
+                                </p>
+                            </div>
+                            {errors.foto && (
+                                <p className="text-sm text-red-500">
+                                    {errors.foto}
+                                </p>
+                            )}
 
-                                {/* Lingkaran Foto */}
+                            <div className="flex items-center gap-[15px] relative self-stretch w-full">
+                                <label className="flex items-center justify-center gap-2.5 px-3 py-3 relative flex-1 bg-blue-600 text-white rounded-xl cursor-pointer hover:bg-blue-600 transition">
+                                    <input
+                                        type="file"
+                                        accept=".png,.jpg,.jpeg,.gif"
+                                        onChange={handleProfileImageUpload}
+                                        className="sr-only"
+                                    />
+                                    <UploadCloud className="w-[18px]" />
+                                    <span className="font-sans font-normal text-[15px] ">
+                                        Upload
+                                    </span>
+                                </label>
 
-                                <div
-                                    className="w-[177px] h-[177px] rounded-full bg-[#3a2323] border border-black bg-cover bg-center"
-                                    style={{
-                                        backgroundImage: `url(${profileImage})`,
-                                    }}
+                                <button
+                                    type="button"
+                                    onClick={handleDeleteProfileImage}
+                                    className="flex w-12 h-12 items-center justify-center bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
+                                >
+                                    <Trash2 className="w-[20px]" />
+                                </button>
+                            </div>
+                        </aside>
+
+                        {/* --- KOLOM KANAN: FORM DATA --- */}
+                        <section className="flex flex-col items-start gap-[15px] p-5 relative flex-1 grow rounded-xl border border-os-primary shadow-sm bg-white">
+                            <div className="relative self-stretch w-full h-[29px]">
+                                <h2 className="absolute top-[calc(50%_-_14px)] left-0 font-sans font-normal text-black text-xl">
+                                    Akun
+                                </h2>
+                                <hr className="absolute top-7 left-0 w-full border-os-primary border-t" />
+                            </div>
+
+                            <form
+                                onSubmit={handleSaveChanges}
+                                className="flex flex-col items-start gap-[15px] w-full"
+                            >
+                                {/* USERNAME (Read Only) */}
+                                <CustomInput
+                                    label="Nama pengguna"
+                                    value={data.username}
+                                    disabled
+                                    icon={
+                                        <OsIcon
+                                            name="User"
+                                            className="w-4 h-4 opacity-50"
+                                        />
+                                    }
                                 />
 
-                                {/* Alert Box */}
-                                <div className="flex flex-col gap-[5px] bg-red-100 p-3 rounded-xl border border-red-400 w-full">
-                                    <div className="flex items-center gap-[5px]">
-                                        <AlertCircle className="w-[15px] text-red-500" />
-                                        <p className="text-red-800 font-medium">
-                                            Perhatian!
-                                        </p>
-                                    </div>
-                                    <p className="text-red-700 text-[13px]">
-                                        Max 1MB, 500x500px. Format: png, jpeg,
-                                        jpg, gif.
-                                    </p>
-                                </div>
-                                {errors.foto && (
-                                    <p className="text-sm text-red-500">
-                                        {errors.foto}
-                                    </p>
-                                )}
+                                {/* NAMA LENGKAP (Read Only) */}
+                                <CustomInput
+                                    label="Nama Lengkap"
+                                    value={data.nama}
+                                    disabled
+                                />
 
-                                {/* Tombol Upload & Delete */}
-                                <div className="flex items-center gap-[15px] relative self-stretch w-full">
-                                    <label className="flex items-center justify-center gap-2.5 px-3 py-3 relative flex-1 bg-blue-600 text-white rounded-xl cursor-pointer hover:bg-blue-600 transition">
-                                        <input
-                                            type="file"
-                                            accept=".png,.jpg,.jpeg,.gif"
-                                            onChange={handleProfileImageUpload}
-                                            className="sr-only"
+                                {/* NIM (Read Only) */}
+                                <CustomInput
+                                    label="NIM"
+                                    value={data.nim}
+                                    icon={
+                                        <OsIcon
+                                            name="Book"
+                                            className="w-5 h-5 opacity-50"
                                         />
-                                        <UploadCloud className="w-[18px]" />
-                                        <span className="font-sans font-normal text-[15px] ">
-                                            Upload
-                                        </span>
+                                    }
+                                    disabled
+                                />
+
+                                <hr className="w-full border-os-primary my-2" />
+
+                                {/* PASSWORD LAMA */}
+                                <div className="flex flex-col gap-[3px] w-full">
+                                    <label className="text-xs">
+                                        Password lama
                                     </label>
-
-                                    <button
-                                        type="button"
-                                        onClick={handleDeleteProfileImage}
-                                        className="flex w-12 h-12 items-center justify-center bg-red-600 text-white rounded-xl hover:bg-red-700 transition"
-                                    >
-                                        <Trash2 className="w-[20px]" />
-                                    </button>
+                                    <div className="flex items-center p-2 bg-white rounded-xl border border-black pr-2">
+                                        <Lock
+                                            size={16}
+                                            opacity={0.5}
+                                            className="ml-2"
+                                        />
+                                        <input
+                                            type={
+                                                showOldPassword
+                                                    ? "text"
+                                                    : "password"
+                                            }
+                                            value={data.old_password}
+                                            onChange={(e) =>
+                                                setData(
+                                                    "old_password",
+                                                    e.target.value
+                                                )
+                                            }
+                                            placeholder="Masukkan password lama..."
+                                            className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400"
+                                        />
+                                        <button
+                                            type="button"
+                                            onClick={() =>
+                                                setShowOldPassword(
+                                                    !showOldPassword
+                                                )
+                                            }
+                                            className="bg-gray-500 hover:bg-gray-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                            title={
+                                                showOldPassword
+                                                    ? "Sembunyikan"
+                                                    : "Lihat"
+                                            }
+                                        >
+                                            {showOldPassword ? (
+                                                <EyeOff size={18} />
+                                            ) : (
+                                                <Eye size={18} />
+                                            )}
+                                        </button>
+                                    </div>
+                                    {errors.old_password && (
+                                        <p className="text-sm text-red-500 mt-1">
+                                            {errors.old_password}
+                                        </p>
+                                    )}
                                 </div>
-                            </aside>
 
-                            {/* --- KOLOM KANAN: FORM DATA --- */}
-                            <section className="flex flex-col items-start gap-[15px] p-5 relative flex-1 grow  rounded-xl border border-os-primary shadow-sm">
-                                <div className="relative self-stretch w-full h-[29px]">
-                                    <h2 className="absolute top-[calc(50%_-_14px)] left-0 font-sans font-normal text-black text-xl">
-                                        Akun
-                                    </h2>
-                                    <hr className="absolute top-7 left-0 w-full border-os-primary border-t" />
-                                </div>
-
-                                <form
-                                    onSubmit={handleSaveChanges}
-                                    className="flex flex-col items-start gap-[15px] w-full"
-                                >
-                                    {/* USERNAME (Read Only) */}
-                                    <CustomInput
-                                        label="Nama pengguna"
-                                        value={data.username}
-                                        disabled
-                                        icon={
-                                            <OsIcon
-                                                name="User"
-                                                className="w-4 h-4"
+                                {/* WRAPPER: PASSWORD BARU & KONFIRMASI */}
+                                <div className="flex flex-col md:flex-row gap-[15px] w-full">
+                                    {/* PASSWORD BARU */}
+                                    <div className="flex flex-col gap-[3px] w-full">
+                                        <label className="text-xs">
+                                            Password baru
+                                        </label>
+                                        <div className="flex items-center p-2 bg-white rounded-xl border border-black pr-2">
+                                            <Lock
+                                                size={16}
+                                                opacity={0.5}
+                                                className="ml-2"
                                             />
-                                        }
-                                    />
-
-                                    {/* NAMA LENGKAP (Read Only) */}
-                                    <CustomInput
-                                        label="Nama Lengkap"
-                                        value={data.nama}
-                                        disabled
-                                    />
-
-                                    {/* NIM (Read Only) */}
-                                    <CustomInput
-                                        label="NIM"
-                                        value={data.nim}
-                                        icon={
-                                            <OsIcon
-                                                name="Book"
-                                                className="w-5 h-5"
-                                            />
-                                        }
-                                        disabled
-                                    />
-
-                                    <hr className="w-full border-os-primary my-2" />
-
-                                    {/* PASSWORD INPUTS */}
-                                    <CustomInput
-                                        type={
-                                            showOldPassword
-                                                ? "text"
-                                                : "password"
-                                        }
-                                        label="Password lama"
-                                        placeholder="Masukkan password lama..."
-                                        value={data.old_password}
-                                        onChange={(e) =>
-                                            setData(
-                                                "old_password",
-                                                e.target.value
-                                            )
-                                        }
-                                        error={errors.old_password}
-                                        icon={<Lock size={16} opacity={0.5} />}
-                                        iconRight={
-                                            <div
-                                                onClick={() =>
-                                                    setShowOldPassword(
-                                                        !showOldPassword
-                                                    )
-                                                }
-                                            >
-                                                {showOldPassword ? (
-                                                    <EyeOff className="w-5 h-5" />
-                                                ) : (
-                                                    <Eye className="w-5 h-5" />
-                                                )}
-                                            </div>
-                                        }
-                                    />
-
-                                    <div className="flex flex-col lg:flex-row gap-5 w-full">
-                                        <div className="flex-1">
-                                            <CustomInput
+                                            <input
                                                 type={
-                                                    showNewPass
+                                                    showNewPassword
                                                         ? "text"
                                                         : "password"
                                                 }
-                                                label="Password baru"
-                                                placeholder="Masukkan password baru..."
                                                 value={data.new_password}
                                                 onChange={(e) =>
                                                     setData(
@@ -351,24 +374,54 @@ export default function MahasiswaAccountSettings() {
                                                         e.target.value
                                                     )
                                                 }
-                                                error={errors.new_password}
-                                                icon={
-                                                    <Lock
-                                                        size={16}
-                                                        opacity={0.5}
-                                                    />
-                                                }
+                                                placeholder="Password baru..."
+                                                className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400"
                                             />
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setShowNewPassword(
+                                                        !showNewPassword
+                                                    )
+                                                }
+                                                className="bg-gray-500 hover:bg-gray-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                title={
+                                                    showNewPassword
+                                                        ? "Sembunyikan"
+                                                        : "Lihat"
+                                                }
+                                            >
+                                                {showNewPassword ? (
+                                                    <EyeOff size={18} />
+                                                ) : (
+                                                    <Eye size={18} />
+                                                )}
+                                            </button>
                                         </div>
-                                        <div className="flex-1">
-                                            <CustomInput
+                                        {errors.new_password && (
+                                            <p className="text-sm text-red-500 mt-1">
+                                                {errors.new_password}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    {/* KONFIRMASI PASSWORD */}
+                                    <div className="flex flex-col gap-[3px] w-full">
+                                        <label className="text-xs">
+                                            Konfirmasi password baru
+                                        </label>
+                                        <div className="flex items-center p-2 bg-white rounded-xl border border-black pr-2">
+                                            <Lock
+                                                size={16}
+                                                opacity={0.5}
+                                                className="ml-2"
+                                            />
+                                            <input
                                                 type={
-                                                    showNewPass
+                                                    showConfirmPassword
                                                         ? "text"
                                                         : "password"
                                                 }
-                                                label="Konfirmasi password baru"
-                                                placeholder="Konfirmasi password..."
                                                 value={
                                                     data.new_password_confirmation
                                                 }
@@ -378,80 +431,78 @@ export default function MahasiswaAccountSettings() {
                                                         e.target.value
                                                     )
                                                 }
-                                                icon={
-                                                    <Lock
-                                                        size={16}
-                                                        opacity={0.5}
-                                                    />
-                                                }
-                                                iconRight={
-                                                    <div
-                                                        onClick={() =>
-                                                            setShowNewPass(
-                                                                !showNewPass
-                                                            )
-                                                        }
-                                                    >
-                                                        {showNewPass ? (
-                                                            <EyeOff className="w-5 h-5" />
-                                                        ) : (
-                                                            <Eye className="w-5 h-5" />
-                                                        )}
-                                                    </div>
-                                                }
+                                                placeholder="Konfirmasi password..."
+                                                className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400"
                                             />
+                                            <button
+                                                type="button"
+                                                onClick={() =>
+                                                    setShowConfirmPassword(
+                                                        !showConfirmPassword
+                                                    )
+                                                }
+                                                className="bg-gray-500 hover:bg-gray-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                title={
+                                                    showConfirmPassword
+                                                        ? "Sembunyikan"
+                                                        : "Lihat"
+                                                }
+                                            >
+                                                {showConfirmPassword ? (
+                                                    <EyeOff size={18} />
+                                                ) : (
+                                                    <Eye size={18} />
+                                                )}
+                                            </button>
                                         </div>
+                                        {errors.new_password_confirmation && (
+                                            <p className="text-sm text-red-500 mt-1">
+                                                {
+                                                    errors.new_password_confirmation
+                                                }
+                                            </p>
+                                        )}
                                     </div>
+                                </div>
 
-                                    {/* BUTTONS GROUP */}
-                                    <div className="w-full flex justify-between gap-3 mt-2">
-                                        <OsButton
-                                            name="primary"
-                                            className="w-[223px] flex items-center rounded-xl p-3 justify-start gap-[13px] border border-black bg-[#0B0931] text-blue-100"
-                                            onClick={handleSaveChanges}
-                                            disabled={processing}
-                                        >
-                                            <Save className="w-[17px]" />
-                                            <span>
-                                                {processing
-                                                    ? "Menyimpan..."
-                                                    : "Simpan"}
-                                            </span>
-                                        </OsButton>
+                                {/* BUTTONS GROUP */}
+                                <div className="w-full flex justify-between gap-3 mt-2">
+                                    <OsButton
+                                        name="primary"
+                                        className="w-[223px] flex items-center rounded-xl p-3 justify-start gap-[13px] border border-black bg-[#0B0931] text-blue-100"
+                                        onClick={handleSaveChanges}
+                                        disabled={processing}
+                                    >
+                                        <Save className="w-[17px]" />
+                                        <span>
+                                            {processing
+                                                ? "Menyimpan..."
+                                                : "Simpan"}
+                                        </span>
+                                    </OsButton>
 
-                                        {/* <OsButton
+                                    <OsButton
                                         name="warning"
-                                        className="w-[223px] flex items-center rounded-xl p-3 justify-center gap-[13px] border border-black bg-red-600"
-                                        onClick={handleLogout}
+                                        className="sm:w-[223px] w-6/12 !bg-white !text-red-600 !border-red-600  flex items-center justify-start gap-[13px] !border-os-2"
+                                        onClick={() => {
+                                            handleLogout();
+                                        }}
                                         type="button"
                                     >
-                                        <LogOut className="w-[23px] h-[21px]" />
+                                        <LogOut size={17} />
                                         <span>Logout</span>
-                                    </OsButton> */}
-                                        <OsButton
-                                            name="warning"
-                                            className="sm:w-[223px] w-6/12 !bg-white !text-red-600 !border-red-600  flex items-center justify-start gap-[13px] !border-os-2"
-                                            onClick={() => {
-                                                console.log("dsajdsaldka");
-                                                handleLogout();
-                                            }}
-                                            type="button"
-                                        >
-                                            <LogOut size={17} />
-                                            <span>Logout</span>
-                                        </OsButton>
-                                    </div>
+                                    </OsButton>
+                                </div>
 
-                                    <a
-                                        href="#"
-                                        className="text-xs underline text-os-primary"
-                                        onClick={(e) => e.preventDefault()}
-                                    >
-                                        Ada masalah? hubungi admin
-                                    </a>
-                                </form>
-                            </section>
-                        </div>
+                                <a
+                                    href="#"
+                                    className="text-xs underline text-os-primary"
+                                    onClick={(e) => e.preventDefault()}
+                                >
+                                    Ada masalah? hubungi admin
+                                </a>
+                            </form>
+                        </section>
                     </div>
                 </div>
 

@@ -433,10 +433,9 @@ export default function LivePenilaian() {
                             </div>
                         </div>
                     </form>
-
-                    <div className="mt-4">
-                        <OsCopyright />
-                    </div>
+                </div>
+                <div className="mt-4">
+                    <OsCopyright />
                 </div>
             </main>
         </div>
