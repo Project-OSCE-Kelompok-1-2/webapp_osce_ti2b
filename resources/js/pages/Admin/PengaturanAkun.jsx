@@ -132,8 +132,9 @@ export default function AdminSettingAkun({ user }) {
                 user={user}
             />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader onMenuClick={handleSidebarToggle} />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader onMenuClick={handleSidebarToggle} />
 
                 <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300">
                     {/* <OsHeader /> */}
@@ -167,49 +168,49 @@ export default function AdminSettingAkun({ user }) {
                                         }}
                                     />
 
-                                    <div className="flex flex-col gap-[5px] bg-red-100 p-3 rounded-xl border border-red-400 w-full">
-                                        <div className="flex items-center gap-[5px]">
-                                            <AlertCircle className="w-[15px] text-red-500" />
-                                            <p className="text-red-800 font-medium">
-                                                Perhatian!
+                                        <div className="flex flex-col gap-[5px] bg-red-100 p-3 rounded-xl border border-red-400 w-full">
+                                            <div className="flex items-center gap-[5px]">
+                                                <AlertCircle className="w-[15px] text-red-500" />
+                                                <p className="text-red-800 font-medium">
+                                                    Perhatian!
+                                                </p>
+                                            </div>
+                                            <p className="text-red-700 text-[13px]">
+                                                Max 1MB, 500x500px. Format: png,
+                                                jpeg, jpg, gif.
                                             </p>
                                         </div>
-                                        <p className="text-red-700 text-[13px]">
-                                            Max 1MB, 500x500px. Format: png,
-                                            jpeg, jpg, gif.
-                                        </p>
-                                    </div>
 
-                                    {errors.foto && (
-                                        <p className="text-sm text-red-500">
-                                            {errors.foto}
-                                        </p>
-                                    )}
+                                        {errors.foto && (
+                                            <p className="text-sm text-red-500">
+                                                {errors.foto}
+                                            </p>
+                                        )}
 
-                                    <div className="flex gap-[15px] w-full">
-                                        <label className="flex flex-1 items-center justify-center gap-2.5 p-3 bg-blue-600 text-white rounded-xl cursor-pointer">
-                                            <input
-                                                type="file"
-                                                accept=".png,.jpeg,.jpg,.gif"
-                                                onChange={
-                                                    handleProfileImageUpload
-                                                }
-                                                className="sr-only"
-                                            />
-                                            <UploadCloud className="w-[18px]" />
-                                            Upload
-                                        </label>
+                                        <div className="flex gap-[15px] w-full">
+                                            <label className="flex flex-1 items-center justify-center gap-2.5 p-3 bg-blue-600 text-white rounded-xl cursor-pointer">
+                                                <input
+                                                    type="file"
+                                                    accept=".png,.jpeg,.jpg,.gif"
+                                                    onChange={
+                                                        handleProfileImageUpload
+                                                    }
+                                                    className="sr-only"
+                                                />
+                                                <UploadCloud className="w-[18px]" />
+                                                Upload
+                                            </label>
 
-                                        <OsButton
-                                            name="warning"
-                                            type="button"
-                                            onClick={openDeletePhotoModal}
-                                            className=" bg-red-600 text-white rounded-xl flex items-center justify-center"
-                                        >
-                                            <Trash2 size={18} />
-                                        </OsButton>
-                                    </div>
-                                </aside>
+                                            <OsButton
+                                                name="warning"
+                                                type="button"
+                                                onClick={openDeletePhotoModal}
+                                                className=" bg-red-600 text-white rounded-xl flex items-center justify-center"
+                                            >
+                                                <Trash2 size={18} />
+                                            </OsButton>
+                                        </div>
+                                    </aside>
 
                                 {/* FORM */}
                                 <section className="flex-1 flex flex-col gap-[15px] p-5 bg-white rounded-xl border border-os-primary">
@@ -245,7 +246,7 @@ export default function AdminSettingAkun({ user }) {
                                             </div>
                                         </div>
 
-                                        <hr className="w-full border-os-primary my-2" />
+                                            <hr className="w-full border-os-primary my-2" />
 
                                         {/* PASSWORD LAMA */}
                                         <div className="flex flex-col gap-[3px]">
@@ -407,47 +408,52 @@ export default function AdminSettingAkun({ user }) {
                                             </div>
                                         </div>
 
-                                        <div className="w-full flex justify-between gap-3">
-                                            <OsButton
-                                                name="primary"
-                                                type="submit"
-                                                disabled={processing}
-                                                className="sm:w-[223px] w-6/12  bg-blue-600 text-white flex items-center gap-[13px] p-3 border border-black"
-                                            >
-                                                <Save className="w-[17px]" />
-                                                {processing
-                                                    ? "Menyimpan..."
-                                                    : "Simpan"}
-                                            </OsButton>
+                                            <div className="w-full flex justify-between gap-3">
+                                                <OsButton
+                                                    name="primary"
+                                                    type="submit"
+                                                    disabled={processing}
+                                                    className="sm:w-[223px] w-6/12  bg-blue-600 text-white flex items-center gap-[13px] p-3 border border-black"
+                                                >
+                                                    <Save className="w-[17px]" />
+                                                    {processing
+                                                        ? "Menyimpan..."
+                                                        : "Simpan"}
+                                                </OsButton>
 
-                                            <OsButton
-                                                name="warning"
-                                                className="sm:w-[223px] w-6/12 !bg-white !text-red-600 !border-red-600  flex items-center justify-start gap-[13px] !border-os-2"
-                                                onClick={() => {
-                                                    console.log("dsajdsaldka");
-                                                    handleLogout();
-                                                }}
-                                                type="button"
-                                            >
-                                                <LogOut size={17} />
-                                                <span>Logout</span>
-                                            </OsButton>
-                                        </div>
-                                        {/* SAVE */}
+                                                <OsButton
+                                                    name="warning"
+                                                    className="sm:w-[223px] w-6/12 !bg-white !text-red-600 !border-red-600  flex items-center justify-start gap-[13px] !border-os-2"
+                                                    onClick={() => {
+                                                        console.log(
+                                                            "dsajdsaldka"
+                                                        );
+                                                        handleLogout();
+                                                    }}
+                                                    type="button"
+                                                >
+                                                    <LogOut size={17} />
+                                                    <span>Logout</span>
+                                                </OsButton>
+                                            </div>
+                                            {/* SAVE */}
 
-                                        <a
-                                            href="#contact-admin"
-                                            className="underline text-xs text-os-primary"
-                                        >
-                                            Ada masalah? hubungi admin
-                                        </a>
-                                    </form>
-                                </section>
+                                            <a
+                                                href="#contact-admin"
+                                                className="underline text-xs text-os-primary"
+                                            >
+                                                Ada masalah? hubungi admin
+                                            </a>
+                                        </form>
+                                    </section>
+                                </div>
                             </div>
-                        </div>
 
-                        {/* FOOTER */}
+                            {/* FOOTER */}
+                        </div>
                     </div>
+                </div>
+                <div className="mt-8">
                     <OsCopyright />
                 </div>
 

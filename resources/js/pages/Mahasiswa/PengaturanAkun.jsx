@@ -164,7 +164,7 @@ export default function MahasiswaAccountSettings() {
                 user={user} // ⭐ JANGAN LUPA: Kirim prop user agar Sidebar langsung update
             />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="grid w-full p-os-16 lg:p-4 min-h-screen grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
                 <OsHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
 
                 <div className="flex flex-col gap-5 w-full">
