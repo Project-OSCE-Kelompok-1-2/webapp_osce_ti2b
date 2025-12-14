@@ -169,7 +169,7 @@ export default function PengujiDashboard() {
                             </p>
                         </div>
 
-                        <hr className="border-1 border-os-primary-pj" />
+                        <hr className="border-1 border-os-primary-pj my-2" />
 
                         {/* STATISTIK GRID */}
                         <section className="mb-2">
@@ -222,7 +222,7 @@ export default function PengujiDashboard() {
                             </div>
                         </section>
 
-                        <hr className="border-1 border-os-primary-pj" />
+                        <hr className="border-1 border-os-primary-pj my-2" />
 
                         {/* JADWAL + CALENDAR GRID */}
                         <section className="flex flex-col lg:flex-row">

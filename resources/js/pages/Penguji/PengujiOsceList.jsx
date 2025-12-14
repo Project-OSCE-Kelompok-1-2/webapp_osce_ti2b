@@ -243,7 +243,7 @@ export default function PengujiOsceList() {
                         <div className="flex gap-1 items-center justify-start my-2">
                             <Table2 size={18} />
                             <h2 className="font-semibold text-lg">
-                                Table Stase
+                                Table Osce
                             </h2>
                             <span className="text-sm font-normal text-gray-500 ml-2">
                                 (Total: {meta.total} data)
