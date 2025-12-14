@@ -229,15 +229,18 @@ export default function PengujiPage() {
                         onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                     />
 
-                <div className="flex-1 overflow-auto p-1">
-                    <div className="flex gap-1 items-center justify-start my-2">
-                        <UserCheck size={18} />
-                        <h2 className="font-semibold text-lg">Menu Penguji</h2>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                        Menu Penguji (Dosen) digunakan untuk mengelola proses <br/>
-                        penilaian.
-                    </p>
+                    <div className="flex-1 overflow-auto p-1">
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <UserCheck size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Menu Penguji
+                            </h2>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                            Menu Penguji (Dosen) digunakan untuk mengelola
+                            proses <br />
+                            penilaian.
+                        </p>
 
                         <OsButton
                             name="primary"
@@ -271,40 +274,40 @@ export default function PengujiPage() {
                             />
                         </div>
 
-                    <section>
-                        {/* <h2 className="font-semibold text-lg mb-2">
+                        <section>
+                            {/* <h2 className="font-semibold text-lg mb-2">
                             Tabel Penguji
                             <span className="text-sm font-normal text-gray-500 ml-2">
                                 (Total: {totalItems} data)
                             </span>
                         </h2> */}
-                        <div className="flex gap-1 items-center justify-start my-2">
-                            <Table2 size={18} />
-                            <h2 className="font-semibold text-lg">
-                                Tabel Penguji{" "}
-                            </h2>
-                            <span className="text-sm font-normal text-gray-500 ml-2">
-                                (Total: {totalItems} data)
-                            </span>
-                        </div>
-
-                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
-                            <div className="min-w-max">
-                                <OsTableHeader columns={pengujiColumns} />
-                                {tableDisplayData.length > 0 ? (
-                                    <OsTableBody
-                                        data={tableDisplayData}
-                                        columns={pengujiColumns}
-                                    />
-                                ) : (
-                                    <div className="flex items-center border-t border-gray-400">
-                                        <p className="w-full text-center text-sm py-4 text-gray-500">
-                                            Data penguji tidak ditemukan.
-                                        </p>
-                                    </div>
-                                )}
+                            <div className="flex gap-1 items-center justify-start my-2">
+                                <Table2 size={18} />
+                                <h2 className="font-semibold text-lg">
+                                    Tabel Penguji{" "}
+                                </h2>
+                                <span className="text-sm font-normal text-gray-500 ml-2">
+                                    (Total: {totalItems} data)
+                                </span>
                             </div>
-                        </section>
+
+                            <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                                <div className="min-w-max">
+                                    <OsTableHeader columns={pengujiColumns} />
+                                    {tableDisplayData.length > 0 ? (
+                                        <OsTableBody
+                                            data={tableDisplayData}
+                                            columns={pengujiColumns}
+                                        />
+                                    ) : (
+                                        <div className="flex items-center border-t border-gray-400">
+                                            <p className="w-full text-center text-sm py-4 text-gray-500">
+                                                Data penguji tidak ditemukan.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </section>
 
                             {/* Pagination Client Side */}
                             {totalPages > 1 && (
@@ -348,6 +351,8 @@ export default function PengujiPage() {
                                 }
                                 placeholder="Masukkan NIP Penguji..."
                                 required
+                                // 👇 TAMBAHKAN INI (Target input di dalam wrapper)
+                                className="[&_input]:[appearance:textfield] [&_input::-webkit-outer-spin-button]:appearance-none [&_input::-webkit-inner-spin-button]:appearance-none"
                             />
                             {errorsAdd.nip && (
                                 <p className="text-red-500 text-xs mt-1 ml-1">
@@ -409,6 +414,8 @@ export default function PengujiPage() {
                                 }
                                 placeholder="Masukkan NIP Penguji..."
                                 required
+                                // 👇 TAMBAHKAN INI JUGA
+                                className="[&_input]:[appearance:textfield] [&_input::-webkit-outer-spin-button]:appearance-none [&_input::-webkit-inner-spin-button]:appearance-none"
                             />
                             {errorsEdit.nip && (
                                 <p className="text-red-500 text-xs mt-1 ml-1">

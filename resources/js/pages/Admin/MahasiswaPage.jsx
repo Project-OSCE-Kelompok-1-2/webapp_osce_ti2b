@@ -1,7 +1,15 @@
-// === FINISHED ===
 import React, { useState, useRef, useMemo } from "react";
 import { router, usePage, useForm } from "@inertiajs/react";
-import { Edit2, Trash2, AlertTriangle, X, Users, Table2, Download, Upload } from "lucide-react";
+import {
+    Edit2,
+    Trash2,
+    AlertTriangle,
+    X,
+    Users,
+    Table2,
+    Download,
+    FileText, // Ditambahkan karena sempat hilang di import
+} from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
@@ -141,22 +149,14 @@ export default function MahasiswaPage() {
     const [selectedMahasiswa, setSelectedMahasiswa] = useState(null);
     const fileInputRef = useRef(null);
 
-    const {
-        data,
-        setData,
-        post,
-        put,
-        reset,
-        errors,
-        clearErrors,
-        setError, // <--- Tambah setError
-    } = useForm({
-        nim: "",
-        nama: "",
-        kelas: "",
-        angkatan: "",
-        prodi: "",
-    });
+    const { data, setData, post, put, reset, errors, clearErrors, setError } =
+        useForm({
+            nim: "",
+            nama: "",
+            kelas: "",
+            angkatan: "",
+            prodi: "",
+        });
 
     // List Tahun
     const angkatanListOptions = [
@@ -300,13 +300,6 @@ export default function MahasiswaPage() {
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
-    // Update juga saat menutup modal
-    const closeExcelModal = () => {
-        setShowExcelModal(false);
-        setImportError("");
-        setImportFile(null);
-    };
-
     const handleKelasChange = (e) => {
         const val = e.target.value;
         if (val === "MANUAL") {
@@ -361,7 +354,7 @@ export default function MahasiswaPage() {
                             </h2>
                         </div>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                            Kelola data <br/> mahasiswa.
+                            Kelola data <br /> mahasiswa.
                         </p>
 
                         <div className="flex items-center gap-3 mb-5">
@@ -395,8 +388,6 @@ export default function MahasiswaPage() {
                             </div>
                         )}
 
-                        {/* ALERT MASSAL DIHAPUS, DIGANTI INLINE VALIDATION */}
-
                         {/* --- SEARCH BAR & FILTER ANGKATAN --- */}
                         <div className="flex flex-col sm:flex-row gap-3">
                             <div className="flex-grow">
@@ -404,7 +395,6 @@ export default function MahasiswaPage() {
                                     search={search}
                                     setSearch={setSearch}
                                     placeholder="Cari nama atau NIM..."
-
                                 />
                             </div>
 
@@ -426,7 +416,7 @@ export default function MahasiswaPage() {
                                         },
                                         ...angkatanListOptions,
                                     ]}
-                                    className="min-h-[46px] mb-2 lg:mb-0" // Sesuaikan tinggi dengan searchbar jika perlu
+                                    className="min-h-[46px] mb-2 lg:mb-0"
                                 />
                             </div>
                         </div>
@@ -458,7 +448,6 @@ export default function MahasiswaPage() {
                                             setCurrentPage(page)
                                         }
                                         variant="admin"
-
                                     />
                                 </div>
                             )}
@@ -493,7 +482,7 @@ export default function MahasiswaPage() {
                                 }}
                                 placeholder="Masukkan NIM..."
                                 className="w-full"
-                                // required <-- Dihapus
+                                required // Menambahkan bintang merah
                             />
                             {errors.nim && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -517,7 +506,7 @@ export default function MahasiswaPage() {
                                     ...angkatanListOptions,
                                 ]}
                                 className="w-full"
-                                // required <-- Dihapus
+                                required // Menambahkan bintang merah
                             />
                             {errors.angkatan && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -544,7 +533,7 @@ export default function MahasiswaPage() {
                                             ...kelasOptions,
                                         ]}
                                         className="w-full"
-                                        // required <-- Dihapus
+                                        required // Menambahkan bintang merah
                                     />
                                 </>
                             ) : (
@@ -565,7 +554,7 @@ export default function MahasiswaPage() {
                                             placeholder="Ketik nama kelas..."
                                             className="w-full"
                                             autoFocus
-                                            // required <-- Dihapus
+                                            required // Menambahkan bintang merah
                                         />
                                     </div>
                                     <button
@@ -599,7 +588,7 @@ export default function MahasiswaPage() {
                                 }}
                                 placeholder="Masukkan Jurusan..."
                                 className="w-full"
-                                // required <-- Dihapus
+                                required // Menambahkan bintang merah
                             />
                             {errors.prodi && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -619,7 +608,7 @@ export default function MahasiswaPage() {
                             }}
                             placeholder="Masukkan Nama..."
                             className="w-full"
-                            // required <-- Dihapus
+                            required // Menambahkan bintang merah
                         />
                         {errors.nama && (
                             <p className="text-red-500 text-xs mt-1">
@@ -658,7 +647,7 @@ export default function MahasiswaPage() {
                                     if (errors.nim) clearErrors("nim");
                                 }}
                                 className="w-full"
-                                // required <-- Dihapus
+                                required // Menambahkan bintang merah
                             />
                             {errors.nim && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -682,7 +671,7 @@ export default function MahasiswaPage() {
                                     ...angkatanListOptions,
                                 ]}
                                 className="w-full"
-                                // required <-- Dihapus
+                                required // Menambahkan bintang merah
                             />
                             {errors.angkatan && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -709,7 +698,7 @@ export default function MahasiswaPage() {
                                             ...kelasOptions,
                                         ]}
                                         className="w-full"
-                                        // required <-- Dihapus
+                                        required // Menambahkan bintang merah
                                     />
                                 </>
                             ) : (
@@ -728,7 +717,7 @@ export default function MahasiswaPage() {
                                                     clearErrors("kelas");
                                             }}
                                             className="w-full"
-                                            // required <-- Dihapus
+                                            required // Menambahkan bintang merah
                                         />
                                     </div>
                                     <button
@@ -761,7 +750,7 @@ export default function MahasiswaPage() {
                                     if (errors.prodi) clearErrors("prodi");
                                 }}
                                 className="w-full"
-                                // required <-- Dihapus
+                                required // Menambahkan bintang merah
                             />
                             {errors.prodi && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -780,7 +769,7 @@ export default function MahasiswaPage() {
                                 if (errors.nama) clearErrors("nama");
                             }}
                             className="w-full"
-                            // required <-- Dihapus
+                            required // Menambahkan bintang merah
                         />
                         {errors.nama && (
                             <p className="text-red-500 text-xs mt-1">
@@ -825,7 +814,7 @@ export default function MahasiswaPage() {
                         }
                         className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg mb-4 transition-colors"
                     >
-                        <Download size={18}/>
+                        <Download size={18} />
                         Download Template Excel
                     </button>
 

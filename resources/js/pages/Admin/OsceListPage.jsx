@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { router, usePage, useForm } from "@inertiajs/react"; // [1] Import useForm
+import { router, usePage, useForm } from "@inertiajs/react";
 import { Edit2, Trash2, FileText, Table2 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
@@ -454,7 +454,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                 setData("nama_osce", e.target.value);
                                 if (errors.nama_osce) clearErrors("nama_osce");
                             }}
-                            // required <-- Dihapus
+                            required // <--- Bintang Merah Ditambahkan
                         />
                         {errors.nama_osce && (
                             <p className="text-red-500 text-xs mt-1">
@@ -478,7 +478,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                 if (errors.id_tahun_akademik)
                                     clearErrors("id_tahun_akademik");
                             }}
-                            // required <-- Dihapus
+                            required // <--- Bintang Merah Ditambahkan
                         />
                         {errors.id_tahun_akademik && (
                             <p className="text-red-500 text-xs mt-1">
@@ -500,7 +500,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                         clearErrors("tanggal_mulai");
                                 }}
                                 className="w-full"
-                                // required <-- Dihapus
+                                required // <--- Bintang Merah Ditambahkan
                             />
                             {errors.tanggal_mulai && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -521,7 +521,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                         clearErrors("tanggal_selesai");
                                 }}
                                 className="w-full"
-                                // required <-- Dihapus
+                                required // <--- Bintang Merah Ditambahkan
                             />
                             {errors.tanggal_selesai && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -558,6 +558,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                 setData("nama_osce", e.target.value);
                                 if (errors.nama_osce) clearErrors("nama_osce");
                             }}
+                            required // <--- Bintang Merah Ditambahkan
                         />
                         {errors.nama_osce && (
                             <p className="text-red-500 text-xs mt-1">
@@ -581,6 +582,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                 if (errors.id_tahun_akademik)
                                     clearErrors("id_tahun_akademik");
                             }}
+                            required // <--- Bintang Merah Ditambahkan
                         />
                         {errors.id_tahun_akademik && (
                             <p className="text-red-500 text-xs mt-1">
@@ -602,6 +604,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                         clearErrors("tanggal_mulai");
                                 }}
                                 className="w-full"
+                                required // <--- Bintang Merah Ditambahkan
                             />
                             {errors.tanggal_mulai && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -622,6 +625,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                         clearErrors("tanggal_selesai");
                                 }}
                                 className="w-full"
+                                required // <--- Bintang Merah Ditambahkan
                             />
                             {errors.tanggal_selesai && (
                                 <p className="text-red-500 text-xs mt-1">

@@ -45,7 +45,7 @@ class AdminService
                     'description' => "Total bobot penilaian saat ini: {$bobot}%",
                     'warning_label' => "Bobot tidak 100%",
                     'warning_color' => 'red', 
-                    'link' => "/admin/stase/{$stase->id_stase}/edit",
+                    'link' => "/admin/stase/",
                 ];
             });
 
@@ -63,7 +63,7 @@ class AdminService
                     'description' => "Ujian dibuat tapi belum ada stase/jadwal diatur.",
                     'warning_label' => "Belum Disetting",
                     'warning_color' => 'yellow',
-                    'link' => "/admin/osce/{$osce->id_osce}", 
+                    'link' => "/admin/osce", 
                 ];
             });
 
@@ -84,7 +84,7 @@ class AdminService
                     'description' => "Jadwal tanggal " . ($jadwal->tanggal ? $jadwal->tanggal->format('d M Y') : '-') . " belum ada penguji.",
                     'warning_label' => "Penguji Kosong",
                     'warning_color' => 'red',
-                    'link' => "/admin/osce/{$jadwal->id_osce}", // Arahkan ke detail OSCE
+                    'link' => "/admin/osce", // Arahkan ke detail OSCE
                 ];
             });
 
@@ -103,7 +103,7 @@ class AdminService
                     'description' => "Belum ada mahasiswa yang didaftarkan ke sesi ini.",
                     'warning_label' => "Peserta Kosong",
                     'warning_color' => 'blue',
-                    'link' => "/admin/osce/{$osce->id_osce}",
+                    'link' => "/admin/osce",
                 ];
             });
 
