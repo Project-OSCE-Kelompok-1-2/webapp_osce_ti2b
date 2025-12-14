@@ -52,23 +52,15 @@ class OsceController extends Controller
         $osceList = $assignments->through(function ($stase) {
             $osce = $stase->osce;
 
-            // 1. Waktu Sekarang
+            // 1. Waktu
             $now = Carbon::now('Asia/Jakarta');
-
-            // 2. Waktu Event
             $tgl = $stase->tanggal->format('Y-m-d');
             
             $startEvent = Carbon::parse($tgl . ' ' . $stase->jam_mulai, 'Asia/Jakarta');
-            
-            // [MODIFIKASI DI SINI] 
-            // Kita tetap butuh jam selesai asli untuk data, tapi untuk logika 'Selesai', kita pakai Akhir Hari.
-            // $endEvent adalah jam selesai sesi (misal 10:00)
-            $endEvent = Carbon::parse($tgl . ' ' . $stase->jam_selesai, 'Asia/Jakarta');
-            
-            // $endOfDay adalah jam 23:59:59 pada tanggal ujian
-            $endOfDay = Carbon::parse($tgl, 'Asia/Jakarta')->endOfDay();
+            $endEvent   = Carbon::parse($tgl . ' ' . $stase->jam_selesai, 'Asia/Jakarta');
+            $endOfDay   = Carbon::parse($tgl, 'Asia/Jakarta')->endOfDay();
 
-            // --- LOGIKA FILTER PESERTA ---
+            // --- FILTER PESERTA ---
             $staseTanggal = $stase->tanggal->toDateString();
             $staseJamMulai = substr($stase->jam_mulai, 0, 5);
 
@@ -81,42 +73,52 @@ class OsceController extends Controller
 
             $jumlahMahasiswa = $pesertaSesi->count();
 
-            // --- HITUNG YANG SUDAH DINILAI ---
+            // --- HITUNG DINILAI ---
             $jumlahDinilai = $pesertaSesi->filter(function ($mhs) {
                 return $mhs->nilaiOsce !== null;
             })->count();
 
-            // --- LOGIKA STATUS ---
+            // --- 3. LOGIKA STATUS ---
             $status = 'Aktif'; 
 
-            // Prioritas 1: Cek apakah HARI ini sudah berakhir?
-            // Menggunakan $endOfDay alih-alih $endEvent
+            // Prioritas 1: Hari sudah lewat
             if ($now->greaterThan($endOfDay)) {
                 $status = 'Selesai';
             }
-            // Prioritas 2: Cek apakah semua mahasiswa sudah dinilai?
+            // Prioritas 2: Sudah selesai dinilai semua
             elseif ($jumlahMahasiswa > 0 && $jumlahMahasiswa === $jumlahDinilai) {
                 $status = 'Telah Dinilai';
             }
-            // Prioritas 3: Cek apakah belum dimulai?
+            // Prioritas 3: Belum waktunya
             elseif ($now->lessThan($startEvent)) {
                 $status = 'Belum Dimulai';
             }
-            // Prioritas 4: Sedang berlangsung (atau lewat jam sesi tapi masih hari yang sama)
+            // Prioritas 4: Sedang berjalan ATAU Lewat jam sesi tapi masih hari yang sama
             else {
                 $status = 'Aktif';
             }
 
-            // --- TENTUKAN LABEL TOMBOL ---
+            // --- 4. TENTUKAN LABEL TOMBOL (MODIFIKASI DISINI) ---
             $tombolAction = 'Lihat'; 
 
             if ($status === 'Aktif') {
-                $tombolAction = 'Mulai Ujian';
-            } elseif ($status === 'Telah Dinilai') {
+                // LOGIKA BARU:
+                // Jika status Aktif, TAPI waktu sekarang sudah melewati jam selesai sesi ($endEvent)
+                // Artinya sesi sudah bubar, tapi penguji belum kelar menilai (masih di hari yang sama).
+                // Maka tombol jadi "Edit Nilai" (agar tidak rancu dengan 'Mulai Ujian' live).
+                if ($now->greaterThan($endEvent)) {
+                    $tombolAction = 'Edit Nilai';
+                } else {
+                    $tombolAction = 'Mulai Ujian';
+                }
+            } 
+            elseif ($status === 'Telah Dinilai') {
                 $tombolAction = 'Edit Nilai';
-            } elseif ($status === 'Selesai') {
+            } 
+            elseif ($status === 'Selesai') {
                 $tombolAction = 'Lihat Rekap Nilai';
-            } elseif ($status === 'Belum Dimulai') {
+            } 
+            elseif ($status === 'Belum Dimulai') {
                 $tombolAction = 'Mulai Ujian';
             }
 
