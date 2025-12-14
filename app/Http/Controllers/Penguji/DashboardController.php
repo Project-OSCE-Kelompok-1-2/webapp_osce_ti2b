@@ -20,7 +20,7 @@ class DashboardController extends Controller
         $now = Carbon::now('Asia/Jakarta');
         $todayStr = $now->toDateString();
 
-        // 2. Statistik Query
+        // 2. Statistik Query (Tidak Berubah)
         $baseStaseQuery = OsceStase::where('id_penguji', $penguji->id_penguji);
 
         $statistik = [
@@ -55,6 +55,7 @@ class DashboardController extends Controller
                 ->whereDate('tanggal', '<=', $now->copy()->addDays(30));
         }
         
+        // Sorting awal query
         $jadwalQuery->orderBy('tanggal', 'asc')->orderBy('jam_mulai', 'asc');
 
         // 4. Eksekusi & Mapping
@@ -84,6 +85,7 @@ class DashboardController extends Controller
 
                 $jumlahMahasiswaSesi = $pesertaSesi->count();
 
+                // Logic check nilai collection
                 $jumlahDinilai = $pesertaSesi->filter(function($mhs) {
                     if ($mhs->nilaiOsce instanceof \Illuminate\Database\Eloquent\Collection) {
                         return $mhs->nilaiOsce->isNotEmpty();
@@ -114,14 +116,14 @@ class DashboardController extends Controller
                     }
                 }
 
-                // --- 3. PRIORITAS SORTING (UPDATED) ---
+                // --- 3. PRIORITAS SORTING (LOGIKA DIPERBAIKI DISINI) ---
                 $urutanPrioritas = 99;
                 $statusPriority = [
-                    'Aktif'         => 1, // Paling Atas
-                    'Belum Dimulai' => 2, // Tepat di bawah Aktif
-                    'Belum Dinilai' => 3, // Prioritas ke-3 (Terlewat)
-                    'Telah Dinilai' => 4, // Prioritas ke-4
-                    'Selesai'       => 5, 
+                    'Aktif'         => 1, // Paling Atas (Sedang berlangsung)
+                    'Belum Dinilai' => 2, // Mendesak (Sudah lewat jam, belum selesai)
+                    'Belum Dimulai' => 3, // Akan Datang (Dibawah Aktif & Mendesak)
+                    'Telah Dinilai' => 4, // Sudah beres (Prioritas rendah)
+                    'Selesai'       => 5, // Sudah lewat hari
                 ];
                 $urutanPrioritas = $statusPriority[$status] ?? 99;
 
@@ -134,16 +136,20 @@ class DashboardController extends Controller
                     'sesi'             => substr($stase->jam_mulai, 0, 5),
                     'jumlah_mahasiswa' => $jumlahMahasiswaSesi,
                     'status'           => $status,
+                    
+                    // Data Internal untuk Sorting
                     'urutan_prioritas' => $urutanPrioritas,
                     'waktu_mulai_unix' => $startEvent->timestamp
                 ];
             })
+            // FILTER: Hapus yang 'Selesai'
             ->filter(function ($item) {
                 return $item['status'] !== 'Selesai'; 
             })
+            // SORTING
             ->sortBy([
-                ['urutan_prioritas', 'asc'],
-                ['waktu_mulai_unix', 'asc'],
+                ['urutan_prioritas', 'asc'], // Sort berdasarkan status dulu
+                ['waktu_mulai_unix', 'asc'], // Lalu berdasarkan waktu mulai terdekat
             ])
             ->take(5)
             ->values();
