@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { usePage, router } from "@inertiajs/react";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, User, FileText, Bookmark } from "lucide-react";
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
@@ -48,7 +48,6 @@ export default function ViewNilaiDetail() {
 
     console.log("DEBUG INFO UJIAN:", info_ujian);
 
-
     // 2. FUNGSI NAVIGASI KEMBALI (Dipanggil oleh Header)
     const handleBackToRekap = () => {
         if (info_ujian?.id_osce && info_ujian?.id_osce_stase) {
@@ -63,12 +62,12 @@ export default function ViewNilaiDetail() {
     };
 
     return (
-        <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            {/* <Sidebar
+        <div className="relative bg-orange-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            <Sidebar
                 isOpen={isSidebarOpen}
                 onToggle={handleSidebarToggle}
                 type="penguji"
-            /> */}
+            />
 
             <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
                 {/* 1. Header dengan Tombol Back Custom */}
@@ -83,8 +82,14 @@ export default function ViewNilaiDetail() {
                 />
 
                 <div className="flex-1 overflow-auto">
+                    <div className="flex gap-1 items-center justify-start my-2 text-black">
+                        <User size={18} />
+                        <h2 className="font-semibold text-lg ">
+                            Biodata Mahasiswa
+                        </h2>
+                    </div>
                     {/* 2. Info Mahasiswa */}
-                    <div className="flex items-center p-4 border border-black rounded-xl mb-6 bg-white shadow-sm">
+                    <div className="flex items-center p-4 border border-os-primary-pj rounded-xl mb-6 bg-white shadow-sm">
                         <div className="w-16 h-16 bg-gray-800 rounded-full mr-6 flex-shrink-0 flex items-center justify-center text-white font-bold text-xl">
                             {mahasiswa?.nama?.charAt(0) || "M"}
                         </div>
@@ -105,89 +110,105 @@ export default function ViewNilaiDetail() {
                     </div>
 
                     {/* 3. Judul Penilaian */}
-                    <h2 className="text-xl font-bold text-black mb-4">
+                    {/* <h2 className="text-xl font-bold text-black mb-4">
                         Penilaian Stase
-                    </h2>
+                    </h2> */}
+                    <div className="flex gap-1 items-center justify-start my-2 text-black">
+                        <FileText size={18} />
+                        <h2 className="font-semibold text-lg ">
+                            Penilaian Stase
+                        </h2>
+                    </div>
 
                     {/* 4. Tabel Penilaian */}
-                    <div className="border border-black rounded-xl overflow-hidden mb-6 shadow-sm">
-                        <div className="flex border-b border-black bg-gray-50 text-sm font-bold text-gray-900">
-                            <div className="w-16 p-3 text-center border-r border-black">
-                                No
-                            </div>
-                            <div className="flex-1 p-3 border-r border-black">
-                                Aspek Penilaian
-                            </div>
-                            <div className="w-64 p-3 text-center border-r border-black">
-                                Skor
-                            </div>
-                            <div className="w-32 p-3 text-center border-r border-black">
-                                Bobot
-                            </div>
-                            <div className="w-32 p-3 text-center">Nilai</div>
-                        </div>
-
-                        {rubrik_terisi.map((kategori, index) => (
-                            <div key={index}>
-                                <div className="p-3 font-bold text-sm bg-blue-50 border-b border-black text-blue-900">
-                                    {kategori.aspek}
+                    <div className="p-4 rounded-xl bg-white border border-os-primary-pj">
+                        <div className="border border-black rounded-xl overflow-hidden mb-2 shadow-sm">
+                            <div className="flex border-b border-black bg-gray-50 text-sm font-bold text-gray-900">
+                                <div className="w-16 p-3 text-center border-r border-black">
+                                    No
                                 </div>
-                                {kategori.kompetensi.map((item, idx) => (
-                                    <div
-                                        key={item.id_poin_aspek_penilaian}
-                                        className={`flex border-b border-black ${
-                                            idx % 2 === 0
-                                                ? "bg-gray-100"
-                                                : "bg-white"
-                                        }`}
-                                    >
-                                        <div className="w-16 p-3 text-center border-r border-black flex items-center justify-center font-medium">
-                                            {idx + 1}
-                                        </div>
-                                        <div className="flex-1 p-3 border-r border-black flex items-center text-sm leading-snug">
-                                            {item.deskripsi}
-                                        </div>
-                                        <div className="w-64 p-3 border-r border-black flex items-center justify-center">
-                                            {[0, 1, 2, 3, 4].map((score) => (
-                                                <ScoreCircle
-                                                    key={score}
-                                                    value={score}
-                                                    selected={
-                                                        Math.round(
-                                                            item.skor
-                                                        ) === score
-                                                    }
-                                                />
-                                            ))}
-                                        </div>
-                                        <div className="w-32 p-3 border-r border-black flex items-center justify-center text-sm">
-                                            {item.bobot}
-                                        </div>
-                                        <div className="w-32 p-3 flex items-center justify-center font-bold text-blue-800">
-                                            {Number(item.nilai_kompetensi)
-                                                .toFixed(2)
-                                                .replace(/\.00$/, "")}
-                                        </div>
-                                    </div>
-                                ))}
+                                <div className="flex-1 p-3 border-r border-black">
+                                    Aspek Penilaian
+                                </div>
+                                <div className="w-64 p-3 text-center border-r border-black">
+                                    Skor
+                                </div>
+                                <div className="w-32 p-3 text-center border-r border-black">
+                                    Bobot
+                                </div>
+                                <div className="w-32 p-3 text-center">
+                                    Nilai
+                                </div>
                             </div>
-                        ))}
 
-                        <div className="flex bg-gray-800 text-white font-bold">
-                            <div className="flex-1 p-4 border-r border-gray-600 text-right pr-6">
-                                TOTAL NILAI AKHIR
-                            </div>
-                            <div className="w-32 p-4 text-center text-lg">
-                                {Number(total_nilai_aspek).toFixed(2)}
+                            {rubrik_terisi.map((kategori, index) => (
+                                <div key={index}>
+                                    <div className="p-3 font-bold text-sm bg-orange-50 border-b border-black text-orange-900">
+                                        {kategori.aspek}
+                                    </div>
+                                    {kategori.kompetensi.map((item, idx) => (
+                                        <div
+                                            key={item.id_poin_aspek_penilaian}
+                                            className={`flex border-b border-black ${
+                                                idx % 2 === 0
+                                                    ? "bg-gray-100"
+                                                    : "bg-white"
+                                            }`}
+                                        >
+                                            <div className="w-16 p-3 text-center border-r border-black flex items-center justify-center font-medium">
+                                                {idx + 1}
+                                            </div>
+                                            <div className="flex-1 p-3 border-r border-black flex items-center text-sm leading-snug">
+                                                {item.deskripsi}
+                                            </div>
+                                            <div className="w-64 p-3 border-r border-black flex items-center justify-center">
+                                                {[0, 1, 2, 3, 4].map(
+                                                    (score) => (
+                                                        <ScoreCircle
+                                                            key={score}
+                                                            value={score}
+                                                            selected={
+                                                                Math.round(
+                                                                    item.skor
+                                                                ) === score
+                                                            }
+                                                        />
+                                                    )
+                                                )}
+                                            </div>
+                                            <div className="w-32 p-3 border-r border-black flex items-center justify-center text-sm">
+                                                {item.bobot}
+                                            </div>
+                                            <div className="w-32 p-3 flex items-center justify-center font-bold text-orange-600">
+                                                {Number(item.nilai_kompetensi)
+                                                    .toFixed(2)
+                                                    .replace(/\.00$/, "")}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ))}
+
+                            <div className="flex bg-gray-800 text-white font-bold">
+                                <div className="flex-1 p-4 border-r border-gray-600 text-right pr-6">
+                                    TOTAL NILAI AKHIR
+                                </div>
+                                <div className="w-32 p-4 text-center text-lg">
+                                    {Number(total_nilai_aspek).toFixed(2)}
+                                </div>
                             </div>
                         </div>
                     </div>
 
                     {/* 5. Feedback */}
                     <div className="mb-6">
-                        <h3 className="text-lg font-bold text-black mb-2">
+                        {/* <h3 className="text-lg font-bold text-black mb-2">
                             Feedback Penguji
-                        </h3>
+                        </h3> */}
+                        <div className="flex gap-1 items-center justify-start my-2 mt-4 text-black">
+                            <Bookmark size={18} />
+                            <h2 className="font-semibold text-lg ">Feedback</h2>
+                        </div>
                         <div className="border border-black rounded-xl p-4 bg-white text-gray-700 text-sm leading-relaxed min-h-[100px]">
                             {feedback ? (
                                 feedback
@@ -199,7 +220,7 @@ export default function ViewNilaiDetail() {
                         </div>
                     </div>
                 </div>
-                <OsCopyright />
+                <OsCopyright variant="penguji" />
             </main>
         </div>
     );
