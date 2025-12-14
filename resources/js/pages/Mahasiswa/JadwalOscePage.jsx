@@ -209,7 +209,7 @@ export default function JadwalOsce({
             content: "Waktu",
             key: "waktu",
             width: "w-40 shrink-0",
-            classes: "flex items-center justify-center text-sm font-medium",
+            classes: "flex items-center justify-center text-sm",
         },
     ];
 
