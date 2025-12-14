@@ -20,7 +20,7 @@ class DashboardController extends Controller
         $now = Carbon::now('Asia/Jakarta');
         $todayStr = $now->toDateString();
 
-        // 2. Statistik Query (Tidak diubah, hanya query kasar untuk angka)
+        // 2. Statistik Query
         $baseStaseQuery = OsceStase::where('id_penguji', $penguji->id_penguji);
 
         $statistik = [
@@ -51,12 +51,10 @@ class DashboardController extends Controller
             $filterDate = Carbon::parse($request->date);
             $jadwalQuery->whereDate('tanggal', $filterDate);
         } else {
-            // Tampilkan jadwal dari hari ini sampai 30 hari ke depan
             $jadwalQuery->whereDate('tanggal', '>=', $todayStr)
                 ->whereDate('tanggal', '<=', $now->copy()->addDays(30));
         }
         
-        // Sorting awal query
         $jadwalQuery->orderBy('tanggal', 'asc')->orderBy('jam_mulai', 'asc');
 
         // 4. Eksekusi & Mapping
@@ -70,11 +68,8 @@ class DashboardController extends Controller
                     : $stase->tanggal;
 
                 // --- DEFINISI WAKTU ---
-                // Start & End Sesi
                 $startEvent = Carbon::parse($tglStaseStr . ' ' . $stase->jam_mulai, 'Asia/Jakarta');
                 $endEvent   = Carbon::parse($tglStaseStr . ' ' . $stase->jam_selesai, 'Asia/Jakarta');
-                
-                // End Global OSCE (Sesuai OsceController)
                 $globalEndDate = Carbon::parse($osce->tanggal_selesai, 'Asia/Jakarta')->endOfDay();
 
                 // --- 1. HITUNG MAHASISWA & NILAI ---
@@ -89,7 +84,6 @@ class DashboardController extends Controller
 
                 $jumlahMahasiswaSesi = $pesertaSesi->count();
 
-                // Cek Nilai (Menggunakan logic collection isNotEmpty sesuai request)
                 $jumlahDinilai = $pesertaSesi->filter(function($mhs) {
                     if ($mhs->nilaiOsce instanceof \Illuminate\Database\Eloquent\Collection) {
                         return $mhs->nilaiOsce->isNotEmpty();
@@ -99,7 +93,7 @@ class DashboardController extends Controller
 
                 $isFullGraded = ($jumlahMahasiswaSesi > 0 && $jumlahMahasiswaSesi === $jumlahDinilai);
 
-                // --- 2. LOGIKA STATUS (Sesuai OsceController) ---
+                // --- 2. LOGIKA STATUS ---
                 $status = 'Aktif'; 
 
                 if ($now->greaterThan($globalEndDate)) {
@@ -113,21 +107,21 @@ class DashboardController extends Controller
                         $status = 'Telah Dinilai';
                     } else {
                         if ($now->greaterThan($endEvent)) {
-                            $status = 'Belum Dinilai'; // Sesi lewat, belum full dinilai
+                            $status = 'Belum Dinilai'; 
                         } else {
-                            $status = 'Aktif'; // Masih dalam jam sesi
+                            $status = 'Aktif'; 
                         }
                     }
                 }
 
-                // --- 3. PRIORITAS SORTING ---
+                // --- 3. PRIORITAS SORTING (UPDATED) ---
                 $urutanPrioritas = 99;
                 $statusPriority = [
                     'Aktif'         => 1, // Paling Atas
-                    'Belum Dinilai' => 2, // Mendesak (sudah lewat jam)
-                    'Telah Dinilai' => 3, 
-                    'Belum Dimulai' => 4,
-                    'Selesai'       => 5,
+                    'Belum Dimulai' => 2, // Tepat di bawah Aktif
+                    'Belum Dinilai' => 3, // Prioritas ke-3 (Terlewat)
+                    'Telah Dinilai' => 4, // Prioritas ke-4
+                    'Selesai'       => 5, 
                 ];
                 $urutanPrioritas = $statusPriority[$status] ?? 99;
 
@@ -140,20 +134,16 @@ class DashboardController extends Controller
                     'sesi'             => substr($stase->jam_mulai, 0, 5),
                     'jumlah_mahasiswa' => $jumlahMahasiswaSesi,
                     'status'           => $status,
-                    
-                    // Data Internal untuk Sorting
                     'urutan_prioritas' => $urutanPrioritas,
                     'waktu_mulai_unix' => $startEvent->timestamp
                 ];
             })
-            // FILTER: Hapus yang 'Selesai' (Sudah lewat tanggal akhir OSCE)
             ->filter(function ($item) {
                 return $item['status'] !== 'Selesai'; 
             })
-            // SORTING
             ->sortBy([
-                ['urutan_prioritas', 'asc'], // Sesuai prioritas status
-                ['waktu_mulai_unix', 'asc'], // Sesuai waktu terdekat
+                ['urutan_prioritas', 'asc'],
+                ['waktu_mulai_unix', 'asc'],
             ])
             ->take(5)
             ->values();
