@@ -10,6 +10,7 @@ export default function Modals({
     message,
     dataToDelete = [],
     confirmText,
+    showDataDetails = true,
 }) {
     if (!isOpen) return null;
 
@@ -51,7 +52,6 @@ export default function Modals({
     return (
         <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-[9999]">
             <div className="bg-white w-[90%] max-w-md rounded-xl overflow-hidden animate-fade-in border border-gray-300">
-
                 {/* ======================= */}
                 {/* HEADER ABU-ABU GELAP   */}
                 {/* ======================= */}
@@ -78,7 +78,6 @@ export default function Modals({
                 {/* BODY                   */}
                 {/* ======================= */}
                 <div className="p-6 space-y-4">
-
                     {/* Alert utama */}
                     <div
                         className={`${alertColor} border rounded-md p-4 flex items-start gap-3`}
@@ -95,7 +94,7 @@ export default function Modals({
                     </div>
 
                     {/* Jika delete → tampilkan detail data yg dihapus */}
-                    {variant === "delete" && (
+                    {variant === "delete" && showDataDetails && (
                         <div className="bg-red-100 border border-red-300 rounded-md p-4 text-red-800">
                             <p className="font-semibold mb-2 flex items-center gap-2">
                                 <AlertTriangle size={16} />
