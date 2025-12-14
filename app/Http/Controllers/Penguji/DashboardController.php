@@ -20,7 +20,7 @@ class DashboardController extends Controller
         $now = Carbon::now('Asia/Jakarta');
         $todayStr = $now->toDateString();
 
-        // 2. Statistik Query (Tidak Berubah)
+        // 1. STATISTIK QUERY
         $baseStaseQuery = OsceStase::where('id_penguji', $penguji->id_penguji);
 
         $statistik = [
@@ -43,7 +43,19 @@ class DashboardController extends Controller
                 ->count(),
         ];
 
-        // 3. LOGIKA JADWAL
+        // 2. QUERY CALENDAR EVENTS (TITIK DI KALENDER)
+        // Mengambil semua tanggal unik di mana penguji memiliki jadwal
+        $calendarEvents = OsceStase::where('id_penguji', $penguji->id_penguji)
+            ->select('tanggal')
+            ->distinct()
+            ->get()
+            ->map(function ($item) {
+                // Konversi ke string Y-m-d (misal: "2024-12-15")
+                return Carbon::parse($item->tanggal)->format('Y-m-d');
+            })
+            ->toArray();
+
+        // 3. LOGIKA JADWAL MENDATANG / SELECTED DATE
         $jadwalQuery = OsceStase::with(['osce.enrollmentOsce.nilaiOsce'])
             ->where('id_penguji', $penguji->id_penguji);
 
@@ -51,14 +63,14 @@ class DashboardController extends Controller
             $filterDate = Carbon::parse($request->date);
             $jadwalQuery->whereDate('tanggal', $filterDate);
         } else {
+            // Default: Tampilkan jadwal hari ini sampai 30 hari ke depan
             $jadwalQuery->whereDate('tanggal', '>=', $todayStr)
                 ->whereDate('tanggal', '<=', $now->copy()->addDays(30));
         }
         
-        // Sorting awal query
         $jadwalQuery->orderBy('tanggal', 'asc')->orderBy('jam_mulai', 'asc');
 
-        // 4. Eksekusi & Mapping
+        // 4. MAPPING DATA JADWAL
         $jadwalMendatang = $jadwalQuery->get()
             ->map(function ($stase) {
                 $osce = $stase->osce;
@@ -68,12 +80,12 @@ class DashboardController extends Controller
                     ? $stase->tanggal->format('Y-m-d') 
                     : $stase->tanggal;
 
-                // --- DEFINISI WAKTU ---
+                // Definisi Waktu
                 $startEvent = Carbon::parse($tglStaseStr . ' ' . $stase->jam_mulai, 'Asia/Jakarta');
                 $endEvent   = Carbon::parse($tglStaseStr . ' ' . $stase->jam_selesai, 'Asia/Jakarta');
                 $globalEndDate = Carbon::parse($osce->tanggal_selesai, 'Asia/Jakarta')->endOfDay();
 
-                // --- 1. HITUNG MAHASISWA & NILAI ---
+                // Hitung Mahasiswa & Status Penilaian
                 $staseJamMulai = substr($stase->jam_mulai, 0, 5);
                 
                 $pesertaSesi = $osce->enrollmentOsce
@@ -85,7 +97,6 @@ class DashboardController extends Controller
 
                 $jumlahMahasiswaSesi = $pesertaSesi->count();
 
-                // Logic check nilai collection
                 $jumlahDinilai = $pesertaSesi->filter(function($mhs) {
                     if ($mhs->nilaiOsce instanceof \Illuminate\Database\Eloquent\Collection) {
                         return $mhs->nilaiOsce->isNotEmpty();
@@ -95,16 +106,13 @@ class DashboardController extends Controller
 
                 $isFullGraded = ($jumlahMahasiswaSesi > 0 && $jumlahMahasiswaSesi === $jumlahDinilai);
 
-                // --- 2. LOGIKA STATUS ---
+                // Logika Status Text
                 $status = 'Aktif'; 
-
                 if ($now->greaterThan($globalEndDate)) {
                     $status = 'Selesai';
-                }
-                elseif ($now->lessThan($startEvent)) {
+                } elseif ($now->lessThan($startEvent)) {
                     $status = 'Belum Dimulai';
-                }
-                else {
+                } else {
                     if ($isFullGraded) {
                         $status = 'Telah Dinilai';
                     } else {
@@ -116,14 +124,13 @@ class DashboardController extends Controller
                     }
                 }
 
-                // --- 3. PRIORITAS SORTING (LOGIKA DIPERBAIKI DISINI) ---
-                $urutanPrioritas = 99;
+                // Prioritas Sorting
                 $statusPriority = [
-                    'Aktif'         => 1, // Paling Atas (Sedang berlangsung)
-                    'Belum Dinilai' => 2, // Mendesak (Sudah lewat jam, belum selesai)
-                    'Belum Dimulai' => 3, // Akan Datang (Dibawah Aktif & Mendesak)
-                    'Telah Dinilai' => 4, // Sudah beres (Prioritas rendah)
-                    'Selesai'       => 5, // Sudah lewat hari
+                    'Aktif'         => 1, 
+                    'Belum Dinilai' => 2, 
+                    'Belum Dimulai' => 3, 
+                    'Telah Dinilai' => 4, 
+                    'Selesai'       => 5, 
                 ];
                 $urutanPrioritas = $statusPriority[$status] ?? 99;
 
@@ -136,29 +143,26 @@ class DashboardController extends Controller
                     'sesi'             => substr($stase->jam_mulai, 0, 5),
                     'jumlah_mahasiswa' => $jumlahMahasiswaSesi,
                     'status'           => $status,
-                    
-                    // Data Internal untuk Sorting
                     'urutan_prioritas' => $urutanPrioritas,
                     'waktu_mulai_unix' => $startEvent->timestamp
                 ];
             })
-            // FILTER: Hapus yang 'Selesai'
             ->filter(function ($item) {
                 return $item['status'] !== 'Selesai'; 
             })
-            // SORTING
             ->sortBy([
-                ['urutan_prioritas', 'asc'], // Sort berdasarkan status dulu
-                ['waktu_mulai_unix', 'asc'], // Lalu berdasarkan waktu mulai terdekat
+                ['urutan_prioritas', 'asc'],
+                ['waktu_mulai_unix', 'asc'],
             ])
             ->take(5)
             ->values();
 
         return Inertia::render('Penguji/PengujiDashboard', [
-            'nama_penguji'   => $penguji->nama,
-            'statistik'      => $statistik,
+            'nama_penguji'     => $penguji->nama,
+            'statistik'        => $statistik,
             'jadwal_mendatang' => $jadwalMendatang,
-            'selected_date'  => $request->date ?? null
+            'selected_date'    => $request->date ?? null,
+            'calendar_events'  => $calendarEvents, // <--- Data ini dikirim ke frontend
         ]);
     }
 }
