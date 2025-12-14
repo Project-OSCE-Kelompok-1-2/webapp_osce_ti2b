@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from "react";
-import { router, usePage } from "@inertiajs/react";
+import { router, usePage, useForm } from "@inertiajs/react"; // [1] Import useForm
 import { Edit2, Trash2, FileText, Table2 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
@@ -48,50 +48,33 @@ const columns = [
     },
 ];
 
-export default function OsceListPage({
-    osce,
-    tahunAkademikOptions, // Data opsi tahun akademik dari Controller
-}) {
+export default function OsceListPage({ osce, tahunAkademikOptions }) {
     // 1. Ambil Data Full
     const allOsceData = Array.isArray(osce) ? osce : osce?.data || [];
 
     // 2. State Filter & Pagination
     const [search, setSearch] = useState("");
-
-    // [BARU] State untuk filter Tahun Akademik
     const [tahunFilter, setTahunFilter] = useState("SEMUA");
-
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
-
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // --- LOGIC INSTANT FILTER ---
-    // A. Reset halaman ke 1 jika filter berubah
     useEffect(() => {
         setCurrentPage(1);
     }, [search, tahunFilter]);
 
-    // B. Filter Data (Client Side)
     const filteredData = useMemo(() => {
         return allOsceData.filter((item) => {
             const term = search.toLowerCase();
-
-            // 1. Filter Search (Nama OSCE)
             const matchSearch = item.nama_osce?.toLowerCase().includes(term);
-
-            // 2. [BARU] Filter Tahun Akademik
-            // Kita bandingkan ID Tahun Akademik item dengan ID yang dipilih di dropdown
-            // Pastikan tipe datanya sama (string vs number), jadi gunakan == atau String()
             const matchTahun =
                 tahunFilter === "SEMUA" ||
                 String(item.id_tahun_akademik) === String(tahunFilter);
-
             return matchSearch && matchTahun;
         });
     }, [search, tahunFilter, allOsceData]);
 
-    // C. Pagination Slicing
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -99,7 +82,6 @@ export default function OsceListPage({
         currentPage * itemsPerPage
     );
 
-    // D. Link Generator
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];
@@ -147,19 +129,62 @@ export default function OsceListPage({
 
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-    // Form Data
-    const initialFormState = {
-        nama_osce: "",
-        id_tahun_akademik: "",
-        tanggal_mulai: "",
-        tanggal_selesai: "",
+    // [2] Setup useForm menggantikan useState manual
+    const { data, setData, post, put, reset, errors, clearErrors, setError } =
+        useForm({
+            nama_osce: "",
+            id_tahun_akademik: "",
+            tanggal_mulai: "",
+            tanggal_selesai: "",
+        });
+
+    // --- VALIDATION LOGIC ---
+    const validateForm = () => {
+        let isValid = true;
+        if (!data.nama_osce || data.nama_osce.trim() === "") {
+            setError("nama_osce", "Nama OSCE wajib diisi.");
+            isValid = false;
+        }
+        if (!data.id_tahun_akademik) {
+            setError("id_tahun_akademik", "Tahun Akademik wajib dipilih.");
+            isValid = false;
+        }
+        if (!data.tanggal_mulai) {
+            setError("tanggal_mulai", "Tanggal Mulai wajib diisi.");
+            isValid = false;
+        }
+        if (!data.tanggal_selesai) {
+            setError("tanggal_selesai", "Tanggal Selesai wajib diisi.");
+            isValid = false;
+        }
+
+        // Validasi Logika Tanggal
+        if (data.tanggal_mulai && data.tanggal_selesai) {
+            if (new Date(data.tanggal_mulai) > new Date(data.tanggal_selesai)) {
+                setError(
+                    "tanggal_selesai",
+                    "Tanggal Selesai tidak boleh mendahului Tanggal Mulai."
+                );
+                isValid = false;
+            }
+        }
+        return isValid;
     };
-    const [formData, setFormData] = useState(initialFormState);
 
     // --- ACTION HANDLERS ---
+
+    // Handler Buka Modal Add
+    const openAddModal = () => {
+        reset();
+        clearErrors();
+        setIsAddOpen(true);
+    };
+
+    // Handler Buka Modal Edit
     const openEditModal = (item) => {
         setEditData(item);
-        setFormData({
+        clearErrors();
+        setData({
             nama_osce: item.nama_osce,
             id_tahun_akademik: item.id_tahun_akademik || "",
             tanggal_mulai: item.tanggal_mulai,
@@ -189,28 +214,34 @@ export default function OsceListPage({
 
     const handleAddSubmit = (e) => {
         e.preventDefault();
-        router.post("/admin/osce", formData, {
+        clearErrors();
+
+        if (!validateForm()) return;
+
+        post("/admin/osce", {
             onSuccess: () => {
                 setIsAddOpen(false);
-                setFormData(initialFormState);
+                reset();
             },
-            onError: (errors) => console.error("Gagal Validasi:", errors),
         });
     };
 
     const handleEditSubmit = (e) => {
         e.preventDefault();
+        clearErrors();
+
+        if (!validateForm()) return;
         if (!editData) return;
-        router.put(`/admin/osce/${editData.id_osce}`, formData, {
+
+        put(`/admin/osce/${editData.id_osce}`, {
             onSuccess: () => {
                 setIsEditOpen(false);
-                setFormData(initialFormState);
+                reset();
             },
-            onError: (errors) => console.error("Gagal Update:", errors),
         });
     };
 
-    // --- TABLE ROWS (MAPPING DATA PAGINATION) ---
+    // --- TABLE ROWS ---
     const rows = paginatedData.map((item, i) => ({
         no: (currentPage - 1) * itemsPerPage + i + 1,
         nama: (
@@ -219,9 +250,7 @@ export default function OsceListPage({
                     {item.nama_osce}
                 </div>
                 <div className="text-xs text-gray-500 leading-tight">
-                    {/* Menggunakan Optional Chaining untuk properti yang mungkin belum ada */}
-                    {item.detail_stase || 0} {" "}
-                    {item.detail_mahasiswa || 0} {" "}
+                    {item.detail_stase || 0} {item.detail_mahasiswa || 0}{" "}
                     {item.detail_sesi || 0}
                 </div>
             </div>
@@ -233,7 +262,6 @@ export default function OsceListPage({
         ),
         tahun: (
             <div className="h-full flex items-center justify-center">
-                {/* Pastikan backend mengirim data relasi tahunAkademik agar ini muncul */}
                 {item.tahun_akademik?.tahun
                     ? `${item.tahun_akademik.tahun} - ${item.tahun_akademik.semester}`
                     : "-"}
@@ -277,22 +305,18 @@ export default function OsceListPage({
                 <div className="flex flex-col gap-os-8">
                     <OsHeader onMenuClick={handleSidebarToggle} />
 
-                <div className="flex-1 overflow-auto">
-                    {/* <h2 className="font-semibold text-lg mb-1">Menu OSCE</h2> */}
-                    <div className="flex gap-1 items-center justify-start my-2">
-                        <FileText size={18} />
-                        <h2 className="font-semibold text-lg">Menu OSCE</h2>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Halaman OSCE digunakan untuk mengelola daftar OSCE.
-                    </p>
+                    <div className="flex-1 overflow-auto">
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <FileText size={18} />
+                            <h2 className="font-semibold text-lg">Menu OSCE</h2>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                            Halaman OSCE digunakan untuk mengelola daftar OSCE.
+                        </p>
 
                         <OsButton
                             name="primary"
-                            onClick={() => {
-                                setFormData(initialFormState);
-                                setIsAddOpen(true);
-                            }}
+                            onClick={openAddModal}
                             className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
                         >
                             <OsIcon
@@ -302,18 +326,16 @@ export default function OsceListPage({
                             Tambah OSCE
                         </OsButton>
 
-                    <section>
-                        {/* --- SEARCH BAR & FILTER (DIMODIFIKASI) --- */}
-                        <div className="flex flex-col sm:flex-row gap-3">
-                            <div className="flex-grow">
-                                <OsSearchBar
-                                    search={search}
-                                    setSearch={setSearch}
-                                    placeholder="Cari data OSCE secara instan..."
-                                />
-                            </div>
-
-                                {/* [BARU] Dropdown Filter Angkatan */}
+                        <section>
+                            {/* --- FILTER --- */}
+                            <div className="flex flex-col sm:flex-row gap-3">
+                                <div className="flex-grow">
+                                    <OsSearchBar
+                                        search={search}
+                                        setSearch={setSearch}
+                                        placeholder="Cari data OSCE secara instan..."
+                                    />
+                                </div>
                                 <div className="w-full sm:w-64 shrink-0">
                                     <OsInput
                                         type="select"
@@ -329,35 +351,32 @@ export default function OsceListPage({
                                                 label: "Semua Angkatan",
                                                 value: "SEMUA",
                                             },
-                                            ...(tahunAkademikOptions || []), // Menggunakan props dari Controller
+                                            ...(tahunAkademikOptions || []),
                                         ]}
                                         className="h-[46px]"
                                     />
                                 </div>
                             </div>
 
-                        {/* <h2 className="text-lg font-semibold mb-2">
-                            Table OSCE
-                            <span className="text-sm font-normal text-gray-500 ml-2">
-                                (Total: {totalItems} data)
-                            </span>
-                        </h2> */}
-                        <div className="flex gap-1 items-center justify-start mb-2">
-                            <Table2 size={18} />
-                            <h2 className="font-semibold text-lg">
-                                Table OSCE
-                            </h2>
-                            <span className="text-sm font-normal text-gray-500 ml-2">
-                                (Total: {totalItems} data)
-                            </span>
-                        </div>
-
-                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
-                            <div className="min-w-max">
-                                <OsTableHeader columns={columns} />
-                                <OsTableBody data={rows} columns={columns} />
+                            <div className="flex gap-1 items-center justify-start mb-2">
+                                <Table2 size={18} />
+                                <h2 className="font-semibold text-lg">
+                                    Table OSCE
+                                </h2>
+                                <span className="text-sm font-normal text-gray-500 ml-2">
+                                    (Total: {totalItems} data)
+                                </span>
                             </div>
-                        </section>
+
+                            <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                                <div className="min-w-max">
+                                    <OsTableHeader columns={columns} />
+                                    <OsTableBody
+                                        data={rows}
+                                        columns={columns}
+                                    />
+                                </div>
+                            </section>
 
                             {totalPages > 1 && (
                                 <div className="mt-8">
@@ -410,61 +429,98 @@ export default function OsceListPage({
                 subtitle="Masukkan detail ujian OSCE yang baru"
                 variant="add"
                 onSubmit={handleAddSubmit}
-                onClear={() => setFormData(initialFormState)}
+                onClear={() => {
+                    reset();
+                    clearErrors();
+                }}
             >
                 <div className="flex flex-col gap-3">
-                    <OsInput
-                        type="text"
-                        label="Nama OSCE"
-                        placeholder="Contoh: OSCE Blok A Semester Ganjil"
-                        value={formData.nama_osce}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                nama_osce: e.target.value,
-                            })
-                        }
-                    />
-                    <OsInput
-                        type="select"
-                        label="Tahun Akademik"
-                        options={[
-                            { label: "Pilih Tahun", value: "" },
-                            ...(tahunAkademikOptions || []),
-                        ]}
-                        value={formData.id_tahun_akademik}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                id_tahun_akademik: e.target.value,
-                            })
-                        }
-                    />
+                    {/* INPUT NAMA OSCE */}
+                    <div>
+                        <OsInput
+                            type="text"
+                            label="Nama OSCE"
+                            placeholder="Contoh: OSCE Blok A Semester Ganjil"
+                            value={data.nama_osce}
+                            onChange={(e) => {
+                                setData("nama_osce", e.target.value);
+                                if (errors.nama_osce) clearErrors("nama_osce");
+                            }}
+                            // required <-- Dihapus
+                        />
+                        {errors.nama_osce && (
+                            <p className="text-red-500 text-xs mt-1">
+                                {errors.nama_osce}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* INPUT TAHUN AKADEMIK */}
+                    <div>
+                        <OsInput
+                            type="select"
+                            label="Tahun Akademik"
+                            options={[
+                                { label: "Pilih Tahun", value: "" },
+                                ...(tahunAkademikOptions || []),
+                            ]}
+                            value={data.id_tahun_akademik}
+                            onChange={(e) => {
+                                setData("id_tahun_akademik", e.target.value);
+                                if (errors.id_tahun_akademik)
+                                    clearErrors("id_tahun_akademik");
+                            }}
+                            // required <-- Dihapus
+                        />
+                        {errors.id_tahun_akademik && (
+                            <p className="text-red-500 text-xs mt-1">
+                                {errors.id_tahun_akademik}
+                            </p>
+                        )}
+                    </div>
+
                     <div className="flex gap-3">
-                        <OsInput
-                            type="date"
-                            label="Tanggal Mulai"
-                            value={formData.tanggal_mulai}
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    tanggal_mulai: e.target.value,
-                                })
-                            }
-                            className="w-full"
-                        />
-                        <OsInput
-                            type="date"
-                            label="Tanggal Selesai"
-                            value={formData.tanggal_selesai}
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    tanggal_selesai: e.target.value,
-                                })
-                            }
-                            className="w-full"
-                        />
+                        {/* INPUT TANGGAL MULAI */}
+                        <div className="w-full">
+                            <OsInput
+                                type="date"
+                                label="Tanggal Mulai"
+                                value={data.tanggal_mulai}
+                                onChange={(e) => {
+                                    setData("tanggal_mulai", e.target.value);
+                                    if (errors.tanggal_mulai)
+                                        clearErrors("tanggal_mulai");
+                                }}
+                                className="w-full"
+                                // required <-- Dihapus
+                            />
+                            {errors.tanggal_mulai && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.tanggal_mulai}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* INPUT TANGGAL SELESAI */}
+                        <div className="w-full">
+                            <OsInput
+                                type="date"
+                                label="Tanggal Selesai"
+                                value={data.tanggal_selesai}
+                                onChange={(e) => {
+                                    setData("tanggal_selesai", e.target.value);
+                                    if (errors.tanggal_selesai)
+                                        clearErrors("tanggal_selesai");
+                                }}
+                                className="w-full"
+                                // required <-- Dihapus
+                            />
+                            {errors.tanggal_selesai && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.tanggal_selesai}
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </OsModal>
@@ -483,58 +539,88 @@ export default function OsceListPage({
                 }}
             >
                 <div className="flex flex-col gap-3">
-                    <OsInput
-                        type="text"
-                        label="Nama OSCE"
-                        placeholder="Contoh: OSCE Blok A Semester Ganjil"
-                        value={formData.nama_osce}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                nama_osce: e.target.value,
-                            })
-                        }
-                    />
-                    <OsInput
-                        type="select"
-                        label="Tahun Akademik"
-                        options={[
-                            { label: "Pilih Tahun", value: "" },
-                            ...(tahunAkademikOptions || []),
-                        ]}
-                        value={formData.id_tahun_akademik}
-                        onChange={(e) =>
-                            setFormData({
-                                ...formData,
-                                id_tahun_akademik: e.target.value,
-                            })
-                        }
-                    />
+                    {/* INPUT NAMA OSCE */}
+                    <div>
+                        <OsInput
+                            type="text"
+                            label="Nama OSCE"
+                            placeholder="Contoh: OSCE Blok A Semester Ganjil"
+                            value={data.nama_osce}
+                            onChange={(e) => {
+                                setData("nama_osce", e.target.value);
+                                if (errors.nama_osce) clearErrors("nama_osce");
+                            }}
+                        />
+                        {errors.nama_osce && (
+                            <p className="text-red-500 text-xs mt-1">
+                                {errors.nama_osce}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* INPUT TAHUN AKADEMIK */}
+                    <div>
+                        <OsInput
+                            type="select"
+                            label="Tahun Akademik"
+                            options={[
+                                { label: "Pilih Tahun", value: "" },
+                                ...(tahunAkademikOptions || []),
+                            ]}
+                            value={data.id_tahun_akademik}
+                            onChange={(e) => {
+                                setData("id_tahun_akademik", e.target.value);
+                                if (errors.id_tahun_akademik)
+                                    clearErrors("id_tahun_akademik");
+                            }}
+                        />
+                        {errors.id_tahun_akademik && (
+                            <p className="text-red-500 text-xs mt-1">
+                                {errors.id_tahun_akademik}
+                            </p>
+                        )}
+                    </div>
+
                     <div className="flex gap-3">
-                        <OsInput
-                            type="date"
-                            label="Tanggal Mulai"
-                            value={formData.tanggal_mulai}
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    tanggal_mulai: e.target.value,
-                                })
-                            }
-                            className="w-full"
-                        />
-                        <OsInput
-                            type="date"
-                            label="Tanggal Selesai"
-                            value={formData.tanggal_selesai}
-                            onChange={(e) =>
-                                setFormData({
-                                    ...formData,
-                                    tanggal_selesai: e.target.value,
-                                })
-                            }
-                            className="w-full"
-                        />
+                        {/* INPUT TANGGAL MULAI */}
+                        <div className="w-full">
+                            <OsInput
+                                type="date"
+                                label="Tanggal Mulai"
+                                value={data.tanggal_mulai}
+                                onChange={(e) => {
+                                    setData("tanggal_mulai", e.target.value);
+                                    if (errors.tanggal_mulai)
+                                        clearErrors("tanggal_mulai");
+                                }}
+                                className="w-full"
+                            />
+                            {errors.tanggal_mulai && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.tanggal_mulai}
+                                </p>
+                            )}
+                        </div>
+
+                        {/* INPUT TANGGAL SELESAI */}
+                        <div className="w-full">
+                            <OsInput
+                                type="date"
+                                label="Tanggal Selesai"
+                                value={data.tanggal_selesai}
+                                onChange={(e) => {
+                                    setData("tanggal_selesai", e.target.value);
+                                    if (errors.tanggal_selesai)
+                                        clearErrors("tanggal_selesai");
+                                }}
+                                className="w-full"
+                            />
+                            {errors.tanggal_selesai && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.tanggal_selesai}
+                                </p>
+                            )}
+                        </div>
                     </div>
                 </div>
             </OsModal>
