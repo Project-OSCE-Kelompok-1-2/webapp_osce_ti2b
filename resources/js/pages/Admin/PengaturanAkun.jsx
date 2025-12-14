@@ -384,7 +384,7 @@ export default function AdminSettingAkun({ user }) {
                                                             !showNewPassword
                                                         )
                                                     }
-                                                    className="bg-gray-500 hover:bg-gray-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                    className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
                                                 >
                                                     {showNewPassword ? (
                                                         <EyeOff
@@ -459,7 +459,7 @@ export default function AdminSettingAkun({ user }) {
                                                             !showConfirmPassword
                                                         )
                                                     }
-                                                    className="bg-gray-500 hover:bg-gray-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                    className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
                                                 >
                                                     {showConfirmPassword ? (
                                                         <EyeOff
