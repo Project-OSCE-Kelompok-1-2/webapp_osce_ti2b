@@ -99,7 +99,7 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
     // =========================================
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
-            <Head title="Hasil Penilaian OSCE" />
+            {/* <Head title="Hasil Penilaian OSCE" /> */}
 
             {/* SIDEBAR */}
             <Sidebar
@@ -113,6 +113,7 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                     {/* HEADER */}
                     <OsHeader
                         onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                        variant="mahasiswa"
                     />
 
                     {/* KONTEN UTAMA */}
