@@ -81,45 +81,47 @@ class OsceController extends Controller
             // --- 3. LOGIKA STATUS ---
             $status = 'Aktif'; 
 
-            // Prioritas 1: Hari sudah lewat
             if ($now->greaterThan($endOfDay)) {
                 $status = 'Selesai';
             }
-            // Prioritas 2: Sudah selesai dinilai semua
             elseif ($jumlahMahasiswa > 0 && $jumlahMahasiswa === $jumlahDinilai) {
                 $status = 'Telah Dinilai';
             }
-            // Prioritas 3: Belum waktunya
             elseif ($now->lessThan($startEvent)) {
                 $status = 'Belum Dimulai';
             }
-            // Prioritas 4: Sedang berjalan ATAU Lewat jam sesi tapi masih hari yang sama
             else {
                 $status = 'Aktif';
             }
 
-            // --- 4. TENTUKAN LABEL TOMBOL (MODIFIKASI DISINI) ---
+            // --- 4. TENTUKAN LABEL TOMBOL & TARGET REDIRECT ---
             $tombolAction = 'Lihat'; 
+            
+            // [BARU] Variabel untuk menentukan target route di frontend
+            // Values: 'rekap' (halaman ujian/view), 'edit' (halaman edit/submitrubrik)
+            $tipeHalaman = 'rekap'; 
 
             if ($status === 'Aktif') {
-                // LOGIKA BARU:
-                // Jika status Aktif, TAPI waktu sekarang sudah melewati jam selesai sesi ($endEvent)
-                // Artinya sesi sudah bubar, tapi penguji belum kelar menilai (masih di hari yang sama).
-                // Maka tombol jadi "Edit Nilai" (agar tidak rancu dengan 'Mulai Ujian' live).
+                // Jika jam sesi sudah lewat tapi masih hari yang sama -> Mode Edit
                 if ($now->greaterThan($endEvent)) {
                     $tombolAction = 'Edit Nilai';
+                    $tipeHalaman  = 'edit'; // Redirect ke submitrubrik/edit
                 } else {
                     $tombolAction = 'Mulai Ujian';
+                    $tipeHalaman  = 'rekap'; // Redirect ke halaman ujian biasa
                 }
             } 
             elseif ($status === 'Telah Dinilai') {
                 $tombolAction = 'Edit Nilai';
+                $tipeHalaman  = 'edit'; // Redirect ke submitrubrik/edit
             } 
             elseif ($status === 'Selesai') {
                 $tombolAction = 'Lihat Rekap Nilai';
+                $tipeHalaman  = 'rekap'; // Redirect ke rekap view only
             } 
             elseif ($status === 'Belum Dimulai') {
                 $tombolAction = 'Mulai Ujian';
+                $tipeHalaman  = 'rekap';
             }
 
             return [
@@ -128,8 +130,13 @@ class OsceController extends Controller
                 'nama'             => $osce->nama_osce,
                 'tanggal_mulai'    => $osce->tanggal_mulai->format('d F Y'),
                 'tanggal_akhir'    => $osce->tanggal_selesai->format('d F Y'),
+                
                 'status'           => $status,
                 'tombol_label'     => $tombolAction,
+                
+                // [PENTING] Gunakan ini di frontend untuk menentukan route router.get(...)
+                'tipe_halaman'     => $tipeHalaman, 
+
                 'jumlah_mahasiswa' => $jumlahMahasiswa,
                 'jumlah_dinilai'   => $jumlahDinilai,
                 'sesi'             => substr($stase->jam_mulai, 0, 5) . ' - ' . substr($stase->jam_selesai, 0, 5),
