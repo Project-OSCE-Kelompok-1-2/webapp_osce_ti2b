@@ -53,18 +53,20 @@ const osceColumns = [
 ];
 
 // Logic Styling Tombol
-const getButtonStyle = (status) => {
+const getButtonStyle = (status, label) => {
+    // Styling khusus jika label tombolnya "Edit Nilai" (misal warna Orange/Indigo biar beda)
+    if (label === "Edit Nilai") {
+        return { className: "bg-indigo-600 hover:bg-indigo-700 text-white" };
+    }
+
     switch (status) {
         case "Aktif":
             return { className: "bg-blue-600 hover:bg-blue-700 text-white" };
         case "Telah Dinilai":
-            return {
-                className: "bg-indigo-500 hover:bg-indigo-600 text-white",
-            };
+            return { className: "bg-indigo-500 hover:bg-indigo-600 text-white" };
         case "Selesai":
             return {
-                className:
-                    "bg-os-primary-pj hover:bg-os-primary-pj-dark text-white",
+                className: "bg-os-primary-pj hover:bg-os-primary-pj-dark text-white",
             };
         case "Belum Dimulai":
             return { className: "bg-gray-400 hover:bg-gray-500 text-white" };
@@ -125,15 +127,25 @@ export default function PengujiOsceList() {
 
     // --- MAPPING DATA KE FORMAT TABEL ---
     const mappedData = dataItems.map((item, index) => {
-        const btn = getButtonStyle(item.status);
-        let linkHref;
+        // Ambil style tombol
+        const btn = getButtonStyle(item.status, item.tombol_label);
+        
+        // --- LOGIKA LINK (UPDATE PENTING DISINI) ---
+        let linkHref = "#";
 
-        if (item.status === "Aktif") {
-            linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}`;
-        } else if (item.status === "Telah Dinilai") {
+        // Prioritaskan 'tipe_halaman' dari backend
+        if (item.tipe_halaman === "edit") {
+            // Jika tipe halaman edit (Edit Nilai / Telah Dinilai / Aktif Expired) -> ke SubmitRubrik
             linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}/submitrubrik`;
-        } else if (item.status === "Selesai") {
-            linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}/rekap`;
+        } else {
+            // Jika tipe halaman rekap (Mulai Ujian / Lihat Rekap)
+            if (item.status === "Selesai") {
+                // Jika Selesai -> ke Rekap View Only
+                linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}/rekap`;
+            } else {
+                // Jika Aktif / Belum Dimulai -> ke Halaman Utama Ujian (Mulai)
+                linkHref = `/penguji/osce/${item.id_osce}/stase/${item.id_osce_stase}`;
+            }
         }
 
         const rowNumber = (meta.current_page - 1) * meta.per_page + index + 1;
@@ -167,7 +179,7 @@ export default function PengujiOsceList() {
             ),
             action: (
                 <Link
-                    href={linkHref || "#"}
+                    href={linkHref}
                     as="button"
                     disabled={item.status === "Belum Dimulai"}
                     className={`${

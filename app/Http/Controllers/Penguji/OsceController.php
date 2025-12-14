@@ -10,7 +10,6 @@ use Carbon\Carbon;
 use App\Models\Penguji;
 use App\Models\OsceStase;
 use App\Models\TahunAkademik;
-use Illuminate\Pagination\LengthAwarePaginator; // Import Paginator Manual
 
 class OsceController extends Controller
 {
@@ -45,20 +44,23 @@ class OsceController extends Controller
             });
         }
 
-        // 1. Ambil SEMUA data dulu (jangan paginate di SQL)
-        // Kita tetap urutkan tanggal sebagai secondary sort
-        $allAssignments = $query->orderBy('tanggal', 'desc')
+        $assignments = $query->orderBy('tanggal', 'desc')
             ->orderBy('jam_mulai', 'asc')
-            ->get();
+            ->paginate(10)
+            ->withQueryString();
 
-        // 2. Transformasi & Hitung Status
-        $transformedCollection = $allAssignments->map(function ($stase) {
+        $osceList = $assignments->through(function ($stase) {
             $osce = $stase->osce;
+
+            // 1. Waktu
             $now = Carbon::now('Asia/Jakarta');
             $tgl = $stase->tanggal->format('Y-m-d');
+            
             $startEvent = Carbon::parse($tgl . ' ' . $stase->jam_mulai, 'Asia/Jakarta');
             $endEvent   = Carbon::parse($tgl . ' ' . $stase->jam_selesai, 'Asia/Jakarta');
+            $endOfDay   = Carbon::parse($tgl, 'Asia/Jakarta')->endOfDay();
 
+            // --- FILTER PESERTA ---
             $staseTanggal = $stase->tanggal->toDateString();
             $staseJamMulai = substr($stase->jam_mulai, 0, 5);
 
@@ -70,38 +72,57 @@ class OsceController extends Controller
                 });
 
             $jumlahMahasiswa = $pesertaSesi->count();
+
+            // --- HITUNG DINILAI ---
             $jumlahDinilai = $pesertaSesi->filter(function ($mhs) {
                 return $mhs->nilaiOsce !== null;
             })->count();
 
-            // --- LOGIKA STATUS ---
-            $status = 'Aktif';
-            $priority = 1; // Prioritas untuk sorting (semakin kecil, semakin atas)
+            // --- 3. LOGIKA STATUS ---
+            $status = 'Aktif'; 
 
-            // Prioritas Sorting User: Aktif (1) -> Telah Dinilai (2) -> Belum Dimulai (3) -> Selesai (4)
-
-            if ($now->greaterThan($endEvent)) {
+            if ($now->greaterThan($endOfDay)) {
                 $status = 'Selesai';
-                $priority = 4;
-            } elseif ($jumlahMahasiswa > 0 && $jumlahMahasiswa === $jumlahDinilai) {
-                $status = 'Telah Dinilai'; // Asumsi user maksud "Belum Dinilai" adalah logic ini atau sebaliknya, sesuaikan jika perlu
-                $priority = 2;
-            } elseif ($now->lessThan($startEvent)) {
+            }
+            elseif ($jumlahMahasiswa > 0 && $jumlahMahasiswa === $jumlahDinilai) {
+                $status = 'Telah Dinilai';
+            }
+            elseif ($now->lessThan($startEvent)) {
                 $status = 'Belum Dimulai';
-                $priority = 3;
-            } else {
+            }
+            else {
                 $status = 'Aktif';
-                $priority = 1;
             }
 
-            // Tentukan Label Tombol
-            $tombolAction = match ($status) {
-                'Aktif' => 'Mulai Ujian',
-                'Telah Dinilai' => 'Edit Nilai',
-                'Selesai' => 'Lihat Rekap Nilai',
-                'Belum Dimulai' => 'Mulai Ujian',
-                default => 'Lihat'
-            };
+            // --- 4. TENTUKAN LABEL TOMBOL & TARGET REDIRECT ---
+            $tombolAction = 'Lihat'; 
+            
+            // [BARU] Variabel untuk menentukan target route di frontend
+            // Values: 'rekap' (halaman ujian/view), 'edit' (halaman edit/submitrubrik)
+            $tipeHalaman = 'rekap'; 
+
+            if ($status === 'Aktif') {
+                // Jika jam sesi sudah lewat tapi masih hari yang sama -> Mode Edit
+                if ($now->greaterThan($endEvent)) {
+                    $tombolAction = 'Edit Nilai';
+                    $tipeHalaman  = 'edit'; // Redirect ke submitrubrik/edit
+                } else {
+                    $tombolAction = 'Mulai Ujian';
+                    $tipeHalaman  = 'rekap'; // Redirect ke halaman ujian biasa
+                }
+            } 
+            elseif ($status === 'Telah Dinilai') {
+                $tombolAction = 'Edit Nilai';
+                $tipeHalaman  = 'edit'; // Redirect ke submitrubrik/edit
+            } 
+            elseif ($status === 'Selesai') {
+                $tombolAction = 'Lihat Rekap Nilai';
+                $tipeHalaman  = 'rekap'; // Redirect ke rekap view only
+            } 
+            elseif ($status === 'Belum Dimulai') {
+                $tombolAction = 'Mulai Ujian';
+                $tipeHalaman  = 'rekap';
+            }
 
             return [
                 'id_osce'          => $osce->id_osce,
@@ -109,41 +130,21 @@ class OsceController extends Controller
                 'nama'             => $osce->nama_osce,
                 'tanggal_mulai'    => $osce->tanggal_mulai->format('d F Y'),
                 'tanggal_akhir'    => $osce->tanggal_selesai->format('d F Y'),
+                
                 'status'           => $status,
-                'status_priority'  => $priority, // Kolom bantuan untuk sorting
                 'tombol_label'     => $tombolAction,
+                
+                // [PENTING] Gunakan ini di frontend untuk menentukan route router.get(...)
+                'tipe_halaman'     => $tipeHalaman, 
+
                 'jumlah_mahasiswa' => $jumlahMahasiswa,
                 'jumlah_dinilai'   => $jumlahDinilai,
                 'sesi'             => substr($stase->jam_mulai, 0, 5) . ' - ' . substr($stase->jam_selesai, 0, 5),
             ];
         });
 
-        // 3. Sorting Collection Berdasarkan Prioritas Status
-        // Jika priority sama, dia akan fallback ke urutan tanggal (karena query SQL awal sudah order by tanggal)
-        $sortedCollection = $transformedCollection->sortBy('status_priority')->values();
-
-        // 4. Pagination Manual (Karena kita mengurutkan Collection, bukan Query SQL)
-        $page = LengthAwarePaginator::resolveCurrentPage();
-        $perPage = 10;
-        $total = $sortedCollection->count();
-
-        // Slice array untuk halaman saat ini
-        $currentPageItems = $sortedCollection->slice(($page - 1) * $perPage, $perPage)->values();
-
-        // Buat object Paginator baru agar format JSON sama persis dengan ->paginate() bawaan Laravel
-        $paginatedItems = new LengthAwarePaginator(
-            $currentPageItems,
-            $total,
-            $perPage,
-            $page,
-            [
-                'path' => LengthAwarePaginator::resolveCurrentPath(),
-                'query' => $request->query(),
-            ]
-        );
-
         return Inertia::render('Penguji/PengujiOsceList', [
-            'osce_list' => $paginatedItems, // Struktur data tetap sama, frontend aman
+            'osce_list' => $osceList,
             'tahun_options' => $tahunOptions,
             'filters'   => [
                 'search' => $search,
