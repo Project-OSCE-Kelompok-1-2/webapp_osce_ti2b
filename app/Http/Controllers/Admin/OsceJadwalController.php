@@ -169,9 +169,20 @@ class OsceJadwalController extends Controller
             ->select('id_mahasiswa', 'nama', 'nim')
             ->orderBy('nim', 'asc');
 
-        if ($tahun_filter) {
+        if ($tahun_filter) { // $tahun_filter contoh isinya: "2024/2025"
+            
+            // 1. Ambil 4 digit tahun awal (misal "2024")
+            $tahun_target = substr($tahun_filter, 0, 4); 
+
+            // 2. Cari mahasiswa yang terdaftar (enroll) pada tahun tersebut
             $query->whereHas('enrollment.tahunAkademik', function ($q) use ($tahun_filter) {
                 $q->where('tahun', $tahun_filter);
+            })
+            // 3. DAN PASTIKAN mahasiswa ini TIDAK PERNAH enroll di tahun sebelumnya (< 2024)
+            ->whereDoesntHave('enrollment.tahunAkademik', function ($q) use ($tahun_target) {
+                // Kita gunakan SUBSTRING untuk mengambil 4 angka depan dari kolom 'tahun' di DB
+                // Asumsi di DB kolom tahun isinya string "2023/2024", "2022/2023", dst.
+                $q->whereRaw('CAST(SUBSTRING(tahun, 1, 4) AS UNSIGNED) < ?', [(int)$tahun_target]);
             });
         }
 
