@@ -8,6 +8,8 @@ import OsPagination from "../../components/pagination";
 import OsSearchBar from "../../components/searchbar";
 import OsHeader from "../../components/Header";
 import OsCopyright from "../../components/Copyright";
+import OsTableHeader from "../../components/tableheader";
+import OsTableBody from "../../components/tablecontain";
 
 export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
     // =========================================
@@ -69,6 +71,57 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
         (currentPage - 1) * itemsPerPage,
         currentPage * itemsPerPage
     );
+
+    // Definisi Kolom untuk OsTableHeader & OsTableBody
+    const columns = [
+        { key: "no", content: "NO", width: "w-16" },
+        {
+            key: "nama_ujian",
+            content: "NAMA UJIAN OSCE",
+            width: "flex-[2]",
+            classes: "justify-center items-center pl-6",
+        },
+        { key: "tahun_akademik", content: "TAHUN AKADEMIK", width: "flex-1" },
+        { key: "semester", content: "SEMESTER", width: "flex-1" },
+        { key: "aksi", content: "AKSI", width: "flex-1" },
+        { key: "status", content: "STATUS", width: "flex-1" },
+    ];
+
+    // Transform data untuk OsTableBody
+    const tableData = paginatedData.map((item, index) => ({
+        no: (currentPage - 1) * itemsPerPage + index + 1,
+        nama_ujian: (
+            <div className="flex flex-col items-start pl-4">
+                <span className="font-semibold text-gray-800">
+                    {item.nama_ujian?.split(" 20")[0]}
+                </span>
+                <div className="text-[10px] text-gray-400 font-normal mt-0.5">
+                    {item.tanggal_ujian} • {item.tahun_ujian}
+                </div>
+            </div>
+        ),
+        tahun_akademik: item.tahun_ujian || "-",
+        semester: `${item.semester_label} (Smtr ${item.semester_angka})`,
+        aksi: (
+            <Link
+                href={`/mahasiswa/nilai/${item.id}`}
+                className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
+            >
+                Lihat Nilai
+            </Link>
+        ),
+        status: (
+            <span
+                className={`inline-flex items-center justify-center w-24 rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase shadow-sm ${
+                    item.status_lulus
+                        ? "bg-green-100 text-green-700 ring-1 ring-green-600/20"
+                        : "bg-red-100 text-red-700 ring-1 ring-red-600/20"
+                }`}
+            >
+                {item.status_lulus ? "LULUS" : "TIDAK LULUS"}
+            </span>
+        ),
+    }));
 
     // Generate Pagination Links
     const generatedLinks = useMemo(() => {
@@ -273,13 +326,13 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                 setSearch={(val) =>
                                     handleFilterChange("search", val)
                                 }
-                                placeholder="Cari nama ujian atau dosen..."
+                                placeholder="Cari nama ujian"
                             />
                         </div>
 
                         {/* Tabel Data */}
-                        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow duration-300">
-                            <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4">
+                        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow duration-300 p-4">
+                            <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4 mb-4">
                                 <h3 className="font-bold text-gray-800 flex items-center gap-2">
                                     <span className="h-2 w-2 rounded-full bg-blue-600"></span>
                                     Daftar Nilai Ujian
@@ -289,99 +342,23 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                 </span>
                             </div>
 
-                            <div className="overflow-x-auto">
-                                <table className="w-full text-left text-sm text-gray-600">
-                                    <thead className="bg-gray-50 font-semibold uppercase text-gray-500 tracking-wider text-xs">
-                                        <tr>
-                                            <th className="px-6 py-4 text-center w-16">
-                                                No
-                                            </th>
-                                            <th className="px-6 py-4">
-                                                Nama Ujian OSCE
-                                            </th>
-                                            <th className="px-6 py-4">
-                                                Tahun Akademik
-                                            </th>
-                                            <th className="px-6 py-4 text-center">
-                                                Semester
-                                            </th>
-                                            <th className="px-6 py-4 text-center">
-                                                Aksi
-                                            </th>
-                                            <th className="px-6 py-4 text-center">
-                                                Status
-                                            </th>
-                                        </tr>
-                                    </thead>
-                                    <tbody className="divide-y divide-gray-100">
-                                        {paginatedData.length > 0 ? (
-                                            paginatedData.map((item, index) => (
-                                                <tr
-                                                    key={item.id}
-                                                    className="group hover:bg-blue-50/30 transition-colors"
-                                                >
-                                                    <td className="px-6 py-4 text-center font-medium text-gray-400 group-hover:text-blue-600 transition-colors">
-                                                        {(currentPage - 1) *
-                                                            itemsPerPage +
-                                                            index +
-                                                            1}
-                                                    </td>
-                                                    <td className="px-6 py-4 font-semibold text-gray-800">
-                                                        {item.nama_ujian}
-                                                        <div className="text-[10px] text-gray-400 font-normal mt-0.5">
-                                                            {item.tanggal_ujian}{" "}
-                                                            • {item.tahun_ujian}
-                                                        </div>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-gray-500">
-                                                        {item.tahun_ujian}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-center font-medium">
-                                                        {item.semester_label}
-                                                    </td>
-                                                    <td className="px-6 py-4 text-center">
-                                                        <Link
-                                                            href={`/mahasiswa/nilai/${item.id}`} // Route Detail
-                                                            className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
-                                                        >
-                                                            Lihat Nilai
-                                                        </Link>
-                                                    </td>
-                                                    <td className="px-6 py-4 text-center">
-                                                        <span
-                                                            className={`inline-flex items-center justify-center w-24 rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase shadow-sm ${
-                                                                item.status_lulus
-                                                                    ? "bg-green-100 text-green-700 ring-1 ring-green-600/20"
-                                                                    : "bg-red-100 text-red-700 ring-1 ring-red-600/20"
-                                                            }`}
-                                                        >
-                                                            {item.status_lulus
-                                                                ? "LULUS"
-                                                                : "TIDAK LULUS"}
-                                                        </span>
-                                                    </td>
-                                                </tr>
-                                            ))
-                                        ) : (
-                                            <tr>``
-                                                <td
-                                                    colSpan="6"
-                                                    className="px-6 py-16 text-center text-gray-400"
-                                                >
-                                                    <div className="flex flex-col items-center justify-center gap-4">
-                                                        <div className="rounded-full bg-gray-50 p-4 ring-1 ring-gray-100">
-                                                            <FileText className="h-10 w-10 text-gray-300" />
-                                                        </div>
-                                                        <p>
-                                                            Data ujian tidak
-                                                            ditemukan.
-                                                        </p>
-                                                    </div>
-                                                </td>
-                                            </tr>
-                                        )}
-                                    </tbody>
-                                </table>
+                            <div className="overflow-x-auto px-4 pb-4">
+                                <OsTableHeader columns={columns} />
+                                <div className="mt-2">
+                                    {tableData.length > 0 ? (
+                                        <OsTableBody
+                                            data={tableData}
+                                            columns={columns}
+                                        />
+                                    ) : (
+                                        <div className="flex flex-col items-center justify-center gap-4 py-16 text-center text-gray-400 bg-gray-50 rounded-lg border border-dashed border-gray-200">
+                                            <div className="rounded-full bg-white p-4 ring-1 ring-gray-100">
+                                                <FileText className="h-10 w-10 text-gray-300" />
+                                            </div>
+                                            <p>Data ujian tidak ditemukan.</p>
+                                        </div>
+                                    )}
+                                </div>
                             </div>
                         </div>
 
