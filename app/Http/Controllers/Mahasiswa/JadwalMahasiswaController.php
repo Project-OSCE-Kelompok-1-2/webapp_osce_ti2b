@@ -26,10 +26,11 @@ class JadwalMahasiswaController extends Controller
                 ->with('error', 'Data profil mahasiswa tidak ditemukan.');
         }
 
-        // 1. Ambil Tanggal Enrollment
+        // 1. Ambil Semua Tanggal Ujian Mahasiswa (Untuk opsi dropdown)
         $enrollmentDates = $this->jadwalService->getEnrollmentDates($idMahasiswa);
 
         // 2. Tentukan Tanggal Terpilih
+        // Prioritas: 1. Dari Request URL (?date=...) -> 2. Hari Ini (jika ada ujian) -> 3. Tanggal Pertama di list
         $selectedDate = $request->input('date');
 
         if (!$selectedDate && $enrollmentDates->isNotEmpty()) {
@@ -43,12 +44,13 @@ class JadwalMahasiswaController extends Controller
             }
         }
 
-        // Tandai tanggal yang aktif di dropdown
+        // Update state 'is_selected' untuk UI dropdown
         $enrollmentDates = $enrollmentDates->map(function ($item) use ($selectedDate) {
             $item['is_selected'] = $item['date_raw'] === $selectedDate;
             return $item;
         })->values();
 
+        // Jika tidak ada tanggal sama sekali (mahasiswa belum daftar apapun)
         if (!$selectedDate) {
             return Inertia::render('Mahasiswa/JadwalOscePage', [
                 'enrollmentDates' => $enrollmentDates,
@@ -57,7 +59,8 @@ class JadwalMahasiswaController extends Controller
             ]);
         }
 
-        // 3. Ambil Info Header & Countdown
+        // 3. Ambil Info Header (Judul OSCE, Waktu, Countdown) berdasarkan TANGGAL TERPILIH
+        // Di sini nama OSCE akan berubah sesuai tanggalnya
         $examInfo = $this->jadwalService->getActiveExamInfo($idMahasiswa, $selectedDate);
 
         if (!$examInfo) {
@@ -68,7 +71,8 @@ class JadwalMahasiswaController extends Controller
             ]);
         }
 
-        // 4. Ambil Data Jadwal Stase
+        // 4. Ambil Data Jadwal Stase (Tabel bawah)
+        // Menggunakan ID OSCE yang didapat dari $examInfo (agar sinkron dengan header)
         $staseCollection = $this->jadwalService->getJadwalStase($examInfo['id_osce'], $selectedDate);
 
         $mappedStase = $staseCollection->map(function ($item) {
