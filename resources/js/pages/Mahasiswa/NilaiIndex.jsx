@@ -12,9 +12,9 @@ import OsTableHeader from "../../components/tableheader";
 import OsTableBody from "../../components/tablecontain";
 
 export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
-    // =========================================
+    // ========================================
     // 1. LOGIC FILTERING (TRIGGER KE BACKEND)
-    // =========================================
+    // ========================================
 
     // Ambil data dari props yang dikirim backend (Sudah difilter di server)
     const allUjianData = Array.isArray(ujian) ? ujian : ujian?.data || [];
