@@ -137,7 +137,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                             </div>
                         </div>
 
-                        {/* INFO MAHASISWA & FILTER PANEL */}
+                        {/* INFO MAHASISWA & FILTER PANELL */}
                         <div className="relative mb-8 overflow-hidden rounded-2xl bg-blue-600 p-6 text-white shadow-xl shadow-blue-100">
                             {/* Background decoration */}
                             <div className="absolute right-0 top-0 h-64 w-64 translate-x-16 -translate-y-16 rounded-full bg-white/10 blur-3xl"></div>
