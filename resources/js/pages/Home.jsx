@@ -1,7 +1,7 @@
 
 import Os_button from "../components/button";
 // import OsBreadCrumb from "../components/breadcrumb";
-import OsCopyright from "../components/copyright";
+import OsCopyright from "../components/Copyright";
 import OsIcon from "../components/icons";
 
 const Home = () => {
