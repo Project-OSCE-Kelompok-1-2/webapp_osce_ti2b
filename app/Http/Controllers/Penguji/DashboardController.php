@@ -9,7 +9,6 @@ use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 use App\Models\Penguji;
 use App\Models\OsceStase;
-use App\Models\Osce;
 
 class DashboardController extends Controller
 {
@@ -22,42 +21,37 @@ class DashboardController extends Controller
 
         // Gunakan Timezone Jakarta untuk konsistensi
         $now = Carbon::now('Asia/Jakarta');
+        $todayStr = $now->toDateString(); // Format Y-m-d
 
         // 2. Statistik Query
         $baseStaseQuery = OsceStase::where('id_penguji', $penguji->id_penguji);
 
         $statistik = [
             // MENDATANG:
-            // Tanggalnya besok/lusa dst...
-            // ATAU Hari ini tapi jam mulainya belum lewat
+            // Tanggal besok dst... ATAU Hari ini tapi jam mulai belum lewat
             'osce_mendatang' => (clone $baseStaseQuery)
-                ->where(function ($q) use ($now) {
-                    $q->whereDate('tanggal', '>', $now)
-                      ->orWhere(function ($sub) use ($now) {
-                          $sub->whereDate('tanggal', $now)
-                              ->whereTime('jam_mulai', '>', $now);
+                ->where(function ($q) use ($now, $todayStr) {
+                    $q->whereDate('tanggal', '>', $todayStr)
+                      ->orWhere(function ($sub) use ($now, $todayStr) {
+                          $sub->whereDate('tanggal', $todayStr)
+                              ->whereTime('jam_mulai', '>', $now->toTimeString());
                       });
                 })->count(),
 
-            // MASA PENILAIAN (SEDANG BERLANGSUNG):
-            // Hari ini, jam sekarang ada di antara jam mulai dan selesai
+            // MASA PENILAIAN (AKTIF):
+            // [UBAH LOGIKA]: Hari ini DAN Jam Mulai sudah lewat.
+            // Tidak peduli jam selesai sesi, pokoknya aktif sampai tengah malam.
             'osce_edit_nilai' => (clone $baseStaseQuery)
-                ->whereDate('tanggal', $now)
-                ->whereTime('jam_mulai', '<=', $now)
-                ->whereTime('jam_selesai', '>=', $now)
+                ->whereDate('tanggal', $todayStr)
+                ->whereTime('jam_mulai', '<=', $now->toTimeString())
                 ->count(),
 
             // SELESAI:
-            // Tanggalnya kemarin dst...
-            // ATAU Hari ini tapi jam selesainya sudah lewat
+            // [UBAH LOGIKA]: Hanya tanggal KEMARIN dan sebelumnya.
+            // Hari ini tidak dianggap selesai meskipun jam sesi berakhir.
             'osce_selesai' => (clone $baseStaseQuery)
-                ->where(function ($q) use ($now) {
-                    $q->whereDate('tanggal', '<', $now)
-                      ->orWhere(function ($sub) use ($now) {
-                          $sub->whereDate('tanggal', $now)
-                              ->whereTime('jam_selesai', '<', $now);
-                      });
-                })->count(),
+                ->whereDate('tanggal', '<', $todayStr)
+                ->count(),
         ];
 
         // 3. LOGIKA JADWAL
@@ -71,8 +65,7 @@ class DashboardController extends Controller
             $jadwalQuery->orderBy('jam_mulai', 'asc');
         } else {
             // DEFAULT: Tampilkan jadwal hari ini s/d 30 hari ke depan
-            // CATATAN: Hapus 'take(5)' dari sini agar kita bisa filter dulu di PHP
-            $jadwalQuery->whereDate('tanggal', '>=', $now)
+            $jadwalQuery->whereDate('tanggal', '>=', $todayStr)
                 ->whereDate('tanggal', '<=', $now->copy()->addDays(30))
                 ->orderBy('tanggal', 'asc')
                 ->orderBy('jam_mulai', 'asc');
@@ -90,25 +83,30 @@ class DashboardController extends Controller
                     ? $stase->tanggal->format('Y-m-d') 
                     : $stase->tanggal;
 
+                // Waktu Mulai Sesi
                 $staseStart = Carbon::parse($tglStaseStr . ' ' . $stase->jam_mulai, 'Asia/Jakarta');
 
-                // Tentukan Jam Selesai Sesi
-                if (!empty($stase->jam_selesai)) {
-                    $staseEnd = Carbon::parse($tglStaseStr . ' ' . $stase->jam_selesai, 'Asia/Jakarta');
-                } else {
-                    $staseEnd = Carbon::parse($osce->tanggal_selesai, 'Asia/Jakarta')->endOfDay();
-                }
+                // [PERBAIKAN LOGIKA DISINI]
+                // Batas akhir status "Aktif/Edit" adalah AKHIR HARI (23:59:59), bukan jam selesai sesi.
+                $endOfDay = Carbon::parse($tglStaseStr, 'Asia/Jakarta')->endOfDay();
 
-                // Logika Status
+                // Logika Status Dashboard
                 $status = 'mendatang';
-                if ($now->greaterThan($staseEnd)) {
+
+                // Jika sekarang sudah melewati akhir hari ujian => Selesai
+                if ($now->greaterThan($endOfDay)) {
                     $status = 'selesai';
-                } elseif ($now->greaterThanOrEqualTo($staseStart) && $now->lessThanOrEqualTo($staseEnd)) {
+                } 
+                // Jika belum lewat akhir hari, tapi sudah lewat jam mulai => Edit (Aktif)
+                elseif ($now->greaterThanOrEqualTo($staseStart)) {
                     $status = 'edit';
-                } else {
+                } 
+                // Sisanya => Mendatang
+                else {
                     $status = 'mendatang';
                 }
 
+                // Hitung Mahasiswa Sesi Ini
                 $staseJamMulai = substr($stase->jam_mulai, 0, 5);
 
                 $jumlahMahasiswaSesi = $osce->enrollmentOsce
@@ -131,13 +129,14 @@ class DashboardController extends Controller
                 ];
             })
             // --- FILTER: HANYA TAMPILKAN YANG BELUM SELESAI ---
+            // Karena definisi 'selesai' sekarang adalah "Kemarin", maka ujian hari ini 
+            // yang jam sesinya sudah lewat tetap akan muncul di list ini (sebagai status 'edit')
             ->filter(function ($item) {
-                // Return true untuk menyimpan item, false untuk membuang
                 return $item['status'] !== 'selesai'; 
             })
             // --- LIMIT: AMBIL 5 TERATAS SETELAH DIFILTER ---
             ->take(5)
-            // --- VALUES: RESET INDEX ARRAY (Agar JSON rapi [0,1,2]) ---
+            // --- VALUES: RESET INDEX ARRAY ---
             ->values();
 
         return Inertia::render('Penguji/PengujiDashboard', [

@@ -21,58 +21,49 @@ class OsceController extends Controller
         $search = $request->input('search');
         $tahun  = $request->input('tahun');
 
-        // Ini aman, cuma select data tahun saja, tidak mengganggu query utama
         $tahunOptions = TahunAkademik::select('tahun')
             ->distinct()
             ->orderBy('tahun', 'desc')
             ->get();
 
-        // Load relasi yang dibutuhkan
         $query = OsceStase::with([
             'osce.enrollmentOsce.nilaiOsce',
             'osce.tahunAkademik'
         ])
             ->where('id_penguji', $penguji->id_penguji);
 
-        // Filter Search (Berdasarkan Nama OSCE)
         if ($search) {
             $query->whereHas('osce', function ($q) use ($search) {
                 $q->where('nama_osce', 'like', "%{$search}%");
             });
         }
 
-        // Filter Tahun Akademik
         if ($tahun) {
             $query->whereHas('osce.tahunAkademik', function ($q) use ($tahun) {
                 $q->where('tahun', 'like', "%{$tahun}%");
             });
         }
 
-        // Pagination & Sorting
         $assignments = $query->orderBy('tanggal', 'desc')
             ->orderBy('jam_mulai', 'asc')
             ->paginate(10)
             ->withQueryString();
 
-        // Transformasi Data
         $osceList = $assignments->through(function ($stase) {
             $osce = $stase->osce;
 
-            // [PERBAIKAN 1] Gunakan Waktu Real-time Server
+            // 1. Waktu
             $now = Carbon::now('Asia/Jakarta');
-
-            // [PERBAIKAN 2] Parse Jadwal dengan Timezone Jakarta
             $tgl = $stase->tanggal->format('Y-m-d');
-
-            // Menggabungkan tanggal dengan jam mulai/selesai
+            
             $startEvent = Carbon::parse($tgl . ' ' . $stase->jam_mulai, 'Asia/Jakarta');
             $endEvent   = Carbon::parse($tgl . ' ' . $stase->jam_selesai, 'Asia/Jakarta');
+            $endOfDay   = Carbon::parse($tgl, 'Asia/Jakarta')->endOfDay();
 
-            // --- 1. LOGIKA FILTER PESERTA ---
+            // --- FILTER PESERTA ---
             $staseTanggal = $stase->tanggal->toDateString();
             $staseJamMulai = substr($stase->jam_mulai, 0, 5);
 
-            // Filter hanya mahasiswa yang dijadwalkan di sesi ini
             $pesertaSesi = $osce->enrollmentOsce
                 ->filter(function ($enrollment) use ($staseTanggal, $staseJamMulai) {
                     $enrollmentTanggal = (string) Carbon::parse($enrollment->tanggal_sesi)->toDateString();
@@ -82,42 +73,55 @@ class OsceController extends Controller
 
             $jumlahMahasiswa = $pesertaSesi->count();
 
-            // --- 2. HITUNG YANG SUDAH DINILAI ---
+            // --- HITUNG DINILAI ---
             $jumlahDinilai = $pesertaSesi->filter(function ($mhs) {
                 return $mhs->nilaiOsce !== null;
             })->count();
 
             // --- 3. LOGIKA STATUS ---
-            $status = 'Aktif'; // Default initialization
+            $status = 'Aktif'; 
 
-            // Prioritas 1: Cek apakah waktu sudah habis? (MUTLAK)
-            if ($now->greaterThan($endEvent)) {
+            if ($now->greaterThan($endOfDay)) {
                 $status = 'Selesai';
             }
-            // Prioritas 2: Cek apakah semua mahasiswa sudah dinilai?
             elseif ($jumlahMahasiswa > 0 && $jumlahMahasiswa === $jumlahDinilai) {
                 $status = 'Telah Dinilai';
             }
-            // Prioritas 3: Cek apakah belum dimulai?
             elseif ($now->lessThan($startEvent)) {
                 $status = 'Belum Dimulai';
             }
-            // Prioritas 4: Sedang berlangsung
             else {
                 $status = 'Aktif';
             }
 
-            // --- 4. TENTUKAN LABEL TOMBOL ---
-            $tombolAction = 'Lihat'; // Default
+            // --- 4. TENTUKAN LABEL TOMBOL & TARGET REDIRECT ---
+            $tombolAction = 'Lihat'; 
+            
+            // [BARU] Variabel untuk menentukan target route di frontend
+            // Values: 'rekap' (halaman ujian/view), 'edit' (halaman edit/submitrubrik)
+            $tipeHalaman = 'rekap'; 
 
             if ($status === 'Aktif') {
-                $tombolAction = 'Mulai Ujian';
-            } elseif ($status === 'Telah Dinilai') {
+                // Jika jam sesi sudah lewat tapi masih hari yang sama -> Mode Edit
+                if ($now->greaterThan($endEvent)) {
+                    $tombolAction = 'Edit Nilai';
+                    $tipeHalaman  = 'edit'; // Redirect ke submitrubrik/edit
+                } else {
+                    $tombolAction = 'Mulai Ujian';
+                    $tipeHalaman  = 'rekap'; // Redirect ke halaman ujian biasa
+                }
+            } 
+            elseif ($status === 'Telah Dinilai') {
                 $tombolAction = 'Edit Nilai';
-            } elseif ($status === 'Selesai') {
+                $tipeHalaman  = 'edit'; // Redirect ke submitrubrik/edit
+            } 
+            elseif ($status === 'Selesai') {
                 $tombolAction = 'Lihat Rekap Nilai';
-            } elseif ($status === 'Belum Dimulai') {
+                $tipeHalaman  = 'rekap'; // Redirect ke rekap view only
+            } 
+            elseif ($status === 'Belum Dimulai') {
                 $tombolAction = 'Mulai Ujian';
+                $tipeHalaman  = 'rekap';
             }
 
             return [
@@ -126,10 +130,12 @@ class OsceController extends Controller
                 'nama'             => $osce->nama_osce,
                 'tanggal_mulai'    => $osce->tanggal_mulai->format('d F Y'),
                 'tanggal_akhir'    => $osce->tanggal_selesai->format('d F Y'),
-
-                // Data untuk Logika Frontend
+                
                 'status'           => $status,
                 'tombol_label'     => $tombolAction,
+                
+                // [PENTING] Gunakan ini di frontend untuk menentukan route router.get(...)
+                'tipe_halaman'     => $tipeHalaman, 
 
                 'jumlah_mahasiswa' => $jumlahMahasiswa,
                 'jumlah_dinilai'   => $jumlahDinilai,
