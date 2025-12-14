@@ -1047,15 +1047,36 @@ class DatabaseSeeder extends Seeder
     /**
      * Helper Function untuk generate nilai acak
      */
-    private function beriNilai($idEnrollmentOsce, $staseObjects, $isLulus)
+    /**
+     * Helper Function untuk generate nilai acak
+     * Modified: Randomize per Stase, bukan per Event
+     */
+    private function beriNilai($idEnrollmentOsce, $staseObjects, $statusGlobalLulus)
     {
         foreach ($staseObjects as $stase) {
+            // Tentukan nasib di stase INI secara spesifik.
+            // Jika secara global dia lulus, peluang dia bagus di stase ini 90%.
+            // Jika secara global dia gagal, peluang dia bagus di stase ini cuma 30%.
+
+            $chance = $statusGlobalLulus ? 90 : 30;
+            $isLulusStase = rand(1, 100) <= $chance;
+
             $aspeks = AspekPenilaian::where('id_stase', $stase->id_stase)->get();
             foreach ($aspeks as $aspek) {
                 $points = PoinAspekPenilaian::where('id_aspek_penilaian', $aspek->id_aspek_penilaian)->get();
                 foreach ($points as $poin) {
-                    // Skor: 3-4 (Lulus), 1-2 (Gagal)
-                    $nilai = $isLulus ? rand(3, 4) : rand(1, 2);
+                    // Logic Nilai:
+                    // Jika Lulus Stase: Random 3 atau 4 (dominan 4)
+                    // Jika Gagal Stase: Random 1 atau 2 (dominan 2)
+
+                    if ($isLulusStase) {
+                        // Kasih variasi biar ga melulu 3 atau 4 seimbang
+                        // 70% dapat 4, 30% dapat 3
+                        $nilai = (rand(1, 10) <= 7) ? 4 : 3;
+                    } else {
+                        // 60% dapat 2, 40% dapat 1
+                        $nilai = (rand(1, 10) <= 6) ? 2 : 1;
+                    }
 
                     NilaiOsce::factory()->create([
                         'id_enrollment_osce' => $idEnrollmentOsce,
