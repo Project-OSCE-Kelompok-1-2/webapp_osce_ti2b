@@ -242,7 +242,7 @@ class RekapNilaiService
                 ];
             }
 
-            $skor = $poin?->skor ?? 0;
+            $skor = $nilai->nilai ?? 0;
             $bobot = $poin?->bobot ?? 0;
             $nilaiKali = $skor * $bobot;
 
@@ -259,13 +259,15 @@ class RekapNilaiService
 
         foreach ($nilaiPerStase as $key => $stase) {
             $totalSkorBobot = $stase['total_skor_bobot'] ?? 0;
-            $nilaiPerStase[$key]['nilai_akhir_stase'] = $totalSkorBobot / 4;
+            // $nilaiPerStase[$key]['nilai_akhir_stase'] = $totalSkorBobot / 4;
+            $nilaiRaw = $totalSkorBobot / 4;
+            $nilaiPerStase[$key]['nilai_akhir_stase'] = (float) number_format($nilaiRaw, 2);
         }
 
         $totalNilaiSemuaStase = array_sum(array_column($nilaiPerStase, 'nilai_akhir_stase'));
         $jumlahStase = count($nilaiPerStase);
-        $nilai_total_osce = $jumlahStase > 0 ? ($totalNilaiSemuaStase / $jumlahStase) : 0;
-
+        $rata_rata = $jumlahStase > 0 ? ($totalNilaiSemuaStase / $jumlahStase) : 0;
+        $nilai_total_osce = (float) number_format($rata_rata, 2);
         $tgl = $enrollment->tanggal_sesi;
         $jam_raw = substr($enrollment->jam_sesi, 0, 5);
         $jam_clean = str_replace(':', '', $jam_raw);
