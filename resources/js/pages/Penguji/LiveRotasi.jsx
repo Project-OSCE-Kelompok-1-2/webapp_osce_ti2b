@@ -1,41 +1,60 @@
-import React from "react";
+import React, { useState, useEffect } from "react"; // BARU: Import Hooks
 import { Head, router, usePage } from "@inertiajs/react";
 
 export default function LiveRotasi() {
-    // 1. AMBIL PROPS DARI BACKEND (Septia)
+    // 1. AMBIL PROPS DARI BACKEND
     const {
         osce_detail,
-        mahasiswa_selanjutnya, // Bisa null jika habis
-        sisa_waktu_rotasi_detik = 60,
+        mahasiswa_selanjutnya,
+        sisa_waktu_rotasi_detik = 60, // Ini data mentah dari Controller
     } = usePage().props;
+
+    // BARU: State lokal untuk timer yang bisa berjalan
+    const [timeLeft, setTimeLeft] = useState(sisa_waktu_rotasi_detik);
 
     // Fallback
     const safeOsce = osce_detail || { nama_osce: "-", nama_stase: "-" };
-
-    // Cek apakah ini mahasiswa terakhir (habis)
     const isFinished = !mahasiswa_selanjutnya;
 
+    // BARU: Effect 1 - Reset Timer saat mahasiswa/props berubah
+    // Ini solusi inti agar timer kembali ke 30 menit (atau durasi awal) saat ganti orang
+    useEffect(() => {
+        setTimeLeft(sisa_waktu_rotasi_detik);
+    }, [sisa_waktu_rotasi_detik, mahasiswa_selanjutnya]);
+
+    // BARU: Effect 2 - Logika Hitung Mundur (Countdown)
+    useEffect(() => {
+        // Jika waktu habis atau selesai, stop timer
+        if (timeLeft <= 0 || isFinished) return;
+
+        const intervalId = setInterval(() => {
+            setTimeLeft((prevTime) => prevTime - 1);
+        }, 1000);
+
+        // Bersihkan interval saat komponen unmount atau update
+        return () => clearInterval(intervalId);
+    }, [timeLeft, isFinished]);
+
+
     const handleBack = () => {
-        // Kembali ke dashboard
         router.get("/penguji/dashboard");
     };
 
     const handleSubmit = () => {
         if (isFinished) {
-            // Jika habis, tutup sesi
             router.get(
                 `/penguji/osce/${safeOsce.id_osce}/stase/${safeOsce.id_osce_stase}/submitrubrik`
             );
         } else {
-            // Jika ada, lanjut nilai
             router.get(
                 `/penguji/penilaian/${mahasiswa_selanjutnya.id_enrollment_osce}`
             );
         }
     };
 
-    // Format Waktu (Opsional, bisa pakai timer countdown jika mau)
+    // Format Waktu
     const formatWaktu = (detik) => {
+        if (detik < 0) detik = 0; // Safety check
         const m = Math.floor(detik / 60)
             .toString()
             .padStart(2, "0");
@@ -104,18 +123,15 @@ export default function LiveRotasi() {
 
                                 {/* Konten Dinamis */}
                                 {isFinished ? (
-                                    // TAMPILAN JIKA SUDAH SELESAI SEMUA
                                     <div>
                                         <h3 className="text-xl font-bold text-gray-800 mb-2">
                                             Seluruh Mahasiswa Telah Dinilai!
                                         </h3>
                                         <p className="text-sm text-gray-500 mb-6">
-                                            Anda dapat menyelesaikan sesi ini
-                                            sekarang.
+                                            Anda dapat menyelesaikan sesi ini sekarang.
                                         </p>
                                     </div>
                                 ) : (
-                                    // TAMPILAN MAHASISWA SELANJUTNYA
                                     <div>
                                         <p className="text-sm text-black mb-3">
                                             Rotasi mahasiswa selanjutnya
@@ -126,25 +142,19 @@ export default function LiveRotasi() {
                                                 <p className="font-semibold">
                                                     Nama :{" "}
                                                     <span className="font-normal">
-                                                        {
-                                                            mahasiswa_selanjutnya.nama
-                                                        }
+                                                        {mahasiswa_selanjutnya.nama}
                                                     </span>
                                                 </p>
                                                 <p className="font-semibold mt-1">
                                                     NIM :{" "}
                                                     <span className="font-normal">
-                                                        {
-                                                            mahasiswa_selanjutnya.nim
-                                                        }
+                                                        {mahasiswa_selanjutnya.nim}
                                                     </span>
                                                 </p>
                                                 <p className="font-semibold mt-1">
                                                     Jurusan :{" "}
                                                     <span className="font-normal">
-                                                        {
-                                                            mahasiswa_selanjutnya.prodi
-                                                        }
+                                                        {mahasiswa_selanjutnya.prodi}
                                                     </span>
                                                 </p>
                                             </div>
@@ -160,9 +170,8 @@ export default function LiveRotasi() {
                                                 Istirahat
                                             </span>
                                             <span className="text-sm font-bold text-white">
-                                                {formatWaktu(
-                                                    sisa_waktu_rotasi_detik
-                                                )}
+                                                {/* BARU: Gunakan state timeLeft, bukan props langsung */}
+                                                {formatWaktu(timeLeft)}
                                             </span>
                                         </div>
                                     )}
