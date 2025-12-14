@@ -173,7 +173,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
 
     return (
         <>
-            <div className="relative bg-orange-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            <div className="relative bg-orange-50 w-full min-h-screen flex justify-start lg:p-os-12 p-2 font-sans overflow-hidden">
                 <Sidebar
                     isOpen={isSidebarOpen}
                     onToggle={handleSidebarToggle}
@@ -198,7 +198,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                         </div>
                     </div>
                 </header> */}
-                <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 lg:ml-20">
+                <main className="grid w-full lg:p-os-8 p-0 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 lg:ml-20">
                     <OsHeader
                         className="fixed"
                         title={`OSCE / ${safeOsce.nama_osce} / Rekap Nilai`}
@@ -207,26 +207,26 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                         onMenuClick={handleSidebarToggle}
                     />
 
-                <main className="flex-1 py-5 px-3 flex flex-col justify-between">
-                    <div className="mx-auto max-w-4xl w-full">
-                        <div className="overflow-hidden rounded-xl bg-white shadow border border-gray-200">
-                            {/* Compact Blue Banner */}
-                            <div className="bg-blue-600 px-4 py-5 text-center text-white relative overflow-hidden">
+                    <main className="flex-1 py-5 px-3 flex flex-col justify-between">
+                        <div className="mx-auto w-full ">
+                            <div className="overflow-hidden  rounded-xl bg-white shadow border border-gray-200">
+                                {/* Compact Blue Banner */}
+                                {/* <div className="bg-blue-600 px-4 py-5 text-center text-white relative overflow-hidden">
                                 <div className="absolute top-0 left-0 w-full h-full bg-white opacity-5 transform -skew-y-6 scale-150 origin-top-left pointer-events-none"></div>
-                                <h1 className="text-lg font-bold relative z-10">
-                                    {safeOsce.nama_osce}
-                                </h1>
-                                <p className="text-xs text-blue-100 relative z-10 font-medium opacity-90 mt-0.5">
-                                    {safeOsce.nama_stase}
-                                </p>
-                            </div>
+                                    <h1 className="text-lg font-bold relative z-10">
+                                        {safeOsce.nama_osce}
+                                    </h1>
+                                    <p className="text-xs text-blue-100 relative z-10 font-medium opacity-90 mt-0.5">
+                                        {safeOsce.nama_stase}
+                                    </p>
+                                </div> */}
 
-                                <div className="bg-os-primary-pj-dark text-white text-center py-6">
+                                <div className="bg-os-primary-pj-dark text-white text-center py-6 ">
                                     <h1 className="text-2xl font-bold mb-1">
                                         Detail OSCE
                                     </h1>
-                                    <p className="text-sm opacity-90">
-                                        {safeOsce.nama_osce}
+                                    <p className="text-sm opacity-90 px-2">
+                                        {safeOsce.nama_osce} { " "}
                                         {safeOsce.nama_stase}
                                     </p>
                                 </div>
@@ -371,7 +371,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                             </div>
 
                             <div className="overflow-x-auto p-4 ">
-                                <div className="rounded-lg border border-os-primary-pj overflow-clip" >
+                                <div className="rounded-lg border border-os-primary-pj overflow-clip">
                                     <table className="w-full text-left ">
                                         <thead>
                                             <tr className="border-b bg-orange-500 text-[12px] font-bold text-white uppercase tracking-wider">
