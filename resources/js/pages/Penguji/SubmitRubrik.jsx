@@ -29,15 +29,22 @@ export default function SubmitRubrik() {
     };
 
     const handleEdit = (id_enrollment) => {
-        router.get(`/penguji/penilaian/${id_enrollment}/edit`);
+        // Kita tempelkan ID stase saat ini ke URL agar Controller tahu asalnya dari mana
+        router.get(
+            `/penguji/penilaian/${id_enrollment}/edit?id_osce_stase=${osce_detail.id_osce_stase}`
+        );
     };
 
     const handleFinalSubmit = () => {
         router.post(
             `/penguji/osce/${osce_detail.id_osce}/stase/${osce_detail.id_osce_stase}/selesai`,
-            {},
+            {}, // Body kosong
             {
-                onSuccess: () => setShowModal(false),
+                // Tidak wajib, tapi bisa dikasih indikator loading jika mau
+                onStart: () => {
+                    // console.log("Menyelesaikan ujian...");
+                },
+                // Inertia otomatis akan redirect ke halaman List sesuai response backend
             }
         );
     };

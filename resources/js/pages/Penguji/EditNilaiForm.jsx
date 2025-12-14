@@ -122,11 +122,10 @@ export default function EditNilaiForm() {
 
         setIsSaving(true);
 
-        // Format payload sesuai kebutuhan backend
         const nilaiPayload = Object.entries(nilaiMap).map(
             ([id_poin, skor]) => ({
                 id_poin_aspek_penilaian: Number(id_poin),
-                skor: skor, // Backend Controller mapping: 'skor' -> 'nilai'
+                skor: Number(skor),
             })
         );
 
@@ -135,18 +134,22 @@ export default function EditNilaiForm() {
             {
                 nilai: nilaiPayload,
                 feedback: feedback,
+                // TAMBAHKAN BARIS INI: Kirim ID stase yang sedang aktif dari props osce_detail
+                id_osce_stase: osce_detail.id_osce_stase,
             },
             {
                 onFinish: () => setIsSaving(false),
                 onError: (errors) => {
                     setIsSaving(false);
-                    console.error(errors);
-                    alert("Gagal menyimpan. Cek koneksi atau hubungi admin.");
+                    console.error("Error dari Backend:", errors);
+                    // ... error handling
+                },
+                onSuccess: () => {
+                    console.log("Berhasil disimpan!");
                 },
             }
         );
     };
-
     // =========================================================================
     // 2. BAGIAN TAMPILAN (VISUAL SAMA PERSIS DENGAN LIVE PENILAIAN)
     // =========================================================================

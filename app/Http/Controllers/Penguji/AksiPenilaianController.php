@@ -253,4 +253,15 @@ class AksiPenilaianController extends Controller
             'mahasiswa_list' => $mahasiswaList
         ]);
     }
+
+    public function selesai($id_osce, $id_osce_stase)
+    {
+        // Logika tambahan jika ada (misal update status stase jadi selesai, dsb)
+        // ...
+
+        // --- PERBAIKAN DISINI ---
+        // Redirect ke route 'penguji.osce.index' (Halaman PengujiOsceList)
+        return redirect()->route('penguji.osce.index')
+            ->with('success', 'Sesi penilaian stase ini telah selesai.');
+    }
 }
