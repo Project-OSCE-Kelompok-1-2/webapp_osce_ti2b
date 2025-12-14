@@ -18,7 +18,7 @@ import OsCopyright from "../../components/Copyright.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsButton from "../../components/button.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
-// ⭐ UPDATE 1: Import Modals
+// ⭐ Import Modals
 import Modals from "../../components/Modals.jsx";
 
 // CustomInput (Sama seperti sebelumnya)
@@ -76,7 +76,7 @@ export default function MahasiswaAccountSettings() {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // ⭐ UPDATE 2: State Modal Hapus
+    // ⭐ State Modal Hapus
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const [profileImage, setProfileImage] = useState(null);
@@ -125,7 +125,7 @@ export default function MahasiswaAccountSettings() {
         }
     };
 
-    // ⭐ UPDATE 3: Logika Hapus Gambar dipisah (Open Modal & Confirm Action)
+    // ⭐ Logika Hapus Gambar dipisah (Open Modal & Confirm Action)
     
     // 1. Fungsi Buka Modal
     const openDeletePhotoModal = () => {
@@ -249,7 +249,7 @@ export default function MahasiswaAccountSettings() {
                                     </span>
                                 </label>
 
-                                {/* ⭐ UPDATE 4: Tombol Trigger Modal */}
+                                {/* ⭐ Tombol Trigger Modal */}
                                 <button
                                     type="button"
                                     onClick={openDeletePhotoModal}
@@ -526,7 +526,7 @@ export default function MahasiswaAccountSettings() {
                     <OsCopyright />
                 </div>
 
-                {/* ⭐ UPDATE 5: MODAL UNTUK DELETE FOTO PROFIL */}
+                {/* ⭐ UPDATE: MODAL UNTUK DELETE FOTO PROFIL (DENGAN showDataDetails={false}) */}
                 <Modals
                     isOpen={isDeleteModalOpen}
                     onClose={() => setIsDeleteModalOpen(false)}
@@ -535,6 +535,7 @@ export default function MahasiswaAccountSettings() {
                     title="Hapus Foto Profil"
                     message="Apakah Anda yakin ingin menghapus foto profil Anda?"
                     confirmText="Hapus"
+                    showDataDetails={false}
                 />
             </main>
         </div>
