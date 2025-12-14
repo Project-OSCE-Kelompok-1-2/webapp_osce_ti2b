@@ -64,31 +64,31 @@ class DatabaseSeeder extends Seeder
 
         // KELOMPOK 1 (Sesi 1)
         $angkatan22_klp1 = [
-            ['niu' => '202201001', 'nama' => 'Dini Afiana'],
-            ['niu' => '202201002', 'nama' => 'Arrifa Ilyana Cholarin'],
-            ['niu' => '202201003', 'nama' => 'Merlina Dwi Wahyuni'],
-            ['niu' => '202201004', 'nama' => 'Rahmatika Nuha Syafura'],
-            ['niu' => '202201005', 'nama' => 'Petra Angelina G.P.'],
-            ['niu' => '202201006', 'nama' => 'Melvia Dinda C.D.'],
-            ['niu' => '202201007', 'nama' => 'Christine Chintia T.'],
+            ['niu' => '202201001', 'nama' => 'Hafizh Iman Wicaksono'],
+            ['niu' => '202201002', 'nama' => 'Kencana Ikhsanun Nadja'],
+            ['niu' => '202201003', 'nama' => 'Khansa Intanio Utomo'],
+            ['niu' => '202201004', 'nama' => 'MI Aulia Kurnia Widyarani'],
+            ['niu' => '202201005', 'nama' => 'Muhammad Asdif Afada'],
+            ['niu' => '202201006', 'nama' => 'Muhammad Bintang Satrio Utomo'],
+            ['niu' => '202201007', 'nama' => 'Muhammad Ilham Rijal Thariq'],
         ];
 
         // KELOMPOK 2 (Sesi 2)
         $angkatan22_klp2 = [
-            ['niu' => '202201008', 'nama' => 'Shelly Yolanda Putri'],
-            ['niu' => '202201009', 'nama' => 'Alya Ramdhani'],
-            ['niu' => '202201010', 'nama' => 'Nuriyatul Aini Sa\'diyah'],
-            ['niu' => '202201011', 'nama' => 'Nadia Rizky Aliffia C.'],
-            ['niu' => '202201012', 'nama' => 'Ratri Azzahra Utami'],
-            ['niu' => '202201013', 'nama' => 'Ismi Maulfi Rahma'],
-            ['niu' => '202201014', 'nama' => 'Herawati Kahartan'],
+            ['niu' => '202201008', 'nama' => 'Muhammad Mumtaza Al Afkar'],
+            ['niu' => '202201009', 'nama' => 'Najwa Rahma Hapsari'],
+            ['niu' => '202201010', 'nama' => 'Pandu Setya Nugraha'],
+            ['niu' => '202201011', 'nama' => 'Putri Levina Agatha'],
+            ['niu' => '202201012', 'nama' => 'Raul Haryo Fauzian'],
+            ['niu' => '202201013', 'nama' => 'Ray Egans Pramudya'],
+            ['niu' => '202201014', 'nama' => 'Riko Aditya Zaki'],
         ];
 
         // KELOMPOK 3 (Sesi 3)
         $angkatan22_klp3 = [
-            ['niu' => '202201015', 'nama' => 'Alifa Cahya Nugraha'],
-            ['niu' => '202201016', 'nama' => 'Syafira Nur Rosyida'],
-            ['niu' => '202201017', 'nama' => 'Annisa Zulkha Avivah'],
+            ['niu' => '202201015', 'nama' => 'Sendy Prasetyo'],
+            ['niu' => '202201016', 'nama' => 'Septia Isnaeni Salsabila'],
+            ['niu' => '202201017', 'nama' => 'Yusuf Fadhlih Firmansyah'],
             ['niu' => '202201018', 'nama' => 'Latifa Hanum Sabrina'],
             ['niu' => '202201019', 'nama' => 'Lolita Ayu Maharani'],
             ['niu' => '202201020', 'nama' => 'Velysia Irgi Novitasari'],
@@ -1047,15 +1047,36 @@ class DatabaseSeeder extends Seeder
     /**
      * Helper Function untuk generate nilai acak
      */
-    private function beriNilai($idEnrollmentOsce, $staseObjects, $isLulus)
+    /**
+     * Helper Function untuk generate nilai acak
+     * Modified: Randomize per Stase, bukan per Event
+     */
+    private function beriNilai($idEnrollmentOsce, $staseObjects, $statusGlobalLulus)
     {
         foreach ($staseObjects as $stase) {
+            // Tentukan nasib di stase INI secara spesifik.
+            // Jika secara global dia lulus, peluang dia bagus di stase ini 90%.
+            // Jika secara global dia gagal, peluang dia bagus di stase ini cuma 30%.
+
+            $chance = $statusGlobalLulus ? 90 : 30;
+            $isLulusStase = rand(1, 100) <= $chance;
+
             $aspeks = AspekPenilaian::where('id_stase', $stase->id_stase)->get();
             foreach ($aspeks as $aspek) {
                 $points = PoinAspekPenilaian::where('id_aspek_penilaian', $aspek->id_aspek_penilaian)->get();
                 foreach ($points as $poin) {
-                    // Skor: 3-4 (Lulus), 1-2 (Gagal)
-                    $nilai = $isLulus ? rand(3, 4) : rand(1, 2);
+                    // Logic Nilai:
+                    // Jika Lulus Stase: Random 3 atau 4 (dominan 4)
+                    // Jika Gagal Stase: Random 1 atau 2 (dominan 2)
+
+                    if ($isLulusStase) {
+                        // Kasih variasi biar ga melulu 3 atau 4 seimbang
+                        // 70% dapat 4, 30% dapat 3
+                        $nilai = (rand(1, 10) <= 7) ? 4 : 3;
+                    } else {
+                        // 60% dapat 2, 40% dapat 1
+                        $nilai = (rand(1, 10) <= 6) ? 2 : 1;
+                    }
 
                     NilaiOsce::factory()->create([
                         'id_enrollment_osce' => $idEnrollmentOsce,

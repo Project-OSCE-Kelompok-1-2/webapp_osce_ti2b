@@ -12,9 +12,9 @@ import OsTableHeader from "../../components/tableheader";
 import OsTableBody from "../../components/tablecontain";
 
 export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
-    // =========================================
+    // ========================================
     // 1. LOGIC FILTERING (TRIGGER KE BACKEND)
-    // =========================================
+    // ========================================
 
     // Ambil data dari props yang dikirim backend (Sudah difilter di server)
     const allUjianData = Array.isArray(ujian) ? ujian : ujian?.data || [];
@@ -77,11 +77,11 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
         { key: "no", content: "NO", width: "w-16" },
         {
             key: "nama_ujian",
-            content: "NAMA UJIAN",
+            content: "NAMA UJIAN OSCE",
             width: "flex-[2]",
             classes: "justify-center items-center pl-6",
         },
-        { key: "dosen_penguji", content: "DOSEN PENGUJI", width: "flex-1" },
+        { key: "tahun_akademik", content: "TAHUN AKADEMIK", width: "flex-1" },
         { key: "semester", content: "SEMESTER", width: "flex-1" },
         { key: "aksi", content: "AKSI", width: "flex-1" },
         { key: "status", content: "STATUS", width: "flex-1" },
@@ -93,14 +93,14 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
         nama_ujian: (
             <div className="flex flex-col items-start pl-4">
                 <span className="font-semibold text-gray-800">
-                    {item.nama_ujian}
+                    {item.nama_ujian?.split(" 20")[0]}
                 </span>
                 <div className="text-[10px] text-gray-400 font-normal mt-0.5">
                     {item.tanggal_ujian} • {item.tahun_ujian}
                 </div>
             </div>
         ),
-        dosen_penguji: item.dosen_penguji || "-",
+        tahun_akademik: item.tahun_ujian || "-",
         semester: `${item.semester_label} (Smtr ${item.semester_angka})`,
         aksi: (
             <Link
@@ -190,7 +190,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                             </div>
                         </div>
 
-                        {/* INFO MAHASISWA & FILTER PANEL */}
+                        {/* INFO MAHASISWA & FILTER PANELL */}
                         <div className="relative mb-8 overflow-hidden rounded-2xl bg-blue-600 p-6 text-white shadow-xl shadow-blue-100">
                             {/* Background decoration */}
                             <div className="absolute right-0 top-0 h-64 w-64 translate-x-16 -translate-y-16 rounded-full bg-white/10 blur-3xl"></div>
@@ -326,7 +326,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                 setSearch={(val) =>
                                     handleFilterChange("search", val)
                                 }
-                                placeholder="Cari nama ujian atau dosen..."
+                                placeholder="Cari nama ujian"
                             />
                         </div>
 

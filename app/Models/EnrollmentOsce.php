@@ -43,7 +43,7 @@ class EnrollmentOsce extends Model
     // relasi ke nilai_osce 1:1
     public function nilaiOsce()
     {
-        return $this->hasOne(NilaiOsce::class, 'id_enrollment_osce');
+        return $this->hasMany(NilaiOsce::class, 'id_enrollment_osce');
     }
 
     protected function casts(): array

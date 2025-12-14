@@ -10,6 +10,8 @@ use Carbon\Carbon;
 use App\Models\Penguji;
 use App\Models\OsceStase;
 use App\Models\TahunAkademik;
+use Illuminate\Pagination\Paginator;
+use Illuminate\Pagination\LengthAwarePaginator;
 
 class OsceController extends Controller
 {
@@ -20,6 +22,7 @@ class OsceController extends Controller
 
         $search = $request->input('search');
         $tahun  = $request->input('tahun');
+        $statusFilter = $request->input('status'); // 1. Tangkap Input Status
 
         $tahunOptions = TahunAkademik::select('tahun')
             ->distinct()
@@ -44,23 +47,21 @@ class OsceController extends Controller
             });
         }
 
-        $assignments = $query->orderBy('tanggal', 'desc')
+        $rawStase = $query->orderBy('tanggal', 'desc')
             ->orderBy('jam_mulai', 'asc')
-            ->paginate(10)
-            ->withQueryString();
+            ->get();
 
-        $osceList = $assignments->through(function ($stase) {
+        // Mapping (Perhitungan Status Logic)
+        $mappedStase = $rawStase->map(function ($stase) {
             $osce = $stase->osce;
 
-            // 1. Waktu
+            // ... (CODE LOGIC WAKTU & MAHASISWA TETAP SAMA SEPERTI SEBELUMNYA) ...
             $now = Carbon::now('Asia/Jakarta');
-            $tgl = $stase->tanggal->format('Y-m-d');
-            
-            $startEvent = Carbon::parse($tgl . ' ' . $stase->jam_mulai, 'Asia/Jakarta');
-            $endEvent   = Carbon::parse($tgl . ' ' . $stase->jam_selesai, 'Asia/Jakarta');
-            $endOfDay   = Carbon::parse($tgl, 'Asia/Jakarta')->endOfDay();
+            $tglStase   = $stase->tanggal->format('Y-m-d');
+            $startEvent = Carbon::parse($tglStase . ' ' . $stase->jam_mulai, 'Asia/Jakarta');
+            $endEvent   = Carbon::parse($tglStase . ' ' . $stase->jam_selesai, 'Asia/Jakarta');
+            $globalEndDate = Carbon::parse($osce->tanggal_selesai, 'Asia/Jakarta')->endOfDay();
 
-            // --- FILTER PESERTA ---
             $staseTanggal = $stase->tanggal->toDateString();
             $staseJamMulai = substr($stase->jam_mulai, 0, 5);
 
@@ -72,56 +73,61 @@ class OsceController extends Controller
                 });
 
             $jumlahMahasiswa = $pesertaSesi->count();
-
-            // --- HITUNG DINILAI ---
+            
             $jumlahDinilai = $pesertaSesi->filter(function ($mhs) {
+                 if ($mhs->nilaiOsce instanceof \Illuminate\Database\Eloquent\Collection) {
+                    return $mhs->nilaiOsce->isNotEmpty();
+                }
                 return $mhs->nilaiOsce !== null;
             })->count();
 
-            // --- 3. LOGIKA STATUS ---
+            // ... (CODE LOGIC STATUS TETAP SAMA) ...
             $status = 'Aktif'; 
+            $isFullGraded = ($jumlahMahasiswa > 0 && $jumlahMahasiswa === $jumlahDinilai);
 
-            if ($now->greaterThan($endOfDay)) {
+            if ($now->greaterThan($globalEndDate)) {
                 $status = 'Selesai';
-            }
-            elseif ($jumlahMahasiswa > 0 && $jumlahMahasiswa === $jumlahDinilai) {
-                $status = 'Telah Dinilai';
             }
             elseif ($now->lessThan($startEvent)) {
                 $status = 'Belum Dimulai';
             }
             else {
-                $status = 'Aktif';
+                if ($isFullGraded) {
+                    $status = 'Telah Dinilai';
+                } else {
+                    if ($now->greaterThan($endEvent)) {
+                        $status = 'Belum Dinilai';
+                    } else {
+                        $status = 'Aktif';
+                    }
+                }
             }
 
-            // --- 4. TENTUKAN LABEL TOMBOL & TARGET REDIRECT ---
+            // ... (CODE TOMBOL TETAP SAMA) ...
             $tombolAction = 'Lihat'; 
-            
-            // [BARU] Variabel untuk menentukan target route di frontend
-            // Values: 'rekap' (halaman ujian/view), 'edit' (halaman edit/submitrubrik)
             $tipeHalaman = 'rekap'; 
 
-            if ($status === 'Aktif') {
-                // Jika jam sesi sudah lewat tapi masih hari yang sama -> Mode Edit
-                if ($now->greaterThan($endEvent)) {
-                    $tombolAction = 'Edit Nilai';
-                    $tipeHalaman  = 'edit'; // Redirect ke submitrubrik/edit
-                } else {
+            switch ($status) {
+                case 'Belum Dimulai':
+                    $tombolAction = 'Menunggu Jadwal';
+                    $tipeHalaman  = 'rekap';
+                    break;
+                case 'Aktif':
                     $tombolAction = 'Mulai Ujian';
-                    $tipeHalaman  = 'rekap'; // Redirect ke halaman ujian biasa
-                }
-            } 
-            elseif ($status === 'Telah Dinilai') {
-                $tombolAction = 'Edit Nilai';
-                $tipeHalaman  = 'edit'; // Redirect ke submitrubrik/edit
-            } 
-            elseif ($status === 'Selesai') {
-                $tombolAction = 'Lihat Rekap Nilai';
-                $tipeHalaman  = 'rekap'; // Redirect ke rekap view only
-            } 
-            elseif ($status === 'Belum Dimulai') {
-                $tombolAction = 'Mulai Ujian';
-                $tipeHalaman  = 'rekap';
+                    $tipeHalaman  = 'rekap';
+                    break;
+                case 'Telah Dinilai':
+                    $tombolAction = 'Edit Nilai';
+                    $tipeHalaman  = 'edit';
+                    break;
+                case 'Belum Dinilai': 
+                    $tombolAction = 'Edit Nilai'; 
+                    $tipeHalaman  = 'edit';
+                    break;
+                case 'Selesai':
+                    $tombolAction = 'Lihat Rekap';
+                    $tipeHalaman  = 'rekap';
+                    break;
             }
 
             return [
@@ -130,25 +136,56 @@ class OsceController extends Controller
                 'nama'             => $osce->nama_osce,
                 'tanggal_mulai'    => $osce->tanggal_mulai->format('d F Y'),
                 'tanggal_akhir'    => $osce->tanggal_selesai->format('d F Y'),
-                
-                'status'           => $status,
+                'status'           => $status, // Ini key yang kita filter
                 'tombol_label'     => $tombolAction,
-                
-                // [PENTING] Gunakan ini di frontend untuk menentukan route router.get(...)
                 'tipe_halaman'     => $tipeHalaman, 
-
                 'jumlah_mahasiswa' => $jumlahMahasiswa,
                 'jumlah_dinilai'   => $jumlahDinilai,
-                'sesi'             => substr($stase->jam_mulai, 0, 5) . ' - ' . substr($stase->jam_selesai, 0, 5),
+                'sesi' => $stase->tanggal->translatedFormat('d M Y') . ' • ' . substr($stase->jam_mulai, 0, 5) . ' - ' . substr($stase->jam_selesai, 0, 5),
             ];
         });
 
+        // 2. FILTER COLLECTION BERDASARKAN STATUS (Logic Baru)
+        if ($statusFilter) {
+            $mappedStase = $mappedStase->where('status', $statusFilter);
+        }
+
+        // Sorting
+        $statusPriority = [
+            'Aktif'         => 1,
+            'Belum Dinilai' => 2,
+            'Telah Dinilai' => 3,
+            'Belum Dimulai' => 4,
+            'Selesai'       => 5,
+        ];
+
+        $sortedStase = $mappedStase->sortBy(function ($item) use ($statusPriority) {
+            return $statusPriority[$item['status']] ?? 99;
+        });
+
+        // Pagination
+        $currentPage = Paginator::resolveCurrentPage() ?: 1;
+        $perPage = 10;
+        $currentItems = $sortedStase->slice(($currentPage - 1) * $perPage, $perPage)->values();
+
+        $paginatedItems = new LengthAwarePaginator(
+            $currentItems, 
+            $sortedStase->count(), 
+            $perPage, 
+            $currentPage, 
+            [
+                'path' => Paginator::resolveCurrentPath(),
+                'query' => $request->query(),
+            ]
+        );
+
         return Inertia::render('Penguji/PengujiOsceList', [
-            'osce_list' => $osceList,
+            'osce_list' => $paginatedItems,
             'tahun_options' => $tahunOptions,
             'filters'   => [
                 'search' => $search,
-                'tahun'  => $tahun
+                'tahun'  => $tahun,
+                'status' => $statusFilter // 3. Return status ke frontend
             ]
         ]);
     }

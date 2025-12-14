@@ -7,77 +7,66 @@ import { FileText } from "lucide-react";
 // =========================================
 // --- IMPORT KOMPONEN CUSTOM (MODULAR) ---
 // =========================================
-import Sidebar from "../../components/Sidebar.jsx"; // Sidebar navigasi utama
-import OsHeader from "../../components/Header.jsx"; // Header atas (navbar)
-import OsTableHeader from "../../components/tableheader.jsx"; // Komponen kepala tabel
-import OsTableBody from "../../components/tablecontain.jsx"; // Komponen isi tabel
-import OsCopyright from "../../components/Copyright.jsx"; // Footer hak cipta
-import OsPagination from "../../components/pagination.jsx"; // Komponen navigasi halaman
+import Sidebar from "../../components/Sidebar"; // Pastikan path import benar
+import OsHeader from "../../components/Header";
+import OsTableHeader from "../../components/tableheader";
+import OsTableBody from "../../components/tablecontain";
+import OsCopyright from "../../components/Copyright";
 
 // =========================================
 // --- KOMPONEN UTAMA HALAMAN ---
 // =========================================
 export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
     // --- 1. STATE MANAGEMENT ---
-    // Mengatur status Sidebar (Buka/Tutup) agar responsif
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-    // --- 2. DATA REAL (DARI BACKEND) ---
-    // Kita mapping props dari controller ke struktur yang dipakai UI
+    // --- 2. DATA MAPPING (BACKEND -> FRONTEND) ---
     const data = {
-        // Data diri mahasiswa
         mahasiswa: {
             nama: header_detail?.mahasiswa?.nama || "-",
             nim: header_detail?.mahasiswa?.nim || "-",
             prodi: header_detail?.mahasiswa?.prodi || "-",
             semester: header_detail?.tahun_akademik?.semester || "-",
         },
-        // Informasi ujian yang sedang dilihat
         ujian: {
-            stase: header_detail?.mata_kuliah?.nama || "-",
+            // Mengambil nama OSCE dari 'mata_kuliah.nama' sesuai controller
+            nama_osce: header_detail?.mata_kuliah?.nama || "-",
             tahun: header_detail?.tahun_akademik?.tahun || "-",
-            dosen: "-", // Backend belum mengirim data dosen spesifik (karena penguji banyak)
         },
-        // Array daftar nilai per kompetensi
+        // Array daftar nilai (Looping Stase)
         daftarNilai: daftar_nilai || [],
 
-        // Data ringkasan nilai
-        totalNilai: footer?.total_nilai_akhir || "0",
-        statusKelulusan: footer?.status_kelulusan || "-",
+        // Footer Ringkasan
+        totalNilai: footer?.total_nilai_akhir ?? "0", // Gunakan ?? agar nilai 0 tetap tampil
+        statusKelulusan: footer?.status_kelulusan || "BELUM LENGKAP",
     };
 
-    // --- 3. KONFIGURASI TABEL ---
-    // Mengatur kolom apa saja yang akan ditampilkan, lebar, dan style-nya
+    // --- 3. KONFIGURASI KOLOM TABEL ---
     const tableColumns = [
         {
             key: "id",
             content: "No",
             width: "w-[40px] md:w-[80px]",
-            classes: "justify-center items-center font-bold",
+            classes: "justify-center items-center font-bold text-gray-700",
         },
         {
-            key: "kompetensi",
+            // PENTING: Key ini harus sama dengan key di Controller ('nama_stase')
+            key: "nama_stase",
             content: (
                 <>
-                    <span className="hidden md:inline">
-                        Stase / Keterampilan Klinik
-                    </span>
-                    {/* Ukuran text-xs (12px) agar terbaca, dan rata tengah secara default */}
-                    <span className="md:hidden text-xs">
-                        Stase / Keterampilan Klinik
-                    </span>
+                    <span className="hidden md:inline">Nama Stase</span>
+                    <span className="md:hidden text-xs">Stase</span>
                 </>
             ),
             width: "flex-1",
-            // Mobile: Center, Desktop: Left-aligned
             classes:
-                "justify-center md:justify-start items-center px-2 md:px-6 font-bold text-center md:text-left",
+                "justify-center md:justify-start items-center px-2 md:px-6 font-bold text-center md:text-left text-gray-800",
         },
         {
             key: "nilai",
             content: "Nilai",
             width: "w-[60px] md:w-[150px]",
-            classes: "justify-center items-center",
+            classes: "justify-center items-center font-semibold text-gray-900",
         },
         {
             key: "keterangan",
@@ -87,20 +76,21 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                     <span className="md:hidden">Ket.</span>
                 </>
             ),
-            width: "w-[80px] md:w-[200px]",
-            classes: "justify-center items-center px-3 md:px-6",
+            width: "w-[100px] md:w-[200px]",
+            classes:
+                "justify-center items-center px-2 md:px-6 font-medium text-gray-600 uppercase text-xs tracking-wide",
         },
     ];
 
-    // --- 4. HELPER COMPONENT (UI KECIL) ---
-    // Komponen kecil untuk menampilkan baris label & value di dalam Card Biru
-    // Tujuannya agar kodingan di bawah tidak berulang-ulang (DRY Principle)
+    // --- 4. HELPER COMPONENT (Untuk Baris Info) ---
     const InfoRow = ({ label, value }) => (
         <div className="flex flex-col sm:flex-row sm:items-start mb-1">
             <span className="font-semibold w-40 shrink-0 text-white/90 text-sm">
                 {label}
             </span>
-            <span className="font-medium text-white text-sm">: {value}</span>
+            <span className="font-medium text-white text-sm break-words flex-1">
+                : {value}
+            </span>
         </div>
     );
 
@@ -111,7 +101,7 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
         <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
             <Head title="Hasil Penilaian OSCE" />
 
-            {/* --- BAGIAN A: SIDEBAR --- */}
+            {/* SIDEBAR */}
             <Sidebar
                 type="mahasiswa"
                 isOpen={isSidebarOpen}
@@ -120,14 +110,14 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
 
             <main className="w-full p-4 md:p-8 lg:p-12 min-h-screen flex flex-col justify-between gap-2 md:gap-4 transition-all duration-300 lg:ml-20">
                 <div className="flex flex-col gap-2 md:gap-4">
-                    {/* 1. HEADER ATAS */}
+                    {/* HEADER */}
                     <OsHeader
                         onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                     />
 
-                    {/* 2. AREA KONTEN UTAMA */}
+                    {/* KONTEN UTAMA */}
                     <div className="flex flex-col gap-4 md:gap-6 pt-0">
-                        {/* --- KARTU 1: JUDUL HALAMAN --- */}
+                        {/* 1. JUDUL HALAMAN */}
                         <div className="w-full flex items-center pl-1">
                             <div className="flex items-center gap-3">
                                 <FileText className="text-blue-600" size={32} />
@@ -137,11 +127,10 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                             </div>
                         </div>
 
-                        {/* --- KARTU 2: DETAIL MAHASISWA (WARNA BIRU) --- */}
+                        {/* 2. KARTU INFORMASI (BIRU) */}
                         <div className="w-full bg-blue-600 rounded-xl border border-black p-6 shadow-sm">
-                            {/* Grid layout: 1 kolom di HP, 2 kolom di Laptop */}
                             <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-4">
-                                {/* Kolom Kiri */}
+                                {/* Kiri */}
                                 <div>
                                     <InfoRow
                                         label="Nama"
@@ -156,11 +145,11 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                                         value={data.mahasiswa.prodi}
                                     />
                                     <InfoRow
-                                        label="Stase"
-                                        value={data.ujian.stase}
+                                        label="Nama OSCE"
+                                        value={data.ujian.nama_osce}
                                     />
                                 </div>
-                                {/* Kolom Kanan */}
+                                {/* Kanan */}
                                 <div>
                                     <InfoRow
                                         label="Semester"
@@ -170,23 +159,17 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                                         label="Tahun Ujian"
                                         value={data.ujian.tahun}
                                     />
-                                    <InfoRow
-                                        label="Dosen Penguji"
-                                        value={data.ujian.dosen}
-                                    />
                                 </div>
                             </div>
                         </div>
 
-                        {/* --- KARTU 3: TABEL NILAI --- */}
+                        {/* 3. TABEL NILAI */}
                         <div className="w-full bg-white rounded-xl shadow-sm border border-black overflow-hidden flex flex-col">
                             <div className="overflow-x-auto">
                                 <div className="min-w-full">
-                                    {/* Bagian Header Tabel */}
                                     <div className="bg-white">
-                                        <OsTableHeader columns={tableColumns} />
+                                        <OsTableHeader columns={tableColumns} cl />
                                     </div>
-                                    {/* Bagian Isi/Body Tabel */}
                                     <div className="w-full">
                                         <OsTableBody
                                             data={data.daftarNilai}
@@ -197,16 +180,10 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                             </div>
                         </div>
 
-                        {/* --- BAGIAN FOOTER KONTEN --- */}
+                        {/* 4. FOOTER NILAI (TOTAL & STATUS) */}
                         <div className="w-full flex flex-col gap-4">
-                            {/* 1. PAGINATION (Dihilangkan karena detail nilai biasanya satu halaman) */}
-                            {/* <div className="ml-1">
-                            <OsPagination links={data.links} />
-                        </div> */}
-
-                            {/* 2. KOTAK TOTAL NILAI & STATUS */}
                             <div className="w-full flex flex-col sm:flex-row bg-white rounded-xl border border-black h-auto sm:h-[60px] overflow-hidden items-center shadow-sm">
-                                {/* Label Total */}
+                                {/* Label */}
                                 <div className="w-full sm:flex-1 h-[50px] sm:h-full flex items-center justify-center font-bold text-black border-b sm:border-b-0 sm:border-r border-black bg-gray-50 sm:bg-white">
                                     Total / Rata - rata
                                 </div>
@@ -214,7 +191,7 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                                 <div className="w-full sm:w-[150px] h-[50px] sm:h-full flex items-center justify-center font-extrabold text-xl text-black border-b sm:border-b-0 sm:border-r border-black">
                                     {data.totalNilai}
                                 </div>
-                                {/* Status LULUS/TIDAK */}
+                                {/* Status */}
                                 <div className="w-full sm:w-[200px] h-[50px] sm:h-full flex items-center justify-center font-extrabold text-black text-lg uppercase tracking-wide bg-gray-50">
                                     {data.statusKelulusan}
                                 </div>
@@ -223,7 +200,7 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                     </div>
                 </div>
 
-                {/* --- COPYRIGHT FOOTER --- */}
+                {/* COPYRIGHT */}
                 <div className="mt-12">
                     <OsCopyright />
                 </div>
