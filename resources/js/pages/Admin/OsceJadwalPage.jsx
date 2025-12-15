@@ -546,7 +546,7 @@ export default function SesiOscePage({
                                 Table OSCE
                             </h2>
                             <span className="text-sm font-normal text-gray-500 ml-2">
-                                (Total: 0000 data)
+                                Total: {sesi.total} data
                             </span>
                         </div>
 
