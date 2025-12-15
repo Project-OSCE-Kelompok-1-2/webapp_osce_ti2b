@@ -438,6 +438,13 @@ export default function MahasiswaPage() {
                                         data={tableDisplayData}
                                         columns={mahasiswaColumns}
                                     />
+                                    {filteredData.length === 0 && (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                            Data mahasiswa tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
                                 </div>
                             </section>
                             {totalPages > 1 && (

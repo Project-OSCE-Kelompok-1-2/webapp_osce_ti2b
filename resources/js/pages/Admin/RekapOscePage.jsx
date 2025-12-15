@@ -271,14 +271,30 @@ export default function RekapOscePage() {
                             (Total: {totalItems} data)
                         </span>
                     </h2> */}
-                        <div className="flex gap-1 items-center justify-start mb-2">
-                            <Table2 size={18} />
-                            <h2 className="font-semibold text-lg">
-                                Tabel OSCE
-                            </h2>
-                            <span className="text-sm font-normal text-gray-500 ml-2">
-                                (Total: {totalItems} data)
-                            </span>
+                    <div className="flex gap-1 items-center justify-start mb-2">
+                        <Table2 size={18} />
+                        <h2 className="font-semibold text-lg">Tabel OSCE</h2>
+                        <span className="text-sm font-normal text-gray-500 ml-2">
+                            (Total: {totalItems} data)
+                        </span>
+                    </div>
+
+                    {/* TABEL */}
+                    <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                        <div className="min-w-max">
+                            <OsTableHeader columns={rekapColumns} />
+                            {filteredData.length > 0 ? (
+                                <OsTableBody
+                                    data={tableData}
+                                    columns={rekapColumns}
+                                />
+                            ) : (
+                                <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                            Data rekap nilai OSCE tidak ditemukan.
+                                        </p>
+                                    </div>
+                            )}
                         </div>
 
                         {/* TABEL */}
@@ -311,11 +327,12 @@ export default function RekapOscePage() {
                                 />
                             </div>
                         )}
-                    </div>
+                    </section>
                 </div>
 
                 <div className="">
                     <OsCopyright />
+                </div>
                 </div>
             </main>
         </div>
