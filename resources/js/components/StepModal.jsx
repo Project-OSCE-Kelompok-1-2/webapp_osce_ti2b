@@ -16,7 +16,7 @@ export default function OsStepModal({
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <form
                 className="relative bg-white rounded-2xl border-os1 border-os-black
-                w-full max-w-md text-os-paragraph min-h-[85vh] max-h-[85vh] flex flex-col overflow-hidden"
+                md:w-full md:max-w-md max-w-[350px] text-os-paragraph md:min-h-[85vh] min-h-[70vh] max-h-[85vh] flex flex-col overflow-hidden"
             >
                 {/* HEADER */}
                 <header className="bg-blue-950 text-white text-center p-4 pt-8 flex-none relative">

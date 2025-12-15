@@ -117,7 +117,13 @@ export default function SubmitRubrik() {
 
             <div className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 <main className="flex flex-col gap-os-8">
-                    <OsHeader variant="goback" backLink="/penguji/dashboard" />
+                    <div className="overflow-x-auto">
+                        <OsHeader
+                            variant="goback"
+                            role="penguji"
+                            backLink="/penguji/osce"
+                        />
+                    </div>
                     <div className="flex flex-col items-center gap-os-8 w-full">
                         {/* MAIN CARD */}
                         <div className="w-full bg-white rounded-xl overflow-hidden border border-orange-600 shadow-sm">
@@ -136,7 +142,7 @@ export default function SubmitRubrik() {
                                 <div className="flex flex-col lg:flex-row border border-gray-400 rounded-xl divide-y lg:divide-y-0 lg:divide-x divide-gray-400">
                                     {/* 1. Stasiun */}
                                     <div className="p-4 flex flex-col w-full lg:w-auto min-w-[120px] items-start">
-                                        <span className="text-xs text-gray-600 mb-2">
+                                        <span className="md:text-xs text-sm text-gray-600 mb-2">
                                             Stasiun
                                         </span>
                                         <div className="bg-os-secondary-pj text-white w-16 h-16 rounded-xl flex items-center justify-center text-3xl font-bold shadow-md">
@@ -147,10 +153,10 @@ export default function SubmitRubrik() {
                                     {/* 2. Nama Stase */}
                                     <div className="p-4 flex-1 flex flex-col-reverse justify-between">
                                         <div>
-                                            <span className="text-xs text-gray-600 block">
+                                            <span className="text-sm text-gray-600 block">
                                                 Nama Stase
                                             </span>
-                                            <span className="text-sm font-bold block">
+                                            <span className=" font-bold block">
                                                 {osce_detail.nama_stase}
                                             </span>
                                         </div>
@@ -165,10 +171,10 @@ export default function SubmitRubrik() {
                                     {/* 3. Durasi */}
                                     <div className="p-4 flex-1 flex flex-col-reverse justify-between">
                                         <div>
-                                            <span className="text-xs text-gray-600 block">
+                                            <span className=" text-sm text-gray-600 block">
                                                 Durasi per mahasiswa
                                             </span>
-                                            <span className="text-sm font-bold block">
+                                            <span className=" font-bold block">
                                                 {
                                                     osce_detail.durasi_per_mahasiswa
                                                 }
@@ -187,10 +193,10 @@ export default function SubmitRubrik() {
                                     {/* 4. Enrollment */}
                                     <div className="p-4 flex-1 flex flex-col-reverse justify-between">
                                         <div>
-                                            <span className="text-xs text-gray-600 block">
+                                            <span className="text-sm text-gray-600 block">
                                                 Enrollment Mahasiswa
                                             </span>
-                                            <span className="text-sm font-bold block">
+                                            <span className=" font-bold block">
                                                 {osce_detail.total_mahasiswa}{" "}
                                                 Mahasiswa
                                             </span>
@@ -219,9 +225,9 @@ export default function SubmitRubrik() {
                         </span>
                     </div>
 
-                    <div className="p-4 bg-white rounded-lg border border-os-primary-pj">
-                        <div className="mb-8">
-                            <div className="w-full text-sm flex flex-col gap-2">
+                    <div className="p-4 bg-white rounded-lg border border-os-primary-pj overflow-x-auto">
+                        <div className="mb-8 overflow-x-auto">
+                            <div className="w-full text-sm flex flex-col gap-2 min-w-max">
                                 <OsTableHeader
                                     columns={tableColumns}
                                     variant="penguji"
@@ -239,7 +245,7 @@ export default function SubmitRubrik() {
                             <OsButton
                                 name="primary-pj"
                                 onClick={() => setShowModal(true)}
-                                className="w-full h-12 bg-orange-600 text-white text-sm font-bold rounded-xl flex items-center justify-center gap-2 shadow-sm hover:bg-orange-700 transition-colors"
+                                className="w-full h-12 bg-orange-600 text-white text-sm  font-bold rounded-xl flex items-center justify-center gap-2 shadow-sm hover:bg-orange-700 transition-colors"
                             >
                                 <DoorOpen size={18} />
                                 Selesai
@@ -260,7 +266,7 @@ export default function SubmitRubrik() {
                             onClick={() => setShowModal(false)}
                         ></div>
 
-                        <div className="relative bg-white w-full max-w-[500px] rounded-xl overflow-hidden shadow-2xl transform scale-100 transition-all">
+                        <div className="relative bg-white w-full max-w-[400px] rounded-xl overflow-hidden shadow-2xl transform scale-100 transition-all">
                             {/* 1. HEADER: BERSIH (TANPA X) */}
                             <div className="bg-orange-600 py-4 px-4 relative flex items-center justify-center">
                                 <h2 className="text-white text-xl font-bold tracking-wide">
@@ -268,7 +274,7 @@ export default function SubmitRubrik() {
                                 </h2>
                             </div>
 
-                            <div className="p-8">
+                            <div className="p-6">
                                 {/* 2. ALERT BOX */}
                                 <div className="bg-orange-50 border border-orange-200 text-orange-900 p-5 rounded-xl flex gap-4 items-start shadow-sm">
                                     <div className="mt-1 shrink-0">
@@ -294,7 +300,7 @@ export default function SubmitRubrik() {
                                     {/* Tombol Batal */}
                                     <button
                                         onClick={() => setShowModal(false)}
-                                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 h-14 rounded-xl font-bold text-lg transition-colors"
+                                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold p-[0.8rem] text-sm transition-colors"
                                     >
                                         Batal
                                     </button>
@@ -302,7 +308,7 @@ export default function SubmitRubrik() {
                                     {/* Tombol Selesai */}
                                     <button
                                         onClick={handleFinalSubmit}
-                                        className="flex-1 bg-orange-600 hover:bg-orange-700 text-white h-14 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98]"
+                                        className="flex-1 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold p-[0.8rem] text-sm flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98]"
                                     >
                                         <DoorOpen size={22} />
                                         Ya, Selesai

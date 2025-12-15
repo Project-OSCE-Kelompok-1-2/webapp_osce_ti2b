@@ -95,7 +95,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
             content: (
                 <div className="space-y-3">
                     <div>
-                        <h3 className="text-xs font-bold text-gray-700 mb-1.5">
+                        <h3 className=" font-bold text-gray-700 mb-1.5">
                             Tujuan Pembelajaran
                         </h3>
                         <div className="border rounded-lg bg-white overflow-hidden">
@@ -105,10 +105,10 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                         key={item.id_tujuan_pembelajaran}
                                         className="p-2.5 border-b last:border-0 hover:bg-gray-50"
                                     >
-                                        <p className="font-medium">
+                                        <p className="font-medium text-base">
                                             Tujuan {idx + 1}
                                         </p>
-                                        <p className="text-[10px] text-gray-800">
+                                        <p className=" text-gray-800 ">
                                             {item.tujuan}
                                         </p>
                                     </div>
@@ -119,12 +119,10 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                     <div className="grid grid-cols-2 gap-2">
                         {/* Box Durasi */}
                         <div className="border rounded-lg p-2.5 flex flex-col justify-between">
-                            <Clock size={14} className="text-gray-400 mb-1" />
+                            <Clock size={18} className="text-gray-400 mb-1" />
                             <div>
-                                <p className="text-[10px] text-gray-500">
-                                    Durasi
-                                </p>
-                                <p className="text-xs font-bold text-gray-800">
+                                <p className=" text-gray-500">Durasi</p>
+                                <p className=" font-bold text-gray-800">
                                     {safeOsce.durasi_per_mahasiswa} Menit
                                 </p>
                             </div>
@@ -132,12 +130,10 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
 
                         {/* Box Jam Mulai (Diganti dari Tipe) */}
                         <div className="border rounded-lg p-2.5 flex flex-col justify-between">
-                            <Clock size={14} className="text-gray-400 mb-1" />
+                            <Clock size={18} className="text-gray-400 mb-1" />
                             <div>
-                                <p className="text-[10px] text-gray-500">
-                                    Jam Mulai
-                                </p>
-                                <p className="text-xs font-bold text-gray-800">
+                                <p className=" text-gray-500">Jam Mulai</p>
+                                <p className="font-bold text-gray-800">
                                     {safeOsce.jam_mulai || "08:00"}
                                 </p>
                             </div>
@@ -204,6 +200,8 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                         title={`OSCE / ${safeOsce.nama_osce} / Rekap Nilai`}
                         icon={<ArrowLeft className="w-5 h-5" />}
                         variant="goback"
+                        role="penguji"
+                        backLink="/penguji/osce"
                         onMenuClick={handleSidebarToggle}
                     />
 
@@ -226,17 +224,17 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                         Detail OSCE
                                     </h1>
                                     <p className="text-sm opacity-90 px-2">
-                                        {safeOsce.nama_osce} { " "}
+                                        {safeOsce.nama_osce}{" "}
                                         {safeOsce.nama_stase}
                                     </p>
                                 </div>
 
                                 <div className="px-4 py-4">
                                     <div className="flex items-center justify-between mb-3">
-                                        <h2 className="text-sm font-bold text-gray-800">
+                                        <h2 className="md:text-sm text-lg font-bold text-gray-800">
                                             Detail Informasi
                                         </h2>
-                                        <span className="text-[10px] bg-orange-50 text-orange-700 px-2 py-0.5 rounded border border-blue-100 font-medium">
+                                        <span className="md:text-[10px] text-xs bg-orange-50 text-orange-700 px-2 py-0.5 rounded border border-blue-100 font-medium">
                                             Semester Genap 2024
                                         </span>
                                     </div>
@@ -247,7 +245,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                         <div className="flex flex-col lg:flex-row border border-gray-400 rounded-xl divide-y lg:divide-y-0 lg:divide-x divide-gray-400">
                                             {/* Stasiun */}
                                             <div className="p-4 flex flex-col w-full lg:w-auto min-w-[120px]">
-                                                <span className="text-xs text-gray-600 mb-2">
+                                                <span className="md:text-xs text-sm text-gray-600 mb-2">
                                                     Nomor Stasiun
                                                 </span>
                                                 <div className="bg-os-secondary-pj text-white w-16 h-16 rounded-xl flex items-center justify-center text-3xl font-bold shadow-md">
@@ -258,11 +256,11 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                             {/* Rubrik */}
                                             <div className="p-4 flex-1 flex flex-col-reverse justify-between">
                                                 <div>
-                                                    <span className="text-xs text-gray-600 block">
+                                                    <span className="md:text-xs text-sm text-gray-600 block">
                                                         Stasiun
                                                     </span>
                                                     <p
-                                                        className=" font-bold"
+                                                        className="md:text-sm font-bold"
                                                         title={
                                                             safeOsce.nama_stase
                                                         }
@@ -281,10 +279,10 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                             {/* Waktu */}
                                             <div className="p-4 flex-1 flex flex-col-reverse justify-between">
                                                 <div>
-                                                    <span className="text-xs text-gray-600 block">
+                                                    <span className="md:text-xs text-sm text-gray-600 block">
                                                         Waktu per Stase
                                                     </span>
-                                                    <p className="text-sm font-bold text-gray-900">
+                                                    <p className="md:text-sm font-bold text-gray-900">
                                                         {
                                                             safeOsce.durasi_per_mahasiswa
                                                         }{" "}
@@ -302,10 +300,10 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                             {/* Enrollment */}
                                             <div className="p-4 flex-1 flex flex-col-reverse justify-between">
                                                 <div>
-                                                    <span className="text-xs text-gray-600 block">
+                                                    <span className="md:text-xs text-sm text-gray-600 block">
                                                         Enrollment Mahasiswa
                                                     </span>
-                                                    <span className="text-sm font-bold block">
+                                                    <span className="md:text-sm font-bold block">
                                                         {
                                                             safeOsce.total_mahasiswa
                                                         }{" "}
@@ -328,7 +326,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                                     </span>
                                                     <div className="flex items-center gap-1.5">
                                                         <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse"></div>
-                                                        <p className="text-xs font-bold text-green-600">
+                                                        <p className="md:text-sm font-bold text-green-600">
                                                             Aktif
                                                         </p>
                                                     </div>
@@ -351,12 +349,12 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                             <div className="px-4 py-3 border-b flex flex-row justify-between items-center bg-orange-100 gap-3">
                                 <div className="flex gap-1 items-center justify-start my-2 text-orange-800">
                                     <User size={18} />
-                                    <h2 className="font-semibold text-lg ">
+                                    <h2 className="font-semibold md:text-lg ">
                                         Antrian Mahasiswa
                                     </h2>
                                 </div>
                                 <div className="flex items-center gap-2">
-                                    <div className="text-[10px] font-medium bg-orange-50 text-orange-700 border px-2 py-1 rounded">
+                                    <div className="md:text-[10px] md:text-base text-sm font-medium bg-orange-50 text-orange-700 border px-2 py-1 rounded">
                                         Total: {safeStudents.length}
                                     </div>
                                     <OsButton
@@ -374,7 +372,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                 <div className="rounded-lg border border-os-primary-pj overflow-clip">
                                     <table className="w-full text-left ">
                                         <thead>
-                                            <tr className="border-b bg-orange-500 text-[12px] font-bold text-white uppercase tracking-wider">
+                                            <tr className="border-b bg-orange-500 md:text-[12px] text-sm font-bold text-white uppercase tracking-wider">
                                                 <th className="px-4 py-4 w-1/4">
                                                     NIM
                                                 </th>
@@ -386,7 +384,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                                 </th>
                                             </tr>
                                         </thead>
-                                        <tbody className="divide-y divide-gray-100 text-xs">
+                                        <tbody className="divide-y divide-gray-100 md:text-xs text-sm">
                                             {safeStudents.length > 0 ? (
                                                 safeStudents.map(
                                                     (student, index) => (

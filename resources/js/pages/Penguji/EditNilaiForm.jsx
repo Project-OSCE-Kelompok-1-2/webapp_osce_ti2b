@@ -154,7 +154,7 @@ export default function EditNilaiForm() {
     // 2. BAGIAN TAMPILAN (VISUAL SAMA PERSIS DENGAN LIVE PENILAIAN)
     // =========================================================================
     return (
-        <div className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
+        <div className="relative bg-white w-full min-h-screen p-os-12 flex justify-start font-sans overflow-hidden">
             {/* SIDEBAR */}
             <Sidebar
                 isOpen={isSidebarOpen}
@@ -168,7 +168,8 @@ export default function EditNilaiForm() {
                 <OsHeader
                     onMenuClick={handleSidebarToggle}
                     variant="goback" // Menggunakan varian back button
-                    backLink={`/penguji/osce/${osce_detail.id_osce}/stase/${osce_detail.id_osce_stase}/rekap`}
+                    role="penguji"
+                    backLink={`/penguji/osce/${osce_detail.id_osce}/stase/${osce_detail.id_osce_stase}/submitrubrik`}
                     title="Edit Penilaian"
                 />
 
@@ -319,10 +320,12 @@ export default function EditNilaiForm() {
                     </div>
 
                     {/* ================= MOBILE / TABLET VIEW (Style disamakan) ================= */}
+                    {/* ================= MOBILE / TABLET VIEW (PERBAIKAN) ================= */}
                     <div className="lg:hidden space-y-3">
                         {rubrik_terisi.map((group, gIndex) => (
                             <React.Fragment key={gIndex}>
-                                <div className="bg-gray-100 px-4 py-2 font-semibold border rounded-lg">
+                                {/* PERBAIKAN 1: Header Aspek jadi Oranye (bukan abu-abu) */}
+                                <div className="bg-orange-50 text-orange-900 border-os-primary-pj border px-4 py-2 font-semibold rounded-lg">
                                     {group.aspek}
                                 </div>
 
@@ -340,51 +343,60 @@ export default function EditNilaiForm() {
 
                                         {/* SKOR MOBILE */}
                                         <div>
-                                            <p className="text-xs mb-1 font-medium">
+                                            <p className="text-xs mb-1 font-medium text-gray-500">
                                                 Skor:
                                             </p>
-                                            <div className="flex gap-3">
-                                                {[0, 1, 2, 3, 4].map((v) => (
-                                                    <button
-                                                        key={v}
-                                                        type="button"
-                                                        onClick={() =>
-                                                            handleSkorChange(
-                                                                poin.id_poin_aspek_penilaian,
-                                                                v
-                                                            )
-                                                        }
-                                                        className={`w-12 sm:w-14 aspect-square rounded-full border flex items-center justify-center text-lg transition-all
-                                                            ${
-                                                                nilaiMap[
-                                                                    poin
-                                                                        .id_poin_aspek_penilaian
-                                                                ] === v
-                                                                    ? "border-black border-2 bg-white text-black"
-                                                                    : "border-gray-400 text-gray-700 bg-white hover:border-black"
-                                                            }`}
-                                                    >
-                                                        {v}
-                                                    </button>
-                                                ))}
+                                            <div className="flex gap-2 sm:gap-3 justify-between sm:justify-start">
+                                                {[0, 1, 2, 3, 4].map((v) => {
+                                                    const isSelected =
+                                                        nilaiMap[
+                                                            poin
+                                                                .id_poin_aspek_penilaian
+                                                        ] === v;
+                                                    return (
+                                                        <button
+                                                            key={v}
+                                                            type="button"
+                                                            onClick={() =>
+                                                                handleSkorChange(
+                                                                    poin.id_poin_aspek_penilaian,
+                                                                    v
+                                                                )
+                                                            }
+                                                            /* PERBAIKAN 2: Tombol jadi Oranye Solid saat aktif */
+                                                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center text-sm sm:text-lg font-semibold transition-all duration-200
+                                            ${
+                                                isSelected
+                                                    ? "bg-orange-500 border-orange-600 text-white shadow-md transform scale-105" // Aktif
+                                                    : "bg-white border-gray-300 text-gray-600 hover:border-orange-300" // Tidak Aktif
+                                            }`}
+                                                        >
+                                                            {v}
+                                                        </button>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
 
-                                        <div className="text-sm">
-                                            <span className="font-medium">
-                                                Bobot:{" "}
-                                            </span>
-                                            {poin.bobot}
-                                        </div>
+                                        {/* BOBOT & NILAI */}
+                                        <div className="flex justify-between items-center pt-2 border-t border-dashed">
+                                            <div className="text-sm">
+                                                <span className="font-medium text-gray-500">
+                                                    Bobot:{" "}
+                                                </span>
+                                                {poin.bobot}
+                                            </div>
 
-                                        <div className="text-sm font-semibold">
-                                            Nilai:{" "}
-                                            {hitungNilai(
-                                                nilaiMap[
-                                                    poin.id_poin_aspek_penilaian
-                                                ],
-                                                poin.bobot
-                                            ).toFixed(0)}
+                                            <div className="text-sm font-bold text-orange-700">
+                                                Nilai:{" "}
+                                                {hitungNilai(
+                                                    nilaiMap[
+                                                        poin
+                                                            .id_poin_aspek_penilaian
+                                                    ],
+                                                    poin.bobot
+                                                ).toFixed(0)}
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -392,8 +404,11 @@ export default function EditNilaiForm() {
                         ))}
 
                         {/* Total Nilai - Mobile */}
-                        <div className="w-full px-4 py-3 border rounded-xl font-semibold bg-gray-50 shadow-sm">
-                            Total Nilai Akhir: {totalNilai.toFixed(2)}
+                        <div className="w-full px-4 py-3 border border-orange-200 rounded-xl font-semibold bg-orange-50 text-orange-900 flex justify-between items-center shadow-sm">
+                            <span>Total Nilai Akhir:</span>
+                            <span className="text-xl">
+                                {totalNilai.toFixed(2)}
+                            </span>
                         </div>
                     </div>
 
@@ -420,7 +435,7 @@ export default function EditNilaiForm() {
                                     isSaving ||
                                     jumlahKompetensiDinilai < jumlahKompetensi
                                 }
-                                className={`col-span-3 sm:col-span-2 w-[250px] h-[46px] rounded-xl transition text-white font-semibold flex items-center justify-center text-sm gap-2 shadow-md
+                                className={`col-span-3 sm:col-span-2 md:w-[250px] w-full h-[46px] rounded-xl transition text-white font-semibold flex items-center justify-center text-sm gap-2 shadow-md
                                     ${
                                         jumlahKompetensiDinilai <
                                         jumlahKompetensi

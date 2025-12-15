@@ -37,7 +37,7 @@ export default function AdminSettingAkun({ user }) {
         reset,
         errors,
         clearErrors,
-        setError, // <--- PENTING: Ambil setError
+        setError,
     } = useForm({
         username: user.username || "",
         email: user.email || "",
@@ -87,9 +87,9 @@ export default function AdminSettingAkun({ user }) {
         setIsDeleteModalOpen(false);
     };
 
-    // --- LOGIKA VALIDASI MANUAL ---
+    // --- LOGIKA VALIDASI & SAVE ---
     const handleSaveChanges = (event) => {
-        event.preventDefault();
+        if (event) event.preventDefault(); // Mencegah reload default jika ada
         clearErrors();
 
         let isValid = true;
@@ -171,9 +171,8 @@ export default function AdminSettingAkun({ user }) {
                                 )}
 
                                 <div className="flex flex-col lg:flex-row gap-4 w-full">
-                                    {/* ASIDE FOTO (Code Sembunyikan untuk ringkas, sama seperti sebelumnya) */}
+                                    {/* ASIDE FOTO */}
                                     <aside className="flex flex-col w-full lg:w-[403px] gap-[17px] p-5 bg-white rounded-xl border border-os-primary h-fit items-center">
-                                        {/* ... Konten Foto Profil Sama ... */}
                                         <div className="w-full h-full">
                                             <div className="flex gap-1 items-center justify-start">
                                                 <Image size={18} />
@@ -230,119 +229,46 @@ export default function AdminSettingAkun({ user }) {
                                         </div>
                                     </aside>
 
-                                {/* FORM */}
-                                <section className="flex-1 flex flex-col gap-[15px] p-5 bg-white rounded-xl border border-os-primary">
-                                    <div>
-                                        {/* <h2 className="text-xl">Akun</h2> */}
-                                        <div className="flex gap-1 items-center justify-start">
-                                            <User size={18} />
-                                            <h2 className=" text-lg">
-                                                Akun
-                                            </h2>
+                                    {/* FORM SECTION */}
+                                    <section className="flex-1 flex flex-col gap-[15px] p-5 bg-white rounded-xl border border-os-primary">
+                                        <div>
+                                            <div className="flex gap-1 items-center justify-start">
+                                                <User size={18} />
+                                                <h2 className=" text-lg">
+                                                    Akun
+                                                </h2>
+                                            </div>
+                                            <hr className="mt-1 border-os-primary" />
                                         </div>
-                                        <hr className="mt-1 border-os-primary" />
-                                    </div>
 
-                                    {/* USERNAME */}
-                                    <div className="flex flex-col gap-[3px]">
-                                        <label className="text-xs">
-                                            Nama pengguna
-                                        </label>
-                                        {/* 👇 PERUBAHAN DI SINI: ganti bg-white jadi bg-gray-200 */}
-                                        <div className="flex items-center gap-[13px] p-3 bg-gray-200 rounded-xl border border-black">
-                                            <User size={18} opacity={0.5} />
-                                            <input
-                                                disabled
-                                                value={data.username}
-                                                // Tambahkan text-gray-600 agar teksnya juga terlihat 'mati'
-                                                className="flex-1 bg-transparent outline-none text-gray-600 cursor-not-allowed"
-                                            />
-                                        </div>
-                                    </div>
-
-                                    <hr className="w-full border-os-primary my-2" />
-
-                                    {/* PASSWORD LAMA */}
-                                    <div className="flex flex-col gap-[3px]">
-                                        <label className="text-xs">
-                                            Password lama
-                                        </label>
-                                        <div
-                                            className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
-                                                errors.old_password
-                                                    ? "border-red-500"
-                                                    : "border-black"
-                                            }`}
-                                        >
-                                            <Lock
-                                                size={16}
-                                                opacity={0.5}
-                                                className="ml-2"
-                                            />
-                                            <input
-                                                type={
-                                                    showOldPassword
-                                                        ? "text"
-                                                        : "password"
-                                                }
-                                                value={data.old_password}
-                                                onChange={(e) => {
-                                                    setData(
-                                                        "old_password",
-                                                        e.target.value
-                                                    );
-                                                    if (
-                                                        errors.old_password
-                                                    )
-                                                        clearErrors(
-                                                            "old_password"
-                                                        );
-                                                }}
-                                                placeholder="Masukkan password lama"
-                                                className="flex-1 bg-transparent outline-none ml-3 py-1"
-                                            />
-                                            <button
-                                                type="button"
-                                                onClick={() =>
-                                                    setShowOldPassword(
-                                                        !showOldPassword
-                                                    )
-                                                }
-                                                // 👇 WARNA FIX ABU-ABU (Tidak berubah lagi)
-                                                className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
-                                                title={
-                                                    showOldPassword
-                                                        ? "Sembunyikan"
-                                                        : "Lihat"
-                                                }
-                                            >
-                                                {showOldPassword ? (
-                                                    <EyeOff size={18} />
-                                                ) : (
-                                                    <Eye size={18} />
-                                                )}
-                                            </button>
-                                        </div>
-                                        {/* Error Message */}
-                                        {errors.old_password && (
-                                            <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
-                                                <AlertCircle
-                                                    size={12}
-                                                />{" "}
-                                                {errors.old_password}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div className="flex flex-col md:flex-row gap-[15px] w-full">
-                                        {/* PASSWORD BARU */}
-                                        <div className="flex flex-col gap-[3px] w-full">
+                                        {/* USERNAME */}
+                                        <div className="flex flex-col gap-[3px]">
                                             <label className="text-xs">
-                                                Password baru
+                                                Nama pengguna
+                                            </label>
+                                            <div className="flex items-center gap-[13px] p-3 bg-gray-200 rounded-xl border border-black">
+                                                <User
+                                                    size={18}
+                                                    opacity={0.5}
+                                                />
+                                                <input
+                                                    disabled
+                                                    value={data.username}
+                                                    className="flex-1 bg-transparent outline-none text-gray-600 cursor-not-allowed"
+                                                />
+                                            </div>
+                                        </div>
+
+                                        <hr className="w-full border-os-primary my-2" />
+
+                                        {/* PASSWORD LAMA */}
+                                        <div className="flex flex-col gap-[3px]">
+                                            <label className="text-xs">
+                                                Password lama
                                             </label>
                                             <div
                                                 className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
-                                                    errors.new_password
+                                                    errors.old_password
                                                         ? "border-red-500"
                                                         : "border-black"
                                                 }`}
@@ -354,166 +280,226 @@ export default function AdminSettingAkun({ user }) {
                                                 />
                                                 <input
                                                     type={
-                                                        showNewPassword
+                                                        showOldPassword
                                                             ? "text"
                                                             : "password"
                                                     }
-                                                    value={
-                                                        data.new_password
-                                                    }
+                                                    value={data.old_password}
                                                     onChange={(e) => {
                                                         setData(
-                                                            "new_password",
-                                                            e.target
-                                                                .value
+                                                            "old_password",
+                                                            e.target.value
                                                         );
-                                                        if (
-                                                            errors.new_password
-                                                        )
+                                                        if (errors.old_password)
                                                             clearErrors(
-                                                                "new_password"
+                                                                "old_password"
                                                             );
                                                     }}
-                                                    placeholder="Password baru"
+                                                    placeholder="Masukkan password lama"
                                                     className="flex-1 bg-transparent outline-none ml-3 py-1"
                                                 />
                                                 <button
                                                     type="button"
                                                     onClick={() =>
-                                                        setShowNewPassword(
-                                                            !showNewPassword
+                                                        setShowOldPassword(
+                                                            !showOldPassword
                                                         )
                                                     }
                                                     className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                    title={
+                                                        showOldPassword
+                                                            ? "Sembunyikan"
+                                                            : "Lihat"
+                                                    }
                                                 >
-                                                    {showNewPassword ? (
-                                                        <EyeOff
-                                                            size={18}
-                                                        />
+                                                    {showOldPassword ? (
+                                                        <EyeOff size={18} />
                                                     ) : (
-                                                        <Eye
-                                                            size={18}
-                                                        />
+                                                        <Eye size={18} />
                                                     )}
                                                 </button>
                                             </div>
-                                            {/* Error Message */}
-                                            {errors.new_password && (
+                                            {errors.old_password && (
                                                 <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
-                                                    <AlertCircle
-                                                        size={12}
-                                                    />{" "}
-                                                    {
+                                                    <AlertCircle size={12} />{" "}
+                                                    {errors.old_password}
+                                                </p>
+                                            )}
+                                        </div>
+
+                                        <div className="flex flex-col md:flex-row gap-[15px] w-full">
+                                            {/* PASSWORD BARU */}
+                                            <div className="flex flex-col gap-[3px] w-full">
+                                                <label className="text-xs">
+                                                    Password baru
+                                                </label>
+                                                <div
+                                                    className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
                                                         errors.new_password
-                                                    }
-                                                </p>
-                                            )}
-                                        </div>
-
-                                        {/* KONFIRMASI PASSWORD */}
-                                        <div className="flex flex-col gap-[3px] w-full">
-                                            <label className="text-xs">
-                                                Konfirmasi password baru
-                                            </label>
-                                            <div
-                                                className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
-                                                    errors.new_password_confirmation
-                                                        ? "border-red-500"
-                                                        : "border-black"
-                                                }`}
-                                            >
-                                                <Lock
-                                                    size={16}
-                                                    opacity={0.5}
-                                                    className="ml-2"
-                                                />
-                                                <input
-                                                    type={
-                                                        showConfirmPassword
-                                                            ? "text"
-                                                            : "password"
-                                                    }
-                                                    value={
-                                                        data.new_password_confirmation
-                                                    }
-                                                    onChange={(e) => {
-                                                        setData(
-                                                            "new_password_confirmation",
-                                                            e.target
-                                                                .value
-                                                        );
-                                                        if (
-                                                            errors.new_password_confirmation
-                                                        )
-                                                            clearErrors(
-                                                                "new_password_confirmation"
-                                                            );
-                                                    }}
-                                                    placeholder="Konfirmasi password"
-                                                    className="flex-1 bg-transparent outline-none ml-3 py-1"
-                                                />
-                                                <button
-                                                    type="button"
-                                                    onClick={() =>
-                                                        setShowConfirmPassword(
-                                                            !showConfirmPassword
-                                                        )
-                                                    }
-                                                    className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                            ? "border-red-500"
+                                                            : "border-black"
+                                                    }`}
                                                 >
-                                                    {showConfirmPassword ? (
-                                                        <EyeOff
-                                                            size={18}
-                                                        />
-                                                    ) : (
-                                                        <Eye
-                                                            size={18}
-                                                        />
-                                                    )}
-                                                </button>
+                                                    <Lock
+                                                        size={16}
+                                                        opacity={0.5}
+                                                        className="ml-2"
+                                                    />
+                                                    <input
+                                                        type={
+                                                            showNewPassword
+                                                                ? "text"
+                                                                : "password"
+                                                        }
+                                                        value={
+                                                            data.new_password
+                                                        }
+                                                        onChange={(e) => {
+                                                            setData(
+                                                                "new_password",
+                                                                e.target.value
+                                                            );
+                                                            if (
+                                                                errors.new_password
+                                                            )
+                                                                clearErrors(
+                                                                    "new_password"
+                                                                );
+                                                        }}
+                                                        placeholder="Password baru"
+                                                        className="flex-1 bg-transparent outline-none ml-3 py-1"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            setShowNewPassword(
+                                                                !showNewPassword
+                                                            )
+                                                        }
+                                                        className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                    >
+                                                        {showNewPassword ? (
+                                                            <EyeOff
+                                                                size={18}
+                                                            />
+                                                        ) : (
+                                                            <Eye size={18} />
+                                                        )}
+                                                    </button>
+                                                </div>
+                                                {errors.new_password && (
+                                                    <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
+                                                        <AlertCircle
+                                                            size={12}
+                                                        />{" "}
+                                                        {errors.new_password}
+                                                    </p>
+                                                )}
                                             </div>
-                                            {/* Error Message */}
-                                            {errors.new_password_confirmation && (
-                                                <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
-                                                    <AlertCircle
-                                                        size={12}
-                                                    />{" "}
-                                                    {
-                                                        errors.new_password_confirmation
-                                                    }
-                                                </p>
-                                            )}
-                                        </div>
-                                    </div>
 
-                                    <div className="w-full flex justify-between gap-3">
-                                        <OsButton
-                                            name="primary"
-                                            type="submit"
-                                            disabled={processing}
-                                            className="sm:w-[223px] w-6/12 bg-blue-600 text-white flex items-center gap-[13px] p-3 border border-black"
+                                            {/* KONFIRMASI PASSWORD */}
+                                            <div className="flex flex-col gap-[3px] w-full">
+                                                <label className="text-xs">
+                                                    Konfirmasi password baru
+                                                </label>
+                                                <div
+                                                    className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
+                                                        errors.new_password_confirmation
+                                                            ? "border-red-500"
+                                                            : "border-black"
+                                                    }`}
+                                                >
+                                                    <Lock
+                                                        size={16}
+                                                        opacity={0.5}
+                                                        className="ml-2"
+                                                    />
+                                                    <input
+                                                        type={
+                                                            showConfirmPassword
+                                                                ? "text"
+                                                                : "password"
+                                                        }
+                                                        value={
+                                                            data.new_password_confirmation
+                                                        }
+                                                        onChange={(e) => {
+                                                            setData(
+                                                                "new_password_confirmation",
+                                                                e.target.value
+                                                            );
+                                                            if (
+                                                                errors.new_password_confirmation
+                                                            )
+                                                                clearErrors(
+                                                                    "new_password_confirmation"
+                                                                );
+                                                        }}
+                                                        placeholder="Konfirmasi password"
+                                                        className="flex-1 bg-transparent outline-none ml-3 py-1"
+                                                    />
+                                                    <button
+                                                        type="button"
+                                                        onClick={() =>
+                                                            setShowConfirmPassword(
+                                                                !showConfirmPassword
+                                                            )
+                                                        }
+                                                        className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                    >
+                                                        {showConfirmPassword ? (
+                                                            <EyeOff
+                                                                size={18}
+                                                            />
+                                                        ) : (
+                                                            <Eye size={18} />
+                                                        )}
+                                                    </button>
+                                                </div>
+                                                {errors.new_password_confirmation && (
+                                                    <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
+                                                        <AlertCircle
+                                                            size={12}
+                                                        />{" "}
+                                                        {
+                                                            errors.new_password_confirmation
+                                                        }
+                                                    </p>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        <div className="w-full flex justify-between gap-3">
+                                            {/* TOMBOL SIMPAN - TELAH DIPERBAIKI */}
+                                            <OsButton
+                                                name="primary"
+                                                type="submit"
+                                                disabled={processing}
+                                                className="sm:w-[223px] w-6/12 bg-blue-600 text-white flex items-center gap-[13px] p-3 border border-black"
+                                                onClick={handleSaveChanges} // <--- INI PERBAIKANNYA
+                                            >
+                                                <Save className="w-[17px]" />
+                                                {processing
+                                                    ? "Menyimpan..."
+                                                    : "Simpan"}
+                                            </OsButton>
+
+                                            <OsButton
+                                                name="warning"
+                                                className="sm:w-[223px] w-6/12 !bg-white !text-red-600 !border-red-600 flex items-center justify-start gap-[13px] !border-os-2"
+                                                onClick={handleLogout}
+                                                type="button"
+                                            >
+                                                <LogOut size={17} />
+                                                <span>Logout</span>
+                                            </OsButton>
+                                        </div>
+                                        <a
+                                            href="#contact-admin"
+                                            className="underline text-xs text-os-primary"
                                         >
-                                            <Save className="w-[17px]" />
-                                            {processing
-                                                ? "Menyimpan..."
-                                                : "Simpan"}
-                                        </OsButton>
-                                        <OsButton
-                                            name="warning"
-                                            className="sm:w-[223px] w-6/12 !bg-white !text-red-600 !border-red-600 flex items-center justify-start gap-[13px] !border-os-2"
-                                            onClick={handleLogout}
-                                            type="button"
-                                        >
-                                            <LogOut size={17} />
-                                            <span>Logout</span>
-                                        </OsButton>
-                                    </div>
-                                    <a
-                                        href="#contact-admin"
-                                        className="underline text-xs text-os-primary"
-                                    >
-                                        Ada masalah? hubungi admin
-                                    </a>
+                                            Ada masalah? hubungi admin
+                                        </a>
                                     </section>
                                 </div>
                             </div>
