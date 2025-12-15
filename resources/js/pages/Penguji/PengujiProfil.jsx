@@ -88,15 +88,15 @@ export default function PengujiProfil() {
         "https://via.placeholder.com/177?text=U"
     );
 
-    const { 
-        data, 
-        setData, 
-        post, 
-        processing, 
-        reset, 
-        errors,       
-        clearErrors,  
-        setError      
+    const {
+        data,
+        setData,
+        post,
+        processing,
+        reset,
+        errors,
+        clearErrors,
+        setError,
     } = useForm({
         username: user.username || "",
         nama: user.penguji?.nama || "",
@@ -140,7 +140,7 @@ export default function PengujiProfil() {
         setData((prev) => ({ ...prev, foto: null, delete_foto: true }));
         const displayName = user.penguji?.nama || user.username || "Penguji";
         setProfileImage(getOrangeAvatar(displayName));
-        setIsDeleteModalOpen(false); 
+        setIsDeleteModalOpen(false);
     };
 
     const handleSaveChanges = (e) => {
@@ -217,9 +217,8 @@ export default function PengujiProfil() {
                         <div className=" w-full min-h-screen flex justify-center p-0 font-sans transition-all duration-300">
                             <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14">
                                 <div className="flex flex-col gap-5 w-full">
-                                    
                                     {flash?.success && (
-                                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
+                                        <div className="bg-orange-100 border border-orange-400 text-orange-700 px-4 py-3 rounded relative mb-4">
                                             <strong className="font-bold">
                                                 Berhasil!
                                             </strong>
@@ -293,7 +292,7 @@ export default function PengujiProfil() {
                                                         Upload
                                                     </span>
                                                 </label>
-                                                
+
                                                 <OsButton
                                                     name="warning"
                                                     type="button"
@@ -317,7 +316,7 @@ export default function PengujiProfil() {
                                             </div>
 
                                             <form
-                                                onSubmit={handleSaveChanges} 
+                                                onSubmit={handleSaveChanges}
                                                 className="flex flex-col items-start gap-[15px] w-full"
                                             >
                                                 <CustomInput
@@ -358,9 +357,13 @@ export default function PengujiProfil() {
                                                         Password lama
                                                     </label>
                                                     {/* ⭐ LOGIKA BORDER MERAH */}
-                                                    <div className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
-                                                        errors.old_password ? "border-red-500" : "border-black"
-                                                    }`}>
+                                                    <div
+                                                        className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
+                                                            errors.old_password
+                                                                ? "border-red-500"
+                                                                : "border-black"
+                                                        }`}
+                                                    >
                                                         <Lock
                                                             size={16}
                                                             opacity={0.5}
@@ -392,7 +395,7 @@ export default function PengujiProfil() {
                                                                     !showOldPassword
                                                                 )
                                                             }
-                                                            className="bg-gray-500 hover:bg-gray-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                            className="bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
                                                             title={
                                                                 showOldPassword
                                                                     ? "Sembunyikan"
@@ -410,11 +413,16 @@ export default function PengujiProfil() {
                                                             )}
                                                         </button>
                                                     </div>
-                                                    
+
                                                     {/* ⭐ LOGIKA ALERT ICON & RED TEXT */}
                                                     {errors.old_password && (
                                                         <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
-                                                            <AlertCircle size={12} /> {errors.old_password}
+                                                            <AlertCircle
+                                                                size={12}
+                                                            />{" "}
+                                                            {
+                                                                errors.old_password
+                                                            }
                                                         </p>
                                                     )}
                                                 </div>
@@ -426,9 +434,13 @@ export default function PengujiProfil() {
                                                             Password baru
                                                         </label>
                                                         {/* ⭐ LOGIKA BORDER MERAH */}
-                                                        <div className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
-                                                            errors.new_password ? "border-red-500" : "border-black"
-                                                        }`}>
+                                                        <div
+                                                            className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
+                                                                errors.new_password
+                                                                    ? "border-red-500"
+                                                                    : "border-black"
+                                                            }`}
+                                                        >
                                                             <Lock
                                                                 size={16}
                                                                 opacity={0.5}
@@ -460,7 +472,7 @@ export default function PengujiProfil() {
                                                                         !showNewPassword
                                                                     )
                                                                 }
-                                                                className="bg-gray-500 hover:bg-gray-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                                className="bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
                                                                 title={
                                                                     showNewPassword
                                                                         ? "Sembunyikan"
@@ -486,7 +498,12 @@ export default function PengujiProfil() {
                                                         {/* ⭐ LOGIKA ALERT ICON & RED TEXT */}
                                                         {errors.new_password && (
                                                             <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
-                                                                <AlertCircle size={12} /> {errors.new_password}
+                                                                <AlertCircle
+                                                                    size={12}
+                                                                />{" "}
+                                                                {
+                                                                    errors.new_password
+                                                                }
                                                             </p>
                                                         )}
                                                     </div>
@@ -498,9 +515,13 @@ export default function PengujiProfil() {
                                                             baru
                                                         </label>
                                                         {/* ⭐ LOGIKA BORDER MERAH */}
-                                                        <div className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
-                                                            errors.new_password_confirmation ? "border-red-500" : "border-black"
-                                                        }`}>
+                                                        <div
+                                                            className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
+                                                                errors.new_password_confirmation
+                                                                    ? "border-red-500"
+                                                                    : "border-black"
+                                                            }`}
+                                                        >
                                                             <Lock
                                                                 size={16}
                                                                 opacity={0.5}
@@ -532,7 +553,7 @@ export default function PengujiProfil() {
                                                                         !showConfirmPassword
                                                                     )
                                                                 }
-                                                                className="bg-gray-500 hover:bg-gray-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                                className="bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
                                                                 title={
                                                                     showConfirmPassword
                                                                         ? "Sembunyikan"
@@ -558,7 +579,12 @@ export default function PengujiProfil() {
                                                         {/* ⭐ LOGIKA ALERT ICON & RED TEXT */}
                                                         {errors.new_password_confirmation && (
                                                             <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
-                                                                <AlertCircle size={12} /> {errors.new_password_confirmation}
+                                                                <AlertCircle
+                                                                    size={12}
+                                                                />{" "}
+                                                                {
+                                                                    errors.new_password_confirmation
+                                                                }
                                                             </p>
                                                         )}
                                                     </div>
