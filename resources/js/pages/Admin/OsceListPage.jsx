@@ -334,8 +334,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                             <h2 className="font-semibold text-lg">Menu OSCE</h2>
                         </div>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                            Halaman OSCE digunakan <br /> untuk mengelola daftar
-                            OSCE.
+                            Halaman OSCE digunakan untuk mengelola daftar OSCE.
                         </p>
 
                         <OsButton

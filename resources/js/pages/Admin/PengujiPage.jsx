@@ -243,8 +243,7 @@ export default function PengujiPage() {
                         </div>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
                             Menu Penguji (Dosen) digunakan untuk mengelola
-                            proses <br />
-                            penilaian.
+                            proses penilaian.
                         </p>
 
                         <OsButton
