@@ -62,7 +62,7 @@ export default function ViewNilaiDetail() {
             />
 
             {/* MAIN CONTENT */}
-            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="w-full p-4 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* HEADER */}
                 <OsHeader
                     onMenuClick={handleSidebarToggle}

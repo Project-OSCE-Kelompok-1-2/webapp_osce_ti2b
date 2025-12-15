@@ -154,7 +154,7 @@ export default function EditNilaiForm() {
     // 2. BAGIAN TAMPILAN (VISUAL SAMA PERSIS DENGAN LIVE PENILAIAN)
     // =========================================================================
     return (
-        <div className="relative bg-white w-full min-h-screen p-os-12 flex justify-start font-sans overflow-hidden">
+        <div className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
             {/* SIDEBAR */}
             <Sidebar
                 isOpen={isSidebarOpen}
@@ -163,7 +163,7 @@ export default function EditNilaiForm() {
             />
 
             {/* MAIN CONTENT */}
-            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="w-full p-4 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* HEADER: Arahkan tombol kembali ke list rekap */}
                 <OsHeader
                     onMenuClick={handleSidebarToggle}
