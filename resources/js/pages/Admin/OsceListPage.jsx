@@ -183,15 +183,27 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
     // Handler Buka Modal Edit
     const openEditModal = (item) => {
         setEditData(item);
+        const tanggalMulaiISO = convertDateToISO(item.tanggal_mulai);
+        const tanggalSelesaiISO = convertDateToISO(item.tanggal_selesai);
+
         clearErrors();
         setData({
             nama_osce: item.nama_osce,
             id_tahun_akademik: item.id_tahun_akademik || "",
-            tanggal_mulai: item.tanggal_mulai,
-            tanggal_selesai: item.tanggal_selesai,
+            tanggal_mulai: tanggalMulaiISO,
+            tanggal_selesai: tanggalSelesaiISO,
         });
         setIsEditOpen(true);
     };
+
+    const handleClear = () =>
+        setData({
+            ...data,
+            nama_osce: "",
+            id_tahun_akademik: "",
+            tanggal_mulai: "",
+            tanggal_selesai: "",
+        });
 
     const openDeleteModal = (item) => {
         setSelectedId(item.id_osce);
@@ -210,6 +222,16 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                 },
             });
         }
+    };
+
+    const convertDateToISO = (dateString) => {
+        if (!dateString || dateString.length !== 10) return "";
+        const parts = dateString.split("-");
+        // Memastikan formatnya DD-MM-YYYY (parts[0]=DD, parts[1]=MM, parts[2]=YYYY)
+        if (parts.length === 3) {
+            return `${parts[2]}-${parts[1]}-${parts[0]}`; // Hasilnya YYYY-MM-DD
+        }
+        return dateString; // Jika format sudah benar atau tidak dikenali, kembalikan aslinya
     };
 
     const handleAddSubmit = (e) => {
@@ -437,10 +459,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                 subtitle="Masukkan detail ujian OSCE yang baru"
                 variant="add"
                 onSubmit={handleAddSubmit}
-                onClear={() => {
-                    reset();
-                    clearErrors();
-                }}
+                onClear={handleClear}
             >
                 <div className="flex flex-col gap-3">
                     {/* INPUT NAMA OSCE */}
@@ -495,6 +514,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                 label="Tanggal Mulai"
                                 value={data.tanggal_mulai}
                                 onChange={(e) => {
+                                    console.log(data.tanggal_mulai);
                                     setData("tanggal_mulai", e.target.value);
                                     if (errors.tanggal_mulai)
                                         clearErrors("tanggal_mulai");
@@ -537,7 +557,8 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
             <OsModal
                 show={isEditOpen}
                 onClose={() => setIsEditOpen(false)}
-                title="Edit OSCE"
+                onClear={handleClear}
+                title="OSCE"
                 subtitle={editData?.nama_osce || "Detail OSCE"}
                 variant="edit"
                 onSubmit={handleEditSubmit}

@@ -79,6 +79,11 @@ export default function PengujiPage() {
         currentPage * itemsPerPage
     );
 
+    const handleClear = () => {
+        setData({ nip: "", nama: "" });
+        clearErrors();
+    };
+
     // 4. Generate Link Pagination Manual
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
@@ -395,12 +400,10 @@ export default function PengujiPage() {
                         resetEdit();
                     }}
                     variant="edit"
-                    title="Edit Data Penguji"
-                    subtitle={`Ubah informasi untuk penguji: ${
-                        editingPenguji?.nama || ""
-                    }`}
+                    title="Penguji"
+                    subtitle={`${editingPenguji?.nama || ""}`}
                     onSubmit={handleSubmitEdit}
-                    onClear={() => resetEdit()}
+                    onClear={handleClear}
                 >
                     <div className="space-y-4">
                         <div>

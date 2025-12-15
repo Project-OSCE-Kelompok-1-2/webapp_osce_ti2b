@@ -506,12 +506,12 @@ export default function MenuAspekPenilaian() {
                 onDelete={handleDeleteFromEdit}
                 title={
                     modalMode === "edit"
-                        ? "Edit Aspek Penilaian"
+                        ? "Aspek Penilaian"
                         : "Tambah Aspek Penilaian"
                 }
                 subtitle={
                     modalMode === "edit"
-                        ? `Ubah data aspek: ${data.aspek}`
+                        ? `${data.aspek}`
                         : "Isi form di bawah untuk menambahkan aspek baru."
                 }
             >

@@ -434,9 +434,9 @@ export default function KompetensiPage() {
                 title={
                     modalType === "add"
                         ? "Tambah Kompetensi"
-                        : "Edit Kompetensi"
+                        : "Kompetensi"
                 }
-                subtitle="Isi form berikut"
+                subtitle={data.kompetensi}
             >
                 <div className="space-y-3">
                     {/* INPUT DESKRIPSI KOMPETENSI */}
