@@ -115,6 +115,7 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                     <OsHeader
                         onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                         variant="goback"
+                        role="mahasiswa"
                     />
 
                     {/* KONTEN UTAMA */}
