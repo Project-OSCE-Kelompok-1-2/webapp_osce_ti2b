@@ -357,11 +357,11 @@ export default function MahasiswaPage() {
                             Kelola data <br /> mahasiswa.
                         </p>
 
-                        <div className="flex items-center gap-3 mb-5">
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5">
                             <OsButton
                                 name="primary"
                                 onClick={openAddModal}
-                                className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
+                                className="flex h-[46px] items-center justify-center sm:justify-start bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
                             >
                                 <OsIcon
                                     name="add"
@@ -372,7 +372,7 @@ export default function MahasiswaPage() {
                             <OsButton
                                 name="primary"
                                 onClick={() => setShowExcelModal(true)}
-                                className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
+                                className="flex h-[46px] items-center justify-center sm:justify-start bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
                             >
                                 <OsIcon
                                     name="Download (2)"
