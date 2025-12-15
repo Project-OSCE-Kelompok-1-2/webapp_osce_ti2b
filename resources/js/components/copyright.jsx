@@ -44,12 +44,20 @@ export default function OsCopyright({
                         <p
                             className={`${textClasses} text-os-paragraph opacity-os-alpha-75 text-sm tracking-[0] leading-snug text-center`}
                         >
-                            {/* Jika ada children, pakai children. Jika tidak, pakai default text copyright */}
+                            {/* Jika ada children, pakai children. Jika tidak, pakai logika responsif default */}
                             {children || (
                                 <>
                                     Copyright &copy; {currentYear}{" "}
-                                    <strong>MOSAIC</strong>: Medical OSCE
-                                    Assessment and Information Center.
+                                    <strong>MOSAIC</strong>
+                                    {/* --- LOGIKA RESPONSIF --- */}
+                                    {/* Tampil di MOBILE saja (layar kecil) -> Tampilkan Titik */}
+                                    <span className="md:hidden">. </span>
+                                    {/* Tampil di DESKTOP saja (md ke atas) -> Tampilkan Titik Dua & Kepanjangan */}
+                                    <span className="hidden md:inline">
+                                        : Medical OSCE Assessment and
+                                        Information Center.{" "}
+                                    </span>
+                                    {/* ------------------------- */}
                                     Politeknik Negeri Semarang. All rights
                                     reserved.
                                 </>
