@@ -268,7 +268,7 @@ export default function JadwalOsce({
                         <div className="flex gap-1 items-center justify-start my-2">
                             <Calendar size={20} />
                             <h2 className="font-semibold text-xl">
-                                Jadwal Stase Mahasiswa
+                                Jadwal OSCE Mahasiswa
                             </h2>
                         </div>
                         <p className="text-sm text-gray-500 mb-4 max-w-2xl text-justify">
@@ -418,7 +418,7 @@ export default function JadwalOsce({
                             <div className="flex gap-1 items-center justify-start my-2">
                                 <CheckSquare size={18} />
                                 <h2 className="font-semibold text-lg">
-                                    Jadwal Stase ({selectedDateLabel})
+                                    Jadwal OSCE ({selectedDateLabel})
                                 </h2>
                             </div>
 
