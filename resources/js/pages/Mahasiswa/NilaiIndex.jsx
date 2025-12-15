@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo } from "react";
 import { Head, Link, router } from "@inertiajs/react";
-import { FileText, User } from "lucide-react";
+import { FileText, Search, Table2, User } from "lucide-react";
 
 // --- IMPORT KOMPONEN ---
 import Sidebar from "../../components/Sidebar";
@@ -74,17 +74,21 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
 
     // Definisi Kolom untuk OsTableHeader & OsTableBody
     const columns = [
-        { key: "no", content: "NO", width: "w-16" },
+        { key: "no", content: "NO", width: "w-16 shrink-0" },
         {
             key: "nama_ujian",
             content: "NAMA UJIAN OSCE",
             width: "flex-[2]",
-            classes: "justify-center items-center pl-6",
+            classes: "justify-start items-center pl-2",
         },
-        { key: "tahun_akademik", content: "TAHUN AKADEMIK", width: "flex-1" },
-        { key: "semester", content: "SEMESTER", width: "flex-1" },
-        { key: "aksi", content: "AKSI", width: "flex-1" },
-        { key: "status", content: "STATUS", width: "flex-1" },
+        {
+            key: "tahun_akademik",
+            content: "TAHUN AKADEMIK",
+            width: "min-w-52 shrink-0",
+        },
+        { key: "semester", content: "SEMESTER", width: "min-w-52 shrink-0" },
+        { key: "aksi", content: "AKSI", width: " min-w-[150px] shrink-0" },
+        { key: "status", content: "STATUS", width: " min-w-[150px] shrink-0" },
     ];
 
     // Transform data untuk OsTableBody
@@ -105,8 +109,9 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
         aksi: (
             <Link
                 href={`/mahasiswa/nilai/${item.id}`}
-                className="inline-flex items-center rounded-lg bg-blue-600 px-4 py-2 text-xs font-bold text-white hover:bg-blue-700 hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
+                className="inline-flex gap-2 items-center rounded-lg min-h-[36px] bg-green-600 px-4 py-2 text-xs font-bold text-white hover:bg-green-700 hover:shadow-lg hover:shadow-blue-200 transition-all active:scale-95"
             >
+                <Search size={16} />
                 Lihat Nilai
             </Link>
         ),
@@ -182,7 +187,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                         <div className="mb-2 md:mb-4 flex flex-col items-start justify-start">
                             {/* <FileText className="text-blue-600" size={32} /> */}
                             <div className="flex gap-2 items-center justify-start my-2">
-                                <FileText size={18} />
+                                <User size={18} />
                                 <h2 className="font-semibold text-lg">
                                     Menu Mahasiswa
                                 </h2>
@@ -201,7 +206,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                         </div>
 
                         {/* INFO MAHASISWA & FILTER PANELL */}
-                        <div className="relative mb-8 overflow-hidden rounded-2xl bg-green-600 p-6 text-white shadow-xl shadow-blue-100">
+                        <div className="relative mb-4 overflow-hidden rounded-2xl bg-green-600 p-6 text-white shadow-xl shadow-blue-100">
                             {/* Background decoration */}
                             {/* <div className="absolute right-0 top-0 h-64 w-64 translate-x-16 -translate-y-16 rounded-full bg-white/10 blur-3xl"></div>
                             <div className="absolute left-0 bottom-0 h-40 w-40 -translate-x-10 translate-y-10 rounded-full bg-blue-400/30 blur-2xl"></div> */}
@@ -209,10 +214,10 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                             <div className="relative z-10 grid grid-cols-1 gap-8 lg:grid-cols-12">
                                 {/* Kiri: Profil Mahasiswa */}
                                 <div className="lg:col-span-7 flex flex-col justify-center space-y-6">
+                                    <div className="mt-1 flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
+                                        <User className="h-7 w-7 text-white" />
+                                    </div>
                                     <div className="flex items-start gap-5">
-                                        <div className="mt-1 flex h-14 w-14 flex-shrink-0 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
-                                            <User className="h-7 w-7 text-white" />
-                                        </div>
                                         <div className="w-full space-y-4">
                                             <div className="border-b border-blue-400/30 pb-3">
                                                 <p className="text-sm font-medium text-blue-100">
@@ -222,7 +227,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                                     {mahasiswa?.nama || "-"}
                                                 </p>
                                             </div>
-                                            <div className="grid grid-cols-2 gap-4">
+                                            <div className="grid grid-cols-3 gap-4">
                                                 <div>
                                                     <p className="text-sm font-medium text-blue-100">
                                                         NIM
@@ -238,6 +243,14 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                                     <p className="text-lg font-semibold">
                                                         {mahasiswa?.prodi ||
                                                             "-"}
+                                                    </p>
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm font-medium text-blue-100">
+                                                        Kelas
+                                                    </p>
+                                                    <p className="text-lg font-semibold">
+                                                        {mahasiswa?.kelas || "-"}
                                                     </p>
                                                 </div>
                                             </div>
@@ -320,7 +333,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                             <span className="text-sm font-medium text-blue-100">
                                                 Status Akademik
                                             </span>
-                                            <span className="rounded-full bg-green-500 px-4 py-1 text-xs font-bold text-white shadow-lg shadow-green-900/20">
+                                            <span className="rounded-full bg-green-500 px-4 py-1 text-xs font-bold text-white ">
                                                 {mahasiswa?.status || "Aktif"}
                                             </span>
                                         </div>
@@ -340,25 +353,28 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                             />
                         </div>
 
-                        {/* Tabel Data */}
-                        <div className="overflow-hidden rounded-2xl border border-gray-100 bg-white shadow-sm hover:shadow-md transition-shadow duration-300 p-4">
-                            <div className="flex items-center justify-between border-b border-gray-100 bg-gray-50/50 px-6 py-4 mb-4">
-                                <h3 className="font-bold text-gray-800 flex items-center gap-2">
-                                    <span className="h-2 w-2 rounded-full bg-blue-600"></span>
-                                    Daftar Nilai Ujian
-                                </h3>
-                                <span className="rounded-md bg-white px-3 py-1 text-xs font-medium text-gray-500 border border-gray-200 shadow-sm">
-                                    Total: {totalItems} Data
-                                </span>
-                            </div>
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Daftar Nilai Ujian
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
+                        </div>
 
-                            <div className="overflow-x-auto px-4 pb-4">
-                                <OsTableHeader columns={columns} />
+                        {/* Tabel Data - Bagian yang Dimodifikasi */}
+                        <div className="bg-white p-5 border border-os-primary-mhs overflow-x-auto rounded-xl shadow-sm">
+                            {/* Tambahkan min-w-max pada div di bawah ini untuk memastikan tabel memiliki lebar minimum yang mencakup semua kolom,
+                                sehingga scrollbar akan muncul di parent div dengan overflow-x-auto */}
+                            <div className="w-full min-w-max pb-2">
+                                <OsTableHeader columns={columns} variant="mahasiswa" />
                                 <div className="mt-2">
                                     {tableData.length > 0 ? (
                                         <OsTableBody
                                             data={tableData}
                                             columns={columns}
+                                            variant="mahasiswa"
                                         />
                                     ) : (
                                         <div className="flex flex-col items-center justify-center gap-4 py-16 text-center text-gray-400 bg-gray-50 rounded-lg border border-dashed border-gray-200">
@@ -371,8 +387,9 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                 </div>
                             </div>
                         </div>
+                        {/* Akhir Bagian yang Dimodifikasi */}
 
-                        <div className="mt-6">
+                        <div className="mt-2">
                             {totalPages > 1 && (
                                 <OsPagination
                                     links={generatedLinks}
@@ -385,8 +402,8 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                     </div>
                 </div>
 
-                <div className="mt-12">
-                    <OsCopyright />
+                <div className="">
+                    <OsCopyright variant="mahasiswa" />
                 </div>
             </main>
         </div>

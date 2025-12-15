@@ -2,7 +2,7 @@ import React, { useState } from "react";
 // Import library dari Inertia untuk handling head dan link navigasi
 import { Head, Link } from "@inertiajs/react";
 // Import ikon dari library lucide-react
-import { FileText } from "lucide-react";
+import { FileText, Table2, Users } from "lucide-react";
 
 // =========================================
 // --- IMPORT KOMPONEN CUSTOM (MODULAR) ---
@@ -47,7 +47,7 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
             key: "id",
             content: "No",
             width: "w-[40px] md:w-[80px]",
-            classes: "justify-center items-center font-bold text-gray-700",
+            classes: "justify-center items-center",
         },
         {
             // PENTING: Key ini harus sama dengan key di Controller ('nama_stase')
@@ -55,18 +55,18 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
             content: (
                 <>
                     <span className="hidden md:inline">Nama Stase</span>
-                    <span className="md:hidden text-xs">Stase</span>
+                    <span className="md:hidden">Stase</span>
                 </>
             ),
             width: "flex-1",
             classes:
-                "justify-center md:justify-start items-center px-2 md:px-6 font-bold text-center md:text-left text-gray-800",
+                "justify-center md:justify-start items-center px-2 md:px-6 text-center md:text-left",
         },
         {
             key: "nilai",
             content: "Nilai",
             width: "w-[60px] md:w-[150px]",
-            classes: "justify-center items-center font-semibold text-gray-900",
+            classes: "justify-center items-center",
         },
         {
             key: "keterangan",
@@ -78,17 +78,18 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
             ),
             width: "w-[100px] md:w-[200px]",
             classes:
-                "justify-center items-center px-2 md:px-6 font-medium text-gray-600 uppercase text-xs tracking-wide",
+                "justify-center items-center px-2 md:px-6 uppercase text-xs tracking-wide",
         },
     ];
 
     // --- 4. HELPER COMPONENT (Untuk Baris Info) ---
+    // Menggunakan grid untuk layout yang lebih rapih dan responsif
     const InfoRow = ({ label, value }) => (
-        <div className="flex flex-col sm:flex-row sm:items-start mb-1">
-            <span className="font-semibold w-40 shrink-0 text-white/90 text-sm">
+        <div className="grid grid-cols-12 mb-2">
+            <span className="col-span-4 font-normal text-blue-100/90 text-sm">
                 {label}
             </span>
-            <span className="font-medium text-white text-sm break-words flex-1">
+            <span className="col-span-8 font-semibold text-white text-sm break-words">
                 : {value}
             </span>
         </div>
@@ -98,7 +99,7 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
     // --- RENDER TAMPILAN (JSX) ---
     // =========================================
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             {/* <Head title="Hasil Penilaian OSCE" /> */}
 
             {/* SIDEBAR */}
@@ -108,31 +109,41 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             />
 
-            <main className="w-full p-4 md:p-8 lg:p-12 min-h-screen flex flex-col justify-between gap-2 md:gap-4 transition-all duration-300 lg:ml-20">
-                <div className="flex flex-col gap-2 md:gap-4">
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
                     {/* HEADER */}
                     <OsHeader
                         onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                        variant="mahasiswa"
+                        variant="goback"
                     />
 
                     {/* KONTEN UTAMA */}
-                    <div className="flex flex-col gap-4 md:gap-6 pt-0">
+                    <div className="flex-1 overflow-auto p-1">
                         {/* 1. JUDUL HALAMAN */}
-                        <div className="w-full flex items-center pl-1">
-                            <div className="flex items-center gap-3">
-                                <FileText className="text-blue-600" size={32} />
-                                <h1 className="font-sans font-bold text-2xl text-black mt-1">
-                                    Hasil Penilaian OSCE
-                                </h1>
-                            </div>
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <FileText size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Hasil Penilaian OSCE
+                            </h2>
                         </div>
 
-                        {/* 2. KARTU INFORMASI (BIRU) */}
-                        <div className="w-full bg-blue-600 rounded-xl border border-black p-6 shadow-sm">
-                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-x-20 gap-y-4">
-                                {/* Kiri */}
-                                <div>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                            Halaman ini menampilkan detail hasil penilaian OSCE
+                            berdasarkan stase yang telah diselesaikan.
+                        </p>
+
+                        {/* 2. KARTU INFORMASI (BIRU) - Desain Baru */}
+                        <div className="w-full bg-green-600 rounded-xl p-6 mb-2">
+                            <div className="flex gap-1 items-center justify-start text-white mb-2">
+                                <Users size={20} />
+                            </div>
+                            <h3 className="text-xl font-bold text-white mb-4 border-b border-green-500 pb-2">
+                                Detail Mahasiswa & Ujian
+                            </h3>
+                            {/* Layout 2 kolom untuk layar medium ke atas */}
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-20 gap-y-2">
+                                {/* Kiri (Detail Mahasiswa) */}
+                                <div className="space-y-1">
                                     <InfoRow
                                         label="Nama"
                                         value={data.mahasiswa.nama}
@@ -145,13 +156,10 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                                         label="Program Studi"
                                         value={data.mahasiswa.prodi}
                                     />
-                                    <InfoRow
-                                        label="Nama OSCE"
-                                        value={data.ujian.nama_osce}
-                                    />
                                 </div>
-                                {/* Kanan */}
-                                <div>
+
+                                {/* Kanan (Detail Ujian) */}
+                                <div className="space-y-1 mt-4 md:mt-0">
                                     <InfoRow
                                         label="Semester"
                                         value={data.mahasiswa.semester}
@@ -160,40 +168,61 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                                         label="Tahun Ujian"
                                         value={data.ujian.tahun}
                                     />
+                                    <InfoRow
+                                        label="Nama OSCE"
+                                        value={data.ujian.nama_osce}
+                                    />
                                 </div>
                             </div>
                         </div>
 
-                        {/* 3. TABEL NILAI */}
-                        <div className="w-full bg-white rounded-xl shadow-sm border border-black overflow-hidden flex flex-col">
+                        <div className="flex gap-1 items-center justify-start">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Table Penilaian Stase
+                            </h2>
+                        </div>
+
+                        {/* 3. TABEL NILAI - Perbaikan Border & Shadow */}
+                        <div className="mt-2 bg-white p-5 border border-os-primary-mhs overflow-x-auto rounded-xl shadow-sm">
                             <div className="overflow-x-auto">
                                 <div className="min-w-full">
                                     <div className="bg-white">
-                                        <OsTableHeader columns={tableColumns} cl />
+                                        <OsTableHeader
+                                            columns={tableColumns}
+                                            variant="mahasiswa"
+                                        />
                                     </div>
                                     <div className="w-full">
                                         <OsTableBody
                                             data={data.daftarNilai}
                                             columns={tableColumns}
+                                            variant="mahasiswa"
                                         />
                                     </div>
                                 </div>
                             </div>
                         </div>
 
-                        {/* 4. FOOTER NILAI (TOTAL & STATUS) */}
-                        <div className="w-full flex flex-col gap-4">
-                            <div className="w-full flex flex-col sm:flex-row bg-white rounded-xl border border-black h-auto sm:h-[60px] overflow-hidden items-center shadow-sm">
+                        {/* 4. FOOTER NILAI (TOTAL & STATUS) - Desain Baru & Kondisional */}
+                        <div className="w-full flex flex-col gap-4 mt-4">
+                            <div className="w-full flex flex-col sm:flex-row bg-white rounded-xl border border-os-primary-mhs h-auto sm:h-[60px] overflow-hidden items-center shadow-lg">
                                 {/* Label */}
-                                <div className="w-full sm:flex-1 h-[50px] sm:h-full flex items-center justify-center font-bold text-black border-b sm:border-b-0 sm:border-r border-black bg-gray-50 sm:bg-white">
+                                <div className="w-full sm:flex-1 h-[50px] sm:h-full flex items-center justify-center sm:justify-start text-black border-b sm:border-b-0 sm:border-r border-green-400 bg-gray-50 sm:bg-white px-4 text-center">
                                     Total / Rata - rata
                                 </div>
                                 {/* Angka Nilai */}
-                                <div className="w-full sm:w-[150px] h-[50px] sm:h-full flex items-center justify-center font-extrabold text-xl text-black border-b sm:border-b-0 sm:border-r border-black">
+                                <div className="w-full sm:w-[150px] h-[50px] sm:h-full flex items-center justify-center font-extrabold text-sml text-green-600 border-b sm:border-b-0 sm:border-r border-gray-200">
                                     {data.totalNilai}
                                 </div>
-                                {/* Status */}
-                                <div className="w-full sm:w-[200px] h-[50px] sm:h-full flex items-center justify-center font-extrabold text-black text-lg uppercase tracking-wide bg-gray-50">
+                                {/* Status (Conditional Styling) */}
+                                <div
+                                    className={`w-full sm:w-[220px] h-[50px] sm:h-full flex items-center justify-center font-extrabold text-sm  uppercase tracking-wide px-4 ${
+                                        data.statusKelulusan === "LULUS"
+                                            ? "bg-green-100 text-green-700"
+                                            : "bg-red-100 text-red-700" // Untuk BELUM LENGKAP / TIDAK LULUS
+                                    }`}
+                                >
                                     {data.statusKelulusan}
                                 </div>
                             </div>
@@ -202,8 +231,8 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                 </div>
 
                 {/* COPYRIGHT */}
-                <div className="mt-12">
-                    <OsCopyright />
+                <div className="">
+                    <OsCopyright variant="mahasiswa" />
                 </div>
             </main>
         </div>

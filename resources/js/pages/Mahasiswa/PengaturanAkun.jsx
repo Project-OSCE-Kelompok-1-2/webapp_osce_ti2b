@@ -126,7 +126,7 @@ export default function MahasiswaAccountSettings() {
     };
 
     // ⭐ Logika Hapus Gambar dipisah (Open Modal & Confirm Action)
-    
+
     // 1. Fungsi Buka Modal
     const openDeletePhotoModal = () => {
         setIsDeleteModalOpen(true);
@@ -143,7 +143,7 @@ export default function MahasiswaAccountSettings() {
         const displayName =
             user.mahasiswa?.nama || user.username || "Mahasiswa";
         setProfileImage(getGreenAvatar(displayName));
-        
+
         setIsDeleteModalOpen(false); // Tutup modal
     };
 
@@ -169,17 +169,17 @@ export default function MahasiswaAccountSettings() {
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Head title="Pengaturan Akun" />
+            {/* <Head title="Pengaturan Akun" /> */}
 
             <Sidebar
                 type="mahasiswa"
                 isOpen={sidebarOpen}
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
-                user={user} 
+                user={user}
             />
 
             <main className="grid w-full p-os-16 lg:p-4 min-h-screen grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} />
+                <OsHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} variant="mahasiswa" />
 
                 <div className="flex flex-col gap-5 w-full">
                     {/* FLASH MESSAGE */}
@@ -204,10 +204,10 @@ export default function MahasiswaAccountSettings() {
 
                     <div className="flex flex-col lg:flex-row items-start gap-5 relative w-full">
                         {/* --- KOLOM KIRI: FOTO PROFIL --- */}
-                        <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5 rounded-xl border border-os-primary shadow-sm bg-white">
+                        <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5 rounded-xl border border-os-primary-mhs shadow-sm bg-white">
                             <div className="relative self-stretch w-full h-[29px]">
                                 <h2 className="text-xl">Gambar Profil</h2>
-                                <hr className="mt-1 border-os-primary" />
+                                <hr className="mt-1 border-os-primary-mhs" />
                             </div>
 
                             <div
@@ -236,7 +236,7 @@ export default function MahasiswaAccountSettings() {
                             )}
 
                             <div className="flex items-center gap-[15px] relative self-stretch w-full">
-                                <label className="flex items-center justify-center gap-2.5 px-3 py-3 relative flex-1 bg-blue-600 text-white rounded-xl cursor-pointer hover:bg-blue-600 transition">
+                                <label className="flex items-center justify-center gap-2.5 px-3 py-3 relative flex-1 bg-os-primary-mhs text-white rounded-xl cursor-pointer hover:bg-os-primary-mhs-dark transition">
                                     <input
                                         type="file"
                                         accept=".png,.jpg,.jpeg,.gif"
@@ -261,12 +261,12 @@ export default function MahasiswaAccountSettings() {
                         </aside>
 
                         {/* --- KOLOM KANAN: FORM DATA --- */}
-                        <section className="flex flex-col items-start gap-[15px] p-5 relative flex-1 grow rounded-xl border border-os-primary shadow-sm bg-white">
+                        <section className="flex flex-col w-full items-start gap-[15px] p-5 relative flex-1 grow rounded-xl border border-os-primary-mhs shadow-sm bg-white">
                             <div className="relative self-stretch w-full h-[29px]">
                                 <h2 className="absolute top-[calc(50%_-_14px)] left-0 font-sans font-normal text-black text-xl">
                                     Akun
                                 </h2>
-                                <hr className="absolute top-7 left-0 w-full border-os-primary border-t" />
+                                <hr className="absolute top-7 left-0 w-full border-os-primary-mhs border-t" />
                             </div>
 
                             <form
@@ -306,7 +306,7 @@ export default function MahasiswaAccountSettings() {
                                     disabled
                                 />
 
-                                <hr className="w-full border-os-primary my-2" />
+                                <hr className="w-full border-os-primary-mhs my-2" />
 
                                 {/* PASSWORD LAMA */}
                                 <div className="flex flex-col gap-[3px] w-full">
@@ -342,7 +342,7 @@ export default function MahasiswaAccountSettings() {
                                                     !showOldPassword
                                                 )
                                             }
-                                            className="bg-gray-500 hover:bg-gray-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                            className="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
                                             title={
                                                 showOldPassword
                                                     ? "Sembunyikan"
@@ -399,7 +399,7 @@ export default function MahasiswaAccountSettings() {
                                                         !showNewPassword
                                                     )
                                                 }
-                                                className="bg-gray-500 hover:bg-gray-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                className="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
                                                 title={
                                                     showNewPassword
                                                         ? "Sembunyikan"
@@ -456,7 +456,7 @@ export default function MahasiswaAccountSettings() {
                                                         !showConfirmPassword
                                                     )
                                                 }
-                                                className="bg-gray-500 hover:bg-gray-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                className="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
                                                 title={
                                                     showConfirmPassword
                                                         ? "Sembunyikan"
@@ -483,7 +483,7 @@ export default function MahasiswaAccountSettings() {
                                 {/* BUTTONS GROUP */}
                                 <div className="w-full flex justify-between gap-3 mt-2">
                                     <OsButton
-                                        name="primary"
+                                        name="primary-mhs"
                                         className="w-[223px] flex items-center rounded-xl p-3 justify-start gap-[13px] border border-black bg-[#0B0931] text-blue-100"
                                         onClick={handleSaveChanges}
                                         disabled={processing}
@@ -523,7 +523,7 @@ export default function MahasiswaAccountSettings() {
 
                 {/* FOOTER */}
                 <div className="mt-2">
-                    <OsCopyright />
+                    <OsCopyright variant="mahasiswa" />
                 </div>
 
                 {/* ⭐ UPDATE: MODAL UNTUK DELETE FOTO PROFIL (DENGAN showDataDetails={false}) */}
