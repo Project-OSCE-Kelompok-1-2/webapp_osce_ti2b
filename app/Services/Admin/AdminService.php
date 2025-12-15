@@ -34,6 +34,7 @@ class AdminService
                 $total_bobot = $stase->aspek_penilaian_sum_bobot_maksimum ?? 0;
                 return $total_bobot != 100;
             })
+            ->toBase()
             ->map(function ($stase) {
                 $bobot = $stase->aspek_penilaian_sum_bobot_maksimum ?? 0;
                 return [
@@ -50,6 +51,7 @@ class AdminService
         // LOGIKA 2: Notifikasi OSCE Belum Ada Jadwal
         $notifOsceKosong = Osce::doesntHave('osceStase')
             ->get()
+            ->toBase()
             ->map(function ($osce) {
                 return [
                     'id' => 'osce-empty-' . $osce->id_osce,
@@ -66,6 +68,7 @@ class AdminService
         $notifTanpaPenguji = OsceStase::with(['osce', 'stase'])
             ->whereNull('id_penguji')
             ->get()
+            ->toBase()
             ->map(function ($jadwal) {
                 $namaOsce = $jadwal->osce->nama_osce ?? 'OSCE';
                 $namaStase = $jadwal->stase->nama_stase ?? 'Stase';
@@ -84,6 +87,7 @@ class AdminService
         $notifTanpaPeserta = Osce::has('osceStase') 
             ->doesntHave('enrollmentOsce') 
             ->get()
+            ->toBase()
             ->map(function ($osce) {
                 return [
                     'id' => 'osce-mhs-' . $osce->id_osce,
