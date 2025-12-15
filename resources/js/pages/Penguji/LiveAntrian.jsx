@@ -169,7 +169,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
 
     return (
         <>
-            <div className="relative bg-orange-50 w-full min-h-screen flex justify-start lg:p-os-12 p-2 font-sans overflow-hidden">
+            <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
                 <Sidebar
                     isOpen={isSidebarOpen}
                     onToggle={handleSidebarToggle}
@@ -194,7 +194,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                         </div>
                     </div>
                 </header> */}
-                <main className="grid w-full lg:p-os-8 p-0 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 lg:ml-20">
+                <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                     <OsHeader
                         className="fixed"
                         title={`OSCE / ${safeOsce.nama_osce} / Rekap Nilai`}

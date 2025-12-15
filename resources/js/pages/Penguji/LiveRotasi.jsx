@@ -88,8 +88,8 @@ export default function LiveRotasi() {
     };
 
     return (
-        <div className="relative bg-orange-50 w-full p-os-12 min-h-screen flex justify-start font-sans overflow-hidden">
-            <Head title="Rotasi Mahasiswa" />
+        <div className="relative bg-orange-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            {/* <Head title="Rotasi Mahasiswa" /> */}
 
             <div className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 <Sidebar
@@ -97,11 +97,13 @@ export default function LiveRotasi() {
                     setIsOpen={handleSidebarToggle}
                     type={"penguji"}
                 />
-                <div className="flex-1 overflow-hidden pb-8 p-1">
+                <div className="flex flex-col gap-os-8">
                     <div className="overflow-x-auto">
                         <OsHeader
                             onMenuClick={handleSidebarToggle}
-                            variant="penguji"
+                            variant="goback"
+                            role="penguji"
+                            backLink="/penguji/osce"
                         />
                     </div>
 
@@ -191,7 +193,7 @@ export default function LiveRotasi() {
                                 )}
 
                                 {/* Tombol Sisa Waktu + Action */}
-                                <div className="mt-4 flex gap-3">
+                                <div className="mt-4 flex justify-between gap-3">
                                     {!isFinished && (
                                         <div className="flex-1 md:flex-row flex-col flex items-center justify-between rounded-xl border border-os-primary-pj bg-os-tertiary-pj px-4 md:py-3 py-1">
                                             <span className="text-sm font-medium text-orange-500">
