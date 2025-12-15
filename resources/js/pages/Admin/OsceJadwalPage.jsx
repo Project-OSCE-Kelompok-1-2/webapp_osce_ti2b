@@ -117,7 +117,7 @@ export default function SesiOscePage({
         stase_ids: [],
         tanggal: "",
         jam_mulai: "",
-        durasi: "60",
+        durasi: "7",
         id_ruang: "",
         penguji_map: {},
         filter_angkatan: "",
@@ -225,24 +225,30 @@ export default function SesiOscePage({
     };
 
     const handleWizardSubmit = () => {
-        // Bersihkan error sebelum submit
         setValidationError(null);
 
+        // --- VALIDASI STEP 5 (Index 4): MAHASISWA ---
+        // Biasanya jumlah mahasiswa harus sama dengan jumlah stase untuk 1 putaran penuh
+        if (wizardData.mahasiswa_ids.length !== wizardData.stase_ids.length) {
+            setValidationError(
+                `Jumlah mahasiswa (${wizardData.mahasiswa_ids.length}) harus sama dengan jumlah stase (${wizardData.stase_ids.length}) agar putaran ujian pas.`
+            );
+            return;
+        }
+
+        // Jika valid, kirim data
         router.post(`/admin/osce/${osce.id_osce}/jadwal`, wizardData, {
             onSuccess: (page) => {
-                if (page.props.flash?.error) {
-                    // Tampilkan error dari backend ke dalam box merah di modal (jika sedang di step yang relevan)
-                    // Atau biarkan useEffect flash yang menanganinya
-                    return;
-                }
+                if (page.props.flash?.error) return;
                 setIsStepOpen(false);
                 setCurrentStep(0);
+                // Reset form
                 setWizardData({
                     stase_objs: [],
                     stase_ids: [],
                     tanggal: "",
                     jam_mulai: "",
-                    durasi: "60",
+                    durasi: "7",
                     id_ruang: "",
                     penguji_map: {},
                     filter_angkatan: "",
@@ -367,39 +373,96 @@ export default function SesiOscePage({
 
     // [MODIFIKASI] Handler Perpindahan Step dengan Validation Error State
     const handleStepChange = (nextStepIndex) => {
-        // Reset error setiap kali user mencoba navigasi (agar tidak stuck jika back)
+        // Reset error setiap kali navigasi
         setValidationError(null);
 
         const isMovingForward = nextStepIndex > currentStep;
 
-        if (currentStep === 1 && isMovingForward) {
-            // 1. Validasi Input Kosong
-            if (
-                !wizardData.tanggal ||
-                !wizardData.jam_mulai ||
-                !wizardData.durasi
-            ) {
-                setValidationError(
-                    "Mohon lengkapi semua field (Tanggal, Jam Mulai, Durasi)."
-                );
-                return;
+        if (isMovingForward) {
+            // --- VALIDASI STEP 1 (Index 0): STASE ---
+            if (currentStep === 0) {
+                if (wizardData.stase_ids.length === 0) {
+                    setValidationError(
+                        "Mohon pilih minimal satu stase untuk melanjutkan."
+                    );
+                    return;
+                }
             }
 
-            // 2. Validasi Rentang Tanggal
-            if (
-                wizardData.tanggal < minDateISO ||
-                wizardData.tanggal > maxDateISO
-            ) {
-                setValidationError(
-                    `Tanggal yang dipilih (${wizardData.tanggal}) diluar jadwal ujian.\n` +
-                        `Rentang yang diizinkan: ${minDateISO} s.d. ${maxDateISO}`
-                );
-                return; // Stop navigasi
+            // --- VALIDASI STEP 2 (Index 1): JADWAL ---
+            if (currentStep === 1) {
+                if (
+                    !wizardData.tanggal ||
+                    !wizardData.jam_mulai ||
+                    !wizardData.durasi
+                ) {
+                    setValidationError(
+                        "Mohon lengkapi Tanggal, Jam Mulai, dan Durasi."
+                    );
+                    return;
+                }
+                // Validasi Rentang Tanggal
+                if (
+                    wizardData.tanggal < minDateISO ||
+                    wizardData.tanggal > maxDateISO
+                ) {
+                    setValidationError(
+                        `Tanggal diluar jadwal ujian.\nRentang: ${minDateISO} s.d. ${maxDateISO}`
+                    );
+                    return;
+                }
+            }
+
+            // --- VALIDASI STEP 3 (Index 2): SIRKUIT / RUANG ---
+            if (currentStep === 2) {
+                if (!wizardData.id_ruang) {
+                    setValidationError("Mohon pilih Ruangan/Sirkuit ujian.");
+                    return;
+                }
+            }
+
+            // --- VALIDASI STEP 4 (Index 3): PENGUJI ---
+            if (currentStep === 3) {
+                const selectedCount = Object.keys(
+                    wizardData.penguji_map
+                ).length;
+                const requiredCount = wizardData.stase_ids.length;
+
+                // Pastikan jumlah penguji sama dengan jumlah stase
+                if (selectedCount < requiredCount) {
+                    setValidationError(
+                        `Mohon lengkapi penguji untuk semua stase (${selectedCount}/${requiredCount} terpilih).`
+                    );
+                    return;
+                }
+
+                // Opsional: Cek apakah ada value kosong di map
+                const hasEmptySelection = Object.values(
+                    wizardData.penguji_map
+                ).some((val) => !val);
+                if (hasEmptySelection) {
+                    setValidationError(
+                        "Pastikan semua stase sudah memiliki penguji."
+                    );
+                    return;
+                }
             }
         }
 
-        // Jika lolos, pindah step
+        // Jika lolos validasi, pindah step
         setCurrentStep(nextStepIndex);
+    };
+
+    const ErrorBanner = ({ message }) => {
+        if (!message) return null;
+        return (
+            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 text-red-700 text-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <AlertCircle size={18} className="shrink-0 mt-0.5" />
+                <div className="whitespace-pre-line leading-relaxed">
+                    {message}
+                </div>
+            </div>
+        );
     };
 
     return (
@@ -776,7 +839,7 @@ export default function SesiOscePage({
                 show={isStepOpen}
                 onClose={() => setIsStepOpen(false)}
                 currentStep={currentStep}
-                setCurrentStep={handleStepChange} // Gunakan handler yang telah dimodifikasi
+                setCurrentStep={handleStepChange}
                 onSubmit={handleWizardSubmit}
                 steps={[
                     // STEP 1: Pilih Stase
@@ -793,14 +856,15 @@ export default function SesiOscePage({
                                     options={master_stase}
                                     value={wizardData.stase_ids}
                                     onChange={(e) => {
+                                        setValidationError(null); // Clear error on change
                                         const selected = e.target.value;
                                         const rawValues = Array.isArray(
                                             selected
                                         )
                                             ? selected
                                             : [];
-                                        let newIds = [];
-                                        let newObjs = [];
+                                        let newIds = [],
+                                            newObjs = [];
 
                                         if (
                                             rawValues.length > 0 &&
@@ -817,7 +881,6 @@ export default function SesiOscePage({
                                                     rawValues.includes(ms.value)
                                             );
                                         }
-
                                         setWizardData({
                                             ...wizardData,
                                             stase_ids: newIds,
@@ -828,10 +891,12 @@ export default function SesiOscePage({
                                 <p className="text-xs text-gray-400 mt-2">
                                     {wizardData.stase_ids.length} stase dipilih.
                                 </p>
+                                {/* Pesan Error Ditambahkan Disini */}
+                                <ErrorBanner message={validationError} />
                             </div>
                         ),
                     },
-                    // STEP 2: Jadwal & Durasi (MODIFIKASI UI ERROR)
+                    // STEP 2: Jadwal & Durasi
                     {
                         title: "Jadwal & Durasi",
                         content: (
@@ -843,7 +908,7 @@ export default function SesiOscePage({
                                     min={minDateISO}
                                     max={maxDateISO}
                                     onChange={(e) => {
-                                        setValidationError(null); // Hapus error saat user mengubah input
+                                        setValidationError(null);
                                         setWizardData({
                                             ...wizardData,
                                             tanggal: e.target.value,
@@ -851,11 +916,9 @@ export default function SesiOscePage({
                                     }}
                                 />
                                 <p className="text-xs text-blue-600 -mt-3">
-                                    Rentang jadwal yang diperbolehkan: <br />
-                                    <b>{osce.tanggal_mulai}</b> s.d.{" "}
-                                    <b>{osce.tanggal_selesai}</b>
+                                    Rentang jadwal: <b>{osce.tanggal_mulai}</b>{" "}
+                                    s.d. <b>{osce.tanggal_selesai}</b>
                                 </p>
-
                                 <div>
                                     <OsInput
                                         type="number"
@@ -870,10 +933,6 @@ export default function SesiOscePage({
                                             });
                                         }}
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        *Total ada {wizardData.stase_ids.length}{" "}
-                                        stase terpilih.
-                                    </p>
                                 </div>
                                 <div className="flex gap-3">
                                     <div className="w-1/2">
@@ -907,19 +966,8 @@ export default function SesiOscePage({
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* [BARU] ALERT ERROR BOX (Tampil di atas tombol navigasi) */}
-                                {validationError && (
-                                    <div className="mt-2 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 text-red-700 text-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
-                                        <AlertCircle
-                                            size={18}
-                                            className="shrink-0 mt-0.5"
-                                        />
-                                        <div className="whitespace-pre-line leading-relaxed">
-                                            {validationError}
-                                        </div>
-                                    </div>
-                                )}
+                                {/* Pesan Error Ditambahkan Disini */}
+                                <ErrorBanner message={validationError} />
                             </div>
                         ),
                     },
@@ -945,11 +993,10 @@ export default function SesiOscePage({
                                             options={availRooms}
                                             value={wizardData.id_ruang}
                                             onChange={(e) => {
-                                                const selectedId =
-                                                    e.target.value;
+                                                setValidationError(null);
                                                 setWizardData({
                                                     ...wizardData,
-                                                    id_ruang: selectedId,
+                                                    id_ruang: e.target.value,
                                                 });
                                             }}
                                         />
@@ -960,6 +1007,8 @@ export default function SesiOscePage({
                                         )}
                                     </>
                                 )}
+                                {/* Pesan Error Ditambahkan Disini */}
+                                <ErrorBanner message={validationError} />
                             </div>
                         ),
                     },
@@ -967,13 +1016,13 @@ export default function SesiOscePage({
                     {
                         title: "Pilih Penguji",
                         content: (
-                            <div>
+                            <div className="flex flex-col h-full">
                                 {isLoadingCheck ? (
                                     <div className="py-4 text-center">
                                         Loading...
                                     </div>
                                 ) : (
-                                    <div className="h-full overflow-y-auto pr-2 flex flex-col gap-4">
+                                    <div className="flex-1 overflow-y-auto pr-2 flex flex-col gap-4">
                                         <div className="bg-blue-50 p-2 rounded text-xs text-blue-700">
                                             Pilih penguji untuk setiap stase.
                                             (Penguji tidak boleh rangkap)
@@ -987,7 +1036,6 @@ export default function SesiOscePage({
                                                 wizardData.penguji_map[
                                                     stase.value
                                                 ];
-
                                             const filteredOptions =
                                                 availPenguji.filter((p) => {
                                                     const isSelectedElsewhere =
@@ -1024,6 +1072,9 @@ export default function SesiOscePage({
                                                             ]
                                                         }
                                                         onChange={(e) => {
+                                                            setValidationError(
+                                                                null
+                                                            );
                                                             setWizardData(
                                                                 (prev) => ({
                                                                     ...prev,
@@ -1049,6 +1100,10 @@ export default function SesiOscePage({
                                         )}
                                     </div>
                                 )}
+                                {/* Pesan Error Ditambahkan Disini (fixed at bottom of modal content usually) */}
+                                <div className="mt-auto">
+                                    <ErrorBanner message={validationError} />
+                                </div>
                             </div>
                         ),
                     },
@@ -1056,20 +1111,15 @@ export default function SesiOscePage({
                     {
                         title: "Enrollment Mahasiswa",
                         content: (
-                            <div className="flex flex-col gap-4 min-h-[700px]">
-                                {errors.mahasiswa_ids && (
-                                    <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm flex items-center gap-2">
-                                        <div className="shrink-0">⚠️</div>
-                                        <div>{errors.mahasiswa_ids}</div>
-                                    </div>
-                                )}
-
-                                {/* Filter Angkatan Dropdown Saja */}
-                                <div className="w-full bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            // Ubah min-h-[500px] menjadi h-full atau sesuaikan,
+                            // tapi kuncinya ada di child element (list container)
+                            <div className="flex flex-col gap-4 h-full min-h-[500px]">
+                                {/* Dropdown Filter */}
+                                <div className="w-full bg-gray-50 p-3 rounded-lg border border-gray-200 shrink-0">
                                     <OsInput
                                         type="single-select"
                                         label="Filter Tahun Akademik"
-                                        placeholder="Pilih Angkatan (Kosongkan untuk semua)"
+                                        placeholder="Pilih Angkatan"
                                         options={listAngkatan}
                                         value={wizardData.filter_angkatan}
                                         onChange={(e) =>
@@ -1082,15 +1132,15 @@ export default function SesiOscePage({
                                     />
                                 </div>
 
-                                {/* Container List Mahasiswa */}
-                                <div className="border rounded-lg flex-1 flex flex-col overflow-hidden bg-white shadow-sm">
-                                    <div className="flex justify-between items-center p-3 border-b bg-gray-50">
+                                {/* List Mahasiswa */}
+                                {/* PERBAIKAN: Tambahkan 'min-h-[300px]' disini agar tidak tergencet error */}
+                                <div className="border rounded-lg flex-1 flex flex-col overflow-hidden bg-white shadow-sm min-h-[300px]">
+                                    <div className="flex justify-between items-center p-3 border-b bg-gray-50 shrink-0">
                                         <label className="text-sm font-bold text-gray-700">
                                             Daftar Mahasiswa
                                         </label>
-
                                         <span
-                                            className={`text-xs font-bold px-3 py-1 rounded-full border transition-colors ${
+                                            className={`text-xs font-bold px-3 py-1 rounded-full border ${
                                                 wizardData.mahasiswa_ids
                                                     .length ===
                                                 wizardData.stase_ids.length
@@ -1106,18 +1156,12 @@ export default function SesiOscePage({
 
                                     <div className="flex-1 overflow-y-auto p-2">
                                         {isLoadingMhs ? (
-                                            <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2">
-                                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-400"></div>
-                                                <span className="text-sm">
-                                                    Memuat data...
-                                                </span>
+                                            <div className="text-center p-4 text-gray-400">
+                                                Loading...
                                             </div>
                                         ) : availableMahasiswa.length === 0 ? (
-                                            <div className="h-full flex flex-col items-center justify-center text-gray-400 text-sm">
-                                                <p>
-                                                    Tidak ada mahasiswa
-                                                    ditemukan.
-                                                </p>
+                                            <div className="h-full flex items-center justify-center text-gray-400 text-sm">
+                                                Tidak ada mahasiswa
                                             </div>
                                         ) : (
                                             <div className="space-y-2">
@@ -1144,75 +1188,71 @@ export default function SesiOscePage({
                                                         return (
                                                             <label
                                                                 key={mhs.value}
-                                                                className={`group flex items-center p-3 rounded-lg border transition-all duration-200 ${
+                                                                className={`group flex items-center p-3 rounded-lg border transition-all ${
                                                                     isDisabled
-                                                                        ? "bg-gray-100 border-gray-200 opacity-70 cursor-not-allowed"
-                                                                        : "cursor-pointer hover:border-blue-300 hover:shadow-sm"
+                                                                        ? "bg-gray-100 opacity-70 cursor-not-allowed"
+                                                                        : "cursor-pointer hover:border-blue-300"
                                                                 } ${
                                                                     isSelected
                                                                         ? "bg-blue-50 border-blue-500 ring-1 ring-blue-500"
                                                                         : "bg-white border-gray-200"
                                                                 }`}
                                                             >
-                                                                <div className="relative flex items-center">
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        className={`w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 transition-all ${
-                                                                            isDisabled
-                                                                                ? "text-gray-300"
-                                                                                : ""
-                                                                        }`}
-                                                                        checked={
-                                                                            isSelected
-                                                                        }
-                                                                        disabled={
-                                                                            isDisabled
-                                                                        }
-                                                                        onChange={(
+                                                                <input
+                                                                    type="checkbox"
+                                                                    className="mr-3 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                                                    checked={
+                                                                        isSelected
+                                                                    }
+                                                                    disabled={
+                                                                        isDisabled
+                                                                    }
+                                                                    onChange={(
+                                                                        e
+                                                                    ) => {
+                                                                        setValidationError(
+                                                                            null
+                                                                        );
+                                                                        const checked =
                                                                             e
-                                                                        ) => {
-                                                                            const checked =
-                                                                                e
-                                                                                    .target
-                                                                                    .checked;
-                                                                            let newIds =
-                                                                                [
-                                                                                    ...wizardData.mahasiswa_ids,
-                                                                                ];
+                                                                                .target
+                                                                                .checked;
+                                                                        let newIds =
+                                                                            [
+                                                                                ...wizardData.mahasiswa_ids,
+                                                                            ];
+                                                                        if (
+                                                                            checked
+                                                                        ) {
                                                                             if (
-                                                                                checked
-                                                                            ) {
-                                                                                if (
-                                                                                    newIds.length <
-                                                                                    wizardData
-                                                                                        .stase_ids
-                                                                                        .length
-                                                                                ) {
-                                                                                    newIds.push(
+                                                                                newIds.length <
+                                                                                wizardData
+                                                                                    .stase_ids
+                                                                                    .length
+                                                                            )
+                                                                                newIds.push(
+                                                                                    mhs.value
+                                                                                );
+                                                                        } else {
+                                                                            newIds =
+                                                                                newIds.filter(
+                                                                                    (
+                                                                                        id
+                                                                                    ) =>
+                                                                                        id !==
                                                                                         mhs.value
-                                                                                    );
-                                                                                }
-                                                                            } else {
-                                                                                newIds =
-                                                                                    newIds.filter(
-                                                                                        (
-                                                                                            id
-                                                                                        ) =>
-                                                                                            id !==
-                                                                                            mhs.value
-                                                                                    );
+                                                                                );
+                                                                        }
+                                                                        setWizardData(
+                                                                            {
+                                                                                ...wizardData,
+                                                                                mahasiswa_ids:
+                                                                                    newIds,
                                                                             }
-                                                                            setWizardData(
-                                                                                {
-                                                                                    ...wizardData,
-                                                                                    mahasiswa_ids:
-                                                                                        newIds,
-                                                                                }
-                                                                            );
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                                <div className="ml-3 flex flex-col">
+                                                                        );
+                                                                    }}
+                                                                />
+                                                                <div className="flex flex-col">
                                                                     <span
                                                                         className={`text-sm font-medium ${
                                                                             isSelected
@@ -1220,7 +1260,7 @@ export default function SesiOscePage({
                                                                                 : "text-gray-700"
                                                                         } ${
                                                                             isAlreadyEnrolled
-                                                                                ? "text-gray-500 line-through decoration-gray-400"
+                                                                                ? "line-through text-gray-500"
                                                                                 : ""
                                                                         }`}
                                                                     >
@@ -1229,10 +1269,9 @@ export default function SesiOscePage({
                                                                         }
                                                                     </span>
                                                                     {isAlreadyEnrolled && (
-                                                                        <span className="text-xs text-red-500 font-semibold italic mt-0.5">
+                                                                        <span className="text-[10px] text-red-500 italic">
                                                                             Sudah
-                                                                            memiliki
-                                                                            jadwal
+                                                                            terjadwal
                                                                         </span>
                                                                     )}
                                                                 </div>
@@ -1243,6 +1282,11 @@ export default function SesiOscePage({
                                             </div>
                                         )}
                                     </div>
+                                </div>
+
+                                {/* Error Banner (Akan muncul di bawah tanpa menghancurkan layout list) */}
+                                <div className="shrink-0">
+                                    <ErrorBanner message={validationError} />
                                 </div>
                             </div>
                         ),

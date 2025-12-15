@@ -391,7 +391,8 @@ export default function Stase() {
                             </h2>
                         </div>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                            Kelola konten Stase secara menyeluruh, termasuk <br/>
+                            Kelola konten Stase secara menyeluruh, termasuk{" "}
+                            <br />
                             daftar kompetensi inti dan aspek penilaian.
                         </p>
 
@@ -521,9 +522,12 @@ export default function Stase() {
                     {/* INPUT MULTI SELECT TUJUAN PEMBELAJARAN */}
                     <div className="space-y-2">
                         <div className="flex justify-between items-center">
+                            {/* PERUBAHAN 1: Menambahkan span bintang merah manual disini */}
                             <label className="block text-sm font-medium text-gray-700">
-                                Tujuan Pembelajaran *
+                                Tujuan Pembelajaran{" "}
+                                <span className="text-red-500">*</span>
                             </label>
+
                             {/* Counter Indikator */}
                             <span
                                 className={`text-xs font-medium ${
@@ -623,27 +627,27 @@ export default function Stase() {
                     </div>
 
                     <div>
-                        <OsInput
-                            label="Nama Stase"
-                            type="text"
-                            name="nama_stase"
-                            value={data.nama_stase}
-                            onChange={(e) => {
-                                setData("nama_stase", e.target.value);
-                                // Opsional: Hilangkan error merah saat user mulai mengetik
-                                if (errors.nama_stase)
-                                    clearErrors("nama_stase");
-                            }}
-                            // Hapus 'required' bawaan browser agar error text kita yang muncul
-                            // required
-                        />
+                        <div>
+                            <OsInput
+                                label="Nama Stase"
+                                type="text"
+                                name="nama_stase"
+                                value={data.nama_stase}
+                                onChange={(e) => {
+                                    setData("nama_stase", e.target.value);
+                                    if (errors.nama_stase)
+                                        clearErrors("nama_stase");
+                                }}
+                                // PERUBAHAN 2: Menambahkan prop required agar muncul bintang
+                                required
+                            />
 
-                        {/* Tampilkan Error Text di sini */}
-                        {errors.nama_stase && (
-                            <p className="text-red-500 text-xs mt-1">
-                                {errors.nama_stase}
-                            </p>
-                        )}
+                            {errors.nama_stase && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.nama_stase}
+                                </p>
+                            )}
+                        </div>
                     </div>
                     <OsInput
                         label="Deskripsi"

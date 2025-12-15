@@ -10,6 +10,8 @@ import {
     Trash2,
     UploadCloud,
     Lock,
+    User,
+    Book,
 } from "lucide-react";
 
 // Import Komponen Custom Sesuai Desain
@@ -21,7 +23,7 @@ import Sidebar from "../../components/Sidebar.jsx";
 // ⭐ Import Modals
 import Modals from "../../components/Modals.jsx";
 
-// CustomInput (Sama seperti sebelumnya)
+// CustomInput
 const CustomInput = ({
     label,
     type = "text",
@@ -54,7 +56,9 @@ const CustomInput = ({
                 disabled={disabled}
                 placeholder={placeholder}
                 className={`relative flex-1 font-sans font-normal text-[15.4px] tracking-[0] leading-[normal] bg-transparent border-none outline-none w-full placeholder:text-gray-400 ${
-                    disabled ? "text-gray-600 cursor-not-allowed" : "text-black"
+                    disabled
+                        ? "text-gray-600 cursor-not-allowed"
+                        : "text-black"
                 }`}
             />
             {iconRight && (
@@ -68,7 +72,7 @@ const CustomInput = ({
 );
 
 export default function MahasiswaAccountSettings() {
-    const { user, errors, flash } = usePage().props;
+    const { user, flash } = usePage().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // State untuk Toggle Password
@@ -76,12 +80,22 @@ export default function MahasiswaAccountSettings() {
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // ⭐ State Modal Hapus
+    // State Modal Hapus
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const [profileImage, setProfileImage] = useState(null);
 
-    const { data, setData, post, processing, reset } = useForm({
+    // ⭐ UPDATE: Tambahkan errors, clearErrors, setError
+    const {
+        data,
+        setData,
+        post,
+        processing,
+        reset,
+        errors,
+        clearErrors,
+        setError,
+    } = useForm({
         username: user.username || "",
         nama: user.mahasiswa?.nama || "",
         nim: user.mahasiswa?.nim || "",
@@ -92,10 +106,7 @@ export default function MahasiswaAccountSettings() {
         new_password_confirmation: "",
     });
 
-    // ⭐ FUNGSI GENERATE AVATAR HIJAU (Helper)
     const getGreenAvatar = (name) => {
-        // background=16A34A (Green-600 Tailwind)
-        // color=fff (Putih)
         return `https://ui-avatars.com/api/?name=${encodeURIComponent(
             name
         )}&background=16A34A&color=fff&bold=true&size=177`;
@@ -106,7 +117,6 @@ export default function MahasiswaAccountSettings() {
         if (user.path_gambar) {
             setProfileImage(`/${user.path_gambar}`);
         } else {
-            // Gunakan Nama Mahasiswa atau Username
             const displayName =
                 user.mahasiswa?.nama || user.username || "Mahasiswa";
             setProfileImage(getGreenAvatar(displayName));
@@ -125,14 +135,10 @@ export default function MahasiswaAccountSettings() {
         }
     };
 
-    // ⭐ Logika Hapus Gambar dipisah (Open Modal & Confirm Action)
-    
-    // 1. Fungsi Buka Modal
     const openDeletePhotoModal = () => {
         setIsDeleteModalOpen(true);
     };
 
-    // 2. Fungsi Eksekusi Hapus (Dipanggil saat tombol "Hapus" di modal ditekan)
     const confirmDeletePhoto = () => {
         setData({
             ...data,
@@ -143,12 +149,46 @@ export default function MahasiswaAccountSettings() {
         const displayName =
             user.mahasiswa?.nama || user.username || "Mahasiswa";
         setProfileImage(getGreenAvatar(displayName));
-        
-        setIsDeleteModalOpen(false); // Tutup modal
+
+        setIsDeleteModalOpen(false);
     };
 
+    // ⭐ UPDATE: Logic Validasi Manual (Sama seperti Admin/Penguji)
     const handleSaveChanges = (e) => {
         e.preventDefault();
+        clearErrors();
+
+        let isValid = true;
+
+        // 1. Password Lama diisi, Password Baru KOSONG
+        if (data.old_password && !data.new_password) {
+            setError("new_password", "Password baru wajib diisi.");
+            isValid = false;
+        }
+
+        // 2. Password Baru diisi, Password Lama KOSONG
+        if (!data.old_password && data.new_password) {
+            setError(
+                "old_password",
+                "Password lama wajib diisi untuk verifikasi."
+            );
+            isValid = false;
+        }
+
+        // 3. Konfirmasi Password Tidak Cocok
+        if (
+            data.new_password &&
+            data.new_password !== data.new_password_confirmation
+        ) {
+            setError(
+                "new_password_confirmation",
+                "Konfirmasi password tidak cocok."
+            );
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
         post("/mahasiswa/pengaturan-akun", {
             preserveScroll: true,
             forceFormData: true,
@@ -175,7 +215,7 @@ export default function MahasiswaAccountSettings() {
                 type="mahasiswa"
                 isOpen={sidebarOpen}
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
-                user={user} 
+                user={user}
             />
 
             <main className="grid w-full p-os-16 lg:p-4 min-h-screen grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
@@ -184,7 +224,7 @@ export default function MahasiswaAccountSettings() {
                 <div className="flex flex-col gap-5 w-full">
                     {/* FLASH MESSAGE */}
                     {flash?.success && (
-                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
                             <strong className="font-bold">Berhasil!</strong>
                             <span className="block sm:inline">
                                 {" "}
@@ -193,7 +233,7 @@ export default function MahasiswaAccountSettings() {
                         </div>
                     )}
                     {flash?.error && (
-                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
                             <strong className="font-bold">Error!</strong>
                             <span className="block sm:inline">
                                 {" "}
@@ -249,7 +289,6 @@ export default function MahasiswaAccountSettings() {
                                     </span>
                                 </label>
 
-                                {/* ⭐ Tombol Trigger Modal */}
                                 <button
                                     type="button"
                                     onClick={openDeletePhotoModal}
@@ -279,10 +318,7 @@ export default function MahasiswaAccountSettings() {
                                     value={data.username}
                                     disabled
                                     icon={
-                                        <OsIcon
-                                            name="User"
-                                            className="w-4 h-4 opacity-50"
-                                        />
+                                        <User className="w-4 h-4 opacity-50" />
                                     }
                                 />
 
@@ -298,10 +334,7 @@ export default function MahasiswaAccountSettings() {
                                     label="NIM"
                                     value={data.nim}
                                     icon={
-                                        <OsIcon
-                                            name="Book"
-                                            className="w-5 h-5 opacity-50"
-                                        />
+                                        <Book className="w-5 h-5 opacity-50" />
                                     }
                                     disabled
                                 />
@@ -313,7 +346,14 @@ export default function MahasiswaAccountSettings() {
                                     <label className="text-xs">
                                         Password lama
                                     </label>
-                                    <div className="flex items-center p-2 bg-white rounded-xl border border-black pr-2">
+                                    {/* ⭐ Logic Border Merah */}
+                                    <div
+                                        className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
+                                            errors.old_password
+                                                ? "border-red-500"
+                                                : "border-black"
+                                        }`}
+                                    >
                                         <Lock
                                             size={16}
                                             opacity={0.5}
@@ -356,8 +396,10 @@ export default function MahasiswaAccountSettings() {
                                             )}
                                         </button>
                                     </div>
+                                    {/* ⭐ Logic Pesan Error + Ikon */}
                                     {errors.old_password && (
-                                        <p className="text-sm text-red-500 mt-1">
+                                        <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
+                                            <AlertCircle size={12} />{" "}
                                             {errors.old_password}
                                         </p>
                                     )}
@@ -370,7 +412,13 @@ export default function MahasiswaAccountSettings() {
                                         <label className="text-xs">
                                             Password baru
                                         </label>
-                                        <div className="flex items-center p-2 bg-white rounded-xl border border-black pr-2">
+                                        <div
+                                            className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
+                                                errors.new_password
+                                                    ? "border-red-500"
+                                                    : "border-black"
+                                            }`}
+                                        >
                                             <Lock
                                                 size={16}
                                                 opacity={0.5}
@@ -414,7 +462,8 @@ export default function MahasiswaAccountSettings() {
                                             </button>
                                         </div>
                                         {errors.new_password && (
-                                            <p className="text-sm text-red-500 mt-1">
+                                            <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
+                                                <AlertCircle size={12} />{" "}
                                                 {errors.new_password}
                                             </p>
                                         )}
@@ -425,7 +474,13 @@ export default function MahasiswaAccountSettings() {
                                         <label className="text-xs">
                                             Konfirmasi password baru
                                         </label>
-                                        <div className="flex items-center p-2 bg-white rounded-xl border border-black pr-2">
+                                        <div
+                                            className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
+                                                errors.new_password_confirmation
+                                                    ? "border-red-500"
+                                                    : "border-black"
+                                            }`}
+                                        >
                                             <Lock
                                                 size={16}
                                                 opacity={0.5}
@@ -471,7 +526,8 @@ export default function MahasiswaAccountSettings() {
                                             </button>
                                         </div>
                                         {errors.new_password_confirmation && (
-                                            <p className="text-sm text-red-500 mt-1">
+                                            <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
+                                                <AlertCircle size={12} />{" "}
                                                 {
                                                     errors.new_password_confirmation
                                                 }
@@ -526,7 +582,7 @@ export default function MahasiswaAccountSettings() {
                     <OsCopyright />
                 </div>
 
-                {/* ⭐ UPDATE: MODAL UNTUK DELETE FOTO PROFIL (DENGAN showDataDetails={false}) */}
+                {/* MODAL */}
                 <Modals
                     isOpen={isDeleteModalOpen}
                     onClose={() => setIsDeleteModalOpen(false)}

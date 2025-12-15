@@ -19,21 +19,19 @@ class AdminService
      */
     public function getDashboardData()
     {
+        // (BAGIAN INI TIDAK BERUBAH)
         $stats = [
             'total_osce' => Osce::count(),
             'total_mahasiswa' => Mahasiswa::count(),
             'total_penguji' => Penguji::count(),
         ];
 
-        // =================================================================
-        // LOGIKA 1: Notifikasi Bobot Stase (Belum 100%)
-        // =================================================================
+        // LOGIKA 1: Notifikasi Bobot Stase
         $notifBobot = Stase::query()
             ->withSum('aspekPenilaian', 'bobot_maksimum')
             ->get()
             ->filter(function ($stase) {
                 $total_bobot = $stase->aspek_penilaian_sum_bobot_maksimum ?? 0;
-                // Anggap toleransi float, jika tidak tepat 100
                 return $total_bobot != 100;
             })
             ->map(function ($stase) {
@@ -49,10 +47,7 @@ class AdminService
                 ];
             });
 
-        // =================================================================
-        // LOGIKA 2: Notifikasi OSCE Belum Ada Jadwal/Stase (FIX ERROR ANDA)
-        // =================================================================
-        // Menggunakan relasi 'osceStase' bukan 'sesi'
+        // LOGIKA 2: Notifikasi OSCE Belum Ada Jadwal
         $notifOsceKosong = Osce::doesntHave('osceStase')
             ->get()
             ->map(function ($osce) {
@@ -67,10 +62,7 @@ class AdminService
                 ];
             });
 
-        // =================================================================
         // LOGIKA 3: Notifikasi OSCE Stase Tanpa Penguji
-        // =================================================================
-        // Kasus: Jadwal dibuat, tapi Penguji belum dipilih (id_penguji NULL)
         $notifTanpaPenguji = OsceStase::with(['osce', 'stase'])
             ->whereNull('id_penguji')
             ->get()
@@ -84,16 +76,13 @@ class AdminService
                     'description' => "Jadwal tanggal " . ($jadwal->tanggal ? $jadwal->tanggal->format('d M Y') : '-') . " belum ada penguji.",
                     'warning_label' => "Penguji Kosong",
                     'warning_color' => 'red',
-                    'link' => "/admin/osce/{$jadwal->id_osce}", // Arahkan ke detail OSCE
+                    'link' => "/admin/osce/{$jadwal->id_osce}", 
                 ];
             });
 
-        // =================================================================
-        // LOGIKA 4: Notifikasi OSCE Belum Ada Peserta (Enrollment)
-        // =================================================================
-        // Menggunakan relasi 'enrollmentOsce'
-        $notifTanpaPeserta = Osce::has('osceStase') // Sudah disetting stase
-            ->doesntHave('enrollmentOsce') // Tapi belum ada mahasiswa
+        // LOGIKA 4: Notifikasi OSCE Belum Ada Peserta
+        $notifTanpaPeserta = Osce::has('osceStase') 
+            ->doesntHave('enrollmentOsce') 
             ->get()
             ->map(function ($osce) {
                 return [
@@ -107,7 +96,6 @@ class AdminService
                 ];
             });
 
-        // Gabungkan semua notifikasi
         $mergedNotifikasi = $notifBobot
             ->merge($notifOsceKosong)
             ->merge($notifTanpaPenguji)
@@ -122,9 +110,7 @@ class AdminService
      */
     public function getProfileData($user)
     {
-        // Logika path gambar
         $user->path_gambar = $user->path_gambar ? $user->path_gambar : null;
-
         return $user;
     }
 
@@ -133,40 +119,73 @@ class AdminService
      */
     public function updateAccount(Request $request, $admin)
     {
-        // Logika Foto
+        // ====================================================
+        // 1. LOGIKA FOTO (Diadaptasi agar mirip structure Penguji)
+        // ====================================================
         if ($request->boolean('delete_foto')) {
-            // Hapus foto lama
-            if ($admin->path_gambar) {
-                $oldPath = str_replace('storage/', '', $admin->path_gambar);
-                Storage::disk('public')->delete($oldPath);
-            }
-            $admin->path_gambar = null;
-        } elseif ($request->hasFile('foto')) {
-            // Hapus foto lama jika ada
-            if ($admin->path_gambar) {
-                $oldPath = str_replace('storage/', '', $admin->path_gambar);
-                Storage::disk('public')->delete($oldPath);
-            }
-            // Simpan foto baru
+            $this->deleteFoto($admin);
+        } 
+        elseif ($request->hasFile('foto')) {
+            $this->deleteFoto($admin, false); // Hapus file lama fisik, jangan null-kan DB dulu
+            
             $fotoPath = $request->file('foto')->store('profiladmin', 'public');
             $admin->path_gambar = 'storage/' . $fotoPath;
         }
 
-        // Logika Password
-        if ($request->filled('new_password')) {
-            // Cek password lama
+        // ====================================================
+        // 2. LOGIKA PASSWORD (IDENTIK DENGAN PENGUJI)
+        // ====================================================
+        
+        // Deteksi input (menggunakan helper Laravel request)
+        $filledOld = $request->filled('old_password');
+        $filledNew = $request->filled('new_password');
+
+        // Jika salah satu kolom password diisi
+        if ($filledOld || $filledNew) {
+
+            // A. Cek Ketersediaan Password Lama
+            if (!$filledOld) {
+                throw ValidationException::withMessages([
+                    'old_password' => ['Password lama wajib diisi untuk konfirmasi.'],
+                ]);
+            }
+
+            // B. CEK KEBENARAN PASSWORD LAMA (Prioritas Utama)
             if (!Hash::check($request->old_password, $admin->password)) {
-                // Lempar exception validasi agar ditangkap sebagai error 422 oleh Laravel
                 throw ValidationException::withMessages([
                     'old_password' => ['Password lama tidak sesuai.'],
                 ]);
             }
 
-            $admin->password = $request->new_password;
+            // C. Cek Ketersediaan Password Baru
+            // Jika sampai sini, berarti password lama BENAR.
+            if (!$filledNew) {
+                throw ValidationException::withMessages([
+                    'new_password' => ['Silakan masukkan password baru untuk mengganti password.'],
+                ]);
+            }
+
+            // D. Eksekusi Ganti Password
+            $admin->password = Hash::make($request->new_password);
         }
 
         $admin->save();
 
         return $admin;
+    }
+
+    /**
+     * Helper private untuk hapus foto (Clean Code)
+     */
+    private function deleteFoto($user, $updateDb = true)
+    {
+        if ($user->path_gambar) {
+            $oldPath = str_replace('storage/', '', $user->path_gambar);
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        if ($updateDb) {
+            $user->path_gambar = null;
+        }
     }
 }

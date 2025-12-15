@@ -9,7 +9,7 @@ import {
     EyeOff,
     UploadCloud,
     Trash2,
-    AlertCircle,
+    AlertCircle, // Pastikan ini terimport
     LogOut,
     BookUser,
     LogIn,
@@ -25,7 +25,6 @@ import OsCopyright from "../../components/Copyright.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsButton from "../../components/button.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
-// ⭐ Import Modals
 import Modals from "../../components/Modals.jsx";
 
 // CustomInput Handle Disabled State (Background Gray)
@@ -44,7 +43,6 @@ const CustomInput = ({
         <label className="relative self-stretch mt-[-1.00px] font-sans font-normal text-black text-xs tracking-[0] leading-[normal]">
             {label}
         </label>
-        {/* Logika background color */}
         <div
             className={`flex h-[54px] items-center gap-[13px] p-3 relative self-stretch w-full
             rounded-xl border border-solid border-black ${
@@ -63,7 +61,6 @@ const CustomInput = ({
                 onChange={onChange}
                 disabled={disabled}
                 placeholder={placeholder}
-                // Logika text color & cursor
                 className={`relative flex-1 font-sans font-normal text-[15.4px] tracking-[0] leading-[normal] bg-transparent border-none outline-none w-full placeholder:text-gray-400 ${
                     disabled ? "text-gray-600 cursor-not-allowed" : "text-black"
                 }`}
@@ -80,22 +77,27 @@ const CustomInput = ({
 );
 
 export default function PengujiProfil() {
-    // ⭐ Ambil prop 'flash' dari Inertia
-    const { user, errors, flash } = usePage().props;
+    const { user, flash } = usePage().props;
 
-    // State Password Lengkap
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-
-    // ⭐ State Modal Hapus
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const [profileImage, setProfileImage] = useState(
         "https://via.placeholder.com/177?text=U"
     );
 
-    const { data, setData, post, processing, reset } = useForm({
+    const { 
+        data, 
+        setData, 
+        post, 
+        processing, 
+        reset, 
+        errors,       
+        clearErrors,  
+        setError      
+    } = useForm({
         username: user.username || "",
         nama: user.penguji?.nama || "",
         nip: user.penguji?.nip || "",
@@ -107,19 +109,15 @@ export default function PengujiProfil() {
     });
 
     const getOrangeAvatar = (name) => {
-        // background=EA580C (Orange-600 Tailwind)
-        // color=fff (Putih)
         return `https://ui-avatars.com/api/?name=${encodeURIComponent(
             name
         )}&background=EA580C&color=fff&bold=true&size=177`;
     };
 
-    // Init Foto Profil dengan Warna Orange
     useEffect(() => {
         if (user.path_gambar) {
             setProfileImage(`/${user.path_gambar}`);
         } else {
-            // Gunakan Nama Penguji atau Username sebagai basis inisial
             const displayName =
                 user.penguji?.nama || user.username || "Penguji";
             setProfileImage(getOrangeAvatar(displayName));
@@ -134,25 +132,49 @@ export default function PengujiProfil() {
         }
     };
 
-    // ⭐ Logika Hapus Gambar dipisah (Open Modal & Confirm Action)
-
-    // 1. Fungsi Buka Modal
     const openDeletePhotoModal = () => {
         setIsDeleteModalOpen(true);
     };
 
-    // 2. Fungsi Eksekusi Hapus (Dipanggil saat tombol "Hapus" di modal ditekan)
     const confirmDeletePhoto = () => {
         setData((prev) => ({ ...prev, foto: null, delete_foto: true }));
-
         const displayName = user.penguji?.nama || user.username || "Penguji";
         setProfileImage(getOrangeAvatar(displayName));
-
-        setIsDeleteModalOpen(false); // Tutup modal setelah hapus
+        setIsDeleteModalOpen(false); 
     };
 
     const handleSaveChanges = (e) => {
         e.preventDefault();
+        clearErrors();
+
+        let isValid = true;
+
+        if (data.old_password && !data.new_password) {
+            setError("new_password", "Password baru wajib diisi.");
+            isValid = false;
+        }
+
+        if (!data.old_password && data.new_password) {
+            setError(
+                "old_password",
+                "Password lama wajib diisi untuk verifikasi."
+            );
+            isValid = false;
+        }
+
+        if (
+            data.new_password &&
+            data.new_password !== data.new_password_confirmation
+        ) {
+            setError(
+                "new_password_confirmation",
+                "Konfirmasi password tidak cocok."
+            );
+            isValid = false;
+        }
+
+        if (!isValid) return;
+
         post("/penguji/pengaturan-akun", {
             preserveScroll: true,
             onSuccess: () => {
@@ -192,14 +214,12 @@ export default function PengujiProfil() {
                     />
 
                     <div className="flex-1 overflow-auto">
-                        {/* MAIN CONTENT WRAPPER */}
                         <div className=" w-full min-h-screen flex justify-center p-0 font-sans transition-all duration-300">
                             <div className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14">
-                                {/* KONTEN UTAMA */}
                                 <div className="flex flex-col gap-5 w-full">
-                                    {/* ⭐ FLASH MESSAGES AREA */}
+                                    
                                     {flash?.success && (
-                                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative">
+                                        <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-4">
                                             <strong className="font-bold">
                                                 Berhasil!
                                             </strong>
@@ -210,7 +230,7 @@ export default function PengujiProfil() {
                                         </div>
                                     )}
                                     {flash?.error && (
-                                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative">
+                                        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4">
                                             <strong className="font-bold">
                                                 Error!
                                             </strong>
@@ -220,10 +240,9 @@ export default function PengujiProfil() {
                                             </span>
                                         </div>
                                     )}
-                                    {/* END FLASH MESSAGES AREA */}
 
                                     <div className="flex flex-col lg:flex-row items-start gap-5 relative w-full">
-                                        {/* --- KOLOM KIRI: FOTO PROFIL --- */}
+                                        {/* FOTO PROFIL */}
                                         <aside className="flex flex-col w-full lg:w-[403px] items-center gap-[17px] p-5 bg-white rounded-xl border border-os-primary-pj shadow-sm">
                                             <div className="w-full">
                                                 <h2 className="text-xl">
@@ -232,7 +251,6 @@ export default function PengujiProfil() {
                                                 <hr className="mt-1 border-os-primary-pj" />
                                             </div>
 
-                                            {/* Lingkaran Foto */}
                                             <div
                                                 className="md:w-[177px] md:h-[177px] w-[130px] h-[130px] rounded-full bg-[#3a2323] border border-black bg-cover bg-center"
                                                 style={{
@@ -240,7 +258,6 @@ export default function PengujiProfil() {
                                                 }}
                                             />
 
-                                            {/* Alert Box */}
                                             <div className="flex-col items-start gap-[5px] p-3.5 relative self-stretch flex w-full bg-red-100 rounded-xl overflow-hidden border border-solid border-red-400">
                                                 <div className="inline-flex items-center gap-[5px]">
                                                     <AlertCircle className="w-[15px] text-red-500" />
@@ -261,7 +278,6 @@ export default function PengujiProfil() {
                                                 </p>
                                             )}
 
-                                            {/* Tombol Upload & Delete */}
                                             <div className="flex items-center gap-[15px] relative self-stretch w-full">
                                                 <label className="flex items-center justify-center gap-2.5 px-3 py-3 relative flex-1 bg-orange-500 text-white rounded-xl cursor-pointer hover:bg-orange-700 transition">
                                                     <input
@@ -277,8 +293,7 @@ export default function PengujiProfil() {
                                                         Upload
                                                     </span>
                                                 </label>
-
-                                                {/* ⭐ Button trigger openDeletePhotoModal */}
+                                                
                                                 <OsButton
                                                     name="warning"
                                                     type="button"
@@ -292,7 +307,7 @@ export default function PengujiProfil() {
                                             </div>
                                         </aside>
 
-                                        {/* --- KOLOM KANAN: FORM DATA --- */}
+                                        {/* FORM DATA */}
                                         <section className="flex flex-col items-start gap-[15px] p-5 relative w-full lg:flex-1 bg-white rounded-xl border border-os-primary-pj shadow-sm">
                                             <div className="w-full">
                                                 <h2 className="text-xl">
@@ -302,14 +317,13 @@ export default function PengujiProfil() {
                                             </div>
 
                                             <form
-                                                onSubmit={handleSaveChanges}
+                                                onSubmit={handleSaveChanges} 
                                                 className="flex flex-col items-start gap-[15px] w-full"
                                             >
-                                                {/* USERNAME (Read Only) */}
                                                 <CustomInput
                                                     label="Nama pengguna"
                                                     value={data.username}
-                                                    disabled // Otomatis Gray Background
+                                                    disabled
                                                     icon={
                                                         <OsIcon
                                                             name="User"
@@ -318,14 +332,12 @@ export default function PengujiProfil() {
                                                     }
                                                 />
 
-                                                {/* NAMA LENGKAP (Read Only) */}
                                                 <CustomInput
                                                     label="Nama Lengkap"
                                                     value={data.nama}
                                                     disabled
                                                 />
 
-                                                {/* NIP (Read Only) */}
                                                 <CustomInput
                                                     label="NIP / NIDN"
                                                     value={data.nip}
@@ -340,14 +352,15 @@ export default function PengujiProfil() {
 
                                                 <hr className="w-full border-os-primary-pj my-2" />
 
-                                                {/* PASSWORD SECTION */}
-
                                                 {/* PASSWORD LAMA */}
                                                 <div className="flex flex-col gap-[3px] w-full">
                                                     <label className="text-xs">
                                                         Password lama
                                                     </label>
-                                                    <div className="flex items-center p-2 bg-white rounded-xl border border-black pr-2">
+                                                    {/* ⭐ LOGIKA BORDER MERAH */}
+                                                    <div className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
+                                                        errors.old_password ? "border-red-500" : "border-black"
+                                                    }`}>
                                                         <Lock
                                                             size={16}
                                                             opacity={0.5}
@@ -397,23 +410,25 @@ export default function PengujiProfil() {
                                                             )}
                                                         </button>
                                                     </div>
+                                                    
+                                                    {/* ⭐ LOGIKA ALERT ICON & RED TEXT */}
                                                     {errors.old_password && (
-                                                        <p className="text-sm text-red-500 mt-1">
-                                                            {
-                                                                errors.old_password
-                                                            }
+                                                        <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
+                                                            <AlertCircle size={12} /> {errors.old_password}
                                                         </p>
                                                     )}
                                                 </div>
 
-                                                {/* WRAPPER: PASSWORD BARU & KONFIRMASI (SEJAJAR) */}
                                                 <div className="flex flex-col md:flex-row gap-[15px] w-full">
                                                     {/* PASSWORD BARU */}
                                                     <div className="flex flex-col gap-[3px] w-full">
                                                         <label className="text-xs">
                                                             Password baru
                                                         </label>
-                                                        <div className="flex items-center p-2 bg-white rounded-xl border border-black pr-2">
+                                                        {/* ⭐ LOGIKA BORDER MERAH */}
+                                                        <div className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
+                                                            errors.new_password ? "border-red-500" : "border-black"
+                                                        }`}>
                                                             <Lock
                                                                 size={16}
                                                                 opacity={0.5}
@@ -467,11 +482,11 @@ export default function PengujiProfil() {
                                                                 )}
                                                             </button>
                                                         </div>
+
+                                                        {/* ⭐ LOGIKA ALERT ICON & RED TEXT */}
                                                         {errors.new_password && (
-                                                            <p className="text-sm text-red-500 mt-1">
-                                                                {
-                                                                    errors.new_password
-                                                                }
+                                                            <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
+                                                                <AlertCircle size={12} /> {errors.new_password}
                                                             </p>
                                                         )}
                                                     </div>
@@ -482,7 +497,10 @@ export default function PengujiProfil() {
                                                             Konfirmasi password
                                                             baru
                                                         </label>
-                                                        <div className="flex items-center p-2 bg-white rounded-xl border border-black pr-2">
+                                                        {/* ⭐ LOGIKA BORDER MERAH */}
+                                                        <div className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
+                                                            errors.new_password_confirmation ? "border-red-500" : "border-black"
+                                                        }`}>
                                                             <Lock
                                                                 size={16}
                                                                 opacity={0.5}
@@ -536,17 +554,16 @@ export default function PengujiProfil() {
                                                                 )}
                                                             </button>
                                                         </div>
+
+                                                        {/* ⭐ LOGIKA ALERT ICON & RED TEXT */}
                                                         {errors.new_password_confirmation && (
-                                                            <p className="text-sm text-red-500 mt-1">
-                                                                {
-                                                                    errors.new_password_confirmation
-                                                                }
+                                                            <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
+                                                                <AlertCircle size={12} /> {errors.new_password_confirmation}
                                                             </p>
                                                         )}
                                                     </div>
                                                 </div>
 
-                                                {/* BUTTONS */}
                                                 <div className="w-full flex justify-between gap-3 mt-2">
                                                     <OsButton
                                                         name="primary-pj"
@@ -593,12 +610,10 @@ export default function PengujiProfil() {
                     </div>
                 </div>
 
-                {/* FOOTER */}
                 <div className="">
                     <OsCopyright variant="penguji" />
                 </div>
 
-                {/* ⭐ UPDATE: MODAL UNTUK DELETE FOTO PROFIL (DISAMAKAN DENGAN ADMIN) */}
                 <Modals
                     isOpen={isDeleteModalOpen}
                     onClose={() => setIsDeleteModalOpen(false)}
@@ -607,7 +622,7 @@ export default function PengujiProfil() {
                     title="Hapus Foto Profil"
                     message="Apakah Anda yakin ingin menghapus foto profil Anda?"
                     confirmText="Hapus"
-                    showDataDetails={false} // <--- INI TAMBAHANNYA
+                    showDataDetails={false}
                 />
             </main>
         </div>

@@ -162,8 +162,8 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
     }, [currentPage, totalPages]);
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
-            <Head title="Hasil Penilaian OSCE" />
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            {/* <Head title="Hasil Penilaian OSCE" /> */}
 
             <Sidebar
                 type="mahasiswa"
@@ -171,30 +171,40 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             />
 
-            <main className="w-full p-4 md:p-8 lg:p-12 min-h-screen flex flex-col justify-between gap-2 md:gap-4 transition-all duration-300 lg:ml-20">
-                <div className="flex flex-col gap-2 md:gap-4">
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
                     <OsHeader
                         onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                        variant="mahasiswa"
                     />
 
-                    <div className="pt-0">
-                        <div className="mb-6 md:mb-8 flex items-center gap-3">
-                            <FileText className="text-blue-600" size={32} />
-                            <div>
+                    <div className="p-1">
+                        <div className="mb-2 md:mb-4 flex flex-col items-start justify-start">
+                            {/* <FileText className="text-blue-600" size={32} /> */}
+                            <div className="flex gap-2 items-center justify-start my-2">
+                                <FileText size={18} />
+                                <h2 className="font-semibold text-lg">
+                                    Menu Mahasiswa
+                                </h2>
+                            </div>
+                            <p className="text-sm text-gray-500">
+                                Rekapitulasi nilai ujian mahasiswa.
+                            </p>
+                            {/* <div>
                                 <h1 className="text-2xl font-bold text-gray-900 leading-tight">
                                     Hasil Penilaian OSCE
                                 </h1>
                                 <p className="text-sm text-gray-500">
                                     Rekapitulasi nilai ujian mahasiswa.
                                 </p>
-                            </div>
+                            </div> */}
                         </div>
 
                         {/* INFO MAHASISWA & FILTER PANELL */}
-                        <div className="relative mb-8 overflow-hidden rounded-2xl bg-blue-600 p-6 text-white shadow-xl shadow-blue-100">
+                        <div className="relative mb-8 overflow-hidden rounded-2xl bg-green-600 p-6 text-white shadow-xl shadow-blue-100">
                             {/* Background decoration */}
-                            <div className="absolute right-0 top-0 h-64 w-64 translate-x-16 -translate-y-16 rounded-full bg-white/10 blur-3xl"></div>
-                            <div className="absolute left-0 bottom-0 h-40 w-40 -translate-x-10 translate-y-10 rounded-full bg-blue-400/30 blur-2xl"></div>
+                            {/* <div className="absolute right-0 top-0 h-64 w-64 translate-x-16 -translate-y-16 rounded-full bg-white/10 blur-3xl"></div>
+                            <div className="absolute left-0 bottom-0 h-40 w-40 -translate-x-10 translate-y-10 rounded-full bg-blue-400/30 blur-2xl"></div> */}
 
                             <div className="relative z-10 grid grid-cols-1 gap-8 lg:grid-cols-12">
                                 {/* Kiri: Profil Mahasiswa */}
@@ -236,7 +246,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                 </div>
 
                                 {/* Kanan: Filter Panel (Menggunakan handleFilterChange) */}
-                                <div className="lg:col-span-5 flex flex-col justify-center rounded-xl bg-blue-700/40 p-5 backdrop-blur-md border border-white/10">
+                                <div className="lg:col-span-5 flex flex-col justify-center rounded-xl bg-green-800/40 p-5 border border-white/10">
                                     <div className="space-y-4">
                                         {/* Filter Semester */}
                                         <div className="space-y-1">
