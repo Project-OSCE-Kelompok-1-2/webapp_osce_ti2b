@@ -473,14 +473,8 @@ export default function Stase() {
                     clearErrors();
                 }}
                 onSubmit={handleSubmit}
-                title={
-                    modalMode === "edit" ? "Edit Stase" : "Tambah Stase Baru"
-                }
-                subtitle={
-                    modalMode === "edit"
-                        ? "Ubah data stase"
-                        : "Isi form di bawah"
-                }
+                title={modalMode === "edit" ? "Stase" : "Tambah Stase Baru"}
+                subtitle={data.nama_stase}
             >
                 <div className="space-y-4">
                     {/* INPUT MATA KULIAH */}
@@ -634,6 +628,7 @@ export default function Stase() {
                                 name="nama_stase"
                                 value={data.nama_stase}
                                 onChange={(e) => {
+                                    console.log(e.target.value);
                                     setData("nama_stase", e.target.value);
                                     if (errors.nama_stase)
                                         clearErrors("nama_stase");
