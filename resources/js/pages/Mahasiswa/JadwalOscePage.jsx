@@ -1,6 +1,8 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
+// Import library dari Inertia untuk handling head dan router
 import { Head, router } from "@inertiajs/react";
-import { Calendar, Clock, Timer, CheckSquare } from "lucide-react";
+// Import ikon dari library lucide-react
+import { Calendar, Clock, Timer, CheckSquare, ChevronDown } from "lucide-react";
 
 // Sesuaikan path import komponen UI Anda
 import Sidebar from "../../components/Sidebar.jsx";
@@ -11,6 +13,9 @@ import OsTableBody from "../../components/tablecontain.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
 
+// ============================================
+// --- KOMPONEN UTAMA HALAMAN ---
+// ============================================
 export default function JadwalOsce({
     examHeader,
     jadwalStase,
@@ -19,7 +24,7 @@ export default function JadwalOsce({
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
     // ============================================
-    // 1. LOGIKA COUNTDOWN (TIDAK DIUBAH)
+    // 1. LOGIKA COUNTDOWN
     // ============================================
     const calculateTimeLeft = useCallback(() => {
         if (!examHeader?.countdown_target) {
@@ -71,16 +76,17 @@ export default function JadwalOsce({
     }, [calculateTimeLeft]);
 
     const countdownColorClass = useMemo(() => {
-        if (isFinished) return "bg-gray-700";
+        if (isFinished) return "bg-gray-700 shadow-xl shadow-gray-300";
         const { days } = timeLeft;
-        if (days <= 1) return "bg-red-600";
-        else if (days <= 3) return "bg-orange-600";
-        else if (days <= 5) return "bg-teal-600";
-        else return "bg-blue-600";
+        if (days <= 1)
+            return "bg-red-600 shadow-xl shadow-red-300 hover:bg-red-700";
+        else if (days <= 3)
+            return "bg-orange-600 shadow-xl shadow-orange-300 hover:bg-orange-700";
+        else return "bg-blue-600 shadow-xl shadow-blue-300 hover:bg-blue-700";
     }, [timeLeft.days, isFinished]);
 
     // ============================================
-    // 2. LOGIKA FILTER TANGGAL (TIDAK DIUBAH)
+    // 2. LOGIKA FILTER TANGGAL
     // ============================================
     const selectedDateRaw = useMemo(() => {
         return enrollmentDates?.find((date) => date.is_selected)?.date_raw;
@@ -110,7 +116,6 @@ export default function JadwalOsce({
     // ============================================
     // 3. LOGIKA TABLE, SEARCH, & PAGINATION
     // ============================================
-
     const allStaseData = useMemo(() => {
         return Array.isArray(jadwalStase)
             ? jadwalStase
@@ -144,22 +149,18 @@ export default function JadwalOsce({
         currentPage * itemsPerPage
     );
 
-    // --- [ADD] GENERATOR LINKS UNTUK COMPONENT OSPAGINATION ---
+    // Generator Links Pagination (Client-Side)
     const paginationLinks = useMemo(() => {
         if (totalPages <= 1) return [];
 
         const links = [];
 
-        // 1. Link Previous
         links.push({
             url: currentPage > 1 ? `?page=${currentPage - 1}` : null,
             label: "&laquo; Previous",
             active: false,
         });
 
-        // 2. Link Angka Halaman
-        // (Untuk simplifikasi client-side, kita render semua angka.
-        // Jika halaman sangat banyak, perlu logika 'sliding window' tambahan)
         for (let i = 1; i <= totalPages; i++) {
             links.push({
                 url: `?page=${i}`,
@@ -168,7 +169,6 @@ export default function JadwalOsce({
             });
         }
 
-        // 3. Link Next
         links.push({
             url: currentPage < totalPages ? `?page=${currentPage + 1}` : null,
             label: "Next &raquo;",
@@ -178,38 +178,38 @@ export default function JadwalOsce({
         return links;
     }, [currentPage, totalPages]);
 
+    // --- Definisi Kolom Tabel ---
     const tableColumns = [
         {
             content: "No",
             key: "no",
-            width: "w-16 shrink-0",
-            classes: "flex items-center justify-center",
+            width: "w-[40px] md:w-16 shrink-0",
+            classes: "flex items-center justify-center f",
         },
         {
             content: "Stase Keterampilan Klinik",
             key: "stase",
-            width: "w-[400px] flex-1 shrink-0",
-            classes: "flex items-center justify-start px-6",
+            width: "flex-1 min-w-[300px]",
+            classes: "flex items-center justify-start px-3 md:px-6 ",
         },
         {
             content: "Penguji",
             key: "penguji",
-            width: "w-[300px] shrink-0",
+            width: "w-[150px] md:w-[250px] shrink-0",
             classes:
-                "flex items-center text-start px-6 text-sm leading-relaxed",
+                "hidden sm:flex items-center text-start px-6  leading-relaxed ",
         },
         {
             content: "Ruangan",
             key: "ruangan",
-            width: "w-60 shrink-0",
-            classes:
-                "flex items-center justify-center text-sm text-center px-2",
+            width: "w-48 shrink-0",
+            classes: "flex items-center justify-center  text-center",
         },
         {
             content: "Waktu",
             key: "waktu",
-            width: "w-40 shrink-0",
-            classes: "flex items-center justify-center text-sm",
+            width: "w-44 shrink-0",
+            classes: "flex items-center justify-center text-sm font-medium",
         },
     ];
 
@@ -223,48 +223,81 @@ export default function JadwalOsce({
     }));
 
     // ============================================
-    // 4. RENDER UI
+    // 4. HELPER COMPONENT (Untuk Baris Timer)
+    // ============================================
+    const TimerSegment = ({ value, label }) => (
+        <div className="flex flex-col items-center justify-center min-w-[60px] md:min-w-[80px]">
+            <div className="text-white text-3xl md:text-5xl font-extrabold mb-1">
+                {value.toString().padStart(2, "0")}
+            </div>
+            <div className="text-blue-100 text-xs md:text-sm font-medium">
+                {label}
+            </div>
+        </div>
+    );
+
+    // ============================================
+    // 5. RENDER UI
     // ============================================
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
-            <Head title="Jadwal OSCE" />
+        // PERBAIKAN 1: Tambahkan overflow-x-hidden pada wrapper utama
+        // untuk mencegah scroll horizontal yang tidak diinginkan dari elemen yang kelebihan lebar.
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-x-hidden">
+            {/* <Head title="Jadwal OSCE" /> */}
             <Sidebar
                 type="mahasiswa"
                 isOpen={sidebarOpen}
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
-            <main className="w-full p-4 md:p-8 lg:p-12 min-h-screen flex flex-col justify-between gap-8 transition-all duration-300 lg:ml-20">
-                <div className="flex flex-col gap-8">
+            {/* PERBAIKAN 2:
+                - Gunakan `flex-1` agar `<main>` mengambil sisa lebar yang tersedia.
+                - Hapus `w-full` yang redundan.
+                - Gunakan `max-w-full` untuk mencegah elemen di dalam `<main>` mendorongnya melebihi lebar viewport.
+                - Atur `margin-left` secara kondisional hanya untuk layar besar (`lg+`) saat sidebar terbuka.
+            */}
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
                     <OsHeader
                         onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+                        variant="mahasiswa"
                     />
 
-                    <div className="flex flex-col gap-6">
-                        {/* HEADER INFO SECTION (TIDAK DIUBAH) */}
-                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12">
-                            {/* KIRI: Info Detail Ujian */}
-                            <div className="lg:col-span-7 rounded-2xl bg-blue-600 p-6 text-white shadow-md relative overflow-hidden">
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="bg-white/20 p-2 rounded-lg">
-                                        <Calendar
-                                            size={28}
-                                            className="text-white"
-                                        />
-                                    </div>
-                                    <h2 className="text-2xl font-bold">
-                                        {examHeader?.judul || "Ujian OSCE"}
-                                    </h2>
+                    <div className="flex-1 overflow-auto p-1">
+                        {/* Judul Halaman */}
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Calendar size={20} />
+                            <h2 className="font-semibold text-xl">
+                                Jadwal Stase Mahasiswa
+                            </h2>
+                        </div>
+                        <p className="text-sm text-gray-500 mb-4 max-w-2xl text-justify">
+                            Informasi detail ujian OSCE Anda, termasuk tanggal,
+                            waktu, dan hitung mundur menuju ujian.
+                        </p>
+
+                        <div className="grid grid-cols-1 gap-6 lg:grid-cols-12 mb-2">
+                            {/* KIRI: Info Detail Ujian & Filter Tanggal */}
+                            <div className="lg:col-span-7 bg-green-600 rounded-xl p-6 shadow-sm border w-full">
+                                <div className="rounded-full text-white">
+                                    <Calendar size={24} />
                                 </div>
-                                <div className="mb-6 pb-4 border-b border-white/20">
-                                    <p className="text-sm font-semibold text-blue-100 mb-2">
+                                <h2 className="text-xl py-2 font-bold text-white">
+                                    {examHeader?.judul || "Detail Ujian OSCE"}
+                                </h2>
+
+                                <hr className="border-1 border-white" />
+
+                                {/* Area Pemilihan Tanggal */}
+                                <div className="py-2 w-full">
+                                    <p className="text-sm font-medium text-white mb-2 w-full">
                                         Pilih Tanggal Ujian:
                                     </p>
-                                    <div className="relative inline-block w-full sm:w-auto">
+                                    <div className="relative inline-block w-full">
                                         <select
                                             value={selectedDateRaw || ""}
                                             onChange={handleDateSelect}
-                                            className="appearance-none bg-white text-blue-600 p-3 pr-10 rounded-xl border border-white shadow-lg font-bold w-full sm:min-w-[200px] focus:outline-none focus:ring-2 focus:ring-white"
+                                            className="appearance-none bg-white text-green-700 p-3 pr-10 rounded-lg border border-blue-200 w-full shadow-sm font-semibold focus:outline-none focus:ring-2 focus:ring-green-500"
                                             disabled={
                                                 !enrollmentDates ||
                                                 enrollmentDates.length === 0
@@ -294,41 +327,36 @@ export default function JadwalOsce({
                                                 )
                                             )}
                                         </select>
-                                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-600">
-                                            <svg
-                                                className="fill-current h-4 w-4"
-                                                xmlns="http://www.w3.org/2000/svg"
-                                                viewBox="0 0 20 20"
-                                            >
-                                                <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                                            </svg>
+                                        <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-blue-700">
+                                            <ChevronDown className="h-4 w-4" />
                                         </div>
                                     </div>
                                 </div>
-                                <div className="flex flex-wrap gap-4">
-                                    <div className="flex items-center gap-3 bg-white/10 p-3 rounded-xl border border-white/20 min-w-[180px]">
-                                        <div className="bg-white text-blue-600 p-2 rounded-lg">
-                                            <Calendar size={20} />
-                                        </div>
+
+                                {/* Detail Waktu dan Tanggal Terpilih */}
+                                <div className="flex flex-wrap gap-4 mt-2">
+                                    <div className="flex flex-1 items-center gap-3 bg-os-primary-mhs text-white p-4 rounded-xl min-w-[180px]">
+                                        <Calendar
+                                            size={20}
+                                            className="shrink-0"
+                                        />
                                         <div>
-                                            <p className="text-xs text-blue-100 opacity-80">
-                                                Tanggal
+                                            <p className="text-xs opacity-80">
+                                                Tanggal Terpilih
                                             </p>
-                                            <p className="text-lg font-bold">
+                                            <p className="lg:text-lg text-sm font-semibold">
                                                 {examHeader?.tanggal_formatted ||
                                                     "-"}
                                             </p>
                                         </div>
                                     </div>
-                                    <div className="flex items-center gap-3 bg-white/10 p-3 rounded-xl border border-white/20 min-w-[140px]">
-                                        <div className="bg-white text-blue-600 p-2 rounded-lg">
-                                            <Clock size={20} />
-                                        </div>
+                                    <div className="flex flex-1 items-center gap-3 bg-os-primary-mhs text-white p-4 rounded-xl min-w-[140px]">
+                                        <Clock size={20} className="shrink-0" />
                                         <div>
-                                            <p className="text-xs text-blue-100 opacity-80">
-                                                Waktu
+                                            <p className="text-xs opacity-80">
+                                                Waktu Mulai
                                             </p>
-                                            <p className="text-lg font-bold">
+                                            <p className="text-lg font-semibold">
                                                 {examHeader?.waktu_mulai || "-"}{" "}
                                                 WIB
                                             </p>
@@ -339,56 +367,62 @@ export default function JadwalOsce({
 
                             {/* KANAN: Countdown Timer */}
                             <div
-                                className={`lg:col-span-5 rounded-2xl ${countdownColorClass} p-6 text-white shadow-md flex flex-col justify-center transition-colors duration-500`}
+                                className={`lg:col-span-5 rounded-xl ${countdownColorClass} p-6 text-white flex flex-col justify-between transition-colors duration-500`}
                             >
-                                <div className="flex items-center gap-3 mb-6">
-                                    <div className="bg-white/20 p-2 rounded-lg">
-                                        <Timer
-                                            size={24}
-                                            className="text-white"
+                                <div>
+                                    <div className="flex flex-col gap-1 items-start mb-4 justify-start">
+                                        <Clock size={20} />
+                                        <h2 className="font-semibold text-xl">
+                                            Countdown Ujian
+                                        </h2>
+                                    </div>
+
+                                    <hr className="border-1 border-white" />
+                                </div>
+
+                                <p className="text-sm font-medium lg:mt-0 mt-2 text-white mb-2 w-full">
+                                    Sisa waktu sebelum Osce Dimulai
+                                </p>
+
+                                <div>
+                                    <div className="flex justify-between items-center text-center mt-4 lg:mt-0 px-2">
+                                        {/* Menggunakan Helper Component TimerSegment */}
+                                        <TimerSegment
+                                            value={timeLeft.days}
+                                            label="Hari"
+                                        />
+                                        <TimerSegment
+                                            value={timeLeft.hours}
+                                            label="Jam"
+                                        />
+                                        <TimerSegment
+                                            value={timeLeft.minutes}
+                                            label="Menit"
+                                        />
+                                        <TimerSegment
+                                            value={timeLeft.seconds}
+                                            label="Detik"
                                         />
                                     </div>
-                                    <h2 className="text-xl font-bold">
-                                        Hitung Mundur Waktu Ujian
-                                    </h2>
-                                </div>
-                                <div className="flex justify-between items-center text-center px-2">
-                                    {["Hari", "Jam", "Menit", "Detik"].map(
-                                        (unit, idx) => {
-                                            const val =
-                                                Object.values(timeLeft)[idx];
-                                            return (
-                                                <div key={unit}>
-                                                    <div className="text-white text-3xl md:text-4xl font-extrabold mb-1">
-                                                        {val
-                                                            .toString()
-                                                            .padStart(2, "0")}
-                                                    </div>
-                                                    <div className="text-blue-100 text-sm">
-                                                        {unit}
-                                                    </div>
-                                                </div>
-                                            );
-                                        }
+                                    {isFinished && (
+                                        <p className="text-center text-red-700 mt-4 font-bold bg-white p-2 rounded-xl text-sm animate-pulse">
+                                            Ujian Telah Dimulai / Selesai!
+                                        </p>
                                     )}
                                 </div>
-                                {isFinished && (
-                                    <p className="text-center text-red-700 mt-4 font-bold bg-white p-2 rounded-xl text-sm animate-pulse">
-                                        Ujian Telah Dimulai / Selesai!
-                                    </p>
-                                )}
                             </div>
                         </div>
 
-                        {/* --- TABLE SECTION --- */}
-                        <div>
-                            <div className="flex items-center gap-3 mb-4">
-                                <CheckSquare size={32} className="text-black" />
-                                <h2 className="text-2xl font-bold text-black">
-                                    Jadwal Per Stase ({selectedDateLabel})
+                        {/* --- TABLE SECTION: Jadwal Per Stase --- */}
+                        <div className="mt-2">
+                            <div className="flex gap-1 items-center justify-start my-2">
+                                <CheckSquare size={18} />
+                                <h2 className="font-semibold text-lg">
+                                    Jadwal Stase ({selectedDateLabel})
                                 </h2>
                             </div>
 
+                            {/* Search Bar */}
                             <div className="mb-4">
                                 <OsSearchBar
                                     search={search}
@@ -397,54 +431,64 @@ export default function JadwalOsce({
                                 />
                             </div>
 
-                            <div className="w-full overflow-x-auto pb-4">
-                                <div className="min-w-max border rounded-lg overflow-hidden">
-                                    <OsTableHeader columns={tableColumns} />
-                                    {tableData.length > 0 ? (
-                                        <OsTableBody
-                                            data={tableData}
+                            {/* Table Container - Responsive Horizontal Scroll */}
+                            {/* Pastikan container ini memiliki overflow-x-auto, yang sudah benar */}
+                            <div className="bg-white p-5 border border-os-primary-mhs overflow-x-auto rounded-xl shadow-sm">
+                                <div className="w-full pb-2 ">
+                                    {/* Hapus overflow-x-auto yang redundan di sini */}
+                                    <div className="min-w-max">
+                                        <OsTableHeader
                                             columns={tableColumns}
+                                            variant="mahasiswa"
                                         />
-                                    ) : (
-                                        <div className="flex flex-col items-center justify-center border-t border-gray-200 py-12 gap-3">
-                                            {/* Logika Pesan Dinamis */}
-                                            {!isFinished ? ( // Jika countdown masih jalan (belum mulai)
-                                                <>
-                                                    <div className="p-3 bg-blue-50 rounded-full text-blue-600">
-                                                        <CheckSquare
-                                                            size={32}
-                                                        />
-                                                    </div>
-                                                    <p className="text-gray-800 font-bold text-lg">
-                                                        Detail Stase Terkunci
+                                        {tableData.length > 0 ? (
+                                            <OsTableBody
+                                                data={tableData}
+                                                columns={tableColumns}
+                                                variant="mahasiswa"
+                                            />
+                                        ) : (
+                                            <div className="flex flex-col items-center justify-center py-12 gap-3 border-t border-gray-100">
+                                                {!isFinished ? (
+                                                    <>
+                                                        <div className="p-3 bg-blue-50 rounded-full text-blue-600">
+                                                            <CheckSquare
+                                                                size={32}
+                                                            />
+                                                        </div>
+                                                        <p className="text-gray-800 font-bold text-lg">
+                                                            Detail Stase
+                                                            Terkunci
+                                                        </p>
+                                                        <p className="text-gray-500 text-sm text-center max-w-md">
+                                                            Daftar stase,
+                                                            penguji, dan ruangan
+                                                            akan muncul otomatis
+                                                            saat hitung mundur
+                                                            berakhir dan ujian
+                                                            dimulai.
+                                                        </p>
+                                                    </>
+                                                ) : (
+                                                    <p className="text-gray-500 text-sm">
+                                                        Data jadwal tidak
+                                                        ditemukan untuk tanggal
+                                                        ini.
                                                     </p>
-                                                    <p className="text-gray-500 text-sm text-center max-w-md">
-                                                        Daftar stase, penguji,
-                                                        dan ruangan akan muncul
-                                                        otomatis saat hitung
-                                                        mundur berakhir dan
-                                                        ujian dimulai.
-                                                    </p>
-                                                </>
-                                            ) : (
-                                                // Jika sudah lewat waktu tapi data kosong (memang tidak ada data/error)
-                                                <p className="text-gray-500 text-sm">
-                                                    Data tidak ditemukan.
-                                                </p>
-                                            )}
-                                        </div>
-                                    )}
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
 
-                            {/* --- UPDATED PAGINATION --- */}
+                            {/* Pagination */}
                             {totalPages > 1 && (
-                                <div className="mt-4">
+                                <div className="mt-6 flex justify-center">
                                     <OsPagination
                                         links={paginationLinks}
                                         variant="mahasiswa"
                                         onPageChange={(page) => {
-                                            // Handle case if page is string/url or number
                                             setCurrentPage(Number(page));
                                         }}
                                     />
@@ -454,8 +498,9 @@ export default function JadwalOsce({
                     </div>
                 </div>
 
-                <div className="mt-12">
-                    <OsCopyright />
+                {/* COPYRIGHT */}
+                <div className="">
+                    <OsCopyright variant="mahasiswa" />
                 </div>
             </main>
         </div>
