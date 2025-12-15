@@ -60,9 +60,9 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
         });
     };
 
-    // =========================================
+    // ==========================================
     // 2. PAGINATION (SLICING DATA YANG SUDAH DIFILTER)
-    // =========================================
+    // ==========================================
     const totalItems = allUjianData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
 
