@@ -78,9 +78,28 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
             ),
             width: "w-[100px] md:w-[200px]",
             classes:
-                "justify-center items-center px-2 md:px-6 font-medium text-gray-600 uppercase text-xs tracking-wide",
+                "justify-center items-center px-2 md:px-6 font-semibold text-gray-900 tracking-wide",
         },
     ];
+
+    // Create a copy of columns for the header with white text
+    const headerColumns = tableColumns.map((col) => {
+        let newClasses = col.classes
+            ? col.classes.replace(/text-gray-\d+/g, "text-white")
+            : "";
+
+        // Khusus kolom 'nama_stase', paksa header jadi center (timpa alignment kiri body)
+        if (col.key === "nama_stase") {
+            newClasses = newClasses
+                .replace("md:justify-start", "md:justify-center")
+                .replace("md:text-left", "md:text-center");
+        }
+
+        return {
+            ...col,
+            classes: newClasses,
+        };
+    });
 
     // --- 4. HELPER COMPONENT (Untuk Baris Info) ---
     const InfoRow = ({ label, value }) => (
@@ -169,7 +188,7 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                             <div className="overflow-x-auto">
                                 <div className="min-w-full">
                                     <div className="bg-white">
-                                        <OsTableHeader columns={tableColumns} cl />
+                                        <OsTableHeader columns={headerColumns} cl />
                                     </div>
                                     <div className="w-full">
                                         <OsTableBody
