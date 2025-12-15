@@ -199,7 +199,7 @@ export default function LivePenilaian() {
     return (
         <div
             key={id_enrollment_osce}
-            className="relative bg-white w-full p-os-12 min-h-screen flex justify-start font-sans overflow-hidden"
+            className="relative bg-orange-50 w-full p-os-12 min-h-screen flex justify-start font-sans overflow-hidden"
         >
             {/* KOTAK TIMER FIXED */}
             <div

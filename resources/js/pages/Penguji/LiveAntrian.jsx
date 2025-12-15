@@ -72,16 +72,16 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                             {safeOsce.skenario}
                         </div>
                     </div>
-                    <div className="bg-blue-50 border border-blue-100 rounded-lg p-3 flex items-start gap-3">
+                    <div className="bg-orange-50 border border-orange-100 rounded-lg p-3 flex items-start gap-3">
                         <AlertCircle
-                            className="text-blue-600 mt-0.5 shrink-0"
+                            className="text-orange-600 mt-0.5 shrink-0"
                             size={18}
                         />
                         <div>
-                            <p className="text-xs font-bold text-blue-800">
+                            <p className="text-xs font-bold text-orange-800">
                                 Ujian Serentak
                             </p>
-                            <p className="text-[10px] text-blue-600 mt-0.5 leading-tight">
+                            <p className="text-[10px] text-orange-600 mt-0.5 leading-tight">
                                 Ujian dimulai serentak untuk{" "}
                                 <b>{safeStudents.length} mahasiswa</b>.
                             </p>
@@ -105,10 +105,10 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                         key={item.id_tujuan_pembelajaran}
                                         className="p-2.5 border-b last:border-0 hover:bg-gray-50"
                                     >
-                                        <p className="font-medium text-base">
+                                        <p className="font-semibold text-os-paragraph mb-1">
                                             Tujuan {idx + 1}
                                         </p>
-                                        <p className=" text-gray-800 ">
+                                        <p className=" text-gray-500 ">
                                             {item.tujuan}
                                         </p>
                                     </div>
@@ -145,7 +145,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
         {
             title: "Mulai",
             content: (
-                <div className="flex flex-col items-center justify-center h-full text-center py-6">
+                <div className="flex flex-col items-center justify-center h-[400px] text-center">
                     <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mb-3 text-green-600">
                         <CheckCircle size={32} />
                     </div>
@@ -234,7 +234,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                         <h2 className="md:text-sm text-lg font-bold text-gray-800">
                                             Detail Informasi
                                         </h2>
-                                        <span className="md:text-[10px] text-xs bg-orange-50 text-orange-700 px-2 py-0.5 rounded border border-blue-100 font-medium">
+                                        <span className="md:text-[10px] text-xs bg-orange-50 text-orange-700 px-2 py-0.5 rounded border border-orange-100 font-medium">
                                             Semester Genap 2024
                                         </span>
                                     </div>
@@ -393,7 +393,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                                                                 student.id_enrollment_osce ||
                                                                 index
                                                             }
-                                                            className="hover:bg-blue-50/50"
+                                                            className="hover:bg-orange-50/50"
                                                         >
                                                             <td className="px-4 py-2.5 text-gray-600 font-mono">
                                                                 {student.nim}
@@ -439,6 +439,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
             </div>
 
             <OsStepModal
+                variant="penguji"
                 show={showModal}
                 onClose={handleCloseModal}
                 onSubmit={handleSubmitExam}

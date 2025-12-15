@@ -129,6 +129,7 @@
                             onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                             variant="goback"
                             role="mahasiswa"
+                            backLink="/mahasiswa/nilai"
                         />
 
                         {/* KONTEN UTAMA */}
