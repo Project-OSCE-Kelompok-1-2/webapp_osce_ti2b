@@ -399,8 +399,11 @@ export default function KompetensiPage() {
                                         columns={columns}
                                     />
                                 ) : (
-                                    <div className="py-6 text-center text-gray-500 border-b">
-                                        Belum ada kompetensi untuk aspek ini.
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+
+                                            Tidak ada data kompetensi dalam stase ini
+                                        </p>
                                     </div>
                                 )}
                             </div>

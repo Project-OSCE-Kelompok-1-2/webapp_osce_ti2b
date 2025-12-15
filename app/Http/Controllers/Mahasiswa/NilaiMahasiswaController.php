@@ -25,7 +25,7 @@ class NilaiMahasiswaController extends Controller
             'mahasiswa',
             'osce.tahunAkademik',
             'osce.osceStase.stase',
-            // PENTING: Load poinAspekPenilaian untuk ambil bobot
+            // PENTING: Load poinAspekPenilaian untuk ambil bobott
             'nilaiOsce.poinAspekPenilaian.aspekPenilaian',
         ])->findOrFail($id);
 

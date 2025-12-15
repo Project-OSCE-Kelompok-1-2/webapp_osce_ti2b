@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link, usePage, router, Head } from "@inertiajs/react";
 import { Search, Bookmark, Table2, Info } from "lucide-react";
 
-
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
 import OsCopyright from "../../components/Copyright";
@@ -225,29 +224,29 @@ export default function RekapOscePage() {
                             </div>
                         )}
 
-                    {/* <h2 className="font-semibold text-lg mb-1">
+                        {/* <h2 className="font-semibold text-lg mb-1">
                         Menu Rekap Nilai
                     </h2> */}
-                    <div className="flex gap-1 items-center justify-start my-2">
-                        <Bookmark size={18} />
-                        <h2 className="font-semibold text-lg">
-                            Menu Rekap Nilai
-                        </h2>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Pilih OSCE yang telah selesai untuk melihat rekapitulasi <br/>
-                        nilai mahasiswa.
-                    </p>
-
-                    {/* SEARCH & FILTER SECTION (UPDATED) */}
-                    <div className="flex flex-col sm:flex-row gap-3 mb-2">
-                        <div className="flex-grow">
-                            <OsSearchBar
-                                search={search}
-                                setSearch={setSearch}
-                                placeholder="Cari data OSCE..."
-                            />
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Bookmark size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Menu Rekap Nilai
+                            </h2>
                         </div>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                            Pilih OSCE yang telah selesai untuk melihat
+                            rekapitulasi nilai mahasiswa.
+                        </p>
+
+                        {/* SEARCH & FILTER SECTION (UPDATED) */}
+                        <div className="flex flex-col sm:flex-row gap-3 mb-2">
+                            <div className="flex-grow">
+                                <OsSearchBar
+                                    search={search}
+                                    setSearch={setSearch}
+                                    placeholder="Cari data OSCE..."
+                                />
+                            </div>
 
                             {/* Dropdown Filter Tahun Akademik */}
                             <div className="w-full sm:w-64 shrink-0">
@@ -266,55 +265,58 @@ export default function RekapOscePage() {
                             </div>
                         </div>
 
-                    {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table OSCE
                         <span className="text-sm font-normal text-gray-500 ml-2">
                             (Total: {totalItems} data)
                         </span>
                     </h2> */}
-                    <div className="flex gap-1 items-center justify-start mb-2">
-                        <Table2 size={18} />
-                        <h2 className="font-semibold text-lg">Tabel OSCE</h2>
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
-                    </div>
+                        <div className="flex gap-1 items-center justify-start mb-2">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Tabel OSCE
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
+                        </div>
 
-                    {/* TABEL */}
-                    <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
-                        <div className="min-w-max">
-                            <OsTableHeader columns={rekapColumns} />
-                            {filteredData.length > 0 ? (
-                                <OsTableBody
-                                    data={tableData}
-                                    columns={rekapColumns}
-                                />
-                            ) : (
-                                <div className="flex items-center border-t border-gray-400">
-                                    <p className="w-full text-center text-sm py-4 text-gray-500">
-                                        Data rekap nilai tidak ditemukan.
-                                    </p>
+                        {/* TABEL */}
+                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={rekapColumns} />
+                                {filteredData.length > 0 ? (
+                                    <OsTableBody
+                                        data={tableData}
+                                        columns={rekapColumns}
+                                    />
+                                ) : (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                            Data rekap nilai OSCE tidak
+                                            ditemukan.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+
+                            {/* PAGINATION */}
+                            {totalPages > 1 && (
+                                <div className="mt-8">
+                                    <OsPagination
+                                        links={generatedLinks}
+                                        onPageChange={(page) =>
+                                            setCurrentPage(page)
+                                        }
+                                    />
                                 </div>
                             )}
-                        </div>
-                    </section>
-
-                        {/* PAGINATION */}
-                        {totalPages > 1 && (
-                            <div className="mt-8">
-                                <OsPagination
-                                    links={generatedLinks}
-                                    onPageChange={(page) =>
-                                        setCurrentPage(page)
-                                    }
-                                />
-                            </div>
-                        )}
+                        </section>
                     </div>
-                </div>
 
-                <div className="">
-                    <OsCopyright />
+                    <div className="">
+                        <OsCopyright />
+                    </div>
                 </div>
             </main>
         </div>

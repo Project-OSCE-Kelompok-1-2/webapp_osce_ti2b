@@ -56,9 +56,7 @@ const CustomInput = ({
                 disabled={disabled}
                 placeholder={placeholder}
                 className={`relative flex-1 font-sans font-normal text-[15.4px] tracking-[0] leading-[normal] bg-transparent border-none outline-none w-full placeholder:text-gray-400 ${
-                    disabled
-                        ? "text-gray-600 cursor-not-allowed"
-                        : "text-black"
+                    disabled ? "text-gray-600 cursor-not-allowed" : "text-black"
                 }`}
             />
             {iconRight && (
@@ -219,7 +217,10 @@ export default function MahasiswaAccountSettings() {
             />
 
             <main className="grid w-full p-os-16 lg:p-4 min-h-screen grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader onMenuClick={() => setSidebarOpen(!sidebarOpen)} variant="mahasiswa" />
+                <OsHeader
+                    onMenuClick={() => setSidebarOpen(!sidebarOpen)}
+                    variant="mahasiswa"
+                />
 
                 <div className="flex flex-col gap-5 w-full">
                     {/* FLASH MESSAGE */}
@@ -346,7 +347,6 @@ export default function MahasiswaAccountSettings() {
                                     <label className="text-xs">
                                         Password lama
                                     </label>
-                                    {/* ⭐ Logic Border Merah */}
                                     <div
                                         className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
                                             errors.old_password
@@ -354,10 +354,11 @@ export default function MahasiswaAccountSettings() {
                                                 : "border-black"
                                         }`}
                                     >
+                                        {/* PERBAIKAN: Tambah shrink-0 */}
                                         <Lock
                                             size={16}
                                             opacity={0.5}
-                                            className="ml-2"
+                                            className="ml-2 shrink-0"
                                         />
                                         <input
                                             type={
@@ -373,7 +374,8 @@ export default function MahasiswaAccountSettings() {
                                                 )
                                             }
                                             placeholder="Masukkan password lama..."
-                                            className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400"
+                                            // PERBAIKAN: Tambah min-w-0
+                                            className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400 min-w-0"
                                         />
                                         <button
                                             type="button"
@@ -382,7 +384,8 @@ export default function MahasiswaAccountSettings() {
                                                     !showOldPassword
                                                 )
                                             }
-                                            className="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                            // PERBAIKAN: Tambah shrink-0
+                                            className="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                             title={
                                                 showOldPassword
                                                     ? "Sembunyikan"
@@ -396,7 +399,7 @@ export default function MahasiswaAccountSettings() {
                                             )}
                                         </button>
                                     </div>
-                                    {/* ⭐ Logic Pesan Error + Ikon */}
+                                    {/* Logic Pesan Error + Ikon */}
                                     {errors.old_password && (
                                         <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
                                             <AlertCircle size={12} />{" "}
@@ -419,10 +422,11 @@ export default function MahasiswaAccountSettings() {
                                                     : "border-black"
                                             }`}
                                         >
+                                            {/* PERBAIKAN: Tambah shrink-0 */}
                                             <Lock
                                                 size={16}
                                                 opacity={0.5}
-                                                className="ml-2"
+                                                className="ml-2 shrink-0"
                                             />
                                             <input
                                                 type={
@@ -438,7 +442,8 @@ export default function MahasiswaAccountSettings() {
                                                     )
                                                 }
                                                 placeholder="Password baru..."
-                                                className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400"
+                                                // PERBAIKAN: Tambah min-w-0
+                                                className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400 min-w-0"
                                             />
                                             <button
                                                 type="button"
@@ -447,7 +452,8 @@ export default function MahasiswaAccountSettings() {
                                                         !showNewPassword
                                                     )
                                                 }
-                                                className="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                // PERBAIKAN: Tambah shrink-0
+                                                className="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                 title={
                                                     showNewPassword
                                                         ? "Sembunyikan"
@@ -481,10 +487,11 @@ export default function MahasiswaAccountSettings() {
                                                     : "border-black"
                                             }`}
                                         >
+                                            {/* PERBAIKAN: Tambah shrink-0 */}
                                             <Lock
                                                 size={16}
                                                 opacity={0.5}
-                                                className="ml-2"
+                                                className="ml-2 shrink-0"
                                             />
                                             <input
                                                 type={
@@ -502,7 +509,8 @@ export default function MahasiswaAccountSettings() {
                                                     )
                                                 }
                                                 placeholder="Konfirmasi password..."
-                                                className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400"
+                                                // PERBAIKAN: Tambah min-w-0
+                                                className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400 min-w-0"
                                             />
                                             <button
                                                 type="button"
@@ -511,7 +519,8 @@ export default function MahasiswaAccountSettings() {
                                                         !showConfirmPassword
                                                     )
                                                 }
-                                                className="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                // PERBAIKAN: Tambah shrink-0
+                                                className="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                 title={
                                                     showConfirmPassword
                                                         ? "Sembunyikan"

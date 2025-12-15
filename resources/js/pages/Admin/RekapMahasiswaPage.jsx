@@ -184,19 +184,20 @@ export default function RekapMahasiswaPage() {
                             </div>
                         )}
 
-                    {/* <h2 className="font-semibold text-lg mb-1">
+                        {/* <h2 className="font-semibold text-lg mb-1">
                         Menu Nilai Mahasiswa
                     </h2> */}
-                    <div className="flex gap-1 items-center justify-start my-2">
-                        <Bookmark size={18} />
-                        <h2 className="font-semibold text-lg">
-                            Menu Nilai Mahasiswa
-                        </h2>
-                    </div>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Daftar mahasiswa yang ter-enroll di sesi tanggal{" "} <br/>
-                        {sesi.tanggal_formatted}.
-                    </p>
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Bookmark size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Menu Nilai Mahasiswa
+                            </h2>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                            Daftar mahasiswa yang ter-enroll di sesi tanggal{" "}
+                            <br />
+                            {sesi.tanggal_formatted}.
+                        </p>
 
                         {/* SEARCH INSTANT */}
                         <OsSearchBar
@@ -213,39 +214,39 @@ export default function RekapMahasiswaPage() {
                             />
                         </OsSearchBar>
 
-                    {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                        {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
                         Table Mahasiswa
                         <span className="text-sm font-normal text-gray-500 ml-2">
                             (Total: {totalItems} data)
                         </span>
                     </h2> */}
-                    <div className="flex gap-1 items-center justify-start mb-2 mt-4">
-                        <Table2 size={18} />
-                        <h2 className="font-semibold text-lg">
-                            Table Mahasiswa
-                        </h2>
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
-                    </div>
-
-                    <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
-                        <div className="min-w-max">
-                            <OsTableHeader columns={mahasiswaColumns} />
-                            {filteredData.length > 0 ? (
-                                <OsTableBody
-                                    data={tableData}
-                                    columns={mahasiswaColumns}
-                                />
-                            ) : (
-                                <div className="flex items-center border-t border-gray-400">
-                                    <p className="w-full text-center text-sm py-4 text-gray-500">
-                                        Data mahasiswa tidak ditemukan.
-                                    </p>
-                                </div>
-                            )}
+                        <div className="flex gap-1 items-center justify-start mb-2 mt-4">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Table Mahasiswa
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
                         </div>
-                    </section>
+
+                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={mahasiswaColumns} />
+                                {filteredData.length > 0 ? (
+                                    <OsTableBody
+                                        data={tableData}
+                                        columns={mahasiswaColumns}
+                                    />
+                                ) : (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                            Data rekap mahasiswa tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
 
                         {/* PAGINATION CLIENT-SIDE */}
                         {totalPages > 1 && (

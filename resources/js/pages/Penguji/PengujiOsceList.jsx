@@ -166,21 +166,28 @@ export default function PengujiOsceList() {
             tanggal_mulai: item.tanggal_mulai,
             tanggal_akhir: item.tanggal_akhir,
             status: (
-                <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        item.status === "Aktif"
-                            ? "bg-green-100 text-green-800"
-                            : item.status === "Belum Dimulai"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : item.status === "Telah Dinilai"
-                            ? "bg-indigo-100 text-indigo-800"
-                            : item.status === "Belum Dinilai"
-                            ? "bg-red-100 text-red-800" // Tambah style Belum Dinilai
-                            : "bg-gray-200 text-gray-800" // Default/Selesai
-                    }`}
-                >
-                    {item.status}
-                </span>
+                <div className="w-full h-full flex items-center justify-center py-1">
+                    <span
+                        className={`whitespace-nowrap inline-block rounded-full font-medium 
+            
+            text-[10px] px-2 py-0.5       {/* MOBILE: Font 10px, Padding tipis */}
+            md:text-xs md:px-3 md:py-1    {/* DESKTOP: Font 12px, Padding normal */}
+            
+            ${
+                item.status === "Aktif"
+                    ? "bg-green-100 text-green-800"
+                    : item.status === "Belum Dimulai"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : item.status === "Telah Dinilai"
+                    ? "bg-indigo-100 text-indigo-800"
+                    : item.status === "Belum Dinilai"
+                    ? "bg-red-100 text-red-800"
+                    : "bg-gray-200 text-gray-800"
+            }`}
+                    >
+                        {item.status}
+                    </span>
+                </div>
             ),
             action: (
                 <Link
@@ -218,7 +225,7 @@ export default function PengujiOsceList() {
                         variant="penguji"
                     />
 
-                    <div className="flex-1 overflow-auto">
+                    <div className="flex-1 overflow-auto p-1">
                         <div className="flex gap-1 items-center justify-start my-2">
                             <FileText size={18} />
                             <h2 className="font-semibold text-lg">
@@ -291,25 +298,22 @@ export default function PengujiOsceList() {
 
                         <section className="bg-white p-5 border border-os-primary-pj overflow-x-auto rounded-xl shadow-sm">
                             <div className="min-w-[900px]">
+                                <OsTableHeader
+                                    columns={osceColumns}
+                                    variant="penguji"
+                                />
+                                <OsTableBody
+                                    data={mappedData}
+                                    columns={osceColumns}
+                                    variant="penguji"
+                                />
                                 {mappedData.length > 0 ? (
-                                    <>
-                                        <OsTableHeader
-                                            columns={osceColumns}
-                                            variant="penguji"
-                                        />
-                                        <OsTableBody
-                                            data={mappedData}
-                                            columns={osceColumns}
-                                            variant="penguji"
-                                        />
-                                    </>
+                                    <></>
                                 ) : (
-                                    <div className="p-10 text-center border rounded-xl bg-white text-gray-500 flex flex-col items-center justify-center gap-2">
-                                        <AlertCircle
-                                            size={24}
-                                            className="text-gray-400"
-                                        />
-                                        <p>Tidak ada data OSCE ditemukan.</p>
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                            Data OSCE tidak ditemukan.
+                                        </p>
                                     </div>
                                 )}
                             </div>

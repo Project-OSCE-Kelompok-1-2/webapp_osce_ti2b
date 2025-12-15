@@ -60,25 +60,18 @@ export default function LoginMosaicPage() {
             <div className="absolute bottom-0 left-0 w-[500px] h-[500px] bg-sky-300/20 rounded-full blur-3xl" />
 
             {/* === CONTENT === */}
-            <div className="relative z-10 min-h-screen flex items-center justify-center p-8 sm:p-0">
+            <div className="relative z-10 min-h-screen flex items-center justify-center">
                 <div className="w-full max-w-md">
-                    <div className="min-h-[520px] flex flex-col justify-between bg-white/95 border border-os-primary rounded-2xl p-8 shadow-2xl backdrop-blur-xl">
+                    <div className="min-h-[520px] flex flex-col justify-around bg-white/95 border border-os-primary rounded-2xl p-8 shadow-2xl backdrop-blur-xl">
                         <form
                             onSubmit={onSubmit}
-                            className="flex h-full flex-col justify-around gap-6"
+                            className="flex h-full flex-col justify-between gap-8 "
                         >
                             {/* Header */}
-                            <div className="text-center mb-10">
-                                <div className="mx-auto w-10 h-10 rounded-full mb-3" />
-                                {/* <div className="mx-auto w-20 h-20 rounded-full bg-blue-400 mb-3" >
+                            <div className="h-24 flex flex-col justify-center items-center text-center ">
 
-                                </div>
-                                <h1 className="text-2xl font-bold tracking-wide">
-                                    MOSAIC
-                                </h1> */}
-
-                                <OsIcon name="logoMosaic" className="w-32 my-4 "/>
-                                <p className="text-sm text-slate-600">
+                                <OsIcon name="logoMosaic" className="w-44 pb-2 "/>
+                                <p className="text-sm text-blue-600">
                                     Medical OSCE Assessment and Information Center.
                                 </p>
                             </div>
@@ -95,7 +88,7 @@ export default function LoginMosaicPage() {
                                     }
                                 />
                                 {errors?.username && (
-                                    <p className="text-red-500 text-xs mt-1">
+                                    <p className="text-red-500 text-xs mt-2">
                                         {errors.username}
                                     </p>
                                 )}
@@ -148,7 +141,7 @@ export default function LoginMosaicPage() {
                                 )}
 
                                 {flash?.error && (
-                                    <p className="text-red-500 text-xs mt-2 text-center">
+                                    <p className="text-red-500 text-xs mt-2 text-left">
                                         {flash.error}
                                     </p>
                                 )}

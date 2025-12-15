@@ -334,8 +334,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                             <h2 className="font-semibold text-lg">Menu OSCE</h2>
                         </div>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                            Halaman OSCE digunakan <br /> untuk mengelola daftar
-                            OSCE.
+                            Halaman OSCE digunakan untuk mengelola daftar OSCE.
                         </p>
 
                         <OsButton
@@ -405,6 +404,13 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                         data={rows}
                                         columns={columns}
                                     />
+                                    {filteredData.length === 0 && (
+                                        <div className="flex items-center border-t border-gray-400">
+                                            <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                                Data OSCE tidak ditemukan.
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {totalPages > 1 && (
