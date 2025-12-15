@@ -68,13 +68,18 @@ export default function LoginMosaicPage() {
                             className="flex h-full flex-col justify-around gap-6"
                         >
                             {/* Header */}
-                            <div className="text-center">
-                                <div className="mx-auto w-20 h-20 rounded-full bg-blue-400 mb-3" />
+                            <div className="text-center mb-10">
+                                <div className="mx-auto w-10 h-10 rounded-full mb-3" />
+                                {/* <div className="mx-auto w-20 h-20 rounded-full bg-blue-400 mb-3" >
+
+                                </div>
                                 <h1 className="text-2xl font-bold tracking-wide">
                                     MOSAIC
-                                </h1>
+                                </h1> */}
+
+                                <OsIcon name="logoMosaic" className="w-32 my-4 "/>
                                 <p className="text-sm text-slate-600">
-                                    Website OSCE | Fakultas Kedokteran
+                                    Medical OSCE Assessment and Information Center.
                                 </p>
                             </div>
 
@@ -125,12 +130,12 @@ export default function LoginMosaicPage() {
                                         {showPwd ? (
                                             <OsIcon
                                                 name="EyeCrossed"
-                                                className="h-5 os-icon-light"
+                                                className="h-4 os-icon-light"
                                             />
                                         ) : (
                                             <OsIcon
                                                 name="Eye"
-                                                className="h-5 os-icon-light"
+                                                className="h-4 os-icon-light"
                                             />
                                         )}
                                     </button>
