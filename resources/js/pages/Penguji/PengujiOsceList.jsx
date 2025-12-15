@@ -166,21 +166,28 @@ export default function PengujiOsceList() {
             tanggal_mulai: item.tanggal_mulai,
             tanggal_akhir: item.tanggal_akhir,
             status: (
-                <span
-                    className={`px-3 py-1 rounded-full text-xs font-medium ${
-                        item.status === "Aktif"
-                            ? "bg-green-100 text-green-800"
-                            : item.status === "Belum Dimulai"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : item.status === "Telah Dinilai"
-                            ? "bg-indigo-100 text-indigo-800"
-                            : item.status === "Belum Dinilai"
-                            ? "bg-red-100 text-red-800" // Tambah style Belum Dinilai
-                            : "bg-gray-200 text-gray-800" // Default/Selesai
-                    }`}
-                >
-                    {item.status}
-                </span>
+                <div className="w-full h-full flex items-center justify-center py-1">
+                    <span
+                        className={`whitespace-nowrap inline-block rounded-full font-medium 
+            
+            text-[10px] px-2 py-0.5       {/* MOBILE: Font 10px, Padding tipis */}
+            md:text-xs md:px-3 md:py-1    {/* DESKTOP: Font 12px, Padding normal */}
+            
+            ${
+                item.status === "Aktif"
+                    ? "bg-green-100 text-green-800"
+                    : item.status === "Belum Dimulai"
+                    ? "bg-yellow-100 text-yellow-800"
+                    : item.status === "Telah Dinilai"
+                    ? "bg-indigo-100 text-indigo-800"
+                    : item.status === "Belum Dinilai"
+                    ? "bg-red-100 text-red-800"
+                    : "bg-gray-200 text-gray-800"
+            }`}
+                    >
+                        {item.status}
+                    </span>
+                </div>
             ),
             action: (
                 <Link

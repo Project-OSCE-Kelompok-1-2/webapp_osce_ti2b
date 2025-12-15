@@ -152,40 +152,51 @@ export default function RekapDetailPage() {
                             </h2>
                         </div>
                         <p className="text-sm text-gray-500 mt-1 mb-4">
-                            Rincian lengkap performa mahasiswa per stase dan <br/>
+                            Rincian lengkap performa mahasiswa per stase dan{" "}
+                            <br />
                             kompetensi.
                         </p>
 
                         {/* Cards */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 border border-os-primary gap-2 mb-4 p-4 bg-white rounded-xl">
-                            <div className="lg:col-span-2 rounded-2xl max-w-[860px] w-full shadow-sm border-gray-100 relative overflow-hidden group flex items-center">
-                                <div className="relative z-10 flex flex-row items-center justify-center gap-6 ">
-                                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-3xl shadow-lg shadow-blue-200">
+                            <div className="lg:col-span-2 rounded-2xl max-w-[860px] w-full shadow-sm border-gray-100 relative overflow-hidden group flex items-center p-6">
+                                {/* PERUBAHAN: Gunakan items-center untuk mobile agar di tengah, sm:items-center (row) untuk desktop */}
+                                <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-center justify-center gap-4 sm:gap-6 w-full">
+                                    {/* Avatar: Tetap di tengah */}
+                                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-3xl shadow-lg shadow-blue-200 shrink-0">
                                         {mahasiswa.nama
                                             ? mahasiswa.nama.charAt(0)
                                             : "M"}
                                     </div>
-                                    <div className="flex-1">
-                                        <h3 className="font-bold text-blue-950 text-xl mb-1">
+
+                                    {/* Info Text: Mobile Rata Tengah, Desktop Rata Kiri */}
+                                    <div className="flex-1 w-full flex flex-col items-center sm:items-start text-center sm:text-left">
+                                        <h3 className="font-bold text-blue-950 text-xl mb-2 sm:mb-1 break-words">
                                             {mahasiswa.nama ||
                                                 "Nama Tidak Diketahui"}
                                         </h3>
-                                        <div className="flex flex-wrap gap-3 text-sm text-gray-600">
+
+                                        {/* Badges Container: Mobile Justify Center, Desktop Justify Start */}
+                                        <div className="flex flex-wrap justify-center sm:justify-start gap-3 text-sm text-gray-600 w-full">
+                                            {/* Badge NIM */}
                                             <div className="flex items-center gap-2 bg-blue-50 border-os-primary px-3 py-1.5 rounded-lg border border-gray-100">
                                                 <User
                                                     size={16}
-                                                    className="text-blue-500"
+                                                    className="text-blue-500 shrink-0"
                                                 />
                                                 <span className="font-medium text-os-primary-dark">
                                                     {mahasiswa.nim || "-"}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center gap-2 bg-blue-50 border-os-primary px-3 py-1.5 rounded-lg border border-gray-100">
+
+                                            {/* Badge Nama OSCE */}
+                                            <div className="flex items-center gap-2 bg-blue-50 border-os-primary px-2 py-1.5 rounded-lg border border-gray-100 max-w-full">
                                                 <BookOpen
                                                     size={16}
-                                                    className="text-blue-500"
+                                                    className="text-blue-500 shrink-0"
                                                 />
-                                                <span className="font-medium text-os-primary-dark" >
+                                                {/* Text tetap rata kiri agar enak dibaca bersanding dengan icon */}
+                                                <span className="font-medium text-os-primary-dark whitespace-normal text-left leading-tight break-words">
                                                     {osce.nama_osce ||
                                                         "Ujian OSCE"}
                                                 </span>
