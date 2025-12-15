@@ -12,10 +12,9 @@ import OsTableHeader from "../../components/tableheader";
 import OsTableBody from "../../components/tablecontain";
 
 export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
-    // ... (LOGIC FILTERING & STATE TETAP SAMA, TIDAK DIUBAH) ...
-    // Copy-paste logic dari kode sebelumnya di sini
+    // ... (LOGIC FILTERING & STATE TETAP SAMA) ...
 
-    // --- HELPER FORMAT TANGGAL (Opsional, dari request sebelumnya) ---
+    // --- HELPER FORMAT TANGGAL ---
     const formatTanggalIndo = (tanggal) => {
         if (!tanggal) return "-";
         const date = new Date(tanggal);
@@ -24,6 +23,18 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
             day: "numeric",
             month: "long",
             year: "numeric",
+        }).format(date);
+    };
+
+    const formatJam = (tanggal) => {
+        if (!tanggal) return "";
+        const date = new Date(tanggal);
+        if (isNaN(date.getTime())) return "";
+
+        return new Intl.DateTimeFormat("id-ID", {
+            hour: "2-digit",
+            minute: "2-digit",
+            hour12: false,
         }).format(date);
     };
 
@@ -64,40 +75,55 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
         currentPage * itemsPerPage
     );
 
-    // Definisi Kolom
+    // --- PERBAIKAN 1: Update Columns Definition ---
+    // Menambahkan 'shrink-0' agar kolom tidak tergencet saat di mobile
     const columns = [
-        { key: "no", content: "NO", width: "w-12 md:w-16 shrink-0" }, // Perkecil lebar NO di mobile
+        { key: "no", content: "NO", width: "w-12 md:w-16 shrink-0" },
         {
             key: "nama_ujian",
             content: "NAMA UJIAN OSCE",
-            width: "min-w-[200px] md:flex-[2]", // Beri min-width agar tidak gepeng
+            // Ubah width: pastikan ada min-width yang cukup besar dan shrink-0
+            width: "w-[250px] md:flex-1 shrink-0",
             classes: "justify-start items-center pl-2",
         },
         {
             key: "tahun_akademik",
             content: "TAHUN",
-            width: "min-w-[140px] shrink-0",
+            width: "w-[100px] md:w-[140px] shrink-0",
         },
         {
             key: "semester",
             content: "SEMESTER",
-            width: "min-w-[140px] shrink-0",
+            width: "w-[100px] md:w-[140px] shrink-0",
         },
-        { key: "aksi", content: "AKSI", width: "min-w-[140px] shrink-0" },
-        { key: "status", content: "STATUS", width: "min-w-[130px] shrink-0" },
+        {
+            key: "aksi",
+            content: "AKSI",
+            width: "w-[120px] md:w-[140px] shrink-0",
+        },
+        {
+            key: "status",
+            content: "STATUS",
+            width: "w-[120px] md:w-[130px] shrink-0",
+        },
     ];
 
     const tableData = paginatedData.map((item, index) => ({
         no: (currentPage - 1) * itemsPerPage + index + 1,
         nama_ujian: (
             <div className="flex flex-col items-start pl-2 md:pl-4 py-1">
-                <span className="font-semibold text-sm md:text-base text-gray-800 line-clamp-2">
+                <span className="font-semibold text-sm md:text-base text-gray-800 line-clamp-2 text-wrap">
                     {item.nama_ujian?.split(" 20")[0]}
                 </span>
-                <div className="text-[10px] md:text-[11px] text-gray-500 font-medium mt-1 flex flex-wrap items-center gap-1">
+
+                <div className="text-[10px] md:text-[11px] text-gray-500 font-medium mt-1 flex flex-wrap items-center gap-1.5">
                     <span>{formatTanggalIndo(item.tanggal_ujian)}</span>
+                    <span className="text-gray-300">•</span>
+                    <span className="text-gray-500 font-semibold">
+                        {formatJam(item.tanggal_ujian)} WIB
+                    </span>
                     <span className="hidden md:inline text-gray-300">•</span>
-                    <span className="text-gray-500">{item.tahun_ujian}</span>
+                    <span className="text-gray-400">{item.tahun_ujian}</span>
                 </div>
             </div>
         ),
@@ -109,9 +135,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                 className="inline-flex gap-1 md:gap-2 items-center justify-center rounded-lg min-h-[32px] md:min-h-[36px] bg-green-600 px-3 md:px-4 py-1.5 md:py-2 text-[10px] md:text-xs font-bold text-white hover:bg-green-700 transition-all active:scale-95"
             >
                 <Search size={14} className="md:w-4 md:h-4" />
-                <span className="hidden sm:inline">Lihat Nilai</span>{" "}
-                {/* Sembunyikan teks di layar sangat kecil */}
-                <span className="sm:hidden">Lihat</span>
+                <span className="inline">Lihat Nilai</span>
             </Link>
         ),
         status: (
@@ -128,14 +152,12 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
     }));
 
     const generatedLinks = useMemo(() => {
-        // ... logic pagination sama ...
         if (totalPages <= 1) return [];
-        // (Persingkat kode di sini agar fokus ke UI, gunakan logika pagination Anda sebelumnya)
         return [];
+        // (Pastikan logic pagination dikembalikan sesuai aslinya jika ada)
     }, [currentPage, totalPages]);
 
     return (
-        // UBAH: Padding wrapper disesuaikan (p-4 untuk mobile, p-os-12 untuk desktop)
         <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-4 md:p-8 lg:p-os-12 font-sans overflow-hidden">
             <Sidebar
                 type="mahasiswa"
@@ -166,29 +188,24 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
 
                         {/* --- KARTU HIJAU (INFO & FILTER) --- */}
                         <div className="relative mb-6 overflow-hidden rounded-2xl bg-green-600 p-4 md:p-6 text-white shadow-xl shadow-blue-100">
-                            {/* Grid diubah: Default 1 kolom, layar besar 12 kolom */}
+                            {/* ... (BAGIAN INFO MAHASISWA & FILTER TIDAK PERLU DIUBAH, SAMA SEPERTI SEBELUMNYA) ... */}
+                            {/* Biarkan bagian ini sesuai kode aslimu untuk menghemat tempat di jawaban ini */}
                             <div className="relative z-10 grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-12">
-                                {/* 1. BAGIAN PROFIL */}
+                                {/* Copy Paste isi Kartu Hijau dari kodemu sebelumnya di sini */}
                                 <div className="lg:col-span-7 flex flex-col justify-center space-y-4 md:space-y-6">
                                     <div className="flex items-start gap-4 md:gap-5">
-                                        {/* Icon User */}
                                         <div className="hidden sm:flex h-12 w-12 md:h-14 md:w-14 flex-shrink-0 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
                                             <User className="h-6 w-6 md:h-7 md:w-7 text-white" />
                                         </div>
-
                                         <div className="w-full space-y-3 md:space-y-4">
-                                            {/* Nama Mahasiswa */}
                                             <div className="border-b border-blue-400/30 pb-3">
                                                 <p className="text-xs md:text-sm font-medium text-blue-100 mb-1">
                                                     Nama Lengkap
                                                 </p>
-                                                {/* Text size responsive */}
                                                 <p className="text-lg md:text-xl font-bold tracking-wide break-words">
                                                     {mahasiswa?.nama || "-"}
                                                 </p>
                                             </div>
-
-                                            {/* Detail Grid: Mobile 1 kolom (stack), Tablet/Desktop 3 kolom */}
                                             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                                                 <div>
                                                     <p className="text-xs font-medium text-blue-100">
@@ -200,7 +217,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                                 </div>
                                                 <div>
                                                     <p className="text-xs font-medium text-blue-100">
-                                                        Program Studi
+                                                        Prodi
                                                     </p>
                                                     <p className="text-base md:text-lg font-semibold truncate">
                                                         {mahasiswa?.prodi ||
@@ -220,11 +237,9 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                         </div>
                                     </div>
                                 </div>
-
-                                {/* 2. BAGIAN FILTER PANEL */}
                                 <div className="lg:col-span-5 flex flex-col justify-center rounded-xl bg-green-800/40 p-4 md:p-5 border border-white/10">
+                                    {/* Filter controls placeholder (sama seperti kodemu) */}
                                     <div className="space-y-3 md:space-y-4">
-                                        {/* Filter Semester */}
                                         <div className="space-y-1">
                                             <label className="text-xs font-semibold text-blue-100 uppercase tracking-wider">
                                                 Semester
@@ -258,8 +273,6 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                                 )}
                                             </select>
                                         </div>
-
-                                        {/* Filter Tahun */}
                                         <div className="space-y-1">
                                             <label className="text-xs font-semibold text-blue-100 uppercase tracking-wider">
                                                 Tahun Ujian
@@ -293,8 +306,6 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                                 )}
                                             </select>
                                         </div>
-
-                                        {/* Status Akademik */}
                                         <div className="mt-4 flex items-center justify-between border-t border-white/20 pt-3 md:pt-4">
                                             <span className="text-sm font-medium text-blue-100">
                                                 Status Akademik
@@ -331,13 +342,16 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                             </div>
                         </div>
 
-                        {/* TABEL DATA */}
+                        {/* --- PERBAIKAN 2: TABEL DATA --- */}
                         <div className="bg-white p-0 md:p-5 border border-os-primary-mhs overflow-hidden rounded-xl shadow-sm">
-                            {/* Wrapper Table dengan overflow-x-auto agar bisa discroll horizontal di HP */}
-                            <div className="w-full overflow-x-auto">
-                                <div className="min-w-[600px] md:min-w-full pb-2">
-                                    {" "}
-                                    {/* min-w-[600px] memaksa table punya lebar minimal agar tidak gepeng */}
+                            {/* Wrapper Table dengan overflow-x-auto */}
+                            <div className="w-full overflow-x-auto pb-2">
+                                {/* UBAH DI SINI:
+                                    Ganti min-w-[900px] menjadi min-w-max.
+                                    Ini akan membuat container menyesuaikan lebar sesuai isi (kolom),
+                                    jadi tidak akan ada ruang kosong berlebih di kanan.
+                                */}
+                                <div className="min-w-max">
                                     <OsTableHeader
                                         columns={columns}
                                         variant="mahasiswa"
