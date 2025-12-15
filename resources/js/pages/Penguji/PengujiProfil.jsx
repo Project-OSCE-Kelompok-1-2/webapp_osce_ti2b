@@ -135,7 +135,7 @@ export default function PengujiProfil() {
     };
 
     // ⭐ Logika Hapus Gambar dipisah (Open Modal & Confirm Action)
-    
+
     // 1. Fungsi Buka Modal
     const openDeletePhotoModal = () => {
         setIsDeleteModalOpen(true);
@@ -147,7 +147,7 @@ export default function PengujiProfil() {
 
         const displayName = user.penguji?.nama || user.username || "Penguji";
         setProfileImage(getOrangeAvatar(displayName));
-        
+
         setIsDeleteModalOpen(false); // Tutup modal setelah hapus
     };
 
@@ -234,7 +234,7 @@ export default function PengujiProfil() {
 
                                             {/* Lingkaran Foto */}
                                             <div
-                                                className="w-[177px] h-[177px] rounded-full bg-[#3a2323] border border-black bg-cover bg-center"
+                                                className="md:w-[177px] md:h-[177px] w-[130px] h-[130px] rounded-full bg-[#3a2323] border border-black bg-cover bg-center"
                                                 style={{
                                                     backgroundImage: `url(${profileImage})`,
                                                 }}
@@ -277,7 +277,7 @@ export default function PengujiProfil() {
                                                         Upload
                                                     </span>
                                                 </label>
-                                                
+
                                                 {/* ⭐ Button trigger openDeletePhotoModal */}
                                                 <OsButton
                                                     name="warning"

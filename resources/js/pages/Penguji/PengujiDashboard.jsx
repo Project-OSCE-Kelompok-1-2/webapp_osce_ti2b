@@ -27,10 +27,10 @@ const StatCard = ({ title, value, description, icon, colorClass }) => {
             <div>
                 <div className="flex justify-between items-start mb-3">
                     <div>
-                        <h3 className="font-medium text-sm text-white">
+                        <h3 className="font-medium text-lg text-white">
                             {title}
                         </h3>
-                        <p className="text-xs text-white mt-1">{description}</p>
+                        <p className="text-sm text-white mt-1">{description}</p>
                     </div>
                     <div className="p-1 rounded bg-white/60 border">
                         <Bookmark size={16} className="text-gray-600" />
@@ -79,9 +79,12 @@ const JadwalCard = ({ item }) => {
             href={`/penguji/osce?search=${encodeURIComponent(item.nama_osce)}`}
             className="block group"
         >
+            {/* Flex container utama */}
             <div className="bg-white border rounded-xl shadow-sm px-4 py-4 flex items-center justify-between hover:shadow-md transition-all hover:border-orange-300 cursor-pointer">
-                <div className="flex items-center gap-3">
-                    <div className="flex flex-col items-center justify-center w-12 h-12 bg-orange-500 rounded-xl text-white shadow-sm group-hover:bg-orange-600 transition-colors">
+                {/* KIRI: Tanggal + Info OSCE */}
+                <div className="flex items-center gap-3 flex-shrink">
+                    {/* Tanggal */}
+                    <div className="flex flex-col items-center justify-center w-12 h-12 bg-orange-500 rounded-xl text-white shadow-sm group-hover:bg-orange-600 transition-colors shrink-0">
                         <span className="font-bold text-xl leading-none">
                             {item.hari}
                         </span>
@@ -90,6 +93,7 @@ const JadwalCard = ({ item }) => {
                         </span>
                     </div>
 
+                    {/* Info OSCE */}
                     <div>
                         <h4 className="font-bold text-orange-700 text-sm line-clamp-1 group-hover:text-orange-800 transition-colors">
                             {item.nama_osce}
@@ -100,9 +104,10 @@ const JadwalCard = ({ item }) => {
                     </div>
                 </div>
 
-                <div>
+                {/* KANAN: STATUS LABEL (DIPERBAIKI) */}
+                <div className="ml-2 flex-shrink-0">
                     <span
-                        className={`px-3 py-1.5 rounded-full text-xs font-medium border ${statusClass}`}
+                        className={`px-3 py-1.5 rounded-xl text-xs font-medium border ${statusClass}`}
                     >
                         {item.status}
                     </span>
@@ -171,7 +176,7 @@ export default function PengujiDashboard() {
                             <h1 className="font-bold text-os-title text-gray-900">
                                 {nama_penguji}
                             </h1>
-                            <p className="text-gray-500 text-sm">
+                            <p className="text-gray-500 md:text-sm">
                                 Berikut adalah ringkasan aktivitas pengujian
                                 Anda.
                             </p>
@@ -183,7 +188,7 @@ export default function PengujiDashboard() {
                         <section className="mb-2">
                             <div className="flex gap-os-8 items-center justify-start mb-2">
                                 <OsIcon name={"stat"} className="h-[15px]" />
-                                <h2 className="font-bold text-os-regular text-gray-900">
+                                <h2 className="font-bold md:text-os-regular text-lg text-gray-900">
                                     Statistika
                                 </h2>
                             </div>
@@ -237,7 +242,7 @@ export default function PengujiDashboard() {
                                     <div className="flex gap-os-8 items-center justify-start">
                                         <CalendarRange size={18} />
                                         <div className="flex items-center gap-2">
-                                            <h2 className="font-bold text-os-regular text-gray-900">
+                                            <h2 className="font-bold md:text-os-regular text-lg text-gray-900">
                                                 {selected_date
                                                     ? `Jadwal Tanggal: ${selected_date}`
                                                     : "Jadwal Mendatang"}
@@ -253,7 +258,7 @@ export default function PengujiDashboard() {
                                 </div>
 
                                 {/* List Jadwal */}
-                                <div className="flex flex-col gap-3">
+                                <div className="flex flex-col gap-3 ">
                                     {jadwal_mendatang &&
                                     jadwal_mendatang.length > 0 ? (
                                         jadwal_mendatang.map((item, idx) => (

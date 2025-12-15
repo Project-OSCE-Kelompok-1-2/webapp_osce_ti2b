@@ -164,7 +164,11 @@ export default function RekapMahasiswaPage() {
 
     return (
         <div className="relative bg-orange-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} type={"penguji"} />
+            <Sidebar
+                isOpen={isSidebarOpen}
+                onToggle={handleSidebarToggle}
+                type={"penguji"}
+            />
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 <div className="flex flex-col gap-os-8">
@@ -179,30 +183,89 @@ export default function RekapMahasiswaPage() {
                         {/* Header Biru Besar (Detail OSCE) */}
                         <div className="w-full rounded-xl overflow-hidden border border-orange-600 mb-4 shadow-sm">
                             <div className="bg-os-primary-pj-dark text-white text-center py-6">
-                                <h1 className="text-2xl font-bold mb-1">Detail OSCE</h1>
-                                <p className="text-sm opacity-90">{safeOsceInfo.nama_osce}</p>
+                                <h1 className="text-2xl font-bold mb-1">
+                                    Detail OSCE
+                                </h1>
+                                <p className="text-sm opacity-90">
+                                    {safeOsceInfo.nama_osce}
+                                </p>
                             </div>
                             <div className="bg-white p-4">
                                 <div className="flex flex-col lg:flex-row border border-gray-400 rounded-xl divide-y lg:divide-y-0 lg:divide-x divide-gray-400">
                                     <div className="p-4 flex flex-col w-full lg:w-auto min-w-[120px]">
-                                        <span className="text-xs text-gray-600 mb-2">Stasiun</span>
-                                        <div className="bg-os-secondary-pj text-white w-16 h-16 rounded-xl flex items-center justify-center text-3xl font-bold shadow-md">01</div>
+                                        <span className="text-xs text-gray-600 mb-2">
+                                            Stasiun
+                                        </span>
+                                        <div className="bg-os-secondary-pj text-white w-16 h-16 rounded-xl flex items-center justify-center text-3xl font-bold shadow-md">
+                                            01
+                                        </div>
                                     </div>
                                     <div className="p-4 flex-1 flex flex-col-reverse justify-between">
-                                        <div><span className="text-xs text-gray-600 block">Nama Stase</span><span className="text-sm font-bold block">{safeOsceInfo.nama_stase}</span></div>
-                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full"><FileText size={18} className="text-white" /></div>
+                                        <div>
+                                            <span className="text-xs text-gray-600 block">
+                                                Nama Stase
+                                            </span>
+                                            <span className="md:text-sm font-bold block">
+                                                {safeOsceInfo.nama_stase}
+                                            </span>
+                                        </div>
+                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full">
+                                            <FileText
+                                                size={18}
+                                                className="text-white"
+                                            />
+                                        </div>
                                     </div>
                                     <div className="p-4 flex-1 flex flex-col-reverse justify-between">
-                                        <div><span className="text-xs text-gray-600 block">Durasi per mahasiswa</span><span className="text-sm font-bold block">{safeOsceInfo.durasi_per_mahasiswa}</span></div>
-                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full"><Clock size={18} className="text-white" /></div>
+                                        <div>
+                                            <span className="md:text-sm text-gray-600 block">
+                                                Durasi per mahasiswa
+                                            </span>
+                                            <span className="md:text-sm font-bold block">
+                                                {
+                                                    safeOsceInfo.durasi_per_mahasiswa
+                                                }
+                                            </span>
+                                        </div>
+                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full">
+                                            <Clock
+                                                size={18}
+                                                className="text-white"
+                                            />
+                                        </div>
                                     </div>
                                     <div className="p-4 flex-1 flex flex-col-reverse justify-between">
-                                        <div><span className="text-xs text-gray-600 block">Enrollment Mahasiswa</span><span className="text-sm font-bold block">{safeOsceInfo.total_mahasiswa} Mahasiswa</span></div>
-                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full"><User size={18} className="text-white" /></div>
+                                        <div>
+                                            <span className="md:text-sm text-gray-600 block">
+                                                Enrollment Mahasiswa
+                                            </span>
+                                            <span className="md:text-sm font-bold block">
+                                                {safeOsceInfo.total_mahasiswa}{" "}
+                                                Mahasiswa
+                                            </span>
+                                        </div>
+                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full">
+                                            <User
+                                                size={18}
+                                                className="text-white"
+                                            />
+                                        </div>
                                     </div>
                                     <div className="p-4 flex-[1.5] flex flex-col-reverse justify-between">
-                                        <div><span className="text-xs text-gray-600 block">Penguji</span><span className="text-sm font-bold block">{safeOsceInfo.nama_penguji}</span></div>
-                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full"><UserCheck size={18} className="text-white" /></div>
+                                        <div>
+                                            <span className="text-xs text-gray-600 block">
+                                                Penguji
+                                            </span>
+                                            <span className="text-sm font-bold block">
+                                                {safeOsceInfo.nama_penguji}
+                                            </span>
+                                        </div>
+                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full">
+                                            <UserCheck
+                                                size={18}
+                                                className="text-white"
+                                            />
+                                        </div>
                                     </div>
                                 </div>
                             </div>
@@ -210,50 +273,107 @@ export default function RekapMahasiswaPage() {
 
                         {/* Tombol Download */}
                         <div className="mb-4 flex gap-4">
-                            <OsButton name="primary-pj" onClick={() => handleDownload("excel")} className="text-sm font-medium shadow-sm px-4 py-2.5 flex items-center justify-start cursor-pointer hover:bg-green-600 transition-colors">
-                                <Download className="w-4 h-4 mr-2" /> Unduh Rekap Nilai (Excel)
+                            <OsButton
+                                name="primary-pj"
+                                onClick={() => handleDownload("excel")}
+                                className="text-sm font-medium shadow-sm px-4 py-2.5 flex items-center justify-start cursor-pointer hover:bg-green-600 transition-colors"
+                            >
+                                <Download className="w-4 h-4 mr-2" /> Unduh
+                                Rekap Nilai (Excel)
                             </OsButton>
-                            <OsButton name="primary-pj" onClick={() => handleDownload("pdf")} className="text-sm font-medium shadow-sm px-4 py-2.5 flex items-center justify-start cursor-pointer hover:bg-red-600 transition-colors">
-                                <Download className="w-4 h-4 mr-2" /> Unduh Rekap Nilai (PDF)
+                            <OsButton
+                                name="primary-pj"
+                                onClick={() => handleDownload("pdf")}
+                                className="text-sm font-medium shadow-sm px-4 py-2.5 flex items-center justify-start cursor-pointer hover:bg-red-600 transition-colors"
+                            >
+                                <Download className="w-4 h-4 mr-2" /> Unduh
+                                Rekap Nilai (PDF)
                             </OsButton>
                         </div>
 
                         {/* Search Bar */}
                         <div className="flex gap-4 mb-2">
                             <div className="relative flex-1">
-                                <OsSearchBar search={search} setSearch={setSearch} placeholder="Cari nama atau NIM mahasiswa secara instan..." variant="penguji" />
+                                <OsSearchBar
+                                    search={search}
+                                    setSearch={setSearch}
+                                    placeholder="Cari nama atau NIM mahasiswa secara instan..."
+                                    variant="penguji"
+                                />
                             </div>
                         </div>
 
                         {/* Info Count */}
                         <div className="flex gap-1 items-center justify-start my-2">
                             <Table2 size={18} />
-                            <h2 className="font-semibold text-lg">Tabel Mahasiswa</h2>
-                            <span className="text-sm font-normal text-gray-500 ml-2">(Total: {filteredStudents.length} data)</span>
+                            <h2 className="font-semibold text-lg">
+                                Tabel Mahasiswa
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {filteredStudents.length} data)
+                            </span>
                         </div>
 
                         {/* Tabel Mahasiswa */}
                         <section className="bg-white p-5 border border-os-primary-pj overflow-x-auto rounded-xl shadow-sm">
                             <table className="min-w-full text-left border-collapse bg-white">
-                                <OsTableHeader variant="penguji" columns={columns} headerClass="py-4 px-6 text-sm font-medium text-gray-700 border-r border-gray-400" />
+                                <OsTableHeader
+                                    variant="penguji"
+                                    columns={columns}
+                                    headerClass="py-4 px-6 text-sm font-medium text-gray-700 border-r border-gray-400"
+                                />
                                 {tableData.length > 0 ? (
-                                    <OsTableBody variant="penguji" data={tableData} columns={columns}
-                                        rowClass={(index) => `border-b border-gray-300 last:border-b-0 ${index % 2 === 1 ? "bg-gray-200" : "bg-white"}`}
-                                        cellClass={(key) => `py-6 px-6 text-gray-700 text-sm ${key === "nama" ? "font-bold text-gray-900" : ""} ${key !== "action" ? "border-r border-gray-400" : ""}`}
+                                    <OsTableBody
+                                        variant="penguji"
+                                        data={tableData}
+                                        columns={columns}
+                                        rowClass={(index) =>
+                                            `border-b border-gray-300 last:border-b-0 ${
+                                                index % 2 === 1
+                                                    ? "bg-gray-200"
+                                                    : "bg-white"
+                                            }`
+                                        }
+                                        cellClass={(key) =>
+                                            `py-6 px-6 text-gray-700 text-sm ${
+                                                key === "nama"
+                                                    ? "font-bold text-gray-900"
+                                                    : ""
+                                            } ${
+                                                key !== "action"
+                                                    ? "border-r border-gray-400"
+                                                    : ""
+                                            }`
+                                        }
                                     />
                                 ) : (
-                                    <tbody><tr><td colSpan={columns.length} className="py-8 text-center text-gray-500 italic">Data mahasiswa tidak ditemukan</td></tr></tbody>
+                                    <tbody>
+                                        <tr>
+                                            <td
+                                                colSpan={columns.length}
+                                                className="py-8 text-center text-gray-500 italic"
+                                            >
+                                                Data mahasiswa tidak ditemukan
+                                            </td>
+                                        </tr>
+                                    </tbody>
                                 )}
                             </table>
                         </section>
 
                         {/* Pagination */}
                         {totalItems > itemsPerPage && (
-                            <OsPagination links={paginationLinks} onPageChange={handlePageChange} variant="penguji" />
+                            <OsPagination
+                                links={paginationLinks}
+                                onPageChange={handlePageChange}
+                                variant="penguji"
+                            />
                         )}
                     </div>
                 </div>
-                <div className="mt-8"><OsCopyright variant="penguji" /></div>
+                <div className="mt-8">
+                    <OsCopyright variant="penguji" />
+                </div>
             </main>
         </div>
     );

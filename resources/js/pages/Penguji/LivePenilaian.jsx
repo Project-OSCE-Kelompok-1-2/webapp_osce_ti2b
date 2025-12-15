@@ -140,7 +140,10 @@ export default function LivePenilaian() {
         const h = Math.floor(safeWaktu / 3600);
         const m = Math.floor((safeWaktu % 3600) / 60);
         const s = safeWaktu % 60;
-        return `${String(h).padStart(2, "0")}:${String(m).padStart(2, "0")}:${String(s).padStart(2, "0")}`;
+        return `${String(h).padStart(2, "0")}:${String(m).padStart(
+            2,
+            "0"
+        )}:${String(s).padStart(2, "0")}`;
     };
 
     // --- LOGIKA HITUNG SKOR ---
@@ -196,7 +199,7 @@ export default function LivePenilaian() {
     return (
         <div
             key={id_enrollment_osce}
-            className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden"
+            className="relative bg-white w-full p-os-12 min-h-screen flex justify-start font-sans overflow-hidden"
         >
             {/* KOTAK TIMER FIXED */}
             <div
@@ -224,7 +227,6 @@ export default function LivePenilaian() {
 
             {/* [FIX 3] MAIN CONTENT: Tetap statis (lg:ml-20) sesuai request */}
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
-                
                 {/* HEADER */}
                 <OsHeader onMenuClick={handleSidebarToggle} variant="penguji" />
 
@@ -311,7 +313,10 @@ export default function LivePenilaian() {
                                                 <div className="flex justify-between w-full px-6">
                                                     {[0, 1, 2, 3, 4].map(
                                                         (v) => (
-                                                            <div className="border border-black rounded-full" key={v}>
+                                                            <div
+                                                                className="border border-black rounded-full"
+                                                                key={v}
+                                                            >
                                                                 <button
                                                                     type="button"
                                                                     onClick={() =>
@@ -322,12 +327,19 @@ export default function LivePenilaian() {
                                                                     }
                                                                     className={`w-5 h-5 p-[3px] rounded-full !border-2 !border-black bg-white flex items-center justify-center hover:bg-white
                                                                         ${
-                                                                            nilaiMap[poin.id_poin_aspek_penilaian] === v
+                                                                            nilaiMap[
+                                                                                poin
+                                                                                    .id_poin_aspek_penilaian
+                                                                            ] ===
+                                                                            v
                                                                                 ? "border-black border-2 bg-white"
                                                                                 : "border-black border-2 hover:border-black"
                                                                         }`}
                                                                 >
-                                                                    {nilaiMap[poin.id_poin_aspek_penilaian] === v && (
+                                                                    {nilaiMap[
+                                                                        poin
+                                                                            .id_poin_aspek_penilaian
+                                                                    ] === v && (
                                                                         <span className="w-full h-full rounded-full bg-os-primary-pj" />
                                                                     )}
                                                                 </button>
@@ -342,7 +354,10 @@ export default function LivePenilaian() {
                                             </div>
                                             <div className="w-20 text-center border-l font-bold">
                                                 {hitungNilai(
-                                                    nilaiMap[poin.id_poin_aspek_penilaian],
+                                                    nilaiMap[
+                                                        poin
+                                                            .id_poin_aspek_penilaian
+                                                    ],
                                                     poin.bobot
                                                 ).toFixed(0)}
                                             </div>
@@ -358,18 +373,19 @@ export default function LivePenilaian() {
                         </div>
                     </div>
 
-                    {/* ================= MOBILE / TABLET VIEW ================= */}
+                    {/* ================= MOBILE / TABLET VIEW (PERBAIKAN) ================= */}
                     <div className="lg:hidden space-y-3">
                         {dataRubrik.map((group, gIndex) => (
                             <React.Fragment key={gIndex}>
-                                <div className="bg-gray-100 px-4 py-2 font-semibold border rounded-lg">
+                                {/* PERBAIKAN 1: Background Judul jadi Oranye (bukan abu-abu) */}
+                                <div className="bg-orange-50 text-orange-900 border-os-primary-pj border px-4 py-2 font-semibold rounded-lg">
                                     {group.aspek}
                                 </div>
 
                                 {group.kompetensi.map((poin, index) => (
                                     <div
                                         key={poin.id_poin_aspek_penilaian}
-                                        className="border rounded-xl p-4 bg-white space-y-3"
+                                        className="border rounded-xl p-4 bg-white space-y-3 shadow-sm"
                                     >
                                         <p className="text-sm text-gray-700 text-justify">
                                             {index + 1}. {poin.deskripsi}
@@ -377,47 +393,60 @@ export default function LivePenilaian() {
 
                                         {/* SKOR */}
                                         <div>
-                                            <p className="text-xs mb-1 font-medium">
+                                            <p className="text-xs mb-1 font-medium text-gray-500">
                                                 Skor:
                                             </p>
-                                            <div className="flex gap-3">
-                                                {[0, 1, 2, 3, 4].map((v) => (
-                                                    <button
-                                                        key={v}
-                                                        type="button"
-                                                        onClick={() =>
-                                                            handleSkorChange(
-                                                                poin.id_poin_aspek_penilaian,
-                                                                v
-                                                            )
-                                                        }
-                                                        className={`w-12 sm:w-14 aspect-square rounded-full border flex items-center justify-center text-lg ${
-                                                            nilaiMap[poin.id_poin_aspek_penilaian] === v
-                                                                ? "border-black border-2 bg-white text-black"
-                                                                : "border-gray-400 text-gray-700 hover:border-black"
-                                                        }`}
-                                                    >
-                                                        {v}
-                                                    </button>
-                                                ))}
+                                            <div className="flex gap-2 sm:gap-3 justify-between sm:justify-start">
+                                                {[0, 1, 2, 3, 4].map((v) => {
+                                                    const isSelected =
+                                                        nilaiMap[
+                                                            poin
+                                                                .id_poin_aspek_penilaian
+                                                        ] === v;
+                                                    return (
+                                                        <button
+                                                            key={v}
+                                                            type="button"
+                                                            onClick={() =>
+                                                                handleSkorChange(
+                                                                    poin.id_poin_aspek_penilaian,
+                                                                    v
+                                                                )
+                                                            }
+                                                            /* PERBAIKAN 2: Lingkaran jadi Oranye saat dipilih */
+                                                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center text-sm sm:text-lg font-semibold transition-all duration-200
+                                            ${
+                                                isSelected
+                                                    ? "bg-orange-500 border-orange-600 text-white shadow-md transform scale-105" // Aktif: Oranye Solid
+                                                    : "bg-white border-gray-300 text-gray-600 hover:border-orange-300" // Tidak Aktif
+                                            }`}
+                                                        >
+                                                            {v}
+                                                        </button>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
 
-                                        {/* BOBOT */}
-                                        <div className="text-sm">
-                                            <span className="font-medium">
-                                                Bobot:
-                                            </span>{" "}
-                                            {poin.bobot}
-                                        </div>
+                                        {/* BOBOT & NILAI */}
+                                        <div className="flex justify-between items-center pt-2 border-t border-dashed">
+                                            <div className="text-sm">
+                                                <span className="font-medium text-gray-500">
+                                                    Bobot:
+                                                </span>{" "}
+                                                {poin.bobot}
+                                            </div>
 
-                                        {/* NILAI */}
-                                        <div className="text-sm font-semibold">
-                                            Nilai:{" "}
-                                            {hitungNilai(
-                                                nilaiMap[poin.id_poin_aspek_penilaian],
-                                                poin.bobot
-                                            ).toFixed(0)}
+                                            <div className="text-sm font-bold text-orange-700">
+                                                Nilai:{" "}
+                                                {hitungNilai(
+                                                    nilaiMap[
+                                                        poin
+                                                            .id_poin_aspek_penilaian
+                                                    ],
+                                                    poin.bobot
+                                                ).toFixed(0)}
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
@@ -425,8 +454,11 @@ export default function LivePenilaian() {
                         ))}
 
                         {/* Total Nilai - Mobile */}
-                        <div className="w-full px-4 py-3 border rounded-xl font-semibold bg-gray-50">
-                            Total Nilai Sementara: {totalNilai.toFixed(2)}
+                        <div className="w-full px-4 py-3 border border-orange-200 rounded-xl font-semibold bg-orange-50 text-orange-900 flex justify-between items-center">
+                            <span>Total Nilai Sementara:</span>
+                            <span className="text-xl">
+                                {totalNilai.toFixed(2)}
+                            </span>
                         </div>
                     </div>
 
@@ -446,7 +478,7 @@ export default function LivePenilaian() {
                         <div className="flex justify-start">
                             <button
                                 type="submit"
-                                className={`col-span-3 sm:col-span-2 w-[250px] h-[46px] rounded-xl transition text-white font-semibold flex items-center justify-center text-sm
+                                className={`col-span-3 sm:col-span-2 md:w-[250px] w-full h-[46px] rounded-xl transition text-white font-semibold flex items-center justify-center text-sm
                                     ${
                                         jumlahKompetensiDinilai <
                                         jumlahKompetensi
