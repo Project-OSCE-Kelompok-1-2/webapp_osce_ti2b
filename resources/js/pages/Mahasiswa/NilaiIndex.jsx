@@ -116,15 +116,18 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                 Lihat Nilai
             </Link>
         ),
+        // --- PERBAIKAN DI SINI ---
+        // Menggunakan item.status_kelulusan (sesuai controller)
+        // Mengecek string "LULUS" secara eksplisit
         status: (
             <span
                 className={`inline-flex items-center justify-center w-24 rounded-full px-2.5 py-1 text-[10px] font-bold tracking-wide uppercase shadow-sm ${
-                    item.status_lulus
+                    item.status_kelulusan === "LULUS"
                         ? "bg-green-100 text-green-700 ring-1 ring-green-600/20"
                         : "bg-red-100 text-red-700 ring-1 ring-red-600/20"
                 }`}
             >
-                {item.status_lulus ? "LULUS" : "TIDAK LULUS"}
+                {item.status_kelulusan}
             </span>
         ),
     }));
@@ -186,7 +189,6 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
 
                     <div className="p-1">
                         <div className="mb-2 md:mb-4 flex flex-col items-start justify-start">
-                            {/* <FileText className="text-blue-600" size={32} /> */}
                             <div className="flex gap-2 items-center justify-start my-2">
                                 <User size={18} />
                                 <h2 className="font-semibold text-lg">
@@ -196,21 +198,10 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                             <p className="text-sm text-gray-500">
                                 Rekapitulasi nilai ujian mahasiswa.
                             </p>
-                            {/* <div>
-                                <h1 className="text-2xl font-bold text-gray-900 leading-tight">
-                                    Hasil Penilaian OSCE
-                                </h1>
-                                <p className="text-sm text-gray-500">
-                                    Rekapitulasi nilai ujian mahasiswa.
-                                </p>
-                            </div> */}
                         </div>
 
                         {/* INFO MAHASISWA & FILTER PANELL */}
                         <div className="relative mb-4 overflow-hidden rounded-2xl bg-green-600 p-6 text-white shadow-xl shadow-blue-100">
-                            {/* Background decoration */}
-                            {/* <div className="absolute right-0 top-0 h-64 w-64 translate-x-16 -translate-y-16 rounded-full bg-white/10 blur-3xl"></div>
-                            <div className="absolute left-0 bottom-0 h-40 w-40 -translate-x-10 translate-y-10 rounded-full bg-blue-400/30 blur-2xl"></div> */}
 
                             <div className="relative z-10 grid grid-cols-1 gap-8 lg:grid-cols-12">
                                 {/* Kiri: Profil Mahasiswa */}
@@ -259,7 +250,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                     </div>
                                 </div>
 
-                                {/* Kanan: Filter Panel (Menggunakan handleFilterChange) */}
+                                {/* Kanan: Filter Panel */}
                                 <div className="lg:col-span-5 flex flex-col justify-center rounded-xl bg-green-800/40 p-5 border border-white/10">
                                     <div className="space-y-4">
                                         {/* Filter Semester */}
@@ -364,10 +355,8 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                             </span>
                         </div>
 
-                        {/* Tabel Data - Bagian yang Dimodifikasi */}
+                        {/* Tabel Data */}
                         <div className="bg-white p-5 border border-os-primary-mhs overflow-x-auto rounded-xl shadow-sm">
-                            {/* Tambahkan min-w-max pada div di bawah ini untuk memastikan tabel memiliki lebar minimum yang mencakup semua kolom,
-                                sehingga scrollbar akan muncul di parent div dengan overflow-x-auto */}
                             <div className="w-full min-w-max pb-2">
                                 <OsTableHeader columns={columns} variant="mahasiswa" />
                                 <div className="mt-2">
@@ -388,7 +377,6 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                 </div>
                             </div>
                         </div>
-                        {/* Akhir Bagian yang Dimodifikasi */}
 
                         <div className="mt-2">
                             {totalPages > 1 && (
