@@ -105,7 +105,8 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
             </div>
         ),
         tahun_akademik: item.tahun_ujian || "-",
-        semester: `${item.semester_label} (Smtr ${item.semester_angka})`,
+        semester: item.semester_label,
+
         aksi: (
             <Link
                 href={`/mahasiswa/nilai/${item.id}`}
