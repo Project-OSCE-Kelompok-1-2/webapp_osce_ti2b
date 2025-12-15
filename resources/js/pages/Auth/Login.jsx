@@ -68,7 +68,7 @@ export default function LoginMosaicPage() {
                             className="flex h-full flex-col justify-around gap-6"
                         >
                             {/* Header */}
-                            <div className="text-center mb-10">
+                            <div className="text-center mb-8">
                                 <div className="mx-auto w-10 h-10 rounded-full mb-3" />
                                 {/* <div className="mx-auto w-20 h-20 rounded-full bg-blue-400 mb-3" >
 
@@ -77,8 +77,8 @@ export default function LoginMosaicPage() {
                                     MOSAIC
                                 </h1> */}
 
-                                <OsIcon name="logoMosaic" className="w-32 my-4 "/>
-                                <p className="text-sm text-slate-600">
+                                <OsIcon name="logoMosaic" className="w-44 my-4 "/>
+                                <p className="text-sm text-blue-600">
                                     Medical OSCE Assessment and Information Center.
                                 </p>
                             </div>
@@ -148,7 +148,7 @@ export default function LoginMosaicPage() {
                                 )}
 
                                 {flash?.error && (
-                                    <p className="text-red-500 text-xs mt-2 text-center">
+                                    <p className="text-red-500 text-xs mt-2 text-left">
                                         {flash.error}
                                     </p>
                                 )}

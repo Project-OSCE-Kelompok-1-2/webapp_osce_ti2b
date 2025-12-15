@@ -291,10 +291,10 @@ export default function RekapOscePage() {
                                 />
                             ) : (
                                 <div className="flex items-center border-t border-gray-400">
-                                    <p className="w-full text-center text-sm py-4 text-gray-500">
-                                        Data rekap nilai tidak ditemukan.
-                                    </p>
-                                </div>
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                            Data rekap nilai OSCE tidak ditemukan.
+                                        </p>
+                                    </div>
                             )}
                         </div>
                     </section>

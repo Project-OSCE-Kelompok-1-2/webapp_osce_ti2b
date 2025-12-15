@@ -405,6 +405,13 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                         data={rows}
                                         columns={columns}
                                     />
+                                    {filteredData.length === 0 && (
+                                        <div className="flex items-center border-t border-gray-400">
+                                            <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                                Data OSCE tidak ditemukan.
+                                            </p>
+                                        </div>
+                                    )}
                                 </div>
 
                                 {totalPages > 1 && (

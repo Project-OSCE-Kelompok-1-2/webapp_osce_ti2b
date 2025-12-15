@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Inertia\Inertia;
 use Dedoc\Scramble\Scramble;
 use Illuminate\Http\Request;
-use App\Services\AuthService; 
+use App\Services\AuthService;
 use Illuminate\Support\Facades\Auth;
 
 class AuthController extends Controller
@@ -46,7 +46,7 @@ class AuthController extends Controller
 
             return redirect($redirectPath)->with("success", "Berhasil login");
         } else {
-            return back()->with("error", "Username atau password salah");
+            return back()->with("error", "Username atau password yang anda masukkan salah");
         }
     }
 

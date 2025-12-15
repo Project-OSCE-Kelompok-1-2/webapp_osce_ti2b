@@ -178,7 +178,9 @@ export default function RekapSesiPage() {
                         </div> */}
                         <div className="flex gap-1 items-center justify-start my-2">
                             <Bookmark size={18} />
-                            <h2 className="font-semibold text-lg">Menu Rekap Sesi</h2>
+                            <h2 className="font-semibold text-lg">
+                                Menu Rekap Sesi
+                            </h2>
                         </div>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl">
                             Pilih salah satu sesi (berdasarkan tanggal dan
@@ -219,8 +221,8 @@ export default function RekapSesiPage() {
                                     />
                                 ) : (
                                     <div className="flex items-center border-t border-gray-400">
-                                        <p className="w-full text-center text-sm py-4 text-gray-500">
-                                            Data sesi tidak ditemukan.
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                            Data rekap sesi tidak ditemukan.
                                         </p>
                                     </div>
                                 )}

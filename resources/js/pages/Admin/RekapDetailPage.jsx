@@ -171,21 +171,21 @@ export default function RekapDetailPage() {
                                                 "Nama Tidak Diketahui"}
                                         </h3>
                                         <div className="flex flex-wrap gap-3 text-sm text-gray-600">
-                                            <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                            <div className="flex items-center gap-2 bg-blue-50 border-os-primary px-3 py-1.5 rounded-lg border border-gray-100">
                                                 <User
                                                     size={16}
                                                     className="text-blue-500"
                                                 />
-                                                <span className="font-medium">
+                                                <span className="font-medium text-os-primary-dark">
                                                     {mahasiswa.nim || "-"}
                                                 </span>
                                             </div>
-                                            <div className="flex items-center gap-2 bg-gray-50 px-3 py-1.5 rounded-lg border border-gray-100">
+                                            <div className="flex items-center gap-2 bg-blue-50 border-os-primary px-3 py-1.5 rounded-lg border border-gray-100">
                                                 <BookOpen
                                                     size={16}
                                                     className="text-blue-500"
                                                 />
-                                                <span>
+                                                <span className="font-medium text-os-primary-dark" >
                                                     {osce.nama_osce ||
                                                         "Ujian OSCE"}
                                                 </span>
@@ -317,7 +317,7 @@ export default function RekapDetailPage() {
                                             {/* Header Card Stase */}
                                             <div className=" border-b border-gray-100 bg-gray-50/30 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
                                                 <div className="flex items-start gap-4">
-                                                    <div className="bg-blue-600 text-white w-10 h-10 rounded-xl flex items-center justify-center font-bold text-lg shrink-0 shadow-blue-200 shadow-md">
+                                                    <div className="bg-blue-600 text-white w-14 h-14 rounded-lg flex items-center justify-center font-bold text-[30px] shrink-0 shadow-blue-200 shadow-md">
                                                         {realIndex}
                                                     </div>
                                                     <div>
