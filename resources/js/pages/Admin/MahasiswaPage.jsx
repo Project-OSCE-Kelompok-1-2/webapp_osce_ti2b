@@ -463,11 +463,11 @@ export default function MahasiswaPage() {
             <OsModal
                 show={showModal}
                 onClose={() => setShowModal(false)}
+                onClear={handleClear}
                 title="Tambah Mahasiswa Baru"
                 subtitle="Isi form di bawah untuk menambahkan mahasiswa baru."
                 variant="add"
                 onSubmit={submitAdd}
-                onClear={handleClear}
             >
                 <div className="flex flex-col gap-4">
                     <div className="flex gap-4 w-full">
@@ -622,9 +622,10 @@ export default function MahasiswaPage() {
             {/* --- MODAL EDIT --- */}
             <OsModal
                 show={showEditModal}
+                onClear={handleClear}
                 onClose={() => setShowEditModal(false)}
-                title="Edit Mahasiswa"
-                subtitle="Perbarui data mahasiswa yang dipilih."
+                title="Mahasiswa"
+                subtitle={data.nama}
                 variant="edit"
                 onSubmit={submitEdit}
                 onDelete={() => {

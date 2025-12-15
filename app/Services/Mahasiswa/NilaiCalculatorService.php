@@ -134,7 +134,7 @@ class NilaiCalculatorService
         } elseif ($nilaiAkhir >= 40) {
             return 'Kurang';
         } else {
-            return 'Sangat Kurang';
+            return 'Buruk';
         }
     }
 }
