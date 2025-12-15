@@ -354,7 +354,7 @@ export default function MahasiswaPage() {
                             </h2>
                         </div>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                            Kelola data <br /> mahasiswa.
+                            Kelola data mahasiswa.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5">
