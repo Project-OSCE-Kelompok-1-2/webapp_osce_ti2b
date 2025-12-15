@@ -477,8 +477,8 @@ export default function MahasiswaPage() {
                 onSubmit={submitAdd}
             >
                 <div className="flex flex-col gap-4">
-                    <div className="flex gap-4 w-full">
-                        <div className="w-1/2">
+                    <div className="flex flex-col sm:flex-row gap-4 w-full">
+                        <div className="w-full sm:w-1/2">
                             <OsInput
                                 label="NIM Mahasiswa"
                                 name="nim"
@@ -497,7 +497,7 @@ export default function MahasiswaPage() {
                                 </p>
                             )}
                         </div>
-                        <div className="w-1/2">
+                        <div className="w-full sm:w-1/2">
                             <OsInput
                                 label="Tahun Angkatan"
                                 type="select"
@@ -522,8 +522,8 @@ export default function MahasiswaPage() {
                             )}
                         </div>
                     </div>
-                    <div className="flex gap-4 w-full items-end">
-                        <div className="w-1/2 relative">
+                    <div className="flex flex-col sm:flex-row gap-4 w-full sm:items-end">
+                        <div className="w-full sm:w-1/2 relative">
                             {!isManualKelas ? (
                                 <>
                                     <OsInput
@@ -584,7 +584,7 @@ export default function MahasiswaPage() {
                                 </p>
                             )}
                         </div>
-                        <div className="w-1/2">
+                        <div className="w-full sm:w-1/2">
                             <OsInput
                                 label="Jurusan Mahasiswa"
                                 name="prodi"
@@ -644,8 +644,8 @@ export default function MahasiswaPage() {
                 }}
             >
                 <div className="flex flex-col gap-4">
-                    <div className="flex gap-4 w-full">
-                        <div className="w-1/2">
+                    <div className="flex flex-col sm:flex-row gap-4 w-full">
+                        <div className="w-full sm:w-1/2">
                             <OsInput
                                 label="NIM"
                                 name="nim"
@@ -663,7 +663,7 @@ export default function MahasiswaPage() {
                                 </p>
                             )}
                         </div>
-                        <div className="w-1/2">
+                        <div className="w-full sm:w-1/2">
                             <OsInput
                                 label="Tahun Angkatan"
                                 type="select"
@@ -688,8 +688,8 @@ export default function MahasiswaPage() {
                             )}
                         </div>
                     </div>
-                    <div className="flex gap-4 w-full items-end">
-                        <div className="w-1/2 relative">
+                    <div className="flex flex-col sm:flex-row gap-4 w-full sm:items-end">
+                        <div className="w-full sm:w-1/2 relative">
                             {!isManualKelas ? (
                                 <>
                                     <OsInput
@@ -748,7 +748,7 @@ export default function MahasiswaPage() {
                                 </p>
                             )}
                         </div>
-                        <div className="w-1/2">
+                        <div className="w-full sm:w-1/2">
                             <OsInput
                                 label="Jurusan"
                                 name="prodi"

@@ -934,8 +934,8 @@ export default function SesiOscePage({
                                         }}
                                     />
                                 </div>
-                                <div className="flex gap-3">
-                                    <div className="w-1/2">
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <div className="w-full sm:w-1/2">
                                         <OsInput
                                             type="clock"
                                             label="Jam Mulai"
@@ -949,8 +949,8 @@ export default function SesiOscePage({
                                             }}
                                         />
                                     </div>
-                                    <div className="w-1/2 flex flex-col">
-                                        <label className="text-os-small text-gray-600 mb-1">
+                                    <div className="w-full sm:w-1/2 flex flex-col">
+                                        <label className="mb-1 text-sm text-gray-700">
                                             Jam Selesai (Estimasi)
                                         </label>
                                         <div className="relative w-full">
