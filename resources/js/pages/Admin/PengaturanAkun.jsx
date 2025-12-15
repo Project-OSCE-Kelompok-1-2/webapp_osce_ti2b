@@ -247,10 +247,7 @@ export default function AdminSettingAkun({ user }) {
                                                 Nama pengguna
                                             </label>
                                             <div className="flex items-center gap-[13px] p-3 bg-gray-200 rounded-xl border border-black">
-                                                <User
-                                                    size={18}
-                                                    opacity={0.5}
-                                                />
+                                                <User size={18} opacity={0.5} />
                                                 <input
                                                     disabled
                                                     value={data.username}
@@ -273,10 +270,11 @@ export default function AdminSettingAkun({ user }) {
                                                         : "border-black"
                                                 }`}
                                             >
+                                                {/* PERBAIKAN: Tambah shrink-0 */}
                                                 <Lock
                                                     size={16}
                                                     opacity={0.5}
-                                                    className="ml-2"
+                                                    className="ml-2 shrink-0"
                                                 />
                                                 <input
                                                     type={
@@ -296,7 +294,8 @@ export default function AdminSettingAkun({ user }) {
                                                             );
                                                     }}
                                                     placeholder="Masukkan password lama"
-                                                    className="flex-1 bg-transparent outline-none ml-3 py-1"
+                                                    // PERBAIKAN: Tambah min-w-0
+                                                    className="flex-1 bg-transparent outline-none ml-3 py-1 min-w-0"
                                                 />
                                                 <button
                                                     type="button"
@@ -305,7 +304,8 @@ export default function AdminSettingAkun({ user }) {
                                                             !showOldPassword
                                                         )
                                                     }
-                                                    className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                    // PERBAIKAN: Tambah shrink-0
+                                                    className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                     title={
                                                         showOldPassword
                                                             ? "Sembunyikan"
@@ -340,10 +340,11 @@ export default function AdminSettingAkun({ user }) {
                                                             : "border-black"
                                                     }`}
                                                 >
+                                                    {/* PERBAIKAN: Tambah shrink-0 */}
                                                     <Lock
                                                         size={16}
                                                         opacity={0.5}
-                                                        className="ml-2"
+                                                        className="ml-2 shrink-0"
                                                     />
                                                     <input
                                                         type={
@@ -367,7 +368,8 @@ export default function AdminSettingAkun({ user }) {
                                                                 );
                                                         }}
                                                         placeholder="Password baru"
-                                                        className="flex-1 bg-transparent outline-none ml-3 py-1"
+                                                        // PERBAIKAN: Tambah min-w-0
+                                                        className="flex-1 bg-transparent outline-none ml-3 py-1 min-w-0"
                                                     />
                                                     <button
                                                         type="button"
@@ -376,12 +378,11 @@ export default function AdminSettingAkun({ user }) {
                                                                 !showNewPassword
                                                             )
                                                         }
-                                                        className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                        // PERBAIKAN: Tambah shrink-0
+                                                        className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                     >
                                                         {showNewPassword ? (
-                                                            <EyeOff
-                                                                size={18}
-                                                            />
+                                                            <EyeOff size={18} />
                                                         ) : (
                                                             <Eye size={18} />
                                                         )}
@@ -409,10 +410,11 @@ export default function AdminSettingAkun({ user }) {
                                                             : "border-black"
                                                     }`}
                                                 >
+                                                    {/* PERBAIKAN: Tambah shrink-0 */}
                                                     <Lock
                                                         size={16}
                                                         opacity={0.5}
-                                                        className="ml-2"
+                                                        className="ml-2 shrink-0"
                                                     />
                                                     <input
                                                         type={
@@ -436,7 +438,8 @@ export default function AdminSettingAkun({ user }) {
                                                                 );
                                                         }}
                                                         placeholder="Konfirmasi password"
-                                                        className="flex-1 bg-transparent outline-none ml-3 py-1"
+                                                        // PERBAIKAN: Tambah min-w-0
+                                                        className="flex-1 bg-transparent outline-none ml-3 py-1 min-w-0"
                                                     />
                                                     <button
                                                         type="button"
@@ -445,12 +448,11 @@ export default function AdminSettingAkun({ user }) {
                                                                 !showConfirmPassword
                                                             )
                                                         }
-                                                        className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                        // PERBAIKAN: Tambah shrink-0
+                                                        className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                     >
                                                         {showConfirmPassword ? (
-                                                            <EyeOff
-                                                                size={18}
-                                                            />
+                                                            <EyeOff size={18} />
                                                         ) : (
                                                             <Eye size={18} />
                                                         )}
@@ -470,13 +472,12 @@ export default function AdminSettingAkun({ user }) {
                                         </div>
 
                                         <div className="w-full flex justify-between gap-3">
-                                            {/* TOMBOL SIMPAN - TELAH DIPERBAIKI */}
                                             <OsButton
                                                 name="primary"
                                                 type="submit"
                                                 disabled={processing}
                                                 className="sm:w-[223px] w-6/12 bg-blue-600 text-white flex items-center gap-[13px] p-3 border border-black"
-                                                onClick={handleSaveChanges} // <--- INI PERBAIKANNYA
+                                                onClick={handleSaveChanges}
                                             >
                                                 <Save className="w-[17px]" />
                                                 {processing
