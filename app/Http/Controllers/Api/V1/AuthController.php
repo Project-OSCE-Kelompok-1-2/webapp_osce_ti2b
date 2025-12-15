@@ -6,8 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Services\AuthService; // <-- Import Service yang SAMA
 use Illuminate\Http\Request;
 
-
-
 class AuthController extends Controller
 {
     protected $authService;
@@ -17,8 +15,10 @@ class AuthController extends Controller
         $this->authService = $authService;
     }
     /**
+     * Login pengguna
      * @unauthenticated
      */
+    
     public function login(Request $request)
     {
         $request->validate([
