@@ -98,7 +98,7 @@ export default function OsHeader({
                         <Link
                             href={
                                 isMahasiswa
-                                    ? "/mhs/dashboard"
+                                    ? "/mahasiswa/dashboard"
                                     : "/admin/dashboard"
                             }
                             className={`hidden lg:flex shrink-0 w-[46px] h-[46px] items-center justify-center rounded-xl text-white border aspect-[1] transition
