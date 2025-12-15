@@ -171,7 +171,7 @@ class ListNilaiMahasiswaController extends Controller
                 'nama'   => $mahasiswa->nama,
                 'nim'    => $mahasiswa->nim,
                 'prodi'  => $mahasiswa->prodi ?? '-',
-                // PERBAIKAN UTAMA: Menambahkan field kelas
+                // PERBAIKAN UTAMA: Menambahkan field kelass
                 'kelas'  => $mahasiswa->kelas ?? '-', 
                 'status' => $mahasiswa->status ?? 'Aktif'
             ],
