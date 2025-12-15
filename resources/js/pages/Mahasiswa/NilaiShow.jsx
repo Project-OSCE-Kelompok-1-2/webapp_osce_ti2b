@@ -77,8 +77,7 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                 </>
             ),
             width: "w-[100px] md:w-[200px]",
-            classes:
-                "justify-center items-center px-2 md:px-6 tracking-wide",
+            classes: "justify-center items-center px-2 md:px-6 tracking-wide",
         },
     ];
 
@@ -129,6 +128,7 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                         onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
                         variant="goback"
                         role="mahasiswa"
+                        backLink="/mahasiswa/nilai"
                     />
 
                     {/* KONTEN UTAMA */}
