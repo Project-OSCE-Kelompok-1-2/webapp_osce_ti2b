@@ -107,9 +107,9 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
         </div>
     );
 
-    // =========================================
+    // ========================================
     // --- RENDER TAMPILAN (JSX) ---
-    // =========================================
+    // ========================================
     return (
         <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             {/* <Head title="Hasil Penilaian OSCE" /> */}

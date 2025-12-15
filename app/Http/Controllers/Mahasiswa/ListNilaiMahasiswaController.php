@@ -130,7 +130,7 @@ class ListNilaiMahasiswaController extends Controller
                 'semesters' => $filterSemesterOptions,
                 'years'     => $filterTahunOptions
             ],
-            // Kirim balik parameter agar input search/filter tidak reset di frontend
+            // Kirim balik parameter agar input search/filter tidak reset di frontendd
             'queryParams' => $request->only(['semester', 'tahun', 'search'])
         ]);
     }
