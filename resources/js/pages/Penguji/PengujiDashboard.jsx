@@ -93,7 +93,7 @@ const JadwalCard = ({ item }) => {
                         </span>
                     </div>
 
-                    {/* Info OSCE */}
+                    {/* Info OSCE Penguji*/}
                     <div>
                         <h4 className="font-bold text-orange-700 text-sm line-clamp-1 group-hover:text-orange-800 transition-colors">
                             {item.nama_osce}
