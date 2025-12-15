@@ -168,7 +168,7 @@ export default function EditNilaiForm() {
                 <OsHeader
                     onMenuClick={handleSidebarToggle}
                     variant="goback" // Menggunakan varian back button
-                    backLink={`/penguji/osce/${osce_detail.id_osce}/stase/${osce_detail.id_osce_stase}/rekap`}
+                    backLink={`/penguji/osce/${osce_detail.id_osce}/stase/${osce_detail.id_osce_stase}/submitrubrik`}
                     title="Edit Penilaian"
                 />
 
