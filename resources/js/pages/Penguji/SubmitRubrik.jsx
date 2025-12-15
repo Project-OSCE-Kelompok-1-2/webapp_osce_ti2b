@@ -120,7 +120,8 @@ export default function SubmitRubrik() {
                     <div className="overflow-x-auto">
                         <OsHeader
                             variant="goback"
-                            backLink="/penguji/dashboard"
+                            role="penguji"
+                            backLink="/penguji/osce"
                         />
                     </div>
                     <div className="flex flex-col items-center gap-os-8 w-full">

@@ -121,9 +121,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                         <div className="border rounded-lg p-2.5 flex flex-col justify-between">
                             <Clock size={18} className="text-gray-400 mb-1" />
                             <div>
-                                <p className=" text-gray-500">
-                                    Durasi
-                                </p>
+                                <p className=" text-gray-500">Durasi</p>
                                 <p className=" font-bold text-gray-800">
                                     {safeOsce.durasi_per_mahasiswa} Menit
                                 </p>
@@ -134,9 +132,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                         <div className="border rounded-lg p-2.5 flex flex-col justify-between">
                             <Clock size={18} className="text-gray-400 mb-1" />
                             <div>
-                                <p className=" text-gray-500">
-                                    Jam Mulai
-                                </p>
+                                <p className=" text-gray-500">Jam Mulai</p>
                                 <p className="font-bold text-gray-800">
                                     {safeOsce.jam_mulai || "08:00"}
                                 </p>
@@ -204,6 +200,8 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                         title={`OSCE / ${safeOsce.nama_osce} / Rekap Nilai`}
                         icon={<ArrowLeft className="w-5 h-5" />}
                         variant="goback"
+                        role="penguji"
+                        backLink="/penguji/osce"
                         onMenuClick={handleSidebarToggle}
                     />
 

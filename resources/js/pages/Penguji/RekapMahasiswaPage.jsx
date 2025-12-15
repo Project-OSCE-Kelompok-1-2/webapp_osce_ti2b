@@ -8,7 +8,7 @@ import {
     FileText,
     Clock,
     User,
-    UserCheck
+    UserCheck,
 } from "lucide-react";
 
 // --- Import Komponen ---
@@ -23,18 +23,48 @@ import OsPagination from "../../components/pagination.jsx";
 
 // 1. Definisikan Struktur Kolom
 const columns = [
-    { content: "No", width: "w-16 shrink-0", classes: "justify-center items-center", key: "no" },
-    { content: "Nama Mahasiswa", width: "w-[500px] flex-1 shrink-0", classes: "justify-start items-center px-4", key: "nama" },
-    { content: "NIM", width: "w-32 shrink-0", classes: "justify-center items-center", key: "nim" },
-    { content: "Nilai", width: "w-32 shrink-0", classes: "justify-center items-center", key: "nilai" },
-    { content: "Aksi", width: "shrink-0 min-w-[200px]", classes: "justify-center items-center", key: "action" },
+    {
+        content: "No",
+        width: "w-16 shrink-0",
+        classes: "justify-center items-center",
+        key: "no",
+    },
+    {
+        content: "Nama Mahasiswa",
+        width: "w-[500px] flex-1 shrink-0",
+        classes: "justify-start items-center px-4",
+        key: "nama",
+    },
+    {
+        content: "NIM",
+        width: "w-32 shrink-0",
+        classes: "justify-center items-center",
+        key: "nim",
+    },
+    {
+        content: "Nilai",
+        width: "w-32 shrink-0",
+        classes: "justify-center items-center",
+        key: "nilai",
+    },
+    {
+        content: "Aksi",
+        width: "shrink-0 min-w-[200px]",
+        classes: "justify-center items-center",
+        key: "action",
+    },
 ];
 
 // --- LOGIC PAGINATION UTILITY ---
 const generatePaginationLinks = (currentPage, totalPages, totalItems) => {
     if (totalPages <= 1) return [];
     const links = [];
-    links.push({ url: "#", label: "Previous", active: false, pageNumber: currentPage > 1 ? currentPage - 1 : null });
+    links.push({
+        url: "#",
+        label: "Previous",
+        active: false,
+        pageNumber: currentPage > 1 ? currentPage - 1 : null,
+    });
 
     const maxVisiblePages = 5;
     let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
@@ -44,19 +74,37 @@ const generatePaginationLinks = (currentPage, totalPages, totalItems) => {
     }
     if (startPage > 1) {
         links.push({ url: "#", label: "1", active: false, pageNumber: 1 });
-        if (startPage > 2) links.push({ url: null, label: "...", active: false });
+        if (startPage > 2)
+            links.push({ url: null, label: "...", active: false });
     }
     for (let i = startPage; i <= endPage; i++) {
-        links.push({ url: "#", label: String(i), active: i === currentPage, pageNumber: i });
+        links.push({
+            url: "#",
+            label: String(i),
+            active: i === currentPage,
+            pageNumber: i,
+        });
     }
     if (endPage < totalPages) {
-        if (endPage < totalPages - 1) links.push({ url: null, label: "...", active: false });
-        links.push({ url: "#", label: String(totalPages), active: false, pageNumber: totalPages });
+        if (endPage < totalPages - 1)
+            links.push({ url: null, label: "...", active: false });
+        links.push({
+            url: "#",
+            label: String(totalPages),
+            active: false,
+            pageNumber: totalPages,
+        });
     }
-    links.push({ url: "#", label: "Next", active: false, pageNumber: currentPage < totalPages ? currentPage + 1 : null });
+    links.push({
+        url: "#",
+        label: "Next",
+        active: false,
+        pageNumber: currentPage < totalPages ? currentPage + 1 : null,
+    });
 
     links[0].url = links[0].pageNumber === null ? null : "#";
-    links[links.length - 1].url = links[links.length - 1].pageNumber === null ? null : "#";
+    links[links.length - 1].url =
+        links[links.length - 1].pageNumber === null ? null : "#";
     return links;
 };
 
@@ -66,7 +114,13 @@ export default function RekapMahasiswaPage() {
     const [search, setSearch] = useState("");
 
     const safeOsceInfo = osce_detail || {
-        nama_osce: "-", nama_stase: "-", durasi_per_mahasiswa: "-", total_mahasiswa: 0, nama_penguji: "-", id_osce: null, id_osce_stase: null
+        nama_osce: "-",
+        nama_stase: "-",
+        durasi_per_mahasiswa: "-",
+        total_mahasiswa: 0,
+        nama_penguji: "-",
+        id_osce: null,
+        id_osce_stase: null,
     };
     const safeStudents = mahasiswa_list || [];
 
@@ -89,10 +143,18 @@ export default function RekapMahasiswaPage() {
     const endIndex = startIndex + itemsPerPage;
     const paginatedStudents = filteredStudents.slice(startIndex, endIndex);
 
-    const paginationLinks = generatePaginationLinks(currentPage, totalPages, totalItems);
+    const paginationLinks = generatePaginationLinks(
+        currentPage,
+        totalPages,
+        totalItems
+    );
 
     const handlePageChange = (pageNumber) => {
-        if (typeof pageNumber === "number" && pageNumber >= 1 && pageNumber <= totalPages) {
+        if (
+            typeof pageNumber === "number" &&
+            pageNumber >= 1 &&
+            pageNumber <= totalPages
+        ) {
             setCurrentPage(pageNumber);
         } else if (pageNumber === "Previous" && currentPage > 1) {
             setCurrentPage(currentPage - 1);
@@ -125,7 +187,11 @@ export default function RekapMahasiswaPage() {
             nim: mhs.nim,
             nilai: isSudahDinilai ? (
                 // Tampilkan nilai (termasuk 0)
-                <span className={mhs.nilai_total === 0 ? "text-red-600 font-bold" : ""}>
+                <span
+                    className={
+                        mhs.nilai_total === 0 ? "text-red-600 font-bold" : ""
+                    }
+                >
                     {mhs.nilai_total}
                 </span>
             ) : (
@@ -141,14 +207,17 @@ export default function RekapMahasiswaPage() {
                     onClick={() => {
                         if (isSudahDinilai) {
                             // [FIX] Kirim parameter 'return_stase' agar tombol Back di halaman selanjutnya tahu harus kemana
-                            router.get(`/penguji/penilaian/${mhs.id_enrollment_osce}/view?return_stase=${safeOsceInfo.id_osce_stase}`);
+                            router.get(
+                                `/penguji/penilaian/${mhs.id_enrollment_osce}/view?return_stase=${safeOsceInfo.id_osce_stase}`
+                            );
                         }
                     }}
                     // [FIX] Styling Disabled vs Active
                     className={`flex items-center justify-center gap-2 text-xs font-medium px-6 py-2.5 rounded-lg transition 
-                        ${isSudahDinilai
-                            ? "bg-[#1447E6] text-white hover:bg-blue-700 cursor-pointer"
-                            : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-70"
+                        ${
+                            isSudahDinilai
+                                ? "bg-[#1447E6] text-white hover:bg-blue-700 cursor-pointer"
+                                : "bg-gray-300 text-gray-500 cursor-not-allowed opacity-70"
                         }`}
                     disabled={!isSudahDinilai}
                 >
@@ -176,7 +245,10 @@ export default function RekapMahasiswaPage() {
                         className="fixed"
                         title={`OSCE / ${safeOsceInfo.nama_osce} / Rekap Nilai`}
                         icon={<ArrowLeft className="w-5 h-5" />}
-                        variant="penguji"
+                        variant="goback"
+                        role="penguji"
+                        backLink="/penguji/osce"
+                        onMenuClick={handleSidebarToggle}
                     />
 
                     <div className="flex-1 overflow-auto">

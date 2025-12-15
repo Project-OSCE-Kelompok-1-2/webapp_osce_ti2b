@@ -4,8 +4,10 @@ import { usePage } from "@inertiajs/react";
 
 export default function OsHeader({
     className = "",
-    // Tambahkan 'mahasiswa' ke dalam varian
+    // variant mengontrol Layout (Home vs Back button)
     variant = "admin", // 'admin' | 'penguji' | 'mahasiswa' | 'goback'
+    // role mengontrol Warna/Tema. Jika kosong, akan mengikuti variant.
+    role, // Opsional: 'admin' | 'penguji' | 'mahasiswa'
     backLink = "/",
     onMenuClick = () => {},
 }) {
@@ -33,18 +35,26 @@ export default function OsHeader({
             .join(" / ") || "Dashboard";
 
     // ===============================
-    // THEME VARIANT
+    // THEME LOGIC
     // ===============================
-    const isPenguji = variant === "penguji";
-    // Logika baru untuk varian Mahasiswa
-    const isMahasiswa = variant === "mahasiswa";
+
+    // Tentukan tema efektif.
+    // 1. Jika prop 'role' diisi manual (misal: role="penguji"), gunakan itu.
+    // 2. Jika tidak, cek apakah 'variant' adalah salah satu role (mahasiswa/penguji).
+    // 3. Default ke 'admin'.
+    const effectiveTheme = role
+        ? role
+        : ["mahasiswa", "penguji"].includes(variant)
+        ? variant
+        : "admin";
+
+    const isPenguji = effectiveTheme === "penguji";
+    const isMahasiswa = effectiveTheme === "mahasiswa";
 
     // Fungsi utilitas untuk mendapatkan kelas Tailwind dari variabel CSS
     const getThemeClass = () => {
         if (isMahasiswa) {
             return {
-                // Menggunakan warna hijau dari variabel --os-primary-mhs
-                // Catatan: Anda harus memastikan Tailwind CSS Anda dikonfigurasi untuk mengenal variabel ini.
                 bg: "bg-[var(--os-primary-mhs)]",
                 hover: "hover:bg-[var(--os-primary-mhs-dark)]",
                 border: "border-[var(--os-primary-mhs)]",
@@ -53,9 +63,8 @@ export default function OsHeader({
         }
 
         if (isPenguji) {
-            // Varian Penguji (Oranye)
             return {
-                bg: "bg-[var(--os-primary-pj)]", // Asumsi Anda punya variabel untuk pj
+                bg: "bg-[var(--os-primary-pj)]",
                 hover: "hover:bg-[var(--os-primary-pj-dark)]",
                 border: "border-[var(--os-primary-pj)]",
                 text: "text-[var(--os-primary-pj)]",
@@ -84,6 +93,7 @@ export default function OsHeader({
                 {variant === "goback" ? (
                     <a
                         href={backLink}
+                        // Theme border dan text sekarang akan mengikuti 'role' jika disediakan
                         className={`flex w-[46px] h-[46px] items-center justify-center rounded-xl border transition
                             ${theme.border} ${theme.text}`}
                         aria-label="Go Back"
@@ -94,7 +104,11 @@ export default function OsHeader({
                     <>
                         {/* HOME - Desktop */}
                         <a
-                            href={isMahasiswa ? "/mhs/dashboard" : "/admin/dashboard"} // Mengarahkan ke dashboard mhs
+                            href={
+                                isMahasiswa
+                                    ? "/mhs/dashboard"
+                                    : "/admin/dashboard"
+                            }
                             className={`hidden lg:flex w-[46px] h-[46px] items-center justify-center rounded-xl text-white border aspect-[1] transition
                                 ${theme.bg} ${theme.hover}`}
                             aria-label="Home"

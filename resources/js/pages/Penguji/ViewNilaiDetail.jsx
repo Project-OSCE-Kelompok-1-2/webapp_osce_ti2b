@@ -67,6 +67,7 @@ export default function ViewNilaiDetail() {
                 <OsHeader
                     onMenuClick={handleSidebarToggle}
                     variant="goback"
+                    role="penguji"
                     backLink={`/penguji/osce/${info_ujian?.id_osce}/stase/${info_ujian?.id_osce_stase}/rekap`}
                     title="Detail Penilaian"
                 />
