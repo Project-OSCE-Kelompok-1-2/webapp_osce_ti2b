@@ -78,9 +78,22 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
             ),
             width: "w-[100px] md:w-[200px]",
             classes:
-                "justify-center items-center px-2 md:px-6 uppercase text-xs tracking-wide",
+                "justify-center items-center px-2 md:px-6 tracking-wide",
         },
     ];
+
+    // Create header columns with centered alignment for 'nama_stase'
+    const headerColumns = tableColumns.map((col) => {
+        if (col.key === "nama_stase") {
+            return {
+                ...col,
+                classes: col.classes
+                    .replace("md:justify-start", "md:justify-center")
+                    .replace("md:text-left", "md:text-center"),
+            };
+        }
+        return col;
+    });
 
     // --- 4. HELPER COMPONENT (Untuk Baris Info) ---
     // Menggunakan grid untuk layout yang lebih rapih dan responsif
@@ -189,7 +202,7 @@ export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
                                 <div className="min-w-full">
                                     <div className="bg-white">
                                         <OsTableHeader
-                                            columns={tableColumns}
+                                            columns={headerColumns}
                                             variant="mahasiswa"
                                         />
                                     </div>
