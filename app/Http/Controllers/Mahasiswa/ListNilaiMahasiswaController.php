@@ -7,35 +7,36 @@ use Illuminate\Http\Request;
 use Inertia\Inertia;
 use App\Models\EnrollmentOsce;
 use App\Models\Mahasiswa;
-use App\Models\TahunAkademik; // Model ini wajib diimport
+use App\Models\TahunAkademik;
+use App\Services\Mahasiswa\NilaiCalculatorService; // Import Service
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\DB;
 
 class ListNilaiMahasiswaController extends Controller
 {
-    /**
-     * Menampilkan daftar nilai OSCE mahasiswa yang sedang login.
-     *
-     * @param Request $request
-     * @return \Inertia\Response
-     */
+    protected $calculator;
+
+    // 1. Injeksi Service Calculator agar logika sama persis
+    public function __construct(NilaiCalculatorService $calculator)
+    {
+        $this->calculator = $calculator;
+    }
+
     public function index(Request $request)
     {
-        // 1. Validasi User & Mahasiswa
+        // 2. VALIDASI USER & MAHASISWA
         $user = Auth::user();
         $mahasiswa = Mahasiswa::where('id_pengguna', $user->id_pengguna)->first();
 
-        // Ambil Opsi Filter untuk Dropdown (Data Unik)
         $filterSemesterOptions = TahunAkademik::select('semester')->distinct()->pluck('semester');
         $filterTahunOptions = TahunAkademik::select('tahun')->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
 
-        // Jika data mahasiswa belum link/tidak ditemukan, return tampilan kosong
         if (!$mahasiswa) {
             return Inertia::render('Mahasiswa/NilaiIndex', [
                 'mahasiswa' => [
                     'nama' => $user->username,
                     'nim' => '-',
                     'prodi' => '-',
+                    'kelas' => '-', // PERBAIKAN: Tambahkan default kelas jika mahasiswa tidak ditemukan
                     'status' => 'Data Tidak Ditemukan'
                 ],
                 'ujian' => [],
@@ -47,82 +48,131 @@ class ListNilaiMahasiswaController extends Controller
             ]);
         }
 
-        // 2. BUILD QUERY UTAMA
+        // 3. BUILD QUERY DENGAN ELOQUENT (Bukan Raw SQL lagi)
+        // Kita perlu meload relasi yang sama dengan NilaiMahasiswaController
+        // agar service calculator bisa bekerja.
         $query = EnrollmentOsce::query()
-            ->where('enrollment_osce.id_mahasiswa', $mahasiswa->id_mahasiswa)
-            ->join('osce', 'osce.id_osce', '=', 'enrollment_osce.id_osce')
-            ->leftJoin('tahun_akademik', 'tahun_akademik.id_tahun_akademik', '=', 'osce.id_tahun_akademik')
-            ->select([
-                'enrollment_osce.id_enrollment_osce as id',
-                'enrollment_osce.id_osce',
-                'osce.nama_osce as nama_ujian',
-                'osce.tanggal_mulai as tanggal_ujian',
-                'tahun_akademik.semester as semester_label', // "Ganjil" / "Genap"
-                'tahun_akademik.tahun as tahun_akademik', // "2025/2026"
+            ->with([
+                'osce.tahunAkademik',
+                'osce.osceStase', // Untuk tahu jumlah stase
+                'nilaiOsce.poinAspekPenilaian.aspekPenilaian' // Untuk hitung nilai
             ])
-            ->addSelect([
-                // Sub-query untuk menghitung total nilai (COALESCE agar tidak null)
-                'nilai_total' => DB::table('nilai_osce')
-                    ->selectRaw('COALESCE(SUM(nilai), 0)')
-                    ->whereColumn('id_enrollment_osce', 'enrollment_osce.id_enrollment_osce')
-                    ->limit(1)
-            ]);
+            ->where('id_mahasiswa', $mahasiswa->id_mahasiswa);
 
-        // 3. TERAPKAN FILTER (Server-Side Logic)
-
-        // Filter Semester
+        // Filter: Semester
         if ($request->filled('semester') && $request->semester !== 'Semua') {
-            $query->where('tahun_akademik.semester', $request->semester);
+            $query->whereHas('osce.tahunAkademik', function ($q) use ($request) {
+                $q->where('semester', $request->semester);
+            });
         }
 
-        // Filter Tahun
+        // Filter: Tahun
         if ($request->filled('tahun') && $request->tahun !== 'Semua') {
-            $query->where('tahun_akademik.tahun', $request->tahun);
+            $query->whereHas('osce.tahunAkademik', function ($q) use ($request) {
+                $q->where('tahun', $request->tahun);
+            });
         }
 
-        // Filter Search (Nama Ujian)
+        // Filter: Search (Nama Ujian)
         if ($request->filled('search')) {
-            $query->where('osce.nama_osce', 'like', '%' . $request->search . '%');
+            $query->whereHas('osce', function ($q) use ($request) {
+                $q->where('nama_osce', 'like', '%' . $request->search . '%');
+            });
         }
 
-        // Eksekusi Query
-        $ujianRaw = $query->orderBy('osce.tanggal_mulai', 'desc')->get();
+        // Sorting berdasarkan tanggal ujian terbaru
+        // Kita join manual sedikit hanya untuk sorting agar efisien, atau pakai subquery sorting
+        // Tapi cara paling aman di Eloquent + Relation sort:
+        $query->select('enrollment_osce.*')
+              ->join('osce', 'enrollment_osce.id_osce', '=', 'osce.id_osce')
+              ->orderBy('osce.tanggal_mulai', 'desc');
 
-        // 4. DATA TRANSFORMATION & LOGIKA SEMESTER ANGKA
-        $tahunMasuk = (int)($mahasiswa->tahun_masuk ?? (date('Y') - 2));
+        $ujianRaw = $query->get();
 
-        $ujianData = $ujianRaw->map(function ($item) use ($tahunMasuk) {
-            $tahunAkademikStr = $item->tahun_akademik ?? (date('Y') . "/" . (date('Y') + 1));
-            $semLabel = $item->semester_label ?? 'Ganjil';
+        // 4. TRANSFORMASI DATA (MENGGUNAKAN LOGIKA CALCULATOR)
+        $tahunMasuk = (int) ($mahasiswa->tahun_masuk ?? (date('Y') - 2));
 
-            // Hitung semester angka berdasarkan Tahun Masuk & Tahun Akademik Ujian
-            $tahunMulaiAkademik = (int) substr($tahunAkademikStr, 0, 4);
-            $selisihTahun = $tahunMulaiAkademik - $tahunMasuk;
+        $ujianData = $ujianRaw->map(function ($enrollment) use ($tahunMasuk) {
+            
+            // --- MULAI LOGIKA CALCULATOR (Sama dengan NilaiMahasiswaController) ---
+            
+            $daftarNilaiStase = [];
+            
+            // A. Ambil List Stase Unik
+            $semuaJadwalStase = $enrollment->osce->osceStase ?? collect([]);
+            $listStaseUnik = $semuaJadwalStase->unique('id_stase');
 
-            // Logika: 1 Tahun = 2 Semester
-            $semAngka = ($selisihTahun * 2) + ($semLabel === 'Ganjil' ? 1 : 2);
-            if ($semAngka < 1) $semAngka = 1;
+            // B. Kelompokkan Nilai per Stase
+            $nilaiByStase = collect($enrollment->nilaiOsce)->groupBy(function ($nilai) {
+                return $nilai->poinAspekPenilaian?->aspekPenilaian?->id_stase ?? 'undefined';
+            });
+
+            // C. Hitung Nilai Per Stase
+            foreach ($listStaseUnik as $osceStase) {
+                $staseId = $osceStase->id_stase;
+                if (!$staseId) continue;
+
+                $kumpulanNilai = $nilaiByStase->get($staseId);
+                $nilaiAkhirStase = 0;
+                $predikatStase = 'BELUM DINILAI';
+
+                if ($kumpulanNilai && $kumpulanNilai->isNotEmpty()) {
+                    // Panggil Service untuk hitung per stase
+                    $calc = $this->calculator->calculateFinalGrade($kumpulanNilai);
+                    $nilaiAkhirStase = $calc['final_score'];
+                    $predikatStase = $calc['predicate'];
+                }
+
+                $daftarNilaiStase[] = [
+                    'id' => $staseId,
+                    'nilai' => $nilaiAkhirStase,
+                    'keterangan' => $predikatStase
+                ];
+            }
+
+            // D. Hitung Rata-rata & Status Akhir (Footer Logic)
+            $overallResult = $this->calculator->calculateOverallResult($daftarNilaiStase);
+            
+            // --- SELESAI LOGIKA CALCULATOR ---
+
+
+            // E. Format Data Tampilan (Semester, Tanggal, dll)
+            $osce = $enrollment->osce;
+            $tahunAkademik = $osce->tahunAkademik;
+            
+            $tahunAkademikStr = $tahunAkademik->tahun ?? '-';
+            $semesterLabel = $tahunAkademik->semester ?? '-';
+
+            // Hitung Semester Angka (Logic Tampilan Lama)
+            $tahunMulai = (int) substr($tahunAkademikStr, 0, 4);
+            $selisih = $tahunMulai - $tahunMasuk;
+            $semesterAngka = ($selisih * 2) + ($semesterLabel === 'Ganjil' ? 1 : 2);
+            if ($semesterAngka < 1) $semesterAngka = 1;
 
             return [
-                'id'             => $item->id, // id_enrollment_osce
-                'id_osce'        => $item->id_osce,
-                'nama_ujian'     => $item->nama_ujian,
-                'tanggal_ujian'  => $item->tanggal_ujian,
-                'semester_angka' => (string)$semAngka,
-                'semester_label' => $semLabel,
-                'tahun_ujian'    => $tahunAkademikStr,
-                'nilai_total'    => number_format((float)$item->nilai_total, 2),
-                'status_lulus'   => (float)$item->nilai_total >= 70, // Ambang batas kelulusan
-                'dosen_penguji'  => '-' // Default strip jika tidak ada join ke dosen
+                'id'               => $enrollment->id_enrollment_osce, // Pastikan primary key benar
+                'id_osce'          => $osce->id_osce,
+                'nama_ujian'       => $osce->nama_osce,
+                'tanggal_ujian'    => $osce->tanggal_mulai,
+                'semester_angka'   => (string) $semesterAngka,
+                'semester_label'   => $semesterLabel,
+                'tahun_ujian'      => $tahunAkademikStr,
+                
+                // Gunakan hasil perhitungan Service
+                'nilai_total'      => number_format((float) ($overallResult['overall_score'] ?? 0), 2),
+                'status_kelulusan' => $overallResult['status'] ?? 'BELUM LENGKAP',
+                
+                'dosen_penguji'    => '-',
             ];
         });
 
-        // 5. RETURN KE INERTIA
         return Inertia::render('Mahasiswa/NilaiIndex', [
             'mahasiswa' => [
                 'nama'   => $mahasiswa->nama,
                 'nim'    => $mahasiswa->nim,
                 'prodi'  => $mahasiswa->prodi ?? '-',
+                // PERBAIKAN UTAMA: Menambahkan field kelass
+                'kelas'  => $mahasiswa->kelas ?? '-', 
                 'status' => $mahasiswa->status ?? 'Aktif'
             ],
             'ujian' => $ujianData,
@@ -130,7 +180,6 @@ class ListNilaiMahasiswaController extends Controller
                 'semesters' => $filterSemesterOptions,
                 'years'     => $filterTahunOptions
             ],
-            // Kirim balik parameter agar input search/filter tidak reset di frontend
             'queryParams' => $request->only(['semester', 'tahun', 'search'])
         ]);
     }

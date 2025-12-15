@@ -354,7 +354,7 @@ export default function MahasiswaPage() {
                             </h2>
                         </div>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                            Kelola data <br /> mahasiswa.
+                            Kelola data mahasiswa.
                         </p>
 
                         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5">
@@ -438,6 +438,13 @@ export default function MahasiswaPage() {
                                         data={tableDisplayData}
                                         columns={mahasiswaColumns}
                                     />
+                                    {filteredData.length === 0 && (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                            Data mahasiswa tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
                                 </div>
                             </section>
                             {totalPages > 1 && (

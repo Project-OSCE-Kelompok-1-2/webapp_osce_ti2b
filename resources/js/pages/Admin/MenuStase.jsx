@@ -392,7 +392,6 @@ export default function Stase() {
                         </div>
                         <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
                             Kelola konten Stase secara menyeluruh, termasuk{" "}
-                            <br />
                             daftar kompetensi inti dan aspek penilaian.
                         </p>
 
@@ -435,7 +434,7 @@ export default function Stase() {
                                 {filteredData.length === 0 && (
                                     <div className="flex items-center border-t border-gray-400">
                                         <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
-                                            Data tidak ditemukan.
+                                            Data stase tidak ditemukan.
                                         </p>
                                     </div>
                                 )}

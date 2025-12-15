@@ -199,7 +199,7 @@ export default function LivePenilaian() {
     return (
         <div
             key={id_enrollment_osce}
-            className="relative bg-white w-full p-os-12 min-h-screen flex justify-start font-sans overflow-hidden"
+            className="relative bg-orange-50 w-full p-os-12 min-h-screen flex justify-start font-sans overflow-hidden"
         >
             {/* KOTAK TIMER FIXED */}
             <div
@@ -223,12 +223,13 @@ export default function LivePenilaian() {
                 isOpen={isSidebarOpen}
                 onToggle={handleSidebarToggle}
                 type={"penguji"}
+
             />
 
             {/* [FIX 3] MAIN CONTENT: Tetap statis (lg:ml-20) sesuai request */}
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* HEADER */}
-                <OsHeader onMenuClick={handleSidebarToggle} variant="penguji" />
+                <OsHeader onMenuClick={handleSidebarToggle} variant="goback" role="penguji" backLink="/penguji/osce" />
 
                 <div className="flex-1 overflow-auto pb-8 p-1">
                     {/* INFO MAHASISWA */}

@@ -1,17 +1,15 @@
 import React from "react";
 import { Home, Menu, Undo2 } from "lucide-react";
-import { usePage } from "@inertiajs/react";
+// Tambahkan Link agar navigasi lebih cepat (SPA feel) tanpa reload
+import { usePage, Link } from "@inertiajs/react";
 
 export default function OsHeader({
     className = "",
-    // variant mengontrol Layout (Home vs Back button)
-    variant = "admin", // 'admin' | 'penguji' | 'mahasiswa' | 'goback'
-    // role mengontrol Warna/Tema. Jika kosong, akan mengikuti variant.
-    role, // Opsional: 'admin' | 'penguji' | 'mahasiswa'
+    variant = "admin",
+    role,
     backLink = "/",
     onMenuClick = () => {},
 }) {
-    // Ambil URL dari Inertia / window
     const { url } = usePage() || {};
     const fullUrl =
         url ||
@@ -19,10 +17,8 @@ export default function OsHeader({
             ? window.location.pathname + window.location.search
             : "/");
 
-    // Hilangkan query params
     const pathname = fullUrl.split("?")[0];
 
-    // Generate title dari URL
     const title =
         pathname
             .split("/")
@@ -37,11 +33,6 @@ export default function OsHeader({
     // ===============================
     // THEME LOGIC
     // ===============================
-
-    // Tentukan tema efektif.
-    // 1. Jika prop 'role' diisi manual (misal: role="penguji"), gunakan itu.
-    // 2. Jika tidak, cek apakah 'variant' adalah salah satu role (mahasiswa/penguji).
-    // 3. Default ke 'admin'.
     const effectiveTheme = role
         ? role
         : ["mahasiswa", "penguji"].includes(variant)
@@ -51,7 +42,6 @@ export default function OsHeader({
     const isPenguji = effectiveTheme === "penguji";
     const isMahasiswa = effectiveTheme === "mahasiswa";
 
-    // Fungsi utilitas untuk mendapatkan kelas Tailwind dari variabel CSS
     const getThemeClass = () => {
         if (isMahasiswa) {
             return {
@@ -71,7 +61,6 @@ export default function OsHeader({
             };
         }
 
-        // Varian Admin (Default / Biru)
         return {
             bg: "bg-[var(--os-primary)]",
             hover: "hover:bg-[var(--os-primary-dark)]",
@@ -91,35 +80,38 @@ export default function OsHeader({
                     BUTTON AREA
                 =============================== */}
                 {variant === "goback" ? (
-                    <a
+                    // PERBAIKAN DI SINI:
+                    // 1. Ganti <a> jadi <Link> (opsional, tapi disarankan agar tidak reload halaman)
+                    // 2. Tambahkan 'shrink-0' agar tombol tidak tergencet judul panjang
+                    // 3. Tambahkan 'relative z-10' agar tombol selalu di atas layer judul
+                    <Link
                         href={backLink}
-                        // Theme border dan text sekarang akan mengikuti 'role' jika disediakan
-                        className={`flex w-[46px] h-[46px] items-center justify-center rounded-xl border transition
+                        className={`relative z-10 shrink-0 flex w-[46px] h-[46px] items-center justify-center rounded-xl border transition
                             ${theme.border} ${theme.text}`}
                         aria-label="Go Back"
                     >
                         <Undo2 size={28} />
-                    </a>
+                    </Link>
                 ) : (
                     <>
                         {/* HOME - Desktop */}
-                        <a
+                        <Link
                             href={
                                 isMahasiswa
-                                    ? "/mhs/dashboard"
+                                    ? "/mahasiswa/dashboard"
                                     : "/admin/dashboard"
                             }
-                            className={`hidden lg:flex w-[46px] h-[46px] items-center justify-center rounded-xl text-white border aspect-[1] transition
+                            className={`hidden lg:flex shrink-0 w-[46px] h-[46px] items-center justify-center rounded-xl text-white border aspect-[1] transition
                                 ${theme.bg} ${theme.hover}`}
                             aria-label="Home"
                         >
                             <Home size={26} />
-                        </a>
+                        </Link>
 
                         {/* MENU - Mobile */}
                         <button
                             onClick={onMenuClick}
-                            className={`flex lg:hidden w-[46px] h-[46px] items-center justify-center rounded-xl text-white border aspect-[1] transition
+                            className={`relative z-10 shrink-0 flex lg:hidden w-[46px] h-[46px] items-center justify-center rounded-xl text-white border aspect-[1] transition
                                 ${theme.bg} ${theme.hover}`}
                             aria-label="Menu"
                         >
@@ -131,12 +123,14 @@ export default function OsHeader({
                 {/* ===============================
                     TITLE
                 =============================== */}
-                <div className="relative flex-1 h-[46px]">
+                <div className="relative flex-1 h-[46px] min-w-0">
+                    {" "}
+                    {/* min-w-0 mencegah flex item meluap */}
                     <div
                         className={`w-full h-full flex items-center rounded-xl overflow-hidden border bg-white ${theme.border}`}
                     >
                         <h1
-                            className={`ml-5 text-os-regular tracking-normal whitespace-nowrap ${theme.text}`}
+                            className={`ml-5 text-os-regular tracking-normal whitespace-nowrap overflow-hidden text-ellipsis px-2 ${theme.text}`}
                         >
                             {title}
                         </h1>
