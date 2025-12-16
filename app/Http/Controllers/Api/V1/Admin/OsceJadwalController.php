@@ -19,10 +19,8 @@ class OsceJadwalController extends Controller
     }
 
     /**
-     * Menampilkan data sesi jadwal per hari 
-     * @param int $id_osce 👈 
+     * Menampilkan data sesi jadwal per hari (Grouped)
      */
-
     public function index(Request $request, $id_osce)
     {
         try {
@@ -31,7 +29,7 @@ class OsceJadwalController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'sesi' => $data['sesi'],
+                'data' => $data['sesi'], // Paginated result
                 'filters' => $request->only(['search']),
             ]);
         } catch (ModelNotFoundException $e) {
@@ -42,8 +40,7 @@ class OsceJadwalController extends Controller
     }
 
     /**
-     * GET /osce/{id_osce}/jadwal/templates
-     * @param int $id_osce 
+     * Mengambil template stase (stase tanpa tanggal) untuk form create/edit
      */
     public function getTemplates($id_osce)
     {
@@ -56,53 +53,54 @@ class OsceJadwalController extends Controller
                 'templates' => $data['templates'],
             ]);
         } catch (ModelNotFoundException $e) {
-            return response()->json(['status' => 'error', 'message' => 'Data OSCE tidak ditemukan.'], 404);
+            return response()->json(['status' => 'error', 'message' => 'Data tidak ditemukan.'], 404);
         } catch (Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
     /**
-     * Membuat data sesi jadwal ujian 
-     * @param int $id_osce 
+     * Membuat sesi jadwal ujian baru
      */
     public function store(Request $request, $id_osce)
     {
         try {
+            // Validasi di controller sebelum lempar ke service
             $validated = $request->validate([
-                'tanggal' => 'required|date',
-                'jam_mulai' => 'required|date_format:H:i',
-                'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-                'stase_ids' => 'required|array|min:1',
-                'stase_ids.*' => 'required|exists:osce_stase,id_osce_stase',
+                'tanggal'       => 'required|date',
+                'jam_mulai'     => 'required|date_format:H:i',
+                // durasi per stase dalam menit 
+                'durasi'        => 'required|numeric', 
+                'stase_ids'     => 'required|array|min:1',
+                'stase_ids.*'   => 'exists:osce_stase,id_osce_stase',
+                'mahasiswa_ids' => 'nullable|array',
+                'mahasiswa_ids.*' => 'exists:mahasiswa,id_mahasiswa'
             ]);
 
-            $newSessionData = $this->service->createSession($validated, $id_osce);
+            $newSession = $this->service->createSession($validated, $id_osce);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Jadwal sesi berhasil dibuat!',
-                'data' => $newSessionData // Kembalikan data yang dibuat
+                'data' => $newSession
             ], 201);
         } catch (ValidationException $e) {
             return response()->json(['status' => 'error', 'message' => 'Validasi gagal.', 'errors' => $e->errors()], 422);
         } catch (Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menyimpan jadwal: ' . $e->getMessage()], 500);
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
     /**
-     * GET /osce/{id_osce}/jadwal/{sesi_id}
-     * @param int $id_osce 
-     * @param int $sesi_id 
+     * Menampilkan detail sesi (stase & mahasiswa di sesi tsb)
+     * $sesi_id berupa string "YYYY-MM-DD_HH:MM"
      */
-
     public function show($id_osce, $sesi_id)
     {
         try {
             $data = $this->service->getSessionDetail($id_osce, $sesi_id);
 
-            if (!$data) {
+            if (!$data || $data['stase_data']->isEmpty()) {
                 return response()->json(['status' => 'error', 'message' => 'Sesi tidak ditemukan.'], 404);
             }
 
@@ -110,50 +108,41 @@ class OsceJadwalController extends Controller
                 'status' => 'success',
                 'data' => $data
             ]);
-        } catch (ModelNotFoundException $e) {
-            return response()->json(['status' => 'error', 'message' => 'Data tidak ditemukan.'], 404);
-        } catch (ValidationException $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 422);
         } catch (Exception $e) {
             return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 
     /**
-     * Mengupdate sesi jadwal ujian 
-     * @param int $id_osce 
-     * @param int $sesi_id 
+     * Update sesi jadwal ujian
      */
     public function update(Request $request, $id_osce, $sesi_id)
     {
         try {
             $validated = $request->validate([
-                'tanggal' => 'required|date',
-                'jam_mulai' => 'required|date_format:H:i',
+                'tanggal'     => 'required|date',
+                'jam_mulai'   => 'required|date_format:H:i',
                 'jam_selesai' => 'required|date_format:H:i|after:jam_mulai',
-                'stase_ids' => 'required|array|min:1',
+                'stase_ids'   => 'required|array|min:1',
                 'stase_ids.*' => 'required|exists:osce_stase,id_osce_stase',
             ]);
 
-            // Tangkap data sesi terupdate dari service
-            $updatedSessionData = $this->service->updateSession($validated,  $id_osce, $sesi_id);
+            $updatedSession = $this->service->updateSession($validated, $id_osce, $sesi_id);
 
             return response()->json([
                 'status' => 'success',
                 'message' => 'Jadwal sesi berhasil diperbarui!',
-                'data' => $updatedSessionData // Kembalikan data yang diupdate
+                'data' => $updatedSession
             ]);
         } catch (ValidationException $e) {
             return response()->json(['status' => 'error', 'message' => 'Validasi gagal.', 'errors' => $e->errors()], 422);
         } catch (Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal memperbarui jadwal: ' . $e->getMessage()], 500);
+            return response()->json(['status' => 'error', 'message' => 'Gagal update: ' . $e->getMessage()], 500);
         }
     }
 
     /**
-     * Menghapus sesi jadwal ujian 
-     * @param int $id_osce 
-     * @param int $sesi_id 
+     * Menghapus sesi jadwal ujian
      */
     public function destroy($id_osce, $sesi_id)
     {
@@ -162,12 +151,55 @@ class OsceJadwalController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'message' => 'Jadwal sesi berhasil dihapus.',
+                'message' => 'Jadwal sesi dan enrollment berhasil dihapus.',
             ]);
-        } catch (ValidationException $e) {
-            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 422);
         } catch (Exception $e) {
-            return response()->json(['status' => 'error', 'message' => 'Gagal menghapus jadwal: ' . $e->getMessage()], 500);
+            return response()->json(['status' => 'error', 'message' => 'Gagal hapus: ' . $e->getMessage()], 500);
+        }
+    }
+
+    // --- Endpoint Tambahan (Migrasi dari Inertia Helper) ---
+
+    /**
+     * Cek ketersediaan Ruangan & Penguji
+     */
+    public function checkAvailability(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'tanggal' => 'required|date',
+                'jam_mulai' => 'required',
+                'durasi' => 'required|numeric',
+            ]);
+
+            $result = $this->service->checkAvailability($validated);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $result
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
+        }
+    }
+
+    /**
+     * Ambil data mahasiswa untuk dropdown enrollment
+     */
+    public function getMahasiswa(Request $request)
+    {
+        try {
+            $id_osce = $request->id_osce;
+            $angkatan = $request->angkatan;
+
+            $data = $this->service->getMahasiswaCandidates($id_osce, $angkatan);
+
+            return response()->json([
+                'status' => 'success',
+                'data' => $data
+            ]);
+        } catch (Exception $e) {
+            return response()->json(['status' => 'error', 'message' => $e->getMessage()], 500);
         }
     }
 }

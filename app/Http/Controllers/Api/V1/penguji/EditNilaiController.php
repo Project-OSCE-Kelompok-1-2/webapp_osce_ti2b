@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use App\Models\EnrollmentOsce;
 use App\Models\NilaiOsce;
-use App\Models\OsceStase; 
+use App\Models\OsceStase;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
@@ -16,9 +16,8 @@ use Exception;
 
 class EditNilaiController extends Controller
 {
-/**
-     * GET: Halaman Edit Nilai (API Version)
-     * Endpoint: GET /api/penilaian/{id_enrollment_osce}/edit
+    /**
+     * Halaman Edit Nilai Mahasiswa 
      */
     public function edit($id_enrollment_osce)
     {
@@ -36,7 +35,7 @@ class EditNilaiController extends Controller
 
             // 3. Ambil Struktur Rubrik + Nilai Tersimpan
             $rubrikStruktur = $osceStase->stase->load([
-                'aspekPenilaian.poinAspekPenilaian.nilaiOsce' => function ($query) use ($id_enrollment_osce) {
+                'aspekPenilaian.poinAspekPenilaian.nilai_osce' => function ($query) use ($id_enrollment_osce) {
                     $query->where('id_enrollment_osce', $id_enrollment_osce);
                 }
             ]);
@@ -56,15 +55,15 @@ class EditNilaiController extends Controller
                     // Detail Aspek
                     'id_aspek' => (int) $aspek->id_aspek_penilaian,
                     'nama_aspek' => $aspek->aspek,
-                    'bobot_maksimum' => (int) $aspek->bobot_maksimum, 
-                    
+                    'bobot_maksimum' => (int) $aspek->bobot_maksimum,
+
                     // List Kompetensi (Poin Penilaian)
                     'kompetensi_list' => $aspek->poinAspekPenilaian->map(function ($poin) {
-                        $nilaiDb = $poin->nilaiOsce->first(); 
+                        $nilaiDb = $poin->nilai_osce->first();
 
                         return [
                             'id_poin_aspek_penilaian' => (int) $poin->id_poin_aspek_penilaian,
-                            'kompetensi'      => $poin->kompetensi, 
+                            'kompetensi'      => $poin->kompetensi,
                             'skor_maksimal'   => (int) ($poin->skor ?? 4),
                             'bobot'           => (int) $poin->bobot,
                             'nilai_input'     => $nilaiDb ? (int) $nilaiDb->nilai : 0
@@ -86,14 +85,13 @@ class EditNilaiController extends Controller
                     'deskripsi'  => $rubrikStruktur->deskripsi ?? null,
                 ],
                 'feedback_tersimpan' => $enrollment->catatan,
-                'penilaian' => $penilaianList 
+                'penilaian' => $penilaianList
             ];
             return response()->json([
                 'success' => true,
                 'data' => $responsePayload,
                 'osce_status' => $osceStatus // di root level
             ], 200);
-
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
@@ -110,10 +108,7 @@ class EditNilaiController extends Controller
     // --- TUGAS 2: PUT SIMPAN EDIT ---
 
     /**
-     * PUT Simpan Edit
-     * Endpoint: PUT /penguji/penilaian/{id_enrollment_osce}
-     * Request Body Contract:
-     * { "feedback": "string | null", "nilai": [{ "id_poin_aspek_penilaian": 1, "skor": 4 }, ...] }
+     * Mengedit nilai mahasiswa per kompetensi
      */
     public function update(Request $request, $id_enrollment_osce)
     {
@@ -136,8 +131,8 @@ class EditNilaiController extends Controller
             $user = Auth::user();
             // Asumsi id_osce_stase ada di EnrollmentOsce, atau cari OsceStase berdasarkan id_osce dan id_penguji
             $osceStase = OsceStase::where('id_osce', $enrollment->id_osce)
-                            ->where('id_penguji', $user->penguji->id_penguji ?? null)
-                            ->first();
+                ->where('id_penguji', $user->penguji->id_penguji ?? null)
+                ->first();
 
             if (!$osceStase) {
                 DB::rollBack();
@@ -146,13 +141,12 @@ class EditNilaiController extends Controller
                     'message' => 'Anda tidak memiliki hak untuk mengubah penilaian pada stase ini.',
                 ], 403);
             }
-            
+
             // 4. Logika Status OSCE untuk mencekal penyimpanan
             $statusOsce = 'Aktif';
             if (!$enrollment->osce) {
                 $statusOsce = 'Tidak Aktif';
-            } 
-            elseif (Carbon::now()->gt(Carbon::parse($enrollment->osce->tanggal_selesai)->endOfDay())) {
+            } elseif (Carbon::now()->gt(Carbon::parse($enrollment->osce->tanggal_selesai)->endOfDay())) {
                 $statusOsce = 'Selesai';
             }
 
@@ -180,7 +174,7 @@ class EditNilaiController extends Controller
                         'id_poin_aspek_penilaian' => $item['id_poin_aspek_penilaian'],
                     ],
                     [
-                        'nilai' => $item['skor'] 
+                        'nilai' => $item['skor']
                     ]
                 );
                 $savedCount++;
@@ -197,7 +191,6 @@ class EditNilaiController extends Controller
                     'status_osce'        => $statusOsce
                 ]
             ], 200);
-
         } catch (ModelNotFoundException $e) {
             DB::rollBack();
             return response()->json([

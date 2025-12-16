@@ -30,7 +30,7 @@ class StaseController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Data stase berhasil diambil.',
-                'data' => $result['data'],
+                'data' => $result,
             ], 200);
         } catch (\Exception $e) {
             return response()->json([
@@ -50,7 +50,7 @@ class StaseController extends Controller
             $validated = $request->validate([
                 'nama_stase' => 'required|string|max:255|unique:stase,nama_stase',
                 'id_mata_kuliah' => 'required|exists:mata_kuliah,id_mata_kuliah',
-                'id_tujuan_pembelajaran' => 'required|exists:tujuan_pembelajaran,id_tujuan_pembelajaran',
+                'tujuan_pembelajaran' => 'required|array|min:1|max:5',
                 'deskripsi' => 'nullable|string',
             ]);
 
@@ -128,7 +128,7 @@ class StaseController extends Controller
                     Rule::unique('stase', 'nama_stase')->ignore($id, 'id_stase'),
                 ],
                 'id_mata_kuliah' => 'required|exists:mata_kuliah,id_mata_kuliah',
-                'id_tujuan_pembelajaran' => 'required|exists:tujuan_pembelajaran,id_tujuan_pembelajaran',
+                'tujuan_pembelajaran' => 'required|array|min:1|max:5',
                 'deskripsi' => 'nullable|string',
             ]);
 
