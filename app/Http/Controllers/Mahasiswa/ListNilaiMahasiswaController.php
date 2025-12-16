@@ -10,6 +10,7 @@ use App\Models\Mahasiswa;
 use App\Models\TahunAkademik;
 use App\Services\Mahasiswa\NilaiCalculatorService; // Import Service
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 class ListNilaiMahasiswaController extends Controller
 {
@@ -143,29 +144,59 @@ class ListNilaiMahasiswaController extends Controller
             $tahunAkademikStr = $tahunAkademik->tahun ?? '-';
             $semesterLabel = $tahunAkademik->semester ?? '-';
 
-            // Hitung Semester Angka (Logic Tampilan Lama)
+            // Hitung Semester Angka
             $tahunMulai = (int) substr($tahunAkademikStr, 0, 4);
             $selisih = $tahunMulai - $tahunMasuk;
             $semesterAngka = ($selisih * 2) + ($semesterLabel === 'Ganjil' ? 1 : 2);
             if ($semesterAngka < 1) $semesterAngka = 1;
 
+            $tanggalFix = $enrollment->tanggal_sesi ?? $osce->tanggal_mulai;
+
+            // --- PERBAIKAN LOGIKA JAM ---
+            // 1. Cek jam khusus mahasiswa di enrollment
+            $jamMulaiRaw = $enrollment->jam_sesi;
+
+            // 2. Jika kosong, cari jam mulai paling pagi dari jadwal stase (jika ada)
+            if (!$jamMulaiRaw && $listStaseUnik->isNotEmpty()) {
+                $stasePalingPagi = $listStaseUnik->sortBy('jam_mulai')->first();
+                $jamMulaiRaw = $stasePalingPagi->jam_mulai ?? null;
+            }
+
+            // 3. Jika masih kosong, ambil dari setup OSCE utama
+            if (!$jamMulaiRaw) {
+                $jamMulaiRaw = $osce->jam_mulai;
+            }
+
+            // Format jadi HH:mm (Hilangkan detik)
+            $jamDisplay = $jamMulaiRaw ? Carbon::parse($jamMulaiRaw)->format('H:i') : '-';
+
+            // Opsional: Hitung Jam Selesai (estimasi atau dari data)
+            // Disini saya set null dulu, atau anda bisa ambil dari 'jam_selesai' stase terakhir
+            $jamSelesaiDisplay = null; 
+             if ($listStaseUnik->isNotEmpty()) {
+                $stasePalingAkhir = $listStaseUnik->sortByDesc('jam_selesai')->first();
+                if($stasePalingAkhir && $stasePalingAkhir->jam_selesai) {
+                    $jamSelesaiDisplay = Carbon::parse($stasePalingAkhir->jam_selesai)->format('H:i');
+                }
+            }
+
             return [
-                'id'               => $enrollment->id_enrollment_osce, // Pastikan primary key benar
-                'id_osce'          => $osce->id_osce,
-                'nama_ujian'       => $osce->nama_osce,
-                'tanggal_ujian'    => $osce->tanggal_mulai,
-                'semester_angka'   => (string) $semesterAngka,
-                'semester_label'   => $semesterLabel,
-                'tahun_ujian'      => $tahunAkademikStr,
+                'id'             => $enrollment->id_enrollment_osce,
+                'id_osce'        => $osce->id_osce,
+                'nama_ujian'     => $osce->nama_osce,
                 
-                // Gunakan hasil perhitungan Service
-                'nilai_total'      => number_format((float) ($overallResult['overall_score'] ?? 0), 2),
+                // DATA UNTUK FRONTEND
+                'tanggal_ujian'  => $tanggalFix, // Mapping ke frontend
+                'jam_display'    => $jamDisplay, // Jam yang sudah diformat
+                'jam_selesai'    => $jamSelesaiDisplay, // Jam selesai (opsional)
+
+                'semester_angka' => (string) $semesterAngka,
+                'semester_label' => $semesterLabel,
+                'tahun_ujian'    => $tahunAkademikStr,
+                'nilai_total'    => number_format((float) ($overallResult['overall_score'] ?? 0), 2),
                 'status_kelulusan' => $overallResult['status'] ?? 'BELUM LENGKAP',
-                
-                'dosen_penguji'    => '-',
             ];
         });
-
         return Inertia::render('Mahasiswa/NilaiIndex', [
             'mahasiswa' => [
                 'nama'   => $mahasiswa->nama,

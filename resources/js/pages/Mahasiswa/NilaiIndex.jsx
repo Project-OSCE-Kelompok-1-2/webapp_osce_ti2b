@@ -117,12 +117,22 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                 </span>
 
                 <div className="text-[10px] md:text-[11px] text-gray-500 font-medium mt-1 flex flex-wrap items-center gap-1.5">
+                    {/* TANGGAL */}
                     <span>{formatTanggalIndo(item.tanggal_ujian)}</span>
+
                     <span className="text-gray-300">•</span>
+
+                    {/* --- PERBAIKAN BAGIAN JAM DI SINI --- */}
+                    {/* Jangan pakai formatJam(item.tanggal_ujian), tapi pakai item.jam_display langsung */}
                     <span className="text-gray-500 font-semibold">
-                        {formatJam(item.tanggal_ujian)} WIB
+                        {item.jam_display || "--:--"}
+                        {item.jam_selesai ? ` - ${item.jam_selesai}` : ""} WIB
                     </span>
+                    {/* ---------------------------------- */}
+
                     <span className="hidden md:inline text-gray-300">•</span>
+
+                    {/* TAHUN */}
                     <span className="text-gray-400">{item.tahun_ujian}</span>
                 </div>
             </div>
