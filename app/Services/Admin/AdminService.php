@@ -60,7 +60,7 @@ class AdminService
                     'description' => "Ujian dibuat tapi belum ada stase/jadwal diatur.",
                     'warning_label' => "Belum Disetting",
                     'warning_color' => 'yellow',
-                    'link' => "/admin/osce/{$osce->id_osce}",
+                    'link' => "/admin/osce/",
                 ];
             });
 
@@ -79,7 +79,7 @@ class AdminService
                     'description' => "Jadwal tanggal " . ($jadwal->tanggal ? $jadwal->tanggal->format('d M Y') : '-') . " belum ada penguji.",
                     'warning_label' => "Penguji Kosong",
                     'warning_color' => 'red',
-                    'link' => "/admin/osce/{$jadwal->id_osce}",
+                    'link' => "/admin/osce/{$jadwal->id_osce}/jadwal",
                 ];
             });
 

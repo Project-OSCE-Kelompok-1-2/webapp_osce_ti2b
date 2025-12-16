@@ -117,12 +117,22 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                 </span>
 
                 <div className="text-[10px] md:text-[11px] text-gray-500 font-medium mt-1 flex flex-wrap items-center gap-1.5">
+                    {/* TANGGAL */}
                     <span>{formatTanggalIndo(item.tanggal_ujian)}</span>
+
                     <span className="text-gray-300">•</span>
+
+                    {/* --- PERBAIKAN BAGIAN JAM DI SINI --- */}
+                    {/* Jangan pakai formatJam(item.tanggal_ujian), tapi pakai item.jam_display langsung */}
                     <span className="text-gray-500 font-semibold">
-                        {formatJam(item.tanggal_ujian)} WIB
+                        {item.jam_display || "--:--"}
+                        {item.jam_selesai ? ` - ${item.jam_selesai}` : ""} WIB
                     </span>
+                    {/* ---------------------------------- */}
+
                     <span className="hidden md:inline text-gray-300">•</span>
+
+                    {/* TAHUN */}
                     <span className="text-gray-400">{item.tahun_ujian}</span>
                 </div>
             </div>
@@ -320,6 +330,15 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                         </div>
 
                         {/* Search & Header Table */}
+                        <div className="flex gap-1 items-center text-gray-600 mt-2 md:mt-0">
+                            <Table2 size={16} />
+                            <h2 className="font-semibold text-sm md:text-lg">
+                                Daftar Nilai
+                            </h2>
+                            <span className="text-xs text-gray-400">
+                                ({totalItems})
+                            </span>
+                        </div>
                         <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-2 mb-3">
                             <div className="w-full md:w-auto">
                                 <OsSearchBar
@@ -330,15 +349,6 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                     placeholder="Cari nama ujian"
                                     className="w-full"
                                 />
-                            </div>
-                            <div className="flex gap-1 items-center text-gray-600 mt-2 md:mt-0">
-                                <Table2 size={16} />
-                                <h2 className="font-semibold text-sm md:text-lg">
-                                    Daftar Nilai
-                                </h2>
-                                <span className="text-xs text-gray-400">
-                                    ({totalItems})
-                                </span>
                             </div>
                         </div>
 
