@@ -8,11 +8,9 @@ import {
     Clock,
     AlertCircle,
     ArrowRight,
-    UserCheck,
-    Users,
-    ClipboardList,
     Bookmark,
     CalendarRange,
+    MapPin,
 } from "lucide-react";
 
 // Components
@@ -23,40 +21,8 @@ import Calendar from "../../components/Calendar";
 import OsIcon from "../../components/icons.jsx";
 
 /* -------------------------------------------------
-   COMPONENT: STATISTIC CARD (Gaya Mahasiswa)
+   COMPONENT: STATISTIC CARD
 ---------------------------------------------------*/
-// const StatCard = ({ title, description, value, icon }) => {
-//     return (
-//         <div className="w-full bg-blue-50 border border-blue-100 rounded-xl p-6 flex flex-col justify-between relative overflow-hidden transition-all hover:shadow-md">
-//             <div className="flex justify-between items-start z-10">
-//                 <div>
-//                     <h3 className="font-bold text-gray-800 text-lg">{title}</h3>
-//                     <p className="text-xs text-gray-500 mt-1">{description}</p>
-//                 </div>
-//                 <div className="p-2 bg-white rounded-lg shadow-sm text-blue-600">
-//                     {icon}
-//                 </div>
-//             </div>
-
-//             <div className="mt-6 z-10">
-//                 <span className="text-4xl font-extrabold text-gray-900">
-//                     {value}
-//                 </span>
-//                 <div className="mt-2">
-//                     <span className="inline-flex items-center text-[10px] px-2 py-1 rounded-full border border-blue-200 bg-white text-blue-600">
-//                         Lihat detail
-//                     </span>
-//                 </div>
-//             </div>
-
-//             {/* Dekorasi Background */}
-//             <div className="absolute -bottom-4 -right-4 text-blue-100 opacity-50 transform rotate-12">
-//                 {React.cloneElement(icon, { size: 80 })}
-//             </div>
-//         </div>
-//     );
-// };
-
 const StatCard = ({ title, value, description, icon, colorClass, href }) => {
     return (
         <article
@@ -92,45 +58,64 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
 };
 
 /* -------------------------------------------------
-   COMPONENT: URGENT / ALERT CARD (Untuk H-1)
+   COMPONENT: URGENT / ALERT CARD (MODIFIKASI HARI INI)
 ---------------------------------------------------*/
 const UrgentJadwalCard = ({ jadwal }) => {
-    // MODIFIKASI KECIL (UX):
-    const labelWaktu =
-        jadwal.sisa_hari === 0
-            ? "HARI INI"
-            : jadwal.sisa_hari === 1
-            ? "BESOK"
-            : `H - ${jadwal.sisa_hari}`;
+    // Logika Label Waktu
+    const isToday = jadwal.sisa_hari === 0;
+
+    let labelWaktu = "";
+    if (isToday) {
+        labelWaktu = "HARI INI";
+    } else if (jadwal.sisa_hari === 1) {
+        labelWaktu = "BESOK";
+    } else {
+        labelWaktu = `H - ${jadwal.sisa_hari}`;
+    }
 
     return (
-        <div className="w-full bg-blue-500 rounded-xl p-5 text-white shadow-lg mb-6 relative overflow-hidden">
-            {/* Abstract circle decoration */}
+        // BG Biru sesuai request (bg-blue-600)
+        <div className="w-full bg-blue-600 rounded-xl p-5 text-white shadow-lg mb-6 relative overflow-hidden ring-4 ring-blue-100">
+            {/* Dekorasi Background */}
+            <div className="absolute -right-6 -top-6 bg-white/10 w-32 h-32 rounded-full blur-2xl"></div>
 
             <div className="flex items-start gap-4 relative z-10">
-                <div className="bg-red-500 p-3 rounded-xl shadow-md">
-                    <AlertCircle size={24} className="text-white" />
+                {/* Icon Alert Merah (Bg Putih agar icon merah terlihat jelas, atau Bg Merah icon putih) */}
+                <div className="bg-white p-3 rounded-xl shadow-md flex items-center justify-center min-w-[50px] min-h-[50px]">
+                    <AlertCircle
+                        size={28}
+                        className="text-red-600 animate-pulse"
+                    />
                 </div>
+
                 <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                        <span className="bg-red-500 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm uppercase">
+                    <div className="flex items-center gap-2 mb-2">
+                        {/* Label HARI INI */}
+                        <span className="bg-red-500 text-white text-[11px] font-extrabold px-2.5 py-1 rounded-md shadow-sm uppercase tracking-wide">
                             {labelWaktu}
                         </span>
-                        <span className="bg-orange-400 text-[10px] font-bold px-2 py-0.5 rounded-full shadow-sm">
+
+                        <span className="bg-orange-400 text-[10px] font-bold px-2 py-1 rounded-md shadow-sm">
                             PENTING
                         </span>
                     </div>
-                    <h3 className="font-bold text-xl leading-tight">
+
+                    <h3 className="font-bold text-xl leading-tight mb-1">
                         {jadwal.nama_ujian}
                     </h3>
-                    <div className="flex flex-col gap-1 mt-2 text-blue-50 text-sm">
-                        <div className="flex items-center gap-2">
+
+                    <div className="flex flex-col sm:flex-row sm:gap-4 gap-1 mt-3 text-blue-50 text-sm">
+                        <div className="flex items-center gap-2 bg-blue-700/50 px-2 py-1 rounded-md w-fit">
                             <CalendarDays size={14} />
-                            <span>{jadwal.tanggal_full}</span>
+                            <span className="font-medium">
+                                {jadwal.tanggal_full}
+                            </span>
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 bg-blue-700/50 px-2 py-1 rounded-md w-fit">
                             <Clock size={14} />
-                            <span>{jadwal.jam} WIB</span>
+                            <span className="font-medium">
+                                {jadwal.jam} WIB
+                            </span>
                         </div>
                     </div>
                 </div>
@@ -175,6 +160,9 @@ const JadwalItem = ({ jadwal }) => {
                         <span className="flex items-center gap-1">
                             <CalendarDays size={12} /> {jadwal.tanggal_pendek}
                         </span>
+                        <span className="flex items-center gap-1">
+                            <Clock size={12} /> {jadwal.jam}
+                        </span>
                     </div>
                 </div>
             </div>
@@ -192,43 +180,46 @@ const JadwalItem = ({ jadwal }) => {
 ---------------------------------------------------*/
 export default function DashboardMahasiswa() {
     // 1. Props dari Backend
-    // props 'url' ditambahkan agar Sidebar tahu halaman mana yang aktif
     const { auth, statistik, jadwal_penting, kalender_event, selected_date } =
         usePage().props;
     const { url } = usePage();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // [BARU] Handler saat tanggal di kalender diklik
+    // Handler saat tanggal di kalender diklik
     const handleDateSelect = (dateObj) => {
-        // Format tanggal JS ke 'YYYY-MM-DD' secara manual untuk menghindari masalah timezone
         const year = dateObj.getFullYear();
         const month = String(dateObj.getMonth() + 1).padStart(2, "0");
         const day = String(dateObj.getDate()).padStart(2, "0");
         const dateString = `${year}-${month}-${day}`;
 
-        // Kirim request ke URL yang sama dengan query param ?date=...
         router.get(
-            "/mahasiswa/dashboard", // Pastikan URL ini sesuai rute Anda
+            "/mahasiswa/dashboard",
             { date: dateString },
             {
-                preserveState: true, // Jangan refresh full page state
-                preserveScroll: true, // Jangan scroll ke atas
-                only: ["jadwal_penting", "selected_date", "kalender_event"], // Update kalender_event juga untuk memastikan data sinkron
+                preserveState: true,
+                preserveScroll: true,
+                only: ["jadwal_penting", "selected_date", "kalender_event"],
             }
         );
     };
 
-    // Helper untuk memisahkan jadwal urgent (H-1 atau H-0/Hari H)
-    // Pastikan hanya jadwal masa depan atau hari ini yang dianggap urgent
-    const urgentJadwal = jadwal_penting?.find(
-        (j) => j.sisa_hari >= 0 && j.sisa_hari <= 1
-    );
+    // --- LOGIKA FILTER ---
+    // Cek apakah user sedang melihat tanggal spesifik
+    const isDateFiltered = !!selected_date;
 
-    // Filter jadwal sisa untuk list di bawah (agar tidak duplikat dengan alert)
-    // Tampilkan jadwal yang bukan urgent, ATAU jadwal masa lalu (sisa_hari < 0)
-    const normalJadwal = jadwal_penting?.filter(
-        (j) => j.sisa_hari > 1 || j.sisa_hari < 0
-    );
+    // 1. Urgent Jadwal (H-1 / Hari H)
+    // Jika sedang filter tanggal, jangan tampilkan card urgent (return null)
+    const urgentJadwal = isDateFiltered
+        ? null
+        : jadwal_penting?.find((j) => j.sisa_hari >= 0 && j.sisa_hari <= 1);
+
+    // 2. Normal Jadwal (List Bawah)
+    // Jika filter tanggal aktif -> Ambil SEMUA data
+    // Jika filter mati -> Exclude yang urgent
+    const normalJadwal = isDateFiltered
+        ? jadwal_penting
+        : jadwal_penting?.filter((j) => j.sisa_hari > 1 || j.sisa_hari < 0);
+    // ----------------------------------
 
     return (
         <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
@@ -273,24 +264,6 @@ export default function DashboardMahasiswa() {
 
                         {/* STATS GRID */}
                         <section className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-4">
-                            {/* <StatCard
-                                title="Ujian OSCE Terdaftar"
-                                description="Jumlah Ujian OSCE yang terdaftar"
-                                value={statistik?.terdaftar || 0}
-                                icon={<BookOpen size={24} />}
-                            />
-                            <StatCard
-                                title="Ujian OSCE Selesai"
-                                description="Jumlah Total Ujian OSCE selesai"
-                                value={statistik?.selesai || 0}
-                                icon={<CheckCircle size={24} />}
-                            />
-                            <StatCard
-                                title="Nilai Akhir"
-                                description="Rata-rata hasil nilai akhir"
-                                value={statistik?.nilai_akhir || "-"}
-                                icon={<Award size={24} />}
-                            /> */}
                             <StatCard
                                 title="Ujian OSCE Terdaftar"
                                 description="Jumlah Ujian OSCE yang terdaftar"
@@ -302,7 +275,6 @@ export default function DashboardMahasiswa() {
                                     />
                                 }
                                 colorClass="bg-red-400 border-red-500"
-                                // href="/penguji/osce"
                             />
                             <StatCard
                                 title="Ujian OSCE Selesai"
@@ -358,14 +330,16 @@ export default function DashboardMahasiswa() {
                                     </Link>
                                 </div>
 
-                                {/* Alert Logic: Jika ada ujian H-1 / Hari H */}
+                                {/* CARD URGENT HARI INI / BESOK */}
                                 {urgentJadwal && (
                                     <UrgentJadwalCard jadwal={urgentJadwal} />
                                 )}
 
                                 <div className="space-y-4">
                                     <h3 className="text-sm font-medium text-gray-500 mb-2">
-                                        Mendatang
+                                        {selected_date
+                                            ? "Daftar Ujian"
+                                            : "Mendatang"}
                                     </h3>
                                     {normalJadwal && normalJadwal.length > 0 ? (
                                         normalJadwal.map((item, index) => (
