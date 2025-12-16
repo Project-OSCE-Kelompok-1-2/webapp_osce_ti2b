@@ -16,8 +16,7 @@ use App\Models\User;
 class AksiPenilaianApiController extends Controller
 {
     /**
-     * API: Simpan Penilaian (Skor dan Catatan) untuk Mahasiswa tertentu.
-     * POST /api/penguji/penilaian/{id_enrollment_osce}
+     * Menyimpan data penilaian (Skor dan Catatan) untuk Mahasiswa tertentu.
      *
      * @param Request $request
      * @param int $id_enrollment_osce
@@ -27,7 +26,7 @@ class AksiPenilaianApiController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
-        
+
         // 1. Ambil Data Enrollment (dengan relasi OSCE)
         $enrollment = EnrollmentOsce::with('osce')->findOrFail($id_enrollment_osce);
 
@@ -47,7 +46,7 @@ class AksiPenilaianApiController extends Controller
             'nilai.*.skor' => 'required|numeric|min:0|max:4',
             'catatan' => 'nullable|string',
         ]);
-        
+
         // 4. Ambil Context Stase Penguji
         // Mencari jadwal stase yang dipegang penguji pada sesi waktu mahasiswa ini
         $osceStase = OsceStase::where('id_osce', $enrollment->id_osce)
@@ -71,7 +70,7 @@ class AksiPenilaianApiController extends Controller
 
         // 6. Simpan Data dalam Transaksi
         DB::transaction(function () use ($validated, $enrollment, $id_enrollment_osce) {
-            
+
             // Simpan catatan/feedback
             $enrollment->catatan = $validated['catatan'] ?? null;
             $enrollment->save();
@@ -82,7 +81,7 @@ class AksiPenilaianApiController extends Controller
                 /* PoinAspekPenilaian::where('id_poin_aspek_penilaian', $item['id_poin_aspek_penilaian'])
                     ->update(['skor' => $item['skor']]);
                 */
-                
+
                 // PART B: INSERT/UPDATE NILAI MENTAH (NilaiOsce)
                 NilaiOsce::updateOrCreate(
                     [
@@ -109,8 +108,7 @@ class AksiPenilaianApiController extends Controller
     }
 
     /**
-     * API: Dapatkan mahasiswa berikutnya (rotasi) berdasarkan Stase.
-     * GET /api/penguji/rotasi/{id_osce_stase}
+     * Mendapatkan data mahasiswa berikutnya (rotasi) berdasarkan Stase.
      *
      * @param int $id_osce_stase
      * @return \Illuminate\Http\JsonResponse
@@ -122,17 +120,17 @@ class AksiPenilaianApiController extends Controller
 
         // 1. Ambil & Validasi Stase (Memastikan penguji berhak)
         $osceStase = OsceStase::with('stase')
-            ->where('id_osce_stase', $id_osce_stase) 
+            ->where('id_osce_stase', $id_osce_stase)
             ->where('id_penguji', $user->penguji->id_penguji ?? null) // Cek hak akses penguji
             ->firstOrFail();
 
         // 2. Cari Mahasiswa Berikutnya
         $nextEnrollment = $this->findNextStudentInRotation($osceStase);
-        
+
         $mahasiswaSelanjutnya = null;
         if ($nextEnrollment) {
-             // Load relasi mahasiswa hanya jika ada data berikutnya
-            $nextEnrollment->load('mahasiswa'); 
+            // Load relasi mahasiswa hanya jika ada data berikutnya
+            $nextEnrollment->load('mahasiswa');
             $mahasiswaSelanjutnya = [
                 'id_enrollment_osce' => $nextEnrollment->id_enrollment_osce,
                 'nama' => $nextEnrollment->mahasiswa->nama,
@@ -161,7 +159,7 @@ class AksiPenilaianApiController extends Controller
     // =========================================================================
 
     /**
-     * Helper untuk mencari mahasiswa berikutnya yang belum dinilai.
+     * Helper untuk mencari data mahasiswa berikutnya yang belum dinilai.
      * Memastikan hanya mahasiswa dalam rentang waktu stase yang dicek.
      *
      * @param OsceStase $osceStase
@@ -173,7 +171,7 @@ class AksiPenilaianApiController extends Controller
         $allEnrollments = EnrollmentOsce::where('id_osce', $osceStase->id_osce)
             ->whereDate('tanggal_sesi', $osceStase->tanggal)
             ->whereTime('jam_sesi', '>=', $osceStase->jam_mulai)
-            ->whereTime('jam_sesi', '<', $osceStase->jam_selesai) 
+            ->whereTime('jam_sesi', '<', $osceStase->jam_selesai)
             ->orderBy('jam_sesi', 'asc')
             ->get();
 
@@ -196,8 +194,7 @@ class AksiPenilaianApiController extends Controller
     }
 
     /**
-     * API: Cek apakah sesi penilaian di stase ini sudah selesai (Opsional, dipertahankan dari struktur contoh Anda).
-     * GET /api/penguji/selesai/{id_osce_stase}
+     * Cek apakah sesi penilaian di stase ini sudah selesai.
      *
      * @param int $id_osce_stase
      * @return \Illuminate\Http\JsonResponse
@@ -206,7 +203,7 @@ class AksiPenilaianApiController extends Controller
     {
         /** @var User $user */
         $user = Auth::user();
-        
+
         // Ambil dan Validasi Stase
         $currentOsceStase = OsceStase::where('id_osce_stase', $id_osce_stase)
             ->where('id_penguji', $user->penguji->id_penguji ?? null)

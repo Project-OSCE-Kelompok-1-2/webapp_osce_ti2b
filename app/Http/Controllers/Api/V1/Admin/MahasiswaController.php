@@ -56,6 +56,7 @@ class MahasiswaController extends Controller
             'nama'  => 'required|string|max:255',
             'kelas' => 'required|string|max:50',
             'prodi' => 'required|string|max:100',
+            'angkatan' => 'required|string',
         ]);
 
         $mahasiswa = $this->service->store($validated);
@@ -100,6 +101,7 @@ class MahasiswaController extends Controller
             'nama'  => 'required|string|max:255',
             'kelas' => 'required|string|max:50',
             'prodi' => 'required|string|max:100',
+            'angkatan' => 'required|string',
         ]);
 
         $updatedMahasiswa = $this->service->update($validated, $mahasiswa);

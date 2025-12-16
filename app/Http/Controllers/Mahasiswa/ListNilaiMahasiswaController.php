@@ -8,7 +8,7 @@ use Inertia\Inertia;
 use App\Models\EnrollmentOsce;
 use App\Models\Mahasiswa;
 use App\Models\TahunAkademik;
-use App\Services\Mahasiswa\NilaiCalculatorService; // Import Service
+use App\Services\Mahasiswa\NilaiCalculatorService;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
 
@@ -37,7 +37,7 @@ class ListNilaiMahasiswaController extends Controller
                     'nama' => $user->username,
                     'nim' => '-',
                     'prodi' => '-',
-                    'kelas' => '-', // PERBAIKAN: Tambahkan default kelas jika mahasiswa tidak ditemukan
+                    'kelas' => '-',
                     'status' => 'Data Tidak Ditemukan'
                 ],
                 'ujian' => [],
@@ -49,14 +49,12 @@ class ListNilaiMahasiswaController extends Controller
             ]);
         }
 
-        // 3. BUILD QUERY DENGAN ELOQUENT (Bukan Raw SQL lagi)
-        // Kita perlu meload relasi yang sama dengan NilaiMahasiswaController
-        // agar service calculator bisa bekerja.
+        // 3. BUILD QUERY DENGAN ELOQUENT
         $query = EnrollmentOsce::query()
             ->with([
                 'osce.tahunAkademik',
-                'osce.osceStase', // Untuk tahu jumlah stase
-                'nilaiOsce.poinAspekPenilaian.aspekPenilaian' // Untuk hitung nilai
+                'osce.osceStase',
+                'nilaiOsce.poinAspekPenilaian.aspekPenilaian'
             ])
             ->where('id_mahasiswa', $mahasiswa->id_mahasiswa);
 
@@ -81,24 +79,21 @@ class ListNilaiMahasiswaController extends Controller
             });
         }
 
-        // Sorting berdasarkan tanggal ujian terbaru
-        // Kita join manual sedikit hanya untuk sorting agar efisien, atau pakai subquery sorting
-        // Tapi cara paling aman di Eloquent + Relation sort:
+        // Sorting
         $query->select('enrollment_osce.*')
-              ->join('osce', 'enrollment_osce.id_osce', '=', 'osce.id_osce')
-              ->orderBy('osce.tanggal_mulai', 'desc');
+            ->join('osce', 'enrollment_osce.id_osce', '=', 'osce.id_osce')
+            ->orderBy('osce.tanggal_mulai', 'desc');
 
         $ujianRaw = $query->get();
 
-        // 4. TRANSFORMASI DATA (MENGGUNAKAN LOGIKA CALCULATOR)
+        // 4. TRANSFORMASI DATA
         $tahunMasuk = (int) ($mahasiswa->tahun_masuk ?? (date('Y') - 2));
 
         $ujianData = $ujianRaw->map(function ($enrollment) use ($tahunMasuk) {
-            
-            // --- MULAI LOGIKA CALCULATOR (Sama dengan NilaiMahasiswaController) ---
-            
+
+            // --- LOGIKA CALCULATOR ---
             $daftarNilaiStase = [];
-            
+
             // A. Ambil List Stase Unik
             $semuaJadwalStase = $enrollment->osce->osceStase ?? collect([]);
             $listStaseUnik = $semuaJadwalStase->unique('id_stase');
@@ -118,7 +113,6 @@ class ListNilaiMahasiswaController extends Controller
                 $predikatStase = 'BELUM DINILAI';
 
                 if ($kumpulanNilai && $kumpulanNilai->isNotEmpty()) {
-                    // Panggil Service untuk hitung per stase
                     $calc = $this->calculator->calculateFinalGrade($kumpulanNilai);
                     $nilaiAkhirStase = $calc['final_score'];
                     $predikatStase = $calc['predicate'];
@@ -131,16 +125,53 @@ class ListNilaiMahasiswaController extends Controller
                 ];
             }
 
-            // D. Hitung Rata-rata & Status Akhir (Footer Logic)
+            // D. Hitung Rata-rata & Status Akhir
             $overallResult = $this->calculator->calculateOverallResult($daftarNilaiStase);
-            
-            // --- SELESAI LOGIKA CALCULATOR ---
 
-
-            // E. Format Data Tampilan (Semester, Tanggal, dll)
+            // --- LOGIKA TANGGAL & SESI ---
             $osce = $enrollment->osce;
             $tahunAkademik = $osce->tahunAkademik;
-            
+
+            // Default ke global event time jika data sesi kosong
+            $waktuMulai = $osce->tanggal_mulai;
+            $waktuSelesai = $osce->tanggal_selesai;
+
+            // Cek jika ada data sesi spesifik di tabel enrollment
+            if (!empty($enrollment->tanggal_sesi) && !empty($enrollment->jam_sesi)) {
+                $tglSesi = Carbon::parse($enrollment->tanggal_sesi);
+                $tglStr = $tglSesi->format('Y-m-d');
+
+                // 1. Set Waktu Mulai Spesifik
+                $waktuMulai = $tglStr . ' ' . $enrollment->jam_sesi;
+
+                // 2. Cari Waktu Selesai Spesifik dari Jadwal Stase (osce_stase)
+                // Kita cari jadwal stase yang tanggal & jam mulainya cocok dengan sesi mahasiswa ini
+                $jadwalSesi = $osce->osceStase->first(function ($stase) use ($tglStr, $enrollment) {
+                    $staseDate = $stase->tanggal instanceof Carbon ? $stase->tanggal->format('Y-m-d') : $stase->tanggal;
+
+                    // Normalisasi jam (ambil 5 karakter pertama HH:mm untuk perbandingan aman)
+                    $staseStart = substr($stase->jam_mulai, 0, 5);
+                    $enrollStart = substr($enrollment->jam_sesi, 0, 5);
+
+                    return $staseDate === $tglStr && $staseStart === $enrollStart;
+                });
+
+                if ($jadwalSesi) {
+                    // Jika ketemu jadwalnya, ambil jam selesainya
+                    $waktuSelesai = $tglStr . ' ' . $jadwalSesi->jam_selesai;
+                } else {
+                    // Fallback: Jika tanggal global event sama dengan tanggal sesi, pakai jam selesai event global
+                    // Jika beda hari, kita estimasi durasi 60 menit (agar UI tidak menampilkan tanggal end yang aneh)
+                    $globalEnd = Carbon::parse($osce->tanggal_selesai);
+                    if ($globalEnd->format('Y-m-d') === $tglStr) {
+                        $waktuSelesai = $osce->tanggal_selesai;
+                    } else {
+                        $waktuSelesai = Carbon::parse($waktuMulai)->addMinutes(60)->format('Y-m-d H:i:s');
+                    }
+                }
+            }
+
+            // E. Format Data Tampilan
             $tahunAkademikStr = $tahunAkademik->tahun ?? '-';
             $semesterLabel = $tahunAkademik->semester ?? '-';
 
@@ -202,8 +233,7 @@ class ListNilaiMahasiswaController extends Controller
                 'nama'   => $mahasiswa->nama,
                 'nim'    => $mahasiswa->nim,
                 'prodi'  => $mahasiswa->prodi ?? '-',
-                // PERBAIKAN UTAMA: Menambahkan field kelass
-                'kelas'  => $mahasiswa->kelas ?? '-', 
+                'kelas'  => $mahasiswa->kelas ?? '-',
                 'status' => $mahasiswa->status ?? 'Aktif'
             ],
             'ujian' => $ujianData,
