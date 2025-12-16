@@ -986,7 +986,19 @@ class DatabaseSeeder extends Seeder
                 // Tentukan tanggal masa lalu berdasarkan tahunnya
 
                 $yearStart = intval(substr($thn['tahun'], 0, 4));
-                $datePast = Carbon::create($yearStart, 11, 15, 8, 0, 0); // Mulai jam 08:00
+
+                // --- FIX: Logic Bulan Berdasarkan Semester ---
+                if ($thn['semester'] == 'Ganjil') {
+                    // Semester Ganjil: Bulan November tahun berjalan (Contoh: TA 22/23 Ganjil -> Nov 2022)
+                    $bulanOsce = 11;
+                    $tahunOsce = $yearStart;
+                } else {
+                    // Semester Genap: Bulan Juni tahun berikutnya (Contoh: TA 22/23 Genap -> Juni 2023)
+                    $bulanOsce = 6;
+                    $tahunOsce = $yearStart + 1;
+                }
+
+                $datePast = Carbon::create($tahunOsce, $bulanOsce, 15, 8, 0, 0); // Mulai jam 08:00
 
                 // Durasi per sesi (7 mhs * 7 menit = 49 menit) + Buffer = 60 menit per sesi
                 $durasiPerSesi = 60;

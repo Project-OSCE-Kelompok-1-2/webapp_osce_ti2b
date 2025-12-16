@@ -352,11 +352,11 @@ export default function PengujiProfil() {
                                                 <hr className="w-full border-os-primary-pj my-2" />
 
                                                 {/* PASSWORD LAMA */}
+                                                {/* PASSWORD LAMA */}
                                                 <div className="flex flex-col gap-[3px] w-full">
                                                     <label className="text-xs">
                                                         Password lama
                                                     </label>
-                                                    {/* ⭐ LOGIKA BORDER MERAH */}
                                                     <div
                                                         className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
                                                             errors.old_password
@@ -367,8 +367,9 @@ export default function PengujiProfil() {
                                                         <Lock
                                                             size={16}
                                                             opacity={0.5}
-                                                            className="ml-2"
-                                                        />
+                                                            className="ml-2 shrink-0"
+                                                        />{" "}
+                                                        {/* Tambah shrink-0 */}
                                                         <input
                                                             type={
                                                                 showOldPassword
@@ -386,7 +387,8 @@ export default function PengujiProfil() {
                                                                 )
                                                             }
                                                             placeholder="Masukkan password lama..."
-                                                            className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400"
+                                                            // PERBAIKAN: Tambahkan min-w-0
+                                                            className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400 min-w-0"
                                                         />
                                                         <button
                                                             type="button"
@@ -395,7 +397,8 @@ export default function PengujiProfil() {
                                                                     !showOldPassword
                                                                 )
                                                             }
-                                                            className="bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                            // PERBAIKAN: Tambahkan shrink-0
+                                                            className="bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                             title={
                                                                 showOldPassword
                                                                     ? "Sembunyikan"
@@ -413,8 +416,6 @@ export default function PengujiProfil() {
                                                             )}
                                                         </button>
                                                     </div>
-
-                                                    {/* ⭐ LOGIKA ALERT ICON & RED TEXT */}
                                                     {errors.old_password && (
                                                         <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
                                                             <AlertCircle
@@ -433,7 +434,6 @@ export default function PengujiProfil() {
                                                         <label className="text-xs">
                                                             Password baru
                                                         </label>
-                                                        {/* ⭐ LOGIKA BORDER MERAH */}
                                                         <div
                                                             className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
                                                                 errors.new_password
@@ -444,7 +444,7 @@ export default function PengujiProfil() {
                                                             <Lock
                                                                 size={16}
                                                                 opacity={0.5}
-                                                                className="ml-2"
+                                                                className="ml-2 shrink-0"
                                                             />
                                                             <input
                                                                 type={
@@ -463,7 +463,8 @@ export default function PengujiProfil() {
                                                                     )
                                                                 }
                                                                 placeholder="Password baru..."
-                                                                className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400"
+                                                                // PERBAIKAN: Tambahkan min-w-0
+                                                                className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400 min-w-0"
                                                             />
                                                             <button
                                                                 type="button"
@@ -472,7 +473,8 @@ export default function PengujiProfil() {
                                                                         !showNewPassword
                                                                     )
                                                                 }
-                                                                className="bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                                // PERBAIKAN: Tambahkan shrink-0
+                                                                className="bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                                 title={
                                                                     showNewPassword
                                                                         ? "Sembunyikan"
@@ -494,8 +496,6 @@ export default function PengujiProfil() {
                                                                 )}
                                                             </button>
                                                         </div>
-
-                                                        {/* ⭐ LOGIKA ALERT ICON & RED TEXT */}
                                                         {errors.new_password && (
                                                             <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
                                                                 <AlertCircle
@@ -514,7 +514,6 @@ export default function PengujiProfil() {
                                                             Konfirmasi password
                                                             baru
                                                         </label>
-                                                        {/* ⭐ LOGIKA BORDER MERAH */}
                                                         <div
                                                             className={`flex items-center p-2 bg-white rounded-xl border pr-2 ${
                                                                 errors.new_password_confirmation
@@ -525,7 +524,7 @@ export default function PengujiProfil() {
                                                             <Lock
                                                                 size={16}
                                                                 opacity={0.5}
-                                                                className="ml-2"
+                                                                className="ml-2 shrink-0"
                                                             />
                                                             <input
                                                                 type={
@@ -544,7 +543,8 @@ export default function PengujiProfil() {
                                                                     )
                                                                 }
                                                                 placeholder="Konfirmasi password..."
-                                                                className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400"
+                                                                // PERBAIKAN: Tambahkan min-w-0
+                                                                className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400 min-w-0"
                                                             />
                                                             <button
                                                                 type="button"
@@ -553,7 +553,8 @@ export default function PengujiProfil() {
                                                                         !showConfirmPassword
                                                                     )
                                                                 }
-                                                                className="bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center"
+                                                                // PERBAIKAN: Tambahkan shrink-0
+                                                                className="bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                                 title={
                                                                     showConfirmPassword
                                                                         ? "Sembunyikan"
@@ -575,8 +576,6 @@ export default function PengujiProfil() {
                                                                 )}
                                                             </button>
                                                         </div>
-
-                                                        {/* ⭐ LOGIKA ALERT ICON & RED TEXT */}
                                                         {errors.new_password_confirmation && (
                                                             <p className="text-xs text-red-500 mt-1 font-medium flex items-center gap-1">
                                                                 <AlertCircle
@@ -590,7 +589,10 @@ export default function PengujiProfil() {
                                                     </div>
                                                 </div>
 
+                                                {/* Tombol Simpan & Logout tetap sama */}
                                                 <div className="w-full flex justify-between gap-3 mt-2">
+                                                    {/* ... kode tombol simpan & logout ... */}
+                                                    {/* ... (Pastikan bagian ini tetap ada seperti kode asli Anda) ... */}
                                                     <OsButton
                                                         name="primary-pj"
                                                         className="w-[223px] flex items-center justify-start gap-[13px] border border-black"

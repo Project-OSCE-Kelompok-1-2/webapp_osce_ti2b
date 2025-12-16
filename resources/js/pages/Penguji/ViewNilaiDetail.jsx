@@ -1,6 +1,6 @@
-import React, { useState, useMemo } from "react";
-import { usePage, router } from "@inertiajs/react";
-import { User, FileText, Bookmark, ArrowLeft } from "lucide-react";
+import React, { useState } from "react";
+import { usePage } from "@inertiajs/react";
+import { User, FileText, Bookmark } from "lucide-react";
 import OsCopyright from "../../components/Copyright";
 
 // Import Komponen
@@ -62,7 +62,7 @@ export default function ViewNilaiDetail() {
             />
 
             {/* MAIN CONTENT */}
-            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+            <main className="w-full p-4 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* HEADER */}
                 <OsHeader
                     onMenuClick={handleSidebarToggle}
@@ -157,9 +157,6 @@ export default function ViewNilaiDetail() {
                                                 <div className="flex justify-between w-full px-6">
                                                     {[0, 1, 2, 3, 4].map(
                                                         (v) => {
-                                                            // Cek apakah skor ini yang dipilih
-                                                            // Karena struktur data props ViewNilaiDetail agak beda (langsung .skor di dalam poin),
-                                                            // kita sesuaikan logic selected-nya:
                                                             const isSelected =
                                                                 Math.round(
                                                                     poin.skor
@@ -175,7 +172,7 @@ export default function ViewNilaiDetail() {
                                                                         ${
                                                                             isSelected
                                                                                 ? "border-black border-2 bg-white"
-                                                                                : "border-gray-300 opacity-40" // Opacity biar kelihatan disabled
+                                                                                : "border-gray-300 opacity-40"
                                                                         }`}
                                                                     >
                                                                         {isSelected && (
@@ -212,11 +209,12 @@ export default function ViewNilaiDetail() {
                             <span>{Number(total_nilai_aspek).toFixed(2)}</span>
                         </div>
                     </div>
-                    {/* ================= MOBILE / TABLET VIEW ================= */}
+                    {/* ================= MOBILE / TABLET VIEW (PERBAIKAN WARNA) ================= */}
                     <div className="lg:hidden space-y-3">
                         {rubrik_terisi.map((group, gIndex) => (
                             <React.Fragment key={gIndex}>
-                                <div className="bg-gray-100 px-4 py-2 font-semibold border rounded-lg">
+                                {/* PERBAIKAN 1: Header Aspek jadi Oranye (Sama seperti Edit Form) */}
+                                <div className="bg-orange-50 text-orange-900 border-os-primary-pj border px-4 py-2 font-semibold rounded-lg">
                                     {group.aspek}
                                 </div>
 
@@ -235,14 +233,13 @@ export default function ViewNilaiDetail() {
                                             {poin.deskripsi}
                                         </p>
 
-                                        {/* SKOR MOBILE (READ ONLY) */}
+                                        {/* SKOR MOBILE (READ ONLY TAPI STYLE SAMA) */}
                                         <div>
-                                            <p className="text-xs mb-1 font-medium">
+                                            <p className="text-xs mb-1 font-medium text-gray-500">
                                                 Skor:
                                             </p>
-                                            <div className="flex gap-3 pointer-events-none">
-                                                {" "}
-                                                {/* pointer-events-none agar tidak bisa diklik */}
+                                            {/* Gunakan pointer-events-none agar tidak bisa diklik */}
+                                            <div className="flex gap-2 sm:gap-3 justify-between sm:justify-start pointer-events-none">
                                                 {[0, 1, 2, 3, 4].map((v) => {
                                                     const isSelected =
                                                         Math.round(
@@ -251,12 +248,13 @@ export default function ViewNilaiDetail() {
                                                     return (
                                                         <div
                                                             key={v}
-                                                            className={`w-12 sm:w-14 aspect-square rounded-full border flex items-center justify-center text-lg transition-all
-                                                                ${
-                                                                    isSelected
-                                                                        ? "border-black border-2 bg-white text-black font-bold"
-                                                                        : "border-gray-200 text-gray-400 bg-gray-50"
-                                                                }`}
+                                                            /* PERBAIKAN 2: Style lingkaran mengikuti Edit Form (Solid Orange jika aktif) */
+                                                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center text-sm sm:text-lg font-semibold transition-all duration-200
+                                                            ${
+                                                                isSelected
+                                                                    ? "bg-orange-500 border-orange-600 text-white shadow-md transform scale-105" // Aktif Oranye
+                                                                    : "bg-white border-gray-300 text-gray-600" // Tidak Aktif
+                                                            }`}
                                                         >
                                                             {v}
                                                         </div>
@@ -265,31 +263,37 @@ export default function ViewNilaiDetail() {
                                             </div>
                                         </div>
 
-                                        <div className="text-sm">
-                                            <span className="font-medium">
-                                                Bobot:{" "}
-                                            </span>
-                                            {poin.bobot}
-                                        </div>
+                                        <div className="flex justify-between items-center pt-2 border-t border-dashed">
+                                            <div className="text-sm">
+                                                <span className="font-medium text-gray-500">
+                                                    Bobot:{" "}
+                                                </span>
+                                                {poin.bobot}
+                                            </div>
 
-                                        <div className="text-sm font-semibold">
-                                            Nilai:{" "}
-                                            {Number(
-                                                poin.nilai_kompetensi ||
-                                                    hitungNilai(
-                                                        poin.skor,
-                                                        poin.bobot
-                                                    )
-                                            ).toFixed(0)}
+                                            {/* PERBAIKAN 3: Text Nilai jadi Oranye */}
+                                            <div className="text-sm font-bold text-orange-700">
+                                                Nilai:{" "}
+                                                {Number(
+                                                    poin.nilai_kompetensi ||
+                                                        hitungNilai(
+                                                            poin.skor,
+                                                            poin.bobot
+                                                        )
+                                                ).toFixed(0)}
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
                             </React.Fragment>
                         ))}
 
-                        <div className="w-full px-4 py-3 border rounded-xl font-semibold bg-gray-50 shadow-sm">
-                            Total Nilai Akhir:{" "}
-                            {Number(total_nilai_aspek).toFixed(2)}
+                        {/* PERBAIKAN 4: Total Nilai Akhir pakai style Oranye */}
+                        <div className="w-full px-4 py-3 border border-orange-200 rounded-xl font-semibold bg-orange-50 text-orange-900 flex justify-between items-center shadow-sm">
+                            <span>Total Nilai Akhir:</span>
+                            <span className="text-xl">
+                                {Number(total_nilai_aspek).toFixed(2)}
+                            </span>
                         </div>
                     </div>
                     {/* FEEDBACK SECTION */}
