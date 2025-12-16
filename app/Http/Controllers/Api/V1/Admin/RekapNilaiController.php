@@ -2,117 +2,134 @@
 
 namespace App\Http\Controllers\Api\V1\Admin;
 
+use App\Models\Osce;
+use Inertia\Inertia; // Dipertahankan, tetapi tidak digunakan di semua method
 use Illuminate\Http\Request;
+use App\Models\TahunAkademik;
+use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Redirect;
 use App\Services\Admin\RekapNilaiService;
-use Illuminate\Database\Eloquent\ModelNotFoundException; // Tambahkan import ini
 
 class RekapNilaiController extends Controller
 {
     protected $service;
 
-    public function __construct(RekapNilaiService $service)
+    public function __construct(RekapNilaiService $rekapNilaiService)
     {
-        $this->service = $service;
+        $this->service = $rekapNilaiService;
     }
 
     /**
-     * List OSCE
+     * List OSCE untuk rekap nilai
      */
     public function index(Request $request)
     {
-        // Method ini aman karena biasanya hanya query list (paginate), 
-        // kalau kosong dia return array kosong, bukan error 404.
-        $search = $request->query("search");
-        $tahun = $request->query("tahun");
-        $osces = $this->service->getRekapList($request, $search, $tahun);
+        $osce = Osce::with('tahunAkademik')
+            ->orderBy('created_at', 'desc')
+            ->get();
 
+        $tahunAkademikOptions = TahunAkademik::orderBy('tahun', 'desc')
+            ->get()
+            ->map(fn($t) => [
+                'label' => $t->tahun . ' - ' . $t->semester,
+                'value' => $t->id_tahun_akademik
+            ]);
+
+        // --- DIUBAH DARI Inertia::render MENJADI response()->json ---
         return response()->json([
-            'status' => 'success',
-            'osce' => $osces,
-            'filters' => $request->only(['search', 'tahun']),
+            'osce' => $osce,
+            'tahunAkademikOptions' => $tahunAkademikOptions,
+            'filters' => [],
         ]);
+        // -----------------------------------------------------------------
     }
 
+
     /**
-     * List Sesi per OSCE
+     * List sesi berdasarkan tanggal dan jam untuk OSCE tertentu
      */
     public function listSesi(Request $request, $id_osce)
     {
-        try {
-            $search = $request->input('search');
-            $data = $this->service->getSesiList( $id_osce, $search);
+        $search = $request->input('search');
 
-            return response()->json([
-                'status' => 'success',
-                'message' => 'Daftar sesi berhasil diambil.',
-                'data' => $data['sesi'],
-            ]);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'success' => 'false',
-                'message' => 'Data OSCE tidak ditemukan.'
-            ], 404);
-        }
+        // Panggil Service (Service tidak diubah)
+        $result = $this->service->getSesiList($id_osce, $search);
+
+        // --- DIUBAH DARI Inertia::render MENJADI response()->json ---
+        return response()->json([
+            'osce' => $result['osce'],
+            'sesi' => $result['sesi'],
+            'filters' => $request->only(['search']),
+        ]);
+        // -----------------------------------------------------------------
     }
 
     /**
-     * List Mahasiswa per Sesi
+     * Menampilkan daftar mahasiswa yang terdaftar pada sesi tertentu
      */
     public function listMahasiswaPerStase(Request $request, $id_osce, $id_sesi)
     {
-        try {
-            $search = $request->query(key: 'search');
-            $angkatan = $request->query('angkatan');
-            $data = $this->service->getMahasiswaPerSesi($id_osce, $id_sesi, $search, $angkatan);
+        $search = $request->input('search');
+        $angkatan = $request->input('angkatan');
 
-            return response()->json([
-                'status' => 'success',
-                'osce' => $data['osce'],
-                'sesi' => $data['sesi_info'],
-                'mahasiswa_list' => $data['mahasiswa_list'],
-                'filters' => $request->only(['search', 'angkatan']),
-            ]);
-        } catch (ModelNotFoundException $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Data OSCE atau Sesi tidak ditemukan.'
-            ], 404);
-        }
+        // Panggil Service (Service tidak diubah)
+        $result = $this->service->getMahasiswaPerSesi($id_osce, $id_sesi, $search, $angkatan);
+
+        // --- DIUBAH DARI Inertia::render MENJADI response()->json ---
+        return response()->json([
+            'osce' => $result['osce'],
+            'sesi_info' => $result['sesi_info'],
+            'mahasiswa_list' => $result['mahasiswa_list'],
+            'filters' => $request->only(['search', 'angkatan']),
+        ]);
+        // -----------------------------------------------------------------
     }
 
     /**
-     * Detail Nilai Mahasiswa
+     * Menampilkan detail nilai mahasiswa per stase.
      */
     public function detailNilaiMahasiswa($id_mahasiswa, $id_osce)
     {
-        try {
-            // Service mungkin melempar error jika lookup user/osce gagal di awal
-            $detailNilai = $this->service->calculateDetailNilai($id_mahasiswa, $id_osce);
+        // Panggil Service untuk perhitungan (Service tidak diubah)
+        $detailNilai = $this->service->calculateDetailNilai($id_mahasiswa, $id_osce);
 
-            // Handle case jika service mereturn null (logic manual di service)
-            if (!$detailNilai) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Data mahasiswa untuk OSCE ini tidak ditemukan (Enrollment tidak ada).'
-                ], 404);
-            }
-
+        if (!$detailNilai) {
+            // Mengubah abort(404) menjadi response JSON 404
             return response()->json([
-                'status' => 'success',
-                'detailNilai' => $detailNilai
-            ]);
-        } catch (ModelNotFoundException $e) {
-            // Handle case jika ID Mahasiswa atau ID OSCE di URL ngawur
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Data Mahasiswa atau OSCE tidak valid/ditemukan.'
+                'message' => 'Data mahasiswa untuk OSCE ini tidak ditemukan.'
             ], 404);
-        } catch (\Exception $e) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Terjadi kesalahan pada server.'
-            ], 500);
         }
+
+        // --- DIUBAH DARI Inertia::render MENJADI response()->json ---
+        return response()->json([
+            'detailNilai' => $detailNilai,
+        ]);
+        // -----------------------------------------------------------------
+    }
+
+    /**
+     * TUGAS 3: DOWNLOAD PDF (Endpoint ini tetap menghasilkan file PDF)
+     */
+    public function downloadPdf($id_mahasiswa, $id_osce)
+    {
+        // Panggil Service untuk perhitungan (Service tidak diubah)
+        $detailNilai = $this->service->calculateDetailNilai($id_mahasiswa, $id_osce);
+
+        if (!$detailNilai) {
+            // Mengubah Redirect::back() menjadi response JSON dengan error (atau response()->back() jika ini masih route web)
+            // Karena ini adalah endpoint download PDF, kita biarkan Redirect::back() agar kembali ke halaman sebelumnya dengan pesan error.
+            return Redirect::back()->with('error', 'Data mahasiswa untuk PDF tidak ditemukan.');
+        }
+
+        // Persiapkan Data untuk View PDF
+        $data = $detailNilai;
+        $data['tahun'] = date('Y'); // Tambahkan tahun saat ini untuk kebutuhan PDF
+
+        // Generate PDF
+        $pdf = Pdf::loadView('pdf.rekap_nilai', $data);
+        $pdf->setPaper('A4', 'portrait');
+
+        return $pdf->download('Hasil_OSCE_' . $detailNilai['mahasiswa']['nim'] . '.pdf');
     }
 }

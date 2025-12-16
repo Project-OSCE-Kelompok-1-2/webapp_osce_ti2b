@@ -18,7 +18,7 @@ class ProfilController extends Controller
     }
 
     /**
-     * API: Get Profile Data
+     * Mengambil data profil penguji
      */
     public function show_profile()
     {
@@ -26,21 +26,21 @@ class ProfilController extends Controller
         $user->load('penguji');
 
         return response()->json([
-        'success' => true,
-        'message' => 'Detail profil penguji',
-        'data'    => [
-            'id_pengguna' => $user->id_pengguna,
-            'username'    => $user->username,
-            'path_gambar' => $user->path_gambar,
-            // Ambil dari relasi
-            'nama'        => $user->penguji ? $user->penguji->nama : null,
-            'nip'         => $user->penguji ? $user->penguji->nip : null,
-        ]
-    ], 200);
+            'success' => true,
+            'message' => 'Detail profil penguji',
+            'data'    => [
+                'id_pengguna' => $user->id_pengguna,
+                'username'    => $user->username,
+                'path_gambar' => $user->path_gambar,
+                // Ambil dari relasi
+                'nama'        => $user->penguji ? $user->penguji->nama : null,
+                'nip'         => $user->penguji ? $user->penguji->nip : null,
+            ]
+        ], 200);
     }
 
     /**
-     * API: Update Profile
+     * Mengupdate data profil penguji
      */
     public function update_account(Request $request)
     {
@@ -64,8 +64,8 @@ class ProfilController extends Controller
 
         try {
             $updatedPenguji = $this->profilService->updateProfile(
-                $penguji, 
-                $request->all(), 
+                $penguji,
+                $request->all(),
                 $request->file('foto')
             );
 
@@ -74,7 +74,6 @@ class ProfilController extends Controller
                 'message' => 'Profil berhasil diperbarui',
                 'data'    => $updatedPenguji
             ], 200);
-
         } catch (Exception $e) {
             return response()->json([
                 'success' => false,

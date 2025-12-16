@@ -16,8 +16,7 @@ class ApiHalamanPenilaian extends Controller
     }
 
     /**
-     * Endpoint API untuk mendapatkan antrian
-     * GET /api/penguji/antrian/{id_osce}/{id_osce_stase}
+     * Mendapatkan data antrian dan detail stase
      */
     public function getAntrian($id_osce, $id_osce_stase)
     {
@@ -33,7 +32,6 @@ class ApiHalamanPenilaian extends Controller
 
     /**
      * Endpoint API untuk mendapatkan detail penilaian
-     * GET /api/penguji/penilaian/{id_enrollment_osce}
      */
     public function getPenilaian($id_enrollment_osce)
     {
