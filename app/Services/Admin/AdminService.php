@@ -43,8 +43,8 @@ class AdminService
                     'title' => $stase->nama_stase,
                     'description' => "Total bobot penilaian saat ini: {$bobot}%",
                     'warning_label' => "Bobot tidak 100%",
-                    'warning_color' => 'red', 
-                    'link' => "/admin/stase/{$stase->id_stase}/edit",
+                    'warning_color' => 'red',
+                    'link' => "/admin/stase/{$stase->id_stase}/aspek-penilaian",
                 ];
             });
 
@@ -60,7 +60,7 @@ class AdminService
                     'description' => "Ujian dibuat tapi belum ada stase/jadwal diatur.",
                     'warning_label' => "Belum Disetting",
                     'warning_color' => 'yellow',
-                    'link' => "/admin/osce/{$osce->id_osce}", 
+                    'link' => "/admin/osce/{$osce->id_osce}",
                 ];
             });
 
@@ -79,13 +79,13 @@ class AdminService
                     'description' => "Jadwal tanggal " . ($jadwal->tanggal ? $jadwal->tanggal->format('d M Y') : '-') . " belum ada penguji.",
                     'warning_label' => "Penguji Kosong",
                     'warning_color' => 'red',
-                    'link' => "/admin/osce/{$jadwal->id_osce}", 
+                    'link' => "/admin/osce/{$jadwal->id_osce}",
                 ];
             });
 
         // LOGIKA 4: Notifikasi OSCE Belum Ada Peserta
-        $notifTanpaPeserta = Osce::has('osceStase') 
-            ->doesntHave('enrollmentOsce') 
+        $notifTanpaPeserta = Osce::has('osceStase')
+            ->doesntHave('enrollmentOsce')
             ->get()
             ->toBase()
             ->map(function ($osce) {
@@ -128,10 +128,9 @@ class AdminService
         // ====================================================
         if ($request->boolean('delete_foto')) {
             $this->deleteFoto($admin);
-        } 
-        elseif ($request->hasFile('foto')) {
+        } elseif ($request->hasFile('foto')) {
             $this->deleteFoto($admin, false); // Hapus file lama fisik, jangan null-kan DB dulu
-            
+
             $fotoPath = $request->file('foto')->store('profiladmin', 'public');
             $admin->path_gambar = 'storage/' . $fotoPath;
         }
@@ -139,7 +138,7 @@ class AdminService
         // ====================================================
         // 2. LOGIKA PASSWORD (IDENTIK DENGAN PENGUJI)
         // ====================================================
-        
+
         // Deteksi input (menggunakan helper Laravel request)
         $filledOld = $request->filled('old_password');
         $filledNew = $request->filled('new_password');
