@@ -492,7 +492,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                     <div>
                         <OsInput
                             type="select"
-                            label="Tahun Angkatan"
+                            label="Tahun Akademik"
                             options={[
                                 { label: "Pilih Tahun", value: "" },
                                 ...(tahunAkademikOptions || []),
