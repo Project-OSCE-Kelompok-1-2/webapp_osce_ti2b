@@ -393,11 +393,11 @@ export default function LivePenilaian() {
                                         </p>
 
                                         {/* SKOR */}
-                                        <div>
-                                            <p className="text-xs mb-1 font-medium text-gray-500">
+                                        <div className="w-full">
+                                            <p className="text-xs mb-2 font-medium text-gray-500 text-center">
                                                 Skor:
                                             </p>
-                                            <div className="flex gap-2 sm:gap-3 justify-between sm:justify-start">
+                                            <div className="flex gap-3 sm:gap-6 justify-center w-full">
                                                 {[0, 1, 2, 3, 4].map((v) => {
                                                     const isSelected =
                                                         nilaiMap[
@@ -415,11 +415,11 @@ export default function LivePenilaian() {
                                                                 )
                                                             }
                                                             /* PERBAIKAN 2: Lingkaran jadi Oranye saat dipilih */
-                                                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center text-sm sm:text-lg font-semibold transition-all duration-200
+                                                            className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full border flex items-center justify-center text-lg sm:text-xl font-bold transition-all duration-200
                                             ${
                                                 isSelected
-                                                    ? "bg-orange-500 border-orange-600 text-white shadow-md transform scale-105" // Aktif: Oranye Solid
-                                                    : "bg-white border-gray-300 text-gray-600 hover:border-orange-300" // Tidak Aktif
+                                                    ? "bg-orange-500 border-orange-600 text-white shadow-md transform scale-110" // Aktif: Oranye Solid
+                                                    : "bg-white border-gray-300 text-gray-600 hover:border-orange-300 hover:bg-orange-50" // Tidak Aktif
                                             }`}
                                                         >
                                                             {v}
