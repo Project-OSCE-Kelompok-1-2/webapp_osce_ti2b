@@ -116,7 +116,7 @@
 //                         {/* Tahun Akademik */}
 //                         <div>
 //                             <label className="text-sm font-medium text-gray-700">
-//                                 Tahun Akademik
+//                                 Tahun Angkatan
 //                             </label>
 //                             <select
 //                                 className={`mt-1 w-full border rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-1 ${

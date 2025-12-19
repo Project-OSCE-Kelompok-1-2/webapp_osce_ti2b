@@ -35,7 +35,7 @@ class OsceController extends Controller
         $tahunAkademikOptions = TahunAkademik::orderBy('tahun', 'desc')
             ->get()
             ->map(fn($t) => [
-                'label' => $t->tahun . ' - ' . $t->semester,
+                'label' => 'Angkatan ' . $t->tahun . ' - ' . $t->semester,
                 'value' => $t->id_tahun_akademik
             ]);
 
@@ -66,7 +66,7 @@ class OsceController extends Controller
         // Kirim data dropdown dan data osce yang ada
         $tahunAkademik = TahunAkademik::orderBy('tahun', 'desc')->get()->map(fn($th) => [
             'value' => $th->id_tahun_akademik,
-            'label' => $th->tahun . ' - ' . $th->semester,
+            'label' => 'Angkatan ' . $th->tahun . ' - ' . $th->semester,
         ]);
 
         return Inertia::render('Admin/TambahOsce', [
