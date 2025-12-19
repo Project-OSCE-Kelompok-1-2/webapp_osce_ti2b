@@ -40,19 +40,19 @@ class HandleInertiaRequests extends Middleware
         $details = null;
 
         // 1. Eager Load Relasi
-        // Kita perlu meload relasi agar data seperti NIM/NIP tersedia di sidebar
+        // Perlu meload relasi agar data seperti NIM/NIP tersedia di sidebar
         if ($user) {
             if ($user->jenis_role === "penguji") {
-                $user->load("penguji");
+                $user->loadMissing("penguji");
                 $details = $user->penguji;
             } else if ($user->jenis_role === "mahasiswa") {
-                $user->load("mahasiswa");
+                $user->loadMissing("mahasiswa");
                 $details = $user->mahasiswa;
             } else if ($user->jenis_role === "dosen") {
-                $user->load("dosen");
+                $user->loadMissing("dosen");
                 $details = $user->dosen;
             } else if ($user->jenis_role === "admin") {
-                $user->load("admin");
+                $user->loadMissing("admin");
                 $details = $user->admin;
             }
         }
