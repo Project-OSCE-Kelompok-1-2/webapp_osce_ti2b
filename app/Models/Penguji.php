@@ -17,15 +17,13 @@ class Penguji extends Model
         'nip',
     ];
 
-    // Relasi ke Pengguna
     public function pengguna()
     {
         return $this->belongsTo(Pengguna::class, 'id_pengguna');
     }
 
-    // Relasi ke OSCE Stase (1:M)
     public function osceStase()
     {
-        return $this->hasMany(OsceStase::class, 'id_penguji'); // Perlu Model OsceStase
+        return $this->hasMany(OsceStase::class, 'id_penguji'); 
     }
 }

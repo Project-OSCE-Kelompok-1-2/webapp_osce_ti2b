@@ -22,7 +22,7 @@ class OsceController extends Controller
 
         $search = $request->input('search');
         $tahun  = $request->input('tahun');
-        $statusFilter = $request->input('status'); // 1. Tangkap Input Status
+        $statusFilter = $request->input('status'); 
 
         $tahunOptions = TahunAkademik::select('tahun')
             ->distinct()
@@ -51,11 +51,9 @@ class OsceController extends Controller
             ->orderBy('jam_mulai', 'asc')
             ->get();
 
-        // Mapping (Perhitungan Status Logic)
         $mappedStase = $rawStase->map(function ($stase) {
             $osce = $stase->osce;
 
-            // ... (CODE LOGIC WAKTU & MAHASISWA TETAP SAMA SEPERTI SEBELUMNYA) ...
             $now = Carbon::now('Asia/Jakarta');
             $tglStase   = $stase->tanggal->format('Y-m-d');
             $startEvent = Carbon::parse($tglStase . ' ' . $stase->jam_mulai, 'Asia/Jakarta');
@@ -81,7 +79,6 @@ class OsceController extends Controller
                 return $mhs->nilaiOsce !== null;
             })->count();
 
-            // ... (CODE LOGIC STATUS TETAP SAMA) ...
             $status = 'Aktif'; 
             $isFullGraded = ($jumlahMahasiswa > 0 && $jumlahMahasiswa === $jumlahDinilai);
 
@@ -103,7 +100,6 @@ class OsceController extends Controller
                 }
             }
 
-            // ... (CODE TOMBOL TETAP SAMA) ...
             $tombolAction = 'Lihat'; 
             $tipeHalaman = 'rekap'; 
 
@@ -136,7 +132,7 @@ class OsceController extends Controller
                 'nama'             => $osce->nama_osce,
                 'tanggal_mulai'    => $osce->tanggal_mulai->format('d F Y'),
                 'tanggal_akhir'    => $osce->tanggal_selesai->format('d F Y'),
-                'status'           => $status, // Ini key yang kita filter
+                'status'           => $status, 
                 'tombol_label'     => $tombolAction,
                 'tipe_halaman'     => $tipeHalaman, 
                 'jumlah_mahasiswa' => $jumlahMahasiswa,
@@ -145,12 +141,10 @@ class OsceController extends Controller
             ];
         });
 
-        // 2. FILTER COLLECTION BERDASARKAN STATUS (Logic Baru)
         if ($statusFilter) {
             $mappedStase = $mappedStase->where('status', $statusFilter);
         }
 
-        // Sorting
         $statusPriority = [
             'Aktif'         => 1,
             'Belum Dinilai' => 2,
@@ -163,7 +157,6 @@ class OsceController extends Controller
             return $statusPriority[$item['status']] ?? 99;
         });
 
-        // Pagination
         $currentPage = Paginator::resolveCurrentPage() ?: 1;
         $perPage = 10;
         $currentItems = $sortedStase->slice(($currentPage - 1) * $perPage, $perPage)->values();
@@ -185,7 +178,7 @@ class OsceController extends Controller
             'filters'   => [
                 'search' => $search,
                 'tahun'  => $tahun,
-                'status' => $statusFilter // 3. Return status ke frontend
+                'status' => $statusFilter
             ]
         ]);
     }

@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\DB;
 class RekapNilaiService
 {
     /**
-     * List OSCE untuk rekap nilai dan list Tahun Akademik untuk filter.
      * * @param string|null $search
      * @param string|null $tahun
      * @return array
@@ -42,7 +41,6 @@ class RekapNilaiService
             ];
         });
 
-        // Ambil list tahun akademik untuk dropdown
         $tahunAkademikOptions = TahunAkademik::orderBy('tahun', 'desc')
             ->get()
             ->map(fn($t) => [
@@ -57,8 +55,6 @@ class RekapNilaiService
     }
 
     /**
-     * List sesi berdasarkan tanggal dan jam untuk OSCE tertentu.
-     * Mengembalikan array berisi data osce dan data sesi (paginated).
      * * @param int $id_osce
      * @param string|null $search
      * @return array
@@ -67,14 +63,10 @@ class RekapNilaiService
     {
         $osce = Osce::findOrFail($id_osce);
 
-        // Hapus parameter $search, kita tidak filter di database lagi
         $query = DB::table('osce_stase')
             ->where('id_osce', $id_osce)
             ->whereNotNull('tanggal');
 
-        // [HAPUS] if ($search) { $query->where(...) }
-
-        // Ambil SEMUA data yang sudah di-group
         $sesi_virtual = $query->select(
             'tanggal',
             'jam_mulai',
@@ -83,27 +75,23 @@ class RekapNilaiService
             ->groupBy('tanggal', 'jam_mulai')
             ->orderBy('tanggal', 'asc')
             ->orderBy('jam_mulai', 'asc')
-            ->get(); // Gunakan GET(), bukan paginate()
+            ->get(); 
 
-        // Transformasi Data (Map Collection)
         $sesi_data = $sesi_virtual->map(function ($sesi_group) use ($id_osce) {
             $jam_formatted = substr($sesi_group->jam_mulai, 0, 5);
 
             $jumlah_mahasiswa = EnrollmentOsce::where('id_osce', $id_osce)
                 ->where('tanggal_sesi', $sesi_group->tanggal)
-                ->where('jam_sesi', $sesi_group->jam_mulai) // Pastikan format jam di DB sesuai (mungkin perlu like atau exact match)
+                ->where('jam_sesi', $sesi_group->jam_mulai) 
                 ->distinct('id_mahasiswa')
                 ->count();
 
-            // Format tanggal Indonesia manual atau pakai Carbon
-            $tanggal_indo = (new \DateTime($sesi_group->tanggal))->format('d M Y'); // Contoh: 12 Dec 2025
+            $tanggal_indo = (new \DateTime($sesi_group->tanggal))->format('d M Y');
 
             return [
-                // Format ID sesi: Tanggal_Jam(tanpa titik dua)
                 'id_sesi' => $sesi_group->tanggal . '_' . str_replace(':', '', $jam_formatted),
                 'tanggal_sesi_raw' => $sesi_group->tanggal,
                 'jam_sesi_raw' => $jam_formatted,
-                // String gabungan untuk tampilan & pencarian
                 'tampilan_sesi' => $tanggal_indo . ' — Pukul ' . $jam_formatted,
                 'jumlah_mahasiswa' => $jumlah_mahasiswa,
             ];
@@ -111,12 +99,11 @@ class RekapNilaiService
 
         return [
             'osce' => $osce,
-            'sesi' => $sesi_data // Kirim Array Lengkap
+            'sesi' => $sesi_data 
         ];
     }
 
     /**
-     * Menampilkan daftar mahasiswa yang terdaftar pada sesi tertentu
      * * @param int $id_osce
      * @param string $id_sesi (Format: Tanggal_JamRaw)
      * @param string|null $search
@@ -125,14 +112,10 @@ class RekapNilaiService
      */
     public function getMahasiswaPerSesi($id_osce, $id_sesi)
     {
-        // 1. Pecah ID Sesi
-        // ID Sesi formatnya: YYYY-MM-DD_HHmm (contoh: 2025-12-12_1432)
         $parts = explode('_', $id_sesi);
         $sesi_tanggal = $parts[0];
         $sesi_jam_raw = isset($parts[1]) ? $parts[1] : '';
 
-        // Format ulang jam agar sesuai format DB (HH:mm)
-        // Dari "1432" menjadi "14:32"
         $sesi_jam_display = '';
         if (strlen($sesi_jam_raw) == 4) {
             $sesi_jam_display = substr($sesi_jam_raw, 0, 2) . ':' . substr($sesi_jam_raw, 2, 2);
@@ -140,28 +123,12 @@ class RekapNilaiService
 
         $osce = Osce::findOrFail($id_osce);
 
-        // 2. Ambil ID mahasiswa yang ter-enroll di SESI INI
-        // [FIX]: Mengaktifkan filter 'jam_sesi' menggunakan LIKE
         $enrolled_ids = EnrollmentOsce::where('id_osce', $id_osce)
             ->where('tanggal_sesi', $sesi_tanggal)
-            // Menggunakan LIKE agar match dengan format H:i:s atau H:i di database
             ->where('jam_sesi', 'LIKE', $sesi_jam_display . '%')
             ->pluck('id_mahasiswa');
 
-        // 3. Query Mahasiswa
-        // Ambil data mahasiswa berdasarkan ID yang didapat dari filter di atas
         $query = Mahasiswa::whereIn('id_mahasiswa', $enrolled_ids);
-
-        // [OPSIONAL] Filter Search server-side (jika dibutuhkan selain client-side)
-        // if ($search) {
-        //    $query->where('nama', 'like', "%{$search}%")
-        //          ->orWhere('nim', 'like', "%{$search}%");
-        // }
-
-        // [OPSIONAL] Filter Angkatan server-side
-        // if ($angkatan) {
-        //    $query->where('kelas', $angkatan);
-        // }
 
         $mahasiswa_list = $query->orderBy('nama', 'asc')
             ->get()
@@ -178,14 +145,13 @@ class RekapNilaiService
                 'id' => $id_sesi,
                 'tanggal' => $sesi_tanggal,
                 'tanggal_formatted' => (new \DateTime($sesi_tanggal))->format('d M Y'),
-                'jam' => $sesi_jam_display, // Jam yang sudah diformat (14:32)
+                'jam' => $sesi_jam_display, 
             ],
             'mahasiswa_list' => $mahasiswa_list
         ];
     }
 
     /**
-     * Menghitung detail nilai mahasiswa per stase dan mengembalikan data terstruktur.
      * * @param int $id_mahasiswa
      * @param int $id_osce
      * @return array|null
@@ -259,7 +225,6 @@ class RekapNilaiService
 
         foreach ($nilaiPerStase as $key => $stase) {
             $totalSkorBobot = $stase['total_skor_bobot'] ?? 0;
-            // $nilaiPerStase[$key]['nilai_akhir_stase'] = $totalSkorBobot / 4;
             $nilaiRaw = $totalSkorBobot / 4;
             $nilaiPerStase[$key]['nilai_akhir_stase'] = (float) number_format($nilaiRaw, 2);
         }

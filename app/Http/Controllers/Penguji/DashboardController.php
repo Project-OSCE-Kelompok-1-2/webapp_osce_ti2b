@@ -20,7 +20,6 @@ class DashboardController extends Controller
         $now = Carbon::now('Asia/Jakarta');
         $todayStr = $now->toDateString();
 
-        // 1. STATISTIK QUERY
         $baseStaseQuery = OsceStase::where('id_penguji', $penguji->id_penguji);
 
         $statistik = [
@@ -43,19 +42,15 @@ class DashboardController extends Controller
                 ->count(),
         ];
 
-        // 2. QUERY CALENDAR EVENTS (TITIK DI KALENDER)
-        // Mengambil semua tanggal unik di mana penguji memiliki jadwal
         $calendarEvents = OsceStase::where('id_penguji', $penguji->id_penguji)
             ->select('tanggal')
             ->distinct()
             ->get()
             ->map(function ($item) {
-                // Konversi ke string Y-m-d (misal: "2024-12-15")
                 return Carbon::parse($item->tanggal)->format('Y-m-d');
             })
             ->toArray();
 
-        // 3. LOGIKA JADWAL MENDATANG / SELECTED DATE
         $jadwalQuery = OsceStase::with(['osce.enrollmentOsce.nilaiOsce'])
             ->where('id_penguji', $penguji->id_penguji);
 
@@ -63,14 +58,12 @@ class DashboardController extends Controller
             $filterDate = Carbon::parse($request->date);
             $jadwalQuery->whereDate('tanggal', $filterDate);
         } else {
-            // Default: Tampilkan jadwal hari ini sampai 30 hari ke depan
             $jadwalQuery->whereDate('tanggal', '>=', $todayStr)
                 ->whereDate('tanggal', '<=', $now->copy()->addDays(30));
         }
         
         $jadwalQuery->orderBy('tanggal', 'asc')->orderBy('jam_mulai', 'asc');
 
-        // 4. MAPPING DATA JADWAL
         $jadwalMendatang = $jadwalQuery->get()
             ->map(function ($stase) {
                 $osce = $stase->osce;
@@ -80,12 +73,10 @@ class DashboardController extends Controller
                     ? $stase->tanggal->format('Y-m-d') 
                     : $stase->tanggal;
 
-                // Definisi Waktu
                 $startEvent = Carbon::parse($tglStaseStr . ' ' . $stase->jam_mulai, 'Asia/Jakarta');
                 $endEvent   = Carbon::parse($tglStaseStr . ' ' . $stase->jam_selesai, 'Asia/Jakarta');
                 $globalEndDate = Carbon::parse($osce->tanggal_selesai, 'Asia/Jakarta')->endOfDay();
 
-                // Hitung Mahasiswa & Status Penilaian
                 $staseJamMulai = substr($stase->jam_mulai, 0, 5);
                 
                 $pesertaSesi = $osce->enrollmentOsce
@@ -106,7 +97,6 @@ class DashboardController extends Controller
 
                 $isFullGraded = ($jumlahMahasiswaSesi > 0 && $jumlahMahasiswaSesi === $jumlahDinilai);
 
-                // Logika Status Text
                 $status = 'Aktif'; 
                 if ($now->greaterThan($globalEndDate)) {
                     $status = 'Selesai';
@@ -124,7 +114,6 @@ class DashboardController extends Controller
                     }
                 }
 
-                // Prioritas Sorting
                 $statusPriority = [
                     'Aktif'         => 1, 
                     'Belum Dinilai' => 2, 
@@ -162,7 +151,7 @@ class DashboardController extends Controller
             'statistik'        => $statistik,
             'jadwal_mendatang' => $jadwalMendatang,
             'selected_date'    => $request->date ?? null,
-            'calendar_events'  => $calendarEvents, // <--- Data ini dikirim ke frontend
+            'calendar_events'  => $calendarEvents,
         ]);
     }
 }

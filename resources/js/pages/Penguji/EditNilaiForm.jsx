@@ -1,14 +1,12 @@
 import React, { useState, useMemo } from "react";
 import { usePage, router } from "@inertiajs/react";
 import { User, FileText, Bookmark, Save } from "lucide-react";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 
-// Import Komponen (Sesuaikan path jika perlu)
 import Sidebar from "../../components/Sidebar";
 import OsTableHeader from "../../components/tableheader";
 import OsHeader from "../../components/Header";
 
-// Header Tabel Rubrik (Sama persis dengan LivePenilaian)
 const rubrikColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
     {
@@ -38,11 +36,10 @@ export default function EditNilaiForm() {
     // 1. BAGIAN LOGIC (KHUSUS EDIT)
     // =========================================================================
 
-    // Ambil data dari Controller (EditNilaiController)
     const {
         osce_detail,
         mahasiswa,
-        rubrik_terisi, // Data rubrik + nilai dari DB
+        rubrik_terisi, 
         feedback_tersimpan,
         id_enrollment_osce,
     } = usePage().props;
@@ -53,14 +50,11 @@ export default function EditNilaiForm() {
         setIsSidebarOpen((prev) => !prev);
     };
 
-    // --- INISIALISASI STATE DARI DATABASE ---
-    // Kita buat nilaiMap langsung terisi berdasarkan data dari backend
     const [nilaiMap, setNilaiMap] = useState(() => {
         const initialMap = {};
         if (rubrik_terisi) {
             rubrik_terisi.forEach((aspek) => {
                 aspek.kompetensi.forEach((poin) => {
-                    // Masukkan nilai yang ada di DB ke state
                     initialMap[poin.id_poin_aspek_penilaian] = poin.skor;
                 });
             });
@@ -71,7 +65,6 @@ export default function EditNilaiForm() {
     const [feedback, setFeedback] = useState(feedback_tersimpan || "");
     const [isSaving, setIsSaving] = useState(false);
 
-    // Hitung total kompetensi untuk validasi
     let jumlahKompetensi = 0;
     if (rubrik_terisi) {
         for (const aspek of rubrik_terisi)
@@ -79,7 +72,6 @@ export default function EditNilaiForm() {
     }
     const jumlahKompetensiDinilai = Object.keys(nilaiMap).length;
 
-    // --- LOGIKA HITUNG SKOR (SAMA) ---
     const handleSkorChange = (poinId, skor) => {
         setNilaiMap((prev) => ({ ...prev, [poinId]: skor }));
     };
@@ -89,7 +81,6 @@ export default function EditNilaiForm() {
         return skor * bobot;
     };
 
-    // Hitung Total Nilai Real-time
     const totalNilaiMentah = useMemo(() => {
         if (!rubrik_terisi) return 0;
         return rubrik_terisi.reduce((total, group) => {
@@ -111,7 +102,6 @@ export default function EditNilaiForm() {
     const SKALA_MAKSIMAL = 4;
     const totalNilai = totalNilaiMentah / SKALA_MAKSIMAL;
 
-    // --- SUBMIT (PUT REQUEST UNTUK EDIT) ---
     const handleSubmit = (e) => {
         e.preventDefault();
 
@@ -134,7 +124,6 @@ export default function EditNilaiForm() {
             {
                 nilai: nilaiPayload,
                 feedback: feedback,
-                // TAMBAHKAN BARIS INI: Kirim ID stase yang sedang aktif dari props osce_detail
                 id_osce_stase: osce_detail.id_osce_stase,
             },
             {
@@ -142,7 +131,6 @@ export default function EditNilaiForm() {
                 onError: (errors) => {
                     setIsSaving(false);
                     console.error("Error dari Backend:", errors);
-                    // ... error handling
                 },
                 onSuccess: () => {
                     console.log("Berhasil disimpan!");
@@ -164,17 +152,16 @@ export default function EditNilaiForm() {
 
             {/* MAIN CONTENT */}
             <main className="w-full p-4 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
-                {/* HEADER: Arahkan tombol kembali ke list rekap */}
                 <OsHeader
                     onMenuClick={handleSidebarToggle}
-                    variant="goback" // Menggunakan varian back button
+                    variant="goback" 
                     role="penguji"
                     backLink={`/penguji/osce/${osce_detail.id_osce}/stase/${osce_detail.id_osce_stase}/submitrubrik`}
                     title="Edit Penilaian"
                 />
 
                 <div className="flex-1 overflow-auto pb-8 p-1">
-                    {/* INFO MAHASISWA (Style disamakan dengan LivePenilaian) */}
+                    {/* INFO MAHASISWA */}
                     <div className="flex gap-1 items-center justify-start my-2 text-black">
                         <User size={18} />
                         <h2 className="font-semibold text-lg ">
@@ -216,7 +203,6 @@ export default function EditNilaiForm() {
                         </h2>
                     </div>
 
-                    {/* ================= DESKTOP VIEW (Style disamakan) ================= */}
                     <div className="hidden bg-white lg:block border rounded-xl p-4 border-os-primary-pj shadow-sm">
                         <OsTableHeader
                             columns={rubrikColumns}
@@ -319,12 +305,9 @@ export default function EditNilaiForm() {
                         </div>
                     </div>
 
-                    {/* ================= MOBILE / TABLET VIEW (Style disamakan) ================= */}
-                    {/* ================= MOBILE / TABLET VIEW (PERBAIKAN) ================= */}
                     <div className="lg:hidden space-y-3">
                         {rubrik_terisi.map((group, gIndex) => (
                             <React.Fragment key={gIndex}>
-                                {/* PERBAIKAN 1: Header Aspek jadi Oranye (bukan abu-abu) */}
                                 <div className="bg-orange-50 text-orange-900 border-os-primary-pj border px-4 py-2 font-semibold rounded-lg">
                                     {group.aspek}
                                 </div>
@@ -363,12 +346,11 @@ export default function EditNilaiForm() {
                                                                     v
                                                                 )
                                                             }
-                                                            /* PERBAIKAN 2: Tombol jadi Oranye Solid saat aktif */
                                                             className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center text-sm sm:text-lg font-semibold transition-all duration-200
                                             ${
                                                 isSelected
-                                                    ? "bg-orange-500 border-orange-600 text-white shadow-md transform scale-105" // Aktif
-                                                    : "bg-white border-gray-300 text-gray-600 hover:border-orange-300" // Tidak Aktif
+                                                    ? "bg-orange-500 border-orange-600 text-white shadow-md transform scale-105" 
+                                                    : "bg-white border-gray-300 text-gray-600 hover:border-orange-300" 
                                             }`}
                                                         >
                                                             {v}
@@ -403,7 +385,6 @@ export default function EditNilaiForm() {
                             </React.Fragment>
                         ))}
 
-                        {/* Total Nilai - Mobile */}
                         <div className="w-full px-4 py-3 border border-orange-200 rounded-xl font-semibold bg-orange-50 text-orange-900 flex justify-between items-center shadow-sm">
                             <span>Total Nilai Akhir:</span>
                             <span className="text-xl">
@@ -412,7 +393,6 @@ export default function EditNilaiForm() {
                         </div>
                     </div>
 
-                    {/* FEEDBACK SECTION (Style disamakan) */}
                     <div className="flex gap-1 items-center justify-start my-2 mt-8 text-black">
                         <Bookmark size={18} />
                         <h2 className="font-semibold text-lg ">
@@ -426,7 +406,6 @@ export default function EditNilaiForm() {
                         placeholder="Tuliskan catatan perbaikan atau feedback untuk mahasiswa ini..."
                     />
 
-                    {/* FORM SUBMIT (Style disamakan) */}
                     <form onSubmit={handleSubmit} className="mt-6 mb-12">
                         <div className="flex justify-start">
                             <button

@@ -11,23 +11,21 @@ export default function OsInput({
     name = "",
     className = "",
     label = "",
-    required = false, // Menambahkan prop required untuk styling label
-    error, // Menambahkan prop error untuk pesan validasi
-    min, // Menerima prop minimum value
+    required = false, 
+    error, 
+    min, 
 }) {
-    // ❌ STATE inputValue DIHAPUS (Biang kerok tombol clear tidak jalan)
-    // const [inputValue, setInputValue] = useState(value || "");
 
-    const [focused, setFocused] = useState(false); // State tambahan untuk Multiple Choice
+    const [focused, setFocused] = useState(false); 
 
     const [searchQuery, setSearchQuery] = useState("");
-    const [filteredOptions, setFilteredOptions] = useState(options); // Reset search query saat value kosong (tombol clear ditekan)
+    const [filteredOptions, setFilteredOptions] = useState(options); 
 
     useEffect(() => {
         if (!value || (Array.isArray(value) && value.length === 0)) {
             setSearchQuery("");
         }
-    }, [value]); // Sinkronisasi dan filter untuk multi-select
+    }, [value]); 
 
     useEffect(() => {
         if (type === "multi-select") {
@@ -41,40 +39,29 @@ export default function OsInput({
         searchQuery,
         options,
         type,
-    ]); /** #########################################################
-         * 🔹 CUSTOM NUMBER INPUT (ADA PANAH ATAS & BAWAH)
-         ######################################################### */
+    ]); 
 
     if (type === "number") {
-        // Tentukan nilai minimum default (misal 0, atau gunakan prop min jika ada)
         const minValue = min !== undefined ? min : 0;
 
-        // Handler untuk memvalidasi input sebelum memanggil parent onChange
         const handleNumberChange = (e) => {
             const rawValue = e.target.value;
 
-            // Jika input hanya "-" atau kosong, biarkan input ini tersimpan sementara
-            // di parent state, agar pengguna bisa melanjutkan pengetikan.
             if (rawValue === "-" || rawValue.trim() === "") {
                 onChange?.(e);
                 return;
             }
 
-            // Konversi ke angka. Jika format salah (bukan angka), hasilnya NaN
             const numValue = parseFloat(rawValue);
 
             if (!isNaN(numValue)) {
-                // Jika input numerik valid, cek apakah kurang dari nilai minimum
                 if (numValue < minValue) {
-                    // Jika kurang dari batas, panggil parent onChange dengan nilai minimum.
-                    // Ini secara paksa "memperbaiki" nilai di parent state.
                     e.target.value = String(minValue);
                     onChange?.(e);
                     return;
                 }
             }
 
-            // Jika valid, panggil parent onChange dengan nilai mentah.
             onChange?.(e);
         };
 
@@ -94,9 +81,9 @@ export default function OsInput({
                     <input
                         type="number"
                         name={name}
-                        value={value} // ✅ Gunakan Value Prop langsung
-                        min={minValue} // Terapkan min prop untuk validasi browser/panah
-                        onChange={handleNumberChange} // Gunakan handler baru untuk validasi JS
+                        value={value} 
+                        min={minValue} 
+                        onChange={handleNumberChange}
                         placeholder={placeholder}
                         className="w-full min-h-[48px] px-3 py-2 rounded-lg text-os-paragraph border border-gray-300 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                     />
@@ -109,7 +96,7 @@ export default function OsInput({
                            
             </div>
         );
-    } /** 🔹 TEXT INPUT */
+    } 
 
     if (type === "text" || type === "email" || type === "password") {
         return (
@@ -126,7 +113,7 @@ export default function OsInput({
                 <input
                     type={type}
                     name={name}
-                    value={value} // ✅ Gunakan Value Prop langsung
+                    value={value} 
                     onChange={onChange}
                     placeholder={placeholder}
                     className="w-full min-h-[48px] px-3 py-2 rounded-lg text-os-paragraph border border-gray-300 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -138,7 +125,7 @@ export default function OsInput({
                            
             </div>
         );
-    } /** 🔹 TEXTAREA */
+    } 
 
     if (type === "textarea") {
         return (
@@ -154,7 +141,7 @@ export default function OsInput({
                                
                 <textarea
                     name={name}
-                    value={value} // ✅ Gunakan Value Prop langsung
+                    value={value} 
                     onChange={onChange}
                     placeholder={placeholder}
                     className="w-full min-h-[100px] px-3 py-2 rounded-lg text-os-paragraph border border-gray-300 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -166,7 +153,7 @@ export default function OsInput({
                            
             </div>
         );
-    } /** 🔹 SUGGEST INPUT */
+    } 
 
     if (type === "suggest") {
         const currentValue = value || "";
@@ -187,7 +174,7 @@ export default function OsInput({
                                
                 <input
                     type="text"
-                    value={currentValue} // ✅ Sudah benar (menggunakan value prop)
+                    value={currentValue} 
                     onChange={onChange}
                     placeholder={placeholder}
                     onFocus={() => setFocused(true)}
@@ -221,7 +208,7 @@ export default function OsInput({
                            
             </div>
         );
-    } /** 🔹 BULLET RADIO BUTTON GROUP */
+    } 
 
     if (type === "bullet") {
         return (
@@ -270,7 +257,7 @@ export default function OsInput({
                            
             </div>
         );
-    } /** 🔹 SELECT (DROPDOWN) */
+    } 
 
     if (type === "select") {
         return (
@@ -286,7 +273,7 @@ export default function OsInput({
                                
                 <select
                     name={name}
-                    value={value} // ✅ Gunakan Value Prop
+                    value={value} 
                     onChange={(e) => onChange && onChange(e)}
                     className={`w-full h-[48px] px-3 py-2 rounded-lg text-os-paragraph border border-gray-300 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 ${className}`}
                 >
@@ -310,7 +297,7 @@ export default function OsInput({
                            
             </div>
         );
-    } /** 🔹 DATE INPUT */
+    } 
 
     if (type === "date") {
         return (
@@ -327,7 +314,7 @@ export default function OsInput({
                 <input
                     type="date"
                     name={name}
-                    value={value} // ✅ Gunakan Value Prop
+                    value={value} 
                     onChange={onChange}
                     placeholder={placeholder}
                     className="w-full min-h-[48px] px-3 py-2 rounded-lg text-os-paragraph border border-gray-300 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -339,7 +326,7 @@ export default function OsInput({
                            
             </div>
         );
-    } /** 🔹 CLOCK (TIME) INPUT */
+    } 
 
     if (type === "clock") {
         return (
@@ -356,7 +343,7 @@ export default function OsInput({
                 <input
                     type="time"
                     name={name}
-                    value={value} // ✅ Gunakan Value Prop
+                    value={value} 
                     onChange={onChange}
                     placeholder={placeholder}
                     className="w-full min-h-[48px] px-3 py-2 rounded-lg text-os-paragraph border border-gray-300 outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
@@ -368,7 +355,7 @@ export default function OsInput({
                            
             </div>
         );
-    } /** 🔹 MULTIPLE CHOICE (CHECKBOX GROUP WITH SEARCH) */
+    } 
 
     if (type === "multi-select") {
         const selectedValues = Array.isArray(value) ? value : [];
@@ -452,7 +439,7 @@ export default function OsInput({
                            
             </div>
         );
-    } /** 🔹 SINGLE SELECT (SEARCH) */
+    } 
 
     if (type === "single-select") {
         const selectedValue = value || "";
@@ -530,7 +517,7 @@ export default function OsInput({
                            
             </div>
         );
-    } /** 🔹 MULTI INPUT (Tags + Time) */
+    } 
 
     if (type === "multi-input") {
         const selected = Array.isArray(value) ? value : [];
@@ -619,12 +606,9 @@ export default function OsInput({
                            
             </div>
         );
-    } /** 🔹 MULTI INPUT DROP (Jadwal Stase - Dosen) */
+    } 
 
     if (type === "multi-input-drop") {
-        // [PERBAIKAN] Menggunakan derived state.
-        // Jika 'value' (dari parent) adalah array & ada isinya, gunakan itu.
-        // Jika tidak (misal di-reset), kembali ke array kosong yang di-map dari options.
         const schedules =
             Array.isArray(value) && value.length > 0
                 ? value
@@ -644,7 +628,7 @@ export default function OsInput({
             return staseData.label
                 ?.toLowerCase()
                 .includes(search.toLowerCase());
-        }); // Handler untuk update dosen
+        }); 
 
         const handleUpdateDosen = (staseId, newDosenVal) => {
             const newSchedules = schedules.map((item) => {
@@ -714,7 +698,7 @@ export default function OsInput({
                                             type="text"
                                             placeholder="Cari dosen..."
                                             className="w-full border border-gray-300 p-2 rounded-lg outline-none focus:border-blue-500"
-                                            value={schedule.dosen} // ✅ Controlled
+                                            value={schedule.dosen} 
                                             onChange={(e) =>
                                                 handleUpdateDosen(
                                                     staseId,

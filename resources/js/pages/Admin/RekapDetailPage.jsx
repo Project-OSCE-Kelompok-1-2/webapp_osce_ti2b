@@ -9,18 +9,14 @@ import {
     FileText,
 } from "lucide-react";
 
-// --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
-
-// Import Table Components
+import OsCopyright from "../../components/copyright.jsx";
 import OsTableHeader from "../../components/tableheader";
 import OsTableBody from "../../components/tablecontain";
 import OsPagination from "../../components/pagination";
 
 export default function RekapDetailPage() {
-    // 1. Ambil Data dari Props
     const { detailNilai } = usePage().props;
 
     const {
@@ -35,7 +31,6 @@ export default function RekapDetailPage() {
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
     // --- HELPER: FORMAT NILAI DINAMIS ---
-    // Logika: Bulatkan ke 2 desimal string, lalu ubah balik ke Float agar .00 hilang
     const formatNilai = (val) => {
         const num = parseFloat(val || 0);
         return parseFloat(num.toFixed(2));
@@ -306,7 +301,6 @@ export default function RekapDetailPage() {
                                                                 {komp.bobot}
                                                             </span>
                                                         ),
-                                                        // PERUBAHAN: Gunakan formatNilai() untuk baris tabel
                                                         nilai: (
                                                             <span className="font-bold text-blue-700">
                                                                 {formatNilai(

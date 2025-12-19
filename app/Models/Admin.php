@@ -15,7 +15,6 @@ class Admin extends Model
         'id_pengguna',
     ];
 
-    // Relasi ke Pengguna 1:1
     public function pengguna()
     {
         return $this->belongsTo(Pengguna::class, 'id_pengguna');

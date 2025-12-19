@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { usePage, router } from "@inertiajs/react";
 import { ArrowLeft, User, FileText, Bookmark } from "lucide-react";
-import OsCopyright from "../../components/Copyright";
-
-// Pastikan path import ini sesuai dengan struktur project Anda
+import OsCopyright from "../../components/copyright";
 import Sidebar from "../../components/Sidebar";
 import OsTableHeader from "../../components/tableheader";
 import OsHeader from "../../components/Header";
 
-// Header Tabel Rubrik (Tidak Berubah)
 const rubrikColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
     {
@@ -49,18 +46,15 @@ export default function LivePenilaian() {
         mode_edit = false,
     } = usePage().props;
 
-    // [FIX 1] STATE SIDEBAR DISATUKAN (Hapus duplikasi 'sidebarOpen')
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const handleSidebarToggle = () => {
         setIsSidebarOpen((prev) => !prev);
     };
 
-    // KEY STORAGE UNTUK DRAFT
     const DRAFT_KEY = `osce_draft_${id_enrollment_osce}`;
     const TIMER_KEY = `osce_timer_end_${id_enrollment_osce}`;
 
-    // --- STATE DEFINITIONS ---
     const [feedback, setFeedback] = useState("");
     const [nilaiMap, setNilaiMap] = useState({});
     const [waktu, setWaktu] = useState(sisa_waktu_detik);
@@ -218,7 +212,6 @@ export default function LivePenilaian() {
                 </span>
             </div>
 
-            {/* [FIX 2] PERBAIKAN SIDEBAR: Gunakan 'isSidebarOpen' dan 'onToggle' */}
             <Sidebar
                 isOpen={isSidebarOpen}
                 onToggle={handleSidebarToggle}
@@ -226,7 +219,6 @@ export default function LivePenilaian() {
 
             />
 
-            {/* [FIX 3] MAIN CONTENT: Tetap statis (lg:ml-20) sesuai request */}
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* HEADER */}
                 <OsHeader onMenuClick={handleSidebarToggle} variant="goback" role="penguji" backLink="/penguji/osce" />
@@ -374,11 +366,9 @@ export default function LivePenilaian() {
                         </div>
                     </div>
 
-                    {/* ================= MOBILE / TABLET VIEW (PERBAIKAN) ================= */}
                     <div className="lg:hidden space-y-3">
                         {dataRubrik.map((group, gIndex) => (
                             <React.Fragment key={gIndex}>
-                                {/* PERBAIKAN 1: Background Judul jadi Oranye (bukan abu-abu) */}
                                 <div className="bg-orange-50 text-orange-900 border-os-primary-pj border px-4 py-2 font-semibold rounded-lg">
                                     {group.aspek}
                                 </div>
@@ -414,12 +404,11 @@ export default function LivePenilaian() {
                                                                     v
                                                                 )
                                                             }
-                                                            /* PERBAIKAN 2: Lingkaran jadi Oranye saat dipilih */
                                                             className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center text-sm sm:text-lg font-semibold transition-all duration-200
                                             ${
                                                 isSelected
-                                                    ? "bg-orange-500 border-orange-600 text-white shadow-md transform scale-105" // Aktif: Oranye Solid
-                                                    : "bg-white border-gray-300 text-gray-600 hover:border-orange-300" // Tidak Aktif
+                                                    ? "bg-orange-500 border-orange-600 text-white shadow-md transform scale-105" 
+                                                    : "bg-white border-gray-300 text-gray-600 hover:border-orange-300" 
                                             }`}
                                                         >
                                                             {v}

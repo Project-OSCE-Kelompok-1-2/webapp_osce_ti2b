@@ -19,29 +19,26 @@ import {
 import OsStepModal from "../../components/StepModal.jsx";
 import OsHeader from "../../components/Header.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsButton from "../../components/button.jsx";
 
 export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
     console.log(osce_detail);
-    // --- 1. State Management ---
     const [showModal, setShowModal] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
 
-    // Fallback data dari backend
     const safeOsce = osce_detail || {
         nama_osce: "-",
         nama_stase: "-",
         nomor_stasiun: "-",
         total_mahasiswa: 0,
         durasi_per_mahasiswa: 0,
-        jam_mulai: "08:00", // Default fallback jam
+        jam_mulai: "08:00", 
         skenario: "Lorem ipsum dolor sit amet. Skenario belum diisi.",
     };
 
     const safeStudents = antrian_mahasiswa || [];
 
-    // --- 2. Handlers ---
     const handleBack = () => router.get("/penguji/osce");
     const handleOpenModal = () => {
         setCurrentStep(0);
@@ -58,7 +55,6 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
         }
     };
 
-    // --- 3. Modal Steps Content ---
     const steps = [
         {
             title: "Detail Ujian",
@@ -128,7 +124,7 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                             </div>
                         </div>
 
-                        {/* Box Jam Mulai (Diganti dari Tipe) */}
+                        {/* Box Jam Mulai */}
                         <div className="border rounded-lg p-2.5 flex flex-col justify-between">
                             <Clock size={18} className="text-gray-400 mb-1" />
                             <div>
@@ -176,24 +172,6 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                     type={"penguji"}
                 />
                 {/* Compact Header */}
-                {/* <header className="bg-white border-b sticky top-0 z-30 shadow-sm">
-                    <div className="mx-auto max-w-5xl flex items-center gap-3 px-4 py-2">
-                        <button
-                            onClick={handleBack}
-                            className="h-8 w-8 flex items-center justify-center rounded-full border bg-white hover:bg-gray-100 text-gray-600"
-                        >
-                            &larr;
-                        </button>
-                        <div className="flex-1 truncate text-xs">
-                            <span className="text-gray-500">
-                                OSCE / {safeOsce.nama_osce} /{" "}
-                            </span>
-                            <span className="font-bold text-gray-900">
-                                Detail
-                            </span>
-                        </div>
-                    </div>
-                </header> */}
                 <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                     <OsHeader
                         className="fixed"
@@ -209,15 +187,6 @@ export default function DetailOsce({ osce_detail, antrian_mahasiswa }) {
                         <div className="mx-auto w-full ">
                             <div className="overflow-hidden  rounded-xl bg-white shadow border border-gray-200">
                                 {/* Compact Blue Banner */}
-                                {/* <div className="bg-blue-600 px-4 py-5 text-center text-white relative overflow-hidden">
-                                <div className="absolute top-0 left-0 w-full h-full bg-white opacity-5 transform -skew-y-6 scale-150 origin-top-left pointer-events-none"></div>
-                                    <h1 className="text-lg font-bold relative z-10">
-                                        {safeOsce.nama_osce}
-                                    </h1>
-                                    <p className="text-xs text-blue-100 relative z-10 font-medium opacity-90 mt-0.5">
-                                        {safeOsce.nama_stase}
-                                    </p>
-                                </div> */}
 
                                 <div className="bg-os-primary-pj-dark text-white text-center py-6 ">
                                     <h1 className="text-2xl font-bold mb-1">

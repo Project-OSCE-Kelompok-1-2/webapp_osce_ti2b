@@ -15,19 +15,15 @@ class OsceEnrollmentService
      */
     public function getEnrollmentList($osce_id, $jadwal_id, $filters)
     {
-        // Pastikan OSCE valid
         $osce = Osce::findOrFail($osce_id);
 
-        // Ambil referensi sesi
         $sesi_ref = OsceStase::select('tanggal', 'jam_mulai')
             ->where('id_osce_stase', $jadwal_id)
             ->firstOrFail();
 
-        // Filters
         $search = $filters['search'] ?? null;
         $angkatan = $filters['angkatan'] ?? null;
 
-        // Query mahasiswa
         $mahasiswa_query = Mahasiswa::query();
 
         if ($search) {
@@ -41,14 +37,12 @@ class OsceEnrollmentService
             $mahasiswa_query->where('kelas', $angkatan);
         }
 
-        // Ambil ID mahasiswa yang sudah enroll untuk sesi ini
         $enrolled_ids = EnrollmentOsce::where('id_osce', $osce_id)
             ->where('tanggal_sesi', $sesi_ref->tanggal)
             ->where('jam_sesi', $sesi_ref->jam_mulai)
             ->pluck('id_mahasiswa')
             ->all();
 
-        // Pagination
         $mahasiswa_list = $mahasiswa_query->orderBy('nama', 'asc')
             ->paginate(20)
             ->through(fn($mhs) => [
@@ -71,14 +65,12 @@ class OsceEnrollmentService
      */
     public function syncEnrollment($osce_id, $jadwal_id, array $mahasiswa_ids)
     {
-        // Ambil sesi
         $sesi_ref = OsceStase::select('tanggal', 'jam_mulai')
             ->where('id_osce_stase', $jadwal_id)
             ->firstOrFail();
 
         DB::beginTransaction();
         try {
-            // Hapus enrollment lama pada sesi tersebut
             EnrollmentOsce::where('id_osce', $osce_id)
                 ->where('tanggal_sesi', $sesi_ref->tanggal)
                 ->where('jam_sesi', $sesi_ref->jam_mulai)

@@ -20,10 +20,8 @@ class ApiHalamanPenilaian extends Controller
      */
     public function getAntrian($id_osce, $id_osce_stase)
     {
-        // Panggil service untuk logika bisnis
         $data = $this->penilaianService->getAntrianData($id_osce, $id_osce_stase);
 
-        // Return JSON Response
         return response()->json([
             'status' => 'success',
             'data'   => $data
@@ -35,10 +33,8 @@ class ApiHalamanPenilaian extends Controller
      */
     public function getPenilaian($id_enrollment_osce)
     {
-        // Panggil service untuk logika bisnis
         $data = $this->penilaianService->getPenilaianData($id_enrollment_osce);
 
-        // Return JSON Response
         return response()->json([
             'status' => 'success',
             'data'   => $data

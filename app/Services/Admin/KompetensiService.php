@@ -14,18 +14,11 @@ class KompetensiService
      */
     public function getByAspek(AspekPenilaian $aspekPenilaian)
     {
-        // Ambil semua data kompetensi (tanpa paginate)
         $kompetensi = $aspekPenilaian->poinAspekPenilaian()
-            // [HAPUS] Logic search dihilangkan agar semua data terambil
-            // ->when($search, function ($query, $search) { ... }) 
             
-            ->orderBy('created_at', 'asc') // [TAMBAH] Sorting biar rapi
-            
-            // [PENTING] Ganti paginate(10) menjadi get()
+            ->orderBy('created_at', 'asc') 
             ->get(); 
 
-        // TRANSFORMASI: 
-        // Karena pakai get(), hasilnya adalah Collection. Langsung transform saja.
         $kompetensi->transform(function ($item) {
             return [
                 'id_poin_aspek_penilaian' => $item->id_poin_aspek_penilaian,

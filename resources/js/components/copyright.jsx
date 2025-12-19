@@ -5,14 +5,11 @@ export default function OsCopyright({
     className = "",
     variant = "admin",
 }) {
-    // Tentukan kelas CSS berdasarkan varian
     const isPenguji = variant === "penguji";
     const isMahasiswa = variant === "mahasiswa";
 
-    // Ambil tahun secara dinamis
     const currentYear = new Date().getFullYear();
 
-    // Kelas untuk footer (latar belakang, border)
     const footerClasses = (() => {
         if (isMahasiswa) {
             return "bg-[var(--os-tertiary-mhs)] border-[var(--os-primary-mhs)]";
@@ -23,7 +20,6 @@ export default function OsCopyright({
         return "!bg-[var(--os-tertiary)] border-[var(--os-primary)]";
     })();
 
-    // Kelas untuk teks (warna teks)
     const textClasses = (() => {
         if (isMahasiswa) {
             return "text-[var(--os-primary-mhs)]";

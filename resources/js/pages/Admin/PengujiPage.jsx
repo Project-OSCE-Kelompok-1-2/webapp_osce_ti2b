@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react"; // Tambah useMemo
+import React, { useState, useEffect, useMemo } from "react"; 
 import { router, usePage, useForm } from "@inertiajs/react";
 import { Trash2, Edit2, UserCheck, Table2 } from "lucide-react";
 
@@ -7,11 +7,11 @@ import OsHeader from "../../components/Header.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsIcon from "../../components/icons.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsModal from "../../components/Modal.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import OsButton from "../../components/button.jsx";
 import Modals from "../../components/Modals.jsx";
 
@@ -43,7 +43,6 @@ const pengujiColumns = [
 ];
 
 export default function PengujiPage() {
-    // 1. Ambil data (Array penuh dari controller)
     const { dosen, flash } = usePage().props;
     const allDosenData = Array.isArray(dosen) ? dosen : dosen?.data || [];
 
@@ -55,12 +54,10 @@ export default function PengujiPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // === LOGIC FILTER INSTAN ===
-    // 1. Reset halaman jika search berubah
     useEffect(() => {
         setCurrentPage(1);
     }, [search]);
 
-    // 2. Filter data berdasarkan search
     const filteredData = useMemo(() => {
         return allDosenData.filter((item) => {
             const term = search.toLowerCase();
@@ -71,7 +68,6 @@ export default function PengujiPage() {
         });
     }, [search, allDosenData]);
 
-    // 3. Potong data untuk pagination (Slice)
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -84,18 +80,15 @@ export default function PengujiPage() {
         clearErrors();
     };
 
-    // 4. Generate Link Pagination Manual
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];
-        // Prev
         links.push({
             url: currentPage > 1 ? "#" : null,
             label: "&laquo; Previous",
             active: false,
             pageNumber: currentPage - 1,
         });
-        // Numbers
         for (let i = 1; i <= totalPages; i++) {
             if (
                 i === 1 ||
@@ -115,7 +108,6 @@ export default function PengujiPage() {
                 links.push({ url: null, label: "...", active: false });
             }
         }
-        // Next
         links.push({
             url: currentPage < totalPages ? "#" : null,
             label: "Next &raquo;",
@@ -125,7 +117,7 @@ export default function PengujiPage() {
         return links;
     }, [currentPage, totalPages]);
 
-    // === LOGIC CRUD (Sama seperti sebelumnya) ===
+    // === LOGIC CRUD ===
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingPenguji, setEditingPenguji] = useState(null);
@@ -133,7 +125,6 @@ export default function PengujiPage() {
     const [selectedPenguji, setSelectedPenguji] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    // Form Add
     const {
         data: dataAdd,
         setData: setDataAdd,
@@ -144,7 +135,6 @@ export default function PengujiPage() {
         clearErrors: clearErrorsAdd,
     } = useForm({ nip: "", nama: "" });
 
-    // Form Edit
     const {
         data: dataEdit,
         setData: setDataEdit,
@@ -273,7 +263,7 @@ export default function PengujiPage() {
                         <div className="w-full">
                             <OsSearchBar
                                 search={search}
-                                setSearch={setSearch} // Trigger useMemo filter
+                                setSearch={setSearch} 
                                 placeholder="Cari NIP atau Nama Penguji secara instan..."
                             />
                         </div>
@@ -355,7 +345,6 @@ export default function PengujiPage() {
                                 }
                                 placeholder="Masukkan NIP Penguji..."
                                 required
-                                // 👇 TAMBAHKAN INI (Target input di dalam wrapper)
                                 className="[&_input]:[appearance:textfield] [&_input::-webkit-outer-spin-button]:appearance-none [&_input::-webkit-inner-spin-button]:appearance-none"
                             />
                             {errorsAdd.nip && (
@@ -416,7 +405,6 @@ export default function PengujiPage() {
                                 }
                                 placeholder="Masukkan NIP Penguji..."
                                 required
-                                // 👇 TAMBAHKAN INI JUGA
                                 className="[&_input]:[appearance:textfield] [&_input::-webkit-outer-spin-button]:appearance-none [&_input::-webkit-inner-spin-button]:appearance-none"
                             />
                             {errorsEdit.nip && (

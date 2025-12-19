@@ -8,7 +8,6 @@ import {
     ChevronsRight,
 } from "lucide-react";
 
-// Menu sidebar
 const menuItems = [
     {
         label: "Beranda",

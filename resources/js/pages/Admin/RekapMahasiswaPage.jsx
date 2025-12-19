@@ -1,16 +1,15 @@
-import React, { useState, useEffect, useMemo } from "react"; // [1] Import Hooks
+import React, { useState, useEffect, useMemo } from "react"; 
 import { Link, usePage, router, Head } from "@inertiajs/react";
 import { Search, ArrowLeft, Bookmark, Table2, Info } from "lucide-react";
 
-// --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
 import OsHeader from "../../components/Header";
 import OsSearchBar from "../../components/searchbar.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 
 const mahasiswaColumns = [
     {
@@ -42,12 +41,10 @@ const mahasiswaColumns = [
 export default function RekapMahasiswaPage() {
     const { osce, sesi, mahasiswa_list, filters, flash } = usePage().props;
 
-    // 1. Ambil Data Full
     const allData = Array.isArray(mahasiswa_list)
         ? mahasiswa_list
         : mahasiswa_list?.data || [];
 
-    // 2. State Filter & Pagination
     const [search, setSearch] = useState("");
     const [angkatan, setAngkatan] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -61,27 +58,19 @@ export default function RekapMahasiswaPage() {
         { value: "2025", label: "2025" },
         { value: "2024", label: "2024" },
         { value: "2023", label: "2023" },
-        // Anda bisa menambahkan opsi dinamis jika ada props 'listAngkatan'
     ];
 
-    // --- INSTANT FILTER LOGIC ---
-
-    // A. Reset halaman saat filter berubah
     useEffect(() => {
         setCurrentPage(1);
     }, [search, angkatan]);
 
-    // B. Filter Data
     const filteredData = useMemo(() => {
         return allData.filter((item) => {
-            // Filter Search (Nama atau NIM)
             const term = search.toLowerCase();
             const matchSearch =
                 item.nama?.toLowerCase().includes(term) ||
                 item.nim?.toLowerCase().includes(term);
 
-            // Filter Angkatan (Kelas)
-            // Asumsi: field di DB adalah 'kelas', sesuaikan jika beda
             let matchAngkatan = true;
             if (angkatan) {
                 matchAngkatan = item.kelas === angkatan;
@@ -91,7 +80,6 @@ export default function RekapMahasiswaPage() {
         });
     }, [search, angkatan, allData]);
 
-    // C. Pagination Slice
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -99,7 +87,6 @@ export default function RekapMahasiswaPage() {
         currentPage * itemsPerPage
     );
 
-    // D. Generate Links
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];
@@ -137,7 +124,6 @@ export default function RekapMahasiswaPage() {
         return links;
     }, [currentPage, totalPages]);
 
-    // --- TABLE ROWS MAPPING (Gunakan 'paginatedData') ---
     const tableData = paginatedData.map((item, index) => ({
         no: (currentPage - 1) * itemsPerPage + index + 1,
         nim_mahasiswa: item.nim,
@@ -202,13 +188,13 @@ export default function RekapMahasiswaPage() {
                         {/* SEARCH INSTANT */}
                         <OsSearchBar
                             search={search}
-                            setSearch={setSearch} // Update state langsung
+                            setSearch={setSearch} 
                             placeholder="Cari NIM atau Nama Mahasiswa..."
                         >
                             <OsInput
                                 type="select"
                                 value={angkatan}
-                                onChange={(e) => setAngkatan(e.target.value)} // Update state langsung
+                                onChange={(e) => setAngkatan(e.target.value)} 
                                 options={angkatanList}
                                 className="w-[160px]"
                             />

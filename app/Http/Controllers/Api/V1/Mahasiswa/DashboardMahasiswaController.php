@@ -18,10 +18,8 @@ class DashboardMahasiswaController extends Controller
 
     public function index(Request $request)
     {
-        // Asumsi menggunakan Sanctum/Passport untuk Auth API
         $user = Auth::user();
 
-        // Cek relation mahasiswa
         if (!$user || !$user->mahasiswa) {
             return response()->json([
                 'success' => false,
@@ -32,7 +30,6 @@ class DashboardMahasiswaController extends Controller
         $idMahasiswa = $user->mahasiswa->id_mahasiswa;
 
         try {
-            // Reuse logic dari Service
             $statistik = $this->dashboardService->getStatistik($idMahasiswa);
             $kalenderEvent = $this->dashboardService->getCalendarEvents($idMahasiswa);
             $jadwalPenting = $this->dashboardService->getJadwalPenting($idMahasiswa, $request->date);

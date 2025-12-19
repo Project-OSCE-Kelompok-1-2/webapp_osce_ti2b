@@ -1,11 +1,8 @@
-// components/OsPagination.jsx
 import { Link } from "@inertiajs/react";
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 /**
- * Komponen Pagination Hybrid.
- * Bisa dipakai untuk Server-Side (Inertia) ataupun Client-Side (Instant).
  * @param {Array} links - Array tautan pagination.
  * @param {Function} onPageChange - (Optional) Fungsi callback untuk Client-side pagination.
  * @param {string} variant - 'admin' (default), 'penguji' (oranye), atau 'mahasiswa' (hijau).
@@ -18,16 +15,12 @@ const OsPagination = ({ links = [], onPageChange, variant = "admin" }) => {
     const isPenguji = variant === "penguji";
     const isMahasiswa = variant === "mahasiswa";
 
-    // --- Definisi Kelas Warna Kondisional ---
-
-    // 1. Kelas untuk tombol aktif (Halaman saat ini)
     const activeBgClass = (() => {
         if (isMahasiswa) return "bg-[var(--os-primary-mhs)] text-white";
         if (isPenguji) return "bg-[var(--os-primary-pj)] text-white";
         return "bg-[var(--os-primary)] text-white";
     })();
 
-    // 2. Kelas untuk tombol Panah & Angka
     const activeThemeClasses = (() => {
         if (isMahasiswa) {
             return {
@@ -82,7 +75,6 @@ const OsPagination = ({ links = [], onPageChange, variant = "admin" }) => {
                     );
                 }
 
-                // --- LOGIKA STYLING ---
                 if (link.active) {
                     combinedClasses =
                         activeBgClass + " font-semibold cursor-default";
@@ -107,7 +99,6 @@ const OsPagination = ({ links = [], onPageChange, variant = "admin" }) => {
                         disabled={link.url === null}
                         className={`${baseClasses} ${combinedClasses}`}
                         onClick={(e) => {
-                            // Cegah aksi jika URL null (disabled)
                             if (link.url === null) {
                                 e.preventDefault();
                                 return;
@@ -116,20 +107,14 @@ const OsPagination = ({ links = [], onPageChange, variant = "admin" }) => {
                             if (onPageChange) {
                                 e.preventDefault();
 
-                                // ==========================================
-                                // PERBAIKAN UTAMA DI SINI (TYPE MISMATCH FIX)
-                                // ==========================================
-
                                 let finalPageNumber;
 
-                                // 1. Prioritaskan properti 'pageNumber' (Angka) dari parent
                                 if (
                                     link.pageNumber !== undefined &&
                                     link.pageNumber !== null
                                 ) {
                                     finalPageNumber = link.pageNumber;
                                 }
-                                // 2. Jika tidak ada, coba ambil dari URL regex (Server side case)
                                 else {
                                     const pageNumMatch = link.url
                                         ? link.url.match(/page=(\d+)/)
@@ -141,8 +126,6 @@ const OsPagination = ({ links = [], onPageChange, variant = "admin" }) => {
                                             10
                                         );
                                     } else {
-                                        // 3. Fallback terakhir: Ambil dari Label dan paksa jadi Integer
-                                        // Ini menangani kasus label "12" (string) menjadi 12 (number)
                                         finalPageNumber = parseInt(
                                             link.label,
                                             10

@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useMemo } from "react"; // [1] Tambah Import Hooks
+import React, { useState, useEffect, useMemo } from "react"; 
 import { Link, usePage, router, Head } from "@inertiajs/react";
 import { Search, ArrowLeft, Bookmark, Table2, Info } from "lucide-react";
 
-// --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
 import OsSearchBar from "../../components/searchbar";
@@ -42,10 +41,8 @@ const sesiColumns = [
 export default function RekapSesiPage() {
     const { osce, sesi, filters, flash } = usePage().props;
 
-    // 1. Ambil Data Full
     const allSesiData = Array.isArray(sesi) ? sesi : sesi?.data || [];
 
-    // 2. State Filter & Pagination
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -54,22 +51,17 @@ export default function RekapSesiPage() {
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
     // --- LOGIC INSTANT FILTER ---
-
-    // A. Reset halaman saat search berubah
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm]);
 
-    // B. Filter Data
     const filteredData = useMemo(() => {
         return allSesiData.filter((item) => {
             const term = searchTerm.toLowerCase();
-            // Filter berdasarkan string tampilan sesi (Tanggal & Jam)
             return item.tampilan_sesi?.toLowerCase().includes(term);
         });
     }, [searchTerm, allSesiData]);
 
-    // C. Slice Pagination
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -77,7 +69,6 @@ export default function RekapSesiPage() {
         currentPage * itemsPerPage
     );
 
-    // D. Generate Pagination Links
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];
@@ -115,7 +106,7 @@ export default function RekapSesiPage() {
         return links;
     }, [currentPage, totalPages]);
 
-    // --- TABLE ROWS MAPPING (Gunakan 'paginatedData') ---
+    // --- TABLE ROWS MAPPING ---
     const sesiRows = paginatedData.map((item, index) => ({
         no: (currentPage - 1) * itemsPerPage + index + 1,
         tanggal_sesi: (
@@ -191,7 +182,7 @@ export default function RekapSesiPage() {
                         {/* SEARCH INSTANT */}
                         <OsSearchBar
                             search={searchTerm}
-                            setSearch={setSearchTerm} // Instant update
+                            setSearch={setSearchTerm} 
                             placeholder="Cari tanggal atau jam..."
                         />
 

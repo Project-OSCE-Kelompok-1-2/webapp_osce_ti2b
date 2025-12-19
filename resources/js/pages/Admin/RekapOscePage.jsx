@@ -2,15 +2,14 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Link, usePage, router, Head } from "@inertiajs/react";
 import { Search, Bookmark, Table2, Info } from "lucide-react";
 
-// --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
 import OsHeader from "../../components/Header";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import OsButton from "../../components/button.jsx";
 
 const rekapColumns = [
@@ -47,11 +46,9 @@ const rekapColumns = [
 ];
 
 export default function RekapOscePage() {
-    // 1. Ambil Data Full
     const { osce, flash, tahunAkademikOptions } = usePage().props;
     const allData = Array.isArray(osce) ? osce : osce?.data || [];
 
-    // 2. State Filter & Pagination
     const [search, setSearch] = useState("");
     const [tahun, setTahun] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -60,7 +57,6 @@ export default function RekapOscePage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-    // Siapkan list opsi tahun
     const tahunList = [
         { value: "", label: "Semua Tahun" },
         ...(Array.isArray(tahunAkademikOptions) ? tahunAkademikOptions : []),
@@ -88,23 +84,17 @@ export default function RekapOscePage() {
     };
 
     // --- LOGIC INSTANT FILTER ---
-
-    // A. Reset halaman ke 1 saat filter berubah
     useEffect(() => {
         setCurrentPage(1);
     }, [search, tahun]);
 
-    // B. Filter Data (Client Side)
     const filteredData = useMemo(() => {
         return allData.filter((item) => {
-            // Filter Search (Nama OSCE)
             const term = search.toLowerCase();
             const matchSearch = item.nama_osce?.toLowerCase().includes(term);
 
-            // Filter Tahun (ID Tahun Akademik)
             let matchTahun = true;
             if (tahun) {
-                // Bandingkan sebagai string untuk keamanan tipe data
                 matchTahun = String(item.id_tahun_akademik) === String(tahun);
             }
 
@@ -112,7 +102,6 @@ export default function RekapOscePage() {
         });
     }, [search, tahun, allData]);
 
-    // C. Pagination Slice
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -120,7 +109,6 @@ export default function RekapOscePage() {
         currentPage * itemsPerPage
     );
 
-    // D. Link Generator
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];
@@ -184,7 +172,6 @@ export default function RekapOscePage() {
                     : "-"}
             </span>
         ),
-        // Handle tampilan tahun akademik (Object Relasi atau String)
         tahun_akademik: item.tahun_akademik?.tahun
             ? `${item.tahun_akademik.tahun} - ${item.tahun_akademik.semester}`
             : item.tahun_akademik || "-",

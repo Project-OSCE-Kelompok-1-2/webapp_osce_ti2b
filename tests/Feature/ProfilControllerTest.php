@@ -33,13 +33,10 @@ class ProfilControllerTest extends TestCase
         $userAccount = $penguji->pengguna;
         $service = new ProfilService();
 
-        // Gunakan create() agar tidak butuh GD Library
         $file = UploadedFile::fake()->create('avatar_new.jpg', 100); 
 
-        // Panggil Service
         $service->updateProfile($userAccount, [], $file);
 
-        // Assert Database & Storage
         $userAccount->refresh();
         $this->assertNotNull($userAccount->path_gambar);
         $this->assertStringContainsString('profilpenguji', $userAccount->path_gambar);
@@ -51,7 +48,6 @@ class ProfilControllerTest extends TestCase
     /** @test */
     public function service_can_delete_existing_photo()
     {
-        // Setup User dengan foto awal
         $file = UploadedFile::fake()->create('old.jpg', 100);
         $path = $file->store('profilpenguji', 'public');
 

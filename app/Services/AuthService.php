@@ -14,7 +14,6 @@ class AuthService
      */
     public function verifyCredentials(string $username, string $password): ?Pengguna
     {
-        // Logika query dipindah ke sini
         $pengguna = Pengguna::where("username", $username)->first();
 
         if ($pengguna && Hash::check($password, $pengguna->password)) {
@@ -44,11 +43,8 @@ class AuthService
      */
     public function generateApiToken(Pengguna $pengguna, string $deviceName = 'mobile-app'): string
     {
-        // Menghapus token lama (opsional, agar bersih)
         $pengguna->tokens()->delete();
 
-        // Membuat token baru
-        // Pastikan model Pengguna sudah pakai trait HasApiTokens
         return $pengguna->createToken($deviceName)->plainTextToken;
     }
 

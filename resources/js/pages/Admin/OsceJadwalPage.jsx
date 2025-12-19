@@ -18,11 +18,11 @@ import {
     Clock,
     AlertCircle,
     FileText,
-    Table2, // Import icon untuk error
+    Table2, 
 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
@@ -31,7 +31,7 @@ import Modals from "../../components/Modals.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsStepModal from "../../components/StepModal.jsx";
 
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import OsButton from "../../components/button.jsx";
 import OsHeader from "../../components/Header.jsx";
 
@@ -88,12 +88,10 @@ export default function SesiOscePage({
 }) {
     const { errors, flash } = usePage().props;
 
-    // State UI Standar
     const [searchTerm, setSearchTerm] = useState(filters?.search || "");
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedSesi, setSelectedSesi] = useState(null);
 
-    // State untuk Detail Modal
     const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
     const [detailData, setDetailData] = useState({
         stase_data: [],
@@ -101,17 +99,14 @@ export default function SesiOscePage({
     });
     const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
-    // --- STATE KHUSUS WIZARD (STEP MODAL) ---
     const [isStepOpen, setIsStepOpen] = useState(false);
     const [currentStep, setCurrentStep] = useState(0);
 
-    // [BARU] State untuk menyimpan pesan error validasi wizard
     const [validationError, setValidationError] = useState(null);
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-    // Menyimpan data input wizard
     const [wizardData, setWizardData] = useState({
         stase_objs: [],
         stase_ids: [],
@@ -124,31 +119,26 @@ export default function SesiOscePage({
         mahasiswa_ids: [],
     });
 
-    // Menyimpan data dinamis (hasil filter API)
     const [isLoadingCheck, setIsLoadingCheck] = useState(false);
     const [availRooms, setAvailRooms] = useState([]);
     const [availPenguji, setAvailPenguji] = useState([]);
 
-    // State untuk Step 5 (Mahasiswa)
     const [listAngkatan, setListAngkatan] = useState([]);
     const [availableMahasiswa, setAvailableMahasiswa] = useState([]);
     const [isLoadingMhs, setIsLoadingMhs] = useState(false);
 
-    // Menampilkan Alert jika ada Flash Error dari Backend
     useEffect(() => {
         if (flash.error) {
             alert(flash.error);
         }
     }, [flash]);
 
-    // Reset validation error saat modal ditutup atau step direset
     useEffect(() => {
         if (!isStepOpen) {
             setValidationError(null);
         }
     }, [isStepOpen]);
 
-    // --- LOGIC FILTER DINAMIS ---
     useEffect(() => {
         if (currentStep === 2 && wizardData.tanggal && wizardData.jam_mulai) {
             checkAvailability();
@@ -227,8 +217,6 @@ export default function SesiOscePage({
     const handleWizardSubmit = () => {
         setValidationError(null);
 
-        // --- VALIDASI STEP 5 (Index 4): MAHASISWA ---
-        // Biasanya jumlah mahasiswa harus sama dengan jumlah stase untuk 1 putaran penuh
         if (wizardData.mahasiswa_ids.length !== wizardData.stase_ids.length) {
             setValidationError(
                 `Jumlah mahasiswa (${wizardData.mahasiswa_ids.length}) harus sama dengan jumlah stase (${wizardData.stase_ids.length}) agar putaran ujian pas.`
@@ -236,13 +224,11 @@ export default function SesiOscePage({
             return;
         }
 
-        // Jika valid, kirim data
         router.post(`/admin/osce/${osce.id_osce}/jadwal`, wizardData, {
             onSuccess: (page) => {
                 if (page.props.flash?.error) return;
                 setIsStepOpen(false);
                 setCurrentStep(0);
-                // Reset form
                 setWizardData({
                     stase_objs: [],
                     stase_ids: [],
@@ -371,15 +357,12 @@ export default function SesiOscePage({
         [osce.tanggal_selesai]
     );
 
-    // [MODIFIKASI] Handler Perpindahan Step dengan Validation Error State
     const handleStepChange = (nextStepIndex) => {
-        // Reset error setiap kali navigasi
         setValidationError(null);
 
         const isMovingForward = nextStepIndex > currentStep;
 
         if (isMovingForward) {
-            // --- VALIDASI STEP 1 (Index 0): STASE ---
             if (currentStep === 0) {
                 if (wizardData.stase_ids.length === 0) {
                     setValidationError(
@@ -389,7 +372,6 @@ export default function SesiOscePage({
                 }
             }
 
-            // --- VALIDASI STEP 2 (Index 1): JADWAL ---
             if (currentStep === 1) {
                 if (
                     !wizardData.tanggal ||
@@ -401,7 +383,6 @@ export default function SesiOscePage({
                     );
                     return;
                 }
-                // Validasi Rentang Tanggal
                 if (
                     wizardData.tanggal < minDateISO ||
                     wizardData.tanggal > maxDateISO
@@ -413,7 +394,6 @@ export default function SesiOscePage({
                 }
             }
 
-            // --- VALIDASI STEP 3 (Index 2): SIRKUIT / RUANG ---
             if (currentStep === 2) {
                 if (!wizardData.id_ruang) {
                     setValidationError("Mohon pilih Ruangan/Sirkuit ujian.");
@@ -421,14 +401,12 @@ export default function SesiOscePage({
                 }
             }
 
-            // --- VALIDASI STEP 4 (Index 3): PENGUJI ---
             if (currentStep === 3) {
                 const selectedCount = Object.keys(
                     wizardData.penguji_map
                 ).length;
                 const requiredCount = wizardData.stase_ids.length;
 
-                // Pastikan jumlah penguji sama dengan jumlah stase
                 if (selectedCount < requiredCount) {
                     setValidationError(
                         `Mohon lengkapi penguji untuk semua stase (${selectedCount}/${requiredCount} terpilih).`
@@ -436,7 +414,6 @@ export default function SesiOscePage({
                     return;
                 }
 
-                // Opsional: Cek apakah ada value kosong di map
                 const hasEmptySelection = Object.values(
                     wizardData.penguji_map
                 ).some((val) => !val);
@@ -449,7 +426,6 @@ export default function SesiOscePage({
             }
         }
 
-        // Jika lolos validasi, pindah step
         setCurrentStep(nextStepIndex);
     };
 
@@ -516,7 +492,7 @@ export default function SesiOscePage({
                                 onClick={() => {
                                     setCurrentStep(0);
                                     setIsStepOpen(true);
-                                    setValidationError(null); // Reset error saat buka modal
+                                    setValidationError(null); 
                                 }}
                                 className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
                             >
@@ -842,7 +818,6 @@ export default function SesiOscePage({
                 setCurrentStep={handleStepChange}
                 onSubmit={handleWizardSubmit}
                 steps={[
-                    // STEP 1: Pilih Stase
                     {
                         title: "Pilih Stase",
                         content: (
@@ -856,7 +831,7 @@ export default function SesiOscePage({
                                     options={master_stase}
                                     value={wizardData.stase_ids}
                                     onChange={(e) => {
-                                        setValidationError(null); // Clear error on change
+                                        setValidationError(null); 
                                         const selected = e.target.value;
                                         const rawValues = Array.isArray(
                                             selected
@@ -896,7 +871,6 @@ export default function SesiOscePage({
                             </div>
                         ),
                     },
-                    // STEP 2: Jadwal & Durasi
                     {
                         title: "Jadwal & Durasi",
                         content: (
@@ -971,7 +945,6 @@ export default function SesiOscePage({
                             </div>
                         ),
                     },
-                    // STEP 3: Pilih Sirkuit
                     {
                         title: "Pilih Sirkuit",
                         content: (
@@ -1012,7 +985,6 @@ export default function SesiOscePage({
                             </div>
                         ),
                     },
-                    // STEP 4: Pilih Penguji
                     {
                         title: "Pilih Penguji",
                         content: (
@@ -1107,12 +1079,9 @@ export default function SesiOscePage({
                             </div>
                         ),
                     },
-                    // STEP 5: Enrollment Mahasiswa
                     {
                         title: "Enrollment Mahasiswa",
                         content: (
-                            // Ubah min-h-[500px] menjadi h-full atau sesuaikan,
-                            // tapi kuncinya ada di child element (list container)
                             <div className="flex flex-col gap-4 h-full min-h-[500px]">
                                 {/* Dropdown Filter */}
                                 <div className="w-full bg-gray-50 p-3 rounded-lg border border-gray-200 shrink-0">
@@ -1133,7 +1102,7 @@ export default function SesiOscePage({
                                 </div>
 
                                 {/* List Mahasiswa */}
-                                {/* PERBAIKAN: Tambahkan 'min-h-[300px]' disini agar tidak tergencet error */}
+                                {/* Tambahkan 'min-h-[300px]' disini agar tidak tergencet error */}
                                 <div className="border rounded-lg flex-1 flex flex-col overflow-hidden bg-white shadow-sm min-h-[300px]">
                                     <div className="flex justify-between items-center p-3 border-b bg-gray-50 shrink-0">
                                         <label className="text-sm font-bold text-gray-700">

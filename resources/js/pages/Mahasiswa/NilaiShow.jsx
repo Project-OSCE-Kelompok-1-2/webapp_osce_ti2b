@@ -1,26 +1,22 @@
     import React, { useState } from "react";
-    // Import library dari Inertia untuk handling head dan link navigasi
     import { Head, Link } from "@inertiajs/react";
-    // Import ikon dari library lucide-react
     import { FileText, Table2, Users } from "lucide-react";
 
     // =========================================
     // --- IMPORT KOMPONEN CUSTOM (MODULAR) ---
     // =========================================
-    import Sidebar from "../../components/Sidebar"; // Pastikan path import benar
+    import Sidebar from "../../components/Sidebar"; 
     import OsHeader from "../../components/Header";
     import OsTableHeader from "../../components/tableheader";
     import OsTableBody from "../../components/tablecontain";
-    import OsCopyright from "../../components/Copyright";
+    import OsCopyright from "../../components/copyright";
 
     // =========================================
     // --- KOMPONEN UTAMA HALAMAN ---
     // =========================================
     export default function NilaiShow({ header_detail, daftar_nilai, footer }) {
-        // --- 1. STATE MANAGEMENT ---
         const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
-        // --- 2. DATA MAPPING (BACKEND -> FRONTEND) ---
         const data = {
             mahasiswa: {
                 nama: header_detail?.mahasiswa?.nama || "-",
@@ -29,19 +25,15 @@
                 semester: header_detail?.tahun_akademik?.semester || "-",
             },
             ujian: {
-                // Mengambil nama OSCE dari 'mata_kuliah.nama' sesuai controller
                 nama_osce: header_detail?.mata_kuliah?.nama || "-",
                 tahun: header_detail?.tahun_akademik?.tahun || "-",
             },
-            // Array daftar nilai (Looping Stase)
             daftarNilai: daftar_nilai || [],
 
-            // Footer Ringkasan
-            totalNilai: footer?.total_nilai_akhir ?? "0", // Gunakan ?? agar nilai 0 tetap tampil
+            totalNilai: footer?.total_nilai_akhir ?? "0",
             statusKelulusan: footer?.status_kelulusan || "BELUM LENGKAP",
         };
 
-        // --- 3. KONFIGURASI KOLOM TABEL ---
         const tableColumns = [
             {
                 key: "id",
@@ -50,7 +42,6 @@
                 classes: "justify-center items-center",
             },
             {
-                // PENTING: Key ini harus sama dengan key di Controller ('nama_stase')
                 key: "nama_stase",
                 content: (
                     <>
@@ -82,7 +73,6 @@
             },
         ];
 
-        // Create header columns with centered alignment for 'nama_stase'
         const headerColumns = tableColumns.map((col) => {
             if (col.key === "nama_stase") {
                 return {
@@ -95,8 +85,6 @@
             return col;
         });
 
-        // --- 4. HELPER COMPONENT (Untuk Baris Info) ---
-        // Menggunakan grid untuk layout yang lebih rapih dan responsif
         const InfoRow = ({ label, value }) => (
             <div className="grid grid-cols-12 mb-2">
                 <span className="col-span-4 font-normal text-blue-100/90 text-sm">
@@ -198,7 +186,7 @@
                                 </h2>
                             </div>
 
-                            {/* 3. TABEL NILAI - Perbaikan Border & Shadow */}
+                            {/* 3. TABEL NILAI */}
                             <div className="mt-2 bg-white p-5 border border-os-primary-mhs overflow-x-auto rounded-xl shadow-sm">
                                 <div className="overflow-x-auto">
                                     <div className="min-w-full">
@@ -219,7 +207,7 @@
                                 </div>
                             </div>
 
-                            {/* 4. FOOTER NILAI (TOTAL & STATUS) - Desain Baru & Kondisional */}
+                            {/* 4. FOOTER NILAI (TOTAL & STATUS) */}
                             <div className="w-full flex flex-col gap-4 mt-4">
                                 <div className="w-full flex flex-col sm:flex-row bg-white rounded-xl border border-os-primary-mhs h-auto sm:h-[60px] overflow-hidden items-center shadow-lg">
                                     {/* Label */}
@@ -235,7 +223,7 @@
                                         className={`w-full sm:w-[220px] h-[50px] sm:h-full flex items-center justify-center font-extrabold text-sm  uppercase tracking-wide px-4 ${
                                             data.statusKelulusan === "LULUS"
                                                 ? "bg-green-100 text-green-700"
-                                                : "bg-red-100 text-red-700" // Untuk BELUM LENGKAP / TIDAK LULUS
+                                                : "bg-red-100 text-red-700" 
                                         }`}
                                     >
                                         {data.statusKelulusan}

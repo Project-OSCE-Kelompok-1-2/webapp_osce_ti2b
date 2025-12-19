@@ -65,11 +65,9 @@ class OsceJadwalController extends Controller
     public function store(Request $request, $id_osce)
     {
         try {
-            // Validasi di controller sebelum lempar ke service
             $validated = $request->validate([
                 'tanggal'       => 'required|date',
                 'jam_mulai'     => 'required|date_format:H:i',
-                // durasi per stase dalam menit 
                 'durasi'        => 'required|numeric', 
                 'stase_ids'     => 'required|array|min:1',
                 'stase_ids.*'   => 'exists:osce_stase,id_osce_stase',
@@ -91,10 +89,6 @@ class OsceJadwalController extends Controller
         }
     }
 
-    /**
-     * Menampilkan detail sesi (stase & mahasiswa di sesi tsb)
-     * $sesi_id berupa string "YYYY-MM-DD_HH:MM"
-     */
     public function show($id_osce, $sesi_id)
     {
         try {
@@ -157,8 +151,6 @@ class OsceJadwalController extends Controller
             return response()->json(['status' => 'error', 'message' => 'Gagal hapus: ' . $e->getMessage()], 500);
         }
     }
-
-    // --- Endpoint Tambahan (Migrasi dari Inertia Helper) ---
 
     /**
      * Cek ketersediaan Ruangan & Penguji

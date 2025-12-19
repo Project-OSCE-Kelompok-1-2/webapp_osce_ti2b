@@ -15,10 +15,8 @@ class DashboardMahasiswaController extends Controller
     {
         $user = Auth::user();
 
-        // Asumsi relasi user ke mahasiswa ada
         $mahasiswa = $user->mahasiswa;
 
-        // Fallback jika login langsung sebagai mahasiswa atau struktur beda
         $idMahasiswa = $mahasiswa ? $mahasiswa->id_mahasiswa : $user->id;
 
         if (!$idMahasiswa) {
@@ -36,7 +34,6 @@ class DashboardMahasiswaController extends Controller
             ->has('nilaiOsce')
             ->count();
 
-        // Hitung Rata-rata Nilai
         $enrollments = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
             ->whereHas('nilaiOsce')
             ->with(['nilaiOsce.poinAspekPenilaian.aspekPenilaian.stase'])
@@ -73,17 +70,14 @@ class DashboardMahasiswaController extends Controller
             ->with('osce')
             ->where('id_mahasiswa', $idMahasiswa);
 
-        // A. DATA UNTUK DOTS DI KALENDER
         $allSchedules = (clone $baseQuery)->get();
 
         $kalenderEvent = $allSchedules->map(function ($item) {
             if (!$item->osce) return null;
-            // Mengambil tanggal dari tabel OSCE (atau tanggal_sesi jika ada prioritas)
             return Carbon::parse($item->osce->tanggal_mulai)->format('Y-m-d');
         })->filter()->unique()->values();
 
 
-        // B. DATA UNTUK LIST KARTU JADWAL
         if ($request->has('date') && $request->date) {
             $baseQuery->whereHas('osce', function ($q) use ($request) {
                 $q->whereDate('tanggal_mulai', $request->date);
@@ -94,7 +88,6 @@ class DashboardMahasiswaController extends Controller
             });
         }
 
-        // Sorting
         $rawSchedules = $baseQuery->get()->sortBy(function ($item) {
             return $item->osce->tanggal_mulai ?? '9999-12-31';
         });
@@ -108,7 +101,6 @@ class DashboardMahasiswaController extends Controller
 
             $tanggalUjian = Carbon::parse($item->osce->tanggal_mulai);
 
-            // Logika Sisa Hari
             if ($tanggalUjian->isSameDay($today)) {
                 $sisaHari = 0;
             } elseif ($tanggalUjian->isPast()) {
@@ -117,8 +109,6 @@ class DashboardMahasiswaController extends Controller
                 $sisaHari = $today->diffInDays($tanggalUjian);
             }
 
-            // AMBIL JAM DARI ENROLLMENT (jam_sesi)
-            // Jika kosong, fallback ke 08:00
             $jamSesi = $item->jam_sesi
                 ? Carbon::parse($item->jam_sesi)->format('H:i')
                 : '08:00';
@@ -128,7 +118,7 @@ class DashboardMahasiswaController extends Controller
                 'nama_ujian'     => $item->osce->nama_osce,
                 'tanggal_full'   => $tanggalUjian->translatedFormat('l, d F Y'),
                 'tanggal_pendek' => $tanggalUjian->format('d M'),
-                'jam'            => $jamSesi, // <--- SUDAH DINAMIS DARI DATABASE
+                'jam'            => $jamSesi,
                 'sisa_hari'      => (int) $sisaHari,
                 'tipe'           => 'OSCE',
             ];

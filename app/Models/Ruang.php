@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Ruang extends Model
 {
-    /** @use HasFactory<\Database\Factories\RuangFactory> */
     use HasFactory;
 
     protected $table = 'ruang';
@@ -19,7 +18,6 @@ class Ruang extends Model
         'lokasi',
     ];
 
-    // relasi ke osce_stase 1:M
     public function osceStase()
     {
         return $this->hasMany(OsceStase::class, 'id_ruang');

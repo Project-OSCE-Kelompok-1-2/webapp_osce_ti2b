@@ -8,34 +8,30 @@ export default function OsStepModal({
     steps,
     currentStep,
     setCurrentStep,
-    variant = "admin", // Tambahkan prop variant (admin/penguji)
+    variant = "admin", 
 }) {
     if (!show) return null;
     const isLastStep = currentStep === steps.length - 1;
     const isPenguji = variant === "penguji";
 
-    // --- LOGIKA VARIAN WARNA ---
-
     const getThemeColors = () => {
         if (isPenguji) {
-            // Penguji: Oranye
             return {
-                headerBg: "bg-orange-950", // Oranye Gelap
-                primaryBg: "bg-orange-600", // Oranye Primary
+                headerBg: "bg-orange-950", 
+                primaryBg: "bg-orange-600", 
                 primaryHover: "hover:bg-orange-700",
-                secondaryBg: "bg-os-tertiary-pj", // Oranye Pudar
-                secondaryHover: "hover:bg-orange-200", // Oranye Pudar
-                secondaryText: "text-orange-800", // Oranye Primary
+                secondaryBg: "bg-os-tertiary-pj", 
+                secondaryHover: "hover:bg-orange-200", 
+                secondaryText: "text-orange-800", 
                 activeDot: "bg-os-primary-pj",
             };
         }
-        // Admin: Biru (Default)
         return {
             headerBg: "bg-blue-950",
             primaryBg: "bg-blue-600",
             primaryHover: "hover:bg-blue-700",
-            secondaryBg: "bg-os-tertiary", // Biru Pudar
-            secondaryHover: "hover:bg-blue-200", // Oranye Pudar
+            secondaryBg: "bg-os-tertiary", 
+            secondaryHover: "hover:bg-blue-200", 
             secondaryText: "text-blue-800",
             activeDot: "bg-blue-500",
         };
@@ -46,8 +42,6 @@ export default function OsStepModal({
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
             <form
-                // Hapus event onSubmit dari form agar tombol Submit bisa di-handle terpisah
-                // onSubmit={onSubmit}
                 className="relative bg-white rounded-2xl border-os1 border-os-black
                 md:w-full md:max-w-md max-w-[350px] text-os-paragraph md:min-h-[85vh] min-h-[70vh] max-h-[85vh] flex flex-col overflow-hidden"
             >
@@ -133,7 +127,6 @@ export default function OsStepModal({
                         </button>
 
                         {!isLastStep ? (
-                            // NEXT BUTTON
                             <button
                                 type="button"
                                 onClick={() => setCurrentStep(currentStep + 1)}
@@ -144,7 +137,6 @@ export default function OsStepModal({
                                 <CircleArrowRight size={18} />
                             </button>
                         ) : (
-                            // SUBMIT BUTTON (GREEN/SUCCESS)
                             <button
                                 type="button"
                                 onClick={onSubmit}

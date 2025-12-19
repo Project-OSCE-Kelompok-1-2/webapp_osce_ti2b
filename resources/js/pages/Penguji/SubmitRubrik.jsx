@@ -3,7 +3,7 @@ import { router, usePage } from "@inertiajs/react";
 import {
     Pencil,
     AlertTriangle,
-    X, // Icon X sudah tidak dipakai di modal, tapi biarkan jika dipakai di tempat lain
+    X, 
     DoorOpen,
     FileText,
     User,
@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 
 import OsHeader from "../../components/Header";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import Sidebar from "../../components/Sidebar";
 import OsButton from "../../components/button.jsx";
 import OsTableHeader from "../../components/tableheader";
@@ -21,7 +21,6 @@ import OsTableBody from "../../components/tablecontain.jsx";
 export default function SubmitRubrik() {
     const [showModal, setShowModal] = useState(false);
 
-    // 1. AMBIL DATA DINAMIS DARI CONTROLLER
     const { osce_detail, mahasiswa_list } = usePage().props;
 
     const handleBack = () => {
@@ -29,7 +28,6 @@ export default function SubmitRubrik() {
     };
 
     const handleEdit = (id_enrollment) => {
-        // Kita tempelkan ID stase saat ini ke URL agar Controller tahu asalnya dari mana
         router.get(
             `/penguji/penilaian/${id_enrollment}/edit?id_osce_stase=${osce_detail.id_osce_stase}`
         );
@@ -38,13 +36,10 @@ export default function SubmitRubrik() {
     const handleFinalSubmit = () => {
         router.post(
             `/penguji/osce/${osce_detail.id_osce}/stase/${osce_detail.id_osce_stase}/selesai`,
-            {}, // Body kosong
+            {}, 
             {
-                // Tidak wajib, tapi bisa dikasih indikator loading jika mau
                 onStart: () => {
-                    // console.log("Menyelesaikan ujian...");
                 },
-                // Inertia otomatis akan redirect ke halaman List sesuai response backend
             }
         );
     };
@@ -55,7 +50,6 @@ export default function SubmitRubrik() {
     // --- KONFIGURASI TABEL ---
 
     const tableColumns = [
-        // 1. NIM
         {
             header: "NIM",
             key: "nim",
@@ -63,7 +57,6 @@ export default function SubmitRubrik() {
             content: "NIM",
         },
 
-        // 2. Mahasiswa
         {
             header: "Mahasiswa",
             key: "nama",
@@ -72,7 +65,6 @@ export default function SubmitRubrik() {
             content: "Mahasiswa",
         },
 
-        // 3. Total Nilai
         {
             header: "Total Nilai",
             key: "nilai_total",
@@ -80,7 +72,6 @@ export default function SubmitRubrik() {
             content: "Total Nilai",
         },
 
-        // 4. Aksi
         {
             header: "Aksi",
             key: "action",
@@ -89,7 +80,6 @@ export default function SubmitRubrik() {
         },
     ];
 
-    // 2. Format Data Mahasiswa
     const formattedData = useMemo(() => {
         return mahasiswa_list.map((mhs) => ({
             ...mhs,

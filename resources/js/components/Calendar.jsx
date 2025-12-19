@@ -12,19 +12,17 @@ export default function Calendar({
     const [currentYear, setCurrentYear] = useState(today.getFullYear());
     const [selectedDate, setSelectedDate] = useState(null);
 
-    // --- LOGIC CLASS PEWARNAAN ---
     const getThemeClasses = () => {
         switch (variant) {
             case "penguji":
                 return {
-                    // Gunakan !bg- untuk memaksa menimpa CSS global button
                     selected:
                         "!bg-os-primary-pj text-white shadow-md shadow-orange-200",
                     today: "text-os-primary-pj-dark !bg-os-tertiary-pj border border-os-secondary-pj font-bold",
                     hover: "hover:!bg-os-tertiary-pj",
                     dot: "bg-os-primary-pj",
                     textHeader: "text-gray-800",
-                    btnNav: "text-gray-600 hover:!bg-os-tertiary-pj", // Navigasi hover orange muda
+                    btnNav: "text-gray-600 hover:!bg-os-tertiary-pj", 
                 };
             case "mahasiswa":
                 return {
@@ -36,7 +34,7 @@ export default function Calendar({
                     textHeader: "text-gray-800",
                     btnNav: "text-gray-600 hover:!bg-os-tertiary-mhs",
                 };
-            default: // Admin (Default Blue)
+            default: 
                 return {
                     selected:
                         "!bg-os-primary text-white shadow-md shadow-blue-200",
@@ -51,7 +49,6 @@ export default function Calendar({
 
     const theme = getThemeClasses();
 
-    // ... (Sisa logic tanggal tidak berubah) ...
     const monthNames = [
         "January",
         "February",
@@ -110,9 +107,8 @@ export default function Calendar({
             {/* Header */}
             <div className="flex items-center justify-between mb-4">
                 <button
-                    type="button" // PENTING: Mencegah submit form jika ada di dalam form
+                    type="button" 
                     onClick={handlePrev}
-                    // !bg-transparent memaksa background transparan menimpa global button biru
                     className={`p-2 rounded-lg transition !bg-transparent ${theme.btnNav}`}
                 >
                     <ChevronLeft size={20} />
@@ -176,7 +172,6 @@ export default function Calendar({
                         } else if (isToday) {
                             buttonClass = theme.today;
                         } else {
-                            // !bg-white disini penting untuk menimpa global button biru saat state normal
                             buttonClass = `!bg-white text-gray-700 ${theme.hover}`;
                         }
 

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Api\V1\penguji;
 
 use App\Http\Controllers\Controller;
-use App\Services\EditNilaiService; // Jika service ini tidak digunakan di Controller, bisa dihapus
+use App\Services\EditNilaiService; 
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Support\Facades\Auth;
 use App\Models\EnrollmentOsce;
@@ -24,23 +24,19 @@ class EditNilaiController extends Controller
         $user = Auth::user();
 
         try {
-            // 1. Ambil Data Enrollment
             $enrollment = EnrollmentOsce::with(['mahasiswa'])->findOrFail($id_enrollment_osce);
 
-            // 2. Validasi Akses Penguji & Ambil OsceStase
             $osceStase = OsceStase::with(['stase', 'osce'])
                 ->where('id_osce', $enrollment->id_osce)
                 ->where('id_penguji', $user->penguji->id_penguji ?? null)
                 ->firstOrFail();
 
-            // 3. Ambil Struktur Rubrik + Nilai Tersimpan
             $rubrikStruktur = $osceStase->stase->load([
                 'aspekPenilaian.poinAspekPenilaian.nilai_osce' => function ($query) use ($id_enrollment_osce) {
                     $query->where('id_enrollment_osce', $id_enrollment_osce);
                 }
             ]);
 
-            // 4. Tentukan Status OSCE (Aktif / Selesai)
             $osceStatus = 'Aktif';
             if ($osceStase->osce && $osceStase->osce->tanggal_selesai) {
                 $batasWaktu = Carbon::parse($osceStase->osce->tanggal_selesai)->endOfDay();
@@ -49,15 +45,12 @@ class EditNilaiController extends Controller
                 }
             }
 
-            // 5. Format Response (Kembali ke struktur awal yang lebih detail)
             $penilaianList = $rubrikStruktur->aspekPenilaian->map(function ($aspek) {
                 return [
-                    // Detail Aspek
                     'id_aspek' => (int) $aspek->id_aspek_penilaian,
                     'nama_aspek' => $aspek->aspek,
                     'bobot_maksimum' => (int) $aspek->bobot_maksimum,
 
-                    // List Kompetensi (Poin Penilaian)
                     'kompetensi_list' => $aspek->poinAspekPenilaian->map(function ($poin) {
                         $nilaiDb = $poin->nilai_osce->first();
 
@@ -68,11 +61,10 @@ class EditNilaiController extends Controller
                             'bobot'           => (int) $poin->bobot,
                             'nilai_input'     => $nilaiDb ? (int) $nilaiDb->nilai : 0
                         ];
-                    })->values() // Pastikan ini ada agar menjadi array di JSON
+                    })->values() 
                 ];
-            })->values(); // Pastikan ini ada agar menjadi array di JSON
+            })->values(); 
 
-            // 6. Susun Response Akhir
             $responsePayload = [
                 'id_enrollment_osce' => (int) $id_enrollment_osce,
                 'mahasiswa' => [
@@ -90,7 +82,7 @@ class EditNilaiController extends Controller
             return response()->json([
                 'success' => true,
                 'data' => $responsePayload,
-                'osce_status' => $osceStatus // di root level
+                'osce_status' => $osceStatus 
             ], 200);
         } catch (ModelNotFoundException $e) {
             return response()->json([
@@ -105,14 +97,11 @@ class EditNilaiController extends Controller
         }
     }
 
-    // --- TUGAS 2: PUT SIMPAN EDIT ---
-
     /**
      * Mengedit nilai mahasiswa per kompetensi
      */
     public function update(Request $request, $id_enrollment_osce)
     {
-        // 1. Validasi Input sesuai Kontrak
         $request->validate([
             'feedback' => 'nullable|string',
             'nilai'    => 'required|array',
@@ -122,14 +111,9 @@ class EditNilaiController extends Controller
 
         DB::beginTransaction();
         try {
-            // 2. Ambil data Enrollment beserta Relasi OSCE untuk pengecekan Tanggal
-            // Pastikan model EnrollmentOsce memiliki relasi 'osce'
             $enrollment = EnrollmentOsce::with('osce')->findOrFail($id_enrollment_osce);
 
-            // 3. Validasi Akses Penguji (Optional, namun DIREKOMENDASIKAN)
-            // Cek apakah penguji yang sedang login berhak menilai Enrollment ini
             $user = Auth::user();
-            // Asumsi id_osce_stase ada di EnrollmentOsce, atau cari OsceStase berdasarkan id_osce dan id_penguji
             $osceStase = OsceStase::where('id_osce', $enrollment->id_osce)
                 ->where('id_penguji', $user->penguji->id_penguji ?? null)
                 ->first();
@@ -142,7 +126,6 @@ class EditNilaiController extends Controller
                 ], 403);
             }
 
-            // 4. Logika Status OSCE untuk mencekal penyimpanan
             $statusOsce = 'Aktif';
             if (!$enrollment->osce) {
                 $statusOsce = 'Tidak Aktif';
@@ -159,11 +142,9 @@ class EditNilaiController extends Controller
                 ], 403);
             }
 
-            // 5. Simpan Feedback (Catatan)
             $enrollment->catatan = $request->input('feedback');
             $enrollment->save();
 
-            // 6. Simpan / Update Nilai (Looping)
             $inputNilai = $request->input('nilai', []);
             $savedCount = 0;
 

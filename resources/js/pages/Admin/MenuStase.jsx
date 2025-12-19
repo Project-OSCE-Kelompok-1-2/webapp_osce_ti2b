@@ -5,16 +5,16 @@ import { Edit2, Trash2, X, AlertCircle, FileText, Table2 } from "lucide-react"; 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsIcon from "../../components/icons";
 import OsTableHeader from "../../components/tableheader";
 import OsSearchBar from "../../components/searchbar";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
 import OsModal from "../../components/Modal.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import Modals from "../../components/Modals.jsx";
-import OsPagination from "../../components/pagination.jsx"; // Cukup satu kali import
+import OsPagination from "../../components/pagination.jsx"; 
 
 const staseColumns = [
     {
@@ -44,20 +44,16 @@ const staseColumns = [
 ];
 
 export default function Stase() {
-    // 1. Ambil data full (Array)
     const { stase, mataKuliah, tujuanPembelajaran } = usePage().props;
     const allStaseData = Array.isArray(stase) ? stase : stase?.data || [];
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-    // 2. State untuk Client-Side Logic
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    // 3. Filter Data Instan
-    // [PERBAIKAN] Gunakan useEffect untuk reset page, useMemo murni untuk filter
     React.useEffect(() => {
         if (search) setCurrentPage(1);
     }, [search]);
@@ -72,7 +68,6 @@ export default function Stase() {
         });
     }, [search, allStaseData]);
 
-    // 4. Pagination Data (Potong Array)
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -80,13 +75,11 @@ export default function Stase() {
         currentPage * itemsPerPage
     );
 
-    // --- 5. GENERATOR LINKS UTAMA ---
     const generatedLinks = useMemo(() => {
-        if (totalPages <= 1) return []; // Return empty array if only 1 page
+        if (totalPages <= 1) return []; 
 
         const links = [];
 
-        // A. Tombol Previous
         links.push({
             url: currentPage > 1 ? "#" : null,
             label: "&laquo; Previous",
@@ -94,7 +87,6 @@ export default function Stase() {
             pageNumber: currentPage - 1,
         });
 
-        // B. Tombol Angka (1, 2, 3...)
         for (let i = 1; i <= totalPages; i++) {
             if (
                 i === 1 ||
@@ -115,7 +107,6 @@ export default function Stase() {
             }
         }
 
-        // C. Tombol Next
         links.push({
             url: currentPage < totalPages ? "#" : null,
             label: "Next &raquo;",
@@ -153,18 +144,14 @@ export default function Stase() {
         nama_stase: "",
         deskripsi: "",
         id_mata_kuliah: "",
-        // id_tujuan_pembelajaran: "", // Hapus jika tidak dipakai langsung (diganti array string)
         display_mata_kuliah: "",
-        tujuan_pembelajaran: [], // Array string untuk menampung tujuan yang dipilih
-        // display_tujuan: "", // Tidak perlu di state form utama jika hanya untuk input helper
+        tujuan_pembelajaran: [], 
     });
 
-    // Filter saran agar yang SUDAH DIPILIH tidak muncul lagi di dropdown
     const availableSuggestTujuan = allSuggestTujuan.filter(
         (tujuan) => !data.tujuan_pembelajaran.includes(tujuan)
     );
 
-    // State Lokal
     const [tujuanInput, setTujuanInput] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState("add");
@@ -190,9 +177,7 @@ export default function Stase() {
     const handleAddTujuan = (val) => {
         const valueToAdd = val || tujuanInput;
 
-        // Validasi MAX Item
         if (data.tujuan_pembelajaran.length >= MAX_TUJUAN) {
-            // GANTI ALERT DENGAN INI:
             setError(
                 "tujuan_pembelajaran",
                 `Maksimal hanya boleh menambahkan ${MAX_TUJUAN} Tujuan Pembelajaran.`
@@ -202,14 +187,12 @@ export default function Stase() {
 
         if (valueToAdd && valueToAdd.trim() !== "") {
             if (!data.tujuan_pembelajaran.includes(valueToAdd)) {
-                // Update array tujuan_pembelajaran
                 setData("tujuan_pembelajaran", [
                     ...data.tujuan_pembelajaran,
                     valueToAdd,
                 ]);
                 setTujuanInput("");
 
-                // Hapus error jika berhasil menambah
                 clearErrors("tujuan_pembelajaran");
             } else {
                 setTujuanInput("");
@@ -223,7 +206,6 @@ export default function Stase() {
         );
         setData("tujuan_pembelajaran", newData);
 
-        // Bersihkan error saat user melakukan aksi hapus (karena slot jadi tersedia lagi)
         if (newData.length < MAX_TUJUAN) {
             clearErrors("tujuan_pembelajaran");
         }
@@ -251,10 +233,9 @@ export default function Stase() {
             (m) => m.id_mata_kuliah === item.id_mata_kuliah
         );
 
-        // Ambil data tujuan dari item (sesuaikan dengan format dari backend, misal array of objects)
         const rawTujuan = item.tujuan_pembelajaran || item.tujuanPembelajaran;
         const currentTujuanList = Array.isArray(rawTujuan)
-            ? rawTujuan.map((t) => (typeof t === "string" ? t : t.tujuan)) // Handle jika string atau object
+            ? rawTujuan.map((t) => (typeof t === "string" ? t : t.tujuan)) 
             : [];
 
         setData({
@@ -271,18 +252,15 @@ export default function Stase() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
-        // 1. Bersihkan error lama
         clearErrors();
 
         let isValid = true;
 
-        // --- VALIDASI NAMA STASE (BARU) ---
         if (!data.nama_stase || data.nama_stase.trim() === "") {
             setError("nama_stase", "Nama Stase wajib diisi.");
             isValid = false;
         }
 
-        // --- VALIDASI MATA KULIAH ---
         if (!data.id_mata_kuliah) {
             setError(
                 "id_mata_kuliah",
@@ -291,7 +269,6 @@ export default function Stase() {
             isValid = false;
         }
 
-        // --- VALIDASI TUJUAN PEMBELAJARAN ---
         if (data.tujuan_pembelajaran.length === 0) {
             setError(
                 "tujuan_pembelajaran",
@@ -300,7 +277,6 @@ export default function Stase() {
             isValid = false;
         }
 
-        // Jika tidak valid, stop di sini
         if (!isValid) return;
 
         const options = {
@@ -323,7 +299,6 @@ export default function Stase() {
         setIsDeleteOpen(true);
     };
 
-    // [PERBAIKAN TYPO] handleConfirmDelete
     const handleConfirmDelete = () => {
         if (!selectedId) return;
         destroy(`/admin/stase/${selectedId}`, {
@@ -332,19 +307,14 @@ export default function Stase() {
         });
     };
 
-    // Format Data Tabel dari 'paginatedData'
-    // Format Data Tabel dari 'paginatedData'
     const tableData = paginatedData.map((item, index) => ({
-        // Hitung nomor urut berdasarkan halaman saat ini
         no: (currentPage - 1) * itemsPerPage + index + 1,
 
         nama_stase: item.nama_stase,
-        // Pastikan properti ini sesuai dengan respon JSON backend
         jumlah_aspek: item.aspek_penilaian_count || item.jumlah_aspek || 0,
 
         action: (
             <div className="flex items-center justify-center space-x-3">
-                {/* ... tombol aksi tetap sama ... */}
                 <OsButton
                     name="primary"
                     onClick={() =>
@@ -573,7 +543,6 @@ export default function Stase() {
                                             ? "Batas maksimal tercapai."
                                             : "Ketik tujuan lalu tekan Tambah..."
                                     }
-                                    // Disable input jika sudah max
                                     disabled={
                                         data.tujuan_pembelajaran.length >=
                                         MAX_TUJUAN
@@ -589,7 +558,6 @@ export default function Stase() {
                             <button
                                 type="button"
                                 onClick={() => handleAddTujuan()}
-                                // Disable tombol jika sudah max
                                 disabled={
                                     data.tujuan_pembelajaran.length >=
                                     MAX_TUJUAN
@@ -597,8 +565,8 @@ export default function Stase() {
                                 className={`px-4 py-2 rounded h-[42px] text-sm font-medium transition-colors ${
                                     data.tujuan_pembelajaran.length >=
                                     MAX_TUJUAN
-                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed" // Style disabled
-                                        : "bg-gray-200 hover:bg-gray-300 text-gray-700" // Style normal
+                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
+                                        : "bg-gray-200 hover:bg-gray-300 text-gray-700" 
                                 }`}
                             >
                                 {data.tujuan_pembelajaran.length >= MAX_TUJUAN
@@ -632,7 +600,6 @@ export default function Stase() {
                                     if (errors.nama_stase)
                                         clearErrors("nama_stase");
                                 }}
-                                // PERUBAHAN 2: Menambahkan prop required agar muncul bintang
                                 required
                             />
 

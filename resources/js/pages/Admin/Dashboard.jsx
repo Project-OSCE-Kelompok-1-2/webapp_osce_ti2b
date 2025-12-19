@@ -1,5 +1,3 @@
-// === FINISHED ===
-
 import React, { useState } from "react";
 import { usePage, Link } from "@inertiajs/react";
 import {
@@ -9,14 +7,13 @@ import {
     ExternalLink,
     Bookmark,
     Bell,
-    AlertCircle, // Tambahan icon jika perlu
+    AlertCircle, 
 } from "lucide-react";
 import OsHeader from "../../components/Header.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
 import OsIcon from "../../components/icons.jsx";
 
-// ... (StatCard TETAP SAMA) ...
 const StatCard = ({ title, value, description, icon, colorClass, href }) => {
     return (
         <article
@@ -56,9 +53,7 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
     );
 };
 
-// --- UPDATE KOMPONEN INI ---
 const NotificationItem = ({ item, index }) => {
-    // Helper untuk warna badge berdasarkan warning_color dari backend
     const getBadgeStyle = (color) => {
         switch (color) {
             case "red":
@@ -118,16 +113,14 @@ const NotificationItem = ({ item, index }) => {
 };
 
 export default function Dashboard() {
-    // 1. Ambil Props
     const {
         auth,
         stats = { total_osce: 0, total_mahasiswa: 0, total_penguji: 0 },
-        notifikasi = [], // Data notifikasi baru ada di sini
+        notifikasi = [], 
     } = usePage().props || {};
 
     const user = auth?.user;
 
-    // 2. Logic Display Name
     let displayName = "Pengguna";
     if (user) {
         if (user.jenis_role === "admin") {
@@ -245,8 +238,8 @@ export default function Dashboard() {
                                 {notifikasi && notifikasi.length > 0 ? (
                                     notifikasi.map((item, idx) => (
                                         <NotificationItem
-                                            key={item.id || idx} // Gunakan ID unik dari backend
-                                            item={item} // Pass seluruh objek item
+                                            key={item.id || idx} 
+                                            item={item} 
                                             index={idx + 1}
                                         />
                                     ))

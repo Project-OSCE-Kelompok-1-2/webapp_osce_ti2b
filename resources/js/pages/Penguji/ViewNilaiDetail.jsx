@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { usePage } from "@inertiajs/react";
 import { User, FileText, Bookmark } from "lucide-react";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 
-// Import Komponen
 import Sidebar from "../../components/Sidebar";
 import OsTableHeader from "../../components/tableheader";
 import OsHeader from "../../components/Header";
 
-// Header Tabel Rubrik (Sama persis dengan EditNilaiForm)
+// Header Tabel Rubrik 
 const rubrikColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
     {
@@ -34,7 +33,6 @@ const rubrikColumns = [
 ];
 
 export default function ViewNilaiDetail() {
-    // 1. AMBIL DATA DARI PROPS BACKEND
     const {
         mahasiswa,
         rubrik_terisi = [],
@@ -46,7 +44,6 @@ export default function ViewNilaiDetail() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-    // Helper untuk menghitung nilai per baris (Read Only)
     const hitungNilai = (skor, bobot) => {
         if (skor === undefined) return 0;
         return skor * bobot;
@@ -248,12 +245,11 @@ export default function ViewNilaiDetail() {
                                                     return (
                                                         <div
                                                             key={v}
-                                                            /* PERBAIKAN 2: Style lingkaran mengikuti Edit Form (Solid Orange jika aktif) */
                                                             className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center text-sm sm:text-lg font-semibold transition-all duration-200
                                                             ${
                                                                 isSelected
-                                                                    ? "bg-orange-500 border-orange-600 text-white shadow-md transform scale-105" // Aktif Oranye
-                                                                    : "bg-white border-gray-300 text-gray-600" // Tidak Aktif
+                                                                    ? "bg-orange-500 border-orange-600 text-white shadow-md transform scale-105" 
+                                                                    : "bg-white border-gray-300 text-gray-600" 
                                                             }`}
                                                         >
                                                             {v}
@@ -271,7 +267,6 @@ export default function ViewNilaiDetail() {
                                                 {poin.bobot}
                                             </div>
 
-                                            {/* PERBAIKAN 3: Text Nilai jadi Oranye */}
                                             <div className="text-sm font-bold text-orange-700">
                                                 Nilai:{" "}
                                                 {Number(
@@ -288,7 +283,6 @@ export default function ViewNilaiDetail() {
                             </React.Fragment>
                         ))}
 
-                        {/* PERBAIKAN 4: Total Nilai Akhir pakai style Oranye */}
                         <div className="w-full px-4 py-3 border border-orange-200 rounded-xl font-semibold bg-orange-50 text-orange-900 flex justify-between items-center shadow-sm">
                             <span>Total Nilai Akhir:</span>
                             <span className="text-xl">

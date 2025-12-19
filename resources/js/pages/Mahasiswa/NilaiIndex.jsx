@@ -2,19 +2,15 @@ import React, { useState, useEffect, useMemo } from "react";
 import { Head, Link, router } from "@inertiajs/react";
 import { FileText, Search, Table2, User } from "lucide-react";
 
-// --- IMPORT KOMPONEN ---
 import Sidebar from "../../components/Sidebar";
 import OsPagination from "../../components/pagination";
 import OsSearchBar from "../../components/searchbar";
 import OsHeader from "../../components/Header";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsTableBody from "../../components/tablecontain";
 
 export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
-    // ... (LOGIC FILTERING & STATE TETAP SAMA) ...
-
-    // --- HELPER FORMAT TANGGAL ---
     const formatTanggalIndo = (tanggal) => {
         if (!tanggal) return "-";
         const date = new Date(tanggal);
@@ -75,14 +71,11 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
         currentPage * itemsPerPage
     );
 
-    // --- PERBAIKAN 1: Update Columns Definition ---
-    // Menambahkan 'shrink-0' agar kolom tidak tergencet saat di mobile
     const columns = [
         { key: "no", content: "NO", width: "w-12 md:w-16 shrink-0" },
         {
             key: "nama_ujian",
             content: "NAMA UJIAN OSCE",
-            // Ubah width: pastikan ada min-width yang cukup besar dan shrink-0
             width: "w-[250px] md:flex-1 shrink-0",
             classes: "justify-start items-center pl-2",
         },
@@ -122,13 +115,10 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
 
                     <span className="text-gray-300">•</span>
 
-                    {/* --- PERBAIKAN BAGIAN JAM DI SINI --- */}
-                    {/* Jangan pakai formatJam(item.tanggal_ujian), tapi pakai item.jam_display langsung */}
                     <span className="text-gray-500 font-semibold">
                         {item.jam_display || "--:--"}
                         {item.jam_selesai ? ` - ${item.jam_selesai}` : ""} WIB
                     </span>
-                    {/* ---------------------------------- */}
 
                     <span className="hidden md:inline text-gray-300">•</span>
 
@@ -164,7 +154,6 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         return [];
-        // (Pastikan logic pagination dikembalikan sesuai aslinya jika ada)
     }, [currentPage, totalPages]);
 
     return (
@@ -198,10 +187,7 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
 
                         {/* --- KARTU HIJAU (INFO & FILTER) --- */}
                         <div className="relative mb-6 overflow-hidden rounded-2xl bg-green-600 p-4 md:p-6 text-white shadow-xl shadow-blue-100">
-                            {/* ... (BAGIAN INFO MAHASISWA & FILTER TIDAK PERLU DIUBAH, SAMA SEPERTI SEBELUMNYA) ... */}
-                            {/* Biarkan bagian ini sesuai kode aslimu untuk menghemat tempat di jawaban ini */}
                             <div className="relative z-10 grid grid-cols-1 gap-6 md:gap-8 lg:grid-cols-12">
-                                {/* Copy Paste isi Kartu Hijau dari kodemu sebelumnya di sini */}
                                 <div className="lg:col-span-7 flex flex-col justify-center space-y-4 md:space-y-6">
                                     <div className="flex items-start gap-4 md:gap-5">
                                         <div className="hidden sm:flex h-12 w-12 md:h-14 md:w-14 flex-shrink-0 items-center justify-center rounded-full bg-white/20 backdrop-blur-sm border border-white/30">
@@ -248,7 +234,6 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                                     </div>
                                 </div>
                                 <div className="lg:col-span-5 flex flex-col justify-center rounded-xl bg-green-800/40 p-4 md:p-5 border border-white/10">
-                                    {/* Filter controls placeholder (sama seperti kodemu) */}
                                     <div className="space-y-3 md:space-y-4">
                                         <div className="space-y-1">
                                             <label className="text-xs font-semibold text-blue-100 uppercase tracking-wider">
@@ -352,15 +337,8 @@ export default function NilaiIndex({ mahasiswa, ujian, filters, queryParams }) {
                             </div>
                         </div>
 
-                        {/* --- PERBAIKAN 2: TABEL DATA --- */}
                         <div className="bg-white p-0 md:p-5 border border-os-primary-mhs overflow-hidden rounded-xl shadow-sm">
-                            {/* Wrapper Table dengan overflow-x-auto */}
                             <div className="w-full overflow-x-auto pb-2">
-                                {/* UBAH DI SINI:
-                                    Ganti min-w-[900px] menjadi min-w-max.
-                                    Ini akan membuat container menyesuaikan lebar sesuai isi (kolom),
-                                    jadi tidak akan ada ruang kosong berlebih di kanan.
-                                */}
                                 <div className="min-w-max">
                                     <OsTableHeader
                                         columns={columns}

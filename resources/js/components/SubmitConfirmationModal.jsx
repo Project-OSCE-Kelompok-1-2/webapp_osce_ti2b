@@ -2,11 +2,9 @@ import React from "react";
 import { X, TriangleAlert, Save } from "lucide-react";
 
 export default function SubmitConfirmationModal({ isOpen, onClose, onConfirm }) {
-  // Jika modal tidak open, jangan render apapun
   if (!isOpen) return null;
 
   return (
-    // Overlay Hitam Transparan (Backdrop)
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4">
       
       {/* Container Modal */}

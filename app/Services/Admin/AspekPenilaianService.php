@@ -13,21 +13,11 @@ class AspekPenilaianService
      */
     public function getByStase(Stase $stase) 
     {
-        // Query dasar
         $aspek_penilaian = AspekPenilaian::where('id_stase', $stase->id_stase)
-            // [HAPUS] Logic search dihilangkan agar semua data terambil
-            // ->when($search, function ($query, $search) { ... }) 
-            
-            // Menghitung jumlah kompetensi (relation count)
             ->withCount('poinAspekPenilaian as jumlah_kompetensi')
-            ->orderBy('created_at', 'asc') // [TAMBAH] Sorting biar rapi
-            
-            // [PENTING] Ganti paginate(10) menjadi get()
+            ->orderBy('created_at', 'asc') 
             ->get(); 
 
-        // TRANSFORMASI: 
-        // Karena pakai get(), hasilnya adalah Collection, bukan Paginator.
-        // Jadi tidak perlu ->getCollection(), langsung saja ->transform()
         $aspek_penilaian->transform(function ($item) {
             $item->nama = $item->aspek;
             $item->bobot = $item->bobot_maksimum;
@@ -61,10 +51,7 @@ class AspekPenilaianService
      */
     public function delete(AspekPenilaian $aspekPenilaian)
     {
-        // Hapus semua "poin kompetensi" yang terkait dulu
         $aspekPenilaian->poinAspekPenilaian()->delete();
-
-        // Hapus data aspek penilaian
         return $aspekPenilaian->delete();
     }
 }

@@ -20,19 +20,16 @@ class Mahasiswa extends Model
         'status',
     ];
 
-    // Relasi ke Pengguna
     public function pengguna()
     {
         return $this->belongsTo(Pengguna::class, 'id_pengguna');
     }
 
-    // Relasi ke Enrollment 1:M
     public function enrollment()
     {
-        return $this->hasMany(Enrollment::class, 'id_mahasiswa'); // Perlu Model Enrollment
+        return $this->hasMany(Enrollment::class, 'id_mahasiswa'); 
     }
 
-    // Relasi ke enrollment_osce 1:M
     public function enrollment_osce()
     {
         return $this->hasMany(EnrollmentOsce::class, 'id_mahasiswa');

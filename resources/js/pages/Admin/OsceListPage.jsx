@@ -4,10 +4,10 @@ import { Edit2, Trash2, FileText, Table2 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsButton from "../../components/button.jsx";
 import OsIcon from "../../components/icons";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import OsModal from "../../components/Modal.jsx";
 import OsPagination from "../../components/pagination";
 import OsTableHeader from "../../components/tableheader.jsx";
@@ -49,10 +49,8 @@ const columns = [
 ];
 
 export default function OsceListPage({ osce, tahunAkademikOptions }) {
-    // 1. Ambil Data Full
     const allOsceData = Array.isArray(osce) ? osce : osce?.data || [];
 
-    // 2. State Filter & Pagination
     const [search, setSearch] = useState("");
     const [tahunFilter, setTahunFilter] = useState("SEMUA");
     const [currentPage, setCurrentPage] = useState(1);
@@ -129,7 +127,6 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
 
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-    // [2] Setup useForm menggantikan useState manual
     const { data, setData, post, put, reset, errors, clearErrors, setError } =
         useForm({
             nama_osce: "",
@@ -158,7 +155,6 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
             isValid = false;
         }
 
-        // Validasi Logika Tanggal
         if (data.tanggal_mulai && data.tanggal_selesai) {
             if (new Date(data.tanggal_mulai) > new Date(data.tanggal_selesai)) {
                 setError(
@@ -173,14 +169,12 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
 
     // --- ACTION HANDLERS ---
 
-    // Handler Buka Modal Add
     const openAddModal = () => {
         reset();
         clearErrors();
         setIsAddOpen(true);
     };
 
-    // Handler Buka Modal Edit
     const openEditModal = (item) => {
         setEditData(item);
         const tanggalMulaiISO = convertDateToISO(item.tanggal_mulai);
@@ -227,11 +221,10 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
     const convertDateToISO = (dateString) => {
         if (!dateString || dateString.length !== 10) return "";
         const parts = dateString.split("-");
-        // Memastikan formatnya DD-MM-YYYY (parts[0]=DD, parts[1]=MM, parts[2]=YYYY)
         if (parts.length === 3) {
-            return `${parts[2]}-${parts[1]}-${parts[0]}`; // Hasilnya YYYY-MM-DD
+            return `${parts[2]}-${parts[1]}-${parts[0]}`; 
         }
-        return dateString; // Jika format sudah benar atau tidak dikenali, kembalikan aslinya
+        return dateString; 
     };
 
     const handleAddSubmit = (e) => {
@@ -479,7 +472,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                 setData("nama_osce", e.target.value);
                                 if (errors.nama_osce) clearErrors("nama_osce");
                             }}
-                            required // <--- Bintang Merah Ditambahkan
+                            required 
                         />
                         {errors.nama_osce && (
                             <p className="text-red-500 text-xs mt-1">
@@ -503,7 +496,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                 if (errors.id_tahun_akademik)
                                     clearErrors("id_tahun_akademik");
                             }}
-                            required // <--- Bintang Merah Ditambahkan
+                            required 
                         />
                         {errors.id_tahun_akademik && (
                             <p className="text-red-500 text-xs mt-1">
@@ -526,7 +519,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                         clearErrors("tanggal_mulai");
                                 }}
                                 className="w-full"
-                                required // <--- Bintang Merah Ditambahkan
+                                required 
                             />
                             {errors.tanggal_mulai && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -547,7 +540,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                         clearErrors("tanggal_selesai");
                                 }}
                                 className="w-full"
-                                required // <--- Bintang Merah Ditambahkan
+                                required 
                             />
                             {errors.tanggal_selesai && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -585,7 +578,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                 setData("nama_osce", e.target.value);
                                 if (errors.nama_osce) clearErrors("nama_osce");
                             }}
-                            required // <--- Bintang Merah Ditambahkan
+                            required 
                         />
                         {errors.nama_osce && (
                             <p className="text-red-500 text-xs mt-1">
@@ -609,7 +602,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                 if (errors.id_tahun_akademik)
                                     clearErrors("id_tahun_akademik");
                             }}
-                            required // <--- Bintang Merah Ditambahkan
+                            required 
                         />
                         {errors.id_tahun_akademik && (
                             <p className="text-red-500 text-xs mt-1">
@@ -631,7 +624,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                         clearErrors("tanggal_mulai");
                                 }}
                                 className="w-full"
-                                required // <--- Bintang Merah Ditambahkan
+                                required 
                             />
                             {errors.tanggal_mulai && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -652,7 +645,7 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                         clearErrors("tanggal_selesai");
                                 }}
                                 className="w-full"
-                                required // <--- Bintang Merah Ditambahkan
+                                required 
                             />
                             {errors.tanggal_selesai && (
                                 <p className="text-red-500 text-xs mt-1">

@@ -14,15 +14,12 @@ class MahasiswaDashboardService
      */
     public function getStatistik(int $idMahasiswa): array
     {
-        // A. Terdaftar
         $ujianTerdaftar = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)->count();
 
-        // B. Selesai
         $ujianSelesai = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
             ->has('nilaiOsce')
             ->count();
 
-        // C. Hitung Rata-rata Nilai
         $rataRataNilai = $this->calculateAverageScore($idMahasiswa);
 
         return [
@@ -47,19 +44,16 @@ class MahasiswaDashboardService
         $kumpulanNilaiStase = [];
 
         foreach ($enrollments as $enrollment) {
-            // Group nilai berdasarkan id_stase
             $nilaiPerStase = $enrollment->nilaiOsce->groupBy(function ($nilai) {
                 return $nilai->poinAspekPenilaian
                     ?->aspekPenilaian
                     ?->id_stase ?? null;
             });
 
-            // Filter key null
             $nilaiPerStase = $nilaiPerStase->filter(function ($group, $key) {
                 return $key !== null;
             });
 
-            // Hitung per stase
             foreach ($nilaiPerStase as $idStase => $nilaiStase) {
                 $totalSigmaStase = 0;
 
@@ -117,7 +111,6 @@ class MahasiswaDashboardService
         if ($filterDate) {
             $query->whereDate('tanggal', $filterDate);
         } else {
-            // Jika tidak ada filter tanggal, ambil yang >= hari ini
             $query->whereDate('tanggal', '>=', $today->format('Y-m-d'));
         }
 
@@ -125,7 +118,6 @@ class MahasiswaDashboardService
             ->orderBy('jam_mulai', 'asc')
             ->get();
 
-        // Limit 3 jika tidak ada filter tanggal
         $limit = $filterDate ? $rawSchedules->count() : 3;
 
         return $rawSchedules->take($limit)->map(function ($stase) use ($today) {

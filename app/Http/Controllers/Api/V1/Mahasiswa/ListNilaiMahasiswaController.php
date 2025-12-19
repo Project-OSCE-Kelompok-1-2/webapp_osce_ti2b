@@ -26,7 +26,6 @@ class ListNilaiMahasiswaController extends Controller
         $user = Auth::user();
         $mahasiswa = $user->mahasiswa()->first();
 
-        // Ambil Opsi Filter (Tetap di Controller karena ini data statis UI)
         $filterSemesterOptions = TahunAkademik::select('semester')->distinct()->pluck('semester');
         $filterTahunOptions = TahunAkademik::select('tahun')->distinct()->orderBy('tahun', 'desc')->pluck('tahun');
 
@@ -38,10 +37,8 @@ class ListNilaiMahasiswaController extends Controller
         }
 
         try {
-            // 1. Ambil data enrollment mentah dari Service
             $ujianRaw = $this->nilaiService->getMahasiswaEnrollments($mahasiswa->id_mahasiswa, $request->all());
 
-            // 2. TRANSFORMASI & HITUNG NILAI
             $tahunMasuk = $mahasiswa->tahun_masuk ?? (date('Y') - 2);
 
             $ujianData = $ujianRaw->map(function ($enrollment) use ($mahasiswa, $tahunMasuk) {
@@ -51,7 +48,6 @@ class ListNilaiMahasiswaController extends Controller
                 $tahunAkademikStr = $tahunAkademik->tahun ?? '-';
                 $semesterLabel = $tahunAkademik->semester ?? '-';
 
-                // A. Kelompokkan Nilai per Stase
                 $semuaJadwalStase = $enrollment->osce->osceStase ?? collect([]);
                 $listStaseUnik = $semuaJadwalStase->unique('id_stase');
                 $nilaiByStase = $enrollment->nilaiOsce->groupBy(function ($nilai) {
@@ -60,7 +56,6 @@ class ListNilaiMahasiswaController extends Controller
 
                 $daftarNilaiStase = [];
 
-                // B. Hitung Nilai Per Stase
                 foreach ($listStaseUnik as $osceStase) {
                     $staseId = $osceStase->id_stase;
                     if (!$staseId) continue;
@@ -76,10 +71,8 @@ class ListNilaiMahasiswaController extends Controller
                     ];
                 }
 
-                // C. Hitung Rata-rata & Status Akhir
                 $overallResult = $this->calculator->calculateOverallResult($daftarNilaiStase);
 
-                // D. Hitung Semester Angka
                 $semesterAngka = $this->calculator->getSemesterAngka($tahunAkademikStr, $tahunMasuk);
 
                 return [
@@ -92,12 +85,11 @@ class ListNilaiMahasiswaController extends Controller
                     'tahun_ujian'      => $tahunAkademikStr,
                     'nilai_total'      => number_format((float) ($overallResult['overall_score'] ?? 0), 2),
                     'status_kelulusan' => $overallResult['status'] ?? 'BELUM LENGKAP',
-                    'detail_nilai_stase' => $daftarNilaiStase, // Sertakan detail nilai per stase
+                    'detail_nilai_stase' => $daftarNilaiStase, 
                     'dosen_penguji'    => '-',
                 ];
             });
 
-            // 3. Kirim JSON Response
             return response()->json([
                 'status' => 'success',
                 'mahasiswa' => [

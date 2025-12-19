@@ -9,8 +9,8 @@ export default function OsModal({
     onClose,
     title,
     subtitle,
-    variant = "add", // add | edit | delete (variant aksi)
-    themeVariant = "admin", // admin | penguji | mahasiswa (variant warna)
+    variant = "add", 
+    themeVariant = "admin", 
     onSubmit,
     onDelete,
     onClear,
@@ -23,45 +23,40 @@ export default function OsModal({
 
     if (!show) return null;
 
-    // --- LOGIKA VARIAN WARNA ---
     const isMahasiswa = themeVariant === "mahasiswa";
     const isPenguji = themeVariant === "penguji";
 
     const getThemeColors = () => {
         if (isMahasiswa) {
-            // Hijau Gelap
             return {
                 headerBg: "bg-[var(--os-primary-mhs-dark)]",
                 primaryBg: "bg-[var(--os-primary-mhs)]",
                 primaryHover: "hover:bg-[var(--os-primary-mhs-dark)]",
-                deleteBg: "bg-[var(--os-warning)]", // Merah
+                deleteBg: "bg-[var(--os-warning)]", 
                 deleteHover: "hover:bg-red-700",
             };
         }
         if (isPenguji) {
-            // Oranye Gelap
             return {
                 headerBg: "bg-[var(--os-primary-pj-dark)]",
                 primaryBg: "bg-[var(--os-primary-pj)]",
                 primaryHover: "hover:bg-[var(--os-primary-pj-dark)]",
-                deleteBg: "bg-[var(--os-warning)]", // Merah
+                deleteBg: "bg-[var(--os-warning)]", 
                 deleteHover: "hover:bg-red-700",
             };
         }
-        // Admin (Biru Gelap)
         return {
-            headerBg: "bg-blue-950", // Mengganti bg-gray-900 dengan biru gelap
+            headerBg: "bg-blue-950", 
             primaryBg: "bg-[var(--os-primary)]",
             primaryHover: "hover:bg-[var(--os-primary-dark)]",
-            deleteBg: "bg-[var(--os-warning)]", // Merah
+            deleteBg: "bg-[var(--os-warning)]", 
             deleteHover: "hover:bg-red-700",
         };
     };
 
     const theme = getThemeColors();
-    const isDelete = variant === "delete"; // Varian khusus untuk konfirmasi hapus
+    const isDelete = variant === "delete"; 
 
-    // Title & subtitle
     const modaltitle = (() => {
         if (isDelete) return `Hapus ${title || "Data"}`;
         if (variant === "edit") return `Edit ${title || "Data"}`;
@@ -78,10 +73,8 @@ export default function OsModal({
         return subtitle || "subtitle not entered";
     })();
 
-    // Kelas tombol submit/primary
     const submitButtonClasses = `flex w-full items-center justify-center gap-2 h-[48px] text-white rounded-lg transition-colors duration-200 ${theme.primaryBg} ${theme.primaryHover}`;
 
-    // Kelas tombol delete
     const deleteButtonClasses = `flex w-full items-center justify-center gap-2 h-[48px] text-white rounded-lg transition-colors duration-200 ${theme.deleteBg} ${theme.deleteHover}`;
 
     return (
@@ -112,7 +105,6 @@ export default function OsModal({
                 {/* Footer */}
                 <footer className="p-os-20 pt-0">
                     {isDelete ? (
-                        // Varian DELETE
                         <div className="flex items-start justify-between gap-os-14">
                             <OsButton
                                 type="button"
@@ -131,7 +123,6 @@ export default function OsModal({
                             </OsButton>
                         </div>
                     ) : variant === "add" ? (
-                        // Varian ADD
                         <div className="flex items-start justify-between gap-os-14">
                             <OsButton
                                 type="submit"
@@ -152,7 +143,6 @@ export default function OsModal({
                             </OsButton>
                         </div>
                     ) : (
-                        // Varian EDIT (Default)
                         <div className="flex items-start justify-between gap-os-14">
                             <OsButton
                                 type="submit"

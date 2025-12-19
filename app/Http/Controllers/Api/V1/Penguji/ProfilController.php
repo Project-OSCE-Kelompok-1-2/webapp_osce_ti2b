@@ -32,7 +32,6 @@ class ProfilController extends Controller
                 'id_pengguna' => $user->id_pengguna,
                 'username'    => $user->username,
                 'path_gambar' => $user->path_gambar,
-                // Ambil dari relasi
                 'nama'        => $user->penguji ? $user->penguji->nama : null,
                 'nip'         => $user->penguji ? $user->penguji->nip : null,
             ]
@@ -46,7 +45,6 @@ class ProfilController extends Controller
     {
         $penguji = Auth::user();
 
-        // Validasi
         $validator = \Validator::make($request->all(), [
             'foto'          => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:1024'],
             'new_password'  => ['nullable', 'string', 'min:6', 'confirmed'],

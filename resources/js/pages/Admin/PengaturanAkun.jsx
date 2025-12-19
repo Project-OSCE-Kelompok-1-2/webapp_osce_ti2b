@@ -16,7 +16,7 @@ import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
 import Modals from "../../components/Modals.jsx";
 import OsButton from "../../components/button.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 
 export default function AdminSettingAkun({ user }) {
     const { flash } = usePage().props;
@@ -89,18 +89,16 @@ export default function AdminSettingAkun({ user }) {
 
     // --- LOGIKA VALIDASI & SAVE ---
     const handleSaveChanges = (event) => {
-        if (event) event.preventDefault(); // Mencegah reload default jika ada
+        if (event) event.preventDefault(); 
         clearErrors();
 
         let isValid = true;
 
-        // 1. Password Lama diisi, Password Baru KOSONG
         if (data.old_password && !data.new_password) {
             setError("new_password", "Password baru wajib diisi.");
             isValid = false;
         }
 
-        // 2. Password Baru diisi, Password Lama KOSONG
         if (!data.old_password && data.new_password) {
             setError(
                 "old_password",
@@ -109,7 +107,6 @@ export default function AdminSettingAkun({ user }) {
             isValid = false;
         }
 
-        // 3. Konfirmasi Password Tidak Cocok
         if (
             data.new_password &&
             data.new_password !== data.new_password_confirmation
@@ -121,7 +118,7 @@ export default function AdminSettingAkun({ user }) {
             isValid = false;
         }
 
-        if (!isValid) return; // Stop jika tidak valid
+        if (!isValid) return; 
 
         post("/admin/pengaturan-akun", {
             preserveScroll: true,
@@ -294,7 +291,6 @@ export default function AdminSettingAkun({ user }) {
                                                             );
                                                     }}
                                                     placeholder="Masukkan password lama"
-                                                    // PERBAIKAN: Tambah min-w-0
                                                     className="flex-1 bg-transparent outline-none ml-3 py-1 min-w-0"
                                                 />
                                                 <button
@@ -304,7 +300,6 @@ export default function AdminSettingAkun({ user }) {
                                                             !showOldPassword
                                                         )
                                                     }
-                                                    // PERBAIKAN: Tambah shrink-0
                                                     className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                     title={
                                                         showOldPassword
@@ -368,7 +363,6 @@ export default function AdminSettingAkun({ user }) {
                                                                 );
                                                         }}
                                                         placeholder="Password baru"
-                                                        // PERBAIKAN: Tambah min-w-0
                                                         className="flex-1 bg-transparent outline-none ml-3 py-1 min-w-0"
                                                     />
                                                     <button
@@ -378,7 +372,6 @@ export default function AdminSettingAkun({ user }) {
                                                                 !showNewPassword
                                                             )
                                                         }
-                                                        // PERBAIKAN: Tambah shrink-0
                                                         className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                     >
                                                         {showNewPassword ? (
@@ -410,7 +403,7 @@ export default function AdminSettingAkun({ user }) {
                                                             : "border-black"
                                                     }`}
                                                 >
-                                                    {/* PERBAIKAN: Tambah shrink-0 */}
+                                                    {/* Tambah shrink-0 */}
                                                     <Lock
                                                         size={16}
                                                         opacity={0.5}
@@ -438,7 +431,6 @@ export default function AdminSettingAkun({ user }) {
                                                                 );
                                                         }}
                                                         placeholder="Konfirmasi password"
-                                                        // PERBAIKAN: Tambah min-w-0
                                                         className="flex-1 bg-transparent outline-none ml-3 py-1 min-w-0"
                                                     />
                                                     <button
@@ -448,7 +440,6 @@ export default function AdminSettingAkun({ user }) {
                                                                 !showConfirmPassword
                                                             )
                                                         }
-                                                        // PERBAIKAN: Tambah shrink-0
                                                         className="bg-os-primary hover:bg-os-primary-dark text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                     >
                                                         {showConfirmPassword ? (

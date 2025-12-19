@@ -19,18 +19,15 @@ class AspekPenilaianController extends Controller
         $this->service = $aspekPenilaianService;
     }
 
-    // Menggantikan get_aspek_penilaian
     public function index(Request $request, Stase $stase)
     {
-        // $search = $request->query("search"); // Tidak perlu ambil search dari request lagi
         
-        // Panggil service TANPA parameter search
         $aspek_penilaian = $this->service->getByStase($stase);
 
         return Inertia::render('Admin/MenuAspekPenilaian', [
             'stase' => $stase,
             'aspek_penilaian' => $aspek_penilaian,
-            'filters' => [], // Filter kosong
+            'filters' => [],
         ]);
     }
 
@@ -38,7 +35,7 @@ class AspekPenilaianController extends Controller
     {
         return Inertia::render('Admin/TambahAspekPenilaian', [
             'stase' => $stase,
-            'aspek' => null, // Kirim null untuk mode 'create'
+            'aspek' => null, 
         ]);
     }
 
@@ -63,10 +60,10 @@ class AspekPenilaianController extends Controller
      */
     public function edit(AspekPenilaian $aspekPenilaian)
     {
-        $aspekPenilaian->load('stase'); // Load relasi untuk breadcrumb
+        $aspekPenilaian->load('stase');
         return Inertia::render('Admin/TambahAspekPenilaian', [
             'stase' => $aspekPenilaian->stase,
-            'aspek' => $aspekPenilaian, // Kirim data aspek untuk di-edit
+            'aspek' => $aspekPenilaian,
         ]);
     }
 
@@ -88,11 +85,8 @@ class AspekPenilaianController extends Controller
 
     public function destroy(AspekPenilaian $aspekPenilaian)
     {
-        // CATATAN: Hapus semua "poin kompetensi" yang terkait dulu
-        // untuk menghindari error foreign key (jika tidak di-setting ON DELETE CASCADE)
         $this->service->delete($aspekPenilaian);
 
-        // Redirect kembali ke halaman sebelumnya dengan pesan sukses
         return Redirect::back()->with('success', 'Aspek penilaian berhasil dihapus.');
     }
 }

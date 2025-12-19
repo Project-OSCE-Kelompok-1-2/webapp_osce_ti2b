@@ -2,18 +2,14 @@ import { Head, usePage, router, Link } from "@inertiajs/react";
 import React, { useState, useEffect, useRef } from "react";
 import { AlertCircle, FileText, Table2 } from "lucide-react";
 
-// Sidebar khusus Penguji
 import Sidebar from "../../components/Sidebar";
 
-// Layout & Components
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import OsHeader from "../../components/Header";
 import OsTableHeader from "../../components/tableheader";
 import OsTableBody from "../../components/tablecontain";
 import OsPagination from "../../components/pagination";
 
-// ... (Kode Kolom Table & Logic Tombol Tetap Sama) ...
-// Struktur kolom tabel
 const osceColumns = [
     {
         key: "no",
@@ -54,24 +50,21 @@ const osceColumns = [
 ];
 
 const getButtonStyle = (status, label) => {
-    // 1. Jika tombol "Edit Nilai" -> HIJAU
     if (label === "Edit Nilai") {
         return { className: "bg-green-600 hover:bg-green-700 text-white" };
     }
 
-    // 2. Jika tombol "Mulai Ujian" -> BIRU
     if (label === "Mulai Ujian") {
         return { className: "bg-blue-600 hover:bg-blue-700 text-white" };
     }
 
-    // 3. Sisanya (Lihat Rekap, Menunggu Jadwal) ikut logic status bawaan
     switch (status) {
-        case "Selesai": // Biasanya tombol "Lihat Rekap"
+        case "Selesai": 
             return {
                 className:
                     "bg-os-primary-pj hover:bg-os-primary-pj-dark text-white",
             };
-        case "Belum Dimulai": // Tombol "Menunggu Jadwal" (Disabled)
+        case "Belum Dimulai": 
             return { className: "bg-gray-400 hover:bg-gray-500 text-white" };
         default:
             return { className: "bg-blue-500 text-white" };
@@ -79,16 +72,13 @@ const getButtonStyle = (status, label) => {
 };
 
 export default function PengujiOsceList() {
-    // 1. Ambil Data dari Props (Backend)
     const { osce_list, filters, tahun_options } = usePage().props;
 
     const dataItems = osce_list.data || [];
     const meta = osce_list;
 
-    // 2. State Management
     const [search, setSearch] = useState(filters?.search || "");
     const [tahun, setTahun] = useState(filters?.tahun || "");
-    // Tambah state Status
     const [status, setStatus] = useState(filters?.status || "");
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
@@ -98,7 +88,6 @@ export default function PengujiOsceList() {
 
     // --- LOGIKA FILTER SERVER-SIDE ---
 
-    // A. Handle Search dengan Delay (Include tahun & status)
     useEffect(() => {
         if (isFirstRun.current) {
             isFirstRun.current = false;
@@ -108,26 +97,24 @@ export default function PengujiOsceList() {
         const delayDebounceFn = setTimeout(() => {
             router.get(
                 window.location.pathname,
-                { search: search, tahun: tahun, status: status }, // Include Status
+                { search: search, tahun: tahun, status: status }, 
                 { preserveState: true, replace: true, preserveScroll: true }
             );
         }, 500);
 
         return () => clearTimeout(delayDebounceFn);
-    }, [search]); // Hanya trigger search saat search berubah, tapi bawa nilai lain
+    }, [search]); 
 
-    // B. Handle Ganti Tahun
     const handleTahunChange = (e) => {
         const selectedTahun = e.target.value;
         setTahun(selectedTahun);
         router.get(
             window.location.pathname,
-            { search: search, tahun: selectedTahun, status: status }, // Include Status
+            { search: search, tahun: selectedTahun, status: status }, 
             { preserveState: true, replace: true, preserveScroll: true }
         );
     };
 
-    // C. Handle Ganti Status (BARU)
     const handleStatusChange = (e) => {
         const selectedStatus = e.target.value;
         setStatus(selectedStatus);
@@ -140,7 +127,6 @@ export default function PengujiOsceList() {
 
     // --- MAPPING DATA KE FORMAT TABEL ---
     const mappedData = dataItems.map((item, index) => {
-        // ... (LOGIKA MAPPING DATA TETAP SAMA) ...
         const btn = getButtonStyle(item.status, item.tombol_label);
         let linkHref = "#";
         if (item.tipe_halaman === "edit") {
@@ -263,7 +249,7 @@ export default function PengujiOsceList() {
                                         ))}
                                 </select>
 
-                                {/* Filter Status (BARU) */}
+                                {/* Filter Status */}
                                 <select
                                     value={status}
                                     onChange={handleStatusChange}
@@ -285,7 +271,6 @@ export default function PengujiOsceList() {
                             </div>
                         </div>
 
-                        {/* ... (SISANYA TETAP SAMA) ... */}
                         <div className="flex gap-1 items-center justify-start my-2">
                             <Table2 size={18} />
                             <h2 className="font-semibold text-lg">

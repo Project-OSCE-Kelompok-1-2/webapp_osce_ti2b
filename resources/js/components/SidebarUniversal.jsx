@@ -11,12 +11,11 @@ import {
     ChevronsLeft,
     ChevronsRight,
     BookOpen,
-    Calendar, // Icon baru untuk Jadwal
-    ClipboardCheck, // Icon baru untuk Hasil Penilaian
+    Calendar, 
+    ClipboardCheck, 
     GraduationCap,
 } from "lucide-react";
 
-// --- MENU DEFINITIONS ---
 const adminMenus = [
     { label: "Beranda", icon: <Home />, href: "/admin/dashboard" },
     { label: "Stase", icon: <BookOpen />, href: "/admin/stase" },
@@ -36,7 +35,6 @@ const userMenus = [
     },
 ];
 
-// Menu untuk Mahasiswa (BARU)
 const mahasiswaMenus = [
     { label: "Beranda", icon: <Home />, href: "/mahasiswa/dashboard" },
     {
@@ -51,23 +49,20 @@ const mahasiswaMenus = [
     },
 ];
 
-// ---------------------------------------------------
 
 const SidebarUniversal = () => {
     const [isOpen, setIsOpen] = useState(false);
     const { url } = usePage();
 
-    // --- 2. LOGIKA DETEKSI ROLE OTOMATIS ---
     const isAdmin = url.startsWith("/admin");
     const isPenguji = url.startsWith("/penguji");
     const isMahasiswa = url.startsWith("/mahasiswa");
 
-    // Helper untuk menentukan data berdasarkan role
     let menuItems = [];
     let settingsLink = "#";
     let userName = "User";
     let userEmail = "user@email.com";
-    let themeColor = "gray"; // default
+    let themeColor = "gray"; 
 
     if (isAdmin) {
         menuItems = adminMenus;
@@ -86,13 +81,10 @@ const SidebarUniversal = () => {
         userEmail = "mhs@polines.ac.id";
     }
 
-    // Helper untuk cek link aktif
     const isActive = (href) => url.startsWith(href);
 
-    // --- 3. LOGIKA WARNA (STYLE) BERDASARKAN ROLE ---
     const getRoleStyles = (active) => {
         if (isAdmin) {
-            // --- ADMIN: HITAM/ABU ---
             return {
                 icon: "text-blue-600",
                 text: active
@@ -105,7 +97,6 @@ const SidebarUniversal = () => {
                 toggleBtn: "bg-blue-600 hover:bg-blue-500",
             };
         } else if (isPenguji) {
-            // --- PENGUJI: BIRU ---
             return {
                 icon: "text-blue-600",
                 text: active
@@ -118,7 +109,6 @@ const SidebarUniversal = () => {
                 toggleBtn: "bg-blue-600 hover:bg-blue-500",
             };
         } else {
-            // --- MAHASISWA: HIJAU (EMERALD) ---
             return {
                 icon: "text-blue-600",
                 text: active
@@ -133,24 +123,18 @@ const SidebarUniversal = () => {
         }
     };
 
-    // --- FIX: MENAMBAHKAN FUNGSI YANG HILANG (TANPA MENGUBAH TAMPILAN LAIN) ---
     const getLinkClass = (active) => {
-        // Ambil style role agar warna background (bg) dan border sesuai role
         const styles = getRoleStyles(active);
 
-        // Gabungkan class layout dasar dengan class warna dari role
         return `flex items-center gap-3 p-3 rounded-lg transition-all duration-300 group mb-1 ${
             !isOpen ? "justify-center" : ""
         } ${styles.bg} ${styles.border}`;
     };
 
-    // Ambil style dasar untuk komponen statis (seperti tombol toggle)
-    // Kita anggap jika sedang di menu apapun, style dasar mengikuti role
     const currentStyles = getRoleStyles(false);
 
     return (
         <aside
-            // FIXED & Z-50: Agar sidebar mengambang di atas konten saat melebar
             className={`fixed top-0 left-0 h-full bg-white border-r border-gray-200 shadow-2xl z-50 transition-all duration-300 ease-in-out flex flex-col
             ${isOpen ? "w-72" : "w-20"}`}
         >

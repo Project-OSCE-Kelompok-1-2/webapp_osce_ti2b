@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-// Import hook Inertia
 import { useForm, usePage, router, Head } from "@inertiajs/react";
 import {
     AlertCircle,
@@ -14,16 +13,13 @@ import {
     Book,
 } from "lucide-react";
 
-// Import Komponen Custom Sesuai Desain
 import OsHeader from "../../components/Header.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsButton from "../../components/button.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
-// ⭐ Import Modals
 import Modals from "../../components/Modals.jsx";
 
-// CustomInput
 const CustomInput = ({
     label,
     type = "text",
@@ -73,17 +69,14 @@ export default function MahasiswaAccountSettings() {
     const { user, flash } = usePage().props;
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // State untuk Toggle Password
     const [showOldPassword, setShowOldPassword] = useState(false);
     const [showNewPassword, setShowNewPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-    // State Modal Hapus
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
 
     const [profileImage, setProfileImage] = useState(null);
 
-    // ⭐ UPDATE: Tambahkan errors, clearErrors, setError
     const {
         data,
         setData,
@@ -110,7 +103,6 @@ export default function MahasiswaAccountSettings() {
         )}&background=16A34A&color=fff&bold=true&size=177`;
     };
 
-    // Init Foto Profil
     useEffect(() => {
         if (user.path_gambar) {
             setProfileImage(`/${user.path_gambar}`);
@@ -151,20 +143,17 @@ export default function MahasiswaAccountSettings() {
         setIsDeleteModalOpen(false);
     };
 
-    // ⭐ UPDATE: Logic Validasi Manual (Sama seperti Admin/Penguji)
     const handleSaveChanges = (e) => {
         e.preventDefault();
         clearErrors();
 
         let isValid = true;
 
-        // 1. Password Lama diisi, Password Baru KOSONG
         if (data.old_password && !data.new_password) {
             setError("new_password", "Password baru wajib diisi.");
             isValid = false;
         }
 
-        // 2. Password Baru diisi, Password Lama KOSONG
         if (!data.old_password && data.new_password) {
             setError(
                 "old_password",
@@ -173,7 +162,6 @@ export default function MahasiswaAccountSettings() {
             isValid = false;
         }
 
-        // 3. Konfirmasi Password Tidak Cocok
         if (
             data.new_password &&
             data.new_password !== data.new_password_confirmation
@@ -354,7 +342,6 @@ export default function MahasiswaAccountSettings() {
                                                 : "border-black"
                                         }`}
                                     >
-                                        {/* PERBAIKAN: Tambah shrink-0 */}
                                         <Lock
                                             size={16}
                                             opacity={0.5}
@@ -374,7 +361,6 @@ export default function MahasiswaAccountSettings() {
                                                 )
                                             }
                                             placeholder="Masukkan password lama..."
-                                            // PERBAIKAN: Tambah min-w-0
                                             className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400 min-w-0"
                                         />
                                         <button
@@ -384,7 +370,6 @@ export default function MahasiswaAccountSettings() {
                                                     !showOldPassword
                                                 )
                                             }
-                                            // PERBAIKAN: Tambah shrink-0
                                             className="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                             title={
                                                 showOldPassword
@@ -408,7 +393,7 @@ export default function MahasiswaAccountSettings() {
                                     )}
                                 </div>
 
-                                {/* WRAPPER: PASSWORD BARU & KONFIRMASI */}
+                                {/* PASSWORD BARU & KONFIRMASI */}
                                 <div className="flex flex-col md:flex-row gap-[15px] w-full">
                                     {/* PASSWORD BARU */}
                                     <div className="flex flex-col gap-[3px] w-full">
@@ -422,7 +407,6 @@ export default function MahasiswaAccountSettings() {
                                                     : "border-black"
                                             }`}
                                         >
-                                            {/* PERBAIKAN: Tambah shrink-0 */}
                                             <Lock
                                                 size={16}
                                                 opacity={0.5}
@@ -442,7 +426,6 @@ export default function MahasiswaAccountSettings() {
                                                     )
                                                 }
                                                 placeholder="Password baru..."
-                                                // PERBAIKAN: Tambah min-w-0
                                                 className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400 min-w-0"
                                             />
                                             <button
@@ -452,7 +435,6 @@ export default function MahasiswaAccountSettings() {
                                                         !showNewPassword
                                                     )
                                                 }
-                                                // PERBAIKAN: Tambah shrink-0
                                                 className="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                 title={
                                                     showNewPassword
@@ -487,7 +469,6 @@ export default function MahasiswaAccountSettings() {
                                                     : "border-black"
                                             }`}
                                         >
-                                            {/* PERBAIKAN: Tambah shrink-0 */}
                                             <Lock
                                                 size={16}
                                                 opacity={0.5}
@@ -509,7 +490,6 @@ export default function MahasiswaAccountSettings() {
                                                     )
                                                 }
                                                 placeholder="Konfirmasi password..."
-                                                // PERBAIKAN: Tambah min-w-0
                                                 className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400 min-w-0"
                                             />
                                             <button
@@ -519,7 +499,6 @@ export default function MahasiswaAccountSettings() {
                                                         !showConfirmPassword
                                                     )
                                                 }
-                                                // PERBAIKAN: Tambah shrink-0
                                                 className="bg-green-600 hover:bg-green-700 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                 title={
                                                     showConfirmPassword

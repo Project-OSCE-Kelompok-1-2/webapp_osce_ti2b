@@ -12,9 +12,7 @@ class RoleMiddleware
     {
         $user = $request->user();
 
-        // Cek apakah role user tidak sesuai
         if (!in_array($user->jenis_role, $roles)) {
-            // Arahkan ke dashboard sesuai rolenya
             return $this->redirectByRole($user->jenis_role);
         }
 

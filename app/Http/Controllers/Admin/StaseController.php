@@ -25,11 +25,9 @@ class StaseController extends Controller
     {
         $search = $request->query("search");
 
-        // Data sekarang berupa Collection (semua data), bukan Paginator
         $stase = $this->service->getAll($search);
 
         return Inertia::render('Admin/MenuStase', [
-            // Langsung passing variable $stase
             'stase' => $stase,
 
             'filters' => $request->only(['search']),
@@ -40,10 +38,9 @@ class StaseController extends Controller
 
     public function create()
     {
-        // [UBAH] Ambil semua data yang diperlukan untuk dropdown
         return Inertia::render('Admin/TambahStase', [
             'mataKuliah' => MataKuliah::all(),
-            'tujuanPembelajaran' => TujuanPembelajaran::all(), // <-- [BARU]
+            'tujuanPembelajaran' => TujuanPembelajaran::all(),
         ]);
     }
 
@@ -53,7 +50,6 @@ class StaseController extends Controller
             'nama_stase' => 'required|string|max:255|unique:stase,nama_stase',
             'id_mata_kuliah' => 'required|exists:mata_kuliah,id_mata_kuliah',
             'deskripsi' => 'nullable|string',
-            // UBAH DISINI: Menerima array string
             'tujuan_pembelajaran' => 'required|array|min:1|max:5',
             'tujuan_pembelajaran.*' => 'string',
         ]);
@@ -64,11 +60,10 @@ class StaseController extends Controller
 
     public function edit(Stase $stase)
     {
-        // Kirim semua data yang diperlukan untuk form
         return Inertia::render('Admin/TambahStase', [
             'mataKuliah' => MataKuliah::all(),
             'tujuanPembelajaran' => TujuanPembelajaran::all(),
-            'stase' => $stase, // Kirim data stase yang akan diedit
+            'stase' => $stase,
         ]);
     }
 
@@ -83,7 +78,6 @@ class StaseController extends Controller
             ],
             'id_mata_kuliah' => 'required|exists:mata_kuliah,id_mata_kuliah',
             'deskripsi' => 'nullable|string',
-            // UBAH DISINI: Menerima array string
             'tujuan_pembelajaran' => 'required|array|min:1|max:5',
             'tujuan_pembelajaran.*' => 'string',
         ]);
@@ -98,5 +92,4 @@ class StaseController extends Controller
         return Redirect::back()->with('success', 'Stase berhasil dihapus.');
     }
 
-    // Anda bisa tambahkan fungsi edit() dan update() jika diperlukan nanti
 }
