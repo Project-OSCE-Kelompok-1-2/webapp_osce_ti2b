@@ -392,13 +392,13 @@ export default function LivePenilaian() {
                                         key={poin.id_poin_aspek_penilaian}
                                         className="border rounded-xl p-4 bg-white space-y-3 shadow-sm"
                                     >
-                                        <p className="text-sm text-gray-700 text-justify">
+                                        <p className="text-sm sm:text-lg text-gray-700 text-justify">
                                             {index + 1}. {poin.deskripsi}
                                         </p>
 
                                         {/* SKOR */}
                                         <div className="w-full">
-                                            <p className="text-xs mb-2 font-medium text-gray-500 text-center">
+                                            <p className="text-xs sm:text-base mb-2 font-bold text-black text-center">
                                                 Skor:
                                             </p>
                                             <div className="flex gap-3 sm:gap-6 justify-center w-full">
@@ -419,11 +419,17 @@ export default function LivePenilaian() {
                                                                 )
                                                             }
                                                             /* PERBAIKAN 2: Lingkaran jadi Oranye saat dipilih */
-                                                            className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full border flex items-center justify-center text-lg sm:text-xl font-bold transition-all duration-200
+                                                            style={{
+                                                                borderColor:
+                                                                    isSelected
+                                                                        ? undefined
+                                                                        : "black",
+                                                            }}
+                                                            className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 flex items-center justify-center text-lg sm:text-2xl font-bold transition-all duration-200
                                             ${
                                                 isSelected
                                                     ? "bg-orange-500 border-orange-600 text-white shadow-md transform scale-110" // Aktif: Oranye Solid
-                                                    : "bg-white border-gray-300 text-gray-600 hover:border-orange-300 hover:bg-orange-50" // Tidak Aktif
+                                                    : "bg-white text-black hover:border-orange-400 hover:bg-orange-50" // Tidak Aktif
                                             }`}
                                                         >
                                                             {v}
@@ -435,22 +441,26 @@ export default function LivePenilaian() {
 
                                         {/* BOBOT & NILAI */}
                                         <div className="flex justify-between items-center pt-2 border-t border-dashed">
-                                            <div className="text-sm">
+                                            <div className="text-sm sm:text-lg">
                                                 <span className="font-medium text-gray-500">
                                                     Bobot:
                                                 </span>{" "}
-                                                {poin.bobot}
+                                                <span className="font-semibold">
+                                                    {poin.bobot}
+                                                </span>
                                             </div>
 
-                                            <div className="text-sm font-bold text-orange-700">
+                                            <div className="text-sm sm:text-lg font-bold text-orange-700">
                                                 Nilai:{" "}
-                                                {hitungNilai(
-                                                    nilaiMap[
-                                                        poin
-                                                            .id_poin_aspek_penilaian
-                                                    ],
-                                                    poin.bobot
-                                                ).toFixed(0)}
+                                                <span className="text-base sm:text-xl">
+                                                    {hitungNilai(
+                                                        nilaiMap[
+                                                            poin
+                                                                .id_poin_aspek_penilaian
+                                                        ],
+                                                        poin.bobot
+                                                    ).toFixed(0)}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
