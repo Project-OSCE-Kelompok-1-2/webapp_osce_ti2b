@@ -206,11 +206,9 @@ export default function ViewNilaiDetail() {
                             <span>{Number(total_nilai_aspek).toFixed(2)}</span>
                         </div>
                     </div>
-                    {/* ================= MOBILE / TABLET VIEW (PERBAIKAN WARNA) ================= */}
                     <div className="lg:hidden space-y-3">
                         {rubrik_terisi.map((group, gIndex) => (
                             <React.Fragment key={gIndex}>
-                                {/* PERBAIKAN 1: Header Aspek jadi Oranye (Sama seperti Edit Form) */}
                                 <div className="bg-orange-50 text-orange-900 border-os-primary-pj border px-4 py-2 font-semibold rounded-lg">
                                     {group.aspek}
                                 </div>
@@ -230,12 +228,10 @@ export default function ViewNilaiDetail() {
                                             {poin.deskripsi}
                                         </p>
 
-                                        {/* SKOR MOBILE (READ ONLY TAPI STYLE SAMA) */}
                                         <div>
                                             <p className="text-xs mb-1 font-medium text-gray-500">
                                                 Skor:
                                             </p>
-                                            {/* Gunakan pointer-events-none agar tidak bisa diklik */}
                                             <div className="flex gap-2 sm:gap-3 justify-between sm:justify-start pointer-events-none">
                                                 {[0, 1, 2, 3, 4].map((v) => {
                                                     const isSelected =

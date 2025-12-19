@@ -138,7 +138,6 @@ export default function RekapSesiPage() {
 
     return (
         <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            {/* <Head title={`Rekap Sesi - ${osce.nama_osce}`} /> */}
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
@@ -158,15 +157,6 @@ export default function RekapSesiPage() {
                             </div>
                         )}
 
-                        {/* <h2 className="font-semibold text-lg mb-1">
-                        Menu Rekap Nilai
-                    </h2> */}
-                        {/* <div className="flex gap-1 items-center justify-start my-2">
-                            <Bookmark size={18} />
-                            <h2 className="font-semibold text-lg p-1">
-                                Menu Rekap Sesi
-                            </h2>
-                        </div> */}
                         <div className="flex gap-1 items-center justify-start my-2">
                             <Bookmark size={18} />
                             <h2 className="font-semibold text-lg">
@@ -186,12 +176,6 @@ export default function RekapSesiPage() {
                             placeholder="Cari tanggal atau jam..."
                         />
 
-                        {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table Sesi
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
-                    </h2> */}
                         <div className="flex gap-1 items-center justify-start mb-2 mt-4">
                             <Table2 size={18} />
                             <h2 className="font-semibold text-lg">

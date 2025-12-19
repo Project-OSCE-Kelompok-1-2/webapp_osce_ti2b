@@ -15,14 +15,9 @@ class AuthenticationTest extends TestCase
     {
         $response = $this->get('/login');
 
-        // Ganti assertInertia dengan assertion Laravel biasa
-        $response->assertOk(); // Pastikan status response 200 (OK)
+        $response->assertOk(); 
         $response->assertSee('<div id="app" data-page="', false); // Cek apakah ada elemen root Inertia
     }
-
-    // --- TIDAK ADA PERUBAHAN DI TEST LAINNYA ---
-    // Semua test di bawah ini sudah menggunakan assertion Laravel biasa
-    // dan tidak bergantung pada InteractsWithInertia.
 
     /** @test */
     public function a_user_can_authenticate_with_valid_credentials(): void
@@ -55,5 +50,4 @@ class AuthenticationTest extends TestCase
         $response->assertSessionHas('error', 'Username atau password salah');
     }
 
-    // ... (sisa test lain tetap sama)
 }

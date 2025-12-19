@@ -472,9 +472,7 @@ setListAngkatan(optionsRaw);
                         )}
 
                         <section className="mb-6">
-                            {/* <h2 className="text-lg font-semibold mb-1">
-                                {osce.nama_osce || "Detail Jadwal OSCE"}
-                            </h2> */}
+                            
                             <div className="flex gap-1 items-center justify-start my-2">
                                 <FileText size={18} />
                                 <h2 className="font-semibold text-lg">
@@ -520,9 +518,6 @@ setListAngkatan(optionsRaw);
                             />
                         </section>
 
-                        {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                            Table Sesi
-                        </h2> */}
                         <div className="flex gap-1 items-center justify-start mb-2">
                             <Table2 size={18} />
                             <h2 className="font-semibold text-lg">
@@ -583,7 +578,6 @@ setListAngkatan(optionsRaw);
                 confirmText="Hapus"
             />
 
-            {/* DETAIL MODAL */}
             {/* DETAIL MODAL */}
             {isDetailModalOpen && (
                 <div className="fixed inset-0 z-[60] flex items-center justify-center p-4">
@@ -873,7 +867,6 @@ setListAngkatan(optionsRaw);
                                 <p className="text-xs text-gray-400 mt-2">
                                     {wizardData.stase_ids.length} stase dipilih.
                                 </p>
-                                {/* Pesan Error Ditambahkan Disini */}
                                 <ErrorBanner message={validationError} />
                             </div>
                         ),
@@ -947,7 +940,6 @@ setListAngkatan(optionsRaw);
                                         </div>
                                     </div>
                                 </div>
-                                {/* Pesan Error Ditambahkan Disini */}
                                 <ErrorBanner message={validationError} />
                             </div>
                         ),
@@ -987,7 +979,6 @@ setListAngkatan(optionsRaw);
                                         )}
                                     </>
                                 )}
-                                {/* Pesan Error Ditambahkan Disini */}
                                 <ErrorBanner message={validationError} />
                             </div>
                         ),
@@ -1079,7 +1070,6 @@ setListAngkatan(optionsRaw);
                                         )}
                                     </div>
                                 )}
-                                {/* Pesan Error Ditambahkan Disini (fixed at bottom of modal content usually) */}
                                 <div className="mt-auto">
                                     <ErrorBanner message={validationError} />
                                 </div>
@@ -1259,7 +1249,7 @@ setListAngkatan(optionsRaw);
                                     </div>
                                 </div>
 
-                                {/* Error Banner (Akan muncul di bawah tanpa menghancurkan layout list) */}
+                                {/* Error Banner */}
                                 <div className="shrink-0">
                                     <ErrorBanner message={validationError} />
                                 </div>

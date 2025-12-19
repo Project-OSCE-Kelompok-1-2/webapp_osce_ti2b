@@ -269,12 +269,6 @@ export default function PengujiPage() {
                         </div>
 
                         <section>
-                            {/* <h2 className="font-semibold text-lg mb-2">
-                            Tabel Penguji
-                            <span className="text-sm font-normal text-gray-500 ml-2">
-                                (Total: {totalItems} data)
-                            </span>
-                        </h2> */}
                             <div className="flex gap-1 items-center justify-start my-2">
                                 <Table2 size={18} />
                                 <h2 className="font-semibold text-lg">

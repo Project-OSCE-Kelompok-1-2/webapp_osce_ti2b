@@ -458,7 +458,6 @@ export default function MahasiswaPage() {
                 </div>
             </main>
 
-            {/* --- MODAL TAMBAH --- */}
             <OsModal
                 show={showModal}
                 onClose={() => setShowModal(false)}

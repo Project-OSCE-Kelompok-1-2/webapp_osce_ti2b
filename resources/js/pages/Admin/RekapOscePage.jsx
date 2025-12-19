@@ -211,9 +211,6 @@ export default function RekapOscePage() {
                             </div>
                         )}
 
-                        {/* <h2 className="font-semibold text-lg mb-1">
-                        Menu Rekap Nilai
-                    </h2> */}
                         <div className="flex gap-1 items-center justify-start my-2">
                             <Bookmark size={18} />
                             <h2 className="font-semibold text-lg">
@@ -225,7 +222,7 @@ export default function RekapOscePage() {
                             rekapitulasi nilai mahasiswa.
                         </p>
 
-                        {/* SEARCH & FILTER SECTION (UPDATED) */}
+                        {/* SEARCH & FILTER SECTION */}
                         <div className="flex flex-col sm:flex-row gap-3 mb-2">
                             <div className="flex-grow">
                                 <OsSearchBar
@@ -252,12 +249,6 @@ export default function RekapOscePage() {
                             </div>
                         </div>
 
-                        {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table OSCE
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
-                    </h2> */}
                         <div className="flex gap-1 items-center justify-start mb-2">
                             <Table2 size={18} />
                             <h2 className="font-semibold text-lg">

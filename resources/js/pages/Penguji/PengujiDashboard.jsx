@@ -283,7 +283,6 @@ export default function PengujiDashboard() {
                                             Kalender
                                         </h2>
                                     </div>
-                                    {/* MENGIRIM EVENTS KE KOMPONEN CALENDAR */}
                                     <Calendar
                                         onDateSelect={handleDateSelect}
                                         events={calendar_events}

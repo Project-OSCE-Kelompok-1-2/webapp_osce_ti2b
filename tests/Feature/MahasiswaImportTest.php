@@ -7,9 +7,9 @@ use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Storage;
 use Tests\TestCase;
-use Maatwebsite\Excel\Facades\Excel; // <-- Tambah
-use Maatwebsite\Excel\Concerns\FromArray; // <-- Tambah
-use Maatwebsite\Excel\Concerns\Exportable; // <-- Tambah
+use Maatwebsite\Excel\Facades\Excel; 
+use Maatwebsite\Excel\Concerns\FromArray; 
+use Maatwebsite\Excel\Concerns\Exportable; 
 
 class MahasiswaImportTest extends TestCase
 {
@@ -26,16 +26,13 @@ class MahasiswaImportTest extends TestCase
     /** @test */
     public function pandu_tugas1_admin_can_import_mahasiswa_excel()
     {
-        Storage::fake('local'); // Gunakan fake storage 'local'
+        Storage::fake('local'); 
 
-        // 1. Definisikan data palsu
         $filename = 'mahasiswa_import.xlsx';
         $header = ['nim', 'nama', 'kelas', 'prodi'];
         $row1 = ['123456', 'Pandu Test', '2025', 'Kedokteran'];
         $row2 = ['789012', 'Excel Test', '2025', 'Keperawatan'];
 
-        // 2. Buat file Excel sungguhan di fake storage
-        // Kita buat class export kecil secara 'inline'
         Excel::store(new class($header, $row1, $row2) implements FromArray
         {
             use Exportable;
@@ -49,10 +46,9 @@ class MahasiswaImportTest extends TestCase
             }
             public function array(): array
             {
-                // Data ini yang akan jadi isi Excel
                 return [$this->header, $this->row1, $this->row2];
             }
-        }, $filename, 'local'); // Simpan di disk 'local'
+        }, $filename, 'local'); 
 
         // 3. Ambil path file yang baru dibuat dan jadikan UploadedFile
         $path = Storage::disk('local')->path($filename);

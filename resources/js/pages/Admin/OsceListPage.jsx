@@ -321,7 +321,6 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                     <OsHeader onMenuClick={handleSidebarToggle} />
 
                     <div className="flex-1 overflow-auto p-1">
-                        {/* <h2 className="font-semibold text-lg mb-1">Menu OSCE</h2> */}
                         <div className="flex gap-1 items-center justify-start my-2">
                             <FileText size={18} />
                             <h2 className="font-semibold text-lg">Menu OSCE</h2>
@@ -374,12 +373,6 @@ export default function OsceListPage({ osce, tahunAkademikOptions }) {
                                 </div>
                             </div>
 
-                            {/* <h2 className="text-lg font-semibold mb-2">
-                            Table OSCE
-                            <span className="text-sm font-normal text-gray-500 ml-2">
-                                (Total: {totalItems} data)
-                            </span>
-                        </h2> */}
                             <div className="flex gap-1 items-center justify-start my-2">
                                 <Table2 size={18} />
                                 <h2 className="font-semibold text-lg">

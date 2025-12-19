@@ -411,8 +411,6 @@ export default function Stase() {
                             </div>
                         </section>
 
-                        {/* <hr className="border-1 border-os-primary my-2" /> */}
-
                         {/* --- PAGINATION --- */}
                         {totalPages > 1 && (
                             <div className="mt-2">
@@ -485,7 +483,6 @@ export default function Stase() {
                     {/* INPUT MULTI SELECT TUJUAN PEMBELAJARAN */}
                     <div className="space-y-2">
                         <div className="flex justify-between items-center">
-                            {/* PERUBAHAN 1: Menambahkan span bintang merah manual disini */}
                             <label className="block text-sm font-medium text-gray-700">
                                 Tujuan Pembelajaran{" "}
                                 <span className="text-red-500">*</span>

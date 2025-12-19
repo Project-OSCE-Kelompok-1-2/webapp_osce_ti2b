@@ -366,7 +366,6 @@ export default function PengujiProfil() {
                                                             opacity={0.5}
                                                             className="ml-2 shrink-0"
                                                         />{" "}
-                                                        {/* Tambah shrink-0 */}
                                                         <input
                                                             type={
                                                                 showOldPassword
@@ -580,10 +579,7 @@ export default function PengujiProfil() {
                                                     </div>
                                                 </div>
 
-                                                {/* Tombol Simpan & Logout tetap sama */}
                                                 <div className="w-full flex justify-between gap-3 mt-2">
-                                                    {/* ... kode tombol simpan & logout ... */}
-                                                    {/* ... (Pastikan bagian ini tetap ada seperti kode asli Anda) ... */}
                                                     <OsButton
                                                         name="primary-pj"
                                                         className="w-[223px] flex items-center justify-start gap-[13px] border border-black"

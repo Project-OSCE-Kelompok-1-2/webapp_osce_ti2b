@@ -248,7 +248,6 @@ export default function SubmitRubrik() {
                     </div>
                 </main>
 
-                {/* --- POPUP MODAL (DIPERBAIKI) --- */}
                 {showModal && (
                     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 font-sans">
                         <div
@@ -257,7 +256,6 @@ export default function SubmitRubrik() {
                         ></div>
 
                         <div className="relative bg-white w-full max-w-[400px] rounded-xl overflow-hidden shadow-2xl transform scale-100 transition-all">
-                            {/* 1. HEADER: BERSIH (TANPA X) */}
                             <div className="bg-orange-600 py-4 px-4 relative flex items-center justify-center">
                                 <h2 className="text-white text-xl font-bold tracking-wide">
                                     Konfirmasi Selesai

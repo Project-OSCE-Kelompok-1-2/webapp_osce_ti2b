@@ -421,10 +421,8 @@ export default function JadwalOsce({
                             </div>
 
                             {/* Table Container - Responsive Horizontal Scroll */}
-                            {/* Pastikan container ini memiliki overflow-x-auto, yang sudah benar */}
                             <div className="bg-white p-5 border border-os-primary-mhs overflow-x-auto rounded-xl shadow-sm">
                                 <div className="w-full pb-2 ">
-                                    {/* Hapus overflow-x-auto yang redundan di sini */}
                                     <div className="min-w-max">
                                         <OsTableHeader
                                             columns={tableColumns}

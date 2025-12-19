@@ -195,7 +195,6 @@ export default function MahasiswaAccountSettings() {
 
     return (
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            {/* <Head title="Pengaturan Akun" /> */}
 
             <Sidebar
                 type="mahasiswa"

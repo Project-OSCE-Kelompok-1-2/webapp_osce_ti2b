@@ -125,7 +125,7 @@ export default function OsceEnrollmentPage({
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 <div className="flex flex-col gap-os-8">
-                    {/* 9. Header/Breadcrumb dinamis */}
+                    {/* Header/Breadcrumb dinamis */}
                     <OsHeader
                         variant="goback"
                         backLink={`/admin/osce/${osce.id_osce}/jadwal/`}
@@ -145,7 +145,6 @@ export default function OsceEnrollmentPage({
                             </strong>
                         </p>
 
-                        {/* Notifikasi Error (jika ada) */}
                         {flash.error && (
                             <div className="p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg flex items-center gap-3 mb-4">
                                 <XCircle className="w-5 h-5 flex-shrink-0" />
@@ -197,7 +196,7 @@ export default function OsceEnrollmentPage({
                             )}
                         </form>
 
-                        {/* 11. Table dinamis */}
+                        {/* Table dinamis */}
                         <h2 className="font-semibold text-lg mb-2 mt-os-8">
                             Table Mahasiswa
                         </h2>

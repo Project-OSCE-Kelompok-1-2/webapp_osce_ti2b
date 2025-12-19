@@ -267,7 +267,6 @@ export default function AdminSettingAkun({ user }) {
                                                         : "border-black"
                                                 }`}
                                             >
-                                                {/* PERBAIKAN: Tambah shrink-0 */}
                                                 <Lock
                                                     size={16}
                                                     opacity={0.5}
@@ -335,7 +334,6 @@ export default function AdminSettingAkun({ user }) {
                                                             : "border-black"
                                                     }`}
                                                 >
-                                                    {/* PERBAIKAN: Tambah shrink-0 */}
                                                     <Lock
                                                         size={16}
                                                         opacity={0.5}
@@ -403,7 +401,6 @@ export default function AdminSettingAkun({ user }) {
                                                             : "border-black"
                                                     }`}
                                                 >
-                                                    {/* Tambah shrink-0 */}
                                                     <Lock
                                                         size={16}
                                                         opacity={0.5}
