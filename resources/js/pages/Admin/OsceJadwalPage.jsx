@@ -141,7 +141,7 @@ export default function SesiOscePage({
         }
     }, [flash]);
 
-    // Reset validation error saat modal ditutup atau step direset
+    // Reset validation error saat modal ditutup atau step diresett
     useEffect(() => {
         if (!isStepOpen) {
             setValidationError(null);
