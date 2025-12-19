@@ -245,7 +245,9 @@ export default function DashboardMahasiswa() {
                                 Selamat Datang!
                             </p>
                             <h1 className="text-3xl font-bold text-gray-900 mb-2">
-                                {auth.user.name}
+                                {auth.user.mahasiswa?.nama ||
+                                    auth.user.name ||
+                                    auth.user.username}
                             </h1>
                             <p className="text-gray-500">
                                 Lihat dan kelola semua progres Ujian OSCE Anda
