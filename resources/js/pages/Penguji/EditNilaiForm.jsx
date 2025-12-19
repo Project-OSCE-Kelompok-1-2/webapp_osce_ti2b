@@ -217,7 +217,7 @@ export default function EditNilaiForm() {
                     </div>
 
                     {/* ================= DESKTOP VIEW (Style disamakan) ================= */}
-                    <div className="hidden bg-white lg:block border rounded-xl p-4 border-os-primary-pj shadow-sm">
+                    <div className="hidden bg-white xl:block border rounded-xl p-4 border-os-primary-pj shadow-sm">
                         <OsTableHeader
                             columns={rubrikColumns}
                             variant="penguji"
@@ -321,7 +321,7 @@ export default function EditNilaiForm() {
 
                     {/* ================= MOBILE / TABLET VIEW (Style disamakan) ================= */}
                     {/* ================= MOBILE / TABLET VIEW (PERBAIKAN) ================= */}
-                    <div className="lg:hidden space-y-3">
+                    <div className="xl:hidden space-y-3">
                         {rubrik_terisi.map((group, gIndex) => (
                             <React.Fragment key={gIndex}>
                                 {/* PERBAIKAN 1: Header Aspek jadi Oranye (bukan abu-abu) */}
@@ -342,11 +342,11 @@ export default function EditNilaiForm() {
                                         </p>
 
                                         {/* SKOR MOBILE */}
-                                        <div>
-                                            <p className="text-xs mb-1 font-medium text-gray-500">
+                                        <div className="w-full flex flex-col items-center">
+                                            <p className="text-xs sm:text-base mb-2 font-bold text-black text-center">
                                                 Skor:
                                             </p>
-                                            <div className="flex gap-2 sm:gap-3 justify-between sm:justify-start">
+                                            <div className="flex gap-3 sm:gap-6 justify-center items-center w-full">
                                                 {[0, 1, 2, 3, 4].map((v) => {
                                                     const isSelected =
                                                         nilaiMap[
@@ -363,12 +363,17 @@ export default function EditNilaiForm() {
                                                                     v
                                                                 )
                                                             }
-                                                            /* PERBAIKAN 2: Tombol jadi Oranye Solid saat aktif */
-                                                            className={`w-10 h-10 sm:w-12 sm:h-12 rounded-full border flex items-center justify-center text-sm sm:text-lg font-semibold transition-all duration-200
+                                                            style={{
+                                                                borderColor:
+                                                                    isSelected
+                                                                        ? undefined
+                                                                        : "black",
+                                                            }}
+                                                            className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full !border-2 border-solid flex items-center justify-center text-lg sm:text-2xl font-bold transition-all duration-200 focus:outline-none
                                             ${
                                                 isSelected
-                                                    ? "bg-orange-500 border-orange-600 text-white shadow-md transform scale-105" // Aktif
-                                                    : "bg-white border-gray-300 text-gray-600 hover:border-orange-300" // Tidak Aktif
+                                                    ? "bg-orange-500 hover:bg-orange-600 border-orange-600 text-white shadow-md transform scale-110"
+                                                    : "!bg-white !text-black hover:!bg-orange-50 hover:border-orange-400"
                                             }`}
                                                         >
                                                             {v}
