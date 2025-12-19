@@ -276,7 +276,7 @@ export default function LivePenilaian() {
                     </div>
 
                     {/* ================= DESKTOP VIEW ================= */}
-                    <div className="hidden bg-white lg:block border rounded-xl p-4 border-os-primary-pj">
+                    <div className="hidden bg-white xl:block border rounded-xl p-4 border-os-primary-pj">
                         <OsTableHeader
                             columns={rubrikColumns}
                             variant="penguji"
@@ -379,7 +379,7 @@ export default function LivePenilaian() {
                     </div>
 
                     {/* ================= MOBILE / TABLET VIEW (PERBAIKAN) ================= */}
-                    <div className="lg:hidden space-y-3">
+                    <div className="xl:hidden space-y-3">
                         {dataRubrik.map((group, gIndex) => (
                             <React.Fragment key={gIndex}>
                                 {/* PERBAIKAN 1: Background Judul jadi Oranye (bukan abu-abu) */}
@@ -397,11 +397,11 @@ export default function LivePenilaian() {
                                         </p>
 
                                         {/* SKOR */}
-                                        <div className="w-full">
+                                        <div className="w-full flex flex-col items-center">
                                             <p className="text-xs sm:text-base mb-2 font-bold text-black text-center">
                                                 Skor:
                                             </p>
-                                            <div className="flex gap-3 sm:gap-6 justify-center w-full">
+                                            <div className="flex gap-3 sm:gap-6 justify-center items-center w-full">
                                                 {[0, 1, 2, 3, 4].map((v) => {
                                                     const isSelected =
                                                         nilaiMap[
@@ -418,18 +418,17 @@ export default function LivePenilaian() {
                                                                     v
                                                                 )
                                                             }
-                                                            /* PERBAIKAN 2: Lingkaran jadi Oranye saat dipilih */
                                                             style={{
                                                                 borderColor:
                                                                     isSelected
                                                                         ? undefined
                                                                         : "black",
                                                             }}
-                                                            className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full border-2 flex items-center justify-center text-lg sm:text-2xl font-bold transition-all duration-200
+                                                            className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full !border-2 border-solid flex items-center justify-center text-lg sm:text-2xl font-bold transition-all duration-200 focus:outline-none
                                             ${
                                                 isSelected
-                                                    ? "bg-orange-500 border-orange-600 text-white shadow-md transform scale-110" // Aktif: Oranye Solid
-                                                    : "bg-white text-black hover:border-orange-400 hover:bg-orange-50" // Tidak Aktif
+                                                    ? "bg-orange-500 hover:bg-orange-600 border-orange-600 text-white shadow-md transform scale-110"
+                                                    : "!bg-white !text-black hover:!bg-orange-50 hover:border-orange-400"
                                             }`}
                                                         >
                                                             {v}
