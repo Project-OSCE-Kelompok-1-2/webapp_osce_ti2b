@@ -1102,7 +1102,6 @@ export default function SesiOscePage({
                                 </div>
 
                                 {/* List Mahasiswa */}
-                                {/* Tambahkan 'min-h-[300px]' disini agar tidak tergencet error */}
                                 <div className="border rounded-lg flex-1 flex flex-col overflow-hidden bg-white shadow-sm min-h-[300px]">
                                     <div className="flex justify-between items-center p-3 border-b bg-gray-50 shrink-0">
                                         <label className="text-sm font-bold text-gray-700">
