@@ -141,7 +141,7 @@ export default function SesiOscePage({
         }
     }, [flash]);
 
-    // Reset validation error saat modal ditutup atau step direset
+    // Reset validation error saat modal ditutup atau step diresett
     useEffect(() => {
         if (!isStepOpen) {
             setValidationError(null);
@@ -190,11 +190,18 @@ export default function SesiOscePage({
             setAvailableMahasiswa(res.data.mahasiswa);
 
             if (res.data.list_angkatan && listAngkatan.length === 0) {
-                const optionsRaw = res.data.list_angkatan.map((th) => ({
-                    value: th,
-                    label: `Tahun Akademik ${th}`,
-                }));
-                setListAngkatan(optionsRaw);
+                const optionsRaw = res.data.list_angkatan.map((th) => {
+                    const tahunTampil = th.toString().includes("/")
+                        ? th.toString().split("/")[1] // ambil tahun kedua
+                        : th;
+
+                    return {
+                    value: th, // ✅ TETAP ASLI (2022/2023)
+                    label: `Tahun Angkatan ${tahunTampil}`, // ✅ TAMPILAN SAJA
+                    };
+                });
+
+setListAngkatan(optionsRaw);
             }
         } catch (err) {
             console.error(err);
@@ -1118,7 +1125,7 @@ export default function SesiOscePage({
                                 <div className="w-full bg-gray-50 p-3 rounded-lg border border-gray-200 shrink-0">
                                     <OsInput
                                         type="single-select"
-                                        label="Filter Tahun Akademik"
+                                        label="Filter Tahun Angkatan"
                                         placeholder="Pilih Angkatan"
                                         options={listAngkatan}
                                         value={wizardData.filter_angkatan}
