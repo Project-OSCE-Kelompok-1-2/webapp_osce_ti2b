@@ -192,7 +192,7 @@ export default function SesiOscePage({
             if (res.data.list_angkatan && listAngkatan.length === 0) {
                 const optionsRaw = res.data.list_angkatan.map((th) => ({
                     value: th,
-                    label: `Tahun Akademik ${th}`,
+                    label: `Tahun Angkatan ${th}`,
                 }));
                 setListAngkatan(optionsRaw);
             }
@@ -1118,7 +1118,7 @@ export default function SesiOscePage({
                                 <div className="w-full bg-gray-50 p-3 rounded-lg border border-gray-200 shrink-0">
                                     <OsInput
                                         type="single-select"
-                                        label="Filter Tahun Akademik"
+                                        label="Filter Tahun Angkatan"
                                         placeholder="Pilih Angkatan"
                                         options={listAngkatan}
                                         value={wizardData.filter_angkatan}
