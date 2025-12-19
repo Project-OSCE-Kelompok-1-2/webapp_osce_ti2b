@@ -13,9 +13,7 @@ use App\Models\Penguji;
 
 class HalamanPenilaianService
 {
-    /**
-     * Logika mengambil data Antrian (Sama persis dengan showAntrian)
-     */
+
     public function getAntrianData($id_osce, $id_osce_stase)
     {
         $user = Auth::user();
@@ -98,9 +96,6 @@ class HalamanPenilaianService
         ];
     }
 
-    /**
-     * Logika mengambil data Penilaian (Sama persis dengan showPenilaian)
-     */
     public function getPenilaianData($id_enrollment_osce)
     {
         $enrollment = EnrollmentOsce::with(['mahasiswa.pengguna', 'osce'])
