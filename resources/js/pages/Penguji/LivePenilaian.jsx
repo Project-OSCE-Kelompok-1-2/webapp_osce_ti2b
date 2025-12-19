@@ -223,13 +223,17 @@ export default function LivePenilaian() {
                 isOpen={isSidebarOpen}
                 onToggle={handleSidebarToggle}
                 type={"penguji"}
-
             />
 
             {/* [FIX 3] MAIN CONTENT: Tetap statis (lg:ml-20) sesuai request */}
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* HEADER */}
-                <OsHeader onMenuClick={handleSidebarToggle} variant="goback" role="penguji" backLink="/penguji/osce" />
+                <OsHeader
+                    onMenuClick={handleSidebarToggle}
+                    variant="goback"
+                    role="penguji"
+                    backLink="/penguji/osce"
+                />
 
                 <div className="flex-1 overflow-auto pb-8 p-1">
                     {/* INFO MAHASISWA */}
