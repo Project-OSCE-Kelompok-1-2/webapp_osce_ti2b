@@ -41,7 +41,6 @@ class DatabaseSeeder extends Seeder
         $userAdmin = Pengguna::factory()->create(['username' => 'admin', 'jenis_role' => 'admin', 'password' => ('password')]);
         Admin::factory()->create(['id_pengguna' => $userAdmin->id_pengguna]);
 
-        // Instruktur
         $daftarInstruktur = [
             ['nama' => 'Sutono, S.Kp., M.Sc., M.Kep', 'username' => 'sutono'],
             ['nama' => 'Maryami Yuliana Kosim, S.Kep., Ns., M.Kep., Ph.D', 'username' => 'maryami'],
@@ -62,7 +61,6 @@ class DatabaseSeeder extends Seeder
         // ANGKATAN 2022/2023 (Total 28 Mahasiswa)
         // ---------------------------------------------------------------------
 
-        // KELOMPOK 1 (Sesi 1)
         $angkatan22_klp1 = [
             ['niu' => '202201001', 'nama' => 'Hafizh Iman Wicaksono'],
             ['niu' => '202201002', 'nama' => 'Kencana Ikhsanun Nadja'],
@@ -73,7 +71,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '202201007', 'nama' => 'Muhammad Ilham Rijal Thariq'],
         ];
 
-        // KELOMPOK 2 (Sesi 2)
         $angkatan22_klp2 = [
             ['niu' => '202201008', 'nama' => 'Muhammad Mumtaza Al Afkar'],
             ['niu' => '202201009', 'nama' => 'Najwa Rahma Hapsari'],
@@ -84,7 +81,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '202201014', 'nama' => 'Riko Aditya Zaki'],
         ];
 
-        // KELOMPOK 3 (Sesi 3)
         $angkatan22_klp3 = [
             ['niu' => '202201015', 'nama' => 'Sendy Prasetyo'],
             ['niu' => '202201016', 'nama' => 'Septia Isnaeni Salsabila'],
@@ -95,7 +91,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '202201021', 'nama' => 'Aristya Salsabila'],
         ];
 
-        // KELOMPOK 4 (Sesi 4)
         $angkatan22_klp4 = [
             ['niu' => '202201022', 'nama' => 'Riekha Yustiana'],
             ['niu' => '202201023', 'nama' => 'Annisa Nurlaila J.'],
@@ -110,7 +105,6 @@ class DatabaseSeeder extends Seeder
         // ANGKATAN 2023/2024 (Total 28 Mahasiswa)
         // ---------------------------------------------------------------------
 
-        // KELOMPOK 1
         $angkatan23_klp1 = [
             ['niu' => '202301001', 'nama' => 'Aditya Pratama'],
             ['niu' => '202301002', 'nama' => 'Bella Puspita Sari'],
@@ -121,7 +115,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '202301007', 'nama' => 'Gita Gutawa Putri'],
         ];
 
-        // KELOMPOK 2
         $angkatan23_klp2 = [
             ['niu' => '202301008', 'nama' => 'Hendra Wijaya'],
             ['niu' => '202301009', 'nama' => 'Indah Permata'],
@@ -132,7 +125,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '202301014', 'nama' => 'Nanda Putra'],
         ];
 
-        // KELOMPOK 3
         $angkatan23_klp3 = [
             ['niu' => '202301015', 'nama' => 'Olivia Zalianty'],
             ['niu' => '202301016', 'nama' => 'Prasetyo Budi'],
@@ -143,7 +135,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '202301021', 'nama' => 'Umi Pipik'],
         ];
 
-        // KELOMPOK 4
         $angkatan23_klp4 = [
             ['niu' => '202301022', 'nama' => 'Vina Panduwinata'],
             ['niu' => '202301023', 'nama' => 'Wawan Setiawan'],
@@ -158,7 +149,6 @@ class DatabaseSeeder extends Seeder
         // ANGKATAN 2024/2025 (Total 28 Mahasiswa)
         // ---------------------------------------------------------------------
 
-        // KELOMPOK 1
         $angkatan24_klp1 = [
             ['niu' => '202401001', 'nama' => 'Ahmad Dhani'],
             ['niu' => '202401002', 'nama' => 'Baim Wong'],
@@ -169,7 +159,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '202401007', 'nama' => 'Gading Marten'],
         ];
 
-        // KELOMPOK 2
         $angkatan24_klp2 = [
             ['niu' => '202401008', 'nama' => 'Harris Vriza'],
             ['niu' => '202401009', 'nama' => 'Irfan Hakim'],
@@ -180,7 +169,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '202401014', 'nama' => 'Nagita Slavina'],
         ];
 
-        // KELOMPOK 3
         $angkatan24_klp3 = [
             ['niu' => '202401015', 'nama' => 'Olla Ramlan'],
             ['niu' => '202401016', 'nama' => 'Prilly Latuconsina'],
@@ -191,7 +179,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '202401021', 'nama' => 'Uya Kuya'],
         ];
 
-        // KELOMPOK 4
         $angkatan24_klp4 = [
             ['niu' => '202401022', 'nama' => 'Vidi Aldiano'],
             ['niu' => '202401023', 'nama' => 'Wika Salim'],
@@ -206,7 +193,6 @@ class DatabaseSeeder extends Seeder
         // ANGKATAN 2025/2026 (Total 28 Mahasiswa)
         // ---------------------------------------------------------------------
 
-        // KELOMPOK 1
         $angkatan25_klp1 = [
             ['niu' => '202501001', 'nama' => 'Tiara Andini'],
             ['niu' => '202501002', 'nama' => 'Lyodra Ginting'],
@@ -217,7 +203,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '202501007', 'nama' => 'Nabila Taqiyyah'],
         ];
 
-        // KELOMPOK 2
         $angkatan25_klp2 = [
             ['niu' => '202501008', 'nama' => 'Nyoman Paul'],
             ['niu' => '202501009', 'nama' => 'Rony Parulian'],
@@ -228,7 +213,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '202501014', 'nama' => 'Kelvin Jojo'],
         ];
 
-        // KELOMPOK 3
         $angkatan25_klp3 = [
             ['niu' => '202501015', 'nama' => 'Aziz Hedra'],
             ['niu' => '202501016', 'nama' => 'Aruma'],
@@ -239,7 +223,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '202501021', 'nama' => 'Bernadya'],
         ];
 
-        // KELOMPOK 4
         $angkatan25_klp4 = [
             ['niu' => '202501022', 'nama' => 'Nadin Amizah'],
             ['niu' => '202501023', 'nama' => 'Hindia'],
@@ -250,8 +233,6 @@ class DatabaseSeeder extends Seeder
             ['niu' => '202501028', 'nama' => 'Sal Priadi'],
         ];
 
-        // Gabung semua mhs untuk create user di database (Total 28 * 4 = 112 Mahasiswa)
-        // Kita simpan object mahasiswa per angkatan untuk logic enrollment nanti
         $mhsObjects22 = [];
         foreach (array_merge($angkatan22_klp1, $angkatan22_klp2, $angkatan22_klp3, $angkatan22_klp4) as $data) {
             $user = Pengguna::factory()->create(['username' => 'mhs.' . $data['niu'], 'jenis_role' => 'mahasiswa', 'password' => ('password')]);
@@ -292,11 +273,9 @@ class DatabaseSeeder extends Seeder
             'deskripsi' => 'Blok pembelajaran keterampilan klinis keperawatan semester 5 yang mencakup resusitasi, perawatan trauma, perioperatif, dan perawatan kritis.'
         ]);
 
-        // Buat Mahasiswa Dummy untuk TA 2000/2001 (Pancingan)
         $userDummy = Pengguna::factory()->create(['username' => 'mhs.dummy', 'jenis_role' => 'mahasiswa', 'password' => ('password')]);
         $mhsDummy = Mahasiswa::factory()->create(['id_pengguna' => $userDummy->id_pengguna, 'nama' => 'Mahasiswa Dummy', 'nim' => '000000', 'prodi' => 'Ilmu Keperawatan']);
 
-        // Buat dummy enrollment untuk mata kuliah agar tidak error (syarat foreign key)
         $taDummy = TahunAkademik::factory()->create(['tahun' => '2000/2001', 'semester' => 'Ganjil', 'status' => 'nonaktif']);
         $enrollmentDummy = Enrollment::factory()->create(['id_mahasiswa' => $mhsDummy->id_mahasiswa, 'id_tahun_akademik' => $taDummy->id_tahun_akademik]);
 
@@ -321,9 +300,7 @@ class DatabaseSeeder extends Seeder
             'nama_mata_kuliah' => 'Keperawatan Respirasi'
         ]);
 
-        // Definisi 7 Stase LENGKAP
         $daftarStase = [
-            // MK 1: Gawat Darurat & Kardio
             [
                 'mk_id' => $mk1->id_mata_kuliah,
                 'nama' => 'Resusitasi Jantung Paru (RJP)',
@@ -392,7 +369,6 @@ class DatabaseSeeder extends Seeder
                     ]
                 ]
             ],
-            // MK 2: Muskulo & Trauma
             [
                 'mk_id' => $mk2->id_mata_kuliah,
                 'nama' => 'Perawatan Traksi (Tulang)',
@@ -464,7 +440,6 @@ class DatabaseSeeder extends Seeder
                     ]
                 ]
             ],
-            // MK 1: Gawat Darurat & Kardio (Lanjutan)
             [
                 'mk_id' => $mk1->id_mata_kuliah,
                 'nama' => 'Perekaman EKG 12 Lead',
@@ -527,7 +502,6 @@ class DatabaseSeeder extends Seeder
                     ]
                 ]
             ],
-            // MK 3: Bedah Dasar
             [
                 'mk_id' => $mk3->id_mata_kuliah,
                 'nama' => 'Hecting (Menjahit Luka Sederhana)',
@@ -593,7 +567,6 @@ class DatabaseSeeder extends Seeder
                     ]
                 ]
             ],
-            // MK 2: Muskulo & Trauma (Lanjutan)
             [
                 'mk_id' => $mk2->id_mata_kuliah,
                 'nama' => 'Balut Bidai (Pembidaian)',
@@ -651,7 +624,6 @@ class DatabaseSeeder extends Seeder
                     ]
                 ]
             ],
-            // MK 4: Respirasi
             [
                 'mk_id' => $mk4->id_mata_kuliah,
                 'nama' => 'Terapi Oksigen & Nebulisasi',
@@ -712,7 +684,6 @@ class DatabaseSeeder extends Seeder
                     ]
                 ]
             ],
-            // MK 4: Respirasi (Lanjutan)
             [
                 'mk_id' => $mk4->id_mata_kuliah,
                 'nama' => 'Perawatan Trakeostomi & Suctioning',
@@ -779,27 +750,23 @@ class DatabaseSeeder extends Seeder
             ],
         ];
 
-        // 3. GENERATE STASE OBJECTS DI DATABASE
         $staseObjects = collect();
         $ruangs = collect();
 
         foreach ($daftarStase as $index => $dataStase) {
-            // 1. Buat RUANG
             $ruang = Ruang::factory()->create([
                 'nomor_ruangan' => 'R-' . ($index + 1),
                 'lokasi' => $dataStase['ruang']
             ]);
             $ruangs->push($ruang);
 
-            // 2. Buat STASE
             $stase = Stase::factory()->create([
                 'id_mata_kuliah' => $dataStase['mk_id'],
                 'nama_stase' => $dataStase['nama'],
-                'deskripsi' => implode("\n", $dataStase['tujuan']) // Menggunakan tujuan sebagai deskripsi singkat
+                'deskripsi' => implode("\n", $dataStase['tujuan']) 
             ]);
             $staseObjects->push($stase);
 
-            // 3. Buat TUJUAN PEMBELAJARAN
             foreach ($dataStase['tujuan'] as $poinTujuan) {
                 TujuanPembelajaran::factory()->create([
                     'id_stase' => $stase->id_stase,
@@ -807,7 +774,6 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            // 4. Buat ASPEK & POIN PENILAIAN
             foreach ($dataStase['aspek'] as $dataAspek) {
                 $aspek = AspekPenilaian::factory()->create([
                     'id_stase' => $stase->id_stase,
@@ -826,7 +792,7 @@ class DatabaseSeeder extends Seeder
         }
 
         // =====================================================================
-        // 4. GENERATE TAHUN AKADEMIK & EVENT OSCE (LOOPING TAHUN)
+        // 3. GENERATE TAHUN AKADEMIK & EVENT OSCE (LOOPING TAHUN)
         // =====================================================================
         $this->command->info('4. Generate Event OSCE & Enrollments...');
 
@@ -839,7 +805,7 @@ class DatabaseSeeder extends Seeder
             ['tahun' => '2023/2024', 'semester' => 'Genap', 'active' => false],
             ['tahun' => '2024/2025', 'semester' => 'Ganjil', 'active' => false],
             ['tahun' => '2024/2025', 'semester' => 'Genap', 'active' => false],
-            ['tahun' => '2025/2026', 'semester' => 'Ganjil', 'active' => true], // Target Active
+            ['tahun' => '2025/2026', 'semester' => 'Ganjil', 'active' => true], 
         ];
 
         foreach ($listTahun as $thn) {
@@ -848,7 +814,6 @@ class DatabaseSeeder extends Seeder
 
             $this->command->info("Processing TA: {$thn['tahun']} {$thn['semester']} ($statusTa)");
 
-            // A. Create TA
             $ta = TahunAkademik::factory()->create([
                 'tahun' => $thn['tahun'],
                 'semester' => $thn['semester'],
@@ -857,10 +822,8 @@ class DatabaseSeeder extends Seeder
 
             $yearStart = intval(substr($thn['tahun'], 0, 4));
 
-            // Filter students active in this academic year
             $activeStudents = [];
 
-            // Logic: Student Entry Year <= Academic Year Start
             if (2022 <= $yearStart) {
                 $activeStudents = array_merge($activeStudents, $mhsObjects22);
             }
@@ -874,7 +837,6 @@ class DatabaseSeeder extends Seeder
                 $activeStudents = array_merge($activeStudents, $mhsObjects25);
             }
 
-            // B. Enroll Active Mahasiswa ke TA ini
             foreach ($activeStudents as $mhs) {
                 Enrollment::factory()->create([
                     'id_mahasiswa' => $mhs->id_mahasiswa,
@@ -882,44 +844,24 @@ class DatabaseSeeder extends Seeder
                 ]);
             }
 
-            // C. LOGIKA SKENARIO
             if ($isCurrent) {
-                // =============================================================
-                // SKENARIO ACTIVE (2025/2026 Ganjil) - Detail Sesi
-                // =============================================================
-
-                // Gunakan SEMUA mahasiswa aktif ($activeStudents) untuk skenario Active.
-                // Total Mahasiswa = 112 orang (28 * 4 angkatan).
-                // Dibagi per sesi = 7 orang.
-                // Total Sesi = 16 Sesi.
 
                 $durasiPerMhs = 7;
                 $jumlahMhsPerSesi = 7;
-                $durasiSesi = $durasiPerMhs * $jumlahMhsPerSesi; // ~49 menit
+                $durasiSesi = $durasiPerMhs * $jumlahMhsPerSesi;
 
-                // Bagi mahasiswa menjadi batch (sesi)
                 $studentBatches = array_chunk($activeStudents, $jumlahMhsPerSesi);
-                $totalSesi = count($studentBatches); // Sekitar 16 sesi
+                $totalSesi = count($studentBatches); 
+                $currentActiveSessionIndex = 6; 
 
-                // Tentukan sesi mana yang sedang "Active" (Sedang berlangsung)
-                // Kita ambil index ke-6 (Sesi ke-7) sebagai sesi yang sedang berjalan agar terlihat variasi (ada yg sudah selesai, ada yg belum)
-                $currentActiveSessionIndex = 6; // 0-based index. Jadi sesi index 6 adalah sesi ke-7.
-
-                /// Hitung waktu mulai untuk sesi pertama (Index 0)
-                // Agar Sesi ke-6 (Active) mulai tepat "sekarang" atau "beberapa menit lagi".
-                // Start Sesi Active = Now + 5 menit.
-                // Start Sesi 0 = Start Sesi Active - (6 * (Durasi Sesi + Break))
-                $breakTime = 15; // Jeda antar sesi 15 menit
+                $breakTime = 15; 
                 $minutesOffset = $currentActiveSessionIndex * ($durasiSesi + $breakTime);
 
-                // Waktu mulai seluruh rangkaian OSCE (Sesi 0)
-                $startTimeAll = $waktuEksekusi->copy()->subMinutes($minutesOffset)->addMinutes(5); // Mundur sedikit biar sesi active sudah jalan 5 menit
+                $startTimeAll = $waktuEksekusi->copy()->subMinutes($minutesOffset)->addMinutes(5);
 
-                // Waktu selesai seluruh rangkaian (Estimasi sesi terakhir selesai)
                 $totalMinutesAll = $totalSesi * ($durasiSesi + $breakTime);
                 $endTimeAll = $startTimeAll->copy()->addMinutes($totalMinutesAll);
 
-                // --- 1. Buat Event OSCE ACTIVE ---
                 $osceActive = Osce::factory()->create([
                     'id_tahun_akademik' => $ta->id_tahun_akademik,
                     'nama_osce' => "OSCE BNS 6 {$thn['tahun']} (Active)",
@@ -927,18 +869,13 @@ class DatabaseSeeder extends Seeder
                     'tanggal_selesai' => $endTimeAll->format('Y-m-d H:i:s'),
                 ]);
 
-                // --- 2. Loop Setiap Batch (Sesi) ---
                 foreach ($studentBatches as $batchIndex => $batchStudents) {
-                    // Hitung waktu spesifik sesi ini
                     $sessionOffset = $batchIndex * ($durasiSesi + $breakTime);
                     $sesiMulai = $startTimeAll->copy()->addMinutes($sessionOffset);
                     $sesiSelesai = $sesiMulai->copy()->addMinutes($durasiSesi);
 
-                    // Tentukan Status: History (Sudah lewat) atau Future/Active
-                    // Jika sesiSelesai < Now => History (Sudah dinilai)
                     $isHistory = $sesiSelesai->lt($waktuEksekusi);
 
-                    // --- Buat Jadwal Penguji (OsceStase) untuk Sesi Ini ---
                     foreach ($staseObjects as $idx => $stase) {
                         $penguji = $pengujis[$idx % $pengujis->count()];
                         OsceStase::factory()->create([
@@ -954,13 +891,11 @@ class DatabaseSeeder extends Seeder
                         ]);
                     }
 
-                    // --- Enroll Mahasiswa di Sesi Ini ---
                     foreach ($batchStudents as $mhsObj) {
                         $catatan = null;
-                        $isLulus = true; // Default lulus
+                        $isLulus = true; 
 
                         if ($isHistory) {
-                            // Random kelulusan untuk data history
                             $isLulus = rand(1, 10) <= 8;
                             $catatan = $isLulus ? 'Kompeten.' : 'Remedial.';
                         }
@@ -973,38 +908,27 @@ class DatabaseSeeder extends Seeder
                             'catatan' => $catatan
                         ]);
 
-                        // Jika sesi sudah lewat (History), beri nilai langsung
                         if ($isHistory) {
                             $this->beriNilai($enrol->id_enrollment_osce, $staseObjects, $isLulus);
                         }
                     }
                 }
             } else {
-                // =============================================================
-                // SKENARIO PAST YEARS (History Penuh untuk Semua Mahasiswa)
-                // =============================================================
-                // Tentukan tanggal masa lalu berdasarkan tahunnya
 
                 $yearStart = intval(substr($thn['tahun'], 0, 4));
 
-                // --- FIX: Logic Bulan Berdasarkan Semester ---
                 if ($thn['semester'] == 'Ganjil') {
-                    // Semester Ganjil: Bulan November tahun berjalan (Contoh: TA 22/23 Ganjil -> Nov 2022)
                     $bulanOsce = 11;
                     $tahunOsce = $yearStart;
                 } else {
-                    // Semester Genap: Bulan Juni tahun berikutnya (Contoh: TA 22/23 Genap -> Juni 2023)
                     $bulanOsce = 6;
                     $tahunOsce = $yearStart + 1;
                 }
 
-                $datePast = Carbon::create($tahunOsce, $bulanOsce, 15, 8, 0, 0); // Mulai jam 08:00
+                $datePast = Carbon::create($tahunOsce, $bulanOsce, 15, 8, 0, 0); 
 
-                // Durasi per sesi (7 mhs * 7 menit = 49 menit) + Buffer = 60 menit per sesi
                 $durasiPerSesi = 60;
 
-                // Total Mahasiswa = 84. Chunk 7 = 12 Sesi. 
-                // Kita buat durasi osce cukup panjang untuk cover semua sesi
                 $oscePast = Osce::factory()->create([
                     'id_tahun_akademik' => $ta->id_tahun_akademik,
                     'nama_osce' => "OSCE Final {$thn['tahun']} {$thn['semester']}",
@@ -1012,16 +936,12 @@ class DatabaseSeeder extends Seeder
                     'tanggal_selesai' => $datePast->copy()->addHours(15)->format('Y-m-d H:i:s'),
                 ]);
 
-                // Bagi mahasiswa menjadi chunk @ 7 orang (Total 12 Sesi untuk 84 Mahasiswa)
-                // Use $activeStudents instead of $allMhsObjects
                 $studentChunks = array_chunk($activeStudents, 7);
 
                 foreach ($studentChunks as $sessionIndex => $batchStudents) {
-                    // Hitung waktu sesi ini
                     $sessionStart = $datePast->copy()->addMinutes($sessionIndex * $durasiPerSesi);
                     $sessionEnd = $sessionStart->copy()->addMinutes($durasiPerSesi);
 
-                    // 1. Buat Jadwal (OsceStase) untuk sesi ini
                     foreach ($staseObjects as $idx => $stase) {
                         OsceStase::factory()->create([
                             'id_osce' => $oscePast->id_osce,
@@ -1036,9 +956,7 @@ class DatabaseSeeder extends Seeder
                         ]);
                     }
 
-                    // 2. Enroll Mahasiswa di batch ini ke sesi ini
                     foreach ($batchStudents as $mhsObj) {
-                        // Random Lulus/Tidak (80% Lulus)
                         $isLulus = rand(1, 10) <= 8;
 
                         $enrol = EnrollmentOsce::factory()->create([
@@ -1056,19 +974,9 @@ class DatabaseSeeder extends Seeder
         }
     }
 
-    /**
-     * Helper Function untuk generate nilai acak
-     */
-    /**
-     * Helper Function untuk generate nilai acak
-     * Modified: Randomize per Stase, bukan per Event
-     */
     private function beriNilai($idEnrollmentOsce, $staseObjects, $statusGlobalLulus)
     {
         foreach ($staseObjects as $stase) {
-            // Tentukan nasib di stase INI secara spesifik.
-            // Jika secara global dia lulus, peluang dia bagus di stase ini 90%.
-            // Jika secara global dia gagal, peluang dia bagus di stase ini cuma 30%.
 
             $chance = $statusGlobalLulus ? 90 : 30;
             $isLulusStase = rand(1, 100) <= $chance;
@@ -1077,16 +985,10 @@ class DatabaseSeeder extends Seeder
             foreach ($aspeks as $aspek) {
                 $points = PoinAspekPenilaian::where('id_aspek_penilaian', $aspek->id_aspek_penilaian)->get();
                 foreach ($points as $poin) {
-                    // Logic Nilai:
-                    // Jika Lulus Stase: Random 3 atau 4 (dominan 4)
-                    // Jika Gagal Stase: Random 1 atau 2 (dominan 2)
 
                     if ($isLulusStase) {
-                        // Kasih variasi biar ga melulu 3 atau 4 seimbang
-                        // 70% dapat 4, 30% dapat 3
                         $nilai = (rand(1, 10) <= 7) ? 4 : 3;
                     } else {
-                        // 60% dapat 2, 40% dapat 1
                         $nilai = (rand(1, 10) <= 6) ? 2 : 1;
                     }
 

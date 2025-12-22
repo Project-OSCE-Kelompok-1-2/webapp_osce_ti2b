@@ -26,10 +26,8 @@ class JadwalMahasiswaController extends Controller
                 ->with('error', 'Data profil mahasiswa tidak ditemukan.');
         }
 
-        // 1. Ambil Semua Tanggal Ujian Mahasiswa
         $enrollmentDates = $this->jadwalService->getEnrollmentDates($idMahasiswa);
 
-        // 2. Tentukan Tanggal Terpilih
         $selectedDate = $request->input('date');
 
         if (!$selectedDate && $enrollmentDates->isNotEmpty()) {
@@ -43,7 +41,6 @@ class JadwalMahasiswaController extends Controller
             }
         }
 
-        // Update state 'is_selected' untuk UI dropdown
         $enrollmentDates = $enrollmentDates->map(function ($item) use ($selectedDate) {
             $item['is_selected'] = $item['date_raw'] === $selectedDate;
             return $item;
@@ -57,7 +54,6 @@ class JadwalMahasiswaController extends Controller
             ]);
         }
 
-        // 3. Ambil Info Header
         $examInfo = $this->jadwalService->getActiveExamInfo($idMahasiswa, $selectedDate);
 
         if (!$examInfo) {
@@ -68,16 +64,13 @@ class JadwalMahasiswaController extends Controller
             ]);
         }
 
-        // 4. Ambil Data Jadwal Stase
-        // [PERBAIKAN] Tambahkan parameter ke-3 yaitu ID SESI dari $examInfo
         $staseCollection = $this->jadwalService->getJadwalStase(
             $examInfo['id_osce'], 
             $selectedDate, 
-            $examInfo['jam_sesi_raw'] // Ini berisi '08:00:00' atau sejenisnya
+            $examInfo['jam_sesi_raw']
         );
 
         $mappedStase = $staseCollection->map(function ($item) {
-            // ... (mapping logic sama seperti sebelumnya) ...
              $namaPenguji = '-';
             if ($item->penguji) {
                 $namaPenguji = $item->penguji->nama ?? 'Penguji';

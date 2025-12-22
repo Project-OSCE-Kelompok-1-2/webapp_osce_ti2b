@@ -1,14 +1,13 @@
 import React, { useState } from "react";
 import { usePage } from "@inertiajs/react";
 import { User, FileText, Bookmark } from "lucide-react";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 
-// Import Komponen
 import Sidebar from "../../components/Sidebar";
 import OsTableHeader from "../../components/tableheader";
 import OsHeader from "../../components/Header";
 
-// Header Tabel Rubrik (Sama persis dengan EditNilaiForm)
+// Header Tabel Rubrik 
 const rubrikColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
     {
@@ -34,7 +33,6 @@ const rubrikColumns = [
 ];
 
 export default function ViewNilaiDetail() {
-    // 1. AMBIL DATA DARI PROPS BACKEND
     const {
         mahasiswa,
         rubrik_terisi = [],
@@ -46,7 +44,6 @@ export default function ViewNilaiDetail() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-    // Helper untuk menghitung nilai per baris (Read Only)
     const hitungNilai = (skor, bobot) => {
         if (skor === undefined) return 0;
         return skor * bobot;
@@ -209,11 +206,9 @@ export default function ViewNilaiDetail() {
                             <span>{Number(total_nilai_aspek).toFixed(2)}</span>
                         </div>
                     </div>
-                    {/* ================= MOBILE / TABLET VIEW (PERBAIKAN WARNA) ================= */}
                     <div className="xl:hidden space-y-3">
                         {rubrik_terisi.map((group, gIndex) => (
                             <React.Fragment key={gIndex}>
-                                {/* PERBAIKAN 1: Header Aspek jadi Oranye (Sama seperti Edit Form) */}
                                 <div className="bg-orange-50 text-orange-900 border-os-primary-pj border px-4 py-2 font-semibold rounded-lg">
                                     {group.aspek}
                                 </div>
@@ -275,7 +270,6 @@ export default function ViewNilaiDetail() {
                                                 {poin.bobot}
                                             </div>
 
-                                            {/* PERBAIKAN 3: Text Nilai jadi Oranye */}
                                             <div className="text-sm font-bold text-orange-700">
                                                 Nilai:{" "}
                                                 {Number(
@@ -292,7 +286,6 @@ export default function ViewNilaiDetail() {
                             </React.Fragment>
                         ))}
 
-                        {/* PERBAIKAN 4: Total Nilai Akhir pakai style Oranye */}
                         <div className="w-full px-4 py-3 border border-orange-200 rounded-xl font-semibold bg-orange-50 text-orange-900 flex justify-between items-center shadow-sm">
                             <span>Total Nilai Akhir:</span>
                             <span className="text-xl">

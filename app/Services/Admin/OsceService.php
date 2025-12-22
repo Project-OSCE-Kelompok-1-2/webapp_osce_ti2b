@@ -27,7 +27,6 @@ class OsceService
 
         $paginator = $query->orderBy('tanggal_mulai', 'desc')->paginate(10)->withQueryString();;
 
-        // Gunakan through() untuk memetakan (map) data di dalam objek paginator
         $data = $paginator->through(function ($osce) {
             return [
                 "id_osce" => $osce->id_osce,

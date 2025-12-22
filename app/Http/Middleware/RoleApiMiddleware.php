@@ -13,23 +13,18 @@ class RoleApiMiddleware
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
      */
-    // RoleApiMiddleware.php (DIREKOMENDASIKAN)
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         $user = $request->user();
-        $allowedRoles = implode(', ', $roles); // Agar pesan lebih rapi
+        $allowedRoles = implode(', ', $roles); 
 
-        // 1. Cek apakah user ada (sudah terautentikasi)
         if (!$user) {
-            // Jika sampai sini dan user null, berarti ada masalah serius atau
-            // auth:sanctum gagal memuat user. Kembalikan Unauthorized.
             return response()->json([
                 "success" => false,
                 "message" => "Unauthenticated. Token tidak valid atau user tidak ditemukan."
             ], 401);
         }
 
-        // 2. Cek apakah role user tidak sesuai
         if (!in_array($user->jenis_role, $roles)) {
             return response()->json([
                 "success" => false,

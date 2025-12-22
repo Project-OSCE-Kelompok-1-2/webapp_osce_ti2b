@@ -12,10 +12,8 @@ class OsceFactory extends Factory
 
     public function definition(): array
     {
-        // Gunakan Tahun Akademik yang sudah ada, atau buat baru jika kosong
         $ta = TahunAkademik::inRandomOrder()->first() ?? TahunAkademik::factory()->create();
 
-        // Buat tanggal mulai random
         $tanggalMulai = $this->faker->dateTimeBetween('now', '+1 month');
 
         return [

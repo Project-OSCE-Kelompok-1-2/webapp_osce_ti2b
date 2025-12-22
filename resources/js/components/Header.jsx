@@ -1,6 +1,5 @@
 import React from "react";
 import { Home, Menu, Undo2 } from "lucide-react";
-// Tambahkan Link agar navigasi lebih cepat (SPA feel) tanpa reload
 import { usePage, Link } from "@inertiajs/react";
 
 export default function OsHeader({
@@ -80,10 +79,6 @@ export default function OsHeader({
                     BUTTON AREA
                 =============================== */}
                 {variant === "goback" ? (
-                    // PERBAIKAN DI SINI:
-                    // 1. Ganti <a> jadi <Link> (opsional, tapi disarankan agar tidak reload halaman)
-                    // 2. Tambahkan 'shrink-0' agar tombol tidak tergencet judul panjang
-                    // 3. Tambahkan 'relative z-10' agar tombol selalu di atas layer judul
                     <Link
                         href={backLink}
                         className={`relative z-10 shrink-0 flex w-[46px] h-[46px] items-center justify-center rounded-xl border transition

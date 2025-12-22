@@ -39,8 +39,6 @@ class HandleInertiaRequests extends Middleware
         $user = $request->user();
         $details = null;
 
-        // 1. Eager Load Relasi
-        // Perlu meload relasi agar data seperti NIM/NIP tersedia di sidebar
         if ($user) {
             if ($user->jenis_role === "penguji") {
                 $user->loadMissing("penguji");
@@ -64,16 +62,11 @@ class HandleInertiaRequests extends Middleware
                 'user' => $user ? [
                     'id' => $user->id,
                     'username' => $user->username,
-                    'email' => $user->email, // Penting untuk sidebar
-                    'name' => $details?->nama ?? $user->username, // Fallback nama
-                    
-                    // ⭐ PERBAIKAN UTAMA DI SINI ⭐
-                    // Ambil langsung dari kolom database, jangan biarkan null
+                    'email' => $user->email, 
+                    'name' => $details?->nama ?? $user->username, 
                     'path_gambar' => $user->path_gambar, 
-                    
                     'jenis_role' => $user->jenis_role,
                     
-                    // Kirim data relasi lengkap untuk kebutuhan Sidebar (NIM/NIP)
                     'mahasiswa' => $user->relationLoaded('mahasiswa') ? $user->mahasiswa : null,
                     'penguji' => $user->relationLoaded('penguji') ? $user->penguji : null,
                     'dosen' => $user->relationLoaded('dosen') ? $user->dosen : null,

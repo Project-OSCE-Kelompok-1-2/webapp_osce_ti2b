@@ -34,14 +34,14 @@ use App\Http\Controllers\Api\V1\Mahasiswa\ListNilaiMahasiswaController;
 
 Route::prefix('v1')->group(function () {
 
-    // --- Authentication (Public) ---
+    // --- Authentication ---
     Route::get('/login', function () {
         return response()->json(['message' => 'Unauthorized'], 401);
     })->name('login');
 
     Route::post('/login', [AuthController::class, 'login']);
 
-    // --- Protected Routes (Butuh Login) ---
+    // --- Protected Routes ---
     Route::middleware('auth:sanctum')->group(function () {
 
         Route::post('/logout', [AuthController::class, 'logout']);
@@ -50,20 +50,11 @@ Route::prefix('v1')->group(function () {
             return $request->user();
         });
 
-        // --- Penilaian (Tugas Najwa) ---
-        // Tugas 1: GET Form Edit (Mengambil data rubrik & nilai)
         Route::get('/penilaian/{id_enrollment_osce}/edit', [EditNilaiController::class, 'edit'])->name('penilaian.edit');
-
-        // Tugas 2: PUT Simpan Edit (Menyimpan nilai)
         Route::put('/penilaian/{id_enrollment_osce}', [EditNilaiController::class, 'update'])->name('penilaian.update');
-
-        // CATATAN: Kurung penutup '});' yang ada di sini sebelumnya SAYA HAPUS
-        // agar rute Admin & Penguji di bawah tetap terlindungi auth:sanctum.
 
         // =================================================================
         // GROUP 1: ADMIN ROUTES
-        // Prefix: /api/v1/admin/...
-        // Middleware: roleApi:admin
         // =================================================================
         Route::prefix('admin')->middleware('roleApi:admin')->group(function () {
 
@@ -75,16 +66,14 @@ Route::prefix('v1')->group(function () {
             // --- Master Data ---
             Route::apiResource('osce', OsceController::class);
             Route::apiResource('stase', StaseController::class);
-            Route::apiResource('penguji', PengujiController::class); // CRUD Data Penguji oleh Admin
+            Route::apiResource('penguji', PengujiController::class);
             Route::apiResource('mahasiswa', MahasiswaController::class);
             Route::post('/mahasiswa/import', [MahasiswaController::class, 'import']);
 
             // --- OSCE Relation (Stase & Jadwal) ---
             Route::get('/osce/{id_osce}/jadwal', [OsceJadwalController::class, 'index']);
             Route::post('/osce/{id_osce}/jadwal', [OsceJadwalController::class, 'store']);
-            // Route::put('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'update']);
             Route::delete('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'destroy']);
-
 
             // --- Komponen Penilaian ---
             Route::apiResource('stase.aspek-penilaian', AspekPenilaianController::class);
@@ -95,20 +84,18 @@ Route::prefix('v1')->group(function () {
             Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi']);
             Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerStase']);
 
-            // View Detail Nilai (Read Only)
         });
 
         // =================================================================
-        // GROUP 2: PENGUJI ROUTES (EXAMINER)
-        // Prefix: /api/v1/penguji/...
+        // GROUP 2: PENGUJI ROUTES 
         // =================================================================
         Route::prefix('penguji')->middleware("roleApi:penguji")->group(function () {
 
-            // Profil Penguji (User yang sedang login)
+            // Profil Penguji
             Route::get('/profil', [ProfilController::class, 'show_profile'])->name('api.penguji.account.show');
             Route::post('/profil/update', [ProfilController::class, 'update_account'])->name('api.penguji.account.update');
 
-            // Aksi Penilaian (Input Nilai, Rotasi, Selesai)
+            // Aksi Penilaian
             Route::post('/penilaian/{id_enrollment_osce}', [AksiPenilaianApiController::class, 'storePenilaian']);
             Route::get('/rotasi/{id_osce_stase}', [AksiPenilaianApiController::class, 'rotasi']);
             Route::get('/selesai/{id_osce_stase}', [AksiPenilaianApiController::class, 'selesai']);
@@ -118,20 +105,16 @@ Route::prefix('v1')->group(function () {
 
         // =================================================================
         // GROUP 3: HALAMAN PENILAIAN / FRONTEND ROUTES
-        // Prefix: /api/v1/...
         // =================================================================
 
-        // Halaman Antrian/Dashboard Penguji saat masuk ruangan
         Route::get('/osce/{id_osce}/stase/{id_osce_stase}', [ApiHalamanPenilaian::class, 'getAntrian'])
             ->name('antrian');
 
-        // Halaman Form Penilaian
         Route::get('/penilaian/{id_enrollment_osce}', [ApiHalamanPenilaian::class, 'getPenilaian'])
             ->name('penilaian.show');
 
         // =================================================================
-        // GROUP 4: MAHASISWA ROUTES (EXAMINER)
-        // Prefix: /api/v1/mahasiswa/...
+        // GROUP 4: MAHASISWA ROUTES 
         // =================================================================
         Route::prefix('mahasiswa')->middleware("roleApi:mahasiswa")->name('mahasiswa.')->group(function () {
 
@@ -149,5 +132,5 @@ Route::prefix('v1')->group(function () {
             Route::get('/pengaturan-akun', [ProfilMahasiswaController::class, 'show_profile'])->name('profil.show');
             Route::post('/pengaturan-akun', [ProfilMahasiswaController::class, 'update_account'])->name('profil.update');
         });
-    }); // End auth:sanctum
-}); // End v1
+    }); 
+}); 

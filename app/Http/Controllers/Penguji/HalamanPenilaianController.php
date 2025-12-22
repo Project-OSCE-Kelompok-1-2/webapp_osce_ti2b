@@ -20,21 +20,15 @@ class HalamanPenilaianController extends Controller
 
     public function showAntrian($id_osce, $id_osce_stase)
     {
-        // 1. Panggil logic dari service
-        // Service mengembalikan array ['osce_detail' => ..., 'antrian_mahasiswa' => ...]
         $data = $this->penilaianService->getAntrianData($id_osce, $id_osce_stase);
 
-        // 2. Return ke Inertia (Struktur props tetap sama persis)
         return Inertia::render('Penguji/LiveAntrian', $data);
     }
 
     public function showPenilaian($id_enrollment_osce)
     {
-        // 1. Panggil logic dari service
-        // Service mengembalikan array lengkap (mahasiswa, info_ujian, rubrik, sisa_waktu, dll)
         $data = $this->penilaianService->getPenilaianData($id_enrollment_osce);
 
-        // 2. Return ke Inertia (Struktur props tetap sama persis)
         return Inertia::render('Penguji/LivePenilaian', $data);
     }
 }

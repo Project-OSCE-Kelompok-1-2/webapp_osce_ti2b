@@ -9,33 +9,27 @@ use App\Models\TahunAkademik;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Redirect;
-use App\Services\Admin\RekapNilaiService; // Import Service
+use App\Services\Admin\RekapNilaiService;
 
 class RekapNilaiController extends Controller
 {
     protected $service;
 
-    // Pastikan Service di-inject di constructor
     public function __construct(RekapNilaiService $rekapNilaiService)
     {
         $this->service = $rekapNilaiService;
     }
 
     /**
-     * GET /admin/rekap-nilai
      * List OSCE untuk rekap nilai
      */
     public function index(Request $request)
     {
-        // [PERUBAHAN] Ambil SEMUA data OSCE tanpa pagination server-side
-        // Kita gunakan Osce model langsung agar konsisten dengan halaman sebelumnya
-        // Pastikan diload relasi 'tahunAkademik' agar filtering tahun berjalan lancar
         
         $osce = Osce::with('tahunAkademik')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Ambil data tahun akademik untuk dropdown
         $tahunAkademikOptions = TahunAkademik::orderBy('tahun', 'desc')
             ->get()
             ->map(fn($t) => [
@@ -44,22 +38,20 @@ class RekapNilaiController extends Controller
             ]);
 
         return Inertia::render('Admin/RekapOscePage', [
-            'osce' => $osce, // Mengirim Array Full
+            'osce' => $osce, 
             'tahunAkademikOptions' => $tahunAkademikOptions,
-            'filters' => [], // Filter dikosongkan karena dihandle frontend
+            'filters' => [], 
         ]);
     }
 
 
     /**
-     * GET /admin/rekap-nilai/{id_osce}/sesi
      * List sesi berdasarkan tanggal dan jam untuk OSCE tertentu
      */
     public function listSesi(Request $request, $id_osce)
     {
         $search = $request->input('search');
 
-        // ✅ Panggil Service
         $result = $this->service->getSesiList($id_osce, $search);
 
         return Inertia::render('Admin/RekapSesiPage', [
@@ -70,8 +62,6 @@ class RekapNilaiController extends Controller
     }
 
     /**
-     * TUGAS 1
-     * Endpoint: GET /admin/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa
      * Menampilkan daftar mahasiswa yang terdaftar pada sesi tertentu
      */
     public function listMahasiswaPerStase(Request $request, $id_osce, $id_sesi)
@@ -79,7 +69,6 @@ class RekapNilaiController extends Controller
         $search = $request->input('search');
         $angkatan = $request->input('angkatan');
 
-        // ✅ Panggil Service
         $result = $this->service->getMahasiswaPerSesi($id_osce, $id_sesi, $search, $angkatan);
 
         return Inertia::render('Admin/RekapMahasiswaPage', [
@@ -91,13 +80,10 @@ class RekapNilaiController extends Controller
     }
 
     /**
-     * TUGAS 2
-     * GET /admin/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}
      * Menampilkan detail nilai mahasiswa per stase.
      */
     public function detailNilaiMahasiswa($id_mahasiswa, $id_osce)
     {
-        // ✅ Panggil Service untuk perhitungan
         $detailNilai = $this->service->calculateDetailNilai($id_mahasiswa, $id_osce);
 
         if (!$detailNilai) {
@@ -110,21 +96,18 @@ class RekapNilaiController extends Controller
     }
 
     /**
-     * TUGAS 3: DOWNLOAD PDF
      * GET /admin/rekap-nilai/mahasiswa/{id_mahasiswa}/osce/{id_osce}/download
      */
     public function downloadPdf($id_mahasiswa, $id_osce)
     {
-        // ✅ Panggil Service untuk perhitungan
         $detailNilai = $this->service->calculateDetailNilai($id_mahasiswa, $id_osce);
 
         if (!$detailNilai) {
             return Redirect::back()->with('error', 'Data mahasiswa untuk PDF tidak ditemukan.');
         }
 
-        // Persiapkan Data untuk View PDF
         $data = $detailNilai;
-        $data['tahun'] = date('Y'); // Tambahkan tahun saat ini untuk kebutuhan PDF
+        $data['tahun'] = date('Y');
 
         // Generate PDF
         $pdf = Pdf::loadView('pdf.rekap_nilai', $data);

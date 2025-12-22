@@ -1,5 +1,5 @@
 import React, { useState, useMemo } from "react";
-import { usePage, router } from "@inertiajs/react"; // [FIX] Tambahkan router
+import { usePage, router } from "@inertiajs/react"; 
 import {
     ArrowLeft,
     Download,
@@ -11,17 +11,15 @@ import {
     UserCheck,
 } from "lucide-react";
 
-// --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
 import OsHeader from "../../components/Header";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import OsButton from "../../components/button.jsx";
 import OsSearchBar from "../../components/searchbar";
 import OsTableHeader from "../../components/tableheader";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsPagination from "../../components/pagination.jsx";
 
-// 1. Definisikan Struktur Kolom
 const columns = [
     {
         content: "No",
@@ -109,7 +107,6 @@ const generatePaginationLinks = (currentPage, totalPages, totalItems) => {
 };
 
 export default function RekapMahasiswaPage() {
-    // 1. AMBIL PROPS DARI BACKEND
     const { osce_detail, mahasiswa_list } = usePage().props;
     const [search, setSearch] = useState("");
 
@@ -171,14 +168,10 @@ export default function RekapMahasiswaPage() {
             return;
         }
         const queryParams = new URLSearchParams({ search: search }).toString();
-        // Menggunakan window.location agar download file berjalan normal (bukan request Inertia)
         window.location.href = `/penguji/osce/${id_osce}/stase/${id_osce_stase}/export/${type}?${queryParams}`;
     };
 
-    // 7. MAPPING DATA UNTUK TABEL
     const tableData = paginatedStudents.map((mhs, index) => {
-        // [FIX LOGIC] Anggap "Sudah Dinilai" hanya jika nilainya TIDAK NULL.
-        // Angka 0 tetap dianggap sudah dinilai.
         const isSudahDinilai = mhs.nilai_total !== null;
 
         return {
@@ -186,7 +179,6 @@ export default function RekapMahasiswaPage() {
             nama: mhs.nama,
             nim: mhs.nim,
             nilai: isSudahDinilai ? (
-                // Tampilkan nilai (termasuk 0)
                 <span
                     className={
                         mhs.nilai_total === 0 ? "text-red-600 font-bold" : ""
@@ -195,7 +187,6 @@ export default function RekapMahasiswaPage() {
                     {mhs.nilai_total}
                 </span>
             ) : (
-                // Tampilkan placeholder jika null
                 <span className="text-gray-400 italic text-xs">
                     Belum Dinilai
                 </span>
@@ -203,16 +194,13 @@ export default function RekapMahasiswaPage() {
             action: (
                 <OsButton
                     name="primary-pj"
-                    // [FIX] Matikan fungsi klik jika belum dinilai
                     onClick={() => {
                         if (isSudahDinilai) {
-                            // [FIX] Kirim parameter 'return_stase' agar tombol Back di halaman selanjutnya tahu harus kemana
                             router.get(
                                 `/penguji/penilaian/${mhs.id_enrollment_osce}/view?return_stase=${safeOsceInfo.id_osce_stase}`
                             );
                         }
                     }}
-                    // [FIX] Styling Disabled vs Active
                     className={`flex items-center justify-center gap-2 text-xs font-medium px-6 py-2.5 rounded-lg transition 
                         ${
                             isSudahDinilai

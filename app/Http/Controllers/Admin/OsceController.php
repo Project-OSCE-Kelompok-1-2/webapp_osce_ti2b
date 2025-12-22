@@ -23,15 +23,11 @@ class OsceController extends Controller
 
     public function index(Request $request)
     {
-        // [PERBAIKAN] Ambil SEMUA data OSCE untuk Client-Side Pagination
-        // Pastikan Model Osce memiliki relasi/appends 'tahun_akademik_string' jika diperlukan
-        // Gunakan get() bukan paginate()
         
-        $osce = Osce::with('tahunAkademik') // Eager load relasi biar ringan
+        $osce = Osce::with('tahunAkademik')
             ->orderBy('created_at', 'desc')
             ->get();
 
-        // Ambil data tahun akademik untuk dropdown (Sama seperti sebelumnya)
         $tahunAkademikOptions = TahunAkademik::orderBy('tahun', 'desc')
             ->get()
             ->map(fn($t) => [
@@ -40,9 +36,8 @@ class OsceController extends Controller
             ]);
 
         return Inertia::render('Admin/OsceListPage', [
-            'osce' => $osce, // Kirim Array Full
+            'osce' => $osce,
             'tahunAkademikOptions' => $tahunAkademikOptions,
-            // Filters tidak perlu dikirim balik karena state ada di frontend
         ]);
     }
 
@@ -63,7 +58,6 @@ class OsceController extends Controller
 
     public function edit(Osce $osce)
     {
-        // Kirim data dropdown dan data osce yang ada
         $tahunAkademik = TahunAkademik::orderBy('tahun', 'desc')->get()->map(fn($th) => [
             'value' => $th->id_tahun_akademik,
             'label' => $th->tahun . ' - ' . $th->semester,
@@ -77,7 +71,6 @@ class OsceController extends Controller
 
     public function update(Request $request, Osce $osce)
     {
-        // Validasi sama seperti store, tapi 'nama_osce' boleh sama dengan dirinya sendiri
         $validator = Validator::make($request->all(), [
             'id_tahun_akademik' => 'required|exists:tahun_akademik,id_tahun_akademik',
             'nama_osce' => [

@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class Enrollment extends Model
 {
-    /** @use HasFactory<\Database\Factories\EnrollmentFactory> */
     use HasFactory;
 
     protected $table = 'enrollment';
@@ -15,8 +14,6 @@ class Enrollment extends Model
     public $timestamps = true;
 
     /**
-     * The attributes that are mass assignable.
-     *
      * @var list<string>
      */
     protected $fillable = [
@@ -25,21 +22,15 @@ class Enrollment extends Model
         'tanggal_daftar',
     ];
 
-    /**
-     * Define relationships.
-     */
-    // relasi ke mahasiswa M:1
     public function mahasiswa()
     {
-        return $this->belongsTo(Mahasiswa::class, 'id_mahasiswa'); //perlu relasi ke model Mahasiswa
+        return $this->belongsTo(Mahasiswa::class, 'id_mahasiswa'); 
     }
 
-    // relasi ke tahun_akademik M:1
     public function tahunAkademik()
     {
-        return $this->belongsTo(TahunAkademik::class, 'id_tahun_akademik'); //perlu relasi ke model TahunAkademik
+        return $this->belongsTo(TahunAkademik::class, 'id_tahun_akademik');
     }
-    // relasi ke mata_kuliah 1:M
     public function mataKuliah()
     {
         return $this->hasMany(MataKuliah::class, 'id_enrollment');

@@ -6,14 +6,13 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Inertia\Inertia;
-use App\Services\ProfilMahasiswaService; // Import Service Anda
+use App\Services\ProfilMahasiswaService; 
 use Exception;
 
 class ProfilMahasiswaController extends Controller
 {
     protected $profilMahasiswaService;
 
-    // Dependency Injection Service
     public function __construct(ProfilMahasiswaService $profilMahasiswaService)
     {
         $this->profilMahasiswaService = $profilMahasiswaService;
@@ -26,11 +25,8 @@ class ProfilMahasiswaController extends Controller
     {
         $user = Auth::user();
 
-        // Eager Load relasi 'mahasiswa' agar di React bisa akses: user.mahasiswa.nama
         $user->load('mahasiswa');
 
-        // Pastikan nama file React sesuai lokasi Anda (misal: Mahasiswa/AccountSettings)
-        // Sesuaikan string 'Mahasiswa/PengaturanAkun' dengan nama file .jsx Anda
         return Inertia::render('Mahasiswa/PengaturanAkun', [
             'user' => $user,
         ]);
@@ -43,14 +39,12 @@ class ProfilMahasiswaController extends Controller
     {
         $user = Auth::user();
 
-        // 1. Validasi Input dari Frontend
         $request->validate([
-            'foto'             => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:2048'], // Max 2MB
+            'foto'             => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:2048'],
             'delete_foto'      => ['boolean'],
             'username'         => ['required', 'string', 'unique:pengguna,username,'.$user->id_pengguna.',id_pengguna'],
             'nama'             => ['nullable', 'string'],
             'nim'              => ['nullable', 'string'],
-            // Validasi Password
             'old_password'     => ['nullable', 'required_with:new_password', 'string'],
             'new_password'     => ['nullable', 'string', 'min:6', 'confirmed'],
         ], [
@@ -63,20 +57,15 @@ class ProfilMahasiswaController extends Controller
         ]);
 
         try {
-            // 2. Panggil Service untuk memproses logika
-            // Kita kirim $request->all() dan file foto secara terpisah sesuai parameter service
             $this->profilMahasiswaService->updateProfile(
                 $user, 
                 $request->all(), 
-                $request->file('foto') // Mengirim object UploadedFile atau null
+                $request->file('foto')
             );
 
-            // 3. Sukses -> Kembali dengan Flash Message
             return back()->with('success', 'Profil berhasil diperbarui!');
 
         } catch (Exception $e) {
-            // 4. Gagal (Misal Password Lama Salah dari Service)
-            // Kita kembalikan error spesifik ke field 'old_password' agar merah di inputnya
             return back()->withErrors([
                 'old_password' => $e->getMessage()
             ]);

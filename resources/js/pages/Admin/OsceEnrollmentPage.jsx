@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// 1. [PERBAIKAN] Tambahkan useForm, Head, dan usePage
 import { router, useForm, Head, usePage } from "@inertiajs/react";
 import {
     ArrowLeft,
@@ -8,44 +7,18 @@ import {
     Square,
     Save,
     XCircle,
-} from "lucide-react"; // Tambah ikon
+} from "lucide-react"; 
 
 import Sidebar from "../../components/Sidebar";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsButton from "../../components/button.jsx";
 
-// const columns = [
-//     {
-//         key: "no",
-//         content: "No",
-//         width: "w-16",
-//         classes: "justify-center items-center",
-//     },
-//     {
-//         key: "nim_mahasiswa",
-//         content: "Nim Mahasiswa",
-//         width: "w-72",
-//         classes: "justify-start items-center px-4",
-//     },
-//     {
-//         key: "mahasiswa",
-//         content: "Mahasiswa",
-//         width: "flex-1",
-//         classes: "justify-start items-center px-4",
-//     },
-//     {
-//         key: "action",
-//         content: "Action",
-//         width: "w-48",
-//         classes: "justify-center items-center px-4",
-//     },
-// ];
 const columns = [
     {
         key: "no",
@@ -62,7 +35,7 @@ const columns = [
     {
         key: "mahasiswa",
         content: "Mahasiswa",
-        width: " flex-1 shrink-0", // Ganti flex-1
+        width: " flex-1 shrink-0", 
         classes: "justify-start items-center px-4",
     },
     {
@@ -83,7 +56,6 @@ export default function OsceEnrollmentPage({
     const [angkatan, setAngkatan] = useState(filters.angkatan || "");
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // Ambil flash message (untuk error)
     const { flash } = usePage().props;
 
     const { data, setData, post, processing, errors } = useForm({
@@ -96,7 +68,7 @@ export default function OsceEnrollmentPage({
         e.preventDefault();
         router.get(
             window.location.pathname,
-            { search, angkatan }, // Kirim filter
+            { search, angkatan }, 
             { preserveState: true, replace: true, preserveScroll: true }
         );
     };
@@ -118,7 +90,6 @@ export default function OsceEnrollmentPage({
         });
     };
 
-    //siapin isi data tabel
     const tableData = mahasiswa_list.data.map((item, index) => ({
         no: mahasiswa_list.from + index,
         nim_mahasiswa: item.nim,
@@ -154,7 +125,7 @@ export default function OsceEnrollmentPage({
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 <div className="flex flex-col gap-os-8">
-                    {/* 9. [PERBAIKAN] Header/Breadcrumb dinamis */}
+                    {/* Header/Breadcrumb dinamis */}
                     <OsHeader
                         variant="goback"
                         backLink={`/admin/osce/${osce.id_osce}/jadwal/`}
@@ -174,7 +145,6 @@ export default function OsceEnrollmentPage({
                             </strong>
                         </p>
 
-                        {/* Notifikasi Error (jika ada) */}
                         {flash.error && (
                             <div className="p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg flex items-center gap-3 mb-4">
                                 <XCircle className="w-5 h-5 flex-shrink-0" />
@@ -206,7 +176,7 @@ export default function OsceEnrollmentPage({
                             </div>
                         </OsSearchBar>
 
-                        {/* Tombol Simpan (di atas tabel) */}
+                        {/* Tombol Simpan */}
                         <form onSubmit={handleSave} className="mb-4">
                             <OsButton
                                 name="edit"
@@ -226,7 +196,7 @@ export default function OsceEnrollmentPage({
                             )}
                         </form>
 
-                        {/* 11. [PERBAIKAN] Table dinamis */}
+                        {/* Table dinamis */}
                         <h2 className="font-semibold text-lg mb-2 mt-os-8">
                             Table Mahasiswa
                         </h2>

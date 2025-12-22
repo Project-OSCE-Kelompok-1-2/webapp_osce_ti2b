@@ -1,12 +1,10 @@
 import React from "react";
 import { Head, router, usePage } from "@inertiajs/react";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 
 export default function StaseAntrian() {
-    // Ambil props dari backend (gunakan data yang sama dengan DetailOsce)
     const { osce_detail } = usePage().props;
 
-    // Fallback
     const safeOsce = osce_detail || {
         nama_osce: "-",
         nama_stase: "-",
@@ -20,13 +18,7 @@ export default function StaseAntrian() {
         router.visit("/penguji/dashboard");
     };
 
-    // Lanjut ke halaman Antrian (List Mahasiswa)
     const handleStart = () => {
-        // Asumsi: Route ini mengarah ke halaman List Antrian (DetailOsce.jsx)
-        // router.get(`/penguji/osce/${safeOsce.id_osce}/stase/${safeOsce.id_osce_stase}`);
-
-        // TAPI: Karena biasanya halaman ini digabung dengan antrian,
-        // kode di bawah ini hanya contoh jika Anda memisahkannya.
         console.log("Navigasi ke antrian...");
     };
 

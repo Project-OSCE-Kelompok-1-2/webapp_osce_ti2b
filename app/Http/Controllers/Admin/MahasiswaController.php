@@ -27,18 +27,14 @@ class MahasiswaController extends Controller
      */
     public function index(Request $request)
 {
-    // 1. Ambil List Tahun untuk Dropdown
     $listTahun = TahunAkademik::select('tahun')
         ->distinct()
         ->orderBy('tahun', 'desc')
         ->pluck('tahun');
 
-    // 2. Ambil parameter filter dari Request
     $search = $request->input('search');
     $angkatan = $request->input('angkatan');
 
-    // 3. [PERBAIKAN] Panggil Service, jangan query manual!
-    // Service ini sudah memuat logika 'with(enrollment)' dan transformasi data 'angkatan'
     $mahasiswa = $this->service->getAll($search, $angkatan);
 
     return Inertia::render('Admin/MahasiswaPage', [
@@ -76,7 +72,6 @@ class MahasiswaController extends Controller
         'kelas' => 'required|string|max:50',
         'prodi' => 'required|string|max:100',
         
-        // TAMBAHKAN BARIS INI AGAR DATA TAHUN DITERIMA
         'angkatan' => 'required|string', 
     ]);
 

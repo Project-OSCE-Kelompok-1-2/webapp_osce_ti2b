@@ -1,14 +1,8 @@
 import React from "react";
 import { UserCheck, ClipboardList } from "lucide-react";
 
-/**
- * KOMPONEN INTERNAL: Header Stase
- * Desain: Clean Card Header dengan aksen warna halus
- */
 const StaseHeader = ({ staseNumber, staseName, examinerName, totalScore }) => {
-    // Format skor agar tidak ada desimal panjang
     const formattedScore = parseFloat(totalScore || 0).toFixed(2);
-    // Hapus .00 jika bulat
     const displayScore = formattedScore.endsWith(".00")
         ? parseFloat(formattedScore)
         : formattedScore;
@@ -97,8 +91,6 @@ const StaseAssessmentView = ({
     overallScore,
     assessmentData = [],
 }) => {
-    // Hitung total manual dari data (Safety check)
-    // Menggunakan parseFloat langsung dari props 'score' yang sudah kita bersihkan di parent
     const calculatedTotal = assessmentData.reduce(
         (sum, row) => sum + parseFloat(row.score || 0),
         0

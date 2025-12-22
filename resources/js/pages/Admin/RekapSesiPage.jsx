@@ -1,10 +1,9 @@
-import React, { useState, useEffect, useMemo } from "react"; // [1] Tambah Import Hooks
+import React, { useState, useEffect, useMemo } from "react"; 
 import { Link, usePage, router, Head } from "@inertiajs/react";
 import { Search, ArrowLeft, Bookmark, Table2, Info } from "lucide-react";
 
-// --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
 import OsSearchBar from "../../components/searchbar";
@@ -42,10 +41,8 @@ const sesiColumns = [
 export default function RekapSesiPage() {
     const { osce, sesi, filters, flash } = usePage().props;
 
-    // 1. Ambil Data Full
     const allSesiData = Array.isArray(sesi) ? sesi : sesi?.data || [];
 
-    // 2. State Filter & Pagination
     const [searchTerm, setSearchTerm] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
@@ -54,22 +51,17 @@ export default function RekapSesiPage() {
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
     // --- LOGIC INSTANT FILTER ---
-
-    // A. Reset halaman saat search berubah
     useEffect(() => {
         setCurrentPage(1);
     }, [searchTerm]);
 
-    // B. Filter Data
     const filteredData = useMemo(() => {
         return allSesiData.filter((item) => {
             const term = searchTerm.toLowerCase();
-            // Filter berdasarkan string tampilan sesi (Tanggal & Jam)
             return item.tampilan_sesi?.toLowerCase().includes(term);
         });
     }, [searchTerm, allSesiData]);
 
-    // C. Slice Pagination
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -77,7 +69,6 @@ export default function RekapSesiPage() {
         currentPage * itemsPerPage
     );
 
-    // D. Generate Pagination Links
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];
@@ -115,7 +106,7 @@ export default function RekapSesiPage() {
         return links;
     }, [currentPage, totalPages]);
 
-    // --- TABLE ROWS MAPPING (Gunakan 'paginatedData') ---
+    // --- TABLE ROWS MAPPING ---
     const sesiRows = paginatedData.map((item, index) => ({
         no: (currentPage - 1) * itemsPerPage + index + 1,
         tanggal_sesi: (
@@ -147,7 +138,6 @@ export default function RekapSesiPage() {
 
     return (
         <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            {/* <Head title={`Rekap Sesi - ${osce.nama_osce}`} /> */}
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
@@ -167,15 +157,6 @@ export default function RekapSesiPage() {
                             </div>
                         )}
 
-                        {/* <h2 className="font-semibold text-lg mb-1">
-                        Menu Rekap Nilai
-                    </h2> */}
-                        {/* <div className="flex gap-1 items-center justify-start my-2">
-                            <Bookmark size={18} />
-                            <h2 className="font-semibold text-lg p-1">
-                                Menu Rekap Sesi
-                            </h2>
-                        </div> */}
                         <div className="flex gap-1 items-center justify-start my-2">
                             <Bookmark size={18} />
                             <h2 className="font-semibold text-lg">
@@ -191,16 +172,10 @@ export default function RekapSesiPage() {
                         {/* SEARCH INSTANT */}
                         <OsSearchBar
                             search={searchTerm}
-                            setSearch={setSearchTerm} // Instant update
+                            setSearch={setSearchTerm} 
                             placeholder="Cari tanggal atau jam..."
                         />
 
-                        {/* <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table Sesi
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
-                    </h2> */}
                         <div className="flex gap-1 items-center justify-start mb-2 mt-4">
                             <Table2 size={18} />
                             <h2 className="font-semibold text-lg">

@@ -67,7 +67,6 @@ class PenggunaRelationTest extends TestCase
         $first = \App\Models\Pengguna::factory()->create(['username' => 'uniqueuser']);
         $this->expectException(\Illuminate\Database\QueryException::class);
 
-        // mencoba membuat pengguna dengan username yang sama
         \App\Models\Pengguna::factory()->create(['username' => 'uniqueuser']);
     }
 

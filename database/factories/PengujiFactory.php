@@ -12,7 +12,6 @@ class PengujiFactory extends Factory
 
     public function definition(): array
     {
-        // Gelar dokter Indonesia
         $gelarDepan = $this->faker->randomElement(['dr.', 'Dr. dr.', 'Prof. dr.']);
         $gelarBelakang = $this->faker->randomElement(['Sp.PD', 'Sp.A', 'Sp.B', 'Sp.JP', 'Sp.S', 'M.Kes', 'Ph.D']);
 

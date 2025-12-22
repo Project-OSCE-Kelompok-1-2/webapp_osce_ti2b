@@ -12,7 +12,7 @@ class PoinAspekPenilaianFactory extends Factory
         return [
             'id_aspek_penilaian' => AspekPenilaian::inRandomOrder()->first()->id_aspek_penilaian ?? AspekPenilaian::factory(),
             'kompetensi' => $this->faker->sentence(),
-            'skor' => 4, // Max score standard OSCE
+            'skor' => 4, 
             'bobot' => 5,
         ];
     }

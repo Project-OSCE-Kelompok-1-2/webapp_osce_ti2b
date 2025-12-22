@@ -9,10 +9,10 @@ import OsSearchBar from "../../components/searchbar.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
 import OsModal from "../../components/Modal.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import Modals from "../../components/Modals.jsx";
 import OsIcon from "../../components/icons.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsPagination from "../../components/pagination.jsx";
 
 const columns = [
@@ -43,18 +43,15 @@ const columns = [
 ];
 
 export default function MenuAspekPenilaian() {
-    // 1. Ambil Data Full
     const { stase, aspek_penilaian } = usePage().props;
     const allData = Array.isArray(aspek_penilaian)
         ? aspek_penilaian
         : aspek_penilaian?.data || [];
 
-    // 2. State Filter & Pagination
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    // --- INSTANT FILTER LOGIC ---
     useEffect(() => {
         setCurrentPage(1);
     }, [search]);
@@ -76,7 +73,6 @@ export default function MenuAspekPenilaian() {
         currentPage * itemsPerPage
     );
 
-    // D. Generate Links
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];
@@ -114,7 +110,6 @@ export default function MenuAspekPenilaian() {
         return links;
     }, [currentPage, totalPages]);
 
-    // ========= STATE FORM & MODAL ========
     const {
         data,
         setData,
@@ -124,8 +119,8 @@ export default function MenuAspekPenilaian() {
         delete: destroy,
         processing,
         errors,
-        setError, // <--- 1. Tambah setError
-        clearErrors, // <--- 2. Tambah clearErrors
+        setError, 
+        clearErrors, 
     } = useForm({
         id: null,
         aspek: "",
@@ -139,13 +134,8 @@ export default function MenuAspekPenilaian() {
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [dataToDelete, setDataToDelete] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-
-    // HAPUS state errorMessage manual
-    // const [errorMessage, setErrorMessage] = useState("");
-
     const [showFullWeightWarning, setShowFullWeightWarning] = useState(false);
 
-    // Hitung Total Bobot saat ini (dari data DB)
     const totalBobot = allData.reduce(
         (sum, item) => sum + item.bobot_maksimum,
         0
@@ -153,7 +143,6 @@ export default function MenuAspekPenilaian() {
 
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-    // --- HANDLERS ---
     const openAddModal = () => {
         if (totalBobot >= 100) {
             setShowFullWeightWarning(true);
@@ -162,7 +151,7 @@ export default function MenuAspekPenilaian() {
         setShowFullWeightWarning(false);
         setModalMode("add");
         setSelectedItem(null);
-        clearErrors(); // Bersihkan error lama
+        clearErrors(); 
         setData({
             id: null,
             aspek: "",
@@ -175,7 +164,7 @@ export default function MenuAspekPenilaian() {
     const openEditModal = (item) => {
         setModalMode("edit");
         setSelectedItem(item);
-        clearErrors(); // Bersihkan error lama
+        clearErrors(); 
         setData({
             id: item.id_aspek_penilaian,
             aspek: item.aspek,
@@ -185,14 +174,12 @@ export default function MenuAspekPenilaian() {
         setShowModal(true);
     };
 
-    // --- 3. LOGIC HANDLE SUBMIT (VALIDASI INLINE) ---
     const handleSubmit = (e) => {
         e.preventDefault();
-        clearErrors(); // Reset error state
+        clearErrors(); 
 
         let isValid = true;
 
-        // A. Validasi Field Kosong
         if (!data.aspek || data.aspek.trim() === "") {
             setError("aspek", "Nama Aspek wajib diisi.");
             isValid = false;
@@ -202,7 +189,6 @@ export default function MenuAspekPenilaian() {
             isValid = false;
         }
 
-        // B. Validasi Logika Bobot (> 100)
         const inputBobot = Number(data.bobot_maksimum) || 0;
         let projectedTotal = 0;
 
@@ -216,7 +202,6 @@ export default function MenuAspekPenilaian() {
         }
 
         if (isValid && projectedTotal > 100) {
-            // Cek hanya jika field tidak kosong
             setError(
                 "bobot_maksimum",
                 `Gagal! Total bobot menjadi ${projectedTotal}. Maksimal 100 (Sisa: ${
@@ -226,7 +211,7 @@ export default function MenuAspekPenilaian() {
             isValid = false;
         }
 
-        if (!isValid) return; // Stop jika ada error
+        if (!isValid) return; 
 
         const options = {
             onSuccess: () => {
@@ -274,7 +259,6 @@ export default function MenuAspekPenilaian() {
         });
     };
 
-    // --- TABLE DATA MAPPING ---
     const tableDisplayData = paginatedData.map((item, index) => ({
         id_aspek_penilaian: item.id_aspek_penilaian,
         no: (currentPage - 1) * itemsPerPage + index + 1,
@@ -528,10 +512,9 @@ export default function MenuAspekPenilaian() {
                             value={data.aspek}
                             onChange={(evt) => {
                                 setData("aspek", evt.target.value);
-                                if (errors.aspek) clearErrors("aspek"); // Hilangkan error saat mengetik
+                                if (errors.aspek) clearErrors("aspek"); 
                             }}
                             placeholder="Masukkan nama aspek penilaian..."
-                            // required <-- Dihapus agar custom validation jalan
                         />
                         {errors.aspek && (
                             <p className="text-red-500 text-xs mt-1">
@@ -553,7 +536,6 @@ export default function MenuAspekPenilaian() {
                                     clearErrors("bobot_maksimum");
                             }}
                             placeholder="Masukkan bobot..."
-                            // required <-- Dihapus
                         />
                         {/* Error Message Disini */}
                         {errors.bobot_maksimum && (
@@ -575,14 +557,11 @@ export default function MenuAspekPenilaian() {
                                 : totalBobot;
                         const sisa = 100 - (currentUsed + inputVal);
 
-                        // Kita sembunyikan text helper ini jika sudah ada error merah dari 'errors.bobot_maksimum'
-                        // supaya tidak double pesan, tapi terserah preferensi Anda.
-                        // Di sini saya biarkan agar user tetap tahu matematikanya.
                         return (
                             <div
                                 className={`text-xs ${
                                     sisa < 0
-                                        ? "text-red-400" // Warna lebih soft karena error utama sudah ada di atas
+                                        ? "text-red-400" 
                                         : "text-gray-500"
                                 }`}
                             >

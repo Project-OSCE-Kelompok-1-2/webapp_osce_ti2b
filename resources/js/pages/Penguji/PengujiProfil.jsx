@@ -1,5 +1,4 @@
 import React, { useState, useEffect } from "react";
-// Import hook Inertia
 import { useForm, usePage, Link, router } from "@inertiajs/react";
 import {
     User,
@@ -9,7 +8,7 @@ import {
     EyeOff,
     UploadCloud,
     Trash2,
-    AlertCircle, // Pastikan ini terimport
+    AlertCircle, 
     LogOut,
     BookUser,
     LogIn,
@@ -18,16 +17,14 @@ import {
     Image,
 } from "lucide-react";
 
-// Import Komponen Custom Sesuai Desain
 import SidebarPenguji from "../../components/SidebarPenguji.jsx";
 import OsHeader from "../../components/Header.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsButton from "../../components/button.jsx";
 import Sidebar from "../../components/Sidebar.jsx";
 import Modals from "../../components/Modals.jsx";
 
-// CustomInput Handle Disabled State (Background Gray)
 const CustomInput = ({
     label,
     type = "text",
@@ -369,7 +366,6 @@ export default function PengujiProfil() {
                                                             opacity={0.5}
                                                             className="ml-2 shrink-0"
                                                         />{" "}
-                                                        {/* Tambah shrink-0 */}
                                                         <input
                                                             type={
                                                                 showOldPassword
@@ -387,7 +383,6 @@ export default function PengujiProfil() {
                                                                 )
                                                             }
                                                             placeholder="Masukkan password lama..."
-                                                            // PERBAIKAN: Tambahkan min-w-0
                                                             className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400 min-w-0"
                                                         />
                                                         <button
@@ -397,7 +392,6 @@ export default function PengujiProfil() {
                                                                     !showOldPassword
                                                                 )
                                                             }
-                                                            // PERBAIKAN: Tambahkan shrink-0
                                                             className="bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                             title={
                                                                 showOldPassword
@@ -463,7 +457,6 @@ export default function PengujiProfil() {
                                                                     )
                                                                 }
                                                                 placeholder="Password baru..."
-                                                                // PERBAIKAN: Tambahkan min-w-0
                                                                 className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400 min-w-0"
                                                             />
                                                             <button
@@ -473,7 +466,6 @@ export default function PengujiProfil() {
                                                                         !showNewPassword
                                                                     )
                                                                 }
-                                                                // PERBAIKAN: Tambahkan shrink-0
                                                                 className="bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                                 title={
                                                                     showNewPassword
@@ -543,7 +535,6 @@ export default function PengujiProfil() {
                                                                     )
                                                                 }
                                                                 placeholder="Konfirmasi password..."
-                                                                // PERBAIKAN: Tambahkan min-w-0
                                                                 className="flex-1 bg-transparent outline-none ml-3 py-1 placeholder:text-gray-400 min-w-0"
                                                             />
                                                             <button
@@ -553,7 +544,6 @@ export default function PengujiProfil() {
                                                                         !showConfirmPassword
                                                                     )
                                                                 }
-                                                                // PERBAIKAN: Tambahkan shrink-0
                                                                 className="bg-orange-500 hover:bg-orange-600 text-white p-2.5 rounded-lg transition-colors flex items-center justify-center shrink-0"
                                                                 title={
                                                                     showConfirmPassword
@@ -589,10 +579,7 @@ export default function PengujiProfil() {
                                                     </div>
                                                 </div>
 
-                                                {/* Tombol Simpan & Logout tetap sama */}
                                                 <div className="w-full flex justify-between gap-3 mt-2">
-                                                    {/* ... kode tombol simpan & logout ... */}
-                                                    {/* ... (Pastikan bagian ini tetap ada seperti kode asli Anda) ... */}
                                                     <OsButton
                                                         name="primary-pj"
                                                         className="w-[223px] flex items-center justify-start gap-[13px] border border-black"

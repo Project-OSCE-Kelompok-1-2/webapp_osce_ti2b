@@ -48,8 +48,8 @@ class RekapNilaiExport implements FromCollection, WithHeadings, WithMapping, Sho
     public function styles(Worksheet $sheet)
     {
         return [
-            5    => ['font' => ['bold' => true]], // Bold baris header tabel
-            1    => ['font' => ['bold' => true, 'size' => 14]], // Judul Utama
+            5    => ['font' => ['bold' => true]], 
+            1    => ['font' => ['bold' => true, 'size' => 14]], 
         ];
     }
 }

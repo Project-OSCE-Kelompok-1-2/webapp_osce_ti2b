@@ -11,8 +11,7 @@ use App\Services\Admin\PengujiService;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
-use Illuminate\Support\Facades\Redirect; // Pastikan Redirect di-import
-
+use Illuminate\Support\Facades\Redirect;
 class PengujiController extends Controller
 {
     protected $service;
@@ -22,36 +21,23 @@ class PengujiController extends Controller
         $this->service = $service;
     }
 
-    /**
-     * TUGAS 1: GET /admin/dosen (List Penguji)
-     */
     public function index(Request $request)
     {
-        // [PERUBAHAN] Ambil SEMUA data untuk Client-Side Pagination
-        // Jangan gunakan paginate(), gunakan get()
         $dosen = Penguji::orderBy('nama', 'asc')->get();
 
         return Inertia::render('Admin/PengujiPage', [
-            'dosen' => $dosen, // Mengirim Array Full
-            'filters' => [],   // Filter kosong karena dihandle frontend
+            'dosen' => $dosen, 
+            'filters' => [],  
         ]);
     }
 
-    /**
-     * [BARU] Menampilkan form untuk menambah penguji
-     * GET /admin/dosen/create
-     */
     public function create()
     {
-        // Anda perlu membuat file 'Admin/PengujiFormPage.jsx'
         return Inertia::render('Admin/TambahPenguji', [
-            'dosen' => null, // Kirim null untuk mode 'create'
+            'dosen' => null, 
         ]);
     }
 
-    /**
-     * TUGAS 2: POST /admin/dosen (Create Penguji)
-     */
     public function store(Request $request)
     {
         $validated = $request->validate([
@@ -74,11 +60,7 @@ class PengujiController extends Controller
         return Redirect::route('admin.dosen.index')->with('success', 'Data penguji berhasil ditambahkan.');
     }
 
-    /**
-     * [BARU] Menampilkan form untuk mengedit penguji
-     * GET /admin/dosen/{dosen}/edit
-     */
-    public function edit(Penguji $dosen) // 'dosen' adalah nama parameter dari resource
+    public function edit(Penguji $dosen) 
     {
         return Inertia::render('Admin/TambahPenguji', [
             'dosen' => [
@@ -89,10 +71,6 @@ class PengujiController extends Controller
         ]);
     }
 
-    /**
-     * [BARU] Menyimpan perubahan data penguji
-     * PUT /admin/dosen/{dosen}
-     */
     public function update(Request $request, Penguji $dosen)
     {
         $validated = $request->validate([
@@ -115,21 +93,14 @@ class PengujiController extends Controller
         return Redirect::route('admin.dosen.index')->with('success', 'Data penguji berhasil diperbarui.');
     }
 
-    /**
-     * [BARU] Menghapus data penguji
-     * DELETE /admin/dosen/{dosen}
-     */
     public function destroy(Penguji $dosen)
     {
-        // Panggil service delete
         $isDeleted = $this->service->delete($dosen);
 
-        // Jika $isDeleted bernilai false/gagal, baru lempar error.
         if (!$isDeleted) {
             return Redirect::back()->with('error', 'Gagal menghapus penguji. Mungkin terkait dengan data lain.');
         }
 
-        // Jika berhasil
         return Redirect::back()->with('success', 'Penguji berhasil dihapus.');
     }
 }

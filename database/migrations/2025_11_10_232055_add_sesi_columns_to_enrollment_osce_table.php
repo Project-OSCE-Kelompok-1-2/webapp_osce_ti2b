@@ -9,7 +9,6 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('enrollment_osce', function (Blueprint $table) {
-            // Tambahkan kolom baru setelah 'id_mahasiswa' (atau di mana saja)
             $table->date('tanggal_sesi')->nullable()->after('id_mahasiswa');
             $table->time('jam_sesi')->nullable()->after('tanggal_sesi');
         });

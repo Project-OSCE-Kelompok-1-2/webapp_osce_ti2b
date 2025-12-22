@@ -19,35 +19,27 @@ class EditNilaiController extends Controller
     {
         $user = Auth::user();
 
-        // 1. Ambil Data Enrollment
         $enrollment = EnrollmentOsce::with(['mahasiswa', 'osce'])->findOrFail($id_enrollment_osce);
 
-        // 2. Ambil Data Stase (PERBAIKAN LOGIKA DETEKSI STASE)
-        // Cek apakah ada request 'id_osce_stase' dari URL (hasil step 1 tadi)
         if ($request->has('id_osce_stase')) {
-            // Jika ada, PAKSA pakai ID ini (agar tidak salah tebak)
             $osceStase = OsceStase::with(['stase', 'osce'])
                 ->where('id_osce_stase', $request->query('id_osce_stase'))
                 ->where('id_penguji', $user->penguji->id_penguji)
                 ->firstOrFail();
         } else {
-            // Fallback (Logika lama): Tebak stase (rawan salah jika penguji punya 2 stase)
             $osceStase = OsceStase::with(['stase', 'osce'])
                 ->where('id_osce', $enrollment->id_osce)
                 ->where('id_penguji', $user->penguji->id_penguji)
                 ->firstOrFail();
         }
 
-        // ... (Logika Ambil Struktur Rubrik tetap sama) ...
         $rubrikStruktur = $osceStase->stase->load([
             'aspekPenilaian.poinAspekPenilaian.nilai_osce' => function ($query) use ($id_enrollment_osce) {
                 $query->where('id_enrollment_osce', $id_enrollment_osce);
             }
         ]);
 
-        // ... (Logika Format Data Frontend tetap sama) ...
         $rubrikTerisi = $rubrikStruktur->aspekPenilaian->map(function ($aspek) {
-            // ... copy code mapping rubrik kamu yang lama ...
              return [
                 'aspek' => $aspek->aspek,
                 'kompetensi' => $aspek->poinAspekPenilaian->map(function ($poin) {
@@ -65,7 +57,7 @@ class EditNilaiController extends Controller
 
         $osceDetail = [
             'id_osce'          => $osceStase->osce->id_osce,
-            'id_osce_stase'    => $osceStase->id_osce_stase, // INI KUNCINYA: Pastikan ID ini benar (386)
+            'id_osce_stase'    => $osceStase->id_osce_stase,
             'nama_osce'        => $osceStase->osce->nama,
             'nama_stase'       => $osceStase->stase->nama,
             'durasi_per_mahasiswa' => $osceStase->osce->durasi_per_mahasiswa ?? 15,
@@ -78,7 +70,7 @@ class EditNilaiController extends Controller
             'rubrik_terisi'  => $rubrikTerisi,
             'feedback_tersimpan' => $enrollment->catatan,
             'id_enrollment_osce' => $id_enrollment_osce,
-            'osce_detail'    => $osceDetail, // Data ini akan dipakai Form untuk kirim balik saat simpan
+            'osce_detail'    => $osceDetail, 
         ]);
     }
 
@@ -86,20 +78,16 @@ class EditNilaiController extends Controller
     {
         $user = Auth::user();
 
-        // 1. Validasi Input
         $validated = $request->validate([
             'nilai' => 'required|array',
             'nilai.*.id_poin_aspek_penilaian' => 'required|integer',
             'nilai.*.skor' => 'required|integer|min:0|max:4',
             'feedback' => 'nullable|string',
-            // TAMBAHKAN VALIDASI INI
             'id_osce_stase' => 'required|integer|exists:osce_stase,id_osce_stase', 
         ]);
 
-        // 2. Ambil Data Enrollment
         $enrollment = EnrollmentOsce::findOrFail($id_enrollment_osce);
 
-        // 3. Simpan Data (Update Nilai) - Code ini tetap sama
         DB::transaction(function () use ($validated, $id_enrollment_osce, $enrollment) {
             $enrollment->catatan = $validated['feedback'] ?? null;
             $enrollment->save();
@@ -117,12 +105,9 @@ class EditNilaiController extends Controller
             }
         });
 
-        // 4. Redirect menggunakan ID yang dikirim dari Frontend (FIX)
-        // Tidak perlu query OsceStase lagi karena frontend sudah tahu konteksnya.
-        
         return redirect()->route('penguji.Penilaian.submitrubrik', [
             'id_osce'       => $enrollment->id_osce,
-            'id_osce_stase' => $request->id_osce_stase // Gunakan ID dari request
+            'id_osce_stase' => $request->id_osce_stase 
         ])->with('success', 'Nilai berhasil diperbarui.');
     }
 }

@@ -8,18 +8,18 @@ import {
     Users,
     Table2,
     Download,
-    FileText, // Ditambahkan karena sempat hilang di import
+    FileText, 
 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsIcon from "../../components/icons.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import OsModal from "../../components/Modal.jsx";
 import OsButton from "../../components/button.jsx";
 import Modals from "../../components/Modals.jsx";
@@ -69,7 +69,6 @@ export default function MahasiswaPage() {
         ? mahasiswa
         : mahasiswa?.data || [];
 
-    // --- STATE UI ---
     const [search, setSearch] = useState("");
     const [angkatanFilter, setAngkatanFilter] = useState("SEMUA");
     const [currentPage, setCurrentPage] = useState(1);
@@ -77,7 +76,6 @@ export default function MahasiswaPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isManualKelas, setIsManualKelas] = useState(false);
 
-    // --- FILTERING CLIENT SIDE ---
     React.useEffect(() => {
         setCurrentPage(1);
     }, [search, angkatanFilter]);
@@ -138,7 +136,6 @@ export default function MahasiswaPage() {
         return links;
     }, [currentPage, totalPages]);
 
-    // --- MODAL STATES & FORM ---
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -158,7 +155,6 @@ export default function MahasiswaPage() {
             prodi: "",
         });
 
-    // List Tahun
     const angkatanListOptions = [
         ...(list_tahun || []).map((tahun) => ({ value: tahun, label: tahun })),
     ];
@@ -173,7 +169,6 @@ export default function MahasiswaPage() {
         { value: "MANUAL", label: "Lainnya (Input Manual)" },
     ];
 
-    // --- VALIDATION HELPER ---
     const validateMahasiswa = () => {
         let isValid = true;
         if (!data.nim) {
@@ -199,7 +194,6 @@ export default function MahasiswaPage() {
         return isValid;
     };
 
-    // --- HANDLERS ---
     const openAddModal = () => {
         reset();
         clearErrors();
@@ -270,7 +264,6 @@ export default function MahasiswaPage() {
     const handleImport = (e) => {
         e.preventDefault();
 
-        // Cek apakah file ada
         if (!importFile) {
             setImportError("Mohon pilih file Excel terlebih dahulu.");
             return;
@@ -284,11 +277,10 @@ export default function MahasiswaPage() {
                 onSuccess: () => {
                     setShowExcelModal(false);
                     setImportFile(null);
-                    setImportError(""); // Reset error
+                    setImportError(""); 
                     if (fileInputRef.current) fileInputRef.current.value = "";
                 },
                 onError: (errors) => {
-                    // Opsional: Jika backend mengirim error validasi file
                     if (errors.file) setImportError(errors.file);
                 },
             }
@@ -296,7 +288,7 @@ export default function MahasiswaPage() {
     };
     const handleClearImport = () => {
         setImportFile(null);
-        setImportError(""); // Reset error
+        setImportError(""); 
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
@@ -466,7 +458,6 @@ export default function MahasiswaPage() {
                 </div>
             </main>
 
-            {/* --- MODAL TAMBAH --- */}
             <OsModal
                 show={showModal}
                 onClose={() => setShowModal(false)}
@@ -489,7 +480,7 @@ export default function MahasiswaPage() {
                                 }}
                                 placeholder="Masukkan NIM..."
                                 className="w-full"
-                                required // Menambahkan bintang merah
+                                required 
                             />
                             {errors.nim && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -513,7 +504,7 @@ export default function MahasiswaPage() {
                                     ...angkatanListOptions,
                                 ]}
                                 className="w-full"
-                                required // Menambahkan bintang merah
+                                required 
                             />
                             {errors.angkatan && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -540,7 +531,7 @@ export default function MahasiswaPage() {
                                             ...kelasOptions,
                                         ]}
                                         className="w-full"
-                                        required // Menambahkan bintang merah
+                                        required 
                                     />
                                 </>
                             ) : (
@@ -561,7 +552,7 @@ export default function MahasiswaPage() {
                                             placeholder="Ketik nama kelas..."
                                             className="w-full"
                                             autoFocus
-                                            required // Menambahkan bintang merah
+                                            required 
                                         />
                                     </div>
                                     <button
@@ -595,7 +586,7 @@ export default function MahasiswaPage() {
                                 }}
                                 placeholder="Masukkan Jurusan..."
                                 className="w-full"
-                                required // Menambahkan bintang merah
+                                required 
                             />
                             {errors.prodi && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -615,7 +606,7 @@ export default function MahasiswaPage() {
                             }}
                             placeholder="Masukkan Nama..."
                             className="w-full"
-                            required // Menambahkan bintang merah
+                            required 
                         />
                         {errors.nama && (
                             <p className="text-red-500 text-xs mt-1">
@@ -655,7 +646,7 @@ export default function MahasiswaPage() {
                                     if (errors.nim) clearErrors("nim");
                                 }}
                                 className="w-full"
-                                required // Menambahkan bintang merah
+                                required 
                             />
                             {errors.nim && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -679,7 +670,7 @@ export default function MahasiswaPage() {
                                     ...angkatanListOptions,
                                 ]}
                                 className="w-full"
-                                required // Menambahkan bintang merah
+                                required 
                             />
                             {errors.angkatan && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -706,7 +697,7 @@ export default function MahasiswaPage() {
                                             ...kelasOptions,
                                         ]}
                                         className="w-full"
-                                        required // Menambahkan bintang merah
+                                        required 
                                     />
                                 </>
                             ) : (
@@ -725,7 +716,7 @@ export default function MahasiswaPage() {
                                                     clearErrors("kelas");
                                             }}
                                             className="w-full"
-                                            required // Menambahkan bintang merah
+                                            required 
                                         />
                                     </div>
                                     <button
@@ -758,7 +749,7 @@ export default function MahasiswaPage() {
                                     if (errors.prodi) clearErrors("prodi");
                                 }}
                                 className="w-full"
-                                required // Menambahkan bintang merah
+                                required 
                             />
                             {errors.prodi && (
                                 <p className="text-red-500 text-xs mt-1">
@@ -777,7 +768,7 @@ export default function MahasiswaPage() {
                                 if (errors.nama) clearErrors("nama");
                             }}
                             className="w-full"
-                            required // Menambahkan bintang merah
+                            required 
                         />
                         {errors.nama && (
                             <p className="text-red-500 text-xs mt-1">
@@ -788,7 +779,7 @@ export default function MahasiswaPage() {
                 </div>
             </OsModal>
 
-            {/* --- MODAL DELETE & IMPORT EXCEL (Tidak Berubah) --- */}
+            {/* --- MODAL DELETE & IMPORT EXCEL --- */}
             {showDeleteModal && (
                 <Modals
                     isOpen={showDeleteModal}
@@ -804,7 +795,7 @@ export default function MahasiswaPage() {
                 show={showExcelModal}
                 onClose={() => {
                     setShowExcelModal(false);
-                    setImportError(""); // Reset error saat tutup
+                    setImportError(""); 
                     setImportFile(null);
                 }}
                 title="Template Excel Mahasiswa"
@@ -871,7 +862,7 @@ export default function MahasiswaPage() {
                             accept=".xlsx,.xls,.csv"
                             onChange={(e) => {
                                 setImportFile(e.target.files?.[0]);
-                                if (e.target.files?.[0]) setImportError(""); // Hilangkan error jika file dipilih
+                                if (e.target.files?.[0]) setImportError(""); 
                             }}
                             className="hidden"
                         />

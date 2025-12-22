@@ -1,12 +1,10 @@
 import React from "react";
 
-// ⚙️ Import semua file SVG (dapat URL biasa)
 const svgModules = import.meta.glob("./Icons/*.svg", { eager: true });
 
 const iconComponents = Object.entries(svgModules).reduce((acc, [path, module]) => {
   const name = path.split("/").pop().replace(".svg", "").toLowerCase();
 
-  // Buat komponen React manual dari file SVG
   const SvgIcon = (props) => (
     <img
       src={module.default}

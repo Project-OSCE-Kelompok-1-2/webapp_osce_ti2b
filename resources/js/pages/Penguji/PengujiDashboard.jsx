@@ -11,7 +11,7 @@ import {
 } from "lucide-react";
 
 import OsHeader from "../../components/Header.jsx";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import OsIcon from "../../components/icons";
 import Calendar from "../../components/Calendar";
 import Sidebar from "../../components/Sidebar.jsx";
@@ -81,7 +81,6 @@ const JadwalCard = ({ item }) => {
         >
             {/* Flex container utama */}
             <div className="bg-white border rounded-xl shadow-sm px-4 py-4 flex items-center justify-between hover:shadow-md transition-all hover:border-orange-300 cursor-pointer">
-                {/* KIRI: Tanggal + Info OSCE */}
                 <div className="flex items-center gap-3 flex-shrink">
                     {/* Tanggal */}
                     <div className="flex flex-col items-center justify-center w-12 h-12 bg-orange-500 rounded-xl text-white shadow-sm group-hover:bg-orange-600 transition-colors shrink-0">
@@ -104,7 +103,6 @@ const JadwalCard = ({ item }) => {
                     </div>
                 </div>
 
-                {/* KANAN: STATUS LABEL (DIPERBAIKI) */}
                 <div className="ml-2 flex-shrink-0">
                     <span
                         className={`px-3 py-1.5 rounded-xl text-xs font-medium border ${statusClass}`}
@@ -121,7 +119,6 @@ const JadwalCard = ({ item }) => {
    HALAMAN DASHBOARD PENGUJI
 ---------------------------------------------------*/
 export default function PengujiDashboard() {
-    // MENERIMA PROPS calendar_events
     const {
         nama_penguji,
         statistik,
@@ -236,7 +233,6 @@ export default function PengujiDashboard() {
 
                         {/* JADWAL + CALENDAR GRID */}
                         <section className="flex flex-col lg:flex-row">
-                            {/* LEFT SIDE: Jadwal Penting */}
                             <div className="w-full lg:w-8/12 lg:mr-5 mb-4 lg:mb-0">
                                 <div className="flex justify-between items-center mb-4">
                                     <div className="flex gap-os-8 items-center justify-start">
@@ -279,7 +275,6 @@ export default function PengujiDashboard() {
 
                             <hr className="border-1 block lg:hidden border-os-black opacity-os-alpha-25 mb-4" />
 
-                            {/* RIGHT SIDE: Calendar */}
                             <div className="w-full lg:w-4/12">
                                 <div className="bg-white p-4 rounded-xl border shadow-sm sticky top-5">
                                     <div className="flex gap-os-8 items-center justify-start mb-2">
@@ -288,7 +283,6 @@ export default function PengujiDashboard() {
                                             Kalender
                                         </h2>
                                     </div>
-                                    {/* MENGIRIM EVENTS KE KOMPONEN CALENDAR */}
                                     <Calendar
                                         onDateSelect={handleDateSelect}
                                         events={calendar_events}

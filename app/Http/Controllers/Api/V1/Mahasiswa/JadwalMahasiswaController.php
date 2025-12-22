@@ -24,10 +24,8 @@ class JadwalMahasiswaController extends Controller
             return response()->json(['success' => false, 'message' => 'Mahasiswa not found'], 404);
         }
 
-        // 1. Ambil List Tanggal
         $enrollmentDates = $this->jadwalService->getEnrollmentDates($idMahasiswa);
 
-        // 2. Tentukan Tanggal
         $selectedDate = $request->input('date');
 
         if (!$selectedDate && $enrollmentDates->isNotEmpty()) {
@@ -36,7 +34,6 @@ class JadwalMahasiswaController extends Controller
             $selectedDate = $hasToday ? $today : $enrollmentDates->first()['date_raw'];
         }
 
-        // Jika data kosong
         if (!$selectedDate) {
             return response()->json([
                 'success' => true,
@@ -48,7 +45,6 @@ class JadwalMahasiswaController extends Controller
             ]);
         }
 
-        // 3. Ambil Data Detail
         $examHeader = $this->jadwalService->getExamHeader($idMahasiswa, $selectedDate);
         $jadwalStase = [];
 
@@ -60,7 +56,7 @@ class JadwalMahasiswaController extends Controller
             'success' => true,
             'data' => [
                 'selected_date' => $selectedDate,
-                'available_dates' => $enrollmentDates, // List tanggal untuk dropdown di Frontend
+                'available_dates' => $enrollmentDates, 
                 'exam_info' => $examHeader,
                 'schedule_details' => $jadwalStase
             ]

@@ -16,39 +16,31 @@ class OscePengujiService
      */
     public function getAssignmentsForPenguji($user, $search, $tahun)
     {
-        // 1. Ambil Data Penguji dari User Login
         $penguji = Penguji::where('id_pengguna', $user->id_pengguna)->firstOrFail();
 
-        // 2. Query Dasar
         $query = OsceStase::with(['osce.enrollmentOsce', 'osce.tahunAkademik'])
             ->where('id_penguji', $penguji->id_penguji);
 
-        // 3. Filter Search (berdasarkan nama OSCE)
         if ($search) {
             $query->whereHas('osce', function ($q) use ($search) {
                 $q->where('nama_osce', 'like', "%{$search}%");
             });
         }
 
-        // 4. Filter Tahun
         if ($tahun) {
             $query->whereHas('osce.tahunAkademik', function ($q) use ($tahun) {
                 $q->where('tahun', 'like', "%{$tahun}%");
             });
         }
 
-        // 5. Pagination & Sorting
         $assignments = $query->orderBy('tanggal', 'desc')
                              ->paginate(10)
                              ->withQueryString();
 
-        // 6. Transformasi Data (Sama persis dengan logika Inertia)
-        // Menggunakan through() agar struktur pagination (current_page, last_page, dll) tetap ada
         $osceList = $assignments->through(function ($stase) {
             $osce = $stase->osce;
             $now = Carbon::now();
 
-            // Logika Status
             $status = 'Selesai';
             if ($now->lt($osce->tanggal_mulai)) {
                 $status = 'Belum Dimulai';

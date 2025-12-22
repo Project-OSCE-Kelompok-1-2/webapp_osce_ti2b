@@ -59,7 +59,6 @@ class AdminController extends Controller
      */
     public function update_account(Request $request)
     {
-        // Validasi
         $request->validate([
             'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:1024'],
             'new_password' => ['nullable', 'string', 'min:6', 'confirmed'],
@@ -70,7 +69,6 @@ class AdminController extends Controller
         $user = Auth::user();
         Log::info("data_user" . $user);
 
-        // Service akan menangani validasi & throw exception jika gagal
         $updatedUser = $this->service->updateAccount($request, $user);
 
         return response()->json([

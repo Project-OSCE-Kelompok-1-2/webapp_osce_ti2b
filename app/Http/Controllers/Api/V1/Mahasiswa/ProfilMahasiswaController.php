@@ -49,7 +49,6 @@ class ProfilMahasiswaController extends Controller
     {
         $mahasiswa = Auth::user();
 
-        // Validasi
         $validator = \Validator::make($request->all(), [
             'foto'          => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:1024'],
             'new_password'  => ['nullable', 'string', 'min:6', 'confirmed'],

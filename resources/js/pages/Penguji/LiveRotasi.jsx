@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react"; // BARU: Import Hooks
+import React, { useState, useEffect } from "react"; 
 import { Head, router, usePage } from "@inertiajs/react";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import Sidebar from "../../components/Sidebar";
 import OsTableHeader from "../../components/tableheader";
 import OsHeader from "../../components/Header";
@@ -20,38 +20,30 @@ import {
 } from "lucide-react";
 
 export default function LiveRotasi() {
-    // 1. AMBIL PROPS DARI BACKEND
     const {
         osce_detail,
         mahasiswa_selanjutnya,
-        sisa_waktu_rotasi_detik = 60, // Ini data mentah dari Controller
+        sisa_waktu_rotasi_detik = 60, 
     } = usePage().props;
 
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // BARU: State lokal untuk timer yang bisa berjalan
     const [timeLeft, setTimeLeft] = useState(sisa_waktu_rotasi_detik);
 
-    // Fallback
     const safeOsce = osce_detail || { nama_osce: "-", nama_stase: "-" };
     const isFinished = !mahasiswa_selanjutnya;
 
-    // BARU: Effect 1 - Reset Timer saat mahasiswa/props berubah
-    // Ini solusi inti agar timer kembali ke 30 menit (atau durasi awal) saat ganti orang
     useEffect(() => {
         setTimeLeft(sisa_waktu_rotasi_detik);
     }, [sisa_waktu_rotasi_detik, mahasiswa_selanjutnya]);
 
-    // BARU: Effect 2 - Logika Hitung Mundur (Countdown)
     useEffect(() => {
-        // Jika waktu habis atau selesai, stop timer
         if (timeLeft <= 0 || isFinished) return;
 
         const intervalId = setInterval(() => {
             setTimeLeft((prevTime) => prevTime - 1);
         }, 1000);
 
-        // Bersihkan interval saat komponen unmount atau update
         return () => clearInterval(intervalId);
     }, [timeLeft, isFinished]);
 
@@ -71,9 +63,8 @@ export default function LiveRotasi() {
         }
     };
 
-    // Format Waktu
     const formatWaktu = (detik) => {
-        if (detik < 0) detik = 0; // Safety check
+        if (detik < 0) detik = 0; 
         const m = Math.floor(detik / 60)
             .toString()
             .padStart(2, "0");
@@ -115,29 +106,6 @@ export default function LiveRotasi() {
                             <div className="md:w-full w-[90%] md:mt-32 mt-28  max-w-md !border-os-primary-pj bg-white rounded-2xl shadow-[0_4px_8px_rgba(0,0,0,0.15)] border  py-6 px-6 text-center">
                                 {/* Icon Check / Finish */}
                                 <div className="flex justify-center mb-4">
-                                    {/* <div
-                                        className={`flex items-center justify-center w-[116px] h-[116px] rounded-[22px] border-[6px] ${
-                                            isFinished
-                                                ? "border-green-500"
-                                                : "border-orange-400"
-                                        }`}
-                                    >
-                                        <svg
-                                            viewBox="0 0 24 24"
-                                            className="w-12 h-12"
-                                            fill="none"
-                                            stroke={
-                                                isFinished
-                                                    ? "#22c55e"
-                                                    : "#22c55e"
-                                            }
-                                            strokeWidth="2.4"
-                                            strokeLinecap="round"
-                                            strokeLinejoin="round"
-                                        >
-                                            <polyline points="5 13 9 17 19 7" />
-                                        </svg>
-                                    </div> */}
                                     <CircleCheckBig
                                         size={90}
                                         className="text-orange-400"
@@ -200,7 +168,6 @@ export default function LiveRotasi() {
                                                 Istirahat
                                             </span>
                                             <span className="text-sm font-bold text-orange-500">
-                                                {/* BARU: Gunakan state timeLeft, bukan props langsung */}
                                                 {formatWaktu(timeLeft)}
                                             </span>
                                         </div>

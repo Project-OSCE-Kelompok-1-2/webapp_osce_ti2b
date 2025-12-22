@@ -13,10 +13,9 @@ import {
     MapPin,
 } from "lucide-react";
 
-// Components
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import Calendar from "../../components/Calendar";
 import OsIcon from "../../components/icons.jsx";
 
@@ -61,7 +60,6 @@ const StatCard = ({ title, value, description, icon, colorClass, href }) => {
    COMPONENT: URGENT / ALERT CARD (MODIFIKASI HARI INI)
 ---------------------------------------------------*/
 const UrgentJadwalCard = ({ jadwal }) => {
-    // Logika Label Waktu
     const isToday = jadwal.sisa_hari === 0;
 
     let labelWaktu = "";
@@ -74,13 +72,12 @@ const UrgentJadwalCard = ({ jadwal }) => {
     }
 
     return (
-        // BG Biru sesuai request (bg-blue-600)
         <div className="w-full bg-blue-600 rounded-xl p-5 text-white shadow-lg mb-6 relative overflow-hidden ring-4 ring-blue-100">
             {/* Dekorasi Background */}
             <div className="absolute -right-6 -top-6 bg-white/10 w-32 h-32 rounded-full blur-2xl"></div>
 
             <div className="flex items-start gap-4 relative z-10">
-                {/* Icon Alert Merah (Bg Putih agar icon merah terlihat jelas, atau Bg Merah icon putih) */}
+                {/* Icon Alert Merah */}
                 <div className="bg-white p-3 rounded-xl shadow-md flex items-center justify-center min-w-[50px] min-h-[50px]">
                     <AlertCircle
                         size={28}
@@ -179,13 +176,11 @@ const JadwalItem = ({ jadwal }) => {
    MAIN PAGE: MAHASISWA DASHBOARD
 ---------------------------------------------------*/
 export default function DashboardMahasiswa() {
-    // 1. Props dari Backend
     const { auth, statistik, jadwal_penting, kalender_event, selected_date } =
         usePage().props;
     const { url } = usePage();
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // Handler saat tanggal di kalender diklik
     const handleDateSelect = (dateObj) => {
         const year = dateObj.getFullYear();
         const month = String(dateObj.getMonth() + 1).padStart(2, "0");
@@ -204,22 +199,15 @@ export default function DashboardMahasiswa() {
     };
 
     // --- LOGIKA FILTER ---
-    // Cek apakah user sedang melihat tanggal spesifik
     const isDateFiltered = !!selected_date;
 
-    // 1. Urgent Jadwal (H-1 / Hari H)
-    // Jika sedang filter tanggal, jangan tampilkan card urgent (return null)
     const urgentJadwal = isDateFiltered
         ? null
         : jadwal_penting?.find((j) => j.sisa_hari >= 0 && j.sisa_hari <= 1);
 
-    // 2. Normal Jadwal (List Bawah)
-    // Jika filter tanggal aktif -> Ambil SEMUA data
-    // Jika filter mati -> Exclude yang urgent
     const normalJadwal = isDateFiltered
         ? jadwal_penting
         : jadwal_penting?.filter((j) => j.sisa_hari > 1 || j.sisa_hari < 0);
-    // ----------------------------------
 
     return (
         <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">

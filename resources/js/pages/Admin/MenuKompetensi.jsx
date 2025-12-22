@@ -2,7 +2,6 @@ import React, { useState, useEffect, useMemo } from "react";
 import { usePage, router, useForm } from "@inertiajs/react";
 import { Pencil, Trash2, FileText, Table2 } from "lucide-react";
 
-// --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsIcon from "../../components/icons";
@@ -12,9 +11,9 @@ import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
 import OsModal from "../../components/Modal.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import Modals from "../../components/Modals.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 
 const columns = [
     {
@@ -44,18 +43,15 @@ const columns = [
 ];
 
 export default function KompetensiPage() {
-    // 1. Ambil Data Full
     const { aspek, kompetensi, filters } = usePage().props;
     const allData = Array.isArray(kompetensi)
         ? kompetensi
         : kompetensi?.data || [];
 
-    // 2. State Filter & Pagination
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    // --- INSTANT FILTER LOGIC ---
     useEffect(() => {
         setCurrentPage(1);
     }, [search]);
@@ -114,21 +110,17 @@ export default function KompetensiPage() {
         return links;
     }, [currentPage, totalPages]);
 
-    // 🔥 HITUNG TOTAL BOBOT (Dari semua data, bukan yang difilter)
     const totalBobot = allData.reduce(
         (acc, curr) => acc + Number(curr.bobot),
         0
     );
 
-    // Ambil bobot maksimum dari aspek (default 100 jika tidak ada)
     const maxBobot = Number(aspek.bobot_maksimum || 100);
 
-    // --- SETUP URL BACK BUTTON ---
     const backUrl = aspek.id_stase
         ? `/admin/stase/${aspek.id_stase}/aspek-penilaian`
         : "/admin/stase";
 
-    // --- FORM & MODAL STATE ---
     const {
         data,
         setData,
@@ -136,9 +128,9 @@ export default function KompetensiPage() {
         put,
         delete: destroy,
         reset,
-        errors, // 1. Tambah errors
-        setError, // 2. Tambah setError
-        clearErrors, // 3. Tambah clearErrors
+        errors, 
+        setError, 
+        clearErrors, 
     } = useForm({
         id: null,
         kompetensi: "",
@@ -150,14 +142,11 @@ export default function KompetensiPage() {
     const [modalOpen, setModalOpen] = useState(false);
     const [selected, setSelected] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    // Hapus manual error message state
-    // const [errorMessage, setErrorMessage] = useState("");
 
     const [showFullWeightWarning, setShowFullWeightWarning] = useState(false);
 
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-    // --- HANDLERS ---
     const openAddModal = () => {
         if (totalBobot >= maxBobot) {
             setShowFullWeightWarning(true);
@@ -165,7 +154,7 @@ export default function KompetensiPage() {
         }
         setShowFullWeightWarning(false);
         setModalType("add");
-        clearErrors(); // Reset error saat buka modal
+        clearErrors(); 
         setData({
             id: null,
             kompetensi: "",
@@ -178,7 +167,7 @@ export default function KompetensiPage() {
     const openEditModal = (item) => {
         setSelected(item);
         setModalType("edit");
-        clearErrors(); // Reset error saat buka modal
+        clearErrors(); 
         setData({
             id: item.id_poin_aspek_penilaian,
             kompetensi: item.kompetensi,
@@ -198,14 +187,12 @@ export default function KompetensiPage() {
         clearErrors();
     };
 
-    // --- LOGIC VALIDASI & SUBMIT ---
     const handleSubmit = (e) => {
         e.preventDefault();
-        clearErrors(); // Bersihkan error lama
+        clearErrors(); 
 
         let isValid = true;
 
-        // A. Validasi Field Kosong
         if (!data.kompetensi || data.kompetensi.trim() === "") {
             setError("kompetensi", "Deskripsi kompetensi wajib diisi.");
             isValid = false;
@@ -215,7 +202,6 @@ export default function KompetensiPage() {
             isValid = false;
         }
 
-        // B. Validasi Logic Bobot
         const inputBobot = Number(data.bobot) || 0;
         let projectedTotal = 0;
 
@@ -226,7 +212,6 @@ export default function KompetensiPage() {
             projectedTotal = totalBobot - oldBobot + inputBobot;
         }
 
-        // Cek hanya jika field bobot tidak kosong
         if (data.bobot && projectedTotal > maxBobot) {
             setError(
                 "bobot",
@@ -235,9 +220,8 @@ export default function KompetensiPage() {
             isValid = false;
         }
 
-        if (!isValid) return; // Stop jika ada error
+        if (!isValid) return; 
 
-        // C. Eksekusi Submit
         if (modalType === "add") {
             post(
                 `/admin/aspek-penilaian/${aspek.id_aspek_penilaian}/kompetensi`,
@@ -273,7 +257,6 @@ export default function KompetensiPage() {
         });
     };
 
-    // --- TABLE DATA MAPPING ---
     const tableData = paginatedData.map((item, idx) => ({
         no: (currentPage - 1) * itemsPerPage + idx + 1,
         kompetensi: item.kompetensi,
@@ -455,7 +438,6 @@ export default function KompetensiPage() {
                                 if (errors.kompetensi)
                                     clearErrors("kompetensi");
                             }}
-                            // required <-- Hapus agar validasi custom jalan
                         />
                         {errors.kompetensi && (
                             <p className="text-red-500 text-xs mt-1">
@@ -476,7 +458,6 @@ export default function KompetensiPage() {
                                 setData("bobot", e.target.value);
                                 if (errors.bobot) clearErrors("bobot");
                             }}
-                            // required <-- Hapus
                         />
                         {errors.bobot && (
                             <p className="text-red-500 text-xs mt-1 font-semibold">

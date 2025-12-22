@@ -15,11 +15,9 @@ class EditNilaiService
      */
     public function getEditData($id_enrollment_osce)
     {
-        // 1. Ambil Data Enrollment & Mahasiswa
         $enrollment = EnrollmentOsce::with(['mahasiswa'])
             ->findOrFail($id_enrollment_osce);
 
-        // 2. Ambil OsceStase yang terkait
         $osceStase = null;
         if (!empty($enrollment->id_osce_stase)) {
             $osceStase = OsceStase::with('stase')
@@ -27,14 +25,12 @@ class EditNilaiService
                 ->first();
         }
 
-        // Fallback: cari berdasarkan id_osce
         if (!$osceStase && !empty($enrollment->id_osce)) {
             $osceStase = OsceStase::with('stase')
                 ->where('id_osce', $enrollment->id_osce)
                 ->first();
         }
 
-        // Jika OsceStase tidak ditemukan (Kasus Tidak Aktif/Data Kosong)
         if (!$osceStase) {
             return [
                 'osce_status' => 'Tidak Aktif',
@@ -52,14 +48,12 @@ class EditNilaiService
             ];
         }
 
-        // LOAD RUBRIK + NILAI EXISTING
         $rubrikStruktur = $osceStase->stase->load([
             'aspekPenilaian.poinAspekPenilaian.nilai_osce' => function ($query) use ($id_enrollment_osce) {
                 $query->where('id_enrollment_osce', $id_enrollment_osce);
             }
         ]);
 
-        // Tentukan status OSCE
         $osceStatus = 'Aktif';
         if (!empty($osceStase->tanggal)) {
             try {
@@ -72,7 +66,6 @@ class EditNilaiService
             }
         }
 
-        // FORMAT DATA RESPONSE
         $rubrikTerisi = [
             'id_enrollment_osce' => $enrollment->id_enrollment_osce,
             'mahasiswa' => [
@@ -119,18 +112,15 @@ class EditNilaiService
         try {
             $enrollment = EnrollmentOsce::with('osceStase')->findOrFail($id_enrollment_osce);
 
-            // Logika Status
             $statusOsce = $inputStatusOsce;
             if (is_null($statusOsce)) {
                 $statusOsce = $enrollment->osceStase ? 'Aktif' : 'Tidak Aktif';
             }
 
-            // Validasi Status Aktif
             if (strtolower($statusOsce) !== 'aktif') {
                 throw new Exception("OSCE tidak aktif. Nilai tidak dapat disimpan.", 403);
             }
 
-            // Proses Loop Simpan
             $savedCount = 0;
             foreach ($items as $item) {
                 NilaiOsce::updateOrCreate(
@@ -155,7 +145,6 @@ class EditNilaiService
 
         } catch (Exception $e) {
             DB::rollBack();
-            // Lempar ulang exception agar ditangkap controller
             throw $e;
         }
     }

@@ -1,14 +1,11 @@
 import React, { useState, useEffect } from "react";
 import { usePage, router } from "@inertiajs/react";
 import { ArrowLeft, User, FileText, Bookmark } from "lucide-react";
-import OsCopyright from "../../components/Copyright";
-
-// Pastikan path import ini sesuai dengan struktur project Anda
+import OsCopyright from "../../components/copyright";
 import Sidebar from "../../components/Sidebar";
 import OsTableHeader from "../../components/tableheader";
 import OsHeader from "../../components/Header";
 
-// Header Tabel Rubrik (Tidak Berubah)
 const rubrikColumns = [
     { content: "No", width: "w-16", classes: "justify-center items-center" },
     {
@@ -49,18 +46,15 @@ export default function LivePenilaian() {
         mode_edit = false,
     } = usePage().props;
 
-    // [FIX 1] STATE SIDEBAR DISATUKAN (Hapus duplikasi 'sidebarOpen')
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     const handleSidebarToggle = () => {
         setIsSidebarOpen((prev) => !prev);
     };
 
-    // KEY STORAGE UNTUK DRAFT
     const DRAFT_KEY = `osce_draft_${id_enrollment_osce}`;
     const TIMER_KEY = `osce_timer_end_${id_enrollment_osce}`;
 
-    // --- STATE DEFINITIONS ---
     const [feedback, setFeedback] = useState("");
     const [nilaiMap, setNilaiMap] = useState({});
     const [waktu, setWaktu] = useState(sisa_waktu_detik);
@@ -218,14 +212,12 @@ export default function LivePenilaian() {
                 </span>
             </div>
 
-            {/* [FIX 2] PERBAIKAN SIDEBAR: Gunakan 'isSidebarOpen' dan 'onToggle' */}
             <Sidebar
                 isOpen={isSidebarOpen}
                 onToggle={handleSidebarToggle}
                 type={"penguji"}
             />
 
-            {/* [FIX 3] MAIN CONTENT: Tetap statis (lg:ml-20) sesuai request */}
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 {/* HEADER */}
                 <OsHeader
@@ -378,11 +370,9 @@ export default function LivePenilaian() {
                         </div>
                     </div>
 
-                    {/* ================= MOBILE / TABLET VIEW (PERBAIKAN) ================= */}
                     <div className="xl:hidden space-y-3">
                         {dataRubrik.map((group, gIndex) => (
                             <React.Fragment key={gIndex}>
-                                {/* PERBAIKAN 1: Background Judul jadi Oranye (bukan abu-abu) */}
                                 <div className="bg-orange-50 text-orange-900 border-os-primary-pj border px-4 py-2 font-semibold rounded-lg">
                                     {group.aspek}
                                 </div>

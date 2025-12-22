@@ -1,13 +1,10 @@
 import React, { useState, useEffect, useMemo, useCallback } from "react";
-// Import library dari Inertia untuk handling head dan router
 import { Head, router } from "@inertiajs/react";
-// Import ikon dari library lucide-react
 import { Calendar, Clock, Timer, CheckSquare, ChevronDown } from "lucide-react";
 
-// Sesuaikan path import komponen UI Anda
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsPagination from "../../components/pagination.jsx";
@@ -149,7 +146,6 @@ export default function JadwalOsce({
         currentPage * itemsPerPage
     );
 
-    // Generator Links Pagination (Client-Side)
     const paginationLinks = useMemo(() => {
         if (totalPages <= 1) return [];
 
@@ -240,8 +236,6 @@ export default function JadwalOsce({
     // 5. RENDER UI
     // ============================================
     return (
-        // PERBAIKAN 1: Tambahkan overflow-x-hidden pada wrapper utama
-        // untuk mencegah scroll horizontal yang tidak diinginkan dari elemen yang kelebihan lebar.
         <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-x-hidden">
             {/* <Head title="Jadwal OSCE" /> */}
             <Sidebar
@@ -250,12 +244,7 @@ export default function JadwalOsce({
                 onToggle={() => setSidebarOpen(!sidebarOpen)}
             />
 
-            {/* PERBAIKAN 2:
-                - Gunakan `flex-1` agar `<main>` mengambil sisa lebar yang tersedia.
-                - Hapus `w-full` yang redundan.
-                - Gunakan `max-w-full` untuk mencegah elemen di dalam `<main>` mendorongnya melebihi lebar viewport.
-                - Atur `margin-left` secara kondisional hanya untuk layar besar (`lg+`) saat sidebar terbuka.
-            */}
+            {/* */}
             <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
                 <div className="flex flex-col gap-os-8">
                     <OsHeader
@@ -432,10 +421,8 @@ export default function JadwalOsce({
                             </div>
 
                             {/* Table Container - Responsive Horizontal Scroll */}
-                            {/* Pastikan container ini memiliki overflow-x-auto, yang sudah benar */}
                             <div className="bg-white p-5 border border-os-primary-mhs overflow-x-auto rounded-xl shadow-sm">
                                 <div className="w-full pb-2 ">
-                                    {/* Hapus overflow-x-auto yang redundan di sini */}
                                     <div className="min-w-max">
                                         <OsTableHeader
                                             columns={tableColumns}

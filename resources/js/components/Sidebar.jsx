@@ -15,8 +15,6 @@ import {
     ClipboardCheck,
 } from "lucide-react";
 
-// --- Data Konfigurasi Multi-Role ---
-// Note: Email statis dihapus dari sini karena sudah menggunakan data dinamis
 const roleData = {
     admin: {
         name: "Admin Fakultas",
@@ -107,7 +105,6 @@ const roleData = {
 const Sidebar = ({ type, isOpen, onToggle, user: propUser }) => {
     const { auth } = usePage().props;
 
-    // Prioritas: Gunakan user dari props jika ada, jika tidak pakai dari auth global
     const user = propUser || auth?.user;
 
     const initialRole = roleData[type] ? type : "admin";
@@ -116,45 +113,36 @@ const Sidebar = ({ type, isOpen, onToggle, user: propUser }) => {
 
     const { imageBg, menu } = roleData[currentRole];
 
-    // --- LOGIKA DINAMIS USERNAME & ID (NIM/NIP) ---
     let displayName = roleData[currentRole].name;
-    let displayId = ""; // Default kosong (untuk admin atau jika data tidak ada)
+    let displayId = "";
 
     if (user) {
         if (currentRole === "mahasiswa" && user.mahasiswa) {
             displayName = user.mahasiswa.nama;
-            // Tampilkan NIM untuk Mahasiswa
             displayId = user.mahasiswa.nim || "";
         } else if (currentRole === "penguji") {
-            // Cek data dosen/penguji
             const pengujiData = user.penguji || user.dosen;
             if (pengujiData) {
                 displayName = pengujiData.nama_gelar || pengujiData.nama;
-                // Tampilkan NIP untuk Penguji
                 displayId = pengujiData.nip || "";
             }
         } else if (currentRole === "admin") {
-            // Untuk admin, pakai user.name (yang sudah berisi username dari backend jika nama kosong)
-            // Dan biarkan displayId kosong (menghilangkan email statis)
             displayName = user.name || user.username;
             displayId = "";
         } else {
-            // Fallback umum
             displayName = user.name || user.username || displayName;
         }
     }
 
-    // LOGIKA WARNA AVATAR BERDASARKAN ROLE
     let avatarBgColor;
     if (currentRole === "mahasiswa") {
-        avatarBgColor = "16A34A"; // Hijau (Green-600)
+        avatarBgColor = "16A34A"; 
     } else if (currentRole === "penguji") {
-        avatarBgColor = "EA580C"; // Orange (Orange-600)
+        avatarBgColor = "EA580C"; 
     } else {
-        avatarBgColor = "2563EB"; // Biru (Blue-600 - Default Admin)
+        avatarBgColor = "2563EB"; // 
     }
 
-    // LOGIKA GAMBAR PROFIL
     let profileImageUrl;
     if (user && user.path_gambar) {
         profileImageUrl = `/${user.path_gambar}`;
@@ -182,7 +170,6 @@ const Sidebar = ({ type, isOpen, onToggle, user: propUser }) => {
         }
     };
 
-    // --- LOGIKA WARNA TEMA BERDASARKAN ROLE ---
     const sidebarColorClass =
         currentRole === "mahasiswa"
             ? "bg-green-700"

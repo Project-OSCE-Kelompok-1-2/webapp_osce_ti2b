@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class NilaiOsce extends Model
 {
-    /** @use HasFactory<\Database\Factories\NilaiOsceFactory> */
     use HasFactory;
 
     protected $table = 'nilai_osce';
@@ -20,16 +19,14 @@ class NilaiOsce extends Model
         'nilai',
     ];
 
-    // relasi ke enrollment_osce 1:1
     public function enrollmentOsce()
     {
         return $this->belongsTo(EnrollmentOsce::class, 'id_enrollment_osce');
     }
 
-    // relasi ke poin_aspek_penilaian 1:1
     public function poinAspekPenilaian()
     {
-        return $this->belongsTo(PoinAspekPenilaian::class, 'id_poin_aspek_penilaian'); //perlu relasi ke model PoinAspekPenilaian
+        return $this->belongsTo(PoinAspekPenilaian::class, 'id_poin_aspek_penilaian'); 
     }
 
     protected function casts(): array

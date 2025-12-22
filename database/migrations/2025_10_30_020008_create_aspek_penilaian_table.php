@@ -12,19 +12,15 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('aspek_penilaian', function (Blueprint $table) {
-            // Sesuai ERD & Konvensi: Primary Key
             $table->id('id_aspek_penilaian');
 
-            // Sesuai ERD & Aturan: Foreign Key ke tabel 'stase'
             $table->foreignId('id_stase')
                 ->constrained('stase', 'id_stase')
                 ->onDelete('cascade');
 
-            // Sesuai ERD: Kolom-kolom
             $table->string('aspek');
             $table->integer('bobot_maksimum');
 
-            // Sesuai Aturan: Wajib ada timestamps
             $table->timestamps();
         });
     }

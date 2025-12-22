@@ -54,13 +54,12 @@ class StaseController extends Controller
                 'deskripsi' => 'nullable|string',
             ]);
 
-            // Tangkap data yang dikembalikan service
             $newData = $this->service->store($validated);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Stase berhasil ditambahkan.',
-                'data' => $newData, // Kirim data baru
+                'data' => $newData, 
             ], 201);
         } catch (ValidationException $e) {
             return response()->json([
@@ -78,7 +77,6 @@ class StaseController extends Controller
     }
 
     /**
-     * Mengambil data stase
      * @param int $id_stase
      */
     public function show($id_stase)
@@ -93,7 +91,6 @@ class StaseController extends Controller
                     'id_stase' => $stase->id_stase,
                     'nama_stase' => $stase->nama_stase,
                     'jumlah_aspek' => $stase->aspekPenilaian()->count(),
-                    // Tambahkan field lain jika diperlukan untuk detail
                     'deskripsi' => $stase->deskripsi,
                     'id_mata_kuliah' => $stase->id_mata_kuliah,
                     'id_tujuan_pembelajaran' => $stase->id_tujuan_pembelajaran,
@@ -132,13 +129,12 @@ class StaseController extends Controller
                 'deskripsi' => 'nullable|string',
             ]);
 
-            // Tangkap data yang dikembalikan service
             $updatedData = $this->service->update($validated, $id);
 
             return response()->json([
                 'success' => true,
                 'message' => 'Stase berhasil diperbarui.',
-                'data' => $updatedData, // Kirim data yang sudah diupdate
+                'data' => $updatedData,
             ], 200);
         } catch (ValidationException $e) {
             return response()->json([
@@ -162,7 +158,6 @@ class StaseController extends Controller
     }
 
     /**
-     * Menghapus data stase
      * @param int $id_stase
      */
     public function destroy($id_stase)

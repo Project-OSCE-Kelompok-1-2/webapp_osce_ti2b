@@ -9,18 +9,14 @@ import {
     FileText,
 } from "lucide-react";
 
-// --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
-
-// Import Table Components
+import OsCopyright from "../../components/copyright.jsx";
 import OsTableHeader from "../../components/tableheader";
 import OsTableBody from "../../components/tablecontain";
 import OsPagination from "../../components/pagination";
 
 export default function RekapDetailPage() {
-    // 1. Ambil Data dari Props
     const { detailNilai } = usePage().props;
 
     const {
@@ -35,7 +31,6 @@ export default function RekapDetailPage() {
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
     // --- HELPER: FORMAT NILAI DINAMIS ---
-    // Logika: Bulatkan ke 2 desimal string, lalu ubah balik ke Float agar .00 hilang
     const formatNilai = (val) => {
         const num = parseFloat(val || 0);
         return parseFloat(num.toFixed(2));
@@ -142,9 +137,6 @@ export default function RekapDetailPage() {
                     />
 
                     <div className="flex-1 overflow-auto p-1">
-                        {/* <h2 className="text-2xl font-bold text-gray-800 tracking-tight">
-                                Detail Penilaian Mahasiswa
-                            </h2> */}
                         <div className="flex gap-1 items-center justify-start my-2">
                             <FileText size={18} />
                             <h2 className="font-semibold text-lg">
@@ -160,9 +152,7 @@ export default function RekapDetailPage() {
                         {/* Cards */}
                         <div className="grid grid-cols-1 lg:grid-cols-3 border border-os-primary gap-2 mb-4 p-4 bg-white rounded-xl">
                             <div className="lg:col-span-2 rounded-2xl max-w-[860px] w-full shadow-sm border-gray-100 relative overflow-hidden group flex items-center p-6">
-                                {/* PERUBAHAN: Gunakan items-center untuk mobile agar di tengah, sm:items-center (row) untuk desktop */}
                                 <div className="relative z-10 flex flex-col sm:flex-row items-center sm:items-center justify-center gap-4 sm:gap-6 w-full">
-                                    {/* Avatar: Tetap di tengah */}
                                     <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-3xl shadow-lg shadow-blue-200 shrink-0">
                                         {mahasiswa.nama
                                             ? mahasiswa.nama.charAt(0)
@@ -176,7 +166,6 @@ export default function RekapDetailPage() {
                                                 "Nama Tidak Diketahui"}
                                         </h3>
 
-                                        {/* Badges Container: Mobile Justify Center, Desktop Justify Start */}
                                         <div className="flex flex-wrap justify-center sm:justify-start gap-3 text-sm text-gray-600 w-full">
                                             {/* Badge NIM */}
                                             <div className="flex items-center gap-2 bg-blue-50 border-os-primary px-3 py-1.5 rounded-lg border border-gray-100">
@@ -195,7 +184,6 @@ export default function RekapDetailPage() {
                                                     size={16}
                                                     className="text-blue-500 shrink-0"
                                                 />
-                                                {/* Text tetap rata kiri agar enak dibaca bersanding dengan icon */}
                                                 <span className="font-medium text-os-primary-dark whitespace-normal text-left leading-tight break-words">
                                                     {osce.nama_osce ||
                                                         "Ujian OSCE"}
@@ -215,7 +203,6 @@ export default function RekapDetailPage() {
                                         Total Nilai Akhir
                                     </p>
                                     <div className="flex items-baseline gap-1">
-                                        {/* PERUBAHAN: Gunakan formatNilai() */}
                                         <span className="text-5xl font-extrabold tracking-tight">
                                             {formatNilai(nilai_total_osce)}
                                         </span>
@@ -306,7 +293,6 @@ export default function RekapDetailPage() {
                                                                 {komp.bobot}
                                                             </span>
                                                         ),
-                                                        // PERUBAHAN: Gunakan formatNilai() untuk baris tabel
                                                         nilai: (
                                                             <span className="font-bold text-blue-700">
                                                                 {formatNilai(
@@ -351,7 +337,6 @@ export default function RekapDetailPage() {
                                                     <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wider mb-1">
                                                         Nilai Akhir Stase
                                                     </span>
-                                                    {/* PERUBAHAN: Gunakan formatNilai() untuk header stase */}
                                                     <div className="text-2xl font-black text-gray-800">
                                                         {formatNilai(
                                                             stase.nilai_akhir_stase
@@ -387,7 +372,6 @@ export default function RekapDetailPage() {
                                                             Jumlah Nilai Bobot
                                                             Tahap Kerja
                                                         </div>
-                                                        {/* PERUBAHAN: Gunakan formatNilai() untuk footer tabel */}
                                                         <div className="w-28 py-3 text-center border-l border-gray-200 font-bold text-blue-700 bg-blue-50/30 text-base">
                                                             {formatNilai(
                                                                 stase.total_skor_bobot

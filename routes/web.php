@@ -23,7 +23,7 @@ use App\Http\Controllers\Penguji\EditNilaiController;
 use App\Http\Controllers\Penguji\ViewNilaiController;
 use App\Http\Controllers\Penguji\AksiPenilaianController;
 use App\Http\Controllers\Penguji\HalamanPenilaianController;
-use App\Http\Controllers\Penguji\RekapController; // Rekap khusus penguji
+use App\Http\Controllers\Penguji\RekapController; 
 use App\Http\Controllers\Penguji\ProfilController;
 use App\Http\Controllers\Penguji\OsceController as PengujiOsceController;
 
@@ -40,7 +40,6 @@ use App\Http\Controllers\Mahasiswa\NilaiMahasiswaController;
 |--------------------------------------------------------------------------
 */
 
-// Halaman Awal -> Redirect ke Login
 Route::get('/', function () {
     return redirect()->route('login');
 });
@@ -73,7 +72,7 @@ Route::prefix('penguji')->middleware(['auth', 'role:penguji'])->name('penguji.')
     Route::get('/osce/{id_osce}/stase/{id_osce_stase}/submitrubrik',[AksiPenilaianController::class, 'submitRubrik'])->name('Penilaian.submitrubrik');
 
 
-    // --- ALUR PASCA UJIAN / REKAP (PENGUJI) ---
+    // --- ALUR PASCA UJIAN / REKAP ---
     Route::get('/osce/{id_osce}/stase/{id_osce_stase}/rekap', [RekapController::class, 'rekap'])->name('rekap.list');
     Route::get('/osce/{id_osce}/stase/{id_osce_stase}/edit-nilai', [RekapController::class, 'editNilai'])->name('edit.list');
     Route::get('/osce/{id_osce}/stase/{id_osce_stase}/export/excel', [RekapController::class, 'exportExcel'])->name('rekap.export.excel');
@@ -94,9 +93,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::get('/pengaturan-akun', [AdminController::class, 'show_profile'])->name('account.show');
     Route::post('/pengaturan-akun', [AdminController::class, 'update_account'])->name('account.update');
 
-    // --- Master Data (Resource Controller) ---
+    // --- Aspek Penilaian ---
     Route::resource('stase', StaseController::class);
-    // Nested Resource untuk Aspek & Kompetensi
     Route::resource('stase.aspek-penilaian', AspekPenilaianController::class)->except(['show'])->shallow();
     Route::resource('aspek-penilaian.kompetensi', KompetensiController::class)->except(['show'])->shallow();
 
@@ -107,8 +105,7 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::post('/mahasiswa/import', [MahasiswaController::class, 'import'])->name('mahasiswa.import');
     Route::resource('mahasiswa', MahasiswaController::class)->except(['show']);
 
-    // --- OSCE: Helper Routes (API-like) ---
-    // Route khusus untuk cek ketersediaan & get data via AJAX
+    // Jadwal
     Route::post('/osce/check-availability', [OsceJadwalController::class, 'checkAvailability'])->name('osce.check-availability');
     Route::post('/osce/get-mahasiswa', [OsceJadwalController::class, 'getMahasiswa'])->name('osce.get-mahasiswa');
     Route::post('/osce/{id_osce}/get-session-detail', [OsceJadwalController::class, 'getSessionDetail'])->name('osce.get-session-detail');
@@ -137,13 +134,13 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->name('admin.')->grou
     Route::put('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'update'])->name('osce.jadwal.update');
     Route::delete('/osce/{id_osce}/jadwal/{sesi_id}', [OsceJadwalController::class, 'destroy'])->name('osce.jadwal.destroy');
 
-    // --- OSCE Enrollment (Peserta) ---
+    // --- OSCE Enrollment ---
     Route::prefix('osce/{osce_id}/jadwal/{jadwal_id}')->name('osce.enrollment.')->group(function () {
         Route::get('/enrollment', [OsceEnrollmentController::class, 'index'])->name('index');
         Route::post('/enrollment', [OsceEnrollmentController::class, 'sync'])->name('sync');
     });
 
-    // --- Rekap Nilai (ADMIN) ---
+    // --- Rekap Nilai ---
     Route::get('/rekap-nilai', [RekapNilaiController::class, 'index'])->name('rekap.index');
     Route::get('/rekap-nilai/{id_osce}/sesi', [RekapNilaiController::class, 'listSesi'])->name('rekap.sesi');
     Route::get('/rekap-nilai/{id_osce}/sesi/{id_sesi}/mahasiswa', [RekapNilaiController::class, 'listMahasiswaPerStase'])->name('rekap.mahasiswa');
