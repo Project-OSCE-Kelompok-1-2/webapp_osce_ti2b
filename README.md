@@ -1,66 +1,197 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# OSCE Web Application
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+A comprehensive web application for managing **Objective Structured Clinical Examination (OSCE)** assessments. This system facilitates the organization, scheduling, grading, and reporting of OSCE examinations for educational institutions.
 
-## About Laravel
+## Features
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+### For Administrators
+- **Dashboard** - Overview of OSCE activities and statistics
+- **OSCE Management** - Create, edit, and manage OSCE examinations
+- **Schedule Management** - Configure exam sessions, rooms, and time slots
+- **Student Management** - Add, edit, import (via Excel), and manage student records
+- **Examiner Management** - Manage examiner/lecturer information
+- **Stase & Assessment Criteria** - Define clinical stations (stases) and their assessment components
+- **Competency Management** - Configure learning objectives and competency points
+- **Enrollment** - Assign students to specific OSCE sessions
+- **Grade Recapitulation** - View and export student grades (PDF/Excel)
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+### For Examiners (Penguji)
+- **Live Grading** - Real-time assessment interface for evaluating students
+- **Queue Management** - View and manage student rotation queues
+- **Grade Review & Edit** - Review and modify submitted grades
+- **Grade Export** - Export assessment results to PDF or Excel
+- **Profile Management** - Update account settings
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### For Students (Mahasiswa)
+- **Dashboard** - Personal OSCE overview
+- **Schedule View** - View assigned OSCE examination schedules
+- **Grade Viewing** - Access assessment results and detailed feedback
+- **Profile Management** - Update personal account settings
 
-## Learning Laravel
+## Technology Stack
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework.
+### Backend
+- **PHP 8.2+** with **Laravel 11** framework
+- **Laravel Sanctum** for API authentication
+- **Maatwebsite Excel** for Excel import/export
+- **Laravel DomPDF** for PDF generation
+- **Scramble** for API documentation
 
-You may also try the [Laravel Bootcamp](https://bootcamp.laravel.com), where you will be guided through building a modern Laravel application from scratch.
+### Frontend
+- **React 19** with **Inertia.js** for SPA-like experience
+- **Vite** for asset bundling
+- **Tailwind CSS 3** for styling
+- **Lucide React** for icons
+- **Ziggy** for Laravel route handling in JavaScript
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+### Database
+- SQLite (default) or any Laravel-supported database
 
-## Laravel Sponsors
+## Prerequisites
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+- PHP >= 8.2
+- Composer
+- Node.js >= 18.x
+- npm or yarn
 
-### Premium Partners
+## Installation
 
-- **[Vehikl](https://vehikl.com/)**
-- **[Tighten Co.](https://tighten.co)**
-- **[WebReinvent](https://webreinvent.com/)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel/)**
-- **[Cyber-Duck](https://cyber-duck.co.uk)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Jump24](https://jump24.co.uk)**
-- **[Redberry](https://redberry.international/laravel/)**
-- **[Active Logic](https://activelogic.com)**
-- **[byte5](https://byte5.de)**
-- **[OP.GG](https://op.gg)**
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Project-OSCE-Kelompok-1-2/webapp_osce_ti2b.git
+   cd webapp_osce_ti2b
+   ```
+
+2. **Install PHP dependencies**
+   ```bash
+   composer install
+   ```
+
+3. **Install JavaScript dependencies**
+   ```bash
+   npm install
+   ```
+
+4. **Environment setup**
+   ```bash
+   cp .env.example .env
+   php artisan key:generate
+   ```
+
+5. **Database setup**
+   ```bash
+   # Create SQLite database (default)
+   touch database/database.sqlite
+   
+   # Run migrations
+   php artisan migrate
+   
+   # (Optional) Seed with sample data
+   php artisan db:seed
+   ```
+
+6. **Build frontend assets**
+   ```bash
+   npm run build
+   ```
+
+## Development
+
+Run the development server with all services:
+
+```bash
+composer dev
+```
+
+This command starts:
+- Laravel development server
+- Queue listener
+- Log viewer (Pail)
+- Vite development server
+
+Alternatively, run services individually:
+
+```bash
+# Start Laravel server
+php artisan serve
+
+# Start Vite dev server (in another terminal)
+npm run dev
+```
+
+## Testing
+
+```bash
+# Run all tests
+php artisan test
+
+# Or using PHPUnit directly
+vendor/bin/phpunit
+```
+
+## API Documentation
+
+The application includes a REST API with authentication via Laravel Sanctum. API documentation is auto-generated using Scramble.
+
+### API Endpoints Overview
+
+| Prefix | Description |
+|--------|-------------|
+| `/api/v1/admin/*` | Admin management endpoints |
+| `/api/v1/penguji/*` | Examiner assessment endpoints |
+| `/api/v1/mahasiswa/*` | Student portal endpoints |
+
+## Project Structure
+
+```
+├── app/
+│   ├── Http/Controllers/     # Web & API controllers
+│   │   ├── Admin/            # Admin controllers
+│   │   ├── Penguji/          # Examiner controllers
+│   │   ├── Mahasiswa/        # Student controllers
+│   │   └── Api/              # API controllers
+│   ├── Models/               # Eloquent models
+│   ├── Services/             # Business logic services
+│   └── Imports/              # Excel import handlers
+├── database/
+│   ├── migrations/           # Database schema
+│   ├── seeders/              # Sample data
+│   └── factories/            # Model factories
+├── resources/
+│   └── js/
+│       ├── components/       # React components
+│       └── pages/            # Inertia page components
+├── routes/
+│   ├── web.php               # Web routes
+│   └── api.php               # API routes
+└── tests/                    # Feature & unit tests
+```
+
+## Key Models
+
+| Model | Description |
+|-------|-------------|
+| `Osce` | OSCE examination event |
+| `Stase` | Clinical station/rotation |
+| `Mahasiswa` | Student records |
+| `Penguji` | Examiner/lecturer records |
+| `AspekPenilaian` | Assessment criteria |
+| `NilaiOsce` | Student grades |
+| `EnrollmentOsce` | Student-OSCE assignments |
+| `OsceStase` | OSCE session schedules |
 
 ## Contributing
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
-
-## Code of Conduct
-
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
-
-## Security Vulnerabilities
-
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/amazing-feature`)
+3. Commit your changes (`git commit -m 'Add amazing feature'`)
+4. Push to the branch (`git push origin feature/amazing-feature`)
+5. Open a Pull Request
 
 ## License
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+This project is open-sourced software licensed under the [MIT license](LICENSE).
+
+---
+
+**Project OSCE (Kelompok 1-2)** © 2025
