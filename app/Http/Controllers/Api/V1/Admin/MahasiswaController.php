@@ -56,6 +56,7 @@ class MahasiswaController extends Controller
             'nama'  => 'required|string|max:255',
             'kelas' => 'required|string|max:50',
             'prodi' => 'required|string|max:100',
+            'angkatan' => 'required|string',
         ]);
 
         $mahasiswa = $this->service->store($validated);
@@ -90,7 +91,7 @@ class MahasiswaController extends Controller
                 'required',
                 'string',
                 'max:20',
-                'unique:mahasiswa,nim,' . $mahasiswa->id_mahasiswa . ',id_mahasiswa', // Abaikan diri sendiri
+                'unique:mahasiswa,nim,' . $mahasiswa->id_mahasiswa . ',id_mahasiswa', 
                 function ($attribute, $value, $fail) use ($mahasiswa) {
                     if (Pengguna::where('username', $value)->where('id_pengguna', '!=', $mahasiswa->id_pengguna)->exists()) {
                         $fail('NIM ini sudah digunakan sebagai username oleh pengguna lain.');
@@ -100,6 +101,7 @@ class MahasiswaController extends Controller
             'nama'  => 'required|string|max:255',
             'kelas' => 'required|string|max:50',
             'prodi' => 'required|string|max:100',
+            'angkatan' => 'required|string',
         ]);
 
         $updatedMahasiswa = $this->service->update($validated, $mahasiswa);
@@ -125,30 +127,23 @@ class MahasiswaController extends Controller
     }
 
     /**
-     * Endpoint API untuk import data mahasiswa.
-     * POST /api/admin/mahasiswa/import
-     *
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
      */
     public function import(Request $request)
     {
-        // 1. Validasi Input (Sama persis dengan logika sebelumnya)
         $request->validate([
             'file' => 'required|file|mimes:xlsx,xls',
         ]);
 
         try {
-            // 2. Panggil Service untuk eksekusi logika import
             $this->service->importMahasiswa($request->file('file'));
 
-            // 3. Return Success JSON
             return response()->json([
                 'status'  => 'success',
                 'message' => 'Data mahasiswa berhasil diimpor.',
             ], 200);
         } catch (\Exception $e) {
-            // 4. Return Error JSON jika import gagal
             return response()->json([
                 'status'  => 'error',
                 'message' => 'Gagal mengimpor data: ' . $e->getMessage(),

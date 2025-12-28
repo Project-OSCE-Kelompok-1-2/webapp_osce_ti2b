@@ -20,7 +20,6 @@ class Osce extends Model
         'keterangan',
     ];
 
-    // Otomatis menambahkan atribut tambahan ke response JSON
     protected $appends = [
         'detail_stase',
         'detail_mahasiswa',
@@ -29,8 +28,8 @@ class Osce extends Model
     ];
 
     protected $casts = [
-        'tanggal_mulai' => 'datetime:d-m-Y', // Otomatis ubah ke Objek Tanggal
-        'tanggal_selesai' => 'datetime:d-m-Y', // Otomatis ubah ke Objek Tanggal
+        'tanggal_mulai' => 'datetime:d-m-Y',
+        'tanggal_selesai' => 'datetime:d-m-Y', 
     ];
 
     /**

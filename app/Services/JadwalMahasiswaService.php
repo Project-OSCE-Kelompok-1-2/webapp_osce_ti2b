@@ -9,70 +9,115 @@ use Carbon\Carbon;
 
 class JadwalMahasiswaService
 {
-    /**
-     * Mendapatkan ID Mahasiswa dari User Login
-     */
     public function getCurrentMahasiswaId()
     {
         $user = Auth::user();
-        // Pastikan relasi 'mahasiswa' ada di model User/Pengguna
         return $user && $user->mahasiswa ? $user->mahasiswa->id_mahasiswa : null;
     }
 
     /**
-     * Mengambil Data Header (Info Ujian Aktif & Countdown)
+     * Mengambil daftar tanggal sesi dari tabel enrollment_osce.
      */
-    public function getActiveExamInfo($idMahasiswa)
+    public function getEnrollmentDates($idMahasiswa)
     {
-        // 1. Cari Enrollment Mahasiswa pada OSCE yang masih aktif (belum lewat tanggal selesai)
-        $enrollment = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
-            ->whereHas('osce', function ($q) {
-                // Asumsi: Ujian aktif jika tanggal selesai >= hari ini
-                $q->whereDate('tanggal_selesai', '>=', Carbon::now());
+        return EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
+            ->whereNotNull('tanggal_sesi')
+            ->join('osce', 'enrollment_osce.id_osce', '=', 'osce.id_osce') 
+            ->select('enrollment_osce.tanggal_sesi', 'osce.nama_osce')
+            ->orderBy('enrollment_osce.tanggal_sesi', 'asc')
+            ->get()
+            ->map(function ($item) {
+                $carbonDate = Carbon::parse($item->tanggal_sesi);
+                return [
+                    'date_raw'    => $carbonDate->format('Y-m-d'),
+                    'date_label'  => $carbonDate->translatedFormat('d F Y'), 
+                    'is_selected' => false,
+                ];
             })
-            ->with(['osce.osceStase']) // Eager load stase untuk hitung durasi
+            ->unique('date_raw')
+            ->values();
+    }
+
+    /**
+     * Logic Utama:
+     */
+   public function getActiveExamInfo($idMahasiswa, $selectedDate)
+    {
+        $enrollment = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
+            ->whereDate('tanggal_sesi', $selectedDate)
+            ->with(['osce', 'osce.osceStase']) 
             ->first();
-        
-        // Jika tidak ada jadwal ujian aktif
+
         if (!$enrollment || !$enrollment->osce) {
             return null;
         }
 
         $osce = $enrollment->osce;
+        $timezone = 'Asia/Jakarta';
 
-        // 2. Hitung Waktu Mulai (Ambil dari sesi enrollment atau default 08:00)
-        $jamMulaiStr = $enrollment->jam_sesi ? $enrollment->jam_sesi : '08:00:00';
-        $jamMulai = substr($jamMulaiStr, 0, 5); // Ambil HH:mm
-
-        // 3. Hitung Waktu Selesai (Jam Mulai + Total Durasi Semua Stase)
-        $totalDurasiMenit = $osce->osceStase->sum('durasi_per_mahasiswa');
-        $waktuSelesai = Carbon::parse($jamMulaiStr)->addMinutes($totalDurasiMenit)->format('H:i');
+        $jamMulaiStr = $enrollment->jam_sesi ? $enrollment->jam_sesi : '08:00:00'; 
         
-        // 4. Tentukan Tanggal Fix (Prioritas: Tanggal Sesi Enrollment -> Tanggal Mulai OSCE)
-        $tanggalObj = $enrollment->tanggal_sesi 
-            ? Carbon::parse($enrollment->tanggal_sesi) 
-            : Carbon::parse($osce->tanggal_mulai);
+        $jamMulaiDisplay = substr($jamMulaiStr, 0, 5);
 
-        // 5. Return Data Header Sesuai Props React 'examHeader'
+        $totalDurasiMenit = $osce->osceStase->sum('durasi_per_mahasiswa');
+        $waktuSelesai = Carbon::parse($jamMulaiStr, $timezone)
+            ->addMinutes($totalDurasiMenit)
+            ->format('H:i');
+
+        $targetDateTime = Carbon::parse($selectedDate . ' ' . $jamMulaiStr, $timezone);
+        $now = Carbon::now($timezone);
+
+        $isFinished = true;
+        $countdownSnapshot = ['days' => '00', 'hours' => '00', 'minutes' => '00', 'seconds' => '00'];
+
+        if ($targetDateTime->greaterThan($now)) {
+            $isFinished = false;
+            $diff = $targetDateTime->diff($now);
+            $countdownSnapshot = [
+                'days'    => str_pad($diff->days, 2, '0', STR_PAD_LEFT),
+                'hours'   => str_pad($diff->h, 2, '0', STR_PAD_LEFT),
+                'minutes' => str_pad($diff->i, 2, '0', STR_PAD_LEFT),
+                'seconds' => str_pad($diff->s, 2, '0', STR_PAD_LEFT),
+            ];
+        }
+
         return [
             'id_osce'           => $osce->id_osce,
+            'jam_sesi_raw'      => $jamMulaiStr,
             'judul'             => $osce->nama_osce,
-            'tanggal_formatted' => $tanggalObj->translatedFormat('d F Y'), // Contoh: 10 Desember 2025
-            'waktu_mulai'       => $jamMulai,
+            'tanggal_formatted' => Carbon::parse($selectedDate)->translatedFormat('d F Y'),
+            'waktu_mulai'       => $jamMulaiDisplay,
             'waktu_selesai'     => $waktuSelesai,
-            // Format Countdown untuk JS: 'YYYY-MM-DD HH:mm:ss'
-            'countdown_target'  => $tanggalObj->format('Y-m-d') . ' ' . $jamMulai . ':00',
+            'countdown_target'  => $targetDateTime->toIso8601String(),
+            'countdown'         => $countdownSnapshot,
+            'is_finished'       => $isFinished,
         ];
     }
 
     /**
-     * Mengambil List Jadwal Per Stase (Tabel)
+     * Mengambil Tabel Stase
      */
-    public function getJadwalStase($idOsce)
+   public function getJadwalStase($idOsce, $selectedDate, $jamSesi = null)
     {
-        return OsceStase::with(['stase', 'ruang', 'penguji.pengguna']) 
+        $timezone = 'Asia/Jakarta';
+        $now = Carbon::now($timezone);
+        
+        $waktuMulaiUjian = Carbon::parse($selectedDate . ' ' . ($jamSesi ?? '00:00:00'), $timezone);
+
+        if ($now->lessThan($waktuMulaiUjian)) {
+            return collect([]);
+        }
+        
+        $query = OsceStase::with(['stase', 'ruang', 'penguji.pengguna'])
             ->where('id_osce', $idOsce)
-            ->orderBy('jam_mulai', 'asc')
-            ->get(); // [PENTING] Ganti paginate() menjadi get()
+            ->whereDate('tanggal', $selectedDate);
+
+        if ($jamSesi) {
+            $query->where('jam_mulai', $jamSesi);
+        }
+
+        $query->orderBy('jam_mulai', 'asc');
+
+        return $query->get();
     }
 }

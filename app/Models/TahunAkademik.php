@@ -19,13 +19,11 @@ class TahunAkademik extends Model
         'selesai_input_nilai',
     ];
 
-    // Relasi ke Enrollment 1:M
     public function enrollment()
     {
-        return $this->hasMany(Enrollment::class, 'id_tahun_akademik'); // Perlu Model Enrollment
+        return $this->hasMany(Enrollment::class, 'id_tahun_akademik'); 
     }
 
-    // relasi ke osce 1:M
     public function osce()
     {
         return $this->hasMany(Osce::class, 'id_tahun_akademik');

@@ -7,8 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\AspekPenilaian;
 use App\Http\Controllers\Controller;
 use App\Services\Admin\AspekPenilaianService;
-use Illuminate\Database\Eloquent\ModelNotFoundException; // Tambahkan ini
-
+use Illuminate\Database\Eloquent\ModelNotFoundException; 
 class AspekPenilaianController extends Controller
 {
     protected $service;
@@ -23,9 +22,6 @@ class AspekPenilaianController extends Controller
      */
     public function index(Request $request, Stase $stase)
     {
-        // Stase tetap pakai binding karena jarang error 404 di parent resource
-        // Tapi jika stase salah ID, tetap akan default error. 
-        // Kalau mau custom juga, ubah 'Stase $stase' jadi '$staseId' dan cari manual.
         $search = $request->query("search");
         $paginator = $this->service->getByStase($stase, $search);
 
@@ -41,7 +37,6 @@ class AspekPenilaianController extends Controller
      */
     public function store(Request $request, Stase $stase)
     {
-        // Try-catch untuk menangkap error validasi atau database saat create
         try {
             $validated = $request->validate([
                 'aspek' => 'required|string',
@@ -64,13 +59,11 @@ class AspekPenilaianController extends Controller
     }
 
     /**
-     * Mengambil data aspek penilaian
      * @param int $id_aspek_penilaian
      */
     public function show(Stase $stase, $id_aspek_penilaian)
     {
         try {
-            // Cari manual di sini agar bisa ditangkap try-catch
             $aspekPenilaian = AspekPenilaian::findOrFail($id_aspek_penilaian);
 
             if ($aspekPenilaian->id_stase !== $stase->id_stase) {
@@ -97,7 +90,6 @@ class AspekPenilaianController extends Controller
     }
 
     /**
-     * Mempebarui data aspek penilaian
      * @param int $id_aspek_penilaian
      */
     public function update(Request $request, Stase $stase, $id_aspek_penilaian)
@@ -135,7 +127,6 @@ class AspekPenilaianController extends Controller
     }
 
     /**
-     * Menghapus data aspek penilaian
      * @param int $id_aspek_penilaian
      * 
      */

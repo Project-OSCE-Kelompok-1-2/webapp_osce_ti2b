@@ -5,8 +5,6 @@ namespace App\Http\Controllers\Mahasiswa;
 use Carbon\Carbon;
 use Inertia\Inertia;
 use Inertia\Controller;
-use App\Models\OsceStase;
-use App\Models\NilaiOsce; 
 use Illuminate\Http\Request;
 use App\Models\EnrollmentOsce;
 use Illuminate\Support\Facades\Auth;
@@ -16,114 +14,126 @@ class DashboardMahasiswaController extends Controller
     public function index(Request $request)
     {
         $user = Auth::user();
-        // Pastikan relasi user ke mahasiswa diload
+
         $mahasiswa = $user->mahasiswa;
 
-        if (!$mahasiswa) {
+        $idMahasiswa = $mahasiswa ? $mahasiswa->id_mahasiswa : $user->id;
+
+        if (!$idMahasiswa) {
             return redirect()->back()->with('error', 'Data mahasiswa tidak ditemukan.');
         }
 
-        $idMahasiswa = $mahasiswa->id_mahasiswa;
         $today = Carbon::now();
 
         // ---------------------------------------------------------
         // 1. STATISTIK
         // ---------------------------------------------------------
-        
-        // A. Terdaftar: Hitung berapa enrollment (OSCE) yang diikuti
         $ujianTerdaftar = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)->count();
 
-        // B. Selesai: Hitung enrollment yang sudah memiliki Nilai (via tabel relasi nilai_osce)
-        // Asumsi: Jika sudah ada entry di tabel nilai_osce, berarti sudah dinilai/selesai
         $ujianSelesai = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
-            ->has('nilaiOsce') 
+            ->has('nilaiOsce')
             ->count();
 
-        // C. Rata-rata Nilai (Ambil dari relasi nilaiOsce -> kolom nilai)
-        // Kita perlu meloop karena nilainya ada di tabel terpisah
-        $totalNilai = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
-            ->with('nilaiOsce')
-            ->get()
-            ->pluck('nilaiOsce.nilai') // Ambil kolom 'nilai' dari relasi
-            ->avg();
-
-        // ---------------------------------------------------------
-        // 2. JADWAL (CORE LOGIC FIX)
-        // ---------------------------------------------------------
-        
-        // Langkah 1: Ambil ID OSCE apa saja yang diikuti mahasiswa ini
-        $enrolledOsceIds = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
-            ->pluck('id_osce'); // Hasil: [1, 3, 5] misalnya
-
-        // Langkah 2: Base Query
-        $baseQuery = OsceStase::with(['osce', 'ruang'])
-            ->whereIn('id_osce', $enrolledOsceIds);
-
-        // A. Query Khusus Kalender (Ambil SEMUA tanggal unik untuk dots)
-        // Kita clone agar tidak terpengaruh filter di bawah
-        // Gunakan get() lalu map() untuk memastikan format tanggal Y-m-d string
-        $kalenderEvent = (clone $baseQuery)
-            ->get()
-            ->pluck('tanggal')
-            ->map(function ($date) {
-                // Karena ada cast 'date' di model, $date bisa jadi Carbon instance
-                return $date instanceof \Carbon\Carbon 
-                    ? $date->format('Y-m-d') 
-                    : \Carbon\Carbon::parse($date)->format('Y-m-d');
-            })
-            ->unique()
-            ->values();
-
-        // B. Query Khusus List Jadwal (Dipengaruhi Filter)
-        $listQuery = clone $baseQuery;
-
-        // Filter Tanggal (Jika ada request date dari kalender)
-        if ($request->has('date') && $request->date) {
-            $listQuery->whereDate('tanggal', $request->date);
-        } else {
-            // Default: Tampilkan jadwal hari ini ke depan
-            $listQuery->whereDate('tanggal', '>=', $today->format('Y-m-d'));
-        }
-
-        $rawSchedules = $listQuery->orderBy('tanggal', 'asc')
-            ->orderBy('jam_mulai', 'asc')
+        $enrollments = EnrollmentOsce::where('id_mahasiswa', $idMahasiswa)
+            ->whereHas('nilaiOsce')
+            ->with(['nilaiOsce.poinAspekPenilaian.aspekPenilaian.stase'])
             ->get();
 
+        $kumpulanNilaiStase = [];
+
+        foreach ($enrollments as $enrollment) {
+            $nilaiPerStase = $enrollment->nilaiOsce->groupBy(function ($nilai) {
+                return $nilai->poinAspekPenilaian?->aspekPenilaian?->id_stase ?? null;
+            })->filter(fn($group, $key) => $key !== null);
+
+            foreach ($nilaiPerStase as $nilaiStase) {
+                $totalSigmaStase = 0;
+                foreach ($nilaiStase as $dataNilai) {
+                    $skor = $dataNilai->nilai ?? 0;
+                    $bobot = $dataNilai->poinAspekPenilaian->bobot ?? 0;
+                    $totalSigmaStase += ($skor * $bobot);
+                }
+                $nilaiAkhirStase = min($totalSigmaStase / 4, 100);
+                $kumpulanNilaiStase[] = $nilaiAkhirStase;
+            }
+        }
+
+        $totalNilai = count($kumpulanNilaiStase) > 0
+            ? round(collect($kumpulanNilaiStase)->avg(), 2)
+            : 0;
+
         // ---------------------------------------------------------
-        // 3. MAPPING DATA KE FRONTEND
+        // 2. JADWAL PENTING & KALENDER
         // ---------------------------------------------------------
 
-        // Jika ada filter tanggal, ambil semua. Jika tidak, ambil 3 terdekat.
-        $limit = $request->has('date') ? $rawSchedules->count() : 3;
+        $baseQuery = EnrollmentOsce::query()
+            ->with('osce')
+            ->where('id_mahasiswa', $idMahasiswa);
 
-        $jadwalPenting = $rawSchedules->take($limit)->map(function ($stase) use ($today) {
-            $tanggalUjian = Carbon::parse($stase->tanggal);
-            $selisihHari = $today->diffInDays($tanggalUjian, false); // false = return negatif jika lewat
+        $allSchedules = (clone $baseQuery)->get();
+
+        $kalenderEvent = $allSchedules->map(function ($item) {
+            if (!$item->osce) return null;
+            return Carbon::parse($item->osce->tanggal_mulai)->format('Y-m-d');
+        })->filter()->unique()->values();
+
+
+        if ($request->has('date') && $request->date) {
+            $baseQuery->whereHas('osce', function ($q) use ($request) {
+                $q->whereDate('tanggal_mulai', $request->date);
+            });
+        } else {
+            $baseQuery->whereHas('osce', function ($q) use ($today) {
+                $q->whereDate('tanggal_mulai', '>=', $today->format('Y-m-d'));
+            });
+        }
+
+        $rawSchedules = $baseQuery->get()->sortBy(function ($item) {
+            return $item->osce->tanggal_mulai ?? '9999-12-31';
+        });
+
+        if (!$request->has('date')) {
+            $rawSchedules = $rawSchedules->take(3);
+        }
+
+        $jadwalPenting = $rawSchedules->map(function ($item) use ($today) {
+            if (!$item->osce) return null;
+
+            $tanggalUjian = Carbon::parse($item->osce->tanggal_mulai);
+
+            if ($tanggalUjian->isSameDay($today)) {
+                $sisaHari = 0;
+            } elseif ($tanggalUjian->isPast()) {
+                $sisaHari = -1 * $today->diffInDays($tanggalUjian);
+            } else {
+                $sisaHari = $today->diffInDays($tanggalUjian);
+            }
+
+            $jamSesi = $item->jam_sesi
+                ? Carbon::parse($item->jam_sesi)->format('H:i')
+                : '08:00';
 
             return [
-                'id_osce_stase'  => $stase->id_osce_stase,
-                'nama_ujian'     => $stase->nama_stase . ' (' . $stase->osce->nama_osce . ')',
-                'ruangan'        => $stase->ruang ? $stase->ruang->nomor_ruangan : '-',
+                'id_enrollment'  => $item->id_enrollment_osce ?? $item->id,
+                'nama_ujian'     => $item->osce->nama_osce,
                 'tanggal_full'   => $tanggalUjian->translatedFormat('l, d F Y'),
                 'tanggal_pendek' => $tanggalUjian->format('d M'),
-                'jam'            => Carbon::parse($stase->jam_mulai)->format('H:i'),
-                'sisa_hari'      => (int) ceil($selisihHari),
-                'tipe'           => 'Stase',
+                'jam'            => $jamSesi,
+                'sisa_hari'      => (int) $sisaHari,
+                'tipe'           => 'OSCE',
             ];
-        })->values();
+        })->filter()->values();
 
-        // ---------------------------------------------------------
-        // 5. RETURN
-        // ---------------------------------------------------------
         return Inertia::render('Mahasiswa/Dashboard', [
+            'auth' => ['user' => $user],
             'statistik' => [
                 'terdaftar'   => $ujianTerdaftar,
                 'selesai'     => $ujianSelesai,
-                'nilai_akhir' => $totalNilai ? round($totalNilai, 2) : 0,
+                'nilai_akhir' => $totalNilai,
             ],
             'jadwal_penting' => $jadwalPenting,
             'kalender_event' => $kalenderEvent,
-            'selected_date'  => $request->date, // Kirim balik tanggal yang dipilih
+            'selected_date'  => $request->date,
         ]);
     }
 }

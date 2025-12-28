@@ -1,16 +1,15 @@
-import React, { useState, useEffect, useMemo } from "react"; // [1] Import Hooks
+import React, { useState, useEffect, useMemo } from "react"; 
 import { Link, usePage, router, Head } from "@inertiajs/react";
-import { Search, ArrowLeft } from "lucide-react";
+import { Search, ArrowLeft, Bookmark, Table2, Info } from "lucide-react";
 
-// --- Import Komponen ---
 import Sidebar from "../../components/Sidebar";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
 import OsHeader from "../../components/Header";
 import OsSearchBar from "../../components/searchbar.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 
 const mahasiswaColumns = [
     {
@@ -42,12 +41,10 @@ const mahasiswaColumns = [
 export default function RekapMahasiswaPage() {
     const { osce, sesi, mahasiswa_list, filters, flash } = usePage().props;
 
-    // 1. Ambil Data Full
     const allData = Array.isArray(mahasiswa_list)
         ? mahasiswa_list
         : mahasiswa_list?.data || [];
 
-    // 2. State Filter & Pagination
     const [search, setSearch] = useState("");
     const [angkatan, setAngkatan] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
@@ -61,27 +58,19 @@ export default function RekapMahasiswaPage() {
         { value: "2025", label: "2025" },
         { value: "2024", label: "2024" },
         { value: "2023", label: "2023" },
-        // Anda bisa menambahkan opsi dinamis jika ada props 'listAngkatan'
     ];
 
-    // --- INSTANT FILTER LOGIC ---
-
-    // A. Reset halaman saat filter berubah
     useEffect(() => {
         setCurrentPage(1);
     }, [search, angkatan]);
 
-    // B. Filter Data
     const filteredData = useMemo(() => {
         return allData.filter((item) => {
-            // Filter Search (Nama atau NIM)
             const term = search.toLowerCase();
             const matchSearch =
                 item.nama?.toLowerCase().includes(term) ||
                 item.nim?.toLowerCase().includes(term);
 
-            // Filter Angkatan (Kelas)
-            // Asumsi: field di DB adalah 'kelas', sesuaikan jika beda
             let matchAngkatan = true;
             if (angkatan) {
                 matchAngkatan = item.kelas === angkatan;
@@ -91,7 +80,6 @@ export default function RekapMahasiswaPage() {
         });
     }, [search, angkatan, allData]);
 
-    // C. Pagination Slice
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -99,7 +87,6 @@ export default function RekapMahasiswaPage() {
         currentPage * itemsPerPage
     );
 
-    // D. Generate Links
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];
@@ -137,7 +124,6 @@ export default function RekapMahasiswaPage() {
         return links;
     }, [currentPage, totalPages]);
 
-    // --- TABLE ROWS MAPPING (Gunakan 'paginatedData') ---
     const tableData = paginatedData.map((item, index) => ({
         no: (currentPage - 1) * itemsPerPage + index + 1,
         nim_mahasiswa: item.nim,
@@ -149,99 +135,110 @@ export default function RekapMahasiswaPage() {
                         `/admin/rekap-nilai/mahasiswa/${item.id_mahasiswa}/osce/${osce.id_osce}`
                     )
                 }
-                className="bg-blue-600 h-[38px] w-full max-w-[100px] text-white text-os-small rounded-md hover:bg-blue-700 flex items-center justify-center"
+                className="bg-os-primary h-[45px] w-full max-w-[100px] text-white text-os-small rounded-md hover:bg-blue-700 flex items-center justify-center gap-2"
             >
-                Lihat Nilai
+                <Info size={18} />
+                Detail
             </button>
         ),
     }));
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <Head
-                title={`Mahasiswa Sesi ${sesi.tanggal_formatted} - ${osce.nama_osce}`}
-            />
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader
-                    variant="goback"
-                    backLink={`/admin/rekap-nilai/${osce.id_osce}/sesi`}
-                />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader
+                        variant="goback"
+                        backLink={`/admin/rekap-nilai/${osce.id_osce}/sesi`}
+                    />
 
-                <div className="flex-1 overflow-auto">
-                    {/* Notifikasi */}
-                    {flash.success && (
-                        <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
-                            {flash.success}
+                    <div className="flex-1 overflow-auto p-1">
+                        {/* Notifikasi */}
+                        {flash.success && (
+                            <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
+                                {flash.success}
+                            </div>
+                        )}
+                        {flash.error && (
+                            <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
+                                {flash.error}
+                            </div>
+                        )}
+
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Bookmark size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Menu Nilai Mahasiswa
+                            </h2>
                         </div>
-                    )}
-                    {flash.error && (
-                        <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
-                            {flash.error}
-                        </div>
-                    )}
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl">
+                            Daftar mahasiswa yang ter-enroll di sesi tanggal{" "}
+                            <br />
+                            {sesi.tanggal_formatted}.
+                        </p>
 
-                    <h2 className="font-semibold text-lg mb-1">
-                        Menu Nilai Mahasiswa
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl">
-                        Daftar mahasiswa yang ter-enroll di sesi tanggal{" "}
-                        {sesi.tanggal_formatted}.
-                    </p>
-
-                    {/* SEARCH INSTANT */}
-                    <OsSearchBar
-                        search={search}
-                        setSearch={setSearch} // Update state langsung
-                        placeholder="Cari NIM atau Nama Mahasiswa..."
-                    >
-                        <OsInput
-                            type="select"
-                            value={angkatan}
-                            onChange={(e) => setAngkatan(e.target.value)} // Update state langsung
-                            options={angkatanList}
-                            className="w-[160px]"
-                        />
-                    </OsSearchBar>
-
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table Mahasiswa
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
-                    </h2>
-
-                    <div className="w-full overflow-x-auto pb-4">
-                        <div className="min-w-max">
-                            <OsTableHeader columns={mahasiswaColumns} />
-                            {filteredData.length > 0 ? (
-                                <OsTableBody
-                                    data={tableData}
-                                    columns={mahasiswaColumns}
-                                />
-                            ) : (
-                                <div className="flex items-center border-t border-gray-400">
-                                    <p className="w-full text-center text-sm py-4 text-gray-500">
-                                        Data mahasiswa tidak ditemukan.
-                                    </p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* PAGINATION CLIENT-SIDE */}
-                    {totalPages > 1 && (
-                        <div className="mt-8">
-                            <OsPagination
-                                links={generatedLinks}
-                                onPageChange={(page) => setCurrentPage(page)}
+                        {/* SEARCH INSTANT */}
+                        <OsSearchBar
+                            search={search}
+                            setSearch={setSearch} 
+                            placeholder="Cari NIM atau Nama Mahasiswa..."
+                        >
+                            <OsInput
+                                type="select"
+                                value={angkatan}
+                                onChange={(e) => setAngkatan(e.target.value)} 
+                                options={angkatanList}
+                                className="w-[160px]"
                             />
+                        </OsSearchBar>
+
+                        <div className="flex gap-1 items-center justify-start mb-2 mt-4">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Table Mahasiswa
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
                         </div>
-                    )}
+
+                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={mahasiswaColumns} />
+                                {filteredData.length > 0 ? (
+                                    <OsTableBody
+                                        data={tableData}
+                                        columns={mahasiswaColumns}
+                                    />
+                                ) : (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                            Data rekap mahasiswa tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+
+                        {/* PAGINATION CLIENT-SIDE */}
+                        {totalPages > 1 && (
+                            <div className="mt-8">
+                                <OsPagination
+                                    links={generatedLinks}
+                                    onPageChange={(page) =>
+                                        setCurrentPage(page)
+                                    }
+                                />
+                            </div>
+                        )}
+                    </div>
                 </div>
 
-                <OsCopyright />
+                <div className="">
+                    <OsCopyright />
+                </div>
             </main>
         </div>
     );

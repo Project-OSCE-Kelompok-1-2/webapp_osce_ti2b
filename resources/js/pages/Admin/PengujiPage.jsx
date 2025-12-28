@@ -1,17 +1,17 @@
-import React, { useState, useEffect, useMemo } from "react"; // Tambah useMemo
+import React, { useState, useEffect, useMemo } from "react"; 
 import { router, usePage, useForm } from "@inertiajs/react";
-import { Trash2, Edit2 } from "lucide-react";
+import { Trash2, Edit2, UserCheck, Table2 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsIcon from "../../components/icons.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsModal from "../../components/Modal.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import OsButton from "../../components/button.jsx";
 import Modals from "../../components/Modals.jsx";
 
@@ -43,7 +43,6 @@ const pengujiColumns = [
 ];
 
 export default function PengujiPage() {
-    // 1. Ambil data (Array penuh dari controller)
     const { dosen, flash } = usePage().props;
     const allDosenData = Array.isArray(dosen) ? dosen : dosen?.data || [];
 
@@ -55,12 +54,10 @@ export default function PengujiPage() {
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
     // === LOGIC FILTER INSTAN ===
-    // 1. Reset halaman jika search berubah
     useEffect(() => {
         setCurrentPage(1);
     }, [search]);
 
-    // 2. Filter data berdasarkan search
     const filteredData = useMemo(() => {
         return allDosenData.filter((item) => {
             const term = search.toLowerCase();
@@ -71,7 +68,6 @@ export default function PengujiPage() {
         });
     }, [search, allDosenData]);
 
-    // 3. Potong data untuk pagination (Slice)
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -79,18 +75,20 @@ export default function PengujiPage() {
         currentPage * itemsPerPage
     );
 
-    // 4. Generate Link Pagination Manual
+    const handleClear = () => {
+        setData({ nip: "", nama: "" });
+        clearErrors();
+    };
+
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];
-        // Prev
         links.push({
             url: currentPage > 1 ? "#" : null,
             label: "&laquo; Previous",
             active: false,
             pageNumber: currentPage - 1,
         });
-        // Numbers
         for (let i = 1; i <= totalPages; i++) {
             if (
                 i === 1 ||
@@ -110,7 +108,6 @@ export default function PengujiPage() {
                 links.push({ url: null, label: "...", active: false });
             }
         }
-        // Next
         links.push({
             url: currentPage < totalPages ? "#" : null,
             label: "Next &raquo;",
@@ -120,7 +117,7 @@ export default function PengujiPage() {
         return links;
     }, [currentPage, totalPages]);
 
-    // === LOGIC CRUD (Sama seperti sebelumnya) ===
+    // === LOGIC CRUD ===
     const [showAddModal, setShowAddModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [editingPenguji, setEditingPenguji] = useState(null);
@@ -128,7 +125,6 @@ export default function PengujiPage() {
     const [selectedPenguji, setSelectedPenguji] = useState(null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    // Form Add
     const {
         data: dataAdd,
         setData: setDataAdd,
@@ -139,7 +135,6 @@ export default function PengujiPage() {
         clearErrors: clearErrorsAdd,
     } = useForm({ nip: "", nama: "" });
 
-    // Form Edit
     const {
         data: dataEdit,
         setData: setDataEdit,
@@ -217,97 +212,108 @@ export default function PengujiPage() {
     }));
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar
                 isOpen={isSidebarOpen}
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader
-                    onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader
+                        onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    />
 
-                <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-1">Menu Penguji</h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                        Menu Penguji (Dosen) digunakan untuk mengelola proses
-                        penilaian.
-                    </p>
-
-                    <OsButton
-                        name="primary"
-                        onClick={() => setShowAddModal(true)}
-                        className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
-                    >
-                        <OsIcon
-                            name="add"
-                            className="h-os-20 os-icon-light mr-os-8"
-                        />{" "}
-                        Tambah Penguji
-                    </OsButton>
-
-                    {flash.success && (
-                        <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
-                            {flash.success}
+                    <div className="flex-1 overflow-auto p-1">
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <UserCheck size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Menu Penguji
+                            </h2>
                         </div>
-                    )}
-                    {flash.error && (
-                        <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
-                            {flash.error}
-                        </div>
-                    )}
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                            Menu Penguji (Dosen) digunakan untuk mengelola
+                            proses penilaian.
+                        </p>
 
-                    {/* INSTANT SEARCH BAR */}
-                    <div className="w-full">
-                        <OsSearchBar
-                            search={search}
-                            setSearch={setSearch} // Trigger useMemo filter
-                            placeholder="Cari NIP atau Nama Penguji secara instan..."
-                        />
-                    </div>
+                        <OsButton
+                            name="primary"
+                            onClick={() => setShowAddModal(true)}
+                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
+                        >
+                            <OsIcon
+                                name="add"
+                                className="h-[18px] os-icon-light mr-os-8"
+                            />{" "}
+                            Tambah Penguji
+                        </OsButton>
 
-                    <section>
-                        <h2 className="font-semibold text-lg mb-2">
-                            Tabel Penguji
-                            <span className="text-sm font-normal text-gray-500 ml-2">
-                                (Total: {totalItems} data)
-                            </span>
-                        </h2>
-
-                        <div className="w-full overflow-x-auto pb-4">
-                            <div className="min-w-max">
-                                <OsTableHeader columns={pengujiColumns} />
-                                {tableDisplayData.length > 0 ? (
-                                    <OsTableBody
-                                        data={tableDisplayData}
-                                        columns={pengujiColumns}
-                                    />
-                                ) : (
-                                    <div className="flex items-center border-t border-gray-400">
-                                        <p className="w-full text-center text-sm py-4 text-gray-500">
-                                            Data penguji tidak ditemukan.
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Pagination Client Side */}
-                        {totalPages > 1 && (
-                            <div className="mt-8">
-                                <OsPagination
-                                    links={generatedLinks}
-                                    onPageChange={(page) =>
-                                        setCurrentPage(page)
-                                    }
-                                />
+                        {flash.success && (
+                            <div className="mb-4 p-4 bg-green-100 border border-green-300 text-green-800 rounded-lg">
+                                {flash.success}
                             </div>
                         )}
-                    </section>
-                </div>
+                        {flash.error && (
+                            <div className="mb-4 p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg">
+                                {flash.error}
+                            </div>
+                        )}
 
-                <OsCopyright />
+                        {/* INSTANT SEARCH BAR */}
+                        <div className="w-full">
+                            <OsSearchBar
+                                search={search}
+                                setSearch={setSearch} 
+                                placeholder="Cari NIP atau Nama Penguji secara instan..."
+                            />
+                        </div>
+
+                        <section>
+                            <div className="flex gap-1 items-center justify-start my-2">
+                                <Table2 size={18} />
+                                <h2 className="font-semibold text-lg">
+                                    Tabel Penguji{" "}
+                                </h2>
+                                <span className="text-sm font-normal text-gray-500 ml-2">
+                                    (Total: {totalItems} data)
+                                </span>
+                            </div>
+
+                            <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                                <div className="min-w-max">
+                                    <OsTableHeader columns={pengujiColumns} />
+                                    {tableDisplayData.length > 0 ? (
+                                        <OsTableBody
+                                            data={tableDisplayData}
+                                            columns={pengujiColumns}
+                                        />
+                                    ) : (
+                                        <div className="flex items-center border-t border-gray-400">
+                                            <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                                Data Penguji tidak ditemukan.
+                                            </p>
+                                        </div>
+                                    )}
+                                </div>
+                            </section>
+
+                            {/* Pagination Client Side */}
+                            {totalPages > 1 && (
+                                <div className="mt-8">
+                                    <OsPagination
+                                        links={generatedLinks}
+                                        onPageChange={(page) =>
+                                            setCurrentPage(page)
+                                        }
+                                    />
+                                </div>
+                            )}
+                        </section>
+                    </div>
+                </div>
+                <div className="">
+                    <OsCopyright />
+                </div>
 
                 {/* MODAL TAMBAH */}
                 <OsModal
@@ -333,6 +339,7 @@ export default function PengujiPage() {
                                 }
                                 placeholder="Masukkan NIP Penguji..."
                                 required
+                                className="[&_input]:[appearance:textfield] [&_input::-webkit-outer-spin-button]:appearance-none [&_input::-webkit-inner-spin-button]:appearance-none"
                             />
                             {errorsAdd.nip && (
                                 <p className="text-red-500 text-xs mt-1 ml-1">
@@ -375,12 +382,10 @@ export default function PengujiPage() {
                         resetEdit();
                     }}
                     variant="edit"
-                    title="Edit Data Penguji"
-                    subtitle={`Ubah informasi untuk penguji: ${
-                        editingPenguji?.nama || ""
-                    }`}
+                    title="Penguji"
+                    subtitle={`${editingPenguji?.nama || ""}`}
                     onSubmit={handleSubmitEdit}
-                    onClear={() => resetEdit()}
+                    onClear={handleClear}
                 >
                     <div className="space-y-4">
                         <div>
@@ -394,6 +399,7 @@ export default function PengujiPage() {
                                 }
                                 placeholder="Masukkan NIP Penguji..."
                                 required
+                                className="[&_input]:[appearance:textfield] [&_input::-webkit-outer-spin-button]:appearance-none [&_input::-webkit-inner-spin-button]:appearance-none"
                             />
                             {errorsEdit.nip && (
                                 <p className="text-red-500 text-xs mt-1 ml-1">

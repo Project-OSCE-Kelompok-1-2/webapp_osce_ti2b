@@ -1,20 +1,20 @@
 import React, { useState, useMemo } from "react";
 import { usePage, router, useForm } from "@inertiajs/react";
-import { Edit2, Trash2, X, AlertCircle } from "lucide-react"; // Import AlertCircle & X
+import { Edit2, Trash2, X, AlertCircle, FileText, Table2 } from "lucide-react"; // Import AlertCircle & X
 
 // --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsIcon from "../../components/icons";
 import OsTableHeader from "../../components/tableheader";
 import OsSearchBar from "../../components/searchbar";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
 import OsModal from "../../components/Modal.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import Modals from "../../components/Modals.jsx";
-import OsPagination from "../../components/pagination.jsx"; // Cukup satu kali import
+import OsPagination from "../../components/pagination.jsx"; 
 
 const staseColumns = [
     {
@@ -38,26 +38,22 @@ const staseColumns = [
     {
         key: "action",
         content: "Aksi",
-        width: "w-48 min-w-[300px] shrink-0",
+        width: "w-52 min-w-[350px] shrink-0",
         classes: "justify-center items-center px-4",
     },
 ];
 
 export default function Stase() {
-    // 1. Ambil data full (Array)
     const { stase, mataKuliah, tujuanPembelajaran } = usePage().props;
     const allStaseData = Array.isArray(stase) ? stase : stase?.data || [];
 
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-    // 2. State untuk Client-Side Logic
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    // 3. Filter Data Instan
-    // [PERBAIKAN] Gunakan useEffect untuk reset page, useMemo murni untuk filter
     React.useEffect(() => {
         if (search) setCurrentPage(1);
     }, [search]);
@@ -72,7 +68,6 @@ export default function Stase() {
         });
     }, [search, allStaseData]);
 
-    // 4. Pagination Data (Potong Array)
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -80,13 +75,11 @@ export default function Stase() {
         currentPage * itemsPerPage
     );
 
-    // --- 5. GENERATOR LINKS UTAMA ---
     const generatedLinks = useMemo(() => {
-        if (totalPages <= 1) return []; // Return empty array if only 1 page
+        if (totalPages <= 1) return []; 
 
         const links = [];
 
-        // A. Tombol Previous
         links.push({
             url: currentPage > 1 ? "#" : null,
             label: "&laquo; Previous",
@@ -94,7 +87,6 @@ export default function Stase() {
             pageNumber: currentPage - 1,
         });
 
-        // B. Tombol Angka (1, 2, 3...)
         for (let i = 1; i <= totalPages; i++) {
             if (
                 i === 1 ||
@@ -115,7 +107,6 @@ export default function Stase() {
             }
         }
 
-        // C. Tombol Next
         links.push({
             url: currentPage < totalPages ? "#" : null,
             label: "Next &raquo;",
@@ -147,23 +138,20 @@ export default function Stase() {
         errors,
         reset,
         clearErrors,
+        setError,
     } = useForm({
         id: null,
         nama_stase: "",
         deskripsi: "",
         id_mata_kuliah: "",
-        // id_tujuan_pembelajaran: "", // Hapus jika tidak dipakai langsung (diganti array string)
         display_mata_kuliah: "",
-        tujuan_pembelajaran: [], // Array string untuk menampung tujuan yang dipilih
-        // display_tujuan: "", // Tidak perlu di state form utama jika hanya untuk input helper
+        tujuan_pembelajaran: [], 
     });
 
-    // Filter saran agar yang SUDAH DIPILIH tidak muncul lagi di dropdown
     const availableSuggestTujuan = allSuggestTujuan.filter(
         (tujuan) => !data.tujuan_pembelajaran.includes(tujuan)
     );
 
-    // State Lokal
     const [tujuanInput, setTujuanInput] = useState("");
     const [showModal, setShowModal] = useState(false);
     const [modalMode, setModalMode] = useState("add");
@@ -190,7 +178,8 @@ export default function Stase() {
         const valueToAdd = val || tujuanInput;
 
         if (data.tujuan_pembelajaran.length >= MAX_TUJUAN) {
-            alert(
+            setError(
+                "tujuan_pembelajaran",
                 `Maksimal hanya boleh menambahkan ${MAX_TUJUAN} Tujuan Pembelajaran.`
             );
             return;
@@ -198,12 +187,13 @@ export default function Stase() {
 
         if (valueToAdd && valueToAdd.trim() !== "") {
             if (!data.tujuan_pembelajaran.includes(valueToAdd)) {
-                // Update array tujuan_pembelajaran
                 setData("tujuan_pembelajaran", [
                     ...data.tujuan_pembelajaran,
                     valueToAdd,
                 ]);
                 setTujuanInput("");
+
+                clearErrors("tujuan_pembelajaran");
             } else {
                 setTujuanInput("");
             }
@@ -211,10 +201,14 @@ export default function Stase() {
     };
 
     const removeTujuan = (indexToRemove) => {
-        setData(
-            "tujuan_pembelajaran",
-            data.tujuan_pembelajaran.filter((_, i) => i !== indexToRemove)
+        const newData = data.tujuan_pembelajaran.filter(
+            (_, i) => i !== indexToRemove
         );
+        setData("tujuan_pembelajaran", newData);
+
+        if (newData.length < MAX_TUJUAN) {
+            clearErrors("tujuan_pembelajaran");
+        }
     };
 
     const handleTujuanInputChange = (e) => {
@@ -239,10 +233,9 @@ export default function Stase() {
             (m) => m.id_mata_kuliah === item.id_mata_kuliah
         );
 
-        // Ambil data tujuan dari item (sesuaikan dengan format dari backend, misal array of objects)
         const rawTujuan = item.tujuan_pembelajaran || item.tujuanPembelajaran;
         const currentTujuanList = Array.isArray(rawTujuan)
-            ? rawTujuan.map((t) => (typeof t === "string" ? t : t.tujuan)) // Handle jika string atau object
+            ? rawTujuan.map((t) => (typeof t === "string" ? t : t.tujuan)) 
             : [];
 
         setData({
@@ -259,17 +252,32 @@ export default function Stase() {
     const handleSubmit = (e) => {
         e.preventDefault();
 
+        clearErrors();
+
+        let isValid = true;
+
+        if (!data.nama_stase || data.nama_stase.trim() === "") {
+            setError("nama_stase", "Nama Stase wajib diisi.");
+            isValid = false;
+        }
+
         if (!data.id_mata_kuliah) {
-            alert(
-                "Mata Kuliah tidak valid. Harap pilih dari daftar yang tersedia."
+            setError(
+                "id_mata_kuliah",
+                "Mata Kuliah tidak valid. Harap pilih dari daftar."
             );
-            return;
+            isValid = false;
         }
 
         if (data.tujuan_pembelajaran.length === 0) {
-            alert("Mohon masukkan minimal satu Tujuan Pembelajaran.");
-            return;
+            setError(
+                "tujuan_pembelajaran",
+                "Mohon masukkan minimal satu Tujuan Pembelajaran."
+            );
+            isValid = false;
         }
+
+        if (!isValid) return;
 
         const options = {
             onSuccess: () => {
@@ -291,7 +299,6 @@ export default function Stase() {
         setIsDeleteOpen(true);
     };
 
-    // [PERBAIKAN TYPO] handleConfirmDelete
     const handleConfirmDelete = () => {
         if (!selectedId) return;
         destroy(`/admin/stase/${selectedId}`, {
@@ -300,19 +307,14 @@ export default function Stase() {
         });
     };
 
-    // Format Data Tabel dari 'paginatedData'
-    // Format Data Tabel dari 'paginatedData'
     const tableData = paginatedData.map((item, index) => ({
-        // Hitung nomor urut berdasarkan halaman saat ini
         no: (currentPage - 1) * itemsPerPage + index + 1,
 
         nama_stase: item.nama_stase,
-        // Pastikan properti ini sesuai dengan respon JSON backend
         jumlah_aspek: item.aspek_penilaian_count || item.jumlah_aspek || 0,
 
         action: (
             <div className="flex items-center justify-center space-x-3">
-                {/* ... tombol aksi tetap sama ... */}
                 <OsButton
                     name="primary"
                     onClick={() =>
@@ -322,7 +324,7 @@ export default function Stase() {
                     }
                     className="h-[38px] text-os-small w-full flex justify-between items-center gap-3"
                 >
-                    <OsIcon name={"add"} className="os-icon-light h-[20px]" />
+                    <OsIcon name={"add"} className="os-icon-light h-[18px]" />
                     Edit Aspek Penilaian
                 </OsButton>
                 <OsButton name="edit" onClick={() => openEditModal(item)}>
@@ -344,70 +346,87 @@ export default function Stase() {
         data.display_mata_kuliah && !data.id_mata_kuliah;
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader onMenuClick={handleSidebarToggle} />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader onMenuClick={handleSidebarToggle} />
 
-                <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-1">Menu Stase</h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                        Kelola konten Stase secara menyeluruh, termasuk daftar
-                        kompetensi inti dan aspek penilaian.
-                    </p>
+                    <div className="flex-1 overflow-auto p-1">
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <FileText size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Menu Stase
+                            </h2>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                            Kelola konten Stase secara menyeluruh, termasuk{" "}
+                            daftar kompetensi inti dan aspek penilaian.
+                        </p>
 
-                    <OsButton
-                        name="primary"
-                        onClick={openAddModal}
-                        className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
-                    >
-                        <OsIcon
-                            name="add"
-                            className="h-os-20 os-icon-light mr-os-8"
+                        <OsButton
+                            name="primary"
+                            onClick={openAddModal}
+                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
+                        >
+                            <OsIcon
+                                name="add"
+                                className="h-os-20 os-icon-light mr-os-8"
+                            />
+                            Tambah Stase
+                        </OsButton>
+
+                        {/* SEARCHBAR INSTAN */}
+                        <OsSearchBar
+                            search={search}
+                            setSearch={setSearch}
+                            placeholder="Cari stase secara instan..."
                         />
-                        Tambah Stase
-                    </OsButton>
 
-                    {/* SEARCHBAR INSTAN */}
-                    <OsSearchBar
-                        search={search}
-                        setSearch={setSearch}
-                        placeholder="Cari stase secara instan..."
-                    />
-
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table Stase
-                    </h2>
-
-                    <div className="w-full overflow-x-auto pb-4">
-                        <div className="min-w-max">
-                            <OsTableHeader columns={staseColumns} />
-                            <OsTableBody
-                                data={tableData}
-                                columns={staseColumns}
-                            />
-                            {filteredData.length === 0 && (
-                                <div className="flex items-center border-t border-gray-400">
-                                    <p className="w-full text-center text-sm py-os-48 text-gray-500">
-                                        Data tidak ditemukan.
-                                    </p>
-                                </div>
-                            )}
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Table Stase
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
                         </div>
+
+                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={staseColumns} />
+                                <OsTableBody
+                                    data={tableData}
+                                    columns={staseColumns}
+                                />
+                                {filteredData.length === 0 && (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                            Data stase tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+
+                        {/* --- PAGINATION --- */}
+                        {totalPages > 1 && (
+                            <div className="mt-2">
+                                <OsPagination
+                                    links={generatedLinks}
+                                    onPageChange={(page) =>
+                                        setCurrentPage(page)
+                                    }
+                                />
+                            </div>
+                        )}
                     </div>
-
-                    {/* --- PAGINATION --- */}
-                    {totalPages > 1 && (
-                        <div className="mt-2">
-                            <OsPagination
-                                links={generatedLinks}
-                                onPageChange={(page) => setCurrentPage(page)}
-                            />
-                        </div>
-                    )}
                 </div>
-                <OsCopyright />
+                <div className="">
+                    <OsCopyright />
+                </div>
             </main>
 
             {/* Modal Components */}
@@ -421,14 +440,8 @@ export default function Stase() {
                     clearErrors();
                 }}
                 onSubmit={handleSubmit}
-                title={
-                    modalMode === "edit" ? "Edit Stase" : "Tambah Stase Baru"
-                }
-                subtitle={
-                    modalMode === "edit"
-                        ? "Ubah data stase"
-                        : "Isi form di bawah"
-                }
+                title={modalMode === "edit" ? "Stase" : "Tambah Stase Baru"}
+                subtitle={data.nama_stase}
             >
                 <div className="space-y-4">
                     {/* INPUT MATA KULIAH */}
@@ -471,8 +484,10 @@ export default function Stase() {
                     <div className="space-y-2">
                         <div className="flex justify-between items-center">
                             <label className="block text-sm font-medium text-gray-700">
-                                Tujuan Pembelajaran *
+                                Tujuan Pembelajaran{" "}
+                                <span className="text-red-500">*</span>
                             </label>
+
                             {/* Counter Indikator */}
                             <span
                                 className={`text-xs font-medium ${
@@ -525,7 +540,6 @@ export default function Stase() {
                                             ? "Batas maksimal tercapai."
                                             : "Ketik tujuan lalu tekan Tambah..."
                                     }
-                                    // Disable input jika sudah max
                                     disabled={
                                         data.tujuan_pembelajaran.length >=
                                         MAX_TUJUAN
@@ -541,7 +555,6 @@ export default function Stase() {
                             <button
                                 type="button"
                                 onClick={() => handleAddTujuan()}
-                                // Disable tombol jika sudah max
                                 disabled={
                                     data.tujuan_pembelajaran.length >=
                                     MAX_TUJUAN
@@ -549,8 +562,8 @@ export default function Stase() {
                                 className={`px-4 py-2 rounded h-[42px] text-sm font-medium transition-colors ${
                                     data.tujuan_pembelajaran.length >=
                                     MAX_TUJUAN
-                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed" // Style disabled
-                                        : "bg-gray-200 hover:bg-gray-300 text-gray-700" // Style normal
+                                        ? "bg-gray-100 text-gray-400 cursor-not-allowed" 
+                                        : "bg-gray-200 hover:bg-gray-300 text-gray-700" 
                                 }`}
                             >
                                 {data.tujuan_pembelajaran.length >= MAX_TUJUAN
@@ -571,14 +584,29 @@ export default function Stase() {
                         )}
                     </div>
 
-                    <OsInput
-                        label="Nama Stase"
-                        type="text"
-                        name="nama_stase"
-                        value={data.nama_stase}
-                        onChange={(e) => setData("nama_stase", e.target.value)}
-                        required
-                    />
+                    <div>
+                        <div>
+                            <OsInput
+                                label="Nama Stase"
+                                type="text"
+                                name="nama_stase"
+                                value={data.nama_stase}
+                                onChange={(e) => {
+                                    console.log(e.target.value);
+                                    setData("nama_stase", e.target.value);
+                                    if (errors.nama_stase)
+                                        clearErrors("nama_stase");
+                                }}
+                                required
+                            />
+
+                            {errors.nama_stase && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.nama_stase}
+                                </p>
+                            )}
+                        </div>
+                    </div>
                     <OsInput
                         label="Deskripsi"
                         type="textarea"

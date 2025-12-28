@@ -29,7 +29,7 @@ class KompetensiController extends Controller
 
             return response()->json([
                 'status' => 'success',
-                'data' => $paginator, // Isi data sudah ditransformasi di Service
+                'data' => $paginator,
                 'filters' => $request->only(['search']),
             ]);
         } catch (ModelNotFoundException $e) {
@@ -41,7 +41,6 @@ class KompetensiController extends Controller
     }
 
     /**
-     * Membuat data kompetensi
      * @param int $id_aspek
      */
     public function store(Request $request, $id_aspek)
@@ -49,7 +48,7 @@ class KompetensiController extends Controller
         try {
             $validated = $request->validate([
                 'kompetensi' => 'required|string',
-                'skor' => 'required|integer|min:0', // Ditambahkan agar sesuai output
+                'skor' => 'required|integer|min:0', 
                 'bobot' => 'required|integer|min:1',
             ]);
 
@@ -106,7 +105,6 @@ class KompetensiController extends Controller
     }
 
     /**
-     * Memperbarui data kompetensi
      * @param int $id_kompetensi
      */
     public function update(Request $request, $id_kompetensi)
@@ -118,12 +116,11 @@ class KompetensiController extends Controller
                 'kompetensi' => [
                     'required',
                     'string',
-                    // Validasi unik, kecuali untuk ID ini
                     Rule::unique('poin_aspek_penilaian', 'kompetensi')
                         ->ignore($kompetensi->id_poin_aspek_penilaian, 'id_poin_aspek_penilaian')
                         ->where('id_aspek_penilaian', $kompetensi->id_aspek_penilaian)
                 ],
-                'skor' => 'required|integer|min:0', // Ditambahkan
+                'skor' => 'required|integer|min:0', 
                 'bobot' => 'required|integer|min:1',
             ]);
             
@@ -155,7 +152,6 @@ class KompetensiController extends Controller
     }
 
     /**
-     * Menghapus data kompetensi
      * @param int $id_kompetensi
      */
     public function destroy($id_kompetensi)

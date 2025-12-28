@@ -13,12 +13,10 @@ class RekapService
     {
         $user = Auth::user();
 
-        // Validasi user wajib punya profil penguji
         if (!$user->penguji) {
             abort(403, 'Akun Anda tidak memiliki profil Penguji.');
         }
 
-        // Validasi akses stase penguji
         $osceStase = OsceStase::with(['osce', 'stase'])
             ->where('id_osce', $id_osce)
             ->where('id_osce_stase', $id_osce_stase)
@@ -27,7 +25,6 @@ class RekapService
 
         $idStase = (int) $osceStase->id_stase;
 
-        // Query nilai mahasiswa
         $mahasiswaRaw = EnrollmentOsce::with('mahasiswa')
             ->where('id_osce', $id_osce)
             ->select([

@@ -18,7 +18,6 @@ use Illuminate\Validation\Rule;
 class AdminController extends Controller
 {
     protected $service;
-
     public function __construct(AdminService $service)
     {
         $this->service = $service;
@@ -32,12 +31,12 @@ class AdminController extends Controller
             'total_penguji' => Penguji::count(),
         ];
 
-        $notifikasi_bobot = $this->service->getDashboardData();
+        $notifikasi = $this->service->getDashboardData();
 
         return Inertia::render('Admin/Dashboard', [
             'stats' => $stats,
-            'notifikasi' => $notifikasi_bobot,
-            'user' => Auth::user(), // ✅ PERBAIKAN
+            'notifikasi' => $notifikasi, 
+            'user' => Auth::user(),
         ]);
     }
 
@@ -57,9 +56,24 @@ class AdminController extends Controller
 
         $request->validate([
             'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:1024'],
-            'new_password' => ['nullable', 'string', 'min:6', 'confirmed'],
-            'old_password' => ['nullable', 'string'],
+            
+            'old_password' => [
+                'nullable', 
+                'string',
+                'required_with:new_password'
+            ],
+            'new_password' => [
+                'nullable', 
+                'string', 
+                'min:6', 
+                'confirmed',
+                'required_with:old_password' 
+            ],
+            
             'delete_foto' => ['nullable', 'boolean'],
+        ], [
+            'old_password.required_with' => 'Password lama wajib diisi jika ingin mengganti password.',
+            'new_password.required_with' => 'Password baru wajib diisi.',
         ]);
 
         $this->service->updateAccount($request, $admin);

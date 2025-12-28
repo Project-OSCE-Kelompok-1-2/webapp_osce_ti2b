@@ -12,7 +12,7 @@ class AspekPenilaianFactory extends Factory
         return [
             'id_stase' => Stase::inRandomOrder()->first()->id_stase ?? Stase::factory(),
             'aspek' => $this->faker->sentence(3),
-            'bobot_maksimum' => 25, // Default 4 aspek = 100
+            'bobot_maksimum' => 25, 
         ];
     }
 }

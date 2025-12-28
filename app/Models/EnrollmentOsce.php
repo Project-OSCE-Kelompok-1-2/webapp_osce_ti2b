@@ -7,7 +7,6 @@ use Illuminate\Database\Eloquent\Model;
 
 class EnrollmentOsce extends Model
 {
-    /** @use HasFactory<\Database\Factories\EnrollmentOsceFactory> */
     use HasFactory;
 
     protected $table = 'enrollment_osce';
@@ -22,28 +21,24 @@ class EnrollmentOsce extends Model
         'jam_sesi',
     ];
 
-    // Casting agar format tanggal aman
     protected $casts = [
         'tanggal_sesi' => 'date:Y-m-d',
         'catatan' => 'string',
     ];
 
-    // relasi ke osce M:1
     public function osce()
     {
         return $this->belongsTo(Osce::class, 'id_osce');
     }
 
-    // relasi ke mahasiswa M:1
     public function mahasiswa()
     {
-        return $this->belongsTo(Mahasiswa::class, 'id_mahasiswa'); //perlu relasi ke model Mahasiswa
+        return $this->belongsTo(Mahasiswa::class, 'id_mahasiswa'); 
     }
 
-    // relasi ke nilai_osce 1:1
     public function nilaiOsce()
     {
-        return $this->hasOne(NilaiOsce::class, 'id_enrollment_osce');
+        return $this->hasMany(NilaiOsce::class, 'id_enrollment_osce');
     }
 
     protected function casts(): array

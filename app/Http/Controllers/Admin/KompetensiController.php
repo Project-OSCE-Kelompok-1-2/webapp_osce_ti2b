@@ -14,7 +14,6 @@ use Illuminate\Support\Facades\Redirect;
 class KompetensiController extends Controller
 {
     /**
-     * [INI YANG PERLU DIPERBAIKI]
      * Menampilkan daftar kompetensi untuk aspek penilaian tertentu.
      */
     protected $service;
@@ -28,13 +27,12 @@ class KompetensiController extends Controller
     {
         $aspekPenilaian->load('stase');
         
-        // [UBAH] Panggil service TANPA parameter search
         $kompetensi = $this->service->getByAspek($aspekPenilaian);
 
         return Inertia::render('Admin/MenuKompetensi', [
             'aspek' => $aspekPenilaian,
             'kompetensi' => $kompetensi,
-            'filters' => [], // Filter kosong
+            'filters' => [],
         ]);
     }
 
@@ -68,19 +66,16 @@ class KompetensiController extends Controller
 
     public function edit(PoinAspekPenilaian $kompetensi)
     {
-        // Muat relasi
         $kompetensi->load('aspekPenilaian.stase');
 
-        // Render component 'Tambah' (sesuai pola Anda)
         return Inertia::render('Admin/TambahKompetensi', [
             'aspek' => $kompetensi->aspekPenilaian,
-            'kompetensi' => $kompetensi, // Kirim data yang akan diedit
+            'kompetensi' => $kompetensi,
         ]);
     }
 
     /**
      * Memperbarui kompetensi di database.
-     * Route: PUT /admin/kompetensi/{kompetensi}
      */
     public function update(Request $request, PoinAspekPenilaian $kompetensi)
     {
@@ -113,5 +108,4 @@ class KompetensiController extends Controller
             ->with('success', 'Kompetensi berhasil dihapus.');
     }
 
-    // Anda bisa menambahkan method edit() dan update() di sini nanti
 }

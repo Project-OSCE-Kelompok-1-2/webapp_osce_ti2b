@@ -8,7 +8,6 @@ use Illuminate\Support\Facades\DB;
 
 class PengujiService
 {
-    /** GET LIST + FILTER */
     public function getAll($search = null,)
     {
         $query = Penguji::query();
@@ -30,7 +29,6 @@ class PengujiService
             ]);
     }
 
-    /** STORE */
     public function create(array $data)
     {
         return DB::transaction(function () use ($data) {
@@ -51,7 +49,6 @@ class PengujiService
         });
     }
 
-    /** UPDATE */
     public function update(Penguji $penguji, $validated)
     {
         return DB::transaction(function () use ($penguji, $validated) {
@@ -67,7 +64,6 @@ class PengujiService
         });
     }
 
-    /** DELETE */
     public function delete(Penguji $penguji)
     {
         return DB::transaction(function () use ($penguji) {

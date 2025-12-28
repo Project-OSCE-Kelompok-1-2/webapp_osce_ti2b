@@ -6,6 +6,7 @@ use App\Models\Osce;
 use App\Models\Stase;
 use App\Models\Penguji;
 use App\Models\Mahasiswa;
+use App\Models\OsceStase;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Storage;
@@ -24,31 +25,83 @@ class AdminService
             'total_penguji' => Penguji::count(),
         ];
 
-        $notifikasi_bobot = Stase::query()
-            ->with('aspekPenilaian')
+        $notifBobot = Stase::query()
             ->withSum('aspekPenilaian', 'bobot_maksimum')
             ->get()
             ->filter(function ($stase) {
                 $total_bobot = $stase->aspek_penilaian_sum_bobot_maksimum ?? 0;
                 return $total_bobot != 100;
             })
+            ->toBase()
             ->map(function ($stase) {
-                $first_aspek = $stase->aspekPenilaian->first();
-                $sub_judul = $first_aspek ? $first_aspek->aspek : 'Bobot belum diatur';
-
+                $bobot = $stase->aspek_penilaian_sum_bobot_maksimum ?? 0;
                 return [
-                    'id_stase' => $stase->id_stase,
-                    'nama_stase' => $stase->nama_stase,
-                    'sub_judul' => $sub_judul,
-                    'total_bobot' => $stase->aspek_penilaian_sum_bobot_maksimum ?? 0,
+                    'id' => 'stase-bobot-' . $stase->id_stase,
+                    'category' => 'STASE',
+                    'title' => $stase->nama_stase,
+                    'description' => "Total bobot penilaian saat ini: {$bobot}%",
+                    'warning_label' => "Bobot tidak 100%",
+                    'warning_color' => 'red',
+                    'link' => "/admin/stase/{$stase->id_stase}/aspek-penilaian",
                 ];
-            })
-            ->values(); // Reset keys agar jadi array JSON yang rapi
+            });
 
-        return [
-            'stats' => $stats,
-            'notifikasi' => $notifikasi_bobot,
-        ];
+        $notifOsceKosong = Osce::doesntHave('osceStase')
+            ->get()
+            ->toBase()
+            ->map(function ($osce) {
+                return [
+                    'id' => 'osce-empty-' . $osce->id_osce,
+                    'category' => 'OSCE',
+                    'title' => $osce->nama_osce,
+                    'description' => "Ujian dibuat tapi belum ada stase/jadwal diatur.",
+                    'warning_label' => "Belum Disetting",
+                    'warning_color' => 'yellow',
+                    'link' => "/admin/osce/",
+                ];
+            });
+
+        $notifTanpaPenguji = OsceStase::with(['osce', 'stase'])
+            ->whereNull('id_penguji')
+            ->get()
+            ->toBase()
+            ->map(function ($jadwal) {
+                $namaOsce = $jadwal->osce->nama_osce ?? 'OSCE';
+                $namaStase = $jadwal->stase->nama_stase ?? 'Stase';
+                return [
+                    'id' => 'jadwal-penguji-' . $jadwal->id_osce_stase,
+                    'category' => 'PENGUJI',
+                    'title' => "{$namaOsce} - {$namaStase}",
+                    'description' => "Jadwal tanggal " . ($jadwal->tanggal ? $jadwal->tanggal->format('d M Y') : '-') . " belum ada penguji.",
+                    'warning_label' => "Penguji Kosong",
+                    'warning_color' => 'red',
+                    'link' => "/admin/osce/{$jadwal->id_osce}/jadwal",
+                ];
+            });
+
+        $notifTanpaPeserta = Osce::has('osceStase')
+            ->doesntHave('enrollmentOsce')
+            ->get()
+            ->toBase()
+            ->map(function ($osce) {
+                return [
+                    'id' => 'osce-mhs-' . $osce->id_osce,
+                    'category' => 'MAHASISWA',
+                    'title' => $osce->nama_osce,
+                    'description' => "Belum ada mahasiswa yang didaftarkan ke sesi ini.",
+                    'warning_label' => "Peserta Kosong",
+                    'warning_color' => 'blue',
+                    'link' => "/admin/osce/{$osce->id_osce}",
+                ];
+            });
+
+        $mergedNotifikasi = $notifBobot
+            ->merge($notifOsceKosong)
+            ->merge($notifTanpaPenguji)
+            ->merge($notifTanpaPeserta)
+            ->values();
+
+        return $mergedNotifikasi;
     }
 
     /**
@@ -56,9 +109,7 @@ class AdminService
      */
     public function getProfileData($user)
     {
-        // Logika path gambar
         $user->path_gambar = $user->path_gambar ? $user->path_gambar : null;
-
         return $user;
     }
 
@@ -67,40 +118,58 @@ class AdminService
      */
     public function updateAccount(Request $request, $admin)
     {
-        // Logika Foto
         if ($request->boolean('delete_foto')) {
-            // Hapus foto lama
-            if ($admin->path_gambar) {
-                $oldPath = str_replace('storage/', '', $admin->path_gambar);
-                Storage::disk('public')->delete($oldPath);
-            }
-            $admin->path_gambar = null;
+            $this->deleteFoto($admin);
         } elseif ($request->hasFile('foto')) {
-            // Hapus foto lama jika ada
-            if ($admin->path_gambar) {
-                $oldPath = str_replace('storage/', '', $admin->path_gambar);
-                Storage::disk('public')->delete($oldPath);
-            }
-            // Simpan foto baru
+            $this->deleteFoto($admin, false); 
+
             $fotoPath = $request->file('foto')->store('profiladmin', 'public');
             $admin->path_gambar = 'storage/' . $fotoPath;
         }
 
-        // Logika Password
-        if ($request->filled('new_password')) {
-            // Cek password lama
+        $filledOld = $request->filled('old_password');
+        $filledNew = $request->filled('new_password');
+
+        if ($filledOld || $filledNew) {
+
+            if (!$filledOld) {
+                throw ValidationException::withMessages([
+                    'old_password' => ['Password lama wajib diisi untuk konfirmasi.'],
+                ]);
+            }
+
             if (!Hash::check($request->old_password, $admin->password)) {
-                // Lempar exception validasi agar ditangkap sebagai error 422 oleh Laravel
                 throw ValidationException::withMessages([
                     'old_password' => ['Password lama tidak sesuai.'],
                 ]);
             }
 
-            $admin->password = $request->new_password;
+            if (!$filledNew) {
+                throw ValidationException::withMessages([
+                    'new_password' => ['Silakan masukkan password baru untuk mengganti password.'],
+                ]);
+            }
+
+            $admin->password = Hash::make($request->new_password);
         }
 
         $admin->save();
 
         return $admin;
+    }
+
+    /**
+     * Helper private untuk hapus foto
+     */
+    private function deleteFoto($user, $updateDb = true)
+    {
+        if ($user->path_gambar) {
+            $oldPath = str_replace('storage/', '', $user->path_gambar);
+            Storage::disk('public')->delete($oldPath);
+        }
+
+        if ($updateDb) {
+            $user->path_gambar = null;
+        }
     }
 }

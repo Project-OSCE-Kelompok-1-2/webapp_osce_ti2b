@@ -1,16 +1,25 @@
 import React, { useState, useRef, useMemo } from "react";
 import { router, usePage, useForm } from "@inertiajs/react";
-import { Edit2, Trash2, AlertTriangle, X } from "lucide-react";
+import {
+    Edit2,
+    Trash2,
+    AlertTriangle,
+    X,
+    Users,
+    Table2,
+    Download,
+    FileText, 
+} from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsIcon from "../../components/icons.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import OsModal from "../../components/Modal.jsx";
 import OsButton from "../../components/button.jsx";
 import Modals from "../../components/Modals.jsx";
@@ -60,16 +69,13 @@ export default function MahasiswaPage() {
         ? mahasiswa
         : mahasiswa?.data || [];
 
-    // --- STATE UI ---
     const [search, setSearch] = useState("");
-    const [angkatanFilter, setAngkatanFilter] = useState("SEMUA"); // State untuk filter
+    const [angkatanFilter, setAngkatanFilter] = useState("SEMUA");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isManualKelas, setIsManualKelas] = useState(false);
 
-    // --- FILTERING CLIENT SIDE ---
-    // Reset halaman ke 1 jika filter berubah
     React.useEffect(() => {
         setCurrentPage(1);
     }, [search, angkatanFilter]);
@@ -77,22 +83,15 @@ export default function MahasiswaPage() {
     const filteredData = useMemo(() => {
         return allMahasiswaData.filter((item) => {
             const term = search.toLowerCase();
-
-            // 1. Filter Search (Nama atau NIM)
             const matchSearch =
                 item.nama?.toLowerCase().includes(term) ||
                 item.nim?.toLowerCase().includes(term);
-
-            // 2. Filter Angkatan (Client Side)
-            // Cek apakah filter "SEMUA" atau item.angkatan cocok dengan filter yang dipilih
             const matchAngkatan =
                 angkatanFilter === "SEMUA" || item.angkatan === angkatanFilter;
-
             return matchSearch && matchAngkatan;
         });
     }, [search, angkatanFilter, allMahasiswaData]);
 
-    // --- PAGINATION (Berdasarkan data yang sudah difilter) ---
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -100,7 +99,6 @@ export default function MahasiswaPage() {
         currentPage * itemsPerPage
     );
 
-    // Generate Pagination Links
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];
@@ -138,25 +136,25 @@ export default function MahasiswaPage() {
         return links;
     }, [currentPage, totalPages]);
 
-    // --- MODAL STATES & FORM ---
     const [showModal, setShowModal] = useState(false);
     const [showEditModal, setShowEditModal] = useState(false);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [showExcelModal, setShowExcelModal] = useState(false);
     const [importFile, setImportFile] = useState(null);
+    const [importError, setImportError] = useState("");
     const [mahasiswaToEdit, setMahasiswaToEdit] = useState(null);
     const [selectedMahasiswa, setSelectedMahasiswa] = useState(null);
     const fileInputRef = useRef(null);
 
-    const { data, setData, post, put, reset, errors, clearErrors } = useForm({
-        nim: "",
-        nama: "",
-        kelas: "",
-        angkatan: "",
-        prodi: "",
-    });
+    const { data, setData, post, put, reset, errors, clearErrors, setError } =
+        useForm({
+            nim: "",
+            nama: "",
+            kelas: "",
+            angkatan: "",
+            prodi: "",
+        });
 
-    // List Tahun untuk Form Input & Filter
     const angkatanListOptions = [
         ...(list_tahun || []).map((tahun) => ({ value: tahun, label: tahun })),
     ];
@@ -171,19 +169,49 @@ export default function MahasiswaPage() {
         { value: "MANUAL", label: "Lainnya (Input Manual)" },
     ];
 
-    // --- HANDLERS ---
+    const validateMahasiswa = () => {
+        let isValid = true;
+        if (!data.nim) {
+            setError("nim", "NIM wajib diisi.");
+            isValid = false;
+        }
+        if (!data.angkatan) {
+            setError("angkatan", "Tahun angkatan wajib dipilih.");
+            isValid = false;
+        }
+        if (!data.kelas) {
+            setError("kelas", "Kelas wajib diisi/dipilih.");
+            isValid = false;
+        }
+        if (!data.prodi) {
+            setError("prodi", "Jurusan wajib diisi.");
+            isValid = false;
+        }
+        if (!data.nama) {
+            setError("nama", "Nama mahasiswa wajib diisi.");
+            isValid = false;
+        }
+        return isValid;
+    };
+
     const openAddModal = () => {
         reset();
         clearErrors();
         setIsManualKelas(false);
         setShowModal(true);
     };
+
     const handleClear = () => {
         setData({ nim: "", nama: "", kelas: "", angkatan: "", prodi: "" });
         clearErrors();
     };
+
     const submitAdd = (e) => {
         e.preventDefault();
+        clearErrors();
+
+        if (!validateMahasiswa()) return;
+
         post("/admin/mahasiswa", {
             onSuccess: () => {
                 setShowModal(false);
@@ -210,6 +238,10 @@ export default function MahasiswaPage() {
 
     const submitEdit = (e) => {
         e.preventDefault();
+        clearErrors();
+
+        if (!validateMahasiswa()) return;
+
         put(`/admin/mahasiswa/${mahasiswaToEdit.id_mahasiswa}`, {
             onSuccess: () => {
                 setShowEditModal(false);
@@ -217,6 +249,7 @@ export default function MahasiswaPage() {
             },
         });
     };
+
     const openDeleteModal = (id, nama) => {
         setSelectedMahasiswa({ id, nama });
         setShowDeleteModal(true);
@@ -230,7 +263,12 @@ export default function MahasiswaPage() {
 
     const handleImport = (e) => {
         e.preventDefault();
-        if (!importFile) return alert("Pilih file.");
+
+        if (!importFile) {
+            setImportError("Mohon pilih file Excel terlebih dahulu.");
+            return;
+        }
+
         router.post(
             "/admin/mahasiswa/import",
             { file: importFile },
@@ -239,13 +277,18 @@ export default function MahasiswaPage() {
                 onSuccess: () => {
                     setShowExcelModal(false);
                     setImportFile(null);
+                    setImportError(""); 
                     if (fileInputRef.current) fileInputRef.current.value = "";
+                },
+                onError: (errors) => {
+                    if (errors.file) setImportError(errors.file);
                 },
             }
         );
     };
     const handleClearImport = () => {
         setImportFile(null);
+        setImportError(""); 
         if (fileInputRef.current) fileInputRef.current.value = "";
     };
 
@@ -258,9 +301,9 @@ export default function MahasiswaPage() {
             setIsManualKelas(false);
             setData("kelas", val);
         }
+        if (errors.kelas) clearErrors("kelas");
     };
 
-    // --- TABLE DATA ---
     const tableDisplayData = paginatedData.map((item, index) => ({
         no: (currentPage - 1) * itemsPerPage + index + 1,
         nim: item.nim,
@@ -285,181 +328,212 @@ export default function MahasiswaPage() {
     }));
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar
                 isOpen={isSidebarOpen}
                 onToggle={() => setIsSidebarOpen(!isSidebarOpen)}
             />
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader
-                    onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
-                />
-                <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-1">
-                        Menu Mahasiswa
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                        Kelola data mahasiswa.
-                    </p>
-
-                    <div className="flex items-center gap-3 mb-5">
-                        <OsButton
-                            name="primary"
-                            onClick={openAddModal}
-                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
-                        >
-                            <OsIcon
-                                name="add"
-                                className="h-os-20 os-icon-light mr-os-8"
-                            />{" "}
-                            Tambah Mahasiswa via Form
-                        </OsButton>
-                        <OsButton
-                            name="primary"
-                            onClick={() => setShowExcelModal(true)}
-                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
-                        >
-                            <OsIcon
-                                name="Download (2)"
-                                className="h-os-20 os-icon-light mr-os-8"
-                            />{" "}
-                            Tambah Mahasiswa via Excel
-                        </OsButton>
-                    </div>
-
-                    {flash.success && (
-                        <div className="mb-4 p-4 bg-green-100 text-green-800 rounded-lg">
-                            {flash.success}
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader
+                        onMenuClick={() => setIsSidebarOpen(!isSidebarOpen)}
+                    />
+                    <div className="flex-1 overflow-auto p-1">
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Users size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Menu Mahasiswa
+                            </h2>
                         </div>
-                    )}
-                    {Object.keys(errors).length > 0 && (
-                        <div className="mb-4 p-4 bg-red-100 text-red-800 rounded-lg">
-                            <ul className="list-disc pl-4 text-sm">
-                                {Object.values(errors).map((err, i) => (
-                                    <li key={i}>{err}</li>
-                                ))}
-                            </ul>
-                        </div>
-                    )}
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                            Kelola data mahasiswa.
+                        </p>
 
-                    {/* --- SEARCH BAR & FILTER ANGKATAN --- */}
-                    {/* Menggunakan Flexbox agar sejajar */}
-                    <div className="flex flex-col sm:flex-row gap-3 mb-4">
-                        <div className="flex-grow">
-                            <OsSearchBar
-                                search={search}
-                                setSearch={setSearch}
-                                placeholder="Cari nama atau NIM..."
-                            />
+                        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mb-5">
+                            <OsButton
+                                name="primary"
+                                onClick={openAddModal}
+                                className="flex h-[46px] items-center justify-center sm:justify-start bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
+                            >
+                                <OsIcon
+                                    name="add"
+                                    className="h-[18px] os-icon-light mr-os-8"
+                                />{" "}
+                                Tambah Mahasiswa via Form
+                            </OsButton>
+                            <OsButton
+                                name="primary"
+                                onClick={() => setShowExcelModal(true)}
+                                className="flex h-[46px] items-center justify-center sm:justify-start bg-blue-600 text-white text-sm py-2 px-4 rounded-lg hover:bg-blue-700"
+                            >
+                                <OsIcon
+                                    name="Download (2)"
+                                    className="h-[18px] os-icon-light mr-os-8"
+                                />{" "}
+                                Tambah Mahasiswa via Excel
+                            </OsButton>
                         </div>
 
-                        {/* DROPDOWN FILTER ANGKATAN (Client Side) */}
-                        <div className="w-full sm:w-48 shrink-0">
-                            <OsInput
-                                type="select"
-                                value={angkatanFilter}
-                                onChange={(e) => {
-                                    // Handle event change dari select native atau custom component
-                                    const val = e.target ? e.target.value : e;
-                                    setAngkatanFilter(val);
-                                }}
-                                options={[
-                                    { value: "SEMUA", label: "Semua Angkatan" },
-                                    ...angkatanListOptions,
-                                ]}
-                                className="h-[46px]" // Sesuaikan tinggi dengan searchbar jika perlu
-                            />
-                        </div>
-                    </div>
-
-                    <section>
-                        <h2 className="font-semibold text-lg mb-2">
-                            Tabel Mahasiswa{" "}
-                            <span className="text-sm font-normal text-gray-500 ml-2">
-                                (Total: {totalItems} data)
-                            </span>
-                        </h2>
-                        <div className="w-full overflow-x-auto pb-4">
-                            <div className="min-w-max">
-                                <OsTableHeader columns={mahasiswaColumns} />
-                                <OsTableBody
-                                    data={tableDisplayData}
-                                    columns={mahasiswaColumns}
-                                />
-                            </div>
-                        </div>
-                        {totalPages > 1 && (
-                            <div className="mt-2">
-                                <OsPagination
-                                    links={generatedLinks}
-                                    onPageChange={(page) =>
-                                        setCurrentPage(page)
-                                    }
-                                />
+                        {flash.success && (
+                            <div className="mb-4 p-4 bg-green-100 text-green-800 rounded-lg">
+                                {flash.success}
                             </div>
                         )}
-                    </section>
+
+                        {/* --- SEARCH BAR & FILTER ANGKATAN --- */}
+                        <div className="flex flex-col sm:flex-row gap-3">
+                            <div className="flex-grow">
+                                <OsSearchBar
+                                    search={search}
+                                    setSearch={setSearch}
+                                    placeholder="Cari nama atau NIM..."
+                                />
+                            </div>
+
+                            {/* DROPDOWN FILTER ANGKATAN (Client Side) */}
+                            <div className="!min-w-[250px] w-full sm:w-48 shrink-0">
+                                <OsInput
+                                    type="select"
+                                    value={angkatanFilter}
+                                    onChange={(e) => {
+                                        const val = e.target
+                                            ? e.target.value
+                                            : e;
+                                        setAngkatanFilter(val);
+                                    }}
+                                    options={[
+                                        {
+                                            value: "SEMUA",
+                                            label: "Semua Angkatan",
+                                        },
+                                        ...angkatanListOptions,
+                                    ]}
+                                    className="min-h-[46px] mb-2 lg:mb-0"
+                                />
+                            </div>
+                        </div>
+
+                        <section>
+                            <div className="flex gap-1 items-center justify-start mb-2">
+                                <Table2 size={18} />
+                                <h2 className="font-semibold text-lg">
+                                    Tabel Mahasiswa{" "}
+                                </h2>
+                                <span className="text-sm font-normal text-gray-500 ml-2">
+                                    (Total: {totalItems} data)
+                                </span>
+                            </div>
+                            <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                                <div className="min-w-max">
+                                    <OsTableHeader columns={mahasiswaColumns} />
+                                    <OsTableBody
+                                        data={tableDisplayData}
+                                        columns={mahasiswaColumns}
+                                    />
+                                    {filteredData.length === 0 && (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                            Data mahasiswa tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
+                                </div>
+                            </section>
+                            {totalPages > 1 && (
+                                <div className="mt-2">
+                                    <OsPagination
+                                        links={generatedLinks}
+                                        onPageChange={(page) =>
+                                            setCurrentPage(page)
+                                        }
+                                        variant="admin"
+                                    />
+                                </div>
+                            )}
+                        </section>
+                    </div>
                 </div>
-                <OsCopyright />
+                <div className="">
+                    <OsCopyright />
+                </div>
             </main>
 
-            {/* --- MODAL TAMBAH --- */}
             <OsModal
                 show={showModal}
                 onClose={() => setShowModal(false)}
+                onClear={handleClear}
                 title="Tambah Mahasiswa Baru"
                 subtitle="Isi form di bawah untuk menambahkan mahasiswa baru."
                 variant="add"
                 onSubmit={submitAdd}
-                onClear={handleClear}
             >
                 <div className="flex flex-col gap-4">
-                    <div className="flex gap-4 w-full">
-                        <div className="w-1/2">
+                    <div className="flex flex-col sm:flex-row gap-4 w-full">
+                        <div className="w-full sm:w-1/2">
                             <OsInput
                                 label="NIM Mahasiswa"
                                 name="nim"
                                 value={data.nim}
-                                onChange={(e) => setData("nim", e.target.value)}
+                                onChange={(e) => {
+                                    setData("nim", e.target.value);
+                                    if (errors.nim) clearErrors("nim");
+                                }}
                                 placeholder="Masukkan NIM..."
-                                required
                                 className="w-full"
+                                required 
                             />
+                            {errors.nim && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.nim}
+                                </p>
+                            )}
                         </div>
-                        <div className="w-1/2">
+                        <div className="w-full sm:w-1/2">
                             <OsInput
                                 label="Tahun Angkatan"
                                 type="select"
                                 name="angkatan"
                                 value={data.angkatan}
-                                onChange={(e) =>
-                                    setData("angkatan", e.target.value)
-                                }
+                                onChange={(e) => {
+                                    setData("angkatan", e.target.value);
+                                    if (errors.angkatan)
+                                        clearErrors("angkatan");
+                                }}
                                 options={[
                                     { value: "", label: "Pilih Tahun..." },
                                     ...angkatanListOptions,
                                 ]}
-                                required
                                 className="w-full"
+                                required 
                             />
+                            {errors.angkatan && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.angkatan}
+                                </p>
+                            )}
                         </div>
                     </div>
-                    <div className="flex gap-4 w-full items-end">
-                        <div className="w-1/2 relative">
+                    <div className="flex flex-col sm:flex-row gap-4 w-full sm:items-end">
+                        <div className="w-full sm:w-1/2 relative">
                             {!isManualKelas ? (
-                                <OsInput
-                                    label="Kelas"
-                                    type="select"
-                                    name="kelas"
-                                    value={data.kelas}
-                                    onChange={handleKelasChange}
-                                    options={[
-                                        { value: "", label: "Pilih Kelas..." },
-                                        ...kelasOptions,
-                                    ]}
-                                    required
-                                    className="w-full"
-                                />
+                                <>
+                                    <OsInput
+                                        label="Kelas"
+                                        type="select"
+                                        name="kelas"
+                                        value={data.kelas}
+                                        onChange={handleKelasChange}
+                                        options={[
+                                            {
+                                                value: "",
+                                                label: "Pilih Kelas...",
+                                            },
+                                            ...kelasOptions,
+                                        ]}
+                                        className="w-full"
+                                        required 
+                                    />
+                                </>
                             ) : (
                                 <div className="flex w-full gap-2 items-end">
                                     <div className="flex-1">
@@ -467,13 +541,18 @@ export default function MahasiswaPage() {
                                             label="Kelas Manual"
                                             name="kelas"
                                             value={data.kelas}
-                                            onChange={(e) =>
-                                                setData("kelas", e.target.value)
-                                            }
+                                            onChange={(e) => {
+                                                setData(
+                                                    "kelas",
+                                                    e.target.value
+                                                );
+                                                if (errors.kelas)
+                                                    clearErrors("kelas");
+                                            }}
                                             placeholder="Ketik nama kelas..."
-                                            required
                                             className="w-full"
                                             autoFocus
+                                            required 
                                         />
                                     </div>
                                     <button
@@ -481,6 +560,8 @@ export default function MahasiswaPage() {
                                         onClick={() => {
                                             setIsManualKelas(false);
                                             setData("kelas", "");
+                                            if (errors.kelas)
+                                                clearErrors("kelas");
                                         }}
                                         className="mb-[10px] p-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-600 transition"
                                     >
@@ -488,39 +569,61 @@ export default function MahasiswaPage() {
                                     </button>
                                 </div>
                             )}
+                            {errors.kelas && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.kelas}
+                                </p>
+                            )}
                         </div>
-                        <div className="w-1/2">
+                        <div className="w-full sm:w-1/2">
                             <OsInput
                                 label="Jurusan Mahasiswa"
                                 name="prodi"
                                 value={data.prodi}
-                                onChange={(e) =>
-                                    setData("prodi", e.target.value)
-                                }
+                                onChange={(e) => {
+                                    setData("prodi", e.target.value);
+                                    if (errors.prodi) clearErrors("prodi");
+                                }}
                                 placeholder="Masukkan Jurusan..."
-                                required
                                 className="w-full"
+                                required 
                             />
+                            {errors.prodi && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.prodi}
+                                </p>
+                            )}
                         </div>
                     </div>
-                    <OsInput
-                        label="Nama Mahasiswa"
-                        name="nama"
-                        value={data.nama}
-                        onChange={(e) => setData("nama", e.target.value)}
-                        placeholder="Masukkan Nama..."
-                        required
-                        className="w-full"
-                    />
+                    <div>
+                        <OsInput
+                            label="Nama Mahasiswa"
+                            name="nama"
+                            value={data.nama}
+                            onChange={(e) => {
+                                setData("nama", e.target.value);
+                                if (errors.nama) clearErrors("nama");
+                            }}
+                            placeholder="Masukkan Nama..."
+                            className="w-full"
+                            required 
+                        />
+                        {errors.nama && (
+                            <p className="text-red-500 text-xs mt-1">
+                                {errors.nama}
+                            </p>
+                        )}
+                    </div>
                 </div>
             </OsModal>
 
             {/* --- MODAL EDIT --- */}
             <OsModal
                 show={showEditModal}
+                onClear={handleClear}
                 onClose={() => setShowEditModal(false)}
-                title="Edit Mahasiswa"
-                subtitle="Perbarui data mahasiswa yang dipilih."
+                title="Mahasiswa"
+                subtitle={data.nama}
                 variant="edit"
                 onSubmit={submitEdit}
                 onDelete={() => {
@@ -532,63 +635,88 @@ export default function MahasiswaPage() {
                 }}
             >
                 <div className="flex flex-col gap-4">
-                    <div className="flex gap-4 w-full">
-                        <div className="w-1/2">
+                    <div className="flex flex-col sm:flex-row gap-4 w-full">
+                        <div className="w-full sm:w-1/2">
                             <OsInput
                                 label="NIM"
                                 name="nim"
                                 value={data.nim}
-                                onChange={(e) => setData("nim", e.target.value)}
-                                required
+                                onChange={(e) => {
+                                    setData("nim", e.target.value);
+                                    if (errors.nim) clearErrors("nim");
+                                }}
                                 className="w-full"
+                                required 
                             />
+                            {errors.nim && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.nim}
+                                </p>
+                            )}
                         </div>
-                        <div className="w-1/2">
+                        <div className="w-full sm:w-1/2">
                             <OsInput
                                 label="Tahun Angkatan"
                                 type="select"
                                 name="angkatan"
                                 value={data.angkatan}
-                                onChange={(e) =>
-                                    setData("angkatan", e.target.value)
-                                }
+                                onChange={(e) => {
+                                    setData("angkatan", e.target.value);
+                                    if (errors.angkatan)
+                                        clearErrors("angkatan");
+                                }}
                                 options={[
                                     { value: "", label: "Pilih Tahun..." },
                                     ...angkatanListOptions,
                                 ]}
-                                required
                                 className="w-full"
+                                required 
                             />
+                            {errors.angkatan && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.angkatan}
+                                </p>
+                            )}
                         </div>
                     </div>
-                    <div className="flex gap-4 w-full items-end">
-                        <div className="w-1/2 relative">
+                    <div className="flex flex-col sm:flex-row gap-4 w-full sm:items-end">
+                        <div className="w-full sm:w-1/2 relative">
                             {!isManualKelas ? (
-                                <OsInput
-                                    label="Kelas"
-                                    type="select"
-                                    name="kelas"
-                                    value={data.kelas}
-                                    onChange={handleKelasChange}
-                                    options={[
-                                        { value: "", label: "Pilih Kelas..." },
-                                        ...kelasOptions,
-                                    ]}
-                                    required
-                                    className="w-full"
-                                />
+                                <>
+                                    <OsInput
+                                        label="Kelas"
+                                        type="select"
+                                        name="kelas"
+                                        value={data.kelas}
+                                        onChange={handleKelasChange}
+                                        options={[
+                                            {
+                                                value: "",
+                                                label: "Pilih Kelas...",
+                                            },
+                                            ...kelasOptions,
+                                        ]}
+                                        className="w-full"
+                                        required 
+                                    />
+                                </>
                             ) : (
-                                <div className="flex w-full gap-2 items-end">
+                                <div className="flex w-full gap-x-2 items-end  ">
                                     <div className="flex-1">
                                         <OsInput
                                             label="Kelas Manual"
                                             name="kelas"
                                             value={data.kelas}
-                                            onChange={(e) =>
-                                                setData("kelas", e.target.value)
-                                            }
-                                            required
+                                            onChange={(e) => {
+                                                setData(
+                                                    "kelas",
+                                                    e.target.value
+                                                );
+                                                if (errors.kelas)
+                                                    clearErrors("kelas");
+                                            }}
                                             className="w-full"
+                                            required 
                                         />
                                     </div>
                                     <button
@@ -596,39 +724,62 @@ export default function MahasiswaPage() {
                                         onClick={() => {
                                             setIsManualKelas(false);
                                             setData("kelas", "");
+                                            if (errors.kelas)
+                                                clearErrors("kelas");
                                         }}
-                                        className="mb-[10px] p-2 bg-gray-200 hover:bg-gray-300 rounded text-gray-600 transition"
+                                        className="mb-[10px] p-2 bg-red-200 hover:bg-red-300 rounded text-red-600 transition"
                                     >
                                         <X size={18} />
                                     </button>
                                 </div>
                             )}
+                            {errors.kelas && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.kelas}
+                                </p>
+                            )}
                         </div>
-                        <div className="w-1/2">
+                        <div className="w-full sm:w-1/2">
                             <OsInput
                                 label="Jurusan"
                                 name="prodi"
                                 value={data.prodi}
-                                onChange={(e) =>
-                                    setData("prodi", e.target.value)
-                                }
-                                required
+                                onChange={(e) => {
+                                    setData("prodi", e.target.value);
+                                    if (errors.prodi) clearErrors("prodi");
+                                }}
                                 className="w-full"
+                                required 
                             />
+                            {errors.prodi && (
+                                <p className="text-red-500 text-xs mt-1">
+                                    {errors.prodi}
+                                </p>
+                            )}
                         </div>
                     </div>
-                    <OsInput
-                        label="Nama"
-                        name="nama"
-                        value={data.nama}
-                        onChange={(e) => setData("nama", e.target.value)}
-                        required
-                        className="w-full"
-                    />
+                    <div>
+                        <OsInput
+                            label="Nama"
+                            name="nama"
+                            value={data.nama}
+                            onChange={(e) => {
+                                setData("nama", e.target.value);
+                                if (errors.nama) clearErrors("nama");
+                            }}
+                            className="w-full"
+                            required 
+                        />
+                        {errors.nama && (
+                            <p className="text-red-500 text-xs mt-1">
+                                {errors.nama}
+                            </p>
+                        )}
+                    </div>
                 </div>
             </OsModal>
 
-            {/* --- MODAL DELETE & IMPORT EXCEL (Tidak Berubah) --- */}
+            {/* --- MODAL DELETE & IMPORT EXCEL --- */}
             {showDeleteModal && (
                 <Modals
                     isOpen={showDeleteModal}
@@ -642,7 +793,11 @@ export default function MahasiswaPage() {
             )}
             <OsModal
                 show={showExcelModal}
-                onClose={() => setShowExcelModal(false)}
+                onClose={() => {
+                    setShowExcelModal(false);
+                    setImportError(""); 
+                    setImportFile(null);
+                }}
                 title="Template Excel Mahasiswa"
                 subtitle="Download file excel dan isi data mahasiswa"
                 variant="add"
@@ -650,19 +805,23 @@ export default function MahasiswaPage() {
                 onClear={handleClearImport}
             >
                 <div className="w-full">
+                    {/* Tombol Download Template */}
                     <button
                         type="button"
                         onClick={() =>
                             window.open("/admin/mahasiswa/template", "_blank")
                         }
-                        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg mb-4 transition-colors"
+                        className="w-full flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 rounded-lg mb-4 transition-colors"
                     >
+                        <Download size={18} />
                         Download Template Excel
                     </button>
+
+                    {/* Alert Warning */}
                     <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4 flex gap-3 items-start">
-                        <div className="mt-0.5">
+                        <div className="">
                             <AlertTriangle
-                                className="text-yellow-500 fill-yellow-500 stroke-black"
+                                className="text-red-600"
                                 strokeWidth={1.5}
                                 size={20}
                             />
@@ -677,21 +836,44 @@ export default function MahasiswaPage() {
                             </p>
                         </div>
                     </div>
+
+                    {/* Input File Area */}
                     <div>
                         <label
                             htmlFor="import-file"
-                            className="w-full border border-blue-600 text-blue-600 bg-white hover:bg-blue-50 font-medium py-3 rounded-lg cursor-pointer text-center block transition-colors"
+                            className={`w-full border font-medium py-3 rounded-lg cursor-pointer text-center block transition-colors ${
+                                importError
+                                    ? "border-red-500 text-red-600 bg-red-50 hover:bg-red-100"
+                                    : "border-blue-600 text-blue-600 bg-white hover:bg-blue-50"
+                            }`}
                         >
-                            {importFile ? importFile.name : "Upload file Excel"}
+                            {importFile ? (
+                                <span className="flex items-center justify-center gap-2">
+                                    <FileText size={18} /> {importFile.name}
+                                </span>
+                            ) : (
+                                "Upload file Excel"
+                            )}
                         </label>
                         <input
                             id="import-file"
                             ref={fileInputRef}
                             type="file"
                             accept=".xlsx,.xls,.csv"
-                            onChange={(e) => setImportFile(e.target.files?.[0])}
+                            onChange={(e) => {
+                                setImportFile(e.target.files?.[0]);
+                                if (e.target.files?.[0]) setImportError(""); 
+                            }}
                             className="hidden"
                         />
+
+                        {/* PESAN ERROR DISINI */}
+                        {importError && (
+                            <div className="flex items-center gap-2 mt-2 text-red-600 text-sm">
+                                <AlertTriangle size={16} />
+                                <span>{importError}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
             </OsModal>

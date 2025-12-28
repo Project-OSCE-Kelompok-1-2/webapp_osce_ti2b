@@ -1,14 +1,53 @@
 import React, { useState } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-export default function Calendar({ onDateSelect, events = [] }) {
+export default function Calendar({
+    onDateSelect,
+    events = [],
+    variant = "admin",
+}) {
     const today = new Date();
 
     const [currentMonth, setCurrentMonth] = useState(today.getMonth());
     const [currentYear, setCurrentYear] = useState(today.getFullYear());
-
-    // PERBAIKAN 1: State ini sekarang akan menyimpan objek Date lengkap, bukan cuma angka
     const [selectedDate, setSelectedDate] = useState(null);
+
+    const getThemeClasses = () => {
+        switch (variant) {
+            case "penguji":
+                return {
+                    selected:
+                        "!bg-os-primary-pj text-white shadow-md shadow-orange-200",
+                    today: "text-os-primary-pj-dark !bg-os-tertiary-pj border border-os-secondary-pj font-bold",
+                    hover: "hover:!bg-os-tertiary-pj",
+                    dot: "bg-os-primary-pj",
+                    textHeader: "text-gray-800",
+                    btnNav: "text-gray-600 hover:!bg-os-tertiary-pj", 
+                };
+            case "mahasiswa":
+                return {
+                    selected:
+                        "!bg-os-primary-mhs text-white shadow-md shadow-green-200",
+                    today: "text-os-primary-mhs-dark !bg-os-tertiary-mhs border border-os-secondary-mhs font-bold",
+                    hover: "hover:!bg-os-tertiary-mhs",
+                    dot: "bg-os-primary-mhs",
+                    textHeader: "text-gray-800",
+                    btnNav: "text-gray-600 hover:!bg-os-tertiary-mhs",
+                };
+            default: 
+                return {
+                    selected:
+                        "!bg-os-primary text-white shadow-md shadow-blue-200",
+                    today: "text-os-primary !bg-os-tertiary border border-blue-200 font-bold",
+                    hover: "hover:!bg-os-tertiary",
+                    dot: "bg-os-warning",
+                    textHeader: "text-gray-800",
+                    btnNav: "text-gray-600 hover:!bg-os-neutral",
+                };
+        }
+    };
+
+    const theme = getThemeClasses();
 
     const monthNames = [
         "January",
@@ -24,7 +63,6 @@ export default function Calendar({ onDateSelect, events = [] }) {
         "November",
         "December",
     ];
-
     const daysName = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
     const handlePrev = () => {
@@ -50,16 +88,11 @@ export default function Calendar({ onDateSelect, events = [] }) {
     const offset = firstDay === 0 ? 6 : firstDay - 1;
 
     const handleSelect = (day) => {
-        // Membuat objek date lengkap
         const fullDate = new Date(currentYear, currentMonth, day);
-
-        // PERBAIKAN 2: Simpan full date ke state, bukan cuma 'day'
         setSelectedDate(fullDate);
-
         if (onDateSelect) onDateSelect(fullDate);
     };
 
-    // Helper untuk mengecek apakah dua tanggal sama persis (hari, bulan, tahun)
     const isSameDay = (date1, date2) => {
         if (!date1 || !date2) return false;
         return (
@@ -70,32 +103,35 @@ export default function Calendar({ onDateSelect, events = [] }) {
     };
 
     return (
-        <div className="w-full p-4 rounded-xl bg-white shadow-sm border">
+        <div className="w-full p-4 rounded-xl bg-white shadow-sm border border-gray-100">
             {/* Header */}
-            <div className="flex items-center justify-between mb-3">
+            <div className="flex items-center justify-between mb-4">
                 <button
+                    type="button" 
                     onClick={handlePrev}
-                    className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 transition"
+                    className={`p-2 rounded-lg transition !bg-transparent ${theme.btnNav}`}
                 >
                     <ChevronLeft size={20} />
                 </button>
-
-                <h2 className="text-lg font-bold text-gray-800">
+                <h2 className={`text-lg font-bold ${theme.textHeader}`}>
                     {monthNames[currentMonth]} {currentYear}
                 </h2>
-
                 <button
+                    type="button"
                     onClick={handleNext}
-                    className="p-2 rounded-lg bg-gray-50 hover:bg-gray-100 text-gray-600 transition"
+                    className={`p-2 rounded-lg transition !bg-transparent ${theme.btnNav}`}
                 >
                     <ChevronRight size={20} />
                 </button>
             </div>
 
             {/* Days Name */}
-            <div className="grid grid-cols-7 text-center font-semibold text-gray-400 text-xs uppercase mb-2">
+            <div className="grid grid-cols-7 text-center mb-2">
                 {daysName.map((d) => (
-                    <div key={d} className="py-1 tracking-wider">
+                    <div
+                        key={d}
+                        className="py-1 text-xs font-semibold text-gray-400 uppercase tracking-wider"
+                    >
                         {d}
                     </div>
                 ))}
@@ -103,68 +139,60 @@ export default function Calendar({ onDateSelect, events = [] }) {
 
             {/* Calendar Grid */}
             <div className="grid grid-cols-7 gap-1 text-center">
-                {/* Empty cells */}
                 {Array(offset)
                     .fill(null)
                     .map((_, idx) => (
                         <div key={`empty-${idx}`}></div>
                     ))}
 
-                {/* Days */}
                 {Array(daysInMonth)
                     .fill(null)
                     .map((_, index) => {
                         const day = index + 1;
-
-                        // Tanggal yang sedang dirender saat looping
                         const dateToRender = new Date(
                             currentYear,
                             currentMonth,
                             day
                         );
-
-                        // PERBAIKAN 3: Cek kesamaan tanggal menggunakan helper isSameDay
-                        // Ini untuk memastikan misal: tanggal 25 Januari != 25 Februari
                         const isSelected = isSameDay(
                             selectedDate,
                             dateToRender
                         );
-
-                        // Logic Cek Hari Ini (Real-time)
-                        // Menggunakan helper isSameDay membandingkan 'today' vs tanggal render
                         const isToday = isSameDay(today, dateToRender);
 
-                        // Logic Dot / Penanda
                         const dateStr = `${currentYear}-${String(
                             currentMonth + 1
                         ).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
                         const hasEvent = events && events.includes(dateStr);
 
+                        let buttonClass = "";
+
+                        if (isSelected) {
+                            buttonClass = theme.selected;
+                        } else if (isToday) {
+                            buttonClass = theme.today;
+                        } else {
+                            buttonClass = `!bg-white text-gray-700 ${theme.hover}`;
+                        }
+
                         return (
                             <button
                                 key={day}
+                                type="button"
                                 onClick={() => handleSelect(day)}
                                 className={`
-                                    h-9 w-9 mx-auto flex flex-col items-center justify-center rounded-lg transition relative
-                                    ${
-                                        isSelected
-                                            ? "bg-blue-600 text-white shadow-md" // Jika dipilih (Prioritas Utama)
-                                            : isToday
-                                            ? "text-blue-800 font-bold border hover:bg-blue-100 bg-blue-200" // Jika HARI INI (Prioritas Kedua)
-                                            : "bg-white hover:bg-blue-50 text-gray-800" // Normal
-                                    }
-                                `}
+                                h-9 w-9 mx-auto flex flex-col items-center justify-center rounded-lg transition-all duration-200 relative
+                                ${buttonClass}
+                            `}
                             >
-                                <span className="text-sm font-medium leading-none">
+                                <span className="text-sm font-medium leading-none mt-0.5">
                                     {day}
                                 </span>
 
                                 {hasEvent && (
                                     <span
-                                        className={`absolute bottom-1 w-1 h-1 rounded-full ${
-                                            isSelected
-                                                ? "bg-white"
-                                                : "bg-red-500"
+                                        className={`absolute bottom-1.5 w-1 h-1 rounded-full ${
+                                            isSelected ? "bg-white" : theme.dot
                                         }`}
                                     ></span>
                                 )}
@@ -176,7 +204,9 @@ export default function Calendar({ onDateSelect, events = [] }) {
             {/* Legend */}
             {events.length > 0 && (
                 <div className="mt-4 pt-3 border-t border-gray-100 flex items-center justify-end gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-red-500"></span>
+                    <span
+                        className={`w-2 h-2 rounded-full ${theme.dot}`}
+                    ></span>
                     <span className="text-[10px] uppercase font-bold text-gray-400 tracking-wide">
                         Jadwal Ujian
                     </span>

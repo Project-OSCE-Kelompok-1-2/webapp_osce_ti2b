@@ -1,193 +1,320 @@
-import React from "react";
-import { Link, usePage } from "@inertiajs/react";
-import { ArrowLeft } from "lucide-react";
+import React, { useState } from "react";
+import { usePage } from "@inertiajs/react";
+import { User, FileText, Bookmark } from "lucide-react";
+import OsCopyright from "../../components/copyright";
 
-// --- Import Komponen ---
-import SidebarUniversal from "../../components/SidebarUniversal";
+import Sidebar from "../../components/Sidebar";
+import OsTableHeader from "../../components/tableheader";
 import OsHeader from "../../components/Header";
-import OsCopyright from "../../components/Copyright";
 
-// --- Komponen Internal: Lingkaran Skor (0-4) ---
-const ScoreCircle = ({ value, selected }) => {
-    return (
-        <div className="flex flex-col items-center mx-1">
-            <span className="text-xs font-medium text-gray-600 mb-1">
-                {value}
-            </span>
-            <div
-                className={`w-5 h-5 rounded-full border border-black flex items-center justify-center transition-all
-                    ${
-                        selected
-                            ? "bg-black border-black"
-                            : "bg-white border-gray-400"
-                    }
-                `}
-            >
-                {/* Indikator titik putih jika terpilih */}
-                {selected && (
-                    <div className="w-2 h-2 bg-white rounded-full"></div>
-                )}
-            </div>
-        </div>
-    );
-};
+// Header Tabel Rubrik 
+const rubrikColumns = [
+    { content: "No", width: "w-16", classes: "justify-center items-center" },
+    {
+        content: "Aspek Penilaian",
+        width: "flex-1",
+        classes: "justify-start items-center px-4",
+    },
+    {
+        content: "Skor",
+        width: "w-[260px]",
+        classes: "justify-center items-center px-4",
+    },
+    {
+        content: "Bobot",
+        width: "w-20",
+        classes: "justify-center items-center px-4",
+    },
+    {
+        content: "Nilai",
+        width: "w-24",
+        classes: "justify-center items-center px-4",
+    },
+];
 
 export default function ViewNilaiDetail() {
-    // 1. AMBIL DATA DARI PROPS BACKEND
     const {
         mahasiswa,
         rubrik_terisi = [],
         total_nilai_aspek = 0,
         feedback = "",
+        info_ujian,
     } = usePage().props;
 
-    return (
-        <div className="relative bg-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
-            <SidebarUniversal />
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-            <main className="grid w-full p-os-8 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-14 transition-all duration-300 md:ml-20">
-                {/* 1. Header */}
+    const hitungNilai = (skor, bobot) => {
+        if (skor === undefined) return 0;
+        return skor * bobot;
+    };
+
+    return (
+        <div className="relative bg-white w-full min-h-screen flex justify-start font-sans overflow-hidden">
+            {/* SIDEBAR */}
+            <Sidebar
+                isOpen={isSidebarOpen}
+                onToggle={handleSidebarToggle}
+                type="penguji"
+            />
+
+            {/* MAIN CONTENT */}
+            <main className="w-full p-4 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                {/* HEADER */}
                 <OsHeader
-                    className="fixed"
-                    title="OSCE / Detail OSCE / Penilaian Stase / Lihat Penilaian"
-                    icon={<ArrowLeft className="w-5 h-5" />}
-                    // Gunakan window.history.back() atau Link ke route sebelumnya
+                    onMenuClick={handleSidebarToggle}
                     variant="goback"
-                    backLink="#"
-                    onBack={() => window.history.back()}
+                    role="penguji"
+                    backLink={`/penguji/osce/${info_ujian?.id_osce}/stase/${info_ujian?.id_osce_stase}/rekap`}
+                    title="Detail Penilaian"
                 />
 
-                <div className="flex-1 overflow-auto">
-                    {/* 2. Info Mahasiswa */}
-                    <div className="flex items-center p-4 border border-black rounded-xl mb-6 bg-white shadow-sm">
-                        {/* Placeholder Foto */}
-                        <div className="w-16 h-16 bg-gray-800 rounded-full mr-6 flex-shrink-0 flex items-center justify-center text-white font-bold text-xl">
-                            {mahasiswa?.nama?.charAt(0) || "M"}
+                <div className="flex-1 overflow-auto pb-8 p-1">
+                    {/* INFO MAHASISWA */}
+                    <div className="flex gap-1 items-center justify-start my-2 text-black">
+                        <User size={18} />
+                        <h2 className="font-semibold text-lg ">
+                            Biodata Mahasiswa
+                        </h2>
+                    </div>
+                    <div className="flex items-center gap-4 border border-os-primary-pj rounded-xl px-6 py-5 bg-gray-50 mb-6">
+                        <div className="w-16 h-16 rounded-full overflow-hidden border border-gray-400 bg-gray-200 flex items-center justify-center">
+                            {/* Logic Foto / Inisial */}
+                            {mahasiswa?.nama ? (
+                                <span className="text-xl font-bold text-gray-600">
+                                    {mahasiswa.nama.charAt(0)}
+                                </span>
+                            ) : (
+                                <User size={32} className="text-gray-500" />
+                            )}
                         </div>
-                        <div className="flex flex-col space-y-1 text-sm text-gray-800">
-                            <div>
-                                <span className="font-bold">Nama :</span>{" "}
-                                {mahasiswa?.nama || "-"}
-                            </div>
-                            <div>
-                                <span className="font-bold">NIM :</span>{" "}
-                                {mahasiswa?.nim || "-"}
-                            </div>
-                            <div>
-                                <span className="font-bold">Jurusan :</span>{" "}
-                                {mahasiswa?.jurusan || "-"}
-                            </div>
+                        <div>
+                            <p className="font-semibold text-lg text-gray-900">
+                                Nama: {mahasiswa?.nama || "-"}
+                            </p>
+                            <p className="text-sm text-orange-700 font-mono">
+                                NIM : {mahasiswa?.nim || "-"}
+                            </p>
+                            <p className="text-sm text-orange-700">
+                                Jurusan : {mahasiswa?.jurusan || "-"}
+                            </p>
                         </div>
                     </div>
+                    {/* JUDUL RUBRIK */}
+                    <div className="flex gap-1 items-center justify-start my-2 text-black">
+                        <FileText size={18} />
+                        <h2 className="font-semibold text-lg ">
+                            Hasil Penilaian Stase
+                        </h2>
+                    </div>
+                    {/* ================= DESKTOP VIEW ================= */}
+                    <div className="hidden bg-white xl:block border rounded-xl p-4 border-os-primary-pj shadow-sm">
+                        <OsTableHeader
+                            columns={rubrikColumns}
+                            variant="penguji"
+                        />
 
-                    {/* 3. Judul Penilaian */}
-                    <h2 className="text-xl font-bold text-black mb-4">
-                        Penilaian Stase
-                    </h2>
+                        <div className="overflow-y-auto max-h-[450px]">
+                            {rubrik_terisi.map((group, gIndex) => (
+                                <React.Fragment key={gIndex}>
+                                    <div className="bg-orange-50 border rounded-lg text-orange-900 border-os-primary-pj my-2 px-4 py-2 font-semibold border-t">
+                                        {group.aspek}
+                                    </div>
 
-                    {/* 4. Tabel Penilaian */}
-                    <div className="border border-black rounded-xl overflow-hidden mb-6 shadow-sm">
-                        {/* Header Tabel */}
-                        <div className="flex border-b border-black bg-gray-50 text-sm font-bold text-gray-900">
-                            <div className="w-16 p-3 text-center border-r border-black">
-                                No
-                            </div>
-                            <div className="flex-1 p-3 border-r border-black">
-                                Aspek Penilaian
-                            </div>
-                            <div className="w-64 p-3 text-center border-r border-black">
-                                Skor
-                            </div>
-                            <div className="w-32 p-3 text-center border-r border-black">
-                                Bobot
-                            </div>
-                            <div className="w-32 p-3 text-center">Nilai</div>
+                                    {group.kompetensi.map((poin, index) => (
+                                        <div
+                                            key={
+                                                poin.id_poin_aspek_penilaian ||
+                                                index
+                                            }
+                                            className="flex items-center min-h-[70px] border-t bg-white"
+                                        >
+                                            <div className="w-16 text-center">
+                                                {index + 1}
+                                            </div>
+                                            <div className="flex-1 px-4 border-l py-2">
+                                                {poin.deskripsi}
+                                            </div>
+
+                                            {/* TAMPILAN SKOR (READ ONLY) */}
+                                            <div className="w-[260px] border-l flex flex-col items-center py-2">
+                                                <div className="flex justify-between w-full px-6 mb-1 text-[12px]">
+                                                    {[0, 1, 2, 3, 4].map(
+                                                        (v) => (
+                                                            <span
+                                                                key={v}
+                                                                className="w-5 text-center"
+                                                            >
+                                                                {v}
+                                                            </span>
+                                                        )
+                                                    )}
+                                                </div>
+
+                                                <div className="flex justify-between w-full px-6">
+                                                    {[0, 1, 2, 3, 4].map(
+                                                        (v) => {
+                                                            const isSelected =
+                                                                Math.round(
+                                                                    poin.skor
+                                                                ) === v;
+
+                                                            return (
+                                                                <div
+                                                                    className="border border-black rounded-full"
+                                                                    key={v}
+                                                                >
+                                                                    <div
+                                                                        className={`w-5 h-5 p-[3px] rounded-full !border-2 !border-black bg-white flex items-center justify-center transition-all cursor-default
+                                                                        ${
+                                                                            isSelected
+                                                                                ? "border-black border-2 bg-white"
+                                                                                : "border-gray-300 opacity-40"
+                                                                        }`}
+                                                                    >
+                                                                        {isSelected && (
+                                                                            <span className="w-full h-full rounded-full bg-os-primary-pj" />
+                                                                        )}
+                                                                    </div>
+                                                                </div>
+                                                            );
+                                                        }
+                                                    )}
+                                                </div>
+                                            </div>
+
+                                            <div className="w-20 text-center border-l">
+                                                {poin.bobot}
+                                            </div>
+                                            <div className="w-20 text-center border-l font-bold">
+                                                {Number(
+                                                    poin.nilai_kompetensi ||
+                                                        hitungNilai(
+                                                            poin.skor,
+                                                            poin.bobot
+                                                        )
+                                                ).toFixed(0)}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </React.Fragment>
+                            ))}
                         </div>
 
-                        {/* Body Tabel (Looping Kategori/Aspek) */}
-                        {rubrik_terisi.map((kategori, index) => (
-                            <div key={index}>
-                                {/* Judul Kategori */}
-                                <div className="p-3 font-bold text-sm bg-blue-50 border-b border-black text-blue-900">
-                                    {kategori.aspek}
+                        <div className="flex justify-between px-4 pr-8 py-3 border-t font-semibold bg-gray-50 rounded-b-xl mt-4">
+                            <span>Total Nilai Akhir</span>
+                            <span>{Number(total_nilai_aspek).toFixed(2)}</span>
+                        </div>
+                    </div>
+                    <div className="xl:hidden space-y-3">
+                        {rubrik_terisi.map((group, gIndex) => (
+                            <React.Fragment key={gIndex}>
+                                <div className="bg-orange-50 text-orange-900 border-os-primary-pj border px-4 py-2 font-semibold rounded-lg">
+                                    {group.aspek}
                                 </div>
 
-                                {/* Looping Items (Kompetensi) */}
-                                {kategori.kompetensi.map((item, idx) => (
+                                {group.kompetensi.map((poin, index) => (
                                     <div
-                                        key={item.id_poin_aspek_penilaian}
-                                        // FIX: Tailwind Class Logic (Gunakan string penuh)
-                                        className={`flex border-b border-black ${
-                                            idx % 2 === 0
-                                                ? "bg-gray-100"
-                                                : "bg-white"
-                                        }`}
+                                        key={
+                                            poin.id_poin_aspek_penilaian ||
+                                            index
+                                        }
+                                        className="border rounded-xl p-4 bg-white space-y-3 shadow-sm"
                                     >
-                                        <div className="w-16 p-3 text-center border-r border-black flex items-center justify-center font-medium">
-                                            {idx + 1}
-                                        </div>
-                                        <div className="flex-1 p-3 border-r border-black flex items-center text-sm leading-snug">
-                                            {item.deskripsi}
-                                        </div>
+                                        <p className="text-sm text-gray-700 text-justify">
+                                            <span className="font-bold mr-1">
+                                                {index + 1}.
+                                            </span>{" "}
+                                            {poin.deskripsi}
+                                        </p>
 
-                                        {/* Bagian Skor (Lingkaran) */}
-                                        <div className="w-64 p-3 border-r border-black flex items-center justify-center">
-                                            {[0, 1, 2, 3, 4].map((score) => (
-                                                <ScoreCircle
-                                                    key={score}
-                                                    value={score}
-                                                    // Pastikan parsing aman (int comparison)
-                                                    selected={
+                                        {/* SKOR MOBILE (READ ONLY) */}
+                                        <div className="w-full flex flex-col items-center">
+                                            <p className="text-xs sm:text-base mb-2 font-bold text-black text-center">
+                                                Skor:
+                                            </p>
+                                            <div className="flex gap-3 sm:gap-6 justify-center items-center w-full pointer-events-none">
+                                                {[0, 1, 2, 3, 4].map((v) => {
+                                                    const isSelected =
                                                         Math.round(
-                                                            item.skor
-                                                        ) === score
-                                                    }
-                                                />
-                                            ))}
+                                                            poin.skor
+                                                        ) === v;
+                                                    return (
+                                                        <div
+                                                            key={v}
+                                                            style={{
+                                                                borderColor:
+                                                                    isSelected
+                                                                        ? undefined
+                                                                        : "black",
+                                                            }}
+                                                            className={`w-12 h-12 sm:w-16 sm:h-16 rounded-full !border-2 border-solid flex items-center justify-center text-lg sm:text-2xl font-bold transition-all duration-200
+                                            ${
+                                                isSelected
+                                                    ? "bg-orange-500 border-orange-600 text-white shadow-md transform scale-110"
+                                                    : "!bg-white !text-black"
+                                            }`}
+                                                        >
+                                                            {v}
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
                                         </div>
 
-                                        <div className="w-32 p-3 border-r border-black flex items-center justify-center text-sm">
-                                            {item.bobot}
-                                        </div>
-                                        <div className="w-32 p-3 flex items-center justify-center font-bold text-blue-800">
-                                            {/* Format angka desimal jika perlu */}
-                                            {Number(item.nilai_kompetensi)
-                                                .toFixed(2)
-                                                .replace(/\.00$/, "")}
+                                        <div className="flex justify-between items-center pt-2 border-t border-dashed">
+                                            <div className="text-sm">
+                                                <span className="font-medium text-gray-500">
+                                                    Bobot:{" "}
+                                                </span>
+                                                {poin.bobot}
+                                            </div>
+
+                                            <div className="text-sm font-bold text-orange-700">
+                                                Nilai:{" "}
+                                                {Number(
+                                                    poin.nilai_kompetensi ||
+                                                        hitungNilai(
+                                                            poin.skor,
+                                                            poin.bobot
+                                                        )
+                                                ).toFixed(0)}
+                                            </div>
                                         </div>
                                     </div>
                                 ))}
-                            </div>
+                            </React.Fragment>
                         ))}
 
-                        {/* Footer Total Nilai */}
-                        <div className="flex bg-gray-800 text-white font-bold">
-                            <div className="flex-1 p-4 border-r border-gray-600 text-right pr-6">
-                                TOTAL NILAI AKHIR
-                            </div>
-                            <div className="w-32 p-4 text-center text-lg">
+                        <div className="w-full px-4 py-3 border border-orange-200 rounded-xl font-semibold bg-orange-50 text-orange-900 flex justify-between items-center shadow-sm">
+                            <span>Total Nilai Akhir:</span>
+                            <span className="text-xl">
                                 {Number(total_nilai_aspek).toFixed(2)}
-                            </div>
+                            </span>
                         </div>
                     </div>
-
-                    {/* 5. Feedback */}
-                    <div className="mb-6">
-                        <h3 className="text-lg font-bold text-black mb-2">
-                            Feedback Penguji
-                        </h3>
-                        <div className="border border-black rounded-xl p-4 bg-white text-gray-700 text-sm leading-relaxed min-h-[100px]">
-                            {feedback ? (
-                                feedback
-                            ) : (
-                                <span className="italic text-gray-400">
-                                    Tidak ada catatan feedback.
-                                </span>
-                            )}
-                        </div>
+                    {/* FEEDBACK SECTION */}
+                    <div className="flex gap-1 items-center justify-start my-2 mt-8 text-black">
+                        <Bookmark size={18} />
+                        <h2 className="font-semibold text-lg ">
+                            Feedback / Catatan Penguji
+                        </h2>
                     </div>
+                    <div className="w-full border border-os-primary-pj rounded-xl p-4 min-h-[100px] shadow-sm text-gray-700 bg-gray-50 italic">
+                        {feedback ? (
+                            feedback
+                        ) : (
+                            <span className="text-gray-400">
+                                Tidak ada catatan feedback.
+                            </span>
+                        )}
+                    </div>
+                    <div className="h-12"></div> {/* Spacer bawah */}
                 </div>
-                <OsCopyright />
+
+                <div>
+                    <OsCopyright variant="penguji" />
+                </div>
             </main>
         </div>
     );

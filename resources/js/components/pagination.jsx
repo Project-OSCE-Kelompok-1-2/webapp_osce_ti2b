@@ -1,18 +1,47 @@
-// components/OsPagination.jsx
 import { Link } from "@inertiajs/react";
 import React from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 /**
- * Komponen Pagination Hybrid.
- * Bisa dipakai untuk Server-Side (Inertia) ataupun Client-Side (Instant).
- * * @param {Array} links - Array tautan pagination.
+ * @param {Array} links - Array tautan pagination.
  * @param {Function} onPageChange - (Optional) Fungsi callback untuk Client-side pagination.
+ * @param {string} variant - 'admin' (default), 'penguji' (oranye), atau 'mahasiswa' (hijau).
  */
-const OsPagination = ({ links = [], onPageChange }) => {
+const OsPagination = ({ links = [], onPageChange, variant = "admin" }) => {
     if (links.length <= 3) {
         return null;
     }
+
+    const isPenguji = variant === "penguji";
+    const isMahasiswa = variant === "mahasiswa";
+
+    const activeBgClass = (() => {
+        if (isMahasiswa) return "bg-[var(--os-primary-mhs)] text-white";
+        if (isPenguji) return "bg-[var(--os-primary-pj)] text-white";
+        return "bg-[var(--os-primary)] text-white";
+    })();
+
+    const activeThemeClasses = (() => {
+        if (isMahasiswa) {
+            return {
+                arrow: "border border-[var(--os-primary-mhs)] text-[var(--os-primary-mhs)] hover:bg-[var(--os-primary-mhs)] hover:text-white",
+                number: "border border-[var(--os-primary-mhs)] text-[var(--os-primary-mhs)] hover:bg-[var(--os-tertiary-mhs)]",
+            };
+        }
+        if (isPenguji) {
+            return {
+                arrow: "border border-[var(--os-primary-pj)] text-[var(--os-primary-pj)] hover:bg-[var(--os-primary-pj)] hover:text-white",
+                number: "border border-[var(--os-primary-pj)] text-[var(--os-primary-pj)] hover:bg-[var(--os-tertiary-pj)]",
+            };
+        }
+        return {
+            arrow: "border border-gray-400 text-gray-700 hover:bg-black hover:text-white",
+            number: "border border-gray-400 text-gray-700 hover:bg-gray-100",
+        };
+    })();
+
+    const arrowActiveClass = activeThemeClasses.arrow;
+    const numberActiveClass = activeThemeClasses.number;
 
     return (
         <nav
@@ -24,7 +53,6 @@ const OsPagination = ({ links = [], onPageChange }) => {
 
                 let icon = null;
                 if (isArrow) {
-                    // Cek label untuk menentukan ikon (biasanya 'Previous'/'Next' atau '&laquo;')
                     const isPrev =
                         link.label.includes("Previous") ||
                         link.label.includes("&laquo;");
@@ -47,30 +75,27 @@ const OsPagination = ({ links = [], onPageChange }) => {
                     );
                 }
 
-                // Styling logic
                 if (link.active) {
                     combinedClasses =
-                        "bg-os-primary text-white font-semibold cursor-default";
+                        activeBgClass + " font-semibold cursor-default";
                 } else if (link.url === null) {
                     combinedClasses =
                         "bg-white border border-gray-400 text-gray-400 cursor-not-allowed";
                 } else if (isArrow) {
                     combinedClasses =
-                        "bg-white border border-gray-400 text-gray-700 hover:bg-black hover:text-white cursor-pointer";
+                        "bg-white " + arrowActiveClass + " cursor-pointer";
                 } else {
                     combinedClasses =
-                        "bg-white border border-gray-400 text-gray-700 hover:bg-gray-100 cursor-pointer";
+                        "bg-white " + numberActiveClass + " cursor-pointer";
                 }
 
-                // Tentukan Tag: Jika client-side (ada onPageChange), pakai 'button' atau 'div' biar gak reload
-                // Jika server-side (URL asli), pakai Link
                 const Tag =
                     link.url === null ? "span" : onPageChange ? "button" : Link;
 
                 return (
                     <Tag
                         key={index}
-                        href={onPageChange ? undefined : link.url || "#"} // Hapus href jika client-side
+                        href={onPageChange ? undefined : link.url || "#"}
                         disabled={link.url === null}
                         className={`${baseClasses} ${combinedClasses}`}
                         onClick={(e) => {
@@ -78,11 +103,37 @@ const OsPagination = ({ links = [], onPageChange }) => {
                                 e.preventDefault();
                                 return;
                             }
-                            // LOGIC BARU: Jika mode Client-Side
+
                             if (onPageChange) {
                                 e.preventDefault();
-                                // Kita sisipkan properti 'pageNumber' saat generate link di parent
-                                onPageChange(link.pageNumber || link.label);
+
+                                let finalPageNumber;
+
+                                if (
+                                    link.pageNumber !== undefined &&
+                                    link.pageNumber !== null
+                                ) {
+                                    finalPageNumber = link.pageNumber;
+                                }
+                                else {
+                                    const pageNumMatch = link.url
+                                        ? link.url.match(/page=(\d+)/)
+                                        : null;
+
+                                    if (pageNumMatch) {
+                                        finalPageNumber = parseInt(
+                                            pageNumMatch[1],
+                                            10
+                                        );
+                                    } else {
+                                        finalPageNumber = parseInt(
+                                            link.label,
+                                            10
+                                        );
+                                    }
+                                }
+
+                                onPageChange(finalPageNumber);
                             }
                         }}
                     >

@@ -13,25 +13,18 @@ use App\Models\Penguji;
 
 class HalamanPenilaianService
 {
-    /**
-     * Logika mengambil data Antrian (Sama persis dengan showAntrian)
-     */
+
     public function getAntrianData($id_osce, $id_osce_stase)
     {
-        // 1. Cek keamanan Auth (Strict)
         $user = Auth::user();
         if (!$user || !$user->penguji) {
             abort(403, 'Akses ditolak. Anda bukan Penguji.');
         }
-        $penguji = $user->penguji; // Ambil data model Penguji
+        $penguji = $user->penguji; 
 
-        // 2. [SECURITY FIX] Ambil Detail OSCE & Stase DENGAN Validasi Penguji
-        // Panggilan relasi ditambahkan:
-        // osceStaseContext -> osce (Model OSCE)
-        // osceStaseContext -> stase -> aspekPenilaian (Aspek Penilaian dari Stase)
         $osceStaseContext = OsceStase::with([
             'osce',
-            'stase.aspekPenilaian', // ⭐ Memanggil relasi ke aspekPenilaian melalui stase
+            'stase.aspekPenilaian',
             'ruang'
         ])
             ->where('id_osce', $id_osce)
@@ -39,23 +32,19 @@ class HalamanPenilaianService
             ->where('id_penguji', $penguji->id_penguji)
             ->first();
 
-        // Jika data tidak ditemukan
         if (!$osceStaseContext) {
             abort(404, 'Akses Ditolak. Anda tidak ditugaskan di stase ini.');
         }
 
-        // Memastikan relasi aspekPenilaian ada sebelum diakses
         $tujuan_pembelajaran = $osceStaseContext->stase->tujuanPembelajaran ?? collect();
 
         $carbon_time = Carbon::parse($osceStaseContext->jam_mulai);
         $jam_mulai_terformat = $carbon_time->format("H:i");
 
-        // Ambil Tanggal dan Jam Mulai tugas si Penguji
         $tanggalPenguji      = $osceStaseContext->tanggal;
         $jamMulaiPenguji     = $jam_mulai_terformat;
         $jamSelesaiPenguji = $osceStaseContext->jam_selesai;
 
-        // 3. Detail OSCE
         $totalMahasiswa = EnrollmentOsce::where('id_osce', $id_osce)
             ->whereDate('tanggal_sesi', $tanggalPenguji)
             ->where('jam_sesi', $jamMulaiPenguji)
@@ -69,15 +58,12 @@ class HalamanPenilaianService
             'nomor_stasiun'          => $osceStaseContext->ruang->nomor_ruangan ?? '-',
             'jam_mulai'              => $jamMulaiPenguji . ' WIB',
             'skenario'               => $osceStaseContext->skenario,
-            // ⭐ Menambahkan Aspek Penilaian ke detail yang dikirim
             'tujuan_pembelajaran'      => $tujuan_pembelajaran
         ];
 
-        // 4. Ambil Antrian Mahasiswa (FIX LOGIKA RANGE)
         $enrollments = EnrollmentOsce::with(['mahasiswa'])
             ->where('id_osce', $id_osce)
             ->whereDate('tanggal_sesi', $tanggalPenguji)
-            // Logika Range Waktu
             ->whereTime('jam_sesi', '>=', $jamMulaiPenguji)
             ->whereTime('jam_sesi', '<', $jamSelesaiPenguji)
             ->whereHas('mahasiswa', function ($query) {
@@ -110,33 +96,25 @@ class HalamanPenilaianService
         ];
     }
 
-    /**
-     * Logika mengambil data Penilaian (Sama persis dengan showPenilaian)
-     */
     public function getPenilaianData($id_enrollment_osce)
     {
-        // 1. Identifikasi Mahasiswa & OSCE
         $enrollment = EnrollmentOsce::with(['mahasiswa.pengguna', 'osce'])
             ->findOrFail($id_enrollment_osce);
 
-        // [SAFETY CHECK]
         if (!$enrollment->tanggal_sesi || !$enrollment->jam_sesi) {
             abort(403, 'Jadwal sesi mahasiswa ini belum diatur oleh admin.');
         }
 
-        // 2. Auth Check (Strict)
         $user = Auth::user();
         if (!$user || !$user->penguji) {
             abort(403, 'Akses ditolak. Anda bukan Penguji.');
         }
         $penguji = $user->penguji;
 
-        // 3. Cari Stase Penguji (DENGAN VALIDASI SESI YANG KETAT)
         $osceStase = OsceStase::with(['stase'])
             ->where('id_osce', $enrollment->id_osce)
             ->where('id_penguji', $penguji->id_penguji)
             ->whereDate('tanggal', $enrollment->tanggal_sesi)
-            // Logika Rentang Waktu
             ->whereTime('jam_mulai', '<=', $enrollment->jam_sesi)
             ->whereTime('jam_selesai', '>', $enrollment->jam_sesi)
             ->first();
@@ -145,12 +123,10 @@ class HalamanPenilaianService
             abort(403, 'Akses Ditolak. Jadwal menguji Anda tidak sesuai dengan sesi mahasiswa ini.');
         }
 
-        // 4. Ambil Rubrik
         $aspekPenilaianList = AspekPenilaian::with(['poinAspekPenilaian'])
             ->where('id_stase', $osceStase->id_stase)
             ->get();
 
-        // 5. Data Mahasiswa
         $dataMahasiswa = [
             'nama'     => $enrollment->mahasiswa->nama,
             'nim'      => $enrollment->mahasiswa->nim,
@@ -165,7 +141,6 @@ class HalamanPenilaianService
             'nama_stase' => $osceStase->stase->nama_stase ?? 'Stase Tanpa Nama',
         ];
 
-        // 6. Props Rubrik & Persiapan Map Bobot
         $mapBobot = [];
 
         $rubrik = $aspekPenilaianList->map(function ($aspek) use (&$mapBobot) {
@@ -183,7 +158,6 @@ class HalamanPenilaianService
             ];
         });
 
-        // 7. & 8. Ambil Skor Existing & Tentukan Timer
         $savedScores = NilaiOsce::where('id_enrollment_osce', $enrollment->id_enrollment_osce)
             ->whereHas('poinAspekPenilaian.aspekPenilaian', function ($q) use ($osceStase) {
                 $q->where('id_stase', $osceStase->id_stase);
@@ -192,35 +166,23 @@ class HalamanPenilaianService
 
         $isEditMode = $savedScores->isNotEmpty();
 
-        // UPDATE LOGIKA TIMER
         $sisaWaktuDetik = 0;
+
+        $durasiMenit = $osceStase->durasi_per_mahasiswa ?? 15;
+        if ($durasiMenit == 0) $durasiMenit = 15;
+        $durasiDetikFull = $durasiMenit * 60; 
 
         if ($isEditMode) {
             $sisaWaktuDetik = 0;
-        } elseif ($enrollment->tanggal_sesi && $enrollment->jam_sesi) {
-
-            $tglString = $enrollment->tanggal_sesi instanceof \DateTime
-                ? $enrollment->tanggal_sesi->format('Y-m-d')
-                : $enrollment->tanggal_sesi;
-
-            $jadwalMulai = Carbon::parse($tglString . ' ' . $enrollment->jam_sesi, 'Asia/Jakarta');
-
-            $durasiMenit = $osceStase->durasi_per_mahasiswa ?? 15;
-            if ($durasiMenit == 0) $durasiMenit = 15;
-
-            $jadwalSelesai = $jadwalMulai->copy()->addMinutes($durasiMenit);
-            $waktuSekarang = Carbon::now('Asia/Jakarta');
-
-            if ($waktuSekarang->greaterThanOrEqualTo($jadwalSelesai)) {
-                $sisaWaktuDetik = 0;
-            } else {
-                $sisaWaktuDetik = $waktuSekarang->diffInSeconds($jadwalSelesai, false);
-            }
+        } else {
+            $sisaWaktuDetik = $durasiDetikFull;
         }
-
+        if ($sisaWaktuDetik > $durasiDetikFull) {
+            $sisaWaktuDetik = $durasiDetikFull;
+        }
+        
         if ($sisaWaktuDetik < 0) $sisaWaktuDetik = 0;
 
-        // 9. Perhitungan Nilai Awal (Server Side Preview)
         $totalAkumulasi = 0;
         foreach ($savedScores as $idPoin => $skor) {
             if (isset($mapBobot[$idPoin])) {
@@ -234,7 +196,6 @@ class HalamanPenilaianService
 
         $existingFeedback = $enrollment->catatan;
 
-        // Return raw array data
         return [
             'mahasiswa'          => $dataMahasiswa,
             'info_ujian'         => $infoUjian,

@@ -129,7 +129,9 @@ return [
 
     'middleware' => [
         'web',
-        RestrictedDocsAccess::class,
+        'auth',
+        'role:admin',
+        RestrictedDocsAccess::class
     ],
 
     'extensions' => [],

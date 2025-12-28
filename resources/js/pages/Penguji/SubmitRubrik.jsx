@@ -1,267 +1,253 @@
-import React, { useState } from "react";
-import { Head, router, usePage } from "@inertiajs/react"; // Tambah usePage
+import React, { useState, useMemo } from "react";
+import { router, usePage } from "@inertiajs/react";
 import {
     Pencil,
     AlertTriangle,
-    X,
+    X, 
     DoorOpen,
-    ExternalLink,
-    ArrowLeft,
+    FileText,
+    User,
+    Clock,
+    Table2,
 } from "lucide-react";
 
-import OsButton from "../../components/button";
 import OsHeader from "../../components/Header";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
+import Sidebar from "../../components/Sidebar";
+import OsButton from "../../components/button.jsx";
+import OsTableHeader from "../../components/tableheader";
+import OsTableBody from "../../components/tablecontain.jsx";
 
 export default function SubmitRubrik() {
     const [showModal, setShowModal] = useState(false);
 
-    // 1. AMBIL DATA DINAMIS DARI CONTROLLER
     const { osce_detail, mahasiswa_list } = usePage().props;
 
     const handleBack = () => {
         router.get("/penguji/dashboard");
     };
 
-    // 2. FUNGSI EDIT NILAI (Redirect ke halaman edit)
     const handleEdit = (id_enrollment) => {
-        router.get(`/penguji/penilaian/${id_enrollment}/edit`);
+        router.get(
+            `/penguji/penilaian/${id_enrollment}/edit?id_osce_stase=${osce_detail.id_osce_stase}`
+        );
     };
 
-    // 3. FUNGSI SUBMIT SELESAI (POST ke backend)
     const handleFinalSubmit = () => {
         router.post(
             `/penguji/osce/${osce_detail.id_osce}/stase/${osce_detail.id_osce_stase}/selesai`,
-            {},
+            {}, 
             {
-                onSuccess: () => setShowModal(false),
+                onStart: () => {
+                },
             }
         );
     };
 
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
+
+    // --- KONFIGURASI TABEL ---
+
+    const tableColumns = [
+        {
+            header: "NIM",
+            key: "nim",
+            width: "w-[150px]",
+            content: "NIM",
+        },
+
+        {
+            header: "Mahasiswa",
+            key: "nama",
+            width: "flex-1",
+            classes: "justify-start items-center pl-6 text-left",
+            content: "Mahasiswa",
+        },
+
+        {
+            header: "Total Nilai",
+            key: "nilai_total",
+            width: "w-[150px] text-center",
+            content: "Total Nilai",
+        },
+
+        {
+            header: "Aksi",
+            key: "action",
+            width: "w-[100px]",
+            content: "Aksi",
+        },
+    ];
+
+    const formattedData = useMemo(() => {
+        return mahasiswa_list.map((mhs) => ({
+            ...mhs,
+            action: (
+                <div className="flex justify-center items-center w-full">
+                    <button
+                        onClick={() => handleEdit(mhs.id_enrollment_osce)}
+                        className="bg-orange-400 text-white w-8 h-8 flex items-center justify-center rounded-lg hover:bg-orange-600 transition shadow-sm active:scale-95"
+                        title="Edit Nilai"
+                    >
+                        <Pencil size={14} />
+                    </button>
+                </div>
+            ),
+        }));
+    }, [mahasiswa_list]);
+
     return (
-        <>
-            <Head title={`Rekap - ${osce_detail.nama_stase}`} />
+        <div className="relative bg-orange-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+            <Sidebar
+                isOpen={isSidebarOpen}
+                onToggle={handleSidebarToggle}
+                type={"penguji"}
+            />
 
-            {/* Container Utama */}
-            <div className="min-h-screen w-screen  flex flex-col items-center font-sans p-os-12 text-gray-800">
-                {/* WRAPPER KONTEN UTAMA */}
-                <main className="flex flex-col items-center justify-center w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                    {/* TOP NAVIGATION BAR (FULL WIDTH) */}
-                    {/* <div className="w-full flex gap-4 mb-8 items-center">
-                        <button
-                            onClick={handleBack}
-                            className="h-12 w-12 bg-[#1d4ed8] rounded-lg flex items-center justify-center text-white hover:bg-blue-800 transition shadow-sm shrink-0"
-                        >
-                            <ArrowLeft size={24} strokeWidth={2.5} />
-                        </button>
-
-                        <div className="flex-1 h-12 border border-gray-400 rounded-lg px-6 flex items-center bg-white shadow-sm">
-                            <span className="text-base text-gray-500">
-                                OSCE / {osce_detail.nama_osce} /{" "}
-                                <span className="text-gray-900 font-bold ml-1">
+            <div className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <main className="flex flex-col gap-os-8">
+                    <div className="overflow-x-auto">
+                        <OsHeader
+                            variant="goback"
+                            role="penguji"
+                            backLink="/penguji/osce"
+                        />
+                    </div>
+                    <div className="flex flex-col items-center gap-os-8 w-full">
+                        {/* MAIN CARD */}
+                        <div className="w-full bg-white rounded-xl overflow-hidden border border-orange-600 shadow-sm">
+                            {/* CARD HEADER */}
+                            <div className="bg-os-primary-pj-dark text-white text-center py-6">
+                                <h1 className="text-2xl font-bold mb-1">
                                     Detail OSCE
-                                </span>
-                            </span>
-                        </div>
-                    </div> */}
-                    <OsHeader variant="goback" backLink="/penguji/dashboard" />
+                                </h1>
+                                <p className="text-sm opacity-90">
+                                    {osce_detail.nama_osce}
+                                </p>
+                            </div>
 
-                    {/* MAIN CARD */}
-                    <main className="w-full max-w-[800px] border border-os-primary rounded-2xl overflow-hidden shadow-sm bg-white mb-4">
-                        {/* CARD HEADER */}
-                        <div className="bg-[#2F6ECB] text-white text-center py-6">
-                            <h1 className="text-xl font-bold">Detail OSCE</h1>
-                            <p className="text-xs opacity-90 mt-1">
-                                {osce_detail.nama_osce}
-                            </p>
-                        </div>
-
-                        {/* CARD BODY */}
-                        <div className="p-6">
-                            {/* SECTION DETAIL */}
-                            <div className="mb-6">
-                                <h3 className="text-sm font-semibold text-gray-700 border-b border-gray-300 pb-1 mb-3">
-                                    Detail
-                                </h3>
-
-                                <div className="border border-gray-400 rounded-xl p-3 flex flex-col md:flex-row gap-4 items-start relative">
-                                    {/* Kotak Stasiun */}
-                                    <div className="flex flex-col gap-1 pl-1">
-                                        <span className="text-[10px] text-gray-500">
+                            {/* CARD BODY (INFO GRID) */}
+                            <div className="p-4">
+                                <div className="flex flex-col lg:flex-row border border-gray-400 rounded-xl divide-y lg:divide-y-0 lg:divide-x divide-gray-400">
+                                    {/* 1. Stasiun */}
+                                    <div className="p-4 flex flex-col w-full lg:w-auto min-w-[120px] items-start">
+                                        <span className="md:text-xs text-sm text-gray-600 mb-2">
                                             Stasiun
                                         </span>
-                                        {/* Angka Stasiun tetap 01 karena tidak ada data nomor stasiun di controller, bisa diganti jika ada */}
-                                        <div className="bg-[#2F6ECB] text-white w-20 h-20 rounded-xl flex items-center justify-center text-3xl font-normal shadow-sm">
+                                        <div className="bg-os-secondary-pj text-white w-16 h-16 rounded-xl flex items-center justify-center text-3xl font-bold shadow-md">
                                             01
                                         </div>
                                     </div>
 
-                                    {/* Divider & Konten */}
-                                    <div className="flex-1 flex w-full">
-                                        {/* Kolom Rubrik - BISA DIKLIK */}
-                                        <div className="flex-1 border-l border-gray-300 pl-4 flex flex-col justify-between h-20">
-                                            <div>
-                                                <span className="text-[10px] text-gray-500 block">
-                                                    Nama Stase
-                                                </span>
-                                                <span className="font-bold text-sm">
-                                                    {osce_detail.nama_stase}
-                                                </span>
-                                            </div>
-                                            <a
-                                                href="#"
-                                                className="text-gray-400 hover:text-blue-600 self-start transition-colors p-1 -ml-1 rounded-md hover:bg-blue-50"
-                                                title="Lihat detail rubrik"
-                                            >
-                                                <ExternalLink size={16} />
-                                            </a>
+                                    {/* 2. Nama Stase */}
+                                    <div className="p-4 flex-1 flex flex-col-reverse justify-between">
+                                        <div>
+                                            <span className="text-sm text-gray-600 block">
+                                                Nama Stase
+                                            </span>
+                                            <span className=" font-bold block">
+                                                {osce_detail.nama_stase}
+                                            </span>
                                         </div>
-
-                                        {/* Kolom Waktu - BISA DIKLIK */}
-                                        <div className="flex-1 border-l border-gray-300 pl-4 flex flex-col justify-between h-20">
-                                            <div>
-                                                <span className="text-[10px] text-gray-500 block">
-                                                    Durasi per mahasiswa
-                                                </span>
-                                                <span className="font-bold text-sm">
-                                                    {
-                                                        osce_detail.durasi_per_mahasiswa
-                                                    }
-                                                </span>
-                                            </div>
-                                            <a
-                                                href="#"
-                                                className="text-gray-400 hover:text-blue-600 self-start transition-colors p-1 -ml-1 rounded-md hover:bg-blue-50"
-                                                title="Atur waktu"
-                                            >
-                                                <ExternalLink size={16} />
-                                            </a>
-                                        </div>
-
-                                        {/* Kolom Enrollment - BISA DIKLIK */}
-                                        <div className="flex-1 border-l border-gray-300 pl-4 flex flex-col justify-between h-20">
-                                            <div>
-                                                <span className="text-[10px] text-gray-500 block">
-                                                    Enrollment Mahasiswa
-                                                </span>
-                                                <span className="font-bold text-sm">
-                                                    {
-                                                        osce_detail.total_mahasiswa
-                                                    }{" "}
-                                                    Mahasiswa
-                                                </span>
-                                            </div>
-                                            <a
-                                                href="#"
-                                                className="text-gray-400 hover:text-blue-600 self-start transition-colors p-1 -ml-1 rounded-md hover:bg-blue-50"
-                                                title="Lihat daftar mahasiswa"
-                                            >
-                                                <ExternalLink size={16} />
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* SECTION TABEL MAHASISWA */}
-                            <div className="mb-8">
-                                <div className="flex items-end border-b border-gray-400 pb-1 mb-3">
-                                    <h3 className="text-sm text-gray-800">
-                                        Mahasiswa{" "}
-                                        <span className="text-gray-400 mx-1">
-                                            |
-                                        </span>{" "}
-                                        menampilkan{" "}
-                                        <strong>
-                                            {mahasiswa_list.length} Mahasiswa
-                                        </strong>
-                                    </h3>
-                                </div>
-
-                                <div className="w-full text-sm">
-                                    <div className="flex border border-gray-400 rounded-lg overflow-hidden bg-white mb-2">
-                                        <div className="py-2 px-4 w-1/4 border-r border-gray-300 font-medium">
-                                            NIM
-                                        </div>
-                                        <div className="py-2 px-4 flex-1 border-r border-gray-300 font-medium">
-                                            Mahasiswa
-                                        </div>
-                                        <div className="py-2 px-4 w-1/5 border-r border-gray-300 font-medium">
-                                            Total Nilai
-                                        </div>
-                                        <div className="py-2 px-4 w-16 text-center font-medium">
-                                            Aksi
+                                        <div className="p-2 bg-os-secondary-pj w-min rounded-full mb-2 lg:mb-0">
+                                            <FileText
+                                                size={18}
+                                                className="text-white"
+                                            />
                                         </div>
                                     </div>
 
-                                    <div className="flex flex-col gap-2">
-                                        {mahasiswa_list.map((mhs, index) => (
-                                            <div
-                                                key={
-                                                    mhs.id_enrollment_osce ||
-                                                    index
+                                    {/* 3. Durasi */}
+                                    <div className="p-4 flex-1 flex flex-col-reverse justify-between">
+                                        <div>
+                                            <span className=" text-sm text-gray-600 block">
+                                                Durasi per mahasiswa
+                                            </span>
+                                            <span className=" font-bold block">
+                                                {
+                                                    osce_detail.durasi_per_mahasiswa
                                                 }
-                                                className={`flex items-center rounded-lg overflow-hidden border border-transparent ${
-                                                    index % 2 !== 0
-                                                        ? "bg-[#E5E7EB]"
-                                                        : "bg-white"
-                                                }`}
-                                            >
-                                                <div className="py-3 px-4 w-1/4 border-r border-gray-300/50 h-full flex items-center text-gray-700">
-                                                    {mhs.nim}
-                                                </div>
-                                                <div className="py-3 px-4 flex-1 border-r border-gray-300/50 h-full flex items-center text-gray-700">
-                                                    {mhs.nama}
-                                                </div>
-                                                <div className="py-3 px-4 w-1/5 border-r border-gray-300/50 h-full flex items-center text-gray-700">
-                                                    {mhs.nilai_total}
-                                                </div>
-                                                <div className="py-3 px-4 w-16 flex justify-center items-center">
-                                                    {/* TOMBOL PENSIL BISA DIKLIK */}
-                                                    <button
-                                                        onClick={() =>
-                                                            handleEdit(
-                                                                mhs.id_enrollment_osce
-                                                            )
-                                                        }
-                                                        className="bg-[#1a46d4] text-white w-8 h-8 flex items-center justify-center rounded-lg hover:bg-blue-700 transition shadow-sm active:scale-95"
-                                                        title="Edit Nilai"
-                                                    >
-                                                        <Pencil size={14} />
-                                                    </button>
-                                                </div>
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-end">
+                                            <div className="p-2 bg-os-secondary-pj w-min rounded-full">
+                                                <Clock
+                                                    size={18}
+                                                    className="text-white"
+                                                />
                                             </div>
-                                        ))}
+                                        </div>
+                                    </div>
+
+                                    {/* 4. Enrollment */}
+                                    <div className="p-4 flex-1 flex flex-col-reverse justify-between">
+                                        <div>
+                                            <span className="text-sm text-gray-600 block">
+                                                Enrollment Mahasiswa
+                                            </span>
+                                            <span className=" font-bold block">
+                                                {osce_detail.total_mahasiswa}{" "}
+                                                Mahasiswa
+                                            </span>
+                                        </div>
+                                        <div className="flex justify-between items-end">
+                                            <div className="p-2 bg-os-secondary-pj w-min rounded-full">
+                                                <User
+                                                    size={18}
+                                                    className="text-white"
+                                                />
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-
-                            {/* TOMBOL SELESAI */}
-                            <div>
-                                <OsButton
-                                    name="primary"
-                                    onClick={() => setShowModal(true)}
-                                    className="w-full h-12 bg-[#1a46d4] text-white text-sm font-bold rounded-xl flex items-center justify-center gap-2 shadow-sm hover:bg-blue-800"
-                                >
-                                    <DoorOpen size={18} />
-                                    Selesai
-                                </OsButton>
                             </div>
                         </div>
-                    </main>
+                    </div>
+
+                    <div className="flex gap-1 items-center justify-start my-2">
+                        <Table2 size={18} />
+                        <h2 className="font-semibold text-lg">
+                            Tabel Mahasiswa{" "}
+                        </h2>
+                        <span className="text-sm font-normal text-gray-500 ml-2">
+                            (Total: {mahasiswa_list.length} mahasiswa)
+                        </span>
+                    </div>
+
+                    <div className="p-4 bg-white rounded-lg border border-os-primary-pj overflow-x-auto">
+                        <div className="mb-8 overflow-x-auto">
+                            <div className="w-full text-sm flex flex-col gap-2 min-w-max">
+                                <OsTableHeader
+                                    columns={tableColumns}
+                                    variant="penguji"
+                                />
+                                <OsTableBody
+                                    data={formattedData}
+                                    columns={tableColumns}
+                                    variant="penguji"
+                                />
+                            </div>
+                        </div>
+
+                        {/* TOMBOL SELESAI UTAMA */}
+                        <div>
+                            <OsButton
+                                name="primary-pj"
+                                onClick={() => setShowModal(true)}
+                                className="w-full h-12 bg-orange-600 text-white text-sm  font-bold rounded-xl flex items-center justify-center gap-2 shadow-sm hover:bg-orange-700 transition-colors"
+                            >
+                                <DoorOpen size={18} />
+                                Selesai
+                            </OsButton>
+                        </div>
+                    </div>
+
+                    <div className="mt-8 w-full">
+                        <OsCopyright variant="penguji" />
+                    </div>
                 </main>
 
-                {/* FOOTER */}
-                {/* <footer className="w-full border-t border-gray-400 bg-white py-4 text-center mt-auto">
-                    <p className="text-xs text-gray-600">
-                        © 2025 All rights reserved. | Polines
-                    </p>
-                </footer> */}
-
-                <OsCopyright />
-
-                {/* POPUP MODAL */}
                 {showModal && (
                     <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 font-sans">
                         <div
@@ -269,50 +255,58 @@ export default function SubmitRubrik() {
                             onClick={() => setShowModal(false)}
                         ></div>
 
-                        <div className="relative bg-white w-full max-w-[500px] rounded-xl overflow-hidden shadow-2xl transform scale-100 transition-all">
-                            <div className="bg-[#2F6ECB] py-4 px-4 relative flex items-center justify-center">
-                                <button
-                                    onClick={() => setShowModal(false)}
-                                    className="absolute left-4 text-white hover:opacity-80"
-                                >
-                                    <X size={28} strokeWidth={3} />
-                                </button>
+                        <div className="relative bg-white w-full max-w-[400px] rounded-xl overflow-hidden shadow-2xl transform scale-100 transition-all">
+                            <div className="bg-orange-600 py-4 px-4 relative flex items-center justify-center">
                                 <h2 className="text-white text-xl font-bold tracking-wide">
-                                    Anda ingin selesai?
+                                    Konfirmasi Selesai
                                 </h2>
                             </div>
 
-                            <div className="p-8">
-                                <div className="bg-[#E59898] border border-black text-black p-5 rounded-xl flex gap-4 items-start">
+                            <div className="p-6">
+                                {/* 2. ALERT BOX */}
+                                <div className="bg-orange-50 border border-orange-200 text-orange-900 p-5 rounded-xl flex gap-4 items-start shadow-sm">
                                     <div className="mt-1 shrink-0">
                                         <AlertTriangle
-                                            className="w-6 h-6 text-black fill-transparent"
+                                            className="w-6 h-6 text-orange-600 fill-transparent"
                                             strokeWidth={2}
                                         />
                                     </div>
                                     <div className="text-[15px] leading-relaxed">
-                                        <strong className="block mb-3 font-bold text-lg">
+                                        <strong className="block mb-2 font-bold text-lg text-orange-800">
                                             Perhatian!
                                         </strong>
-                                        Apakah Anda yakin untuk menutup ujian
-                                        ini ? Pastikan semua mahasiswa dalam
-                                        daftar telah mengikuti ujian ini.
+                                        <p className="opacity-90">
+                                            Apakah Anda yakin untuk menutup
+                                            ujian ini? Pastikan semua mahasiswa
+                                            dalam daftar telah dinilai.
+                                        </p>
                                     </div>
                                 </div>
 
-                                <button
-                                    // PANGGIL FUNGSI FINAL SUBMIT
-                                    onClick={handleFinalSubmit}
-                                    className="w-full bg-[#1a4CD8] hover:bg-[#153fb5] text-white h-14 mt-10 rounded-xl font-semibold text-lg flex items-center justify-center gap-2 transition-colors"
-                                >
-                                    <DoorOpen size={22} />
-                                    Selesai
-                                </button>
+                                {/* 3. TOMBOL AKSI: DUA KOLOM (BATAL & SELESAI) */}
+                                <div className="flex gap-4 mt-8">
+                                    {/* Tombol Batal */}
+                                    <button
+                                        onClick={() => setShowModal(false)}
+                                        className="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-xl font-bold p-[0.8rem] text-sm transition-colors"
+                                    >
+                                        Batal
+                                    </button>
+
+                                    {/* Tombol Selesai */}
+                                    <button
+                                        onClick={handleFinalSubmit}
+                                        className="flex-1 bg-orange-600 hover:bg-orange-700 text-white rounded-xl font-bold p-[0.8rem] text-sm flex items-center justify-center gap-2 transition-all shadow-md active:scale-[0.98]"
+                                    >
+                                        <DoorOpen size={22} />
+                                        Ya, Selesai
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 )}
             </div>
-        </>
+        </div>
     );
 }

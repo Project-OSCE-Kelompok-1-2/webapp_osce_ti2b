@@ -1,5 +1,4 @@
 import React, { useState } from "react";
-// 1. [PERBAIKAN] Tambahkan useForm, Head, dan usePage
 import { router, useForm, Head, usePage } from "@inertiajs/react";
 import {
     ArrowLeft,
@@ -8,44 +7,18 @@ import {
     Square,
     Save,
     XCircle,
-} from "lucide-react"; // Tambah ikon
+} from "lucide-react"; 
 
 import Sidebar from "../../components/Sidebar";
-import OsCopyright from "../../components/Copyright";
+import OsCopyright from "../../components/copyright";
 import OsTableHeader from "../../components/tableheader";
 import OsPagination from "../../components/pagination";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsSearchBar from "../../components/searchbar.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsButton from "../../components/button.jsx";
 
-// const columns = [
-//     {
-//         key: "no",
-//         content: "No",
-//         width: "w-16",
-//         classes: "justify-center items-center",
-//     },
-//     {
-//         key: "nim_mahasiswa",
-//         content: "Nim Mahasiswa",
-//         width: "w-72",
-//         classes: "justify-start items-center px-4",
-//     },
-//     {
-//         key: "mahasiswa",
-//         content: "Mahasiswa",
-//         width: "flex-1",
-//         classes: "justify-start items-center px-4",
-//     },
-//     {
-//         key: "action",
-//         content: "Action",
-//         width: "w-48",
-//         classes: "justify-center items-center px-4",
-//     },
-// ];
 const columns = [
     {
         key: "no",
@@ -62,7 +35,7 @@ const columns = [
     {
         key: "mahasiswa",
         content: "Mahasiswa",
-        width: " flex-1 shrink-0", // Ganti flex-1
+        width: " flex-1 shrink-0", 
         classes: "justify-start items-center px-4",
     },
     {
@@ -83,7 +56,6 @@ export default function OsceEnrollmentPage({
     const [angkatan, setAngkatan] = useState(filters.angkatan || "");
     const [sidebarOpen, setSidebarOpen] = useState(false);
 
-    // Ambil flash message (untuk error)
     const { flash } = usePage().props;
 
     const { data, setData, post, processing, errors } = useForm({
@@ -96,7 +68,7 @@ export default function OsceEnrollmentPage({
         e.preventDefault();
         router.get(
             window.location.pathname,
-            { search, angkatan }, // Kirim filter
+            { search, angkatan }, 
             { preserveState: true, replace: true, preserveScroll: true }
         );
     };
@@ -118,7 +90,6 @@ export default function OsceEnrollmentPage({
         });
     };
 
-    //siapin isi data tabel
     const tableData = mahasiswa_list.data.map((item, index) => ({
         no: mahasiswa_list.from + index,
         nim_mahasiswa: item.nim,
@@ -152,107 +123,117 @@ export default function OsceEnrollmentPage({
         <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                {/* 9. [PERBAIKAN] Header/Breadcrumb dinamis */}
-                <OsHeader
-                    variant="goback"
-                    backLink={`/admin/osce/${osce.id_osce}/jadwal/`}
-                />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    {/* Header/Breadcrumb dinamis */}
+                    <OsHeader
+                        variant="goback"
+                        backLink={`/admin/osce/${osce.id_osce}/jadwal/`}
+                    />
 
-                {/* main content */}
-                <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-1">
-                        Menu Enrollment Mahasiswa
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-5 max-w-2xl">
-                        Pilih mahasiswa yang akan mengikuti sesi ujian pada:{" "}
-                        <br />
-                        <strong>
-                            Tanggal: {sesi.tanggal} (Pukul: {sesi.jam_mulai})
-                        </strong>
-                    </p>
+                    {/* main content */}
+                    <div className="flex-1 overflow-auto">
+                        <h2 className="font-semibold text-lg mb-1">
+                            Menu Enrollment Mahasiswa
+                        </h2>
+                        <p className="text-sm text-gray-600 mb-5 max-w-2xl">
+                            Pilih mahasiswa yang akan mengikuti sesi ujian pada:{" "}
+                            <br />
+                            <strong>
+                                Tanggal: {sesi.tanggal} (Pukul: {sesi.jam_mulai}
+                                )
+                            </strong>
+                        </p>
 
-                    {/* Notifikasi Error (jika ada) */}
-                    {flash.error && (
-                        <div className="p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg flex items-center gap-3 mb-4">
-                            <XCircle className="w-5 h-5 flex-shrink-0" />
-                            <span className="text-sm">{flash.error}</span>
-                        </div>
-                    )}
-
-                    {/* searchbar */}
-                    <OsSearchBar
-                        search={search}
-                        setSearch={setSearch}
-                        onSearchClick={handleSearch}
-                    >
-                        {/* === DROPDOWN TAHUN DI TENGAH === */}
-                        <div className="w-[150px]">
-                            <OsInput
-                                type="select"
-                                value={angkatan}
-                                onChange={(e) => setAngkatan(e.target.value)}
-                                options={[
-                                    { label: "All", value: "" },
-                                    { label: "2023", value: "2023" },
-                                    { label: "2024", value: "2024" },
-                                    { label: "2025", value: "2025" },
-                                ]}
-                            />
-                        </div>
-                    </OsSearchBar>
-
-                    {/* Tombol Simpan (di atas tabel) */}
-                    <form onSubmit={handleSave} className="mb-4">
-                        <OsButton
-                            name="edit"
-                            type="submit"
-                            disabled={processing}
-                            className="h-[46px] px-6 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 text-sm transition-all disabled:opacity-50 flex items-center gap-2"
-                        >
-                            <Save size={18} />
-                            {processing
-                                ? "Menyimpan..."
-                                : "Simpan Perubahan Enrollment"}
-                        </OsButton>
-                        {errors.id_mahasiswa_array && (
-                            <div className="text-xs text-red-600 mt-1">
-                                {errors.id_mahasiswa_array}
+                        {flash.error && (
+                            <div className="p-4 bg-red-100 border border-red-300 text-red-800 rounded-lg flex items-center gap-3 mb-4">
+                                <XCircle className="w-5 h-5 flex-shrink-0" />
+                                <span className="text-sm">{flash.error}</span>
                             </div>
                         )}
-                    </form>
 
-                    {/* 11. [PERBAIKAN] Table dinamis */}
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table Mahasiswa
-                    </h2>
+                        {/* searchbar */}
+                        <OsSearchBar
+                            search={search}
+                            setSearch={setSearch}
+                            onSearchClick={handleSearch}
+                        >
+                            {/* === DROPDOWN TAHUN DI TENGAH === */}
+                            <div className="w-[150px]">
+                                <OsInput
+                                    type="select"
+                                    value={angkatan}
+                                    onChange={(e) =>
+                                        setAngkatan(e.target.value)
+                                    }
+                                    options={[
+                                        { label: "All", value: "" },
+                                        { label: "2023", value: "2023" },
+                                        { label: "2024", value: "2024" },
+                                        { label: "2025", value: "2025" },
+                                    ]}
+                                />
+                            </div>
+                        </OsSearchBar>
 
-                    {/* WRAPPER */}
-                    <div className="w-full overflow-x-auto">
-                        <div className="min-w-max">
-                            <OsTableHeader columns={columns} />
-                            <OsTableBody data={tableData} columns={columns} />
-
-                            {/* Pesan Kosong */}
-                            {mahasiswa_list.data.length === 0 && (
-                                <div className="flex items-center border-t border-gray-400">
-                                    <p className="w-full text-center text-sm py-4 text-gray-500">
-                                        Data mahasiswa tidak ditemukan.
-                                    </p>
+                        {/* Tombol Simpan */}
+                        <form onSubmit={handleSave} className="mb-4">
+                            <OsButton
+                                name="edit"
+                                type="submit"
+                                disabled={processing}
+                                className="h-[46px] px-6 bg-green-600 text-white font-medium rounded-md hover:bg-green-700 text-sm transition-all disabled:opacity-50 flex items-center gap-2"
+                            >
+                                <Save size={18} />
+                                {processing
+                                    ? "Menyimpan..."
+                                    : "Simpan Perubahan Enrollment"}
+                            </OsButton>
+                            {errors.id_mahasiswa_array && (
+                                <div className="text-xs text-red-600 mt-1">
+                                    {errors.id_mahasiswa_array}
                                 </div>
                             )}
-                        </div>
-                    </div>
+                        </form>
 
-                    {mahasiswa_list.links &&
-                        mahasiswa_list.links.length > 3 && (
-                            <div className="mt-8 flex justify-start">
-                                <OsPagination links={mahasiswa_list.links} />
+                        {/* Table dinamis */}
+                        <h2 className="font-semibold text-lg mb-2 mt-os-8">
+                            Table Mahasiswa
+                        </h2>
+
+                        {/* WRAPPER */}
+                        <div className="w-full overflow-x-auto">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={columns} />
+                                <OsTableBody
+                                    data={tableData}
+                                    columns={columns}
+                                />
+
+                                {/* Pesan Kosong */}
+                                {mahasiswa_list.data.length === 0 && (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-4 text-gray-500">
+                                            Data mahasiswa tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
                             </div>
-                        )}
-                </div>
+                        </div>
 
-                <OsCopyright />
+                        {mahasiswa_list.links &&
+                            mahasiswa_list.links.length > 3 && (
+                                <div className="mt-8 flex justify-start">
+                                    <OsPagination
+                                        links={mahasiswa_list.links}
+                                    />
+                                </div>
+                            )}
+                    </div>
+                </div>
+                <div className="">
+                    <OsCopyright />
+                </div>
             </main>
         </div>
     );

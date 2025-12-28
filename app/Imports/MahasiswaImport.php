@@ -4,18 +4,15 @@ namespace App\Imports;
 
 use App\Models\Mahasiswa;
 use App\Models\Pengguna;
-use Illuminate\Support\Facades\Hash;
-use Maatwebsite\Excel\Concerns\ToCollection;
+use App\Models\Enrollment;    
+use App\Models\TahunAkademik;  
 use Illuminate\Support\Collection;
+use Maatwebsite\Excel\Concerns\ToCollection;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
+use Illuminate\Support\Facades\DB; 
 
 class MahasiswaImport implements ToCollection, WithHeadingRow
 {
-    /**
-     * [PENTING]
-     * Menentukan posisi baris Header.
-     * Kita set ke 2, karena baris 1 berisi teks instruksi/peringatan.
-     */
     public function headingRow(): int
     {
         return 2;
@@ -23,38 +20,51 @@ class MahasiswaImport implements ToCollection, WithHeadingRow
 
     /**
      * @param Collection $rows
-     * Format header Excel (di baris 2):
-     * nim | nama | kelas | prodi
      */
     public function collection(Collection $rows)
     {
         foreach ($rows as $row) {
-            // Validasi sederhana: Pastikan NIM dan Nama ada
             if (!isset($row['nim']) || !isset($row['nama'])) {
                 continue;
             }
 
-            // Cegah duplikasi NIM jika mahasiswa sudah ada
             if (Mahasiswa::where('nim', $row['nim'])->exists()) {
                 continue;
             }
 
-            // 1. Buat Pengguna
-            $pengguna = Pengguna::create([
-                'username'   => $row['nim'],
-                'password'   => ($row['nim']),
-                'jenis_role' => 'mahasiswa',
-            ]);
+            DB::transaction(function () use ($row) {
 
-            // 2. Buat Mahasiswa
-            Mahasiswa::create([
-                'id_pengguna' => $pengguna->id_pengguna,
-                'nim'         => $row['nim'],
-                'nama'        => $row['nama'],
-                'kelas'       => $row['kelas'] ?? '',
-                'prodi'       => $row['prodi'] ?? '',
-                'status'      => 'aktif',
-            ]);
+                $angkatanString = $row['angkatan'] ?? date('Y') . '/' . (date('Y') + 1); 
+
+                $tahunAkademik = TahunAkademik::firstOrCreate(
+                    ['tahun' => $angkatanString], 
+                    [
+                        'semester' => 'Ganjil',
+                        'status' => 'non-aktif'
+                    ]
+                );
+
+                $pengguna = Pengguna::create([
+                    'username'   => $row['nim'],
+                    'password'   => $row['nim'], 
+                    'jenis_role' => 'mahasiswa',
+                ]);
+
+                $mahasiswa = Mahasiswa::create([
+                    'id_pengguna' => $pengguna->id_pengguna,
+                    'nim'         => $row['nim'],
+                    'nama'        => $row['nama'],
+                    'kelas'       => $row['kelas'] ?? '',
+                    'prodi'       => $row['prodi'] ?? '',
+                    'status'      => 'aktif',
+                ]);
+
+                Enrollment::create([
+                    'id_mahasiswa'      => $mahasiswa->id_mahasiswa,
+                    'id_tahun_akademik' => $tahunAkademik->id_tahun_akademik,
+                    'tanggal_daftar'    => now(),
+                ]);
+            });
         }
     }
 }

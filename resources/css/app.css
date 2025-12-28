@@ -10,6 +10,12 @@
         --os-primary: #1447e6;
         --os-secondary: #2b7fff;
         --os-tertiary: #e8f1ff;
+        --os-primary-pj: #ff8c00; /* Oranye Terang/Tangerine */
+        --os-secondary-pj: #ffac33; /* Oranye lebih terang */
+        --os-tertiary-pj: #fff4e5; /* Latar belakang Oranye Sangat Muda */
+        --os-primary-mhs: #198754; /* Hijau Utama */
+        --os-secondary-mhs: #28a745; /* Hijau Sekunder */
+        --os-tertiary-mhs: #d4edda; /* Hijau Tersier (Sangat Cerah/Pudar) */
         --os-black: #000000;
         --os-white: #ffffff;
         --os-warning: #ee4f4f;
@@ -20,6 +26,9 @@
         /* Digunakan untuk styling tombol */
         --os-primary-light: #4d73f0;
         --os-primary-dark: #0f36b3;
+        --os-primary-pj-dark: #e27c00;
+        --os-primary-mhs-dark: #146841; /* Hijau Utama */
+
 
         /* FONT FAMILY */
         --os-font-family: "Inter", "Manrope", sans-serif;

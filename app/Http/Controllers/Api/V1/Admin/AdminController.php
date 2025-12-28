@@ -3,10 +3,13 @@
 namespace App\Http\Controllers\Api\V1\Admin;
 
 
+use App\Models\Osce;
+use App\Models\Penguji;
+use App\Models\Mahasiswa;
 use Illuminate\Http\Request;
-use App\Services\Admin\AdminService;
 use Illuminate\Support\Facades\Log;
 use App\Http\Controllers\Controller;
+use App\Services\Admin\AdminService;
 use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
@@ -23,12 +26,17 @@ class AdminController extends Controller
      */
     public function dashboard()
     {
-        $data = $this->service->getDashboardData();
+        $notifikasi = $this->service->getDashboardData();
+
+        $stats = [
+            'total_osce' => Osce::count(),
+            'total_mahasiswa' => Mahasiswa::count(),
+            'total_penguji' => Penguji::count(),
+        ];
 
         return response()->json([
             'status' => 'success',
-            'stats' => $data['stats'],
-            'notifikasi' => $data['notifikasi'],
+            'data' => ["stats" => $stats, "notifikasi" => $notifikasi],
         ]);
     }
 
@@ -51,7 +59,6 @@ class AdminController extends Controller
      */
     public function update_account(Request $request)
     {
-        // Validasi
         $request->validate([
             'foto' => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:1024'],
             'new_password' => ['nullable', 'string', 'min:6', 'confirmed'],
@@ -60,9 +67,8 @@ class AdminController extends Controller
         ]);
 
         $user = Auth::user();
-        Log::info("data_user". $user);
+        Log::info("data_user" . $user);
 
-        // Service akan menangani validasi & throw exception jika gagal
         $updatedUser = $this->service->updateAccount($request, $user);
 
         return response()->json([

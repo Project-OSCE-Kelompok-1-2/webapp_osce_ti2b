@@ -3,10 +3,8 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Controller;
-use App\Services\AuthService; // <-- Import Service yang SAMA
+use App\Services\AuthService; 
 use Illuminate\Http\Request;
-
-
 
 class AuthController extends Controller
 {
@@ -17,8 +15,10 @@ class AuthController extends Controller
         $this->authService = $authService;
     }
     /**
+     * Login pengguna
      * @unauthenticated
      */
+    
     public function login(Request $request)
     {
         $request->validate([
@@ -26,14 +26,12 @@ class AuthController extends Controller
             'password' => 'required|string',
         ]);
 
-        // 1. PANGGIL SERVICE (Logika User Sama Persis)
         $pengguna = $this->authService->verifyCredentials(
             $request->username,
             $request->password
         );
 
         if ($pengguna) {
-            // 2. LOGIKA API (Pakai Token)
             $token = $this->authService->generateApiToken($pengguna, 'mobile-app');
 
             return response()->json([
@@ -44,7 +42,7 @@ class AuthController extends Controller
         } else {
             return response()->json([
                 'message' => 'Username atau password salah'
-            ], 401); // 401 = Unauthorized
+            ], 401); 
         }
     }
 
@@ -53,7 +51,6 @@ class AuthController extends Controller
      */
     public function logout(Request $request)
     {
-        // Hapus token via service
         $this->authService->revokeApiToken($request);
 
         return response()->json([

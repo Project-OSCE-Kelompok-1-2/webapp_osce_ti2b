@@ -1,8 +1,7 @@
-import React, { useState, useEffect, useMemo } from "react"; // [1] Import useEffect & useMemo
+import React, { useState, useEffect, useMemo } from "react";
 import { usePage, router, useForm } from "@inertiajs/react";
-import { Pencil, Trash2 } from "lucide-react";
+import { Pencil, Trash2, FileText, Table2 } from "lucide-react";
 
-// --- Import Komponen ---
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
 import OsIcon from "../../components/icons";
@@ -12,9 +11,9 @@ import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
 import OsModal from "../../components/Modal.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import Modals from "../../components/Modals.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 
 const columns = [
     {
@@ -44,25 +43,19 @@ const columns = [
 ];
 
 export default function KompetensiPage() {
-    // 1. Ambil Data Full
     const { aspek, kompetensi, filters } = usePage().props;
     const allData = Array.isArray(kompetensi)
         ? kompetensi
         : kompetensi?.data || [];
 
-    // 2. State Filter & Pagination
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    // --- INSTANT FILTER LOGIC ---
-
-    // A. Reset Page ke 1 saat search berubah
     useEffect(() => {
         setCurrentPage(1);
     }, [search]);
 
-    // B. Filter Data (Client Side)
     const filteredData = useMemo(() => {
         return allData.filter((item) => {
             const term = search.toLowerCase();
@@ -73,7 +66,6 @@ export default function KompetensiPage() {
         });
     }, [search, allData]);
 
-    // C. Slice Pagination
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -81,7 +73,6 @@ export default function KompetensiPage() {
         currentPage * itemsPerPage
     );
 
-    // D. Generate Pagination Links
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];
@@ -119,18 +110,17 @@ export default function KompetensiPage() {
         return links;
     }, [currentPage, totalPages]);
 
-    // 🔥 HITUNG TOTAL BOBOT (Dari semua data, bukan yang difilter)
     const totalBobot = allData.reduce(
         (acc, curr) => acc + Number(curr.bobot),
         0
     );
 
-    // --- SETUP URL BACK BUTTON ---
+    const maxBobot = Number(aspek.bobot_maksimum || 100);
+
     const backUrl = aspek.id_stase
         ? `/admin/stase/${aspek.id_stase}/aspek-penilaian`
         : "/admin/stase";
 
-    // --- FORM & MODAL STATE ---
     const {
         data,
         setData,
@@ -138,6 +128,9 @@ export default function KompetensiPage() {
         put,
         delete: destroy,
         reset,
+        errors, 
+        setError, 
+        clearErrors, 
     } = useForm({
         id: null,
         kompetensi: "",
@@ -150,17 +143,18 @@ export default function KompetensiPage() {
     const [selected, setSelected] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+    const [showFullWeightWarning, setShowFullWeightWarning] = useState(false);
+
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-    // --- HANDLERS ---
     const openAddModal = () => {
-        if (totalBobot >= 100) {
-            alert(
-                "Total bobot sudah mencapai 100%. Tidak dapat menambah kompetensi lagi."
-            );
+        if (totalBobot >= maxBobot) {
+            setShowFullWeightWarning(true);
             return;
         }
+        setShowFullWeightWarning(false);
         setModalType("add");
+        clearErrors(); 
         setData({
             id: null,
             kompetensi: "",
@@ -173,6 +167,7 @@ export default function KompetensiPage() {
     const openEditModal = (item) => {
         setSelected(item);
         setModalType("edit");
+        clearErrors(); 
         setData({
             id: item.id_poin_aspek_penilaian,
             kompetensi: item.kompetensi,
@@ -189,39 +184,55 @@ export default function KompetensiPage() {
             bobot: "",
             id_aspek_penilaian: aspek.id_aspek_penilaian,
         });
+        clearErrors();
     };
 
     const handleSubmit = (e) => {
         e.preventDefault();
-        const inputBobot = Number(data.bobot);
+        clearErrors(); 
+
+        let isValid = true;
+
+        if (!data.kompetensi || data.kompetensi.trim() === "") {
+            setError("kompetensi", "Deskripsi kompetensi wajib diisi.");
+            isValid = false;
+        }
+        if (!data.bobot) {
+            setError("bobot", "Bobot wajib diisi.");
+            isValid = false;
+        }
+
+        const inputBobot = Number(data.bobot) || 0;
+        let projectedTotal = 0;
 
         if (modalType === "add") {
-            if (totalBobot + inputBobot > 100) {
-                alert(
-                    `Gagal! Total bobot akan menjadi ${
-                        totalBobot + inputBobot
-                    }%. Maksimal adalah 100%. Sisa bobot: ${100 - totalBobot}`
-                );
-                return;
-            }
+            projectedTotal = totalBobot + inputBobot;
+        } else if (modalType === "edit") {
+            const oldBobot = selected ? Number(selected.bobot) : 0;
+            projectedTotal = totalBobot - oldBobot + inputBobot;
+        }
+
+        if (data.bobot && projectedTotal > maxBobot) {
+            setError(
+                "bobot",
+                `Gagal! Total bobot menjadi ${projectedTotal}. Maksimal ${maxBobot}.`
+            );
+            isValid = false;
+        }
+
+        if (!isValid) return; 
+
+        if (modalType === "add") {
             post(
                 `/admin/aspek-penilaian/${aspek.id_aspek_penilaian}/kompetensi`,
                 {
                     onSuccess: () => {
                         setModalOpen(false);
                         reset();
-                    }, // Router reload dihapus karena Inertia auto-reload
+                    },
                 }
             );
         } else if (modalType === "edit") {
-            const oldBobot = selected ? Number(selected.bobot) : 0;
-            const projectedTotal = totalBobot - oldBobot + inputBobot;
-            if (projectedTotal > 100) {
-                alert(
-                    `Gagal! Total bobot akan menjadi ${projectedTotal}%. Maksimal adalah 100%.`
-                );
-                return;
-            }
             put(`/admin/kompetensi/${data.id}`, {
                 onSuccess: () => {
                     setModalOpen(false);
@@ -246,7 +257,6 @@ export default function KompetensiPage() {
         });
     };
 
-    // --- TABLE DATA MAPPING (Use paginatedData) ---
     const tableData = paginatedData.map((item, idx) => ({
         no: (currentPage - 1) * itemsPerPage + idx + 1,
         kompetensi: item.kompetensi,
@@ -272,88 +282,133 @@ export default function KompetensiPage() {
     }));
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <div className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader
-                    variant="goback"
-                    backLink={backUrl}
-                    onMenuClick={handleSidebarToggle}
-                />
-
-                <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-1">
-                        {aspek.aspek}
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                        Kelola dan definisikan poin-poin kompetensi
-                        (sub-kriteria) yang spesifik dan terukur untuk Aspek
-                        Penilaian.
-                    </p>
-
-                    <OsButton
-                        name="primary"
-                        onClick={openAddModal}
-                        className={`flex h-[46px] items-center text-white text-sm py-2 px-4 rounded-lg mb-5 ${
-                            totalBobot >= 100
-                                ? "bg-gray-400 cursor-not-allowed hover:bg-gray-400"
-                                : "bg-blue-600 hover:bg-blue-700"
-                        }`}
-                        disabled={totalBobot >= 100}
-                    >
-                        <OsIcon
-                            name="add"
-                            className="h-os-20 os-icon-light mr-os-8"
-                        />
-                        {totalBobot >= 100
-                            ? "Bobot Penuh (100%)"
-                            : "Tambah Kompetensi"}
-                    </OsButton>
-
-                    {/* SEARCH INSTANT */}
-                    <OsSearchBar
-                        search={search}
-                        setSearch={setSearch}
-                        placeholder="Cari kompetensi..."
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader
+                        variant="goback"
+                        backLink={backUrl}
+                        onMenuClick={handleSidebarToggle}
                     />
 
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table Kompetensi
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
-                    </h2>
-
-                    <div className="w-full overflow-x-auto pb-4">
-                        <div className="min-w-max">
-                            <OsTableHeader columns={columns} />
-                            {tableData.length > 0 ? (
-                                <OsTableBody
-                                    data={tableData}
-                                    columns={columns}
-                                />
-                            ) : (
-                                <div className="py-6 text-center text-gray-500 border-b">
-                                    Belum ada kompetensi untuk aspek ini.
-                                </div>
-                            )}
+                    <div className="flex-1 overflow-auto p-1">
+                        {showFullWeightWarning && (
+                            <div
+                                className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+                                role="alert"
+                            >
+                                <strong className="font-bold">
+                                    Perhatian!
+                                </strong>
+                                <span className="block sm:inline">
+                                    {" "}
+                                    Total bobot sudah mencapai batas maksimum (
+                                    {maxBobot}). Tidak dapat menambah kompetensi
+                                    lagi.
+                                </span>
+                                <span
+                                    className="absolute top-0 bottom-0 right-0 px-4 py-3"
+                                    onClick={() =>
+                                        setShowFullWeightWarning(false)
+                                    }
+                                >
+                                    <svg
+                                        className="fill-current h-6 w-6 text-red-500"
+                                        role="button"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                    >
+                                        <title>Close</title>
+                                        <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
+                                    </svg>
+                                </span>
+                            </div>
+                        )}
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <FileText size={18} />
+                            <h2 className="font-semibold text-lg">
+                                {aspek.aspek}
+                            </h2>
                         </div>
-                    </div>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                            Kelola dan definisikan poin-poin kompetensi
+                            (sub-kriteria) yang spesifik dan terukur untuk Aspek
+                            Penilaian.
+                        </p>
 
-                    {/* PAGINATION */}
-                    {totalPages > 1 && (
-                        <div className="mt-2">
-                            <OsPagination
-                                links={generatedLinks}
-                                onPageChange={(page) => setCurrentPage(page)}
+                        <OsButton
+                            name="primary"
+                            onClick={openAddModal}
+                            className={`flex h-[46px] items-center text-white text-sm py-2 px-4 rounded-lg mb-5 ${
+                                totalBobot >= maxBobot
+                                    ? "bg-gray-400 hover:bg-gray-500"
+                                    : "bg-blue-600 hover:bg-blue-700"
+                            }`}
+                        >
+                            <OsIcon
+                                name="add"
+                                className="h-[18px] os-icon-light mr-os-8"
                             />
-                        </div>
-                    )}
-                </div>
+                            {totalBobot >= maxBobot
+                                ? "Bobot Penuh"
+                                : "Tambah Kompetensi"}
+                        </OsButton>
 
-                <OsCopyright />
-            </div>
+                        {/* SEARCH INSTANT */}
+                        <OsSearchBar
+                            search={search}
+                            setSearch={setSearch}
+                            placeholder="Cari kompetensi secara instan..."
+                        />
+
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Tabel Kompetensi{" "}
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
+                        </div>
+
+                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                            <div className="min-w-max">
+                                <OsTableHeader columns={columns} />
+                                {tableData.length > 0 ? (
+                                    <OsTableBody
+                                        data={tableData}
+                                        columns={columns}
+                                    />
+                                ) : (
+                                    <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+
+                                            Tidak ada data kompetensi dalam stase ini
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </section>
+
+                        {/* PAGINATION */}
+                        {totalPages > 1 && (
+                            <div className="mt-2">
+                                <OsPagination
+                                    links={generatedLinks}
+                                    onPageChange={(page) =>
+                                        setCurrentPage(page)
+                                    }
+                                />
+                            </div>
+                        )}
+                    </div>
+                </div>
+                <div className="">
+                    <OsCopyright />
+                </div>
+            </main>
 
             {/* MODAL FORM */}
             <OsModal
@@ -365,39 +420,84 @@ export default function KompetensiPage() {
                 title={
                     modalType === "add"
                         ? "Tambah Kompetensi"
-                        : "Edit Kompetensi"
+                        : "Kompetensi"
                 }
-                subtitle="Isi form berikut"
+                subtitle={data.kompetensi}
             >
                 <div className="space-y-3">
-                    <OsInput
-                        label="Deskripsi Kompetensi"
-                        type="textarea"
-                        name="kompetensi"
-                        value={data.kompetensi}
-                        placeholder="Masukkan deskripsi kompetensi..."
-                        onChange={(e) => setData("kompetensi", e.target.value)}
-                        required
-                    />
-                    <OsInput
-                        label="Bobot Kompetensi"
-                        type="number"
-                        name="bobot"
-                        value={data.bobot}
-                        placeholder="Masukkan bobot kompetensi..."
-                        onChange={(e) => setData("bobot", e.target.value)}
-                        required
-                    />
-                    <div className="text-xs text-gray-500">
-                        Sisa bobot yang tersedia:{" "}
-                        <span className="font-bold">
-                            {100 -
-                                (modalType === "edit"
-                                    ? totalBobot -
-                                      (selected ? selected.bobot : 0)
-                                    : totalBobot)}
-                        </span>
+                    {/* INPUT DESKRIPSI KOMPETENSI */}
+                    <div>
+                        <OsInput
+                            label="Deskripsi Kompetensi"
+                            type="textarea"
+                            name="kompetensi"
+                            value={data.kompetensi}
+                            placeholder="Masukkan deskripsi kompetensi..."
+                            onChange={(e) => {
+                                setData("kompetensi", e.target.value);
+                                if (errors.kompetensi)
+                                    clearErrors("kompetensi");
+                            }}
+                        />
+                        {errors.kompetensi && (
+                            <p className="text-red-500 text-xs mt-1">
+                                {errors.kompetensi}
+                            </p>
+                        )}
                     </div>
+
+                    {/* INPUT BOBOT */}
+                    <div>
+                        <OsInput
+                            label="Bobot Kompetensi"
+                            type="number"
+                            name="bobot"
+                            value={data.bobot}
+                            placeholder="Masukkan bobot kompetensi..."
+                            onChange={(e) => {
+                                setData("bobot", e.target.value);
+                                if (errors.bobot) clearErrors("bobot");
+                            }}
+                        />
+                        {errors.bobot && (
+                            <p className="text-red-500 text-xs mt-1 font-semibold">
+                                {errors.bobot}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* HELPER TEXT UNTUK SISA BOBOT */}
+                    {(() => {
+                        const inputVal = Number(data.bobot) || 0;
+                        const currentUsed =
+                            modalType === "edit"
+                                ? totalBobot -
+                                  (selected ? Number(selected.bobot) : 0)
+                                : totalBobot;
+                        const sisa = maxBobot - (currentUsed + inputVal);
+
+                        return (
+                            <div
+                                className={`text-xs ${
+                                    sisa < 0 ? "text-red-400" : "text-gray-500"
+                                }`}
+                            >
+                                {sisa < 0 ? (
+                                    <span>
+                                        (Hitungan: Melebihi batas maksimum
+                                        sebesar {Math.abs(sisa)}!)
+                                    </span>
+                                ) : (
+                                    <>
+                                        Sisa bobot yang tersedia:{" "}
+                                        <span className="font-bold">
+                                            {sisa}
+                                        </span>
+                                    </>
+                                )}
+                            </div>
+                        );
+                    })()}
                 </div>
             </OsModal>
 

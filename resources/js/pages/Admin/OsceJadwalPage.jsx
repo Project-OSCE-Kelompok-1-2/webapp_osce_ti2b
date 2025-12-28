@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from "react"; // [MODIFIKASI] Tambah useMemo
+import React, { useState, useEffect, useMemo } from "react";
 import { Link, usePage } from "@inertiajs/react";
 import { router } from "@inertiajs/react";
 import axios from "axios";
@@ -14,12 +14,15 @@ import {
     Edit2,
     Info,
     X,
-    Users, // [MODIFIKASI] Pastikan Users terimport
+    Users,
     Clock,
+    AlertCircle,
+    FileText,
+    Table2, 
 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
+import OsCopyright from "../../components/copyright.jsx";
 import OsTableHeader from "../../components/tableheader.jsx";
 import OsPagination from "../../components/pagination.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
@@ -28,7 +31,7 @@ import Modals from "../../components/Modals.jsx";
 import OsIcon from "../../components/icons.jsx";
 import OsStepModal from "../../components/StepModal.jsx";
 
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import OsButton from "../../components/button.jsx";
 import OsHeader from "../../components/Header.jsx";
 
@@ -78,51 +81,212 @@ const jadwalColumns = [
 ];
 
 export default function SesiOscePage({
-    sesi = [], // [MODIFIKASI] Default array kosong, bukan object pagination
+    sesi,
     osce,
+    filters,
     master_stase = [],
 }) {
-    const { errors } = usePage().props;
+    const { errors, flash } = usePage().props;
 
-    // --- CLIENT SIDE STATE ---
-    const [searchTerm, setSearchTerm] = useState("");
-    const [currentPage, setCurrentPage] = useState(1);
-    const itemsPerPage = 10;
+    const [searchTerm, setSearchTerm] = useState(filters?.search || "");
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedSesi, setSelectedSesi] = useState(null);
 
-    // --- FILTERING LOGIC (AUTOCOMPLETE) ---
-    // Menggunakan useMemo agar filter hanya jalan saat search/data berubah
-    const filteredSesi = useMemo(() => {
-        if (!searchTerm) return sesi;
-        const lowerSearch = searchTerm.toLowerCase();
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
+    const [detailData, setDetailData] = useState({
+        stase_data: [],
+        mahasiswa_data: [],
+    });
+    const [isLoadingDetail, setIsLoadingDetail] = useState(false);
 
-        return sesi.filter((item) => {
-            // Kita cari di field search_string yang dibuat di controller
-            // Atau cari manual di properti object
-            return (
-                item.search_string?.includes(lowerSearch) ||
-                item.tanggal_formatted.toLowerCase().includes(lowerSearch) ||
-                item.nama_ruang.toLowerCase().includes(lowerSearch)
-            );
-        });
-    }, [searchTerm, sesi]);
+    const [isStepOpen, setIsStepOpen] = useState(false);
+    const [currentStep, setCurrentStep] = useState(0);
 
-    // --- PAGINATION LOGIC ---
-    const indexOfLastItem = currentPage * itemsPerPage;
-    const indexOfFirstItem = indexOfLastItem - itemsPerPage;
-    const currentRowsRaw = filteredSesi.slice(
-        indexOfFirstItem,
-        indexOfLastItem
-    );
-    const totalPages = Math.ceil(filteredSesi.length / itemsPerPage);
+    const [validationError, setValidationError] = useState(null);
 
-    // Reset halaman ke 1 jika melakukan pencarian baru
+    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
+
+    const [wizardData, setWizardData] = useState({
+        stase_objs: [],
+        stase_ids: [],
+        tanggal: "",
+        jam_mulai: "",
+        durasi: "7",
+        id_ruang: "",
+        penguji_map: {},
+        filter_angkatan: "",
+        mahasiswa_ids: [],
+    });
+
+    const [isLoadingCheck, setIsLoadingCheck] = useState(false);
+    const [availRooms, setAvailRooms] = useState([]);
+    const [availPenguji, setAvailPenguji] = useState([]);
+
+    const [listAngkatan, setListAngkatan] = useState([]);
+    const [availableMahasiswa, setAvailableMahasiswa] = useState([]);
+    const [isLoadingMhs, setIsLoadingMhs] = useState(false);
+
     useEffect(() => {
-        setCurrentPage(1);
-    }, [searchTerm]);
+        if (flash.error) {
+            alert(flash.error);
+        }
+    }, [flash]);
 
-    // Mapping rows untuk tampilan table (sama seperti sebelumnya, tapi pakai currentRowsRaw)
-    const rows = currentRowsRaw.map((item, index) => ({
-        no: indexOfFirstItem + index + 1, // [MODIFIKASI] Nomor urut absolut
+    useEffect(() => {
+        if (!isStepOpen) {
+            setValidationError(null);
+        }
+    }, [isStepOpen]);
+
+    useEffect(() => {
+        if (currentStep === 2 && wizardData.tanggal && wizardData.jam_mulai) {
+            checkAvailability();
+        }
+    }, [currentStep]);
+
+    useEffect(() => {
+        if (currentStep === 4) {
+            fetchMahasiswa(wizardData.filter_angkatan);
+        }
+    }, [currentStep, wizardData.filter_angkatan]);
+
+    const checkAvailability = async () => {
+        setIsLoadingCheck(true);
+        try {
+            const res = await axios.post("/admin/osce/check-availability", {
+                tanggal: wizardData.tanggal,
+                jam_mulai: wizardData.jam_mulai,
+                durasi: wizardData.durasi,
+            });
+            setAvailRooms(res.data.rooms);
+            setAvailPenguji(res.data.penguji);
+        } catch (err) {
+            console.error(err);
+            alert("Gagal mengecek ketersediaan jadwal.");
+        } finally {
+            setIsLoadingCheck(false);
+        }
+    };
+
+    const fetchMahasiswa = async (angkatan = "") => {
+        setIsLoadingMhs(true);
+        try {
+            const res = await axios.post("/admin/osce/get-mahasiswa", {
+                angkatan: angkatan,
+                id_osce: osce.id_osce,
+            });
+
+            setAvailableMahasiswa(res.data.mahasiswa);
+
+            if (res.data.list_angkatan && listAngkatan.length === 0) {
+                const optionsRaw = res.data.list_angkatan.map((th) => {
+                    const tahunTampil = th.toString().includes("/")
+                        ? th.toString().split("/")[1] // ambil tahun kedua
+                        : th;
+
+                    return {
+                    value: th, // ✅ TETAP ASLI (2022/2023)
+                    label: `Tahun Angkatan ${tahunTampil}`, // ✅ TAMPILAN SAJA
+                    };
+                });
+
+setListAngkatan(optionsRaw);
+            }
+        } catch (err) {
+            console.error(err);
+        } finally {
+            setIsLoadingMhs(false);
+        }
+    };
+
+    const fetchSessionDetail = async (item) => {
+        setIsLoadingDetail(true);
+        setSelectedSesi(item);
+        try {
+            const res = await axios.post(
+                `/admin/osce/${osce.id_osce}/get-session-detail`,
+                {
+                    tanggal: item.tanggal,
+                    jam_mulai: item.jam_mulai,
+                }
+            );
+            setDetailData(res.data);
+            setIsDetailModalOpen(true);
+        } catch (err) {
+            console.error(err);
+            alert("Gagal mengambil detail sesi.");
+        } finally {
+            setIsLoadingDetail(false);
+        }
+    };
+
+    const handleWizardSubmit = () => {
+        setValidationError(null);
+
+        if (wizardData.mahasiswa_ids.length !== wizardData.stase_ids.length) {
+            setValidationError(
+                `Jumlah mahasiswa (${wizardData.mahasiswa_ids.length}) harus sama dengan jumlah stase (${wizardData.stase_ids.length}) agar putaran ujian pas.`
+            );
+            return;
+        }
+
+        router.post(`/admin/osce/${osce.id_osce}/jadwal`, wizardData, {
+            onSuccess: (page) => {
+                if (page.props.flash?.error) return;
+                setIsStepOpen(false);
+                setCurrentStep(0);
+                setWizardData({
+                    stase_objs: [],
+                    stase_ids: [],
+                    tanggal: "",
+                    jam_mulai: "",
+                    durasi: "7",
+                    id_ruang: "",
+                    penguji_map: {},
+                    filter_angkatan: "",
+                    mahasiswa_ids: [],
+                });
+            },
+            preserveScroll: true,
+            onError: (errors) => {
+                console.log("Validation Errors:", errors);
+            },
+        });
+    };
+
+    function handleSearch(e) {
+        e.preventDefault();
+        router.get(
+            `/admin/osce/${osce.id_osce}/sesi`,
+            { search: searchTerm },
+            { preserveState: true, replace: true }
+        );
+    }
+
+    function openDeleteModal(item) {
+        setSelectedSesi(item);
+        setIsModalOpen(true);
+    }
+
+    function confirmDelete() {
+        if (!selectedSesi) return;
+        const jamMulaiClean = selectedSesi.jam_mulai.substring(0, 5);
+        const uniqueSesiId = `${selectedSesi.tanggal}_${jamMulaiClean}`;
+
+        router.delete(`/admin/osce/${osce.id_osce}/jadwal/${uniqueSesiId}`, {
+            onSuccess: () => {
+                setIsModalOpen(false);
+                setSelectedSesi(null);
+            },
+            preserveScroll: true,
+        });
+    }
+
+    const handleDeleteSesi = (item) => openDeleteModal(item);
+
+    const rows = sesi.data.map((item, index) => ({
+        no: sesi.from + index,
         tanggal: (
             <span className="font-medium text-gray-700">
                 {item.tanggal_formatted}
@@ -164,227 +328,8 @@ export default function SesiOscePage({
         ),
     }));
 
-    // [BARU] Helper untuk generate struktur link pagination agar kompatibel dengan OsPagination
-    const generatePaginationLinks = () => {
-        const links = [];
-        // Prev button
-        links.push({
-            url: currentPage > 1 ? "prev" : null,
-            label: "&laquo; Previous",
-            active: false,
-            pageNumber: currentPage - 1,
-        });
-
-        // Page numbers
-        for (let i = 1; i <= totalPages; i++) {
-            // Simple logic: show all or create ellipsis logic here if needed
-            // Untuk simple client side, kita tampilkan semua atau batasi range
-            if (
-                totalPages <= 7 ||
-                i === 1 ||
-                i === totalPages ||
-                (i >= currentPage - 1 && i <= currentPage + 1)
-            ) {
-                links.push({
-                    url: "page",
-                    label: i.toString(),
-                    active: i === currentPage,
-                    pageNumber: i,
-                });
-            } else if (links[links.length - 1].label !== "...") {
-                links.push({ url: null, label: "...", active: false });
-            }
-        }
-
-        // Next button
-        links.push({
-            url: currentPage < totalPages ? "next" : null,
-            label: "Next &raquo;",
-            active: false,
-            pageNumber: currentPage + 1,
-        });
-
-        return links;
-    };
-
-    const clientPaginationLinks = generatePaginationLinks();
-
-    // --- STATE UI STANDAR & MODAL (Sama seperti kode asli) ---
-    const [isModalOpen, setIsModalOpen] = useState(false);
-    const [selectedSesi, setSelectedSesi] = useState(null);
-    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
-    const [detailData, setDetailData] = useState({
-        stase_data: [],
-        mahasiswa_data: [],
-    });
-    const [isLoadingDetail, setIsLoadingDetail] = useState(false);
-
-    // --- STATE WIZARD (Sama) ---
-    const [isStepOpen, setIsStepOpen] = useState(false);
-    const [currentStep, setCurrentStep] = useState(0);
-    const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
-
-    // Wizard Data & Filter Logic (Sama)
-    const [wizardData, setWizardData] = useState({
-        stase_objs: [],
-        stase_ids: [],
-        tanggal: "",
-        jam_mulai: "",
-        durasi: "60",
-        id_ruang: "",
-        penguji_map: {},
-        filter_angkatan: "",
-        mahasiswa_ids: [],
-    });
-    const [isLoadingCheck, setIsLoadingCheck] = useState(false);
-    const [availRooms, setAvailRooms] = useState([]);
-    const [availPenguji, setAvailPenguji] = useState([]);
-    const [listAngkatan, setListAngkatan] = useState([]);
-    const [availableMahasiswa, setAvailableMahasiswa] = useState([]);
-    const [isLoadingMhs, setIsLoadingMhs] = useState(false);
-    const [mhsSearchTerm, setMhsSearchTerm] = useState("");
-
-    // Effects (Sama)
-    useEffect(() => {
-        if (currentStep === 2 && wizardData.tanggal && wizardData.jam_mulai)
-            checkAvailability();
-    }, [currentStep]);
-
-    useEffect(() => {
-        if (currentStep === 4) fetchMahasiswa(wizardData.filter_angkatan);
-    }, [currentStep, wizardData.filter_angkatan]);
-
-    const filteredMahasiswaList = useMemo(() => {
-        if (!mhsSearchTerm) return availableMahasiswa;
-        const lowerSearch = mhsSearchTerm.toLowerCase();
-        return availableMahasiswa.filter((mhs) =>
-            mhs.label.toLowerCase().includes(lowerSearch)
-        );
-    }, [availableMahasiswa, mhsSearchTerm]);
-
-    // --- API CALLS (Sama) ---
-    const checkAvailability = async () => {
-        /* ... kode lama ... */
-        setIsLoadingCheck(true);
-        try {
-            const res = await axios.post("/admin/osce/check-availability", {
-                tanggal: wizardData.tanggal,
-                jam_mulai: wizardData.jam_mulai,
-                durasi: wizardData.durasi,
-            });
-            setAvailRooms(res.data.rooms);
-            setAvailPenguji(res.data.penguji);
-        } catch (err) {
-            console.error(err);
-            alert("Gagal mengecek ketersediaan jadwal.");
-        } finally {
-            setIsLoadingCheck(false);
-        }
-    };
-
-    const fetchMahasiswa = async (angkatan = "") => {
-        /* ... kode lama ... */
-        setIsLoadingMhs(true);
-        try {
-            const res = await axios.post("/admin/osce/get-mahasiswa", {
-                angkatan: angkatan,
-                id_osce: osce.id_osce,
-            });
-            setAvailableMahasiswa(res.data.mahasiswa);
-            if (res.data.list_angkatan && listAngkatan.length === 0) {
-                setListAngkatan(
-                    res.data.list_angkatan.map((th) => ({
-                        value: th,
-                        label: `Tahun Akademik ${th}`,
-                    }))
-                );
-            }
-        } catch (err) {
-            console.error(err);
-        } finally {
-            setIsLoadingMhs(false);
-        }
-    };
-
-    const fetchSessionDetail = async (item) => {
-        /* ... kode lama ... */
-        setIsLoadingDetail(true);
-        setSelectedSesi(item);
-        try {
-            const res = await axios.post(
-                `/admin/osce/${osce.id_osce}/get-session-detail`,
-                {
-                    tanggal: item.tanggal,
-                    jam_mulai: item.jam_mulai,
-                }
-            );
-            setDetailData(res.data);
-            setIsDetailModalOpen(true);
-        } catch (err) {
-            console.error(err);
-            alert("Gagal mengambil detail sesi.");
-        } finally {
-            setIsLoadingDetail(false);
-        }
-    };
-
-    const handleWizardSubmit = () => {
-        /* ... kode lama ... */
-        router.post(`/admin/osce/${osce.id_osce}/jadwal`, wizardData, {
-            onSuccess: () => {
-                setIsStepOpen(false);
-                setCurrentStep(0);
-                setMhsSearchTerm("");
-                setWizardData({
-                    stase_objs: [],
-                    stase_ids: [],
-                    tanggal: "",
-                    jam_mulai: "",
-                    durasi: "60",
-                    id_ruang: "",
-                    penguji_map: {},
-                    filter_angkatan: "",
-                    mahasiswa_ids: [],
-                });
-            },
-            preserveScroll: true,
-            onError: (errors) => {
-                console.log("Validation Errors:", errors);
-            },
-        });
-    };
-
-    // [MODIFIKASI] handleSearch sekarang hanya handle state client side, tidak hit server
-    function handleSearch(e) {
-        // e.preventDefault(); // Tidak perlu prevent default jika hanya ketik
-        // State searchTerm otomatis mentrigger useMemo filteredSesi
-    }
-
-    // Modal helpers
-    function openDeleteModal(item) {
-        setSelectedSesi(item);
-        setIsModalOpen(true);
-    }
-    function confirmDelete() {
-        /* ... kode lama ... */
-        if (!selectedSesi) return;
-        const jamMulaiClean = selectedSesi.jam_mulai.substring(0, 5);
-        const uniqueSesiId = `${selectedSesi.tanggal}_${jamMulaiClean}`;
-        router.delete(`/admin/osce/${osce.id_osce}/jadwal/${uniqueSesiId}`, {
-            onSuccess: () => {
-                setIsModalOpen(false);
-                setSelectedSesi(null);
-            },
-            preserveScroll: true,
-        });
-    }
-    const handleDeleteSesi = (item) => openDeleteModal(item);
-
     const calculateEndTime = () => {
-        /* ... kode lama ... */
         if (!wizardData.jam_mulai || !wizardData.durasi) return "";
-        // ... logic hitung jam selesai ...
         const staseCount = wizardData.stase_ids.length;
         if (staseCount === 0) return "";
         const [hours, minutes] = wizardData.jam_mulai.split(":").map(Number);
@@ -396,85 +341,216 @@ export default function SesiOscePage({
             date.getMinutes()
         ).padStart(2, "0")}`;
     };
+
     const jamSelesaiOtomatis = calculateEndTime();
 
+    // ===============================================
+    // KONVERSI TANGGAL & VALIDASI CLIENT-SIDE
+    // ===============================================
+
+    const convertDateForInput = (dateString) => {
+        if (!dateString) return undefined;
+        const parts = dateString.split("-");
+        if (parts.length !== 3) return undefined;
+        return `${parts[2]}-${parts[1]}-${parts[0]}`;
+    };
+
+    const minDateISO = useMemo(
+        () => convertDateForInput(osce.tanggal_mulai),
+        [osce.tanggal_mulai]
+    );
+    const maxDateISO = useMemo(
+        () => convertDateForInput(osce.tanggal_selesai),
+        [osce.tanggal_selesai]
+    );
+
+    const handleStepChange = (nextStepIndex) => {
+        setValidationError(null);
+
+        const isMovingForward = nextStepIndex > currentStep;
+
+        if (isMovingForward) {
+            if (currentStep === 0) {
+                if (wizardData.stase_ids.length === 0) {
+                    setValidationError(
+                        "Mohon pilih minimal satu stase untuk melanjutkan."
+                    );
+                    return;
+                }
+            }
+
+            if (currentStep === 1) {
+                if (
+                    !wizardData.tanggal ||
+                    !wizardData.jam_mulai ||
+                    !wizardData.durasi
+                ) {
+                    setValidationError(
+                        "Mohon lengkapi Tanggal, Jam Mulai, dan Durasi."
+                    );
+                    return;
+                }
+                if (
+                    wizardData.tanggal < minDateISO ||
+                    wizardData.tanggal > maxDateISO
+                ) {
+                    setValidationError(
+                        `Tanggal diluar jadwal ujian.\nRentang: ${minDateISO} s.d. ${maxDateISO}`
+                    );
+                    return;
+                }
+            }
+
+            if (currentStep === 2) {
+                if (!wizardData.id_ruang) {
+                    setValidationError("Mohon pilih Ruangan/Sirkuit ujian.");
+                    return;
+                }
+            }
+
+            if (currentStep === 3) {
+                const selectedCount = Object.keys(
+                    wizardData.penguji_map
+                ).length;
+                const requiredCount = wizardData.stase_ids.length;
+
+                if (selectedCount < requiredCount) {
+                    setValidationError(
+                        `Mohon lengkapi penguji untuk semua stase (${selectedCount}/${requiredCount} terpilih).`
+                    );
+                    return;
+                }
+
+                const hasEmptySelection = Object.values(
+                    wizardData.penguji_map
+                ).some((val) => !val);
+                if (hasEmptySelection) {
+                    setValidationError(
+                        "Pastikan semua stase sudah memiliki penguji."
+                    );
+                    return;
+                }
+            }
+        }
+
+        setCurrentStep(nextStepIndex);
+    };
+
+    const ErrorBanner = ({ message }) => {
+        if (!message) return null;
+        return (
+            <div className="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 text-red-700 text-sm animate-in fade-in slide-in-from-bottom-2 duration-300">
+                <AlertCircle size={18} className="shrink-0 mt-0.5" />
+                <div className="whitespace-pre-line leading-relaxed">
+                    {message}
+                </div>
+            </div>
+        );
+    };
+
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader variant="goback" backLink="/admin/osce/" />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader variant="goback" backLink="/admin/osce/" />
 
-                <div className="flex-1 overflow-auto ">
-                    <section className="mb-6">
-                        <h2 className="text-lg font-semibold mb-1">
-                            {osce.nama_osce || "Detail Jadwal OSCE"}
-                        </h2>
-                        <div className="text-sm text-gray-500 mb-4 max-w-lg">
-                            <p>
-                                Halaman ini digunakan untuk mengelola{" "}
-                                <strong>Jadwal Sesi</strong> pada ujian{" "}
-                                <strong>{osce.nama_osce}</strong>.
-                            </p>
-                            {osce.tanggal_mulai && (
-                                <p className="mt-1 text-xs text-gray-400">
-                                    Pelaksanaan: {osce.tanggal_mulai} s/d{" "}
-                                    {osce.tanggal_selesai}
+                    <div className="flex-1 overflow-auto p-1">
+                        {/* Flash Message di Layout Utama */}
+                        {flash.error && (
+                            <div className="mb-4 p-4 bg-red-100 border-l-4 border-red-500 text-red-700">
+                                <p className="font-bold">Error</p>
+                                <p>{flash.error}</p>
+                            </div>
+                        )}
+                        {flash.success && (
+                            <div className="mb-4 p-4 bg-green-100 border-l-4 border-green-500 text-green-700">
+                                <p className="font-bold">Sukses</p>
+                                <p>{flash.success}</p>
+                            </div>
+                        )}
+
+                        <section className="mb-6">
+                            
+                            <div className="flex gap-1 items-center justify-start my-2">
+                                <FileText size={18} />
+                                <h2 className="font-semibold text-lg">
+                                    {osce.nama_osce || "Detail Jadwal OSCE"}
+                                </h2>
+                            </div>
+                            <div className="text-sm text-gray-500 mb-4 max-w-lg">
+                                <p>
+                                    Halaman ini digunakan untuk mengelola{" "}
+                                    <strong>Jadwal Sesi</strong> pada ujian{" "}
+                                    <strong>{osce.nama_osce}</strong>.
                                 </p>
-                            )}
-                        </div>
-                        <OsButton
-                            name="primary"
-                            onClick={() => {
-                                setCurrentStep(0);
-                                setIsStepOpen(true);
-                            }}
-                            className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
-                        >
-                            <OsIcon
-                                name="add"
-                                className="h-os-20 os-icon-light mr-os-8"
-                            />
-                            Tambah Sesi
-                        </OsButton>
-                    </section>
-
-                    <section className="rounded-lg w-full">
-                        <OsSearchBar
-                            search={searchTerm}
-                            setSearch={setSearchTerm}
-                            onSearchClick={handleSearch}
-                            placeholder="Cari sesi..."
-                        />
-                    </section>
-
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table Sesi
-                    </h2>
-
-                    <div className="w-full overflow-x-auto pb-4">
-                        <div className="min-w-max border rounded-lg overflow-hidden">
-                            <OsTableHeader columns={jadwalColumns} />
-                            {rows.length > 0 ? (
-                                <OsTableBody
-                                    data={rows}
-                                    columns={jadwalColumns}
-                                />
-                            ) : (
-                                <div className="flex items-center justify-center border-t border-gray-200">
-                                    <p className="w-full text-center text-sm py-4 text-gray-500">
-                                        Data sesi tidak ditemukan.
+                                {osce.tanggal_mulai && (
+                                    <p className="mt-1 text-xs text-gray-400">
+                                        Pelaksanaan: {osce.tanggal_mulai} s/d{" "}
+                                        {osce.tanggal_selesai}
                                     </p>
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    <OsPagination links={sesi?.links} />
-                </div>
+                                )}
+                            </div>
+                            <OsButton
+                                name="primary"
+                                onClick={() => {
+                                    setCurrentStep(0);
+                                    setIsStepOpen(true);
+                                    setValidationError(null); 
+                                }}
+                                className="inline-flex items-center bg-blue-600 text-white px-5 py-2.5 rounded-lg hover:bg-blue-700 transition text-sm font-medium"
+                            >
+                                <OsIcon
+                                    name="add"
+                                    className="h-[18px] os-icon-light mr-os-8"
+                                />
+                                Tambah Sesi
+                            </OsButton>
+                        </section>
 
-                <footer>
+                        <section className="rounded-lg w-full">
+                            <OsSearchBar
+                                search={searchTerm}
+                                setSearch={setSearchTerm}
+                                onSearchClick={handleSearch}
+                                placeholder="Cari sesi..."
+                            />
+                        </section>
+
+                        <div className="flex gap-1 items-center justify-start mb-2">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Table OSCE
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                Total: {sesi.total} data
+                            </span>
+                        </div>
+
+                        <div className="w-full overflow-x-auto bg-white rounded-xl border border-os-primary pb-4 p-4">
+                            <div className="min-w-max border rounded-lg overflow-hidden">
+                                <OsTableHeader columns={jadwalColumns} />
+                                {rows.length > 0 ? (
+                                    <OsTableBody
+                                        data={rows}
+                                        columns={jadwalColumns}
+                                    />
+                                ) : (
+                                    <div className="flex items-center justify-center border-t border-gray-200">
+                                        <p className="w-full text-center text-sm py-4 text-gray-500">
+                                            Data sesi tidak ditemukan.
+                                        </p>
+                                    </div>
+                                )}
+                            </div>
+                        </div>
+                        <OsPagination links={sesi?.links} />
+                    </div>
+                </div>
+                <div className="">
                     <OsCopyright />
-                </footer>
+                </div>
             </main>
 
             {/* DELETE MODAL */}
@@ -740,10 +816,9 @@ export default function SesiOscePage({
                 show={isStepOpen}
                 onClose={() => setIsStepOpen(false)}
                 currentStep={currentStep}
-                setCurrentStep={setCurrentStep}
+                setCurrentStep={handleStepChange}
                 onSubmit={handleWizardSubmit}
                 steps={[
-                    // STEP 1: Pilih Stase
                     {
                         title: "Pilih Stase",
                         content: (
@@ -757,14 +832,15 @@ export default function SesiOscePage({
                                     options={master_stase}
                                     value={wizardData.stase_ids}
                                     onChange={(e) => {
+                                        setValidationError(null); 
                                         const selected = e.target.value;
                                         const rawValues = Array.isArray(
                                             selected
                                         )
                                             ? selected
                                             : [];
-                                        let newIds = [];
-                                        let newObjs = [];
+                                        let newIds = [],
+                                            newObjs = [];
 
                                         if (
                                             rawValues.length > 0 &&
@@ -781,7 +857,6 @@ export default function SesiOscePage({
                                                     rawValues.includes(ms.value)
                                             );
                                         }
-
                                         setWizardData({
                                             ...wizardData,
                                             stase_ids: newIds,
@@ -792,10 +867,10 @@ export default function SesiOscePage({
                                 <p className="text-xs text-gray-400 mt-2">
                                     {wizardData.stase_ids.length} stase dipilih.
                                 </p>
+                                <ErrorBanner message={validationError} />
                             </div>
                         ),
                     },
-                    // STEP 2: Jadwal & Durasi
                     {
                         title: "Jadwal & Durasi",
                         content: (
@@ -804,47 +879,52 @@ export default function SesiOscePage({
                                     type="date"
                                     label="Tanggal Mulai"
                                     value={wizardData.tanggal}
-                                    onChange={(e) =>
+                                    min={minDateISO}
+                                    max={maxDateISO}
+                                    onChange={(e) => {
+                                        setValidationError(null);
                                         setWizardData({
                                             ...wizardData,
                                             tanggal: e.target.value,
-                                        })
-                                    }
+                                        });
+                                    }}
                                 />
+                                <p className="text-xs text-blue-600 -mt-3">
+                                    Rentang jadwal: <b>{osce.tanggal_mulai}</b>{" "}
+                                    s.d. <b>{osce.tanggal_selesai}</b>
+                                </p>
                                 <div>
                                     <OsInput
                                         type="number"
                                         label={`Durasi per Stase (Menit)`}
                                         placeholder="Contoh: 15"
                                         value={wizardData.durasi}
-                                        onChange={(e) =>
+                                        onChange={(e) => {
+                                            setValidationError(null);
                                             setWizardData({
                                                 ...wizardData,
                                                 durasi: e.target.value,
-                                            })
-                                        }
+                                            });
+                                        }}
                                     />
-                                    <p className="text-xs text-gray-500 mt-1">
-                                        *Total ada {wizardData.stase_ids.length}{" "}
-                                        stase terpilih.
-                                    </p>
                                 </div>
-                                <div className="flex gap-3">
-                                    <div className="w-1/2">
+                                <div className="flex flex-col sm:flex-row gap-3">
+                                    <div className="w-full sm:w-1/2">
                                         <OsInput
                                             type="clock"
                                             label="Jam Mulai"
                                             value={wizardData.jam_mulai}
-                                            onChange={(e) =>
+                                            onChange={(e) => {
+                                                setValidationError(null);
                                                 setWizardData({
                                                     ...wizardData,
                                                     jam_mulai: e.target.value,
-                                                })
-                                            }
+                                                });
+                                            }}
                                         />
                                     </div>
-                                    <div className="w-1/2 flex flex-col">
-                                        <label className="text-os-small text-gray-600 mb-1">
+                                    <div className="w-full sm:w-1/2 flex flex-col">
+                                        <label className="mb-1 text-sm text-gray-700">
                                             Jam Selesai (Estimasi)
                                         </label>
                                         <div className="relative w-full">
@@ -860,10 +940,10 @@ export default function SesiOscePage({
                                         </div>
                                     </div>
                                 </div>
+                                <ErrorBanner message={validationError} />
                             </div>
                         ),
                     },
-                    // STEP 3: Pilih Sirkuit
                     {
                         title: "Pilih Sirkuit",
                         content: (
@@ -885,11 +965,10 @@ export default function SesiOscePage({
                                             options={availRooms}
                                             value={wizardData.id_ruang}
                                             onChange={(e) => {
-                                                const selectedId =
-                                                    e.target.value;
+                                                setValidationError(null);
                                                 setWizardData({
                                                     ...wizardData,
-                                                    id_ruang: selectedId,
+                                                    id_ruang: e.target.value,
                                                 });
                                             }}
                                         />
@@ -900,20 +979,20 @@ export default function SesiOscePage({
                                         )}
                                     </>
                                 )}
+                                <ErrorBanner message={validationError} />
                             </div>
                         ),
                     },
-                    // STEP 4: Pilih Penguji
                     {
                         title: "Pilih Penguji",
                         content: (
-                            <div>
+                            <div className="flex flex-col h-full">
                                 {isLoadingCheck ? (
                                     <div className="py-4 text-center">
                                         Loading...
                                     </div>
                                 ) : (
-                                    <div className="max-h-[300px] overflow-y-auto pr-2 flex flex-col gap-4">
+                                    <div className="flex-1 overflow-y-auto pr-2 flex flex-col gap-4">
                                         <div className="bg-blue-50 p-2 rounded text-xs text-blue-700">
                                             Pilih penguji untuk setiap stase.
                                             (Penguji tidak boleh rangkap)
@@ -927,7 +1006,6 @@ export default function SesiOscePage({
                                                 wizardData.penguji_map[
                                                     stase.value
                                                 ];
-
                                             const filteredOptions =
                                                 availPenguji.filter((p) => {
                                                     const isSelectedElsewhere =
@@ -948,7 +1026,7 @@ export default function SesiOscePage({
                                                     key={stase.value}
                                                     className="border p-3 rounded bg-white"
                                                 >
-                                                    <label className="block text-sm font-bold mb-1">
+                                                    <label className="block text-sm mb-1">
                                                         Stase: {stase.label}
                                                     </label>
                                                     <OsInput
@@ -964,6 +1042,9 @@ export default function SesiOscePage({
                                                             ]
                                                         }
                                                         onChange={(e) => {
+                                                            setValidationError(
+                                                                null
+                                                            );
                                                             setWizardData(
                                                                 (prev) => ({
                                                                     ...prev,
@@ -989,27 +1070,22 @@ export default function SesiOscePage({
                                         )}
                                     </div>
                                 )}
+                                <div className="mt-auto">
+                                    <ErrorBanner message={validationError} />
+                                </div>
                             </div>
                         ),
                     },
-                    // STEP 5: Enrollment Mahasiswa
                     {
                         title: "Enrollment Mahasiswa",
                         content: (
-                            <div className="flex flex-col gap-4 min-h-[400px]">
-                                {errors.mahasiswa_ids && (
-                                    <div className="p-3 bg-red-100 border border-red-400 text-red-700 rounded text-sm flex items-center gap-2">
-                                        <div className="shrink-0">⚠️</div>
-                                        <div>{errors.mahasiswa_ids}</div>
-                                    </div>
-                                )}
-
-                                {/* Filter Angkatan Dropdown Saja */}
-                                <div className="w-full bg-gray-50 p-3 rounded-lg border border-gray-200">
+                            <div className="flex flex-col gap-4 h-full min-h-[500px]">
+                                {/* Dropdown Filter */}
+                                <div className="w-full bg-gray-50 p-3 rounded-lg border border-gray-200 shrink-0">
                                     <OsInput
                                         type="single-select"
-                                        label="Filter Tahun Akademik"
-                                        placeholder="Pilih Angkatan (Kosongkan untuk semua)"
+                                        label="Filter Tahun Angkatan"
+                                        placeholder="Pilih Angkatan"
                                         options={listAngkatan}
                                         value={wizardData.filter_angkatan}
                                         onChange={(e) =>
@@ -1022,15 +1098,14 @@ export default function SesiOscePage({
                                     />
                                 </div>
 
-                                {/* Container List Mahasiswa */}
-                                <div className="border rounded-lg flex-1 flex flex-col overflow-hidden bg-white shadow-sm">
-                                    <div className="flex justify-between items-center p-3 border-b bg-gray-50">
+                                {/* List Mahasiswa */}
+                                <div className="border rounded-lg flex-1 flex flex-col overflow-hidden bg-white shadow-sm min-h-[300px]">
+                                    <div className="flex justify-between items-center p-3 border-b bg-gray-50 shrink-0">
                                         <label className="text-sm font-bold text-gray-700">
                                             Daftar Mahasiswa
                                         </label>
-
                                         <span
-                                            className={`text-xs font-bold px-3 py-1 rounded-full border transition-colors ${
+                                            className={`text-xs font-bold px-3 py-1 rounded-full border ${
                                                 wizardData.mahasiswa_ids
                                                     .length ===
                                                 wizardData.stase_ids.length
@@ -1046,18 +1121,12 @@ export default function SesiOscePage({
 
                                     <div className="flex-1 overflow-y-auto p-2">
                                         {isLoadingMhs ? (
-                                            <div className="h-full flex flex-col items-center justify-center text-gray-400 gap-2">
-                                                <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-400"></div>
-                                                <span className="text-sm">
-                                                    Memuat data...
-                                                </span>
+                                            <div className="text-center p-4 text-gray-400">
+                                                Loading...
                                             </div>
                                         ) : availableMahasiswa.length === 0 ? (
-                                            <div className="h-full flex flex-col items-center justify-center text-gray-400 text-sm">
-                                                <p>
-                                                    Tidak ada mahasiswa
-                                                    ditemukan.
-                                                </p>
+                                            <div className="h-full flex items-center justify-center text-gray-400 text-sm">
+                                                Tidak ada mahasiswa
                                             </div>
                                         ) : (
                                             <div className="space-y-2">
@@ -1067,18 +1136,15 @@ export default function SesiOscePage({
                                                             wizardData.mahasiswa_ids.includes(
                                                                 mhs.value
                                                             );
-
                                                         const isAlreadyEnrolled =
                                                             mhs.already_enrolled ===
                                                             true;
-
                                                         const isMaxReached =
                                                             wizardData
                                                                 .mahasiswa_ids
                                                                 .length >=
                                                             wizardData.stase_ids
                                                                 .length;
-
                                                         const isDisabled =
                                                             (isMaxReached &&
                                                                 !isSelected) ||
@@ -1087,75 +1153,71 @@ export default function SesiOscePage({
                                                         return (
                                                             <label
                                                                 key={mhs.value}
-                                                                className={`group flex items-center p-3 rounded-lg border transition-all duration-200 ${
+                                                                className={`group flex items-center p-3 rounded-lg border transition-all ${
                                                                     isDisabled
-                                                                        ? "bg-gray-100 border-gray-200 opacity-70 cursor-not-allowed" // Style disabled lebih gelap
-                                                                        : "cursor-pointer hover:border-blue-300 hover:shadow-sm"
+                                                                        ? "bg-gray-100 opacity-70 cursor-not-allowed"
+                                                                        : "cursor-pointer hover:border-blue-300"
                                                                 } ${
                                                                     isSelected
                                                                         ? "bg-blue-50 border-blue-500 ring-1 ring-blue-500"
                                                                         : "bg-white border-gray-200"
                                                                 }`}
                                                             >
-                                                                <div className="relative flex items-center">
-                                                                    <input
-                                                                        type="checkbox"
-                                                                        className={`w-5 h-5 rounded border-gray-300 text-blue-600 focus:ring-blue-500 transition-all ${
-                                                                            isDisabled
-                                                                                ? "text-gray-300"
-                                                                                : ""
-                                                                        }`}
-                                                                        checked={
-                                                                            isSelected
-                                                                        }
-                                                                        disabled={
-                                                                            isDisabled
-                                                                        }
-                                                                        onChange={(
+                                                                <input
+                                                                    type="checkbox"
+                                                                    className="mr-3 w-4 h-4 text-blue-600 rounded focus:ring-blue-500"
+                                                                    checked={
+                                                                        isSelected
+                                                                    }
+                                                                    disabled={
+                                                                        isDisabled
+                                                                    }
+                                                                    onChange={(
+                                                                        e
+                                                                    ) => {
+                                                                        setValidationError(
+                                                                            null
+                                                                        );
+                                                                        const checked =
                                                                             e
-                                                                        ) => {
-                                                                            const checked =
-                                                                                e
-                                                                                    .target
-                                                                                    .checked;
-                                                                            let newIds =
-                                                                                [
-                                                                                    ...wizardData.mahasiswa_ids,
-                                                                                ];
+                                                                                .target
+                                                                                .checked;
+                                                                        let newIds =
+                                                                            [
+                                                                                ...wizardData.mahasiswa_ids,
+                                                                            ];
+                                                                        if (
+                                                                            checked
+                                                                        ) {
                                                                             if (
-                                                                                checked
-                                                                            ) {
-                                                                                if (
-                                                                                    newIds.length <
-                                                                                    wizardData
-                                                                                        .stase_ids
-                                                                                        .length
-                                                                                ) {
-                                                                                    newIds.push(
+                                                                                newIds.length <
+                                                                                wizardData
+                                                                                    .stase_ids
+                                                                                    .length
+                                                                            )
+                                                                                newIds.push(
+                                                                                    mhs.value
+                                                                                );
+                                                                        } else {
+                                                                            newIds =
+                                                                                newIds.filter(
+                                                                                    (
+                                                                                        id
+                                                                                    ) =>
+                                                                                        id !==
                                                                                         mhs.value
-                                                                                    );
-                                                                                }
-                                                                            } else {
-                                                                                newIds =
-                                                                                    newIds.filter(
-                                                                                        (
-                                                                                            id
-                                                                                        ) =>
-                                                                                            id !==
-                                                                                            mhs.value
-                                                                                    );
+                                                                                );
+                                                                        }
+                                                                        setWizardData(
+                                                                            {
+                                                                                ...wizardData,
+                                                                                mahasiswa_ids:
+                                                                                    newIds,
                                                                             }
-                                                                            setWizardData(
-                                                                                {
-                                                                                    ...wizardData,
-                                                                                    mahasiswa_ids:
-                                                                                        newIds,
-                                                                                }
-                                                                            );
-                                                                        }}
-                                                                    />
-                                                                </div>
-                                                                <div className="ml-3 flex flex-col">
+                                                                        );
+                                                                    }}
+                                                                />
+                                                                <div className="flex flex-col">
                                                                     <span
                                                                         className={`text-sm font-medium ${
                                                                             isSelected
@@ -1163,19 +1225,18 @@ export default function SesiOscePage({
                                                                                 : "text-gray-700"
                                                                         } ${
                                                                             isAlreadyEnrolled
-                                                                                ? "text-gray-500 line-through decoration-gray-400"
+                                                                                ? "line-through text-gray-500"
                                                                                 : ""
-                                                                        }`} // Coret nama jika sudah ada
+                                                                        }`}
                                                                     >
                                                                         {
                                                                             mhs.label
                                                                         }
                                                                     </span>
                                                                     {isAlreadyEnrolled && (
-                                                                        <span className="text-xs text-red-500 font-semibold italic mt-0.5">
+                                                                        <span className="text-[10px] text-red-500 italic">
                                                                             Sudah
-                                                                            memiliki
-                                                                            jadwal
+                                                                            terjadwal
                                                                         </span>
                                                                     )}
                                                                 </div>
@@ -1186,6 +1247,11 @@ export default function SesiOscePage({
                                             </div>
                                         )}
                                     </div>
+                                </div>
+
+                                {/* Error Banner */}
+                                <div className="shrink-0">
+                                    <ErrorBanner message={validationError} />
                                 </div>
                             </div>
                         ),

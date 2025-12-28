@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Services\JadwalMahasiswaService;
 use Inertia\Inertia;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class JadwalMahasiswaController extends Controller
 {
@@ -16,38 +17,76 @@ class JadwalMahasiswaController extends Controller
         $this->jadwalService = $jadwalService;
     }
 
-    public function show_jadwal()
+    public function show_jadwal(Request $request)
     {
         $idMahasiswa = $this->jadwalService->getCurrentMahasiswaId();
-        
+
         if (!$idMahasiswa) {
             return redirect()->route('mahasiswa.dashboard')
                 ->with('error', 'Data profil mahasiswa tidak ditemukan.');
         }
 
-        $examInfo = $this->jadwalService->getActiveExamInfo($idMahasiswa);
-        
-        if (!$examInfo) {
+        $enrollmentDates = $this->jadwalService->getEnrollmentDates($idMahasiswa);
+
+        $selectedDate = $request->input('date');
+
+        if (!$selectedDate && $enrollmentDates->isNotEmpty()) {
+            $today = Carbon::now()->toDateString();
+            $defaultDate = $enrollmentDates->firstWhere('date_raw', $today);
+
+            if ($defaultDate) {
+                $selectedDate = $defaultDate['date_raw'];
+            } else {
+                $selectedDate = $enrollmentDates->sortBy('date_raw')->first()['date_raw'] ?? null;
+            }
+        }
+
+        $enrollmentDates = $enrollmentDates->map(function ($item) use ($selectedDate) {
+            $item['is_selected'] = $item['date_raw'] === $selectedDate;
+            return $item;
+        })->values();
+
+        if (!$selectedDate) {
             return Inertia::render('Mahasiswa/JadwalOscePage', [
-                'examHeader'  => null,
-                'jadwalStase' => [] 
+                'enrollmentDates' => $enrollmentDates,
+                'examHeader'      => null,
+                'jadwalStase'     => []
             ]);
         }
 
-        // Ambil Data sebagai Collection
-        $staseCollection = $this->jadwalService->getJadwalStase($examInfo['id_osce']);
+        $examInfo = $this->jadwalService->getActiveExamInfo($idMahasiswa, $selectedDate);
 
-        // [UBAH] Gunakan map() biasa, bukan through()
-        $mappedStase = $staseCollection->map(function ($item, $index) {
-            
-            $namaPenguji = '-';
+        if (!$examInfo) {
+            return Inertia::render('Mahasiswa/JadwalOscePage', [
+                'enrollmentDates' => $enrollmentDates,
+                'examHeader'      => null,
+                'jadwalStase'     => []
+            ]);
+        }
+
+        $staseCollection = $this->jadwalService->getJadwalStase(
+            $examInfo['id_osce'], 
+            $selectedDate, 
+            $examInfo['jam_sesi_raw']
+        );
+
+        $mappedStase = $staseCollection->map(function ($item) {
+             $namaPenguji = '-';
             if ($item->penguji) {
-                $namaPenguji = $item->penguji->nama_gelar 
-                    ?? optional($item->penguji->pengguna)->username 
-                    ?? 'Penguji';
+                $namaPenguji = $item->penguji->nama ?? 'Penguji';
             }
 
-            $namaRuangan = $item->ruang ? $item->ruang->nomor_ruangan : '-';
+            $namaRuangan = '-';
+            if ($item->ruang) {
+                $nomor = $item->ruang->nomor_ruangan;
+                $lokasi = $item->ruang->lokasi;
+                if (!empty($lokasi)) {
+                    $namaRuangan = "$nomor - $lokasi";
+                } else {
+                    $namaRuangan = $nomor;
+                }
+            }
+
             $jamMulai = substr($item->jam_mulai, 0, 5);
             $jamSelesai = substr($item->jam_selesai, 0, 5);
 
@@ -60,10 +99,11 @@ class JadwalMahasiswaController extends Controller
                 'penguji'            => $namaPenguji,
             ];
         });
-        
+
         return Inertia::render('Mahasiswa/JadwalOscePage', [
-            'examHeader'  => $examInfo,
-            'jadwalStase' => $mappedStase, // Kirim Array Full
+            'enrollmentDates' => $enrollmentDates,
+            'examHeader'      => $examInfo,
+            'jadwalStase'     => $mappedStase,
         ]);
     }
 }

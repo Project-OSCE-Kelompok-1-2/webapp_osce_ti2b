@@ -19,7 +19,7 @@ class ProfilMahasiswaController extends Controller
     }
 
     /**
-     * API: Get Profile Data
+     * Mengambil data profil mahasiswa
      */
     public function show_profile()
     {
@@ -43,13 +43,12 @@ class ProfilMahasiswaController extends Controller
     }
 
     /**
-     * API: Update Profile
+     * Mengupdate data profil mahasiswa
      */
     public function update_account(Request $request)
     {
         $mahasiswa = Auth::user();
 
-        // Validasi
         $validator = \Validator::make($request->all(), [
             'foto'          => ['nullable', 'image', 'mimes:jpg,jpeg,png,gif', 'max:1024'],
             'new_password'  => ['nullable', 'string', 'min:6', 'confirmed'],

@@ -15,7 +15,6 @@ class ProfilService
     public function updateProfile($user, array $data, ?UploadedFile $fileFoto = null)
     {
 
-        // 1. LOGIKA FOTO
         if (isset($data['delete_foto']) && $data['delete_foto']) {
             $this->deleteFoto($user);
         }
@@ -25,15 +24,26 @@ class ProfilService
             $user->path_gambar = 'storage/' . $fotoPath;
         }
 
-        // 2. LOGIKA PASSWORD
-        if (!empty($data['new_password'])) {
+        $filledOld = !empty($data['old_password']);
+        $filledNew = !empty($data['new_password']);
+
+        if ($filledOld || $filledNew) {
+
+            if (!$filledOld) {
+                throw new Exception('Password lama wajib diisi untuk konfirmasi.');
+            }
+
             if (!Hash::check($data['old_password'], $user->password)) {
                 throw new Exception('Password lama tidak sesuai.');
             }
+
+            if (!$filledNew) {
+                throw new Exception('Silakan masukkan password baru untuk mengganti password.');
+            }
+
             $user->password = Hash::make($data['new_password']);
         }
-
-        // 3. UPDATE USERNAME (Opsional, jika ada di request)
+        
         if (isset($data['username'])) {
              $user->username = $data['username'];
         }

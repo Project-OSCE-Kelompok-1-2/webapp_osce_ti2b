@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useMemo } from "react"; // [1] Tambah useEffect & useMemo
+import React, { useState, useEffect, useMemo } from "react";
 import { usePage, Link, router, useForm } from "@inertiajs/react";
-import { Trash2, Pencil } from "lucide-react";
+import { Trash2, Pencil, FileText, Table2 } from "lucide-react";
 
 import Sidebar from "../../components/Sidebar.jsx";
 import OsHeader from "../../components/Header.jsx";
@@ -9,11 +9,11 @@ import OsSearchBar from "../../components/searchbar.jsx";
 import OsTableBody from "../../components/tablecontain.jsx";
 import OsButton from "../../components/button.jsx";
 import OsModal from "../../components/Modal.jsx";
-import OsInput from "../../components/input.jsx";
+import OsInput from "../../components/Input.jsx";
 import Modals from "../../components/Modals.jsx";
 import OsIcon from "../../components/icons.jsx";
-import OsCopyright from "../../components/Copyright.jsx";
-import OsPagination from "../../components/pagination.jsx"; // Jangan lupa import Pagination
+import OsCopyright from "../../components/copyright.jsx";
+import OsPagination from "../../components/pagination.jsx";
 
 const columns = [
     {
@@ -43,25 +43,19 @@ const columns = [
 ];
 
 export default function MenuAspekPenilaian() {
-    // 1. Ambil Data Full
-    const { stase, aspek_penilaian, filters } = usePage().props;
+    const { stase, aspek_penilaian } = usePage().props;
     const allData = Array.isArray(aspek_penilaian)
         ? aspek_penilaian
         : aspek_penilaian?.data || [];
 
-    // 2. State Filter & Pagination
     const [search, setSearch] = useState("");
     const [currentPage, setCurrentPage] = useState(1);
     const itemsPerPage = 10;
 
-    // --- INSTANT FILTER LOGIC ---
-
-    // A. Reset Page
     useEffect(() => {
         setCurrentPage(1);
     }, [search]);
 
-    // B. Filter Data
     const filteredData = useMemo(() => {
         return allData.filter((item) => {
             const term = search.toLowerCase();
@@ -72,7 +66,6 @@ export default function MenuAspekPenilaian() {
         });
     }, [search, allData]);
 
-    // C. Slice Pagination
     const totalItems = filteredData.length;
     const totalPages = Math.ceil(totalItems / itemsPerPage);
     const paginatedData = filteredData.slice(
@@ -80,7 +73,6 @@ export default function MenuAspekPenilaian() {
         currentPage * itemsPerPage
     );
 
-    // D. Generate Links
     const generatedLinks = useMemo(() => {
         if (totalPages <= 1) return [];
         const links = [];
@@ -118,7 +110,6 @@ export default function MenuAspekPenilaian() {
         return links;
     }, [currentPage, totalPages]);
 
-    // ========= STATE FORM & MODAL (Sama seperti sebelumnya) ========
     const {
         data,
         setData,
@@ -128,6 +119,8 @@ export default function MenuAspekPenilaian() {
         delete: destroy,
         processing,
         errors,
+        setError, 
+        clearErrors, 
     } = useForm({
         id: null,
         aspek: "",
@@ -137,15 +130,28 @@ export default function MenuAspekPenilaian() {
 
     const [modalMode, setModalMode] = useState("add");
     const [showModal, setShowModal] = useState(false);
+    const [selectedItem, setSelectedItem] = useState(null);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [dataToDelete, setDataToDelete] = useState(null);
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+    const [showFullWeightWarning, setShowFullWeightWarning] = useState(false);
+
+    const totalBobot = allData.reduce(
+        (sum, item) => sum + item.bobot_maksimum,
+        0
+    );
 
     const handleSidebarToggle = () => setIsSidebarOpen((prev) => !prev);
 
-    // --- HANDLERS ---
     const openAddModal = () => {
+        if (totalBobot >= 100) {
+            setShowFullWeightWarning(true);
+            return;
+        }
+        setShowFullWeightWarning(false);
         setModalMode("add");
+        setSelectedItem(null);
+        clearErrors(); 
         setData({
             id: null,
             aspek: "",
@@ -157,6 +163,8 @@ export default function MenuAspekPenilaian() {
 
     const openEditModal = (item) => {
         setModalMode("edit");
+        setSelectedItem(item);
+        clearErrors(); 
         setData({
             id: item.id_aspek_penilaian,
             aspek: item.aspek,
@@ -168,6 +176,43 @@ export default function MenuAspekPenilaian() {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        clearErrors(); 
+
+        let isValid = true;
+
+        if (!data.aspek || data.aspek.trim() === "") {
+            setError("aspek", "Nama Aspek wajib diisi.");
+            isValid = false;
+        }
+        if (!data.bobot_maksimum) {
+            setError("bobot_maksimum", "Bobot wajib diisi.");
+            isValid = false;
+        }
+
+        const inputBobot = Number(data.bobot_maksimum) || 0;
+        let projectedTotal = 0;
+
+        if (modalMode === "add") {
+            projectedTotal = totalBobot + inputBobot;
+        } else if (modalMode === "edit") {
+            const oldBobot = selectedItem
+                ? Number(selectedItem.bobot_maksimum)
+                : 0;
+            projectedTotal = totalBobot - oldBobot + inputBobot;
+        }
+
+        if (isValid && projectedTotal > 100) {
+            setError(
+                "bobot_maksimum",
+                `Gagal! Total bobot menjadi ${projectedTotal}. Maksimal 100 (Sisa: ${
+                    100 - (projectedTotal - inputBobot)
+                }).`
+            );
+            isValid = false;
+        }
+
+        if (!isValid) return; 
+
         const options = {
             onSuccess: () => {
                 setShowModal(false);
@@ -214,12 +259,6 @@ export default function MenuAspekPenilaian() {
         });
     };
 
-    // --- TABLE DATA MAPPING (Gunakan 'paginatedData') ---
-    const totalBobot = allData.reduce(
-        (sum, item) => sum + item.bobot_maksimum,
-        0
-    );
-
     const tableDisplayData = paginatedData.map((item, index) => ({
         id_aspek_penilaian: item.id_aspek_penilaian,
         no: (currentPage - 1) * itemsPerPage + index + 1,
@@ -243,7 +282,7 @@ export default function MenuAspekPenilaian() {
                     }
                     className="h-[38px] text-os-small w-full flex justify-between items-center gap-3"
                 >
-                    <OsIcon name={"add"} className="os-icon-light h-[20px]" />{" "}
+                    <OsIcon name={"add"} className="os-icon-light h-[18px]" />{" "}
                     Edit Kompetensi
                 </OsButton>
                 <OsButton
@@ -267,133 +306,181 @@ export default function MenuAspekPenilaian() {
     }));
 
     return (
-        <div className="relative bg-os-white w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
+        <div className="relative bg-blue-50 w-full min-h-screen flex justify-start p-os-12 font-sans overflow-hidden">
             <Sidebar isOpen={isSidebarOpen} onToggle={handleSidebarToggle} />
 
-            <main className="grid w-full p-os-16 lg:p-4 h-fit grid-cols-1 grid-rows-[auto_1fr_auto] gap-os-8 transition-all duration-300 lg:ml-20">
-                <OsHeader
-                    variant="goback"
-                    backLink="/admin/stase"
-                    onMenuClick={handleSidebarToggle}
-                />
+            <main className="w-full p-os-16 lg:p-4 min-h-screen flex flex-col justify-between gap-os-8 transition-all duration-300 lg:ml-20">
+                <div className="flex flex-col gap-os-8">
+                    <OsHeader
+                        variant="goback"
+                        backLink="/admin/stase"
+                        onMenuClick={handleSidebarToggle}
+                    />
 
-                <div className="flex-1 overflow-auto">
-                    <h2 className="font-semibold text-lg mb-1">
-                        {stase.nama_stase}
-                    </h2>
-                    <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
-                        Halaman ini didedikasikan untuk mengatur seluruh Aspek
-                        Penilaian...
-                    </p>
+                    <div className="flex-1 overflow-auto p-1">
+                        {showFullWeightWarning && (
+                            <div
+                                className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative mb-4"
+                                role="alert"
+                            >
+                                <strong className="font-bold">
+                                    Perhatian!
+                                </strong>
+                                <span className="block sm:inline">
+                                    {" "}
+                                    Total bobot sudah mencapai batas maksimum
+                                    (100).
+                                </span>
+                                <span
+                                    className="absolute top-0 bottom-0 right-0 px-4 py-3"
+                                    onClick={() =>
+                                        setShowFullWeightWarning(false)
+                                    }
+                                >
+                                    <svg
+                                        className="fill-current h-6 w-6 text-red-500"
+                                        role="button"
+                                        xmlns="http://www.w3.org/2000/svg"
+                                        viewBox="0 0 20 20"
+                                    >
+                                        <title>Close</title>
+                                        <path d="M14.348 14.849a1.2 1.2 0 0 1-1.697 0L10 11.819l-2.651 3.029a1.2 1.2 0 1 1-1.697-1.697l2.758-3.15-2.759-3.152a1.2 1.2 0 1 1 1.697-1.697L10 8.183l2.651-3.031a1.2 1.2 0 1 1 1.697 1.697l-2.758 3.152 2.758 3.15a1.2 1.2 0 0 1 0 1.698z" />
+                                    </svg>
+                                </span>
+                            </div>
+                        )}
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <FileText size={18} />
+                            <h2 className="font-semibold text-lg">
+                                {stase.nama_stase}
+                            </h2>
+                        </div>
+                        <p className="text-sm text-gray-600 mb-4 max-w-2xl text-justify">
+                            Halaman ini didedikasikan untuk mengatur seluruh <br/>
+                            Aspek Penilaian...
+                        </p>
 
-                    {totalBobot == 100 ? (
-                        <OsButton
-                            name="secondary"
-                            className="flex h-[46px] items-center bg-gray-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-gray-700 !scale-100 !pointer-events-none"
-                        >
-                            Bobot sudah penuh
-                        </OsButton>
-                    ) : (
                         <OsButton
                             name="primary"
                             onClick={openAddModal}
-                            className="flex h-[46px] items-center bg-blue-600 text-white text-sm py-2 px-4 rounded-lg mb-5 hover:bg-blue-700"
+                            className={`flex h-[46px] items-center text-white text-sm py-2 px-4 rounded-lg mb-5 ${
+                                totalBobot >= 100
+                                    ? "bg-gray-400 hover:bg-gray-500"
+                                    : "bg-blue-600 hover:bg-blue-700"
+                            }`}
                         >
                             <OsIcon
                                 name="add"
-                                className="h-os-20 os-icon-light mr-os-8"
+                                className="h-[18px] os-icon-light mr-os-8"
                             />{" "}
-                            Tambah Aspek Penilaian
+                            {totalBobot >= 100
+                                ? "Bobot Penuh"
+                                : "Tambah Aspek Penilaian"}
                         </OsButton>
-                    )}
 
-                    {/* SEARCH INSTANT */}
-                    <OsSearchBar
-                        search={search}
-                        setSearch={setSearch}
-                        placeholder="Cari aspek penilaian..."
-                    />
+                        {/* SEARCH INSTANT */}
+                        <OsSearchBar
+                            search={search}
+                            setSearch={setSearch}
+                            placeholder="Cari aspek penilaian secara instan..."
+                        />
 
-                    <h2 className="font-semibold text-lg mb-2 mt-os-8">
-                        Table Aspek Penilaian
-                        <span className="text-sm font-normal text-gray-500 ml-2">
-                            (Total: {totalItems} data)
-                        </span>
-                    </h2>
+                        <div className="flex gap-1 items-center justify-start my-2">
+                            <Table2 size={18} />
+                            <h2 className="font-semibold text-lg">
+                                Table Aspek Penilaian
+                            </h2>
+                            <span className="text-sm font-normal text-gray-500 ml-2">
+                                (Total: {totalItems} data)
+                            </span>
+                        </div>
 
-                    <div className="w-full overflow-x-auto pb-4">
-                        <div className="min-w-max">
-                            <OsTableHeader columns={columns} />
-                            {tableDisplayData.length > 0 ? (
-                                <OsTableBody
-                                    data={tableDisplayData}
-                                    columns={columns}
-                                />
-                            ) : (
-                                <div className="py-6 text-center text-gray-500">
-                                    Belum ada aspek penilaian untuk stase ini.
+                        <section className="bg-white p-5 border border-os-primary overflow-x-auto rounded-xl shadow-sm">
+                            <div className="w-full overflow-x-auto pb-2">
+                                <div className="min-w-max">
+                                    <OsTableHeader columns={columns} />
+                                    {tableDisplayData.length > 0 ? (
+                                        <OsTableBody
+                                            data={tableDisplayData}
+                                            columns={columns}
+                                        />
+                                    ) : (
+
+                                        <div className="flex items-center border-t border-gray-400">
+                                        <p className="w-full text-center text-sm py-6 mt-2 text-gray-500">
+                                            Tidak ada data aspek penilaian untuk
+                                            stase ini.
+                                        </p>
+                                    </div>
+                                    )}
                                 </div>
-                            )}
-                        </div>
-                    </div>
-
-                    {/* PAGINATION */}
-                    {totalPages > 1 && (
-                        <div className="mt-2">
-                            <OsPagination
-                                links={generatedLinks}
-                                onPageChange={(page) => setCurrentPage(page)}
-                            />
-                        </div>
-                    )}
-
-                    {/* FOOTER TOTAL BOBOT */}
-                    <div className="bg-os-white rounded-lg overflow-hidden border-os-1 border-os-black mt-3 h-[56px]">
-                        <table className="w-full h-[56px]">
-                            <tfoot>
-                                <tr className="w-full h-full flex justify-between p-2">
-                                    <td className="flex text-start items-center pl-2 flex-1">
-                                        Total Bobot
-                                    </td>
-                                    <td className="flex px-3 text-center w-32 items-center justify-center">
-                                        <span className="text-sm">Bobot:</span>
-                                        <span className="text-black font-bold pl-1.5">
-                                            {totalBobot}
-                                        </span>
-                                    </td>
-                                    <td className=" px-2 hidden md:flex text-center justify-end md:w-[290px] ">
-                                        {totalBobot == 100 ? (
-                                            <div className="bg-green-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
-                                                Point Seimbang (100%)
-                                            </div>
-                                        ) : (
-                                            totalBobot > 0 && (
-                                                <div className="bg-red-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
-                                                    Point Tidak Seimbang! (
-                                                    {totalBobot}%)
-                                                </div>
-                                            )
-                                        )}
-                                    </td>
-                                </tr>
-                            </tfoot>
-                        </table>
-                    </div>
-                    {/* Mobile Footer Indicator */}
-                    {totalBobot == 100 ? (
-                        <div className="bg-green-600 text-white w-full text-sm px-3 py-4 mt-3 rounded-lg inline-block md:hidden">
-                            Point Seimbang (100%)
-                        </div>
-                    ) : (
-                        totalBobot > 0 && (
-                            <div className="bg-red-600 text-white w-full text-sm px-3 py-4 mt-3 rounded-lg inline-block md:hidden">
-                                Point Tidak Seimbang! ({totalBobot}%)
                             </div>
-                        )
-                    )}
+                        </section>
+
+                        {/* PAGINATION */}
+                        {totalPages > 1 && (
+                            <div className="mt-2">
+                                <OsPagination
+                                    links={generatedLinks}
+                                    onPageChange={(page) =>
+                                        setCurrentPage(page)
+                                    }
+                                />
+                            </div>
+                        )}
+
+                        {/* FOOTER TOTAL BOBOT */}
+                        <div className="bg-os-white rounded-lg overflow-hidden border-os-1 border-os-primary mt-3 h-[56px]">
+                            <table className="w-full h-[56px]">
+                                <tfoot>
+                                    <tr className="w-full h-full flex justify-between p-2">
+                                        <td className="flex text-start items-center pl-2 flex-1">
+                                            Total Bobot
+                                        </td>
+                                        <td className="flex px-3 text-center w-32 items-center justify-center">
+                                            <span className="text-sm">
+                                                Bobot:
+                                            </span>
+                                            <span className="text-black font-bold pl-1.5">
+                                                {totalBobot}
+                                            </span>
+                                        </td>
+                                        <td className=" px-2 hidden md:flex text-center justify-end md:w-[290px] ">
+                                            {totalBobot == 100 ? (
+                                                <div className="bg-green-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
+                                                    Point Seimbang (100%)
+                                                </div>
+                                            ) : (
+                                                totalBobot > 0 && (
+                                                    <div className="bg-red-600 text-white w-full text-sm px-3 py-2 rounded-lg inline-block">
+                                                        Point Tidak Seimbang! (
+                                                        {totalBobot}%)
+                                                    </div>
+                                                )
+                                            )}
+                                        </td>
+                                    </tr>
+                                </tfoot>
+                            </table>
+                        </div>
+                        {/* Mobile Footer Indicator */}
+                        {totalBobot == 100 ? (
+                            <div className="bg-green-600 text-white w-full text-sm px-3 py-4 mt-3 rounded-lg inline-block md:hidden">
+                                Point Seimbang (100%)
+                            </div>
+                        ) : (
+                            totalBobot > 0 && (
+                                <div className="bg-red-600 text-white w-full text-sm px-3 py-4 mt-3 rounded-lg inline-block md:hidden">
+                                    Point Tidak Seimbang! ({totalBobot}%)
+                                </div>
+                            )
+                        )}
+                    </div>
                 </div>
 
-                <OsCopyright />
+                <div className="8">
+                    <OsCopyright />
+                </div>
             </main>
 
             {/* MODALS */}
@@ -406,36 +493,94 @@ export default function MenuAspekPenilaian() {
                 onDelete={handleDeleteFromEdit}
                 title={
                     modalMode === "edit"
-                        ? "Edit Aspek Penilaian"
+                        ? "Aspek Penilaian"
                         : "Tambah Aspek Penilaian"
                 }
                 subtitle={
                     modalMode === "edit"
-                        ? `Ubah data aspek: ${data.aspek}`
+                        ? `${data.aspek}`
                         : "Isi form di bawah untuk menambahkan aspek baru."
                 }
             >
                 <div className="space-y-3">
-                    <OsInput
-                        label="Nama Aspek Penilaian"
-                        type="text"
-                        name="aspek"
-                        value={data.aspek}
-                        onChange={(evt) => setData("aspek", evt.target.value)}
-                        placeholder="Masukkan nama aspek penilaian..."
-                        required
-                    />
-                    <OsInput
-                        label="Bobot Maksimum"
-                        type="number"
-                        name="bobot_maksimum"
-                        value={data.bobot_maksimum}
-                        onChange={(evt) =>
-                            setData("bobot_maksimum", evt.target.value)
-                        }
-                        placeholder="Masukkan bobot..."
-                        required
-                    />
+                    {/* INPUT NAMA ASPEK */}
+                    <div>
+                        <OsInput
+                            label="Nama Aspek Penilaian"
+                            type="text"
+                            name="aspek"
+                            value={data.aspek}
+                            onChange={(evt) => {
+                                setData("aspek", evt.target.value);
+                                if (errors.aspek) clearErrors("aspek"); 
+                            }}
+                            placeholder="Masukkan nama aspek penilaian..."
+                        />
+                        {errors.aspek && (
+                            <p className="text-red-500 text-xs mt-1">
+                                {errors.aspek}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* INPUT BOBOT MAKSIMUM */}
+                    <div>
+                        <OsInput
+                            label="Bobot Maksimum"
+                            type="number"
+                            name="bobot_maksimum"
+                            value={data.bobot_maksimum}
+                            onChange={(evt) => {
+                                setData("bobot_maksimum", evt.target.value);
+                                if (errors.bobot_maksimum)
+                                    clearErrors("bobot_maksimum");
+                            }}
+                            placeholder="Masukkan bobot..."
+                        />
+                        {/* Error Message Disini */}
+                        {errors.bobot_maksimum && (
+                            <p className="text-red-500 text-xs mt-1 font-semibold">
+                                {errors.bobot_maksimum}
+                            </p>
+                        )}
+                    </div>
+
+                    {/* HELPER TEXT UNTUK SISA BOBOT (VISUAL ONLY) */}
+                    {(() => {
+                        const inputVal = Number(data.bobot_maksimum) || 0;
+                        const currentUsed =
+                            modalMode === "edit"
+                                ? totalBobot -
+                                  (selectedItem
+                                      ? Number(selectedItem.bobot_maksimum)
+                                      : 0)
+                                : totalBobot;
+                        const sisa = 100 - (currentUsed + inputVal);
+
+                        return (
+                            <div
+                                className={`text-xs ${
+                                    sisa < 0
+                                        ? "text-red-400" 
+                                        : "text-gray-500"
+                                }`}
+                            >
+                                {sisa < 0 ? (
+                                    <span>
+                                        (Hitungan: Melebihi batas sebesar{" "}
+                                        {Math.abs(sisa)} poin)
+                                    </span>
+                                ) : (
+                                    <>
+                                        Sisa bobot yang tersedia:{" "}
+                                        <span className="font-bold">
+                                            {sisa}
+                                        </span>
+                                    </>
+                                )}
+                            </div>
+                        );
+                    })()}
                 </div>
             </OsModal>
 

@@ -1,27 +1,23 @@
 import React from "react";
-import { Home, ArrowLeft, Menu } from "lucide-react";
-import { usePage } from "@inertiajs/react";
-import Sidebar from "./Sidebar";
+import { Home, Menu, Undo2 } from "lucide-react";
+import { usePage, Link } from "@inertiajs/react";
 
 export default function OsHeader({
     className = "",
-    variant = "default", // 'default' | 'goback'
+    variant = "admin",
+    role,
     backLink = "/",
-    onMenuClick = () => {}
+    onMenuClick = () => {},
 }) {
-    // Ambil URL dari Inertia atau window
     const { url } = usePage() || {};
-
     const fullUrl =
         url ||
         (typeof window !== "undefined"
             ? window.location.pathname + window.location.search
             : "/");
 
-    // ❗ Hilangkan query params → contoh: "?search=123"
     const pathname = fullUrl.split("?")[0];
 
-    // Buat title → "Admin / Stase"
     const title =
         pathname
             .split("/")
@@ -33,54 +29,114 @@ export default function OsHeader({
             )
             .join(" / ") || "Dashboard";
 
+    // ===============================
+    // THEME LOGIC
+    // ===============================
+    const effectiveTheme = role
+        ? role
+        : ["mahasiswa", "penguji"].includes(variant)
+        ? variant
+        : "admin";
+
+    const isPenguji = effectiveTheme === "penguji";
+    const isMahasiswa = effectiveTheme === "mahasiswa";
+
+    const getThemeClass = () => {
+        if (isMahasiswa) {
+            return {
+                bg: "bg-[var(--os-primary-mhs)]",
+                hover: "hover:bg-[var(--os-primary-mhs-dark)]",
+                border: "border-[var(--os-primary-mhs)]",
+                text: "text-[var(--os-primary-mhs)]",
+            };
+        }
+
+        if (isPenguji) {
+            return {
+                bg: "bg-[var(--os-primary-pj)]",
+                hover: "hover:bg-[var(--os-primary-pj-dark)]",
+                border: "border-[var(--os-primary-pj)]",
+                text: "text-[var(--os-primary-pj)]",
+            };
+        }
+
+        return {
+            bg: "bg-[var(--os-primary)]",
+            hover: "hover:bg-[var(--os-primary-dark)]",
+            border: "border-[var(--os-primary)]",
+            text: "text-[var(--os-primary)]",
+        };
+    };
+
+    const theme = getThemeClass();
+
     return (
         <header
-            className={`relative row-[1_/_2] col-[1_/_2] w-full flex flex-col items-start gap-os-12 ${className} fixed`}
+            className={`relative row-[1_/_2] col-[1_/_2] w-full flex flex-col gap-os-12 ${className}`}
         >
-            <div className="flex items-center justify-between relative self-stretch w-full gap-os-12">
-                {/* 🔹 LOGIKA TOMBOL HOME / GO BACK / MENU */}
+            <div className="flex items-center justify-between w-full gap-os-12">
+                {/* ===============================
+                    BUTTON AREA
+                =============================== */}
                 {variant === "goback" ? (
-                    // Tampilkan Tombol Go Back. Di mobile/default dia akan flex, di desktop dia juga flex
-                    <a
+                    <Link
                         href={backLink}
-                        className="flex w-[46px] h-[46px] items-center justify-center relative bg-gray-600 text-white rounded-xl border border-solid border-gray-700 aspect-[1] hover:bg-gray-700 transition"
+                        className={`relative z-10 shrink-0 flex w-[46px] h-[46px] items-center justify-center rounded-xl border transition
+                            ${theme.border} ${theme.text}`}
                         aria-label="Go Back"
                     >
-                        <ArrowLeft className="relative w-[28px] h-[24px]" />
-                    </a>
+                        <Undo2 size={28} />
+                    </Link>
                 ) : (
                     <>
-                        {/* Tampilkan Tombol Home di desktop */}
-                        <a
-                            href="/admin/dashboard"
-                            className="lg:flex w-[46px] h-[46px] hidden items-center justify-center relative bg-blue-600 text-white rounded-xl border border-solid border-blue-700 aspect-[1] hover:bg-blue-700 transition"
+                        {/* HOME - Desktop */}
+                        <Link
+                            href={
+                                isMahasiswa
+                                    ? "/mahasiswa/dashboard"
+                                    : "/admin/dashboard"
+                            }
+                            className={`hidden lg:flex shrink-0 w-[46px] h-[46px] items-center justify-center rounded-xl text-white border aspect-[1] transition
+                                ${theme.bg} ${theme.hover}`}
                             aria-label="Home"
                         >
-                            <Home className="relative w-[30px] h-[26px]" />
-                        </a>
-                        {/* Tampilkan Tombol Menu di mobile */}
+                            <Home size={26} />
+                        </Link>
+
+                        {/* MENU - Mobile */}
                         <button
                             onClick={onMenuClick}
-                            className="flex lg:hidden w-[46px] h-[46px] items-center justify-center relative bg-blue-600 text-white rounded-xl border border-solid border-blue-700 aspect-[1] hover:bg-blue-700 transition"
+                            className={`relative z-10 shrink-0 flex lg:hidden w-[46px] h-[46px] items-center justify-center rounded-xl text-white border aspect-[1] transition
+                                ${theme.bg} ${theme.hover}`}
                             aria-label="Menu"
                         >
-                            <Menu className="relative w-[30px] h-[26px]" />
+                            <Menu size={26} />
                         </button>
                     </>
                 )}
-                {/* 🔹 AKHIR LOGIKA TOMBOL */}
 
-                {/* 🔹 Kotak judul utama */}
-                <div className="relative flex-1 h-[46px]">
-                    <div className="w-full bg-os-tertiary h-full flex items-center rounded-xl overflow-hidden border border-os-primary ">
-                        <h1 className="ml-5 text-os-regular text-black tracking-[0] leading-normal whitespace-nowrap">
+                {/* ===============================
+                    TITLE
+                =============================== */}
+                <div className="relative flex-1 h-[46px] min-w-0">
+                    {" "}
+                    {/* min-w-0 mencegah flex item meluap */}
+                    <div
+                        className={`w-full h-full flex items-center rounded-xl overflow-hidden border bg-white ${theme.border}`}
+                    >
+                        <h1
+                            className={`ml-5 text-os-regular tracking-normal whitespace-nowrap overflow-hidden text-ellipsis px-2 ${theme.text}`}
+                        >
                             {title}
                         </h1>
                     </div>
                 </div>
             </div>
 
-            <hr className="relative w-full border-os-primary" />
+            {/* ===============================
+                DIVIDER
+            =============================== */}
+            <hr className={`w-full ${theme.border}`} />
         </header>
     );
 }

@@ -16,7 +16,7 @@ class EnrollmentOsceFactory extends Factory
         return [
             'id_osce' => Osce::inRandomOrder()->first()->id_osce ?? Osce::factory(),
             'id_mahasiswa' => Mahasiswa::inRandomOrder()->first()->id_mahasiswa ?? Mahasiswa::factory(),
-            'catatan' => null, // Default kosong sebelum dinilai
+            'catatan' => null, 
             'tanggal_sesi' => now(),
             'jam_sesi' => '08:00',
         ];

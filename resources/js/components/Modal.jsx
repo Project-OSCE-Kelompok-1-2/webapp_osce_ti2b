@@ -1,5 +1,5 @@
 import React, { useEffect } from "react";
-import { X, Trash2, FilePlus } from "lucide-react";
+import { X, Trash2, FilePlus, Delete, FilePenLine } from "lucide-react";
 import OsButton from "./button";
 import OsIcon from "./icons";
 
@@ -9,7 +9,8 @@ export default function OsModal({
     onClose,
     title,
     subtitle,
-    variant = "add", // add | edit
+    variant = "add", 
+    themeVariant = "admin", 
     onSubmit,
     onDelete,
     onClear,
@@ -22,16 +23,59 @@ export default function OsModal({
 
     if (!show) return null;
 
-    // Title & subtitle
-    const modaltitle =
-        variant === "edit"
-            ? `Edit ${title || "Data"}`
-            : title || "Title not entered";
+    const isMahasiswa = themeVariant === "mahasiswa";
+    const isPenguji = themeVariant === "penguji";
 
-    const modalsubtitle =
-        variant === "edit"
-            ? `Editing: ${subtitle || "Data tidak ditemukan"}`
-            : subtitle || "subtitle not entered";
+    const getThemeColors = () => {
+        if (isMahasiswa) {
+            return {
+                headerBg: "bg-[var(--os-primary-mhs-dark)]",
+                primaryBg: "bg-[var(--os-primary-mhs)]",
+                primaryHover: "hover:bg-[var(--os-primary-mhs-dark)]",
+                deleteBg: "bg-[var(--os-warning)]", 
+                deleteHover: "hover:bg-red-700",
+            };
+        }
+        if (isPenguji) {
+            return {
+                headerBg: "bg-[var(--os-primary-pj-dark)]",
+                primaryBg: "bg-[var(--os-primary-pj)]",
+                primaryHover: "hover:bg-[var(--os-primary-pj-dark)]",
+                deleteBg: "bg-[var(--os-warning)]", 
+                deleteHover: "hover:bg-red-700",
+            };
+        }
+        return {
+            headerBg: "bg-blue-950", 
+            primaryBg: "bg-[var(--os-primary)]",
+            primaryHover: "hover:bg-[var(--os-primary-dark)]",
+            deleteBg: "bg-[var(--os-warning)]", 
+            deleteHover: "hover:bg-red-700",
+        };
+    };
+
+    const theme = getThemeColors();
+    const isDelete = variant === "delete"; 
+
+    const modaltitle = (() => {
+        if (isDelete) return `Hapus ${title || "Data"}`;
+        if (variant === "edit") return `Edit ${title || "Data"}`;
+        return title || "Title not entered";
+    })();
+
+    const modalsubtitle = (() => {
+        if (isDelete)
+            return `Konfirmasi penghapusan: ${
+                subtitle || "Data tidak ditemukan"
+            }`;
+        if (variant === "edit")
+            return `Editing: ${subtitle || "Data tidak ditemukan"}`;
+        return subtitle || "subtitle not entered";
+    })();
+
+    const submitButtonClasses = `flex w-full items-center justify-center gap-2 h-[48px] text-white rounded-lg transition-colors duration-200 ${theme.primaryBg} ${theme.primaryHover}`;
+
+    const deleteButtonClasses = `flex w-full items-center justify-center gap-2 h-[48px] text-white rounded-lg transition-colors duration-200 ${theme.deleteBg} ${theme.deleteHover}`;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
@@ -40,9 +84,13 @@ export default function OsModal({
                 className="relative bg-white rounded-2xl w-full md:max-w-md max-w-[90vw] text-os-paragraph max-h-[80vh] flex flex-col overflow-hidden"
             >
                 {/* Header */}
-                <header className="bg-gray-900 text-white text-center p-4 pt-8">
-                    <h2 className="text-os-subtitle font-semibold">{modaltitle}</h2>
-                    <p className="text-os-paragraph mt-1 opacity-os-alpha-25">
+                <header
+                    className={`${theme.headerBg} text-white text-center p-4 pt-8`}
+                >
+                    <h2 className="text-os-subtitle font-semibold">
+                        {modaltitle}
+                    </h2>
+                    <p className="text-os-paragraph mt-1 opacity-os-alpha-75">
                         {modalsubtitle}
                     </p>
                 </header>
@@ -56,38 +104,69 @@ export default function OsModal({
 
                 {/* Footer */}
                 <footer className="p-os-20 pt-0">
-                    {variant === "add" ? (
+                    {isDelete ? (
+                        <div className="flex items-start justify-between gap-os-14">
+                            <OsButton
+                                type="button"
+                                onClick={onClose}
+                                className="flex w-full items-center justify-center gap-2 h-[48px] bg-gray-400 text-white rounded-lg hover:bg-gray-500"
+                            >
+                                Batal
+                            </OsButton>
+                            <OsButton
+                                name="warning"
+                                type="button"
+                                onClick={onDelete}
+                            >
+                                <Trash2 size={20} />
+                                Hapus Permanen
+                            </OsButton>
+                        </div>
+                    ) : variant === "add" ? (
                         <div className="flex items-start justify-between gap-os-14">
                             <OsButton
                                 type="submit"
                                 name="primary"
-                                className="flex w-full items-center gap-2 h-[48px] text-white rounded-lg hover:bg-blue-700"
+                                className={submitButtonClasses}
                             >
                                 <FilePlus size={20} />
                                 Submit
                             </OsButton>
 
                             <OsButton
+                                name="warning"
                                 type="button"
                                 onClick={onClear}
-                                className="flex items-center gap-2 h-[48px] !bg-red-500 text-white rounded-lg hover:!bg-red-600"
+                                className={`flex items-center justify-center gap-2 h-[48px] !bg-white  rounded-lg `}
                             >
-                                <OsIcon
-                                    name={'erase'}
-                                    className="w-[24px] os-icon-light"
-                                />
+                                <Delete size={22} className="text-red-600" />
                             </OsButton>
                         </div>
                     ) : (
                         <div className="flex items-start justify-between gap-os-14">
                             <OsButton
                                 type="submit"
-                                name="primary"
-                                className="flex w-full items-center gap-2 h-[48px] text-white rounded-lg hover:bg-blue-700"
+                                name="edit"
+                                className={submitButtonClasses}
                             >
-                                <FilePlus size={20} />
+                                <FilePenLine size={20} />
                                 Simpan Perubahan
                             </OsButton>
+
+                            {/* Tombol Delete opsional untuk Edit */}
+                            {onDelete && (
+                                <OsButton
+                                    name="warning"
+                                    type="button"
+                                    onClick={onClear}
+                                    className={`flex items-center justify-center gap-2 h-[48px] !bg-white  rounded-lg `}
+                                >
+                                    <Delete
+                                        size={22}
+                                        className="text-red-600"
+                                    />
+                                </OsButton>
+                            )}
                         </div>
                     )}
                 </footer>
@@ -96,7 +175,7 @@ export default function OsModal({
                 <button
                     onClick={onClose}
                     className="absolute top-4 left-4 text-white hover:scale-110 transition
-                               bg-transparent hover:bg-transparent border-none focus:outline-none focus:ring-0"
+                                 bg-transparent hover:bg-transparent border-none focus:outline-none focus:ring-0"
                 >
                     <X size={22} />
                 </button>
