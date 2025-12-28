@@ -45,7 +45,7 @@ A comprehensive web application for managing **Objective Structured Clinical Exa
 - **Ziggy** for Laravel route handling in JavaScript
 
 ### Database
-- SQLite (default) or any Laravel-supported database
+- MySQL (default) or any Laravel-supported database
 
 ## Prerequisites
 
@@ -80,8 +80,8 @@ A comprehensive web application for managing **Objective Structured Clinical Exa
 
 5. **Database setup**
    ```bash
-   # Create SQLite database (default)
-   touch database/database.sqlite
+   # Create MySQL database (default)
+   touch database/database.MySQL
    
    # Run migrations
    php artisan migrate
