@@ -194,4 +194,4 @@ This project is open-sourced software licensed under the [MIT license](LICENSE).
 
 ---
 
-**Project OSCE (Kelompok 1-2)** © 2025
+**MOSAIC** © 2025
