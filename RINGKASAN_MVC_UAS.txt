@@ -1,0 +1,517 @@
+================================================================================
+     RINGKASAN KOMPONEN MVC - PROJEK WEBAPP OSCE TI2B
+     UNTUK KEPERLUAN UAS (UJIAN AKHIR SEMESTER)
+================================================================================
+
+📚 DAFTAR FILE DOKUMENTASI:
+1. README_MVC.md         - Panduan navigasi dokumentasi
+2. PENJELASAN_MVC.md     - Penjelasan lengkap komponen MVC (27KB)
+3. DIAGRAM_MVC_FLOW.md   - Diagram visual alur kerja (45KB)
+4. RINGKASAN_MVC_UAS.txt - File ini (ringkasan singkat)
+
+================================================================================
+🎯 APA ITU MVC?
+================================================================================
+
+MVC adalah pola arsitektur software yang memisahkan aplikasi menjadi 3 komponen:
+
+┌─────────────┬──────────────────────────────────────────────────────────────┐
+│ MODEL (M)   │ Mengelola data dan berinteraksi dengan database             │
+│             │ Lokasi: app/Models/                                          │
+│             │ Contoh: Mahasiswa.php, Penguji.php, Osce.php                │
+│             │ Jumlah: 18 models                                            │
+├─────────────┼──────────────────────────────────────────────────────────────┤
+│ VIEW (V)    │ Menampilkan user interface (UI) kepada pengguna             │
+│             │ Lokasi: resources/js/pages/ dan resources/views/            │
+│             │ Contoh: MahasiswaPage.jsx, PengujiDashboard.jsx             │
+│             │ Jumlah: 41 React components + 4 Blade templates             │
+├─────────────┼──────────────────────────────────────────────────────────────┤
+│ CONTROLLER  │ Menghubungkan Model dan View, menangani HTTP request        │
+│    (C)      │ Lokasi: app/Http/Controllers/                               │
+│             │ Contoh: MahasiswaController.php, OsceController.php         │
+│             │ Jumlah: 30+ controllers                                      │
+└─────────────┴──────────────────────────────────────────────────────────────┘
+
+================================================================================
+📂 STRUKTUR DIREKTORI PROJEK
+================================================================================
+
+webapp_osce_ti2b/
+│
+├── app/
+│   ├── Models/                  ← MODEL (18 files)
+│   │   ├── Mahasiswa.php
+│   │   ├── Penguji.php
+│   │   ├── Osce.php
+│   │   ├── NilaiOsce.php
+│   │   └── ... (14 models lagi)
+│   │
+│   ├── Http/Controllers/        ← CONTROLLER (30+ files)
+│   │   ├── Admin/
+│   │   │   ├── MahasiswaController.php
+│   │   │   ├── PengujiController.php
+│   │   │   ├── OsceController.php
+│   │   │   └── ...
+│   │   ├── Penguji/
+│   │   │   ├── DashboardController.php
+│   │   │   ├── AksiPenilaianController.php
+│   │   │   └── ...
+│   │   └── Mahasiswa/
+│   │       ├── DashboardMahasiswaController.php
+│   │       ├── NilaiMahasiswaController.php
+│   │       └── ...
+│   │
+│   ├── Services/                ← BUSINESS LOGIC (15+ files)
+│   │   ├── Admin/
+│   │   ├── Penguji/
+│   │   └── Mahasiswa/
+│   │
+│   └── Http/Middleware/         ← FILTER REQUEST (5 files)
+│
+├── resources/
+│   ├── js/pages/                ← VIEW - React (41 files)
+│   │   ├── Admin/
+│   │   │   ├── MahasiswaPage.jsx
+│   │   │   ├── PengujiPage.jsx
+│   │   │   ├── OsceListPage.jsx
+│   │   │   └── ...
+│   │   ├── Penguji/
+│   │   │   ├── PengujiDashboard.jsx
+│   │   │   ├── LivePenilaian.jsx
+│   │   │   └── ...
+│   │   └── Mahasiswa/
+│   │       ├── DashboardMahasiswa.jsx
+│   │       ├── NilaiMahasiswaDetail.jsx
+│   │       └── ...
+│   │
+│   └── views/                   ← VIEW - Blade (4 files)
+│       ├── app.blade.php
+│       └── pdf/
+│
+├── routes/                      ← ROUTING (3 files)
+│   ├── web.php
+│   ├── api.php
+│   └── console.php
+│
+└── database/
+    ├── migrations/              ← SCHEMA DATABASE
+    └── seeders/                 ← DATA AWAL
+
+================================================================================
+🔄 ALUR REQUEST-RESPONSE (FLOW MVC)
+================================================================================
+
+Contoh: Admin membuka halaman daftar mahasiswa
+
+1. USER memasukkan URL di browser
+   ↓
+   http://localhost/admin/mahasiswa
+
+2. ROUTE (routes/web.php) mencocokkan URL dengan controller
+   ↓
+   Route::get('/admin/mahasiswa', [MahasiswaController@index])
+
+3. MIDDLEWARE memeriksa autentikasi dan role
+   ↓
+   ['auth', 'role:admin'] ✅ User adalah admin yang sudah login
+
+4. CONTROLLER menerima request
+   ↓
+   MahasiswaController@index()
+
+5. CONTROLLER memanggil SERVICE untuk logika bisnis
+   ↓
+   MahasiswaService@getAll($search, $angkatan)
+
+6. SERVICE memanggil MODEL untuk query database
+   ↓
+   Mahasiswa::query()->with('enrollment')->get()
+
+7. MODEL mengeksekusi SQL query
+   ↓
+   SELECT * FROM mahasiswa LEFT JOIN enrollment...
+
+8. DATABASE mengembalikan data
+   ↓
+   [{"id": 1, "nim": "12345", "nama": "John"}, ...]
+
+9. Data kembali ke MODEL → SERVICE → CONTROLLER
+   ↓
+
+10. CONTROLLER mengirim data ke VIEW dengan Inertia
+    ↓
+    Inertia::render('Admin/MahasiswaPage', ['mahasiswa' => $data])
+
+11. INERTIA mengkonversi data ke React props
+    ↓
+
+12. VIEW (React Component) me-render HTML
+    ↓
+    const { mahasiswa } = usePage().props;
+    return <table>...</table>
+
+13. USER melihat halaman daftar mahasiswa
+    ↓
+    Tampilan tabel mahasiswa di browser
+
+================================================================================
+📋 DAFTAR 18 MODELS & FUNGSINYA
+================================================================================
+
+1.  Mahasiswa.php          - Data mahasiswa (nim, nama, kelas, prodi)
+2.  Penguji.php            - Data dosen penguji OSCE
+3.  Admin.php              - Data administrator sistem
+4.  Osce.php               - Data ujian OSCE (judul, tanggal, durasi)
+5.  Stase.php              - Data station/stase ujian
+6.  AspekPenilaian.php     - Aspek yang dinilai dalam OSCE
+7.  NilaiOsce.php          - Data nilai mahasiswa di OSCE
+8.  Enrollment.php         - Pendaftaran mahasiswa per tahun akademik
+9.  EnrollmentOsce.php     - Pendaftaran mahasiswa ke OSCE tertentu
+10. Pengguna.php           - User sistem (username, password, role)
+11. TahunAkademik.php      - Data tahun akademik
+12. MataKuliah.php         - Data mata kuliah
+13. Blok.php               - Data blok pembelajaran
+14. Ruang.php              - Data ruang ujian
+15. OsceStase.php          - Relasi antara OSCE dan Stase
+16. PoinAspekPenilaian.php - Poin penilaian tiap aspek
+17. TujuanPembelajaran.php - Tujuan pembelajaran
+18. LogoInstitusi.php      - Logo institusi pendidikan
+
+================================================================================
+🎨 CONTOH VIEW (React Component)
+================================================================================
+
+// File: resources/js/pages/Admin/MahasiswaPage.jsx
+
+import { usePage } from '@inertiajs/react';
+
+const MahasiswaPage = () => {
+    // Terima data dari controller via Inertia
+    const { mahasiswa } = usePage().props;
+    
+    return (
+        <div className="container">
+            <h1>Daftar Mahasiswa</h1>
+            
+            <table className="table">
+                <thead>
+                    <tr>
+                        <th>NIM</th>
+                        <th>Nama</th>
+                        <th>Kelas</th>
+                        <th>Prodi</th>
+                        <th>Aksi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {mahasiswa.map(mhs => (
+                        <tr key={mhs.id_mahasiswa}>
+                            <td>{mhs.nim}</td>
+                            <td>{mhs.nama}</td>
+                            <td>{mhs.kelas}</td>
+                            <td>{mhs.prodi}</td>
+                            <td>
+                                <button>Edit</button>
+                                <button>Hapus</button>
+                            </td>
+                        </tr>
+                    ))}
+                </tbody>
+            </table>
+        </div>
+    );
+};
+
+export default MahasiswaPage;
+
+================================================================================
+🎮 CONTOH CONTROLLER
+================================================================================
+
+// File: app/Http/Controllers/Admin/MahasiswaController.php
+
+class MahasiswaController extends Controller
+{
+    protected $service;
+    
+    // Dependency Injection: Service di-inject otomatis
+    public function __construct(MahasiswaService $service)
+    {
+        $this->service = $service;
+    }
+    
+    // READ: Menampilkan daftar mahasiswa
+    public function index(Request $request)
+    {
+        $search = $request->input('search');
+        $angkatan = $request->input('angkatan');
+        
+        // Panggil service untuk ambil data
+        $mahasiswa = $this->service->getAll($search, $angkatan);
+        
+        // Kirim data ke view dengan Inertia
+        return Inertia::render('Admin/MahasiswaPage', [
+            'mahasiswa' => $mahasiswa,
+        ]);
+    }
+    
+    // CREATE: Menyimpan mahasiswa baru
+    public function store(Request $request)
+    {
+        // Validasi input
+        $validated = $request->validate([
+            'nim'   => 'required|unique:mahasiswa,nim',
+            'nama'  => 'required|string|max:255',
+            'kelas' => 'required|string',
+            'prodi' => 'required|string',
+        ]);
+        
+        // Panggil service untuk simpan
+        $this->service->store($validated);
+        
+        // Redirect dengan pesan sukses
+        return redirect()->route('admin.mahasiswa.index')
+            ->with('success', 'Mahasiswa berhasil ditambahkan');
+    }
+    
+    // UPDATE: Mengupdate data mahasiswa
+    public function update(Request $request, Mahasiswa $mahasiswa)
+    {
+        $validated = $request->validate([...]);
+        $this->service->update($validated, $mahasiswa);
+        
+        return redirect()->route('admin.mahasiswa.index')
+            ->with('success', 'Data mahasiswa berhasil diupdate');
+    }
+    
+    // DELETE: Menghapus mahasiswa
+    public function destroy(Mahasiswa $mahasiswa)
+    {
+        $this->service->delete($mahasiswa);
+        
+        return redirect()->back()
+            ->with('success', 'Mahasiswa berhasil dihapus');
+    }
+}
+
+================================================================================
+💾 CONTOH MODEL
+================================================================================
+
+// File: app/Models/Mahasiswa.php
+
+class Mahasiswa extends Model
+{
+    use HasFactory;
+    
+    // Nama tabel di database
+    protected $table = 'mahasiswa';
+    
+    // Primary key
+    protected $primaryKey = 'id_mahasiswa';
+    
+    // Kolom yang boleh diisi
+    protected $fillable = [
+        'id_pengguna',
+        'nama',
+        'nim',
+        'kelas',
+        'prodi',
+        'status',
+    ];
+    
+    // RELASI KE MODEL LAIN
+    
+    // Many-to-One: Satu mahasiswa punya satu pengguna
+    public function pengguna()
+    {
+        return $this->belongsTo(Pengguna::class, 'id_pengguna');
+    }
+    
+    // One-to-Many: Satu mahasiswa punya banyak enrollment
+    public function enrollment()
+    {
+        return $this->hasMany(Enrollment::class, 'id_mahasiswa');
+    }
+    
+    // One-to-Many: Satu mahasiswa punya banyak enrollment OSCE
+    public function enrollment_osce()
+    {
+        return $this->hasMany(EnrollmentOsce::class, 'id_mahasiswa');
+    }
+}
+
+================================================================================
+⚙️ LAYER TAMBAHAN (SELAIN MVC)
+================================================================================
+
+1. SERVICE LAYER (app/Services/)
+   Fungsi: Berisi logika bisnis aplikasi
+   Contoh: MahasiswaService.php, OsceService.php
+   
+   Kenapa perlu? Agar Controller tetap "thin" (ringan) dan fokus pada
+   handling request. Logika kompleks ditaruh di Service.
+
+2. MIDDLEWARE (app/Http/Middleware/)
+   Fungsi: Filter HTTP request sebelum sampai ke Controller
+   Contoh:
+   - GuestMiddleware.php      → Cek user belum login
+   - RoleMiddleware.php       → Cek role user (admin/penguji/mahasiswa)
+   - HandleInertiaRequests.php → Handle request Inertia.js
+
+3. ROUTES (routes/)
+   Fungsi: Mapping URL ke Controller
+   Files:
+   - web.php     → Route untuk web interface
+   - api.php     → Route untuk API endpoints
+   - console.php → Route untuk Artisan commands
+
+4. IMPORTS/EXPORTS (app/Imports/, app/Exports/)
+   Fungsi: Import/export data dari/ke Excel
+   Contoh:
+   - MahasiswaImport.php
+   - TemplateMahasiswaExport.php
+
+================================================================================
+📊 CRUD OPERATIONS (Create, Read, Update, Delete)
+================================================================================
+
+┌────────────┬──────────┬────────────────────────┬─────────────────────────┐
+│ Operation  │ HTTP     │ Controller Method      │ SQL Query               │
+├────────────┼──────────┼────────────────────────┼─────────────────────────┤
+│ CREATE     │ POST     │ store()                │ INSERT INTO ...         │
+│ (Tambah)   │          │                        │                         │
+├────────────┼──────────┼────────────────────────┼─────────────────────────┤
+│ READ       │ GET      │ index() - list semua   │ SELECT * FROM ...       │
+│ (Lihat)    │          │ show() - detail satu   │ SELECT * WHERE id=...   │
+├────────────┼──────────┼────────────────────────┼─────────────────────────┤
+│ UPDATE     │ PUT/     │ update()               │ UPDATE ... SET ...      │
+│ (Edit)     │ PATCH    │                        │ WHERE id=...            │
+├────────────┼──────────┼────────────────────────┼─────────────────────────┤
+│ DELETE     │ DELETE   │ destroy()              │ DELETE FROM ...         │
+│ (Hapus)    │          │                        │ WHERE id=...            │
+└────────────┴──────────┴────────────────────────┴─────────────────────────┘
+
+================================================================================
+🔗 JENIS-JENIS RELASI DALAM MODEL
+================================================================================
+
+1. belongsTo (Many-to-One)
+   Contoh: Satu mahasiswa milik satu pengguna
+   
+   public function pengguna() {
+       return $this->belongsTo(Pengguna::class, 'id_pengguna');
+   }
+
+2. hasMany (One-to-Many)
+   Contoh: Satu mahasiswa punya banyak enrollment
+   
+   public function enrollment() {
+       return $this->hasMany(Enrollment::class, 'id_mahasiswa');
+   }
+
+3. belongsToMany (Many-to-Many)
+   Contoh: Banyak mahasiswa terdaftar di banyak OSCE
+   (Menggunakan pivot table: enrollment_osce)
+
+4. hasOne (One-to-One)
+   Contoh: Satu pengguna punya satu profile
+
+================================================================================
+🛠️ TEKNOLOGI YANG DIGUNAKAN
+================================================================================
+
+Backend:
+  ✓ Laravel (PHP Framework)
+  ✓ Eloquent ORM (Object-Relational Mapping)
+  ✓ MySQL (Database)
+
+Frontend:
+  ✓ React.js (JavaScript Library untuk UI)
+  ✓ Inertia.js (Bridge antara Laravel & React, membuat SPA)
+  ✓ Tailwind CSS (Utility-first CSS Framework)
+
+Build Tools:
+  ✓ Composer (PHP dependency manager)
+  ✓ NPM (Node package manager)
+  ✓ Vite (Frontend build tool)
+
+================================================================================
+✅ KEUNTUNGAN MENGGUNAKAN MVC
+================================================================================
+
+1. Separation of Concerns
+   → Setiap komponen punya tanggung jawab yang jelas
+   
+2. Mudah Maintenance
+   → Perubahan di satu layer tidak mempengaruhi layer lain
+   
+3. Reusable Code
+   → Model dan Service bisa dipakai ulang di berbagai Controller
+   
+4. Parallel Development
+   → Frontend (View) dan Backend (Model/Controller) bisa dikerjakan bersamaan
+   
+5. Testable
+   → Setiap layer bisa ditest secara terpisah
+
+6. Scalable
+   → Mudah menambah fitur baru tanpa merusak kode existing
+
+================================================================================
+🎯 POIN PENTING UNTUK UAS
+================================================================================
+
+1. Definisi MVC
+   - Model: Data & Database
+   - View: User Interface
+   - Controller: Penghubung Model & View
+
+2. Lokasi File
+   - Model: app/Models/
+   - View: resources/js/pages/
+   - Controller: app/Http/Controllers/
+
+3. Alur Request-Response
+   User → Route → Middleware → Controller → Service → Model → Database
+   User ← View ← Inertia ← Controller ← Service ← Model ← Database
+
+4. CRUD Operations
+   - CREATE = store() = INSERT
+   - READ = index()/show() = SELECT
+   - UPDATE = update() = UPDATE
+   - DELETE = destroy() = DELETE
+
+5. Relasi Model
+   - belongsTo (Many-to-One)
+   - hasMany (One-to-Many)
+   - belongsToMany (Many-to-Many)
+
+6. Layer Tambahan
+   - Services: Business logic
+   - Middleware: Request filtering
+   - Routes: URL mapping
+
+7. Statistik Projek OSCE
+   - 18 Models
+   - 41 React Views + 4 Blade Views
+   - 30+ Controllers
+   - 15+ Services
+
+================================================================================
+📖 CARA MEMPELAJARI LEBIH LANJUT
+================================================================================
+
+1. Baca file PENJELASAN_MVC.md untuk penjelasan detail
+2. Lihat file DIAGRAM_MVC_FLOW.md untuk diagram visual
+3. Baca file README_MVC.md untuk panduan navigasi
+4. Pelajari contoh kode yang ada di dokumentasi
+5. Coba trace alur dari satu fitur (misal: tambah mahasiswa)
+
+================================================================================
+
+Dibuat untuk keperluan UAS TI-2B
+Semoga bermanfaat dan sukses ujiannya! 🎓✨
+
+Last updated: 2026-01-04
+================================================================================
