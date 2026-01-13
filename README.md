@@ -131,15 +131,64 @@ vendor/bin/phpunit
 
 ## API Documentation
 
-The application includes a REST API with authentication via Laravel Sanctum. API documentation is auto-generated using Scramble.
+The application includes a comprehensive REST API with authentication via Laravel Sanctum. API documentation is auto-generated using Scramble.
+
+### 📚 Complete API Documentation
+
+For comprehensive API and interoperability documentation, please refer to:
+
+1. **[Proses Bisnis dan Interoperabilitas](doc/PROSES_BISNIS_DAN_INTEROPERABILITAS.md)**
+   - Penjelasan lengkap proses bisnis aplikasi
+   - Konsep dan implementasi interoperabilitas
+   - Arsitektur sistem dan alur data
+   - Skenario integrasi dengan sistem eksternal
+
+2. **[Daftar URL API](doc/DAFTAR_URL_API.md)**
+   - Daftar lengkap 64 endpoint API
+   - Parameter request dan response untuk setiap endpoint
+   - Contoh penggunaan dengan cURL dan Postman
+   - HTTP status codes dan error handling
+
+3. **[Dokumentasi Teknis API](doc/DOKUMENTASI_TEKNIS_API.md)**
+   - Panduan teknis implementasi API
+   - Autentikasi dengan Laravel Sanctum
+   - Role-based authorization
+   - Contoh integrasi (PHP, JavaScript, Python)
+   - Best practices dan troubleshooting
+
+### Quick Start API
+
+**Access Interactive Documentation:**
+```
+http://localhost/docs/api
+```
+
+**Base URL:**
+```
+http://localhost/api/v1
+```
 
 ### API Endpoints Overview
 
-| Prefix | Description |
-|--------|-------------|
-| `/api/v1/admin/*` | Admin management endpoints |
-| `/api/v1/penguji/*` | Examiner assessment endpoints |
-| `/api/v1/mahasiswa/*` | Student portal endpoints |
+| Prefix | Description | Endpoints |
+|--------|-------------|-----------|
+| `/api/v1/admin/*` | Admin management endpoints | 45 endpoints |
+| `/api/v1/penguji/*` | Examiner assessment endpoints | 10 endpoints |
+| `/api/v1/mahasiswa/*` | Student portal endpoints | 6 endpoints |
+| **Total** | | **64 endpoints** |
+
+### Authentication Example
+
+```bash
+# Login
+curl -X POST http://localhost/api/v1/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"password"}'
+
+# Use token in requests
+curl -X GET http://localhost/api/v1/admin/dashboard \
+  -H "Authorization: Bearer {your-token}"
+```
 
 ## Project Structure
 
